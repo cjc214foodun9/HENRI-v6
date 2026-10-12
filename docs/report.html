@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>HENRI v6 — Build State and Pending Decisions</title>
+<style>
+  :root { --fg: var(--foreground,#1a1a1a); --mut: var(--muted-foreground,#5a5a5a);
+          --acc: var(--accent,#2563eb); --bd: var(--border,#d8d8d8);
+          --card: var(--card,#fafafa); }
+  * { box-sizing: border-box; }
+  body { color: var(--fg); font: 14px/1.5 ui-sans-serif,system-ui,sans-serif;
+         margin: 0; max-width: 62rem; }
+  h1 { font-size: 1.35rem; margin: 0 0 .2rem; letter-spacing: -.01em; }
+  h2 { font-size: .95rem; margin: 1.6rem 0 .5rem; text-transform: uppercase;
+       letter-spacing: .07em; color: var(--mut); font-weight: 600; }
+  .sub { color: var(--mut); font-size: .85rem; margin: 0 0 1rem; }
+  table { border-collapse: collapse; width: 100%; font-size: .82rem; }
+  th,td { text-align: left; padding: .35rem .5rem; border-bottom: 1px solid var(--bd);
+          vertical-align: top; }
+  th { color: var(--mut); font-weight: 600; font-size: .72rem;
+       text-transform: uppercase; letter-spacing: .05em; }
+  code { font: .8rem/1.4 ui-monospace,SFMono-Regular,Menlo,monospace; }
+  .pill { display: inline-block; padding: .05rem .4rem; border-radius: 99px;
+          font-size: .68rem; font-weight: 600; letter-spacing: .03em;
+          border: 1px solid currentColor; white-space: nowrap; }
+  .ok { color: #16794a; } .neg { color: #a4481c; } .blk { color: #7a6a9c; }
+  .ask { color: #a4481c; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(11rem,1fr));
+          gap: .6rem; margin: .6rem 0 0; }
+  .kpi { border: 1px solid var(--bd); border-radius: .4rem; padding: .5rem .6rem;
+         background: var(--card); }
+  .kpi b { display: block; font-size: 1.05rem; letter-spacing: -.01em; }
+  .kpi span { color: var(--mut); font-size: .7rem; text-transform: uppercase;
+              letter-spacing: .05em; }
+  .flow { border: 1px solid var(--bd); border-radius: .4rem; padding: .7rem;
+          background: var(--card); overflow-x: auto; }
+  .flow ol { margin: 0; padding-left: 1.3rem; font-size: .8rem; }
+  .flow li { margin: .15rem 0; }
+  .warn { border-left: 3px solid #a4481c; padding: .5rem .7rem; margin: .5rem 0;
+          background: var(--card); font-size: .82rem; }
+  footer { margin-top: 1.6rem; padding-top: .7rem; border-top: 1px solid var(--bd);
+           color: var(--mut); font-size: .74rem; }
+</style>
+</head>
+<body>
+
+<h1>HENRI v6 — build state</h1>
+<p class="sub">CPU wave-mechanical kernel, built from scratch at
+<code>C:\Users\chan\Desktop\HENRI v6</code>. Commit <code>802e2a0</code>.
+All figures measured at production dimension <code>D = 65536</code>.</p>
+
+<h2>Verified at production dimension</h2>
+<div class="grid">
+  <div class="kpi"><span>tests</span><b>204 pass</b>9 skipped</div>
+  <div class="kpi"><span>full-D wall clock</span><b>9.48 s</b>8 stages</div>
+  <div class="kpi"><span>veto separation</span><b>1.000</b>bar 0.70</div>
+  <div class="kpi"><span>kuramoto r</span><b>0.992</b>from 0.0039</div>
+  <div class="kpi"><span>gram crosstalk</span><b>−7.2e−18</b>bar 0.12</div>
+  <div class="kpi"><span>slot bleed</span><b>0.0</b>bar 0.0015</div>
+</div>
+
+<h2>Pipeline stages</h2>
+<div class="flow">
+<ol>
+  <li><b>ingress</b> — 4-slot partition, slot 3 exactly zero. Bleed 0.0.</li>
+  <li><b>binding</b> — coherence 0.7055 = 1/√2. Saturates; does not improve with D.</li>
+  <li><b>koopman</b> — skew-Hermitian ok, <em>not</em> unitary. Raw drift 0.3514 → projected 1.1e−16.</li>
+  <li><b>kuramoto</b> — locked. 555 steps at t=2.77, predicted 2.84.</li>
+  <li><b>gram</b> — Stiefel retraction. Crosstalk 1.5e−05 → −7.2e−18.</li>
+  <li><b>sagnac</b> — ε calibrated 0.00811, not the retired literal 0.35.</li>
+  <li><b>pipeline</b> — end to end; dark port fired on the smoke input by design.</li>
+  <li><b>readout</b> — margin 6.8e−05, entropy 1.000000. <span class="pill ask">unresolved</span></li>
+</ol>
+</div>
+
+<h2>Claims falsified by measurement</h2>
+<table>
+  <tr><th>#</th><th>Claim</th><th>Measured</th></tr>
+  <tr><td>F1</td><td>Koopman operator <code>K = diag(m) + A S B†</code> is unitary</td><td class="neg">False. Drift 0.3514 at D=65536.</td></tr>
+  <tr><td>F2</td><td>Binding recovery improves with dimension</td><td class="neg">False. Saturates at 1/√2 ≈ 0.707.</td></tr>
+  <tr><td>F3</td><td>Autocorrelation of a random wave is an impulse</td><td class="neg">False. Peak mass 0.003, argmax 293.</td></tr>
+  <tr><td>F4</td><td>Symmetric retraction handles rank deficiency</td><td class="neg">False. Kept 3 collinear rows.</td></tr>
+  <tr><td>F5</td><td>Projector <code>R<sup>H</sup>R</code> equals <code>R<sup>T</sup>conj(R)</code></td><td class="neg">False. 31.7 vs 4e−14.</td></tr>
+  <tr><td>F6</td><td>Family gap is a difference in mean coherence</td><td class="neg">False. Signed mean ≈ 0; gap is in spread.</td></tr>
+  <tr><td>F7</td><td>A fixed per-component noise scale is portable</td><td class="neg">False. 0.064 at D=512, 0.72 at D=65536.</td></tr>
+  <tr><td>F8</td><td>A fixed Kuramoto step budget locks at any D</td><td class="neg">False. Lock time scales as ln(D).</td></tr>
+  <tr><td>F9</td><td>A green suite at CI dimension is evidence at production D</td><td class="neg">False. F7 and F8 passed at D=512.</td></tr>
+</table>
+
+<h2>Two defects found in this build's own harness</h2>
+<table>
+  <tr><th>Defect</th><th>How it surfaced</th></tr>
+  <tr><td>Receipt hashed its own digest</td><td class="neg">Stored digest could never authenticate the file. Caught by adding a readback check.</td></tr>
+  <tr><td><code>write_text</code> newline translation on Windows</td><td class="neg">Bytes hashed were not bytes stored. Fixed with <code>write_bytes</code>.</td></tr>
+</table>
+
+<div class="warn">
+<b>Readout plateau is UNRESOLVED, not a confirmed wall.</b>
+Margin 6.8e−05 with entropy 1.000000 is consistent with <em>both</em>
+correct behaviour on an unrelated codebook <em>and</em> genuine
+non-discrimination. The probe written to decide it failed: its
+target-present arm inserted the query as codebook row 0, so
+<code>margin = top − second</code> was 1.0 by construction. No claim in
+either direction is supported. A discriminating test needs a target that
+is present but not identical to the query.
+</div>
+
+<h2>Blocked — needs conditions this host does not have</h2>
+<table>
+  <tr><th>Item</th><th>Blocking condition</th></tr>
+  <tr><td class="blk">G-U3 swarm latency ≤ 50 µs</td><td>Needs RTX 5090 CUDA. Host reports <code>cuda_available = False</code>.</td></tr>
+  <tr><td class="blk">G-U7 VRAM ≤ 2.5 GiB</td><td>No GPU on this host.</td></tr>
+  <tr><td class="blk">G-U4 mutual information ≥ 0.95</td><td>KSG estimator not implemented.</td></tr>
+  <tr><td class="blk">G-M3 / G-M6</td><td>No trajectory bank; no 30-day aging simulation.</td></tr>
+  <tr><td class="blk">BaTiO₃ / Pockels / microcombs</td><td>Photonic substrate absent. No energy figure is measured.</td></tr>
+  <tr><td class="blk">TimescaleDB hypertables</td><td>No live database in v6.</td></tr>
+  <tr><td class="blk">448M decoder, 65M memory model</td><td>Out of scope for the first kernel.</td></tr>
+  <tr><td class="blk">NotebookLM grounding</td><td>Data-layer auth returns <code>ClientAuthenticationError</code>; <code>login --check</code> false-passes.</td></tr>
+</table>
+
+<h2>Decisions that are yours</h2>
+<table>
+  <tr><th>Decision</th><th>State</th><th>Options</th></tr>
+  <tr><td>NotebookLM remedy</td><td class="ask">BLOCKED</td>
+      <td>Manual cookie import via <code>--manual --file</code>, or upgrade CLI 0.10.1 → 0.15.4 in a fresh session.</td></tr>
+  <tr><td>License grant</td><td class="ask">UNDECIDED</td>
+      <td>Do not infer MIT. <code>LICENSE-NOTICE.md</code> awaits an owner decision.</td></tr>
+  <tr><td>Next research objective</td><td class="ask">OPEN</td>
+      <td>The production-D readout decisiveness question is the most informative open result in this build.</td></tr>
+</table>
+
+<h2>Non-claims</h2>
+<p class="sub">No ARC task was attempted or solved. No benchmark score was
+produced. No photonic energy figure is promoted to measurement. No
+biology-to-physics translation is claimed. A green test suite means the
+code works; it does not mean the model is intelligent.</p>
+
+<footer>
+Reproduce: <code>python -m pytest</code> and
+<code>python scripts/run_kernel_smoke.py --dim 65536</code>.
+Full-D receipt sha256
+<code>3586a0b4e22ca04244aeef50ea4b65c873ac7fdd65fbd5a0f9da49be2a142e3a</code>,
+readback verified. All 14 measurements reproduce bit-for-bit from a
+clean clone of <code>802e2a0</code>. Pre-fix receipt preserved as
+<code>kernel_smoke_full_D_prefix.json</code>.
+</footer>
+
+</body>
+</html>
