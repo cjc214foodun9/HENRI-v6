@@ -165,6 +165,69 @@ def calibrate_epsilon(
     )
 
 
+def perturb_with_coherence(
+    state: WaveState,
+    target_coherence: float,
+    rng: np.random.Generator,
+) -> WaveState:
+    """Return a unit-norm wave whose coherence with `state` is EXACTLY ~target.
+
+    Construction
+    ------------
+    Let `v` be the unit wave, `n` a unit direction ORTHOGONAL to `v`
+    (obtained by projecting `v` out of a random draw), and
+
+        pert = v + eps * n
+
+    Then `|<v, n>| = 0`, `||pert||^2 = 1 + eps^2`, and
+
+        cos(v, pert) = 1 / sqrt(1 + eps^2)
+
+    Inverting that relation gives the EXACT scale:
+
+        eps = sqrt(1 - target^2) / target
+
+    The FIRST-ORDER form `eps = sqrt(2 * (1 - target))` is a Taylor
+    expansion of this, valid only as `target -> 1`. It is measured to
+    break down badly away from that limit:
+
+        target 0.999 -> achieved 0.999  (error 3e-6)
+        target 0.900 -> achieved 0.911  (error 1.1e-2)
+        target 0.500 -> achieved 0.708  (error 2.1e-1)  <- 42% off
+
+    The orthogonal projection matters. Without it, `Re<v, n>` is a random
+    `O(1/sqrt(D))` quantity, so the achieved coherence carries a
+    dimension-dependent wobble on top of the approximation error.
+
+    Dimension invariance
+    --------------------
+    `eps` is the TOTAL perturbation norm and `n` is unit, so the
+    construction holds `target` fixed at every `D`. A FIXED per-component
+    scale does not: a scale of 0.002 gives a relative perturbation of
+    `0.002 * sqrt(2D)` -- 0.064 at D=512 but 0.72 at D=65536. The same
+    literal is therefore a clean gold pair in CI and a destroyed one at
+    production dimension. The retired repository hit exactly this class
+    of error when a threshold calibrated at one scale was reused at
+    another.
+    """
+    if not 0.0 < target_coherence <= 1.0:
+        raise ValueError("target_coherence must be in (0, 1]")
+    cfg = state.cfg
+    eps = float(np.sqrt(max(1.0 - target_coherence**2, 0.0)) / target_coherence)
+
+    direction = (
+        rng.standard_normal(cfg.dim) + 1j * rng.standard_normal(cfg.dim)
+    )
+    # Project `state.psi` out so <psi, direction> == 0 exactly.
+    direction = direction - state.psi * np.vdot(state.psi, direction)
+    nrm = float(np.linalg.norm(direction))
+    if nrm < _EPS:
+        raise ValueError("degenerate random direction; redraw with another rng")
+    direction = direction / nrm
+
+    return WaveState.from_complex(state.psi + eps * direction, cfg)
+
+
 def veto(candidate: WaveState, axiom: WaveState, calibration: VetoCalibration) -> bool:
     """True when the candidate is REJECTED (dark port fires).
 

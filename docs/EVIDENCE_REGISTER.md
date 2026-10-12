@@ -9,16 +9,29 @@ scores and they are not capability claims.
 
 ## 1. What this build demonstrates
 
+All rows below are measured at PRODUCTION dimension `D = 65536` unless
+the row says otherwise. The full-D receipt is
+`receipts/kernel_smoke_full_D.json`, sha256
+`3586a0b4e22ca04244aeef50ea4b65c873ac7fdd65fbd5a0f9da49be2a142e3a`,
+with the digest in the sidecar `.sha256` file and a readback check that
+passes.
+
 | Item | Evidence | Label |
 |---|---|---|
 | CPU test suite passes | measured return code | `OBSERVED` |
-| Unit norm preserved by every operator | tests assert `|‖psi‖-1| < 1e-5` | `OBSERVED` |
+| Unit norm preserved by every operator | tests assert `abs(norm-1) < 1e-5` | `OBSERVED` |
 | Zero dense `D x D` allocation | guard raises; low-rank paths only | `OBSERVED` |
 | Slot bleed <= 0.0015 with zeroed slots | measured 0.0 exactly | `OBSERVED` |
-| Gram crosstalk <= 0.12 after retraction | measured <= 1e-17 orthonormal | `OBSERVED` |
+| Gram crosstalk <= 0.12 after retraction | measured -7.16e-18 at D=65536 | `OBSERVED` |
 | Hopfield energy non-increasing | measured `diff <= 1e-9` | `OBSERVED` |
-| Veto separation >= 0.70 (directive 3 bar) | calibration + labelled pairs | `OBSERVED` |
+| Veto separation >= 0.70 (directive 3) | 1.000 at D=65536, false_veto 0.000 | `OBSERVED` |
+| Kuramoto reaches lock threshold 0.880 | r 0.0039 -> 0.9919 at D=65536 | `OBSERVED` |
+| Receipt digest authenticates the bytes on disk | readback match `True` | `OBSERVED` |
 | No resonator module exists | import raises `ModuleNotFoundError` | `OBSERVED` |
+| Koopman norm drift at raw transition | 0.3514 at D=65536 | `OBSERVED` |
+
+The full-D run takes 9.48 s wall clock. It attempts no task and makes no
+capability claim.
 
 ## 2. Claims this build FALSIFIES
 
@@ -82,6 +95,61 @@ zero:
 So a threshold must be calibrated from the spread of the family that
 will be evaluated. A fixed 0.35 saturates both.
 
+### F7 - Fixed per-component noise scales are dimension-fragile
+
+The pre-fix smoke built "gold" Sagnac pairs with `0.002 * randn(D)`. The
+relative perturbation is `0.002 * sqrt(2D)`:
+
+| D | relative perturbation |
+|---|---|
+| 512 | 0.064 |
+| 65536 | 0.72 |
+
+The same literal is a clean gold pair in CI and a DESTROYED one at
+production dimension. Measured effect at D=65536: `false_veto = 1.000`,
+`separation = 0.000`. The pre-fix receipt is preserved as
+`receipts/kernel_smoke_full_D_prefix.json` (sha `2da9af43...`).
+
+Fix: `perturb_with_coherence` builds `v + eps*n` with `n` projected
+orthogonal to `v`, so `cos(v, pert) = 1/sqrt(1+eps^2)` holds exactly and
+`eps = sqrt(1 - t^2) / t`. Post-fix at D=65536: `separation = 1.000`,
+`false_veto = 0.000`.
+
+A second-order error was found inside the fix itself. The first-order
+form `eps = sqrt(2(1-t))` is a Taylor expansion valid only as `t -> 1`:
+
+| target | achieved | error |
+|---|---|---|
+| 0.999 | 0.999 | 3e-06 |
+| 0.900 | 0.911 | 1.1e-02 |
+| 0.500 | 0.708 | 2.1e-01 |
+
+### F8 - Kuramoto lock time scales as `ln(D)`
+
+The order parameter of a random phase field is `r0 ~ 1/sqrt(D)`, which is
+0.0039 at D=65536. Near `r = 0` the mean field gives `dr/dt ~ (K/2) r`,
+so the time to lock scales as `2 ln(D) / K`, not as a fixed step count.
+
+| quantity | predicted | measured |
+|---|---|---|
+| `t_lock` at D=65536, K=8 | 2.84 | lock reached at t=2.77 |
+| r before | ~0.0039 | 0.003906 |
+| r after | ~1.0 | 0.991938 |
+
+A fixed 300-step budget at `dt=1e-3` therefore cannot lock at production
+dimension. Fix: `lock_steps_for_dim(dim, coupling, dt, factor)` returns
+`ceil(2 ln(D) / (K dt))`.
+
+An earlier form hardcoded a `* 1000` factor, silently assuming
+`dt = 1e-3` while the caller used `dt = 5e-3`. It returned 11091 steps
+where 554 suffice -- a 20x overkill that costs real wall-clock.
+
+### F9 - CI dimension and production dimension disagree QUALITATIVELY
+
+Both F7 and F8 passed at D=512 and failed at D=65536. The suite was green
+throughout. A green suite at CI dimension is not evidence about
+production dimension for any dimension-scaled quantity.
+
 ## 3. Deliberate substitution
 
 `memory.py` implements a rank-`r` factorization `S = V K^H` instead of
@@ -112,6 +180,17 @@ substitution, not a port.
 - The sealed action readout measured LESS decisive than noise on live
   encoder waves (margin 0.023 vs 0.050). No floor is set from a random
   baseline.
+- **The v6 full-D readout plateau is UNRESOLVED, not a confirmed wall.**
+  Measured at D=65536: margin 6.8e-05, entropy 1.000000. That value is
+  consistent with BOTH (a) correct behaviour when the codebook is
+  unrelated to the wave, and (b) a genuine inability to discriminate.
+  `scripts/probe_readout_decisiveness.py` FAILED to decide between them:
+  its `target_present` arm inserts the query as codebook row 0, so
+  `margin = top - second` is 1.0 BY CONSTRUCTION and carries no
+  information. The `unrelated` arm is itself D-dependent (margin 0.9999
+  at D=512 versus 0.0019 at D=4096, unexplained). No claim in either
+  direction is supported by this probe. A discriminating test needs a
+  target that is present but NOT identical to the query.
 - No biology-to-physics translation is claimed. The isomorphism in the
   retired repo is a design metaphor.
 - No photonic energy figure is promoted to measurement.

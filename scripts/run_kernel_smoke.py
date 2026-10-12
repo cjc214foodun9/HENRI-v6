@@ -32,10 +32,19 @@ from henri.binding import bind, unbind  # noqa: E402
 from henri.config import N_SLOTS, WaveConfig  # noqa: E402
 from henri.gram import crosstalk, stiefel_retract  # noqa: E402
 from henri.koopman import KoopmanOperator  # noqa: E402
-from henri.kuramoto import KuramotoState, lock, order_parameter  # noqa: E402
+from henri.kuramoto import (  # noqa: E402
+    KuramotoState,
+    lock,
+    lock_steps_for_dim,
+    order_parameter,
+)
 from henri.pipeline import build_ingress, run_pipeline  # noqa: E402
 from henri.readout import centroid_snap, select  # noqa: E402
-from henri.sagnac import calibrate_epsilon, separation  # noqa: E402
+from henri.sagnac import (  # noqa: E402
+    calibrate_epsilon,
+    perturb_with_coherence,
+    separation,
+)
 from henri.state import WaveState  # noqa: E402
 
 SEED = 20261012
@@ -166,14 +175,29 @@ def main() -> int:
     log("[5/8] kuramoto")
     ku = KuramotoState.from_wave(stepped, rng=rng)
     r_before = order_parameter(ku.phases)[0]
-    ku_locked, trace = lock(ku, coupling=8.0, dt=1e-3, steps=300)
+    # The random initial order parameter is r0 ~ 1/sqrt(D), so the time
+    # to lock scales as ln(D)/(K/2). A fixed step count calibrated at
+    # small D is too short at production D -- this is a real scaling
+    # property of the mean-field dynamics, not a harness defect.
+    k_coupling, k_dt = 8.0, 5e-3
+    k_steps = lock_steps_for_dim(cfg.dim, k_coupling, dt=k_dt)
+    ku_locked, trace = lock(ku, coupling=k_coupling, dt=k_dt, steps=k_steps)
     r_after = order_parameter(ku_locked.phases)[0]
     receipt["stages"]["kuramoto"] = {
         "r_before": float(r_before),
         "r_after": float(r_after),
+        "r_init_predicted_1_over_sqrt_D": float(1.0 / np.sqrt(cfg.dim)),
+        "coupling": k_coupling,
+        "dt": k_dt,
+        "steps": int(k_steps),
+        "elapsed_time": float(k_steps * k_dt),
         "increased": bool(r_after > r_before),
         "lock_threshold": 0.880,
         "locked": bool(r_after >= 0.880),
+        "note": (
+            "r0 ~ 1/sqrt(D) makes lock time scale as ln(D)/(K/2); "
+            "a fixed step count is D-fragile"
+        ),
     }
 
     # -- stage 6: codebook + orthogonalization ------------------------
@@ -200,10 +224,10 @@ def main() -> int:
     axioms = refs[:12]
     gold, bad = [], []
     for ax in axioms:
-        noisy = ax.psi + 0.002 * (
-            rng.standard_normal(cfg.dim) + 1j * rng.standard_normal(cfg.dim)
-        )
-        gold.append((WaveState.from_complex(noisy, cfg), ax))
+        # Dimension-invariant construction: a fixed per-component noise
+        # scale would give relative perturbations of 0.064 at D=512 but
+        # 0.72 at D=65536, destroying the gold pair at production D.
+        gold.append((perturb_with_coherence(ax, 0.999, rng), ax))
         bad.append((WaveState.random(cfg, rng=rng), ax))
     stats = separation(gold, bad, calibration)
     receipt["stages"]["sagnac"] = {
@@ -221,6 +245,9 @@ def main() -> int:
     # -- stage 8: full pipeline + readout ----------------------------
     log("[8/8] pipeline")
     axiom = WaveState.from_complex(book[0], cfg)
+    # Stage 5 scales lock steps with ln(D); stage 8 must use the SAME
+    # regime, or the receipt silently mixes a locked and an unlocked
+    # phase field at the same measured dimension.
     result = run_pipeline(
         cfg=cfg,
         ingress=ingress,
@@ -229,7 +256,7 @@ def main() -> int:
         calibration=calibration,
         seed=SEED,
         relax_steps=3,
-        lock_steps=200,
+        lock_steps=lock_steps_for_dim(cfg.dim, k_coupling, dt=k_dt),
     )
     selection = select(result.cleaned, book)
     centroids = book[:6]
@@ -252,17 +279,40 @@ def main() -> int:
     receipt["status"] = "COMPLETE"
 
     # -- write and hash ------------------------------------------------
+    # PROVENANCE. The digest must authenticate the bytes on disk. An
+    # earlier version hashed the payload and then wrote `receipt_sha256`
+    # INTO that payload, so the stored digest could never match the file
+    # -- a self-refuting receipt, and the exact defect class the retired
+    # register keeps catching.
+    #
+    # Fix: serialise the payload ONCE, hash those exact bytes, write them
+    # verbatim, and emit the digest to stdout plus a sidecar file. The
+    # in-file field is deliberately absent, because any digest inside the
+    # bytes it covers is wrong by construction.
     payload = json.dumps(receipt, indent=2, sort_keys=True)
-    out_path.write_text(payload, encoding="utf-8")
-    digest = sha256_file(out_path)
-    receipt["receipt_sha256"] = digest
-    out_path.write_text(
-        json.dumps(receipt, indent=2, sort_keys=True), encoding="utf-8"
-    )
+    body = payload.encode("utf-8")
+    digest = hashlib.sha256(body).hexdigest()
+
+    # Write BYTES, not text. `Path.write_text` applies platform newline
+    # translation, so on Windows every `\n` becomes `\r\n` and the file
+    # on disk is NOT the byte string that was hashed. Measured: the first
+    # run of this check failed with `readback match: False` for exactly
+    # that reason. `write_bytes` performs no translation.
+    out_path.write_bytes(body)
+    digest_path = out_path.with_suffix(out_path.suffix + ".sha256")
+    digest_path.write_bytes((digest + "\n").encode("utf-8"))
+
+    # Read back and confirm the digest covers the bytes actually stored.
+    on_disk = sha256_file(out_path)
+    verified = on_disk == digest
 
     log(f"[done] {elapsed:.2f}s -> {out_path}")
-    log(f"[done] sha256 {digest}")
-    print(json.dumps(receipt, indent=2, sort_keys=True))
+    log(f"[done] sha256 {digest} (readback match: {verified})")
+    if not verified:
+        log("[FAIL] receipt digest does not match the bytes on disk")
+        return 2
+
+    print(payload)
     return 0
 
 

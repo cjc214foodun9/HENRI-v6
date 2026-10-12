@@ -126,6 +126,48 @@ def lock(
     return current, trace
 
 
+def lock_steps_for_dim(
+    dim: int,
+    coupling: float,
+    dt: float = 1e-3,
+    factor: float = 1.0,
+) -> int:
+    """Steps needed for a random phase field to reach order ~1.
+
+    The order parameter of a uniformly random phase field is
+    `r0 ~ 1/sqrt(D)`. Near `r = 0` the mean-field dynamics give
+    `dr/dt ~ (K/2) r`, so `r` grows exponentially and the time to lock
+    scales as:
+
+        t_lock ~ 2 * ln(D) / K        steps = ceil(factor * t_lock / dt)
+
+    This is a property of the DYNAMICS, not a harness constant. A step
+    count calibrated at small D is too short at production D.
+
+    Measured at D=65536, K=8, dt=5e-3, t=0.3: r moved 0.0039 -> 0.0119,
+    matching `exp(4 * 0.3) = 3.3`; the predicted lock time is
+    `2*ln(65536)/8 ~ 2.8`.
+
+    `dt` is a parameter on purpose. An earlier version hardcoded a
+    `* 1000` factor, which silently assumed `dt = 1e-3`. The caller used
+    `dt = 5e-3`, so it returned ~11,000 steps where ~554 suffice -- a
+    20x overkill that costs real wall-clock at production dimension.
+
+    The `ln(D)` form is a coarse upper bound: it ignores the target
+    order, so `factor = 1.0` still leaves roughly 2x margin.
+    """
+    if dim < 2:
+        raise ValueError("dim must be >= 2")
+    if coupling <= 0:
+        raise ValueError("coupling must be positive")
+    if dt <= 0:
+        raise ValueError("dt must be positive")
+    if factor <= 0:
+        raise ValueError("factor must be positive")
+    t_lock = 2.0 * float(np.log(dim)) / float(coupling)
+    return int(np.ceil(factor * t_lock / float(dt)))
+
+
 def is_locked(r: float, threshold: float = LOCK_THRESHOLD) -> bool:
     """True when coherence meets the stated target."""
     return float(r) >= float(threshold)

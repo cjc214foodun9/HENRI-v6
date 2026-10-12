@@ -92,10 +92,38 @@ class KoopmanOperator:
         """True when S = -S^H within tolerance."""
         return bool(np.allclose(self.skew, -self.skew.conj().T, atol=tol))
 
-    def is_unitary(self, tol: float = 1e-9) -> bool:
-        """True when K is unitary. Expected False for this family."""
-        mat = self.as_matrix()
-        return bool(np.allclose(mat.conj().T @ mat, np.eye(self.dim), atol=tol))
+    def is_unitary(self, tol: float = 1e-9, probes: int = 8, seed: int = 0) -> bool:
+        """True when K preserves norms.
+
+        Tested by PROBE, not by materializing K. Calling `as_matrix`
+        here would trip the C7 guard at production dimension (D = 65536
+        is a ~68 GB dense complex matrix), so the dense path is
+        restricted to the small dimensions where it is a legitimate
+        oracle.
+
+        A unitary operator preserves the norm of EVERY vector, so a set
+        of random probes is a sufficient negative test: one violated
+        probe refutes unitarity.
+        """
+        # Small dimensions: use the exact dense oracle.
+        if self.dim <= 512:
+            mat = self.as_matrix()
+            return bool(
+                np.allclose(mat.conj().T @ mat, np.eye(self.dim), atol=tol)
+            )
+
+        # Production dimensions: probe norms through the low-rank path.
+        rng = np.random.default_rng(seed)
+        for _ in range(int(probes)):
+            v = rng.standard_normal(self.dim) + 1j * rng.standard_normal(self.dim)
+            v = v / np.linalg.norm(v)
+            out = (
+                self.rotation * v
+                + self.left @ (self.skew @ (self.right.conj().T @ v))
+            )
+            if abs(np.linalg.norm(out) - 1.0) > tol:
+                return False
+        return True
 
     # -- operators -----------------------------------------------------
 
