@@ -140,8 +140,12 @@ Reproduce: <code>python -m pytest</code> and
 <code>python scripts/run_kernel_smoke.py --dim 65536</code>.
 Full-D receipt sha256
 <code>3586a0b4e22ca04244aeef50ea4b65c873ac7fdd65fbd5a0f9da49be2a142e3a</code>,
-readback verified. All 14 measurements reproduce bit-for-bit from a
-clean clone of <code>802e2a0</code>. Pre-fix receipt preserved as
+readback verified. That digest is <b>per-run</b>: the receipt embeds
+<code>wall_clock_s</code>, so clone runs produce different digests
+(<code>f617e170…</code>, <code>891a8cb5…</code>). The reproducibility
+claim is the <b>14 matching measurements</b>, not the digest. All 14
+reproduce bit-for-bit from a clean clone of <code>e992e96</code>.
+Pre-fix receipt preserved as
 <code>kernel_smoke_full_D_prefix.json</code>.
 </footer>
 
