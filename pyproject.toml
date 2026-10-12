@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "henri"
+version = "0.6.0"
+description = "HENRI v6 - wave-mechanical kernel, built from first principles."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.24"]
+
+[project.optional-dependencies]
+test = ["pytest>=7.4"]
+
+[tool.setuptools.packages.find]
+include = ["henri*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+markers = [
+    "hardware: requires GPU/CUDA; BLOCKED on CPU (skip by default)",
+    "slow: full-D (65536) run; not part of the default gate sweep",
+    "gate: ports an acceptance gate from the HENRI verification matrix",
+]
