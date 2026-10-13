@@ -624,9 +624,38 @@ A CUDA build of torch IS present (2.11.0+cu128) but `device_count()` is
 - `Get-PnpDevice -Class Display`: the NVIDIA entry (RTX 5070 Ti) reports
   `CM_PROB_PHANTOM`; both OK devices are AMD Radeon.
 - `Win32_VideoController` lists only AMD Radeon adapters.
-- `nvlddmkm.sys` is ABSENT from System32, so the NVIDIA kernel-mode
-  driver is not installed.
+- `nvlddmkm.sys` is absent from `System32\drivers`, BUT the driver package
+  IS staged: `C:\Windows\System32\DriverStore\FileRepository\nv_dispi.inf_amd64_3f8b32ec1762de58\nvlddmkm.sys`
+  exists, and the `nvlddmkm` service is registered with that PathName at
+  `State=Stopped`, `StartMode=Disabled`.
 - `nvidia-smi` fails with an insufficient-permissions error.
+- NVML loads but returns `init_rc=4` (`NVML_ERROR_NO_PERMISSION`) with a
+  device count of 0.
+
+**Correction to this section, additive, same day.** An earlier version of
+this list said `nvlddmkm.sys` is "ABSENT from System32, so the NVIDIA
+kernel-mode driver is not installed". The first clause is true and the
+second is WRONG. I searched the wrong path: a DriverStore-installed
+driver lives under `DriverStore\FileRepository`, not `System32\drivers`.
+The accurate statement is that the driver is INSTALLED BUT DISABLED, and
+its device node is non-present.
+
+**Why the device is unusable, stated precisely.** On this host (Gigabyte
+B850I AORUS PRO) the working display adapters are AMD Radeon. The NVIDIA
+entry (`PCI\VEN_10DE&DEV_2C05`, reported as RTX 5070 Ti) is a phantom
+node: `CM_PROB_PHANTOM` means the device is not present on the bus. A
+non-present node with a stopped, disabled service yields no CUDA device,
+matching the direct measurements - `torch.cuda.device_count()` is 0 on
+every interpreter and NVML reports 0 devices.
+
+**Consequence for the Blackwell directive, and it is decisive.** Even if
+the NVIDIA node were live, this host's working GPU is an AMD Radeon RX
+9070 XT, which has NO CUDA support. Blackwell G-ACT4 testing therefore
+cannot be completed on this host under any configuration; it needs a
+separate NVIDIA host. This is a hardware fact, not a permissions problem:
+no local reconfiguration produces a CUDA device on an AMD GPU. The spec
+also names RTX 5090 / GB202, so a local consumer part would not match the
+named target even if it were present.
 
 A phantom PnP entry is not a working GPU. Verdict `G-ACT4_BLOCKED`, rc=2.
 
