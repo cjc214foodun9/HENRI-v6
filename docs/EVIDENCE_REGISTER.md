@@ -434,7 +434,55 @@ still holds there at residual 0.002317 — the smallest of the three
 families. The law survives poor recall. That is a stronger result than
 the exactly-stored wellfit case and belongs in the record.
 
-### 9.1 Two defects found in `henri/memory.py`, both measured before repair
+### 9.1 Non-unit-norm drift bounds: coherent drift breaks the law, incoherent drift does not
+
+The parent probe's only non-unit control was OUT OF DOMAIN (row norms
+`[0.8224, 46.2575]`, `c_max = 47.16`). It proved the unit-norm premise is
+load bearing. It did NOT probe the regime a real learned codebook
+enters: rows slightly off the sphere.
+
+`scripts/probe_nonunit_drift_bounds.py` sweeps that regime at
+D = 65536. Receipt `receipts/nonunit_drift_bounds_full_D.json`, sha256
+`91be55a048fdbb99505930a0b0cde9ed445e3bdfe4bd9477552943542f243d3a`,
+sidecar readback verified, 100 informative cells of 104.
+
+**Scaling control: `c_max(s * rows) == s^2 * c_max(rows)` holds to
+`6.661e-16`.** This verifies the probe's own plumbing and cannot grade
+the law. An earlier draft asserted a closed-form residual that was
+wrong — the rival term carries the product of two row norms and so
+scales as `s^2` while `c_max_of` already reads the scaled rows. Caught
+before the first run and replaced with this exact identity.
+
+| family | c_max (unit) | arm | first break | max abs residual |
+|---|---|---|---|---|
+| clustered | 0.9180 | uniform | **s = 1.05** | 0.097870 |
+| clustered | 0.9180 | row-wise | none to 0.250 | 0.013731 |
+| wellfit | 0.0075 | uniform | none to 2.000 | 0.048116 |
+| wellfit | 0.0075 | row-wise | none to 0.250 | 0.003533 |
+
+**Result: COHERENT drift breaks the law; INCOHERENT drift does not.**
+Uniform scaling is a rank-1 structured perturbation. It multiplies the
+marginal term by `s^2` while the target term scales as `s`, so the bias
+grows coherently. Row-wise drift is incoherent across rows and largely
+averages out. At the swept limits the residual differs by roughly 7x
+(0.097870 versus 0.013731), and the break points differ qualitatively:
+1.05 versus never within the swept range.
+
+**Two caveats, so nobody overreads the table.**
+- For `wellfit` the sweep is noise dominated, not monotone
+  (0.004224, 0.001968, 0.002622, ...). "No break" there means no
+  monotone crossing, not that drift is harmless.
+- `wellfit` at s = 2.000 reaches 0.048116 against a 0.05 bar. That is a
+  near miss, not headroom. A bank with `c_max ~ 0` and large coherent
+  drift sits close to the bar.
+
+**Practical bound for a memory manager.** Keeping row norms within 5% of
+unity (`s <= 1.05`) keeps the law in-bar for `c_max` up to 0.918. The
+same bank tolerates row-wise drift to at least 25%. **Coherent resealing
+of the whole bank is the dangerous operation; per-row renormalization is
+not.** That distinction is the actionable output of this probe.
+
+### 9.2 Two defects found in `henri/memory.py`, both measured before repair
 
 **D1 — `write` was a total no-op that reported success.**
 The update scaled by `1 / ||K^H k||^2`. On a fresh memory `K` is zero, so
