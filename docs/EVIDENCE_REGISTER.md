@@ -171,7 +171,7 @@ substitution, not a port.
 | BaTiO3 / Pockels / microcombs | hardware substrate not present |
 | TimescaleDB hypertables | no live database in v6 |
 | 448M decoder, 65M memory model | out of scope for the first kernel |
-| License grant | owner decision outstanding |
+| License grant | RESOLVED 2026-10-12 - "Diverse Agency" License sealed; see `LICENSE-NOTICE.md` |
 
 ## 5. Non-claims
 
@@ -181,6 +181,8 @@ substitution, not a port.
   encoder waves (margin 0.023 vs 0.050). No floor is set from a random
   baseline.
 - **The v6 full-D readout plateau is UNRESOLVED, not a confirmed wall.**
+  [SUPERSEDED 2026-10-12 by section 7. Retained verbatim per the
+  additive-retraction rule. Do not edit this bullet.]
   Measured at D=65536: margin 6.8e-05, entropy 1.000000. That value is
   consistent with BOTH (a) correct behaviour when the codebook is
   unrelated to the wave, and (b) a genuine inability to discriminate.
@@ -204,3 +206,64 @@ cd "HENRI v6"
 python -m pytest                      # gate sweep, small D
 python -m pytest -m slow --run-slow   # full D = 65536
 ```
+
+## 7. Superseding record: the readout plateau is RESOLVED by a law
+
+Appended 2026-10-12. This record **supersedes** the `UNRESOLVED` bullet in
+section 5 without editing it, per the additive-retraction rule.
+
+### The law
+
+    margin ~= t * (1 - c_max)
+
+- `t` = the query's real coherence with its intended target row.
+- `c_max` = the target row's worst off-diagonal coherence against any other
+  row in the codebook.
+
+Derived before measurement, then tested against 28 pre-registered cells at
+production dimension `D = 65536`.
+
+| Metric | Measured | Bar | Label |
+|---|---|---|---|
+| max abs residual | `0.004947` | `0.05` | `OBSERVED` |
+| R^2 (predicted vs measured) | `0.9999810` | - | `OBSERVED` |
+| cells applicable | `28 / 28` | 0 excluded | `OBSERVED` |
+
+Receipt: `receipts/margin_law.json`, raw sha256
+`300e959eddbf7248ff5ade92c399ea893d021286137cfb8fe3c4f8c9986f168f`,
+readback verified. The receipt is gitignored by repo policy; the digest is
+recorded here instead, which is the established practice.
+
+### What it explains
+
+Section 5 recorded margin `6.8e-05` and entropy `1.000000` at `D=65536`,
+and could not decide between a defect and correct behaviour. The law
+decides: as `t -> 0`, the margin goes to zero for ANY codebook. The
+recorded plateau **is** that limit. It is a property of the fixture.
+
+### The engineering consequence
+
+A decisive margin of `0.10` at `t = 0.90` requires
+
+    1 - c_max >= 0.10 / 0.90 = 0.1111  =>  c_max <= 0.8889
+
+Codebook geometry, not temperature, sets the operating margin. A monotone
+transform cannot split a tie. This matches the retired repo's tie-plateau
+finding.
+
+### Correction to my own prior work
+
+`scripts/decompose_plateau_verdict.py` returned `READOUT_DEFECT` at
+`D=65536`. **That verdict is retracted.** Its conditions C1 and C2 were
+written by me and are wrong: C1 demanded a tie-group size from a different
+probe's tolerance, and C2 applied a mean-attractor test to raw-arm cells
+where it cannot hold. The script is retained, not deleted. The law above
+supersedes its verdict.
+
+### Retracted label
+
+`UNRESOLVED` is retired for this item. The residual claim is narrower than
+either prior claim: the plateau is a measured identity on synthetic
+codebooks. It is **not** evidence about learned engrams, because no learned
+codebook has been tested yet. That test is Phase 2 work.
+

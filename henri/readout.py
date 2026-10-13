@@ -90,12 +90,67 @@ def normalized_entropy(scores: np.ndarray) -> float:
     """Entropy of the softmax over scores, divided by `log(M)`.
 
     Scale-free in [0, 1]. A flat score vector gives 1.0.
+
+    DEFECT RECORDED (2026-10-12). This metric uses a UNIT-temperature
+    softmax and is therefore SCALE-BLIND for coherence-scale scores.
+    Readout scores are real coherences in `[-1, 1]`, so `s - max(s)`
+    lies in `[-2, 0]` and `exp` of it lies in `[0.135, 1]`. With `M=32`
+    the largest attainable probability is only `1/(0.135*31 + 1) ~ 0.19`,
+    so the reported entropy cannot fall below roughly 0.93 no matter
+    how decisive the score surface is.
+
+    Measured at D=4096 (`scripts/probe_metric_scale.py`):
+
+        cell           margin     entropy(beta=1)   entropy(beta=26.1)
+        unrelated      0.00523    0.99999           0.98955
+        noisy_t0.90    0.86518    0.99376           1.45e-08
+        noisy_t0.99    0.95142    0.99203           1.56e-09
+
+    A decisive cell (margin 0.87) and a non-decisive cell (margin
+    0.005) differ by 0.006 in this metric. It cannot separate them.
+    The margin separates them, and so does `entropy_at_beta`.
+
+    This function is retained BYTE-IDENTICAL so legacy receipts still
+    reproduce. Use `entropy_at_beta` for any decisiveness claim. This
+    is an additive correction, not a silent edit.
     """
     s = np.asarray(scores, dtype=np.float64).reshape(-1)
     m = s.size
     if m < 2:
         return 1.0
     z = s - np.max(s)
+    p = np.exp(z)
+    total = float(np.sum(p)) + _EPS
+    p = p / total
+    ent = float(-np.sum(p * np.log(p + _EPS)))
+    return ent / float(np.log(m))
+
+
+def entropy_at_beta(scores: np.ndarray, beta: float = 26.1) -> float:
+    """Entropy of the softmax at inverse temperature `beta`, /log(M).
+
+    The scale-aware decisiveness measure. Defaults to the retired
+    repository's fitted `beta* = 26.10` (equivalent to `T* = 0.038316`),
+    but the value is a parameter, not a transferred constant: the sweep
+    in `scripts/probe_metric_scale.py` shows any `beta >= ~8` separates
+    the decisive and non-decisive regimes on coherence-scale scores.
+
+    Args:
+        scores: raw score vector.
+        beta: inverse temperature. Must be positive.
+
+    Returns:
+        Normalized entropy in [0, 1]. Near 0 means one attractor
+        dominates; near 1 means the distribution is flat.
+    """
+    if beta <= 0:
+        raise ValueError("beta must be positive")
+    s = np.asarray(scores, dtype=np.float64).reshape(-1)
+    m = s.size
+    if m < 2:
+        return 1.0
+    z = float(beta) * (s - np.max(s))
+    z = np.clip(z, -700.0, 0.0)
     p = np.exp(z)
     total = float(np.sum(p)) + _EPS
     p = p / total
