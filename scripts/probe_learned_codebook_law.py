@@ -245,6 +245,9 @@ def main() -> int:
                 "margin": float(r.margin),
                 "predicted_margin": float(pred),
                 "residual": float(r.margin - pred),
+                "abs_residual": float(abs(r.margin - pred)),
+                "within_bar": bool(abs(r.margin - pred) <= RESIDUAL_BAR),
+                "bar_applies_to_family": bool(unit_ok),
                 "applicable": bool(applies),
                 "tie_group_size": int(r.group_size),
             })
@@ -329,11 +332,22 @@ def main() -> int:
 
     for c in rec["cells"]:
         if c["kind"] == "informative":
+            # The per-row label reports the BAR, not the argmax hit.
+            # Earlier this printed "OK" whenever `applicable` was true,
+            # so a control row with residual 2129 printed "OK". Three
+            # states now, and none of them can certify a failing arm.
+            if not c["bar_applies_to_family"]:
+                label = "CONTROL-UNGRADED"
+            elif c["within_bar"]:
+                label = "IN-BAR"
+            else:
+                label = "OUT-OF-BAR"
             print(
-                "%-18s unit=%-5s t=%.2f c_max=%+.4f margin=%+.6f pred=%+.6f resid=%+.6f %s"
-                % (c["family"], c["unit_norm_family"], c["t_requested"], c["c_max"],
-                   c["margin"], c["predicted_margin"], c["residual"],
-                   "OK" if c["applicable"] else "N/A"),
+                "%-18s unit=%-5s t=%.2f c_max=%+.4f margin=%+.6f "
+                "pred=%+.6f resid=%+.6f argmax=%d %s"
+                % (c["family"], c["unit_norm_family"], c["t_requested"],
+                   c["c_max"], c["margin"], c["predicted_margin"],
+                   c["residual"], c["argmax"], label),
                 file=sys.stderr,
             )
     for fam, m in rec["families"].items():

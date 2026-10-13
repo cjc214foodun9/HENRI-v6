@@ -411,6 +411,29 @@ derivation assumes `|M_k| = 1`; that assumption does real work.
 These are learned engrams over generated data, not a real-world corpus.
 No task was attempted or solved.
 
+**Measurement-channel correction (same day, additive).** The per-row
+label in the probe's stderr originally read `OK` whenever
+`applicable` was true, and `applicable` means only *the argmax hit the
+intended row*. It says nothing about the residual bar. A reader of the
+transcript alone therefore saw `control_nonunit resid=+2129.081451 OK`
+and could mistake the control for a pass. The aggregate verdict was
+never wrong (`control_exceeded_bar: true`), but a per-row label that
+cannot fail is a defect in its own right.
+
+The label now reports the BAR in three states — `IN-BAR`,
+`OUT-OF-BAR`, `CONTROL-UNGRADED` — and the receipt stores
+`abs_residual`, `within_bar`, and `bar_applies_to_family` as fields
+rather than deriving the verdict at print time. Verified at `D = 256`
+only. The sealed production-D receipt was deliberately NOT re-run, so
+its digest stays valid and unchanged:
+`62624b9d6eb393964fbfc16196849a450f3fada2ac264393b58eb43218e47c48`.
+
+**Note on `learned_stressed` alignment.** Its `align_mean` is 0.2462,
+not a defect: `rank 32 < k 128` makes exact storage impossible. The law
+still holds there at residual 0.002317 — the smallest of the three
+families. The law survives poor recall. That is a stronger result than
+the exactly-stored wellfit case and belongs in the record.
+
 ### 9.1 Two defects found in `henri/memory.py`, both measured before repair
 
 **D1 — `write` was a total no-op that reported success.**
