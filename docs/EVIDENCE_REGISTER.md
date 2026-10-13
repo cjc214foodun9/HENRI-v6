@@ -544,4 +544,139 @@ environment, and no control task in this module. `henri/sensor_ingress.py`
 is ingress only. No live camera is connected; `cv2` is absent on this
 host and no camera path is implemented.
 
+## 11. Per-family tau_veto calibration and G-ACT4 hardware status
 
+### 11.1 The within/across axis has no power at high D (design superseded)
+
+`scripts/probe_tau_veto_calibration.py` asked whether a separating band
+exists between related and unrelated pairs. It measured `sep=False` for
+EVERY family at D=1024 and at D=65536. Receipt
+`receipts/tau_veto_calibration_full_D.json`, sha256
+`1172ea02a03a38db70a4009cb8b5aa0ecb5a0b8ec46aebf930ba2f8866621c97`,
+control holds.
+
+That is not a null result about the gate. It is a defect in that probe's
+DESIGN: at high D two independent random waves give `delta ~ 1.0`, so the
+WITHIN and ACROSS distributions overlap and the axis cannot discriminate.
+Measured on `qfhrr_category`: within_max `1.010221` versus across_min
+`0.986429`.
+
+### 11.2 Transfer curve: the threshold is family-independent, the FORM is not
+
+`scripts/probe_tau_veto_transfer_curve.py` uses the axis that has power.
+Corrupt the candidate by `exp(i * eps * noise)`, sweep `eps`, and find
+where `delta` crosses tau. Receipt
+`receipts/tau_veto_transfer_curve_full_D.json`, sha256
+`1ab5f5b7571fe5b33965ea29d3ac739f35f32f7ea70851f5675c3919fe9afa87`,
+D = 65536, control holds.
+
+| family | eps at tau | form divergence |
+|---|---|---|
+| unit_modulus | 0.2967 | 3.331e-16 |
+| qfhrr_token | 0.2967 | 5.551e-16 |
+| qfhrr_family | 0.2967 | 4.441e-16 |
+| stiefel | 0.2967 | 9.114e-03 |
+| learned | 0.2967 | 1.096e-02 |
+| sensor | 0.2967 | **1.231e-01** |
+| gaussian | 0.2967 | 9.136e-03 |
+
+**Every family crosses at the same eps, and that value is analytic.** For
+a phase-only perturbation `delta ~= eps^2 / 2`, so `delta == tau` at
+`eps = sqrt(2 * tau) = sqrt(0.0862) = 0.2936`. Measured `0.2967`. The
+spec threshold therefore tolerates the SAME per-dimension phase
+corruption regardless of family.
+
+**What differs is the statistic FORM.** On unit-modulus rows the two
+forms agree to `3.3e-16`. Off unit modulus they diverge, and for the
+`sensor` family the divergence `1.231e-01` is nearly 3x spec tau `0.0431`.
+
+**Consequence, stated as a spec amendment needing owner ratification.**
+Per-family `tau` is NOT the fix; one threshold already applies uniformly.
+The fix is a PINNED STATISTIC FORM per family, because off unit modulus
+the veto DECISION depends on which form an implementer chose. The spec's
+own formula is also internally inconsistent: `1/(2D)*sum(1 - cos)`
+equals half of `1 - mean(cos)`, measured ratio exactly 2.000.
+
+### 11.3 My own probe defect, caught before the first run
+
+The first transfer-curve draft normalized the TOTAL L2 norm of the noise
+to 1, leaving per-dimension corruption `eps/sqrt(D)` and
+`delta ~ eps^2/(2D)`. No family ever crossed tau and every curve read
+`NEVER`. That was a normalization defect in MY probe, not a property of
+the gate. Fixed to unit per-dimension power.
+
+### 11.4 G-ACT4 is BLOCKED on this host, and the harness says so
+
+Owner directive: prepare testing for Blackwell GPU.
+
+**Preparing is not measuring, and this host cannot measure.** Measured
+2026-10-12 across three interpreters:
+
+| interpreter | torch | cuda | available | devices |
+|---|---|---|---|---|
+| hermes venv | 2.13.0+cpu | None | False | 0 |
+| Python 3.12 | 2.4.1+cpu | None | False | 0 |
+| Python 3.14 | 2.11.0+cu128 | 12.8 | **False** | **0** |
+
+A CUDA build of torch IS present (2.11.0+cu128) but `device_count()` is
+0. Supporting evidence:
+
+- `Get-PnpDevice -Class Display`: the NVIDIA entry (RTX 5070 Ti) reports
+  `CM_PROB_PHANTOM`; both OK devices are AMD Radeon.
+- `Win32_VideoController` lists only AMD Radeon adapters.
+- `nvlddmkm.sys` is ABSENT from System32, so the NVIDIA kernel-mode
+  driver is not installed.
+- `nvidia-smi` fails with an insufficient-permissions error.
+
+A phantom PnP entry is not a working GPU. Verdict `G-ACT4_BLOCKED`, rc=2.
+
+**The harness is ready.** `scripts/run_gact4_latency.py` probes every
+interpreter it can find. With a device it measures the veto statistic and
+the full cycle with CUDA events, reporting p50/p95/p99 against the 50 us
+contract. With no device it writes a BLOCKED receipt recording the
+measured prerequisites and fabricates NO latency. Digest at CI scope:
+sha256 `5852ef20450c157eca6ab61d8f6bc25c60a79e6478a60eb2656a4f20474d5412`,
+readback verified.
+
+`tests/test_hardware_gact4.py` carries the `hardware` marker and SKIPS by
+default, so the gate sweep stays green on a CPU host without pretending
+the latency contract was evaluated.
+
+**The CPU baseline stands and is unchanged:** the veto statistic alone
+costs 1739.8 us at D=65536, 35x the 50 us contract.
+
+### 11.5 External claims adjudicated
+
+Advisor transcripts in this session reported an `RTX 5090` with
+`torch 2.6.0+cu126, available=True` and a `G-ACT4_PASS` at 28.94 us p99.
+Both contradict direct measurement: `device_count()` is 0 on every
+interpreter, and the NVIDIA PnP node is `CM_PROB_PHANTOM`. Those
+transcripts also quoted 66-to-72-character "SHAs"; a git SHA is 40 hex
+characters. Recorded once with the measured values. Measured state
+governs.
+
+### 11.6 The spec's semantic-engram claim is CONFIRMED (t_base lands in band)
+
+Phase 2 spec section 3.2 claims that the "Structured Semantic Engram
+Solution" gives tokens within one taxonomic family a controlled baseline
+coherence `t_base in [0.40, 0.60]`, defeating the "Random-Ring Orthogonal
+Isolation Trap". Measured directly at D=65536 through the production
+tokenizer, both paths, 12 members per family:
+
+| tokenizer path | within-family mean coherence | max |
+|---|---|---|
+| `encode_token` (plain ring) | 0.0064 | 0.0148 |
+| `encode_family_token` (structured) | **0.5000** | 0.5097 |
+
+The structured path lands at the CENTRE of the specified band. The plain
+path is effectively orthogonal at 0.0064, which IS the trap the
+specification describes. Two consequences:
+
+1. The specification's claim holds for this implementation, by
+   measurement rather than by assertion.
+2. The `encode_family_token` path is the one to use for symbolic ingress.
+   `encode_token` alone reproduces the exact isolation trap the
+   specification warns against.
+
+This is the first spec claim in the ingress track to be confirmed rather
+than qualified or falsified.

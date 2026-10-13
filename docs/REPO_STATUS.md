@@ -17,27 +17,51 @@ kernel. All new work targets this checkout.
 | Verified at | 2026-10-12 |
 | Readback | `git ls-remote` SHA == local HEAD, AND a fresh `git fetch` of that branch reproduces the same SHA with 67 files |
 
-## Remote `main` is NOT overwritten
+## Remote `main` - PROMOTED 2026-10-12 under explicit owner approval
 
-The `HENRI-v6` remote already carried a `main` branch at `6955077`, three
-commits of an EARLIER manual upload ("Add files via upload"). Its history
-is **unrelated** to this checkout: the remote root is `bae3565`, the local
-root is `ec7effe`. There is no common ancestor, so promoting this tree to
-`main` requires a force-push over unrelated commits.
+Owner instruction: "please promote to main. i provide explicit approval."
 
-That force-push was **not performed**. It destroys history, and the
-governance rules require approval for destructive changes.
+**Recovery artifacts, created and verified BEFORE the destructive step:**
 
-Content comparison against that remote `main`:
+| Artifact | Value |
+|---|---|
+| Backup bundle | `%LOCALAPPDATA%/Temp/hv6_backups/full-20261012-201241.bundle`, 218440 bytes, `git bundle verify` ok, 7 heads, carries the old tip |
+| Earlier bundle | `%LOCALAPPDATA%/Temp/hv6_backups/henri-v6-backup-20261012-200838.bundle`, 214886 bytes |
+| Backup ref | `backup-remote-main-6955077` -> `695507707d883e1d11abe8df9360417993552f88` |
+| Old tip object | present locally, so recovery does not depend on the network |
+
+**The old history was ARCHIVED ON THE REMOTE, not destroyed.** Before
+`main` moved, the previous tip was pushed to a new remote branch:
+
+```
+695507707d883e1d11abe8df9360417993552f88 -> refs/heads/archive/manual-upload-2026
+```
+
+That branch is still on GitHub. The earlier upload remains fully
+retrievable by anyone, so this promotion is reversible without the local
+backups.
+
+**Push method: `--force-with-lease` pinned to the old tip.** The lease
+would have aborted the push had any other writer moved `main` between the
+read and the write. It succeeded.
+
+**Post-push readback** (`git ls-remote`, not the push message):
+
+| Ref | SHA |
+|---|---|
+| `refs/heads/main` | `1b80961fde76ac8d7c36941c4770629a8bdbfc80` = local HEAD |
+| `refs/heads/archive/manual-upload-2026` | `695507707d883e1d11abe8df9360417993552f88` |
+| `refs/heads/review/phase3-active-inference` | `1b80961fde76ac8d7c36941c4770629a8bdbfc80` |
+
+Content comparison against the superseded remote `main`:
 
 | File | Status |
 |---|---|
 | `binding.py`, `config.py`, `gram.py`, `koopman.py`, `langevin.py`, `pipeline.py`, `sagnac.py` | **byte-identical** |
-| `hopfield.py`, `kuramoto.py`, `memory.py`, `readout.py`, `state.py` | **differ** — these are exactly the five files repaired in this session |
+| `hopfield.py`, `kuramoto.py`, `memory.py`, `readout.py`, `state.py` | **differ** - exactly the five files repaired in this session |
 
-Promotion to `main` is an owner decision. The two safe routes are a pull
-request from `review/phase3-active-inference`, or an explicit approval for
-a force-push. No third route was taken silently.
+The five differing files are the repaired ones, so the promotion carries
+the session's fixes rather than discarding them.
 
 ## Retired repositories
 
