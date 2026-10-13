@@ -33,6 +33,17 @@ class WaveState:
     psi: np.ndarray
     cfg: WaveConfig
     settled: bool = field(default=True)
+    cleaned: bool = field(default=False)
+    """True once a Hopfield/CCCP relaxation has touched this state.
+
+    Phase 3 gate G-ACT1 requires the Sagnac veto to read a PRE-cleanup
+    candidate. The specification phrases that as
+    `assert psi_cand.settled == False`, but in this repository
+    `settled` means "normalized onto the sphere", which is True for
+    every valid candidate. Reusing it would reject correct inputs.
+    This ADDITIVE marker carries the intended meaning instead. Default
+    False, so existing receipts reproduce byte-for-byte.
+    """
 
     def __post_init__(self) -> None:
         self.psi = np.asarray(self.psi, dtype=np.complex128).reshape(-1)
@@ -184,7 +195,7 @@ class WaveState:
         return self
 
     def copy(self) -> "WaveState":
-        return WaveState(self.psi.copy(), self.cfg, self.settled)
+        return WaveState(self.psi.copy(), self.cfg, self.settled, self.cleaned)
 
     # -- interop -------------------------------------------------------
 

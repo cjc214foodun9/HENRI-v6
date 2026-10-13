@@ -381,4 +381,96 @@ unbinding is bitwise exact on the lift.
   text has been tokenized.
 - No benchmark task was attempted or solved.
 
+## 9. Learned-codebook test of the margin law (supersedes the Phase 1 scope limit)
+
+**The open question is answered.** The Phase 1 law `margin ~= t (1 - c_max)`
+was tested on LEARNED codebooks rather than synthetic draws.
+
+Receipt `receipts/learned_codebook_law_full_D.json`, sha256
+`62624b9d6eb393964fbfc16196849a450f3fada2ac264393b58eb43218e47c48`,
+sidecar readback verified, D = 65536.
+
+| Family | learner | unit norm | max abs residual |
+|---|---|---|---|
+| learned_wellfit | k=32, rank=64 | yes | 0.002334 |
+| learned_stressed | k=128, rank=32 | yes | 0.002317 |
+| learned_clustered | k=32, rank=64 | yes | 0.002025 |
+| control_nonunit | k=128, rank=32 | **no** | **2130.2** |
+
+Verdict `LAW_CONFIRMED_ON_LEARNED`: R² 0.9999840, max absolute residual
+**0.002334** against a 0.05 bar, 12 of 12 unit-norm cells applicable.
+Rows come from `henri.memory.DeltaMemory`, the repository's own production
+learner. Target alignment 1.0000 for well-fit and clustered families, so
+the recalled rows are the stored values, not copies of the query.
+
+**The unit-norm premise is load bearing, not incidental.** The
+non-unit-norm control exceeded the bar by a factor of roughly 10⁶. The
+derivation assumes `|M_k| = 1`; that assumption does real work.
+
+**Scope limit that remains.** The learning targets are GENERATED pairs.
+These are learned engrams over generated data, not a real-world corpus.
+No task was attempted or solved.
+
+### 9.1 Two defects found in `henri/memory.py`, both measured before repair
+
+**D1 — `write` was a total no-op that reported success.**
+The update scaled by `1 / ||K^H k||^2`. On a fresh memory `K` is zero, so
+`coeff = K^H k = 0`, so `outer(x, 0) * gain` is zero for EVERY finite
+gain. Both factors stayed exactly zero forever while `updates`
+incremented. Measured on the pre-fix code:
+
+```
+write returned  : 0.0
+updates counter : 1
+||V||_F         : 0.000000000000e+00
+||K||_F         : 0.000000000000e+00
+predict(k1)     : 0.000000000000e+00
+```
+
+Repair keeps the key columns orthonormal and inserts a new column when
+the key has a component outside the stored span. Verified after repair:
+`write` returns 1.0, `||V||_F = 1.0`, `||K||_F = 1.0`, residual 0.0.
+
+**D2 — `read(iterations=3)` destroyed exact recall.**
+`S = V K^H` is not idempotent, so the extra passes moved a correct answer
+away. Measured at D=1024, k=32, rank=64:
+
+| iterations | max error |
+|---|---|
+| 1 | **9.937e-16** |
+| 2 | 1.057e+00 |
+| 3 | 1.011e+00 |
+| 5 | 1.000e+00 |
+
+Default changed to `iterations=1`. Higher values remain available for
+explicit use. Direct measurement of the non-idempotence:
+`||V K^H v0 - v0|| = 1.030` for a stored value `v0`.
+
+**Why the existing tests missed both.** They asserted `after <= before`,
+`delta < 1e-6`, and `updates >= start`. A total no-op satisfies all
+three. Those three assertions could not fail on broken code, so they
+carried no information. Four discriminating tests now fail on the
+pre-fix implementation. No bar was moved.
+
+## 10. Real sensor ingress (closes the SENSOR half of the transmission gap)
+
+`henri/sensor_ingress.py` accepts REAL bytes and drives
+`ContinuousSpatialEncoder` → `SubspaceRouter` → `WaveState`. It reads
+Windows wallpaper JPEGs and binary PNM/PGM through a stdlib reader, and
+uses PIL when a suffixed format needs it.
+
+**It fails closed.** An undecodable source raises; it never substitutes
+synthetic bytes. A silent substitution would reintroduce exactly the
+synthetic-input problem this module removes.
+
+**The real-data claim is tested, not asserted.** A test separates a real
+photograph from white noise by spatial autocorrelation: the mean absolute
+adjacent-pixel difference of the photograph is under 0.6× that of
+uniform noise. Gaussian draws do not have that property.
+
+**The ACTUATOR half stays open.** There is no action egress, no
+environment, and no control task in this module. `henri/sensor_ingress.py`
+is ingress only. No live camera is connected; `cv2` is absent on this
+host and no camera path is implemented.
+
 

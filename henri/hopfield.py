@@ -101,6 +101,7 @@ def cleanup(
             break
 
     settled = WaveState.from_complex(x, cfg)
+    settled.cleaned = True
     return settled, np.asarray(trace, dtype=np.float64)
 
 
