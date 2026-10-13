@@ -267,3 +267,118 @@ either prior claim: the plateau is a measured identity on synthetic
 codebooks. It is **not** evidence about learned engrams, because no learned
 codebook has been tested yet. That test is Phase 2 work.
 
+## 8. Phase 2 ingress: measured gate results
+
+Appended 2026-10-12. Production dimension `D = 65536`, `D_slot = 16384`.
+Receipt `receipts/ingress_smoke_full_D.json`, sha256
+`daf36e403f08a8d8be8d4dee2836839ddadd17908880ca19d3e563bab51cddb0`,
+readback verified against the sidecar. Wall clock 0.19 s.
+
+### 8.1 Gates that PASS
+
+| Gate | Claim | Measured | Bar | Label |
+|---|---|---|---|---|
+| G-ING1 | wrapped translation is a pure phase factor | `2.589e-15` | `< 1e-12` | `OBSERVED` |
+| G-ING1b | magnitude invariance under that shift | `1.986e-14` | `< 1e-12` | `OBSERVED` |
+| G-ING2 | `\|\|Psi_d\| - 1/sqrt(D)\|` | `1.735e-18` | `< 1e-15` | `OBSERVED` |
+| G-ING4 | ring unbinding recovery coherence | `1.0000000000` | `>= 0.9999` | `OBSERVED` |
+| G-U2 | mean squared off-diagonal crosstalk | `6.112605e-05` | `<= 0.12` | `OBSERVED` |
+| G-U1 | energy outside active slots | `0.0` | `== 0.0` | `OBSERVED` |
+| G-ING3 | tail sum `\|Psi_d\|^2` over `d >= 16384` | `0.0` | `== 0.0` | `OBSERVED` |
+
+`|Psi_d|` target is exactly `0.0078125 = 1/128`, so the G-ING2 bar is
+reachable in complex128. Bleed is asserted as **equality with `0.0`**, not
+a tolerance: normalization multiplies by one scalar, and zero times any
+finite scalar is exactly zero. A tolerance would hide a stray write.
+
+### 8.2 Negative controls that FAIL as required
+
+| Control | Measured | Must be |
+|---|---|---|
+| G-ING1 on a border-dropping shift | `2.467e-02` | `> 1e-3` |
+| G-ING4 via circular convolution | `0.713168` | `< 0.9999` |
+
+The convolution control reproduces F2's `~1/sqrt(2)` saturation. This is
+F2 preserved as a live test. The two binding algebras are therefore
+separable by measurement, not by prose.
+
+### 8.3 F10 - the spec's incommensurate-frequency requirement is unsatisfiable
+
+The Phase 2 spec asks for a frequency ratio
+`omega_x / omega_y not in Q`. **That is impossible on a discrete torus.**
+Exact G-ING1 covariance requires `exp(i 2pi u x)` to be periodic in `x`
+with period 1, which holds if and only if `u` is an integer; and the ratio
+of two integers is rational.
+
+Measured, both ways: fractional frequencies give a wrapped-shift residual
+near `1e-1`, integer frequencies give `2.589e-15`. The first
+implementation of this module used fractional frequencies and failed.
+
+Resolution: HENRI v6 uses a **distinct integer frequency lattice**
+(`128 x 128` at `D_slot = 16384`, `(0,0)` excluded by construction) and
+**reports** its realized collinearity rather than claiming a property the
+discrete torus cannot have. Measured lattice:
+`all_integer = True`, `distinct_pairs = 16384`, `primitive_pairs = 10043`,
+`collinear_pairs = 6341`. The collinear count is disclosed, not hidden.
+
+### 8.4 Defects found in my own Phase 2 work
+
+All three were found by running, not by reading. Each is recorded in the
+module or test docstring at the site of the fix.
+
+1. **Unit error in the phase factor.** `x` is normalized to `[0, 1)` while
+   the shift `dx` is in pixels. The phase factor needs `dx / W`. Detected
+   by a hand-check that disagreed with the derivation, before the gate ran.
+2. **Fractional frequencies break torus covariance.** Cause of F10 above.
+3. **Non-deterministic Kuramoto fixture.** `KuramotoState.from_wave` fell
+   through to `np.random.default_rng(None)`, which seeds from OS entropy.
+   Measured on one wave: identical phases, `omega` differing by `4.840156`
+   between two calls. Separately, the locking test used 400 steps where the
+   module's own `lock_steps_for_dim(512, 8.0, 1e-3)` predicts 1560, i.e.
+   `0.26x` budget. The combination made
+   `test_locking_raises_order_parameter` a coin flip: it failed inside one
+   full-suite run and passed in isolation. Both causes are fixed.
+   `from_wave` now fails closed without an explicit `rng` or `seed`,
+   mirroring the existing rule in `kuramoto_step`. **The assertion itself is
+   unchanged**, so no bar moved.
+
+### 8.5 Section 3.2 semantic path, measured
+
+| Quantity | Measured | Band |
+|---|---|---|
+| intra-family coherence | `0.500306` | `[0.35, 0.65]` |
+| cross-family coherence | `-0.011584` | `abs < 0.10` |
+| shared baseplate fraction | `0.4998` | - |
+
+Directive 2's literal `encode_token` yields mutually quasi-orthogonal
+tokens. Section 3.2 rejects that for semantic families. **Both paths are
+implemented and both are tested against their own claim**, because the two
+specification sections demand different behavior.
+
+### 8.6 Adapter between the two qFHRR surfaces
+
+Two modules carry the term `qFHRR`. They are distinct and the boundary is
+declared and tested rather than assumed:
+
+| Module | Surface | Domain | Operator |
+|---|---|---|---|
+| `henri/qfhrr.py` | continuous unit-modulus phasors | angular, float | pointwise product |
+| `henri/qfhrr_tokenizer.py` | integer ring `Z_256` | discrete, uint8 | modular addition |
+
+`to_complex_phasor` is the declared adapter. Three tests pin it: the lift
+is a legal operand for the continuous module; lifting commutes with
+binding up to a single global scale that `to_sphere` removes; and ring
+unbinding is bitwise exact on the lift.
+
+### 8.7 Non-claims for Phase 2
+
+- The spatial fields are **synthetic arrays**, not camera or tactile data.
+  No live sensor is connected. This is the "engine with no transmission"
+  gap, and it is not closed here.
+- No learned codebook was tested. The margin law remains unverified on
+  learned engrams.
+- No token vocabulary is defined. `encode_token` takes integer ids; no
+  text has been tokenized.
+- No benchmark task was attempted or solved.
+
+

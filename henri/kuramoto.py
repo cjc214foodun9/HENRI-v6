@@ -45,7 +45,27 @@ class KuramotoState:
         seed: Optional[int] = None,
         spread: float = 1.0,
     ) -> "KuramotoState":
-        """Take phases from a wave and draw natural frequencies."""
+        """Take phases from a wave and draw natural frequencies.
+
+        Determinism is not optional: pass `rng` or `seed`.
+
+        DEFECT FOUND AND FIXED (recorded, not hidden). An earlier version
+        fell through to `np.random.default_rng(None)`, which seeds from
+        OS entropy. Measured on the same input wave: phases identical,
+        `omega` differing by `4.840156` between two calls. That made
+        `test_locking_raises_order_parameter` non-reproducible, and it
+        failed once inside a full-suite run while passing in isolation.
+
+        This guard makes the whole class of defect impossible, instead of
+        repairing the call sites one at a time. It mirrors the existing
+        fail-closed rule in `kuramoto_step`, which already refuses
+        `noise > 0` without an explicit `rng`.
+        """
+        if rng is None and seed is None:
+            raise ValueError(
+                "from_wave requires an explicit rng or seed (determinism): "
+                "default_rng(None) would seed from OS entropy"
+            )
         gen = rng if rng is not None else np.random.default_rng(seed)
         phases = np.angle(state.psi).copy()
         omega = gen.standard_normal(phases.shape[0]) * spread
