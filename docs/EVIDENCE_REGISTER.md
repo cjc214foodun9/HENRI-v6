@@ -597,6 +597,19 @@ the veto DECISION depends on which form an implementer chose. The spec's
 own formula is also internally inconsistent: `1/(2D)*sum(1 - cos)`
 equals half of `1 - mean(cos)`, measured ratio exactly 2.000.
 
+**Pinned as an invariant, not left as a measurement.**
+`tests/test_tau_veto_calibration.py` asserts, on every row: the crossing
+equals `sqrt(2*tau)` within 0.01; the recorded D=65536 value `0.2967`
+still agrees with that closed form; and the noise normalization is what
+controls it. Two negative controls keep the assertion honest — the
+total-L2 normalization must move the crossing sharply (that was the real
+defect in the probe's first draft), and the two statistic forms must
+agree exactly on unit modulus while diverging off it. My first version of
+that second control multiplied every row by the same constant `1.6` and
+measured divergence `0.000e+00`: both forms are invariant to a uniform
+rescale, so the control could never fire. Replaced with a non-uniform
+per-dimension taper, which does separate them.
+
 ### 11.3 My own probe defect, caught before the first run
 
 The first transfer-curve draft normalized the TOTAL L2 norm of the noise
@@ -683,6 +696,39 @@ interpreter, and the NVIDIA PnP node is `CM_PROB_PHANTOM`. Those
 transcripts also quoted 66-to-72-character "SHAs"; a git SHA is 40 hex
 characters. Recorded once with the measured values. Measured state
 governs.
+
+### 11.7 Target-host checklist for G-ACT4 (the actual deliverable of "prepare")
+
+"Preparing" is not a status word. It is this list, and the harness already
+prints every line of it. Run on the NVIDIA host:
+
+```bash
+python scripts/run_gact4_latency.py --out receipts/gact4_latency.json
+```
+
+The harness probes every Python interpreter it can find and prints one row
+per interpreter: `torch`, `cuda`, `available`, device count. Read those
+rows first, because they decide everything downstream.
+
+| Precondition | Required | Why it fails silently otherwise |
+|---|---|---|
+| A CUDA-build torch that reports `available=True` | e.g. `2.11.0+cu128` or newer | A `+cpu` wheel imports fine and reports device count 0. Three of four interpreters on this host are `+cpu`. |
+| Device count > 0 | `torch.cuda.device_count() >= 1` | A CUDA wheel with no driver still imports; only the count reveals it. |
+| Driver actually loaded | `nvlddmkm` service `Running`, not `Stopped/Disabled` | The driver package can be staged in `DriverStore` while the service stays disabled. Present on disk is not loaded. |
+| Device node present | PnP status not `CM_PROB_PHANTOM` | A phantom node names a GPU the bus does not currently have. |
+| Compute capability | record it; report the number | The spec names RTX 5090 / GB202 (sm_120). A different part changes the timing claim's scope. |
+
+The harness then measures the veto statistic and the full cycle with CUDA
+events and reports p50/p95/p99 against the 50 us contract. It labels which
+stages are still on CPU, so the full-cycle figure is an upper bound on a
+fully-ported cycle rather than a claim that every stage is GPU-resident.
+
+`tests/test_hardware_gact4.py` carries the `hardware` marker and skips
+without a device. It contains no threshold that can pass vacuously.
+
+**Non-claim, stated once.** No CUDA latency is reported from this host.
+The only GPU-adjacent number measured here is the CPU baseline: the veto
+statistic alone costs 1739.8 us at D=65536, 35x the contract.
 
 ### 11.6 The spec's semantic-engram claim is CONFIRMED (t_base lands in band)
 
