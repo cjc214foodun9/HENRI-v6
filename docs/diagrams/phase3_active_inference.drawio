@@ -1,0 +1,66 @@
+<mxfile host="HENRI v6" agent="henri-diagrams" version="24.0.0" type="device">
+  <diagram id="phase3-loop" name="Phase 3 Active Inference">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1760" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <mxCell id="title" value="HENRI v6 &#8212; Phase 3 Closed-Loop Active Inference (D = 65536)" style="text;html=1;fontSize=20;fontStyle=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="40" y="16" width="1400" height="36" as="geometry"/>
+        </mxCell>
+        <mxCell id="sub" value="G-ACT1 separation 1.0000 (bar 0.70) &#183; G-ACT2 coherent 1.884e-12 (bar 1e-5) &#183; G-ACT3 4.441e-16 (bar 1e-6) &#183; G-ACT4 BLOCKED (no Blackwell)" style="text;html=1;fontSize=12;align=left;fontColor=#444444;" vertex="1" parent="1">
+          <mxGeometry x="40" y="58" width="1400" height="24" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="proposal" value="1. CANDIDATE PROPOSAL&#10;Koopman rollout on S^{D-1}&#10;&#10;PRE-cleanup by contract.&#10;WaveState.cleaned must be False.&#10;Reading post-Hopfield relaxes the&#10;error to ~0 and the gate cannot fail." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;spacingLeft=8;fontSize=11;verticalAlign=top;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="40" y="100" width="270" height="150" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="gate" value="2. SAGNAC HOMODYNE GATE&#10;henri/sagnac_homodyne_gate.py&#10;&#10;dtheta_d = angle(cand_d * conj(axiom_d))&#10;delta = 1 - mean_d cos(dtheta_d)&#10;&#10;IDENTICAL to henri.sagnac.sagnac_delta&#10;on unit-modulus waves: measured&#10;max |diff| = 0.000e+00.&#10;&#10;SCOPE: off unit modulus they differ.&#10;stiefel 5.6e-02 vs tau_veto 4.31e-02" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;spacingLeft=8;fontSize=11;verticalAlign=top;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="360" y="100" width="300" height="200" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="bright" value="CONSTRUCTIVE&#10;delta &lt;= 0.0431&#10;&#10;PassReceipt&#10;verified = True&#10;&#8594; Egress Dispatcher" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="720" y="100" width="220" height="86" as="geometry"/>
+        </mxCell>
+        <mxCell id="dark" value="DESTRUCTIVE (dark port)&#10;delta &gt; 0.0431&#10;&#10;I_dark = 0.5(1 - cos delta)&#10;measured 0.225674 on unrelated&#10;&#8594; SRAM_DARK_RECOIL (cap 64)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="720" y="214" width="230" height="86" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="thermo" value="3. ANISOTROPIC LANGEVIN&#10;henri/anisotropic_thermostat.py&#10;&#10;T_d = T_base + kappa(1 - exp(-dPhi_d))&#10;T_active = P_null @ T&#10;&#10;Dual form, never D x D (C7):&#10;P_null X = X - V solve(V^H V, V^H X)&#10;&#10;G-ACT2: coherent 1.884e-12&#10;        null    1.707298e+01&#10;&#10;CLAMP is required (sqrt of negative&#10;is NaN) and is nonlinear, so it&#10;reintroduces leak: 0.3622" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;spacingLeft=8;fontSize=11;verticalAlign=top;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="1030" y="100" width="290" height="240" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="env" value="4. ENVIRONMENT&#10;act(wave) -&gt; delta_score" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="720" y="340" width="230" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ramp" value="5. EXTEROCEPTIVE PHASE RAMP&#10;henri/active_inference_loop.py&#10;&#10;theta_d &lt;- theta_d + 2pi(d/D)dS  mod 2pi&#10;MAGNITUDE PRESERVED (unitary).&#10;&#10;RECOVERY, measured:&#10;  phase differencing  4.441e-16  PASS&#10;  circular correlation 1.5e+03   FAIL&#10;      |&lt;psi0,psi1&gt;| = 0 at dS = 1.0&#10;&#10;scalar rotor REFUSED: gauge&#10;invariance measured &lt; 1e-12" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;spacingLeft=8;fontSize=11;verticalAlign=top;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="360" y="340" width="300" height="240" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="seed" value="6. INGRESS (sensor half closed)&#10;henri/sensor_ingress.py&#10;&#10;REAL bytes: Windows wallpaper JPEG&#10;+ binary PNM via stdlib reader.&#10;&#10;FAILS CLOSED. Never substitutes&#10;synthetic bytes.&#10;&#10;Real-photo test: adjacent-pixel&#10;diff &lt; 0.6x uniform noise.&#10;&#10;ACTUATOR HALF STAYS OPEN.&#10;No camera on this host (cv2 absent)." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;spacingLeft=8;fontSize=11;verticalAlign=top;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="40" y="300" width="280" height="280" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="learned" value="LEARNED-CODEBOOK LAW (the open question, answered)&#10;&#10;margin ~= t (1 - c_max)  on LEARNED engrams&#10;henri.memory.DeltaMemory rows, D = 65536&#10;&#10;R2 0.9999840   max abs residual 0.002334   bar 0.05&#10;12/12 unit-norm cells applicable&#10;&#10;NON-UNIT-NORM CONTROL: residual 2130.2&#10;=> the unit-norm premise is LOAD BEARING.&#10;&#10;SCOPE: targets are GENERATED pairs, not a real corpus.&#10;No task attempted or solved." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=left;spacingLeft=8;fontSize=11;verticalAlign=top;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="720" y="430" width="600" height="150" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#6c8ebf;" edge="1" parent="1" source="proposal" target="gate"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#82b366;" edge="1" parent="1" source="gate" target="bright"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#b85450;" edge="1" parent="1" source="gate" target="dark"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#9673a6;" edge="1" parent="1" source="dark" target="thermo"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#82b366;" edge="1" parent="1" source="bright" target="env"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#d6b656;" edge="1" parent="1" source="env" target="ramp"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#999999;dashed=1;" edge="1" parent="1" source="thermo" target="proposal"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#d6b656;dashed=1;" edge="1" parent="1" source="seed" target="proposal"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <mxCell id="note" value="Editable source: docs/diagrams/phase3_active_inference.drawio &#183; Measured values only. G-ACT4 is BLOCKED, not passed: CPU veto statistic alone costs 1739.8 us at D=65536, 35x the 50 us target, and no Blackwell GPU is present." style="text;html=1;fontSize=10;fontStyle=2;align=left;fontColor=#888888;" vertex="1" parent="1">
+          <mxGeometry x="40" y="610" width="1300" height="34" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

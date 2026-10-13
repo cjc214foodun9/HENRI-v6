@@ -159,6 +159,66 @@ frequencies give <code>2.589e-15</code> and pass. v6 uses a distinct integer
 lattice and reports its realized collinearity (16384 distinct pairs, 10043
 primitive, 6341 collinear) instead of claiming a property the torus cannot have.</p>
 
+<h2>Phase 3 — closed-loop active inference</h2>
+<p class="sub">Three modules, four spec gates. G-ACT4 is <b>BLOCKED</b>, not passed.
+All numbers measured at <code>D&nbsp;=&nbsp;65536</code>.</p>
+
+<table>
+  <tr><th>Gate</th><th>Spec bar</th><th>Measured</th><th>Result</th></tr>
+  <tr><td>G-ACT1 separation</td><td>&ge; 0.7000</td><td class="ok">1.0000</td><td>PASS</td></tr>
+  <tr><td>G-ACT1 false veto on valid</td><td>&le; 0.0500</td><td class="ok">0.0000</td><td>PASS</td></tr>
+  <tr><td>G-ACT2 coherent leak</td><td>&lt; 1e-5</td><td class="ok">1.884e-12</td><td>PASS</td></tr>
+  <tr><td>G-ACT2 null relaxation</td><td>&ge; 0.15</td><td class="ok">17.07</td><td>PASS</td></tr>
+  <tr><td>G-ACT3 recovery error</td><td>&lt; 1e-6</td><td class="ok">4.441e-16</td><td>PASS</td></tr>
+  <tr><td>G-ACT4 cycle latency</td><td>&le; 50&nbsp;&micro;s</td><td class="blk">1739.8&nbsp;&micro;s (veto alone)</td><td>BLOCKED</td></tr>
+</table>
+
+<p class="sub"><b>Four spec conflicts found by measurement, before building.</b></p>
+
+<ol>
+  <li><b>The homodyne statistic is not new.</b> Measured max difference against the
+  existing <code>sagnac_delta</code>: <b>0.000e+00</b> on unit-modulus waves.
+  <i>Scope limit:</i> off unit modulus they diverge — Stiefel <b>5.6e-02</b> versus
+  <code>tau_veto</code> <b>4.31e-02</b>. The statistic can flip a veto decision.</li>
+  <li><b>The spec's own equation is internally inconsistent.</b>
+  <code>1/(2D)&Sigma;(1&minus;cos)</code> equals <b>half</b> of <code>1&minus;mean(cos)</code>.
+  Measured ratio exactly 2.000. Pinned, not silently reconciled.</li>
+  <li><b>The literal update fails its own gate.</b> Without projecting the update,
+  G-ACT2 clause 1 cannot hold. Projected: coherent <b>1.884e-12</b>. Literal: fails.
+  Both arms ship as asserted controls.</li>
+  <li><b>The stated recovery method fails its own gate.</b> Circular correlation gives
+  error <b>1.5e+03</b> against a 1e-6 bar; at <code>dS=1.0</code> its magnitude is exactly
+  <b>0</b>, so recovery is impossible that way. Phase differencing gives <b>4.441e-16</b>.</li>
+</ol>
+
+<p class="sub"><b>Two defects found in <code>henri/memory.py</code>, both measured before repair.</b>
+<code>write()</code> was a <b>total no-op that reported success</b>: it scaled by
+<code>1/||K<sup>H</sup>k||&sup2;</code>, which is zero on a fresh store, so both factors
+stayed zero forever while <code>updates</code> incremented. And <code>read(iterations=3)</code>
+<b>destroyed exact recall</b> — measured error 9.937e-16 at 1 iteration versus 1.011 at 3,
+because <code>S = V K<sup>H</sup></code> is not idempotent. The old tests asserted
+<code>after &le; before</code>, which a no-op satisfies. Four discriminating tests now fail on
+the pre-fix code.</p>
+
+<h2>Open question answered: the margin law holds on LEARNED codebooks</h2>
+<p class="sub">Receipt <code>learned_codebook_law_full_D.json</code>, sha256
+<code>62624b9d&#8230;</code>. Rows come from the repository's own
+<code>DeltaMemory</code>, not random draws.</p>
+
+<table>
+  <tr><th>Family</th><th>Shape</th><th>Unit norm</th><th>Max abs residual</th></tr>
+  <tr><td>learned_wellfit</td><td>k=32, rank=64</td><td>yes</td><td class="ok">0.002334</td></tr>
+  <tr><td>learned_stressed</td><td>k=128, rank=32</td><td>yes</td><td class="ok">0.002317</td></tr>
+  <tr><td>learned_clustered</td><td>k=32, rank=64</td><td>yes</td><td class="ok">0.002025</td></tr>
+  <tr><td>control_nonunit</td><td>k=128, rank=32</td><td><b>no</b></td><td class="bad">2130.2</td></tr>
+</table>
+
+<p class="sub"><b>Verdict <code>LAW_CONFIRMED_ON_LEARNED</code></b> — R&sup2; 0.9999840,
+max absolute residual <b>0.002334</b> against a 0.05 bar, 12 of 12 unit-norm cells
+applicable. The non-unit-norm control missed by a factor of ~10&sup6;, so the
+<b>unit-norm premise is load bearing</b>, not incidental. Scope limit: the learning
+targets are generated pairs, not a real-world corpus.</p>
+
 <h2>Decisions that are yours</h2>
 <table>
   <tr><th>Decision</th><th>State</th><th>Options</th></tr>
