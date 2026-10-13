@@ -5,7 +5,62 @@ Recorded 2026-10-12. Measured, not narrated.
 ## Authoritative kernel
 
 **HENRI v6** — `C:/Users/chan/Desktop/HENRI v6` — is the authoritative
-kernel. All new work targets this repository.
+kernel. All new work targets this checkout.
+
+## Remote
+
+| Item | Value |
+|---|---|
+| `origin` | `https://github.com/cjc214foodun9/HENRI-v6.git` |
+| Pushed branch | `review/phase3-active-inference` |
+| Verified SHA | `55d76fcb5daf975c638cbf1dd02ce48281a70eb2` |
+| Verified at | 2026-10-12 |
+| Readback | `git ls-remote` SHA == local HEAD, AND a fresh `git fetch` of that branch reproduces the same SHA with 67 files |
+
+## Remote `main` is NOT overwritten
+
+The `HENRI-v6` remote already carried a `main` branch at `6955077`, three
+commits of an EARLIER manual upload ("Add files via upload"). Its history
+is **unrelated** to this checkout: the remote root is `bae3565`, the local
+root is `ec7effe`. There is no common ancestor, so promoting this tree to
+`main` requires a force-push over unrelated commits.
+
+That force-push was **not performed**. It destroys history, and the
+governance rules require approval for destructive changes.
+
+Content comparison against that remote `main`:
+
+| File | Status |
+|---|---|
+| `binding.py`, `config.py`, `gram.py`, `koopman.py`, `langevin.py`, `pipeline.py`, `sagnac.py` | **byte-identical** |
+| `hopfield.py`, `kuramoto.py`, `memory.py`, `readout.py`, `state.py` | **differ** — these are exactly the five files repaired in this session |
+
+Promotion to `main` is an owner decision. The two safe routes are a pull
+request from `review/phase3-active-inference`, or an explicit approval for
+a force-push. No third route was taken silently.
+
+## Retired repositories
+
+The following are RETIRED research inputs. They are read-only reference:
+no new work targets them, and nothing is deleted from them.
+
+| Path / URL | Status |
+|---|---|
+| `C:/Users/chan/Desktop/HENRI 7B SWARM` | RETIRED — remote `https://github.com/cjc214foodun9/HENRI.git`, 150 branches |
+| `HENRI V2` | RETIRED — legacy primitive source |
+| `https://github.com/cjc214foodun9/HENRI.git` | RETIRED — do not push new work here |
+
+**Archival is by declaration, not deletion.** This checkout holds no
+branches of those repositories. A branch operation inside `HENRI v6`
+cannot archive them, because they live in a different checkout. Nothing
+was deleted or rewritten. The retired repositories remain available in
+full, and their verified primitives were re-derived rather than copied.
+
+Rationale for not vendoring the retired code: the audit found its
+readout saturating at chance and its `epsilon = 0.35` hardcoded for the
+wrong wave family. Primitives were re-derived from the specification and
+verified against their own gates. See `docs/EVIDENCE_REGISTER.md`.
+
 
 | Item | Value |
 |---|---|
