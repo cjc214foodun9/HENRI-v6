@@ -156,3 +156,96 @@ def test_read_shape(cfg):
     mem = DeltaMemory.build(cfg.dim, rank=16)
     key = WaveState.random(cfg, seed=41).psi
     assert mem.read(key).shape == (cfg.dim,)
+
+
+# ---------------------------------------------------------------------
+# Discriminating tests added 2026-10-12 after a measured defect.
+#
+# DEFECT: `write` scaled its update by `1 / ||K^H k||^2`. On a fresh
+# memory `K` is zero, so `coeff = K^H k = 0`, so `outer(x, 0) * gain`
+# is zero for EVERY finite gain. Both factors stayed zero forever while
+# `updates` still incremented. Measured on the pre-fix code:
+#   write returned 0.0, ||V||_F = 0.0, ||K||_F = 0.0, predict(k) = 0.0
+#
+# WHY THE EXISTING TESTS MISSED IT: they assert `after <= before`,
+# `delta < 1e-6`, and `updates >= start`. A total no-op satisfies all
+# three. Those assertions cannot fail on broken code, so they carried no
+# information. The tests below fail on the pre-fix implementation.
+# ---------------------------------------------------------------------
+
+
+def test_first_write_actually_stores_the_pair(cfg):
+    """The first write must ACQUIRE the association, not merely not-expand."""
+    mem = DeltaMemory.build(cfg.dim, rank=32)
+    key = WaveState.random(cfg, seed=70).psi
+    value = WaveState.random(cfg, seed=71).psi
+
+    before = float(np.linalg.norm(mem.residual(key, value)))
+    delta = mem.write(key, value, beta=1.0)
+    after = float(np.linalg.norm(mem.residual(key, value)))
+
+    # 1. the write must report work
+    assert delta > 0.0, "write reported no work; it was a no-op"
+    # 2. the factors must actually move
+    assert np.linalg.norm(mem.v_factors) > 0.0, "V stayed zero"
+    assert np.linalg.norm(mem.k_factors) > 0.0, "K stayed zero"
+    # 3. the prediction must acquire the value
+    assert np.linalg.norm(mem.predict(key)) > 0.5
+    # 4. the residual must COLLAPSE, not merely not-grow
+    assert after < 1e-6 * before, f"residual {before:.3e} -> {after:.3e}"
+
+
+def test_distinct_pairs_recover_to_machine_precision(cfg):
+    """A rank-r store must recall r distinct inserted pairs exactly."""
+    rank = 16
+    mem = DeltaMemory.build(cfg.dim, rank=rank)
+    pairs = [
+        (WaveState.random(cfg, seed=200 + i).psi, WaveState.random(cfg, seed=300 + i).psi)
+        for i in range(rank)
+    ]
+    for k, v in pairs:
+        mem.write(k, v, beta=1.0)
+
+    assert mem.active == rank, f"expected {rank} active columns, got {mem.active}"
+    for k, v in pairs:
+        assert float(np.linalg.norm(mem.residual(k, v))) < 1e-8
+
+
+def test_updates_counter_does_not_certify_phantom_work(cfg):
+    """The counter must correspond to real factor movement.
+
+    Pre-fix, `updates` incremented while both factors stayed exactly
+    zero. A counter that reports phantom writes is worse than none.
+    """
+    mem = DeltaMemory.build(cfg.dim, rank=32)
+    key = WaveState.random(cfg, seed=400).psi
+    value = WaveState.random(cfg, seed=401).psi
+    mem.write(key, value, beta=1.0)
+    assert mem.updates == 1
+    assert np.linalg.norm(mem.v_factors) > 0.0
+
+
+def test_replay_after_learning_is_a_true_no_op(cfg):
+    """The anti-drift property, tested where it can actually fail.
+
+    The original drift test ran on a memory that had never stored
+    anything, so it measured a constant. This one learns first.
+    """
+    mem = DeltaMemory.build(cfg.dim, rank=32)
+    pairs = [
+        (WaveState.random(cfg, seed=500 + i).psi, WaveState.random(cfg, seed=600 + i).psi)
+        for i in range(4)
+    ]
+    for k, v in pairs:
+        mem.write(k, v, beta=1.0)
+
+    v_before = mem.v_factors.copy()
+    k_before = mem.k_factors.copy()
+    for k, v in pairs:
+        assert mem.write(k, v, beta=1.0) == 0.0
+    assert np.allclose(v_before, mem.v_factors, atol=1e-12)
+    assert np.allclose(k_before, mem.k_factors, atol=1e-12)
+
+    # and the stored content is still there afterwards
+    for k, v in pairs:
+        assert float(np.linalg.norm(mem.residual(k, v))) < 1e-8

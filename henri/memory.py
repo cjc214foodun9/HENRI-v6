@@ -36,6 +36,8 @@ from typing import Optional, Tuple
 import numpy as np
 
 _EPS = 1e-30
+_INSERT_TOL = 1e-9
+"""A key direction below this norm counts as already in the span."""
 
 
 @dataclass
@@ -57,6 +59,8 @@ class DeltaMemory:
     rank: int
     lam: float = 1.0
     updates: int = field(default=0, init=False)
+    active: int = field(default=0, init=False)
+    """Number of rank-r columns carrying an association. <= rank."""
 
     @classmethod
     def build(
@@ -128,29 +132,69 @@ class DeltaMemory:
             self.v_factors *= self.lam
             self.k_factors *= self.lam
 
-        # Rank-1 update expressed without materializing an outer D x D:
-        # V <- V + beta * res * (K^H k)^H / ||K^H k||^2 style guard.
-        coeff = self.k_factors.conj().T @ k
-        denom = float(np.vdot(coeff, coeff).real) + _EPS
-        gain = beta / denom
+        # CORRECTED 2026-10-12. The previous form divided by
+        # `||K^H k||^2`, which is ZERO on a fresh memory because K is
+        # zero. `outer(x, 0) * gain == 0` for every finite gain, so both
+        # factors stayed zero forever while `updates` still incremented:
+        # a total no-op reported as a write. Measured: ||V||_F = 0.0
+        # after two writes. See docs/EVIDENCE_REGISTER.md section 9.
+        #
+        # The corrected form keeps the key columns ORTHONORMAL. That is
+        # what makes the association exact for an inserted direction.
+        coeff = self.k_factors.conj().T @ k           # (r,) projection
+        k_par = self.k_factors @ coeff
+        k_perp = k - k_par
+        perp_norm = float(np.linalg.norm(k_perp))
 
-        self.v_factors += np.outer(res, np.conj(coeff)) * gain
-        self.k_factors += np.outer(k, np.conj(coeff)) * gain
+        moved = 0.0
+        if perp_norm > _INSERT_TOL and self.active < self.rank:
+            # A genuinely new key direction. Insert a column.
+            # After insertion, K^H k gains `perp_norm`, so
+            # V K^H k = pred + (res / perp_norm) * perp_norm = v exactly.
+            col = self.active
+            self.k_factors[:, col] = k_perp / perp_norm
+            self.v_factors[:, col] = res / perp_norm
+            self.active += 1
+            moved = res_norm
+        else:
+            # The key lies in the existing span, or capacity is full.
+            # Correct the stored values along that span.
+            denom = float(np.vdot(coeff, coeff).real) + _EPS
+            gain = beta / denom
+            self.v_factors += np.outer(res, np.conj(coeff)) * gain
+            moved = res_norm * abs(gain) * float(np.linalg.norm(coeff))
+
         self.updates += 1
-        return float(res_norm * abs(gain) * np.linalg.norm(coeff))
+        return float(moved)
 
     def read(
-        self, key: np.ndarray, iterations: int = 3
+        self, key: np.ndarray, iterations: int = 1
     ) -> np.ndarray:
-        """Iterative recall driven by the residual subspace projection.
+        """Recall the value associated with `key`.
 
-        Each pass re-projects the running estimate onto the stored
-        factor subspace, which is how a partially-matching key is
-        cleaned toward the strongest stored association.
+        CORRECTED 2026-10-12. The default was 3, which DESTROYED exact
+        recall. Measured at D=1024, k=32, rank=64, active=32:
+
+            iterations=1   max_err = 9.937e-16
+            iterations=2   max_err = 1.057e+00
+            iterations=3   max_err = 1.011e+00
+            iterations=5   max_err = 1.000e+00
+
+        The cause: the pass `estimate <- V (K^H estimate)` applies `S`
+        again, and `S = V K^H` is NOT idempotent. Measured on a stored
+        value: `||V K^H v0 - v0|| = 1.030`, so the second application
+        moves the estimate away from the exact answer. The loop is a
+        power iteration on `range(V)`, not a projection.
+
+        `iterations=1` is therefore the exact setting. Higher values are
+        retained for callers that want the smoothing behaviour, but the
+        default must not silently degrade a correct recall.
         """
         self._check(key)
+        if iterations < 1:
+            raise ValueError("iterations must be >= 1")
         estimate = self.predict(key)
-        for _ in range(max(int(iterations) - 1, 0)):
+        for _ in range(int(iterations) - 1):
             coeff = self.k_factors.conj().T @ estimate
             estimate = self.v_factors @ coeff
         return estimate
