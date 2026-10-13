@@ -118,6 +118,47 @@ is present but not identical to the query.
   <tr><td class="blk">NotebookLM grounding</td><td>Data-layer auth returns <code>ClientAuthenticationError</code>; <code>login --check</code> false-passes.</td></tr>
 </table>
 
+<h2>Phase 2 — grounded multimodal ingress</h2>
+<p class="sub">Three new modules. Seven gates pass, two negative controls fail as
+required. All numbers measured at <code>D&nbsp;=&nbsp;65536</code>,
+<code>D_slot&nbsp;=&nbsp;16384</code>. Receipt
+<code>ingress_smoke_full_D.json</code>, sha256
+<code>daf36e40&#8230;</code>, sidecar readback verified. Wall clock 0.19&nbsp;s.</p>
+
+<table>
+  <tr><th>Gate</th><th>Claim</th><th>Measured</th><th>Bar</th></tr>
+  <tr><td>G-ING1</td><td>wrapped translation is a pure phase factor</td><td class="ok">2.589e-15</td><td>&lt; 1e-12</td></tr>
+  <tr><td>G-ING1b</td><td>magnitude invariance under that shift</td><td class="ok">1.986e-14</td><td>&lt; 1e-12</td></tr>
+  <tr><td>G-ING2</td><td><code>|&nbsp;|&Psi;<sub>d</sub>| &minus; 1/&radic;D&nbsp;|</code></td><td class="ok">1.735e-18</td><td>&lt; 1e-15</td></tr>
+  <tr><td>G-ING4</td><td>ring unbinding recovery coherence</td><td class="ok">1.0000000000</td><td>&ge; 0.9999</td></tr>
+  <tr><td>G-U2</td><td>mean squared off-diagonal crosstalk</td><td class="ok">6.112605e-05</td><td>&le; 0.12</td></tr>
+  <tr><td>G-U1</td><td>energy outside active slots</td><td class="ok">0.0</td><td>= 0.0</td></tr>
+  <tr><td>G-ING3</td><td>tail sum over <code>d &ge; 16384</code></td><td class="ok">0.0</td><td>= 0.0</td></tr>
+  <tr><td>control</td><td>border-dropping shift must fail</td><td class="ok">2.467e-02</td><td>&gt; 1e-3</td></tr>
+  <tr><td>control</td><td>circular-convolution arm must fail</td><td class="ok">0.713168</td><td>&lt; 0.9999</td></tr>
+</table>
+
+<p class="sub"><b>Bleed is exact zero, not a tolerance.</b> Normalization multiplies
+every component by one scalar, and zero times any finite scalar is exactly zero.
+A tolerance here would hide a stray write.</p>
+
+<p class="sub"><b>The convolution control reproduces F2's <code>1/&radic;2</code>
+saturation.</b> F2 is therefore a live test rather than a memory. Two binding
+algebras exist and are separable by measurement: circular convolution for
+continuous waves, and modular addition in <code>Z<sub>256</sub></code> for
+discrete tokens. G-ING4's <code>&ge; 0.9999</code> is provable only in the ring,
+where unbinding is exact modular subtraction.</p>
+
+<p class="sub"><b>F10 &mdash; the specification's incommensurate-frequency
+requirement is unsatisfiable.</b> The spec asks for a frequency ratio not in
+&#8474;. On a discrete torus that is impossible: exact G-ING1 covariance requires
+<code>exp(i2&pi;ux)</code> periodic in <code>x</code> with period 1, which holds
+if and only if <code>u</code> is an integer. Measured both ways: fractional
+frequencies give a residual near <code>1e-1</code> and fail the gate; integer
+frequencies give <code>2.589e-15</code> and pass. v6 uses a distinct integer
+lattice and reports its realized collinearity (16384 distinct pairs, 10043
+primitive, 6341 collinear) instead of claiming a property the torus cannot have.</p>
+
 <h2>Decisions that are yours</h2>
 <table>
   <tr><th>Decision</th><th>State</th><th>Options</th></tr>
