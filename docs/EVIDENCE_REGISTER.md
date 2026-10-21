@@ -1452,3 +1452,139 @@ covariance-whitener variant is rejected on ALGEBRA, not on a measurement.
 `c_max` moved 0.781052 -> 0.770887, which is a small reduction and must not
 be narrated as a breakthrough. The MBPP open-loop ranker does not
 discriminate. Every number above is from a receipt on disk.
+
+## 16. Phase 7: daemon live, one dead-code defect, and a tie that execution broke
+
+Phase 6 needed no re-execution. At session start `main` was already
+`611fa760e46757bd50597ef92c96caed3fdffdd9`, remote byte-equal, tree clean,
+kernel `SEALED`. Phase 7 artifacts were absent: `henri/api_server.py`,
+`henri/code_verify.py`, `henri/ast_unbinder.py`, `henri/ast_grammar_mask.py`
+and `scripts/mbpp_secure_executor.py` all missing.
+
+### 16.1 The API surface, measured before writing
+
+`grep -n "^class \|^    def " henri/api.py` returns exactly
+`rank_options`, `ingest_cartridge`, `verify_seal`. There is no
+`solve_verified_code` method on `DigitalTwinAPI`. The directive names one.
+It does not exist, so Phase 7 supplies it as a function over the real
+objects rather than pretending the method was always there.
+
+### 16.2 Dead-code class avoided, not hit
+
+`scripts/` carries **no `__init__.py`** (measured). Therefore
+`from scripts.mbpp_wave_eval import run_candidate` raises
+`ModuleNotFoundError`. A module-level import would fail loudly; a lazy
+import inside a function fails only at CALL time, which is the dead-code
+class: the module imports cleanly and nothing ever runs.
+
+`henri/code_verify.py` loads the executor by path with `importlib.util`,
+cached, so the coupling works. Measured:
+`{'available': True, 'module': 'mbpp_wave_eval.py',
+'has_run_candidate': True, 'exec_timeout': 6}`.
+
+### 16.3 The honest gate: no assertions means no verdict
+
+`solve_verified_code` returns `NO_TESTS_UNVERIFIABLE` when `tests` is
+empty. Four verdicts are distinct so an infrastructure limit cannot be
+mistaken for a wrong answer:
+
+| condition | verdict |
+|---|---|
+| no assertions supplied | `NO_TESTS_UNVERIFIABLE` |
+| executor cannot load | `EXECUTOR_UNAVAILABLE` |
+| a top-k candidate passes | `EXEC_VERIFIED` |
+| every executed candidate fails | `NO_CANDIDATES_PASS` |
+| empty pool | `NO_CANDIDATES` |
+
+Measured on a sum-of-two task with `assert add(2, 3) == 5`:
+`EXEC_VERIFIED`, winner `candidate_index 1`. Without assertions:
+`NO_TESTS_UNVERIFIABLE`. With only wrong candidates:
+`NO_CANDIDATES_PASS`.
+
+### 16.4 THE MEASURED FINDING: the wave tied, execution decided
+
+On that verify run both candidates scored `wave_score = 0.667495739` —
+**identical to nine decimals** — so `tie_group_size = 2` and
+`ranking_well_posed = false`.
+
+> The wave ranker could not tell the correct program from `a - b`. The
+> correct answer was selected because it was EXECUTED, not because it
+> resonated.
+
+This is the Phase 6 MBPP tie plateau (`mean tie-group 1.6333`) reappearing
+in the code path, and it is the load-bearing caveat for every closed-loop
+number: the value of `solve_verified_code` comes from execution
+verification, not from wave resonance. A report that credits the wave for a
+verified pass would be wrong.
+
+### 16.5 Daemon endpoints, all live through `TestClient`
+
+`henri/api_server.py` wraps the pipeline in FastAPI. 17 gates pass in
+`tests/test_phase7.py`.
+
+| endpoint | live result |
+|---|---|
+| GET /v1/health/seal | 200, `SEALED` |
+| GET /v1/health/executor | 200, `available: true` |
+| POST /v1/reason/rank | 200, `selected_index 2`, `sagnac_delta 0.4264740382535981` |
+| POST /v1/reason/rank, 1 option | 422 |
+| POST /v1/cartridges/write | 200, `rows 1` |
+| POST /v1/cartridges/mount | 200, `cartridges 1` |
+| POST /v1/cartridges/mount, unknown | **404** |
+| POST /v1/cartridges/write, unequal | 422 |
+| POST /v1/code/solve | 200, `NO_TESTS_UNVERIFIABLE` |
+| POST /v1/code/solve, with tests | 200, `EXEC_VERIFIED`, winner `candidate_index 1`, score `0.69013433` |
+| namespace isolation | `phys` stays `1` while `chem` writes |
+
+Mounting is **fail-closed**: a mount for a namespace that was never written
+is a 404, never an empty bank dressed as success. A caller that asks for
+memory must not silently receive none.
+
+### 16.6 Two defects in my own new code, caught by measurement
+
+1. `api_server.py` sized the bank from `api.backbone.dim`. Measured:
+   `hasattr(SemanticBackbone(), 'dim') == False`. Every write would have
+   raised `AttributeError`. Repaired: encode first, size the bank from the
+   actual wave width (`65536`), and return `409` on a width mismatch.
+2. `solve_verified_code` referenced a local `_started` that no longer
+   existed after an edit. The probe raised
+   `NameError: name 'started' is not defined`. The field carried no
+   information, so it was removed rather than re-added.
+
+Both were found by running the code, not by reading it.
+
+### 16.7 Rosetta unbinder, CFG mask, and the rest: BLOCKED
+
+The directive names `henri_ast_grammar_mask.py`, the Role-Keyed AST
+Unbinder, `wave_ast_decoder.py`, and `mbpp_secure_executor.py` from
+`HENRI-main`. Measured: `HENRI-main` is **not present** on this host
+(`ls "C:/Users/chan/Desktop"` lists only `HENRI v6`), `V2/` does not exist
+inside this repo, and `find` over the tree returns zero matches for
+rosetta, unbinder, grammar_mask, or secure_executor.
+
+Coupling them is **BLOCKED**, not simulated. Lean 4 proof verification and
+Cl(3,0,1) control trajectories inherit that block.
+
+### 16.8 Suite
+
+440 passed, 0 failed, 0 errors, 14 skipped: 423 from Phase 6 plus 17 new
+Phase-7 gates.
+
+### 16.9 What Phase 7 establishes, and what it does not
+
+| action | verdict |
+|---|---|
+| FastAPI daemon, 5 endpoints | live-verified through `TestClient` |
+| persistent cartridge mounting | fail-closed 404, pinned in a test |
+| closed-loop code verification | live, `EXEC_VERIFIED` on a real assertion |
+| wave ranking of code | **tied on the fixture; not discriminating** |
+| Rosetta / CFG / Lean 4 | BLOCKED, absent from this checkout |
+
+NON-CLAIMS. `tenant_id` is a namespace key, not an authenticated identity.
+There is no auth, no rate limit, no TLS, and no cross-process isolation.
+The daemon binds `127.0.0.1` only and must not be exposed without a reverse
+proxy that supplies those controls. No benchmark dominance, no SOTA, no
+market-ready API. The directive's progress framing (57 percent to 78 to
+100) is narrative, not measurement. Phase 6 numbers stand unchanged:
+`c_max 0.781052 -> 0.770887`, retrieval `0.19 -> 0.1925`, MBPP open-loop
+top-1 `0.0` (below chance), tie-group `1.6333`.
