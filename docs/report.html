@@ -469,6 +469,80 @@ rule was fixed in the module docstring before the first run: PASS when
 <code>|residual| &le; 0.05</code> for every t and top-1 is 1.0 for
 <code>t &ge; 0.5</code>.</p>
 
+<h2>Phase 4 gates — four items executed, and one of them says no</h2>
+<p class="sub">Corpora staged and digest-verified. One named arm measured at chance.
+The delay buffer bounded by exact arithmetic. The kernel sealed, and the seal tested
+by trying to break it. No score is claimed.</p>
+
+<h3>Gate 1 — corpora staged, schema verified before any code trusted them</h3>
+<table>
+  <tr><th>corpus</th><th>rows</th><th>sha256</th><th>required columns</th></tr>
+  <tr><td>mmlu.csv</td><td>14,042</td><td><code>15b6785d&#8230;</code></td><td>all present</td></tr>
+  <tr><td>gpqa_diamond.csv</td><td>198</td><td><code>41d1213c&#8230;</code></td><td>all present</td></tr>
+  <tr><td>mbpp.jsonl</td><td>974</td><td><code>ccf64cea&#8230;</code></td><td><code>text</code>, <code>code</code>, <code>test_list</code></td></tr>
+</table>
+<p>MMLU answer letters are near-uniform (A 3222, B 3462, C 3582, D 3776), so a
+fixed-letter policy cannot beat chance. Corpora are gitignored. The digests let a
+fresh clone verify its own copy.</p>
+
+<h3>Gate 2 — the named arm, and the number it produced</h3>
+<p><code>benchmarks/wave_rank.py</code> runs one arm at a time and stamps the arm on
+every receipt. It refuses to emit a score without one. The <code>v6</code> arm uses
+<code>ring_bundle</code> circular-mean bundling, the sphere lift, three slots at exact
+zero, and <code>readout.select</code> at &beta;* = 26.10.</p>
+<table>
+  <tr><th>arm</th><th>benchmark</th><th>n</th><th>correct</th><th>acc</th><th>z</th><th>p</th><th>verdict</th></tr>
+  <tr><td>v6</td><td>MMLU</td><td>400</td><td>109</td><td>0.2725</td><td>+0.98</td><td>0.163</td><td class="blk">at chance</td></tr>
+  <tr><td>chance</td><td>MMLU</td><td>400</td><td>105</td><td>0.2625</td><td>+0.52</td><td>0.302</td><td class="blk">at chance</td></tr>
+  <tr><td>v6</td><td>GPQA</td><td>198 full</td><td>59</td><td>0.2980</td><td>+1.48</td><td>0.070</td><td class="blk">at chance</td></tr>
+  <tr><td>legacy V2</td><td>MMLU</td><td>400</td><td>120</td><td>0.3000</td><td>+2.25</td><td>0.012</td><td>uncorrected</td></tr>
+</table>
+<p><strong>The v6 arm is at chance, and that is the correct result.</strong> Ingress is
+a deterministic hash of each word, so <code>car</code> and <code>automobile</code> are
+unrelated by construction. The arm measures bundling and calibrated readout, not
+meaning. The semantic backbone that would change this is unbuilt.</p>
+<p>Four arms were tested, so the legacy <code>p = 0.012</code> is uncorrected and not
+decisive. Three trivial baselines were measured to test whether it is an artefact.
+None reproduces it: longest option 0.2525 (p 0.477), most question-overlap words
+0.2475 (p 0.569), shortest option 0.1975 (below chance).</p>
+
+<h3>Gate 3 — the delay buffer, bounded by arithmetic instead of prose</h3>
+<table>
+  <tr><th>quantity</th><th>value</th><th>note</th></tr>
+  <tr><td>L2 measured, sm_120</td><td>96 MiB</td><td>corrected a 128 MiB claim</td></tr>
+  <tr><td>per worker, P=4 complex64</td><td>2,097,152 B</td><td>2.00 MiB exactly</td></tr>
+  <tr><td>B=256 full history</td><td>536,870,912 B</td><td class="neg">5.333&times; L2, impossible</td></tr>
+  <tr><td>pinned projector</td><td>33,554,432 B</td><td>32.00 MiB, not 33.55 MiB</td></tr>
+  <tr><td>capacity</td><td><strong>32 workers</strong></td><td>zero L2 slack remains</td></tr>
+</table>
+<p><strong>Unit-label defect.</strong> The analysis calls the projector 33.55 MiB. It is
+33.55 MB decimal, exactly 32 MiB binary. The labels were swapped, and every derived
+capacity was one worker low. With the binary value, <code>B_active &le; 32</code> is
+exactly saturated. 32 is an upper bound, not a working setpoint. Low-rank r=64 covers
+all 256 workers only because one basis is shared at 32 MiB; charging it per worker
+would need 8 GiB, 85&times; L2.</p>
+
+<h3>Gate 4 — the kernel is sealed, and the seal was tested by trying to break it</h3>
+<p><code>scripts/verify_kernel_integrity.py</code> hashes six kernel files from the
+<strong>git object store</strong>, not the working tree, so CRLF cannot fake drift.
+Status <code>SEALED</code>. Two check kinds: exact digest, and semantic invariants a
+digest cannot express (&beta;* = 26.1, <code>TAU_VETO_CEILING = 0.0431</code>,
+<code>margin = top - second</code>). Three negative controls prove the seal can
+fail: a wrong pinned digest, a missing file, and an absent invariant all read
+<code>DRIFT</code>.</p>
+
+<h3>A finding the gate produced: the Margin Law is out of domain here</h3>
+<p>v6 MMLU telemetry gives <code>t = 0.073207</code>, <code>c_max = 0.383656</code>,
+<code>margin = 0.029045</code>. The law predicts <code>t(1 - c_max) =
+0.045121</code>. Residual <code>-0.016076</code>, which is <strong>3.5&times;</strong>
+the noise floor <code>sqrt(ln 4 / 65536) = 0.004599</code>.</p>
+<p>The correction term assumes incoherent rivals. Here four rivals share most of
+their words, so <code>c_max</code> is 0.38 and the rival terms add instead of
+cancelling. The law is not violated; it is a large-M, low-coherence result and this
+is not that regime. Consequence: margin is not a usable confidence gate on option
+sets drawn from overlapping text. The Stage-8 result still holds, because there the
+codebook was orthogonalised first.</p>
+
 <h2>Decisions that are yours</h2>
 <table>
   <tr><th>Decision</th><th>State</th><th>Options</th></tr>

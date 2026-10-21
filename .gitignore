@@ -7,3 +7,8 @@ dist/
 *.egg-info/
 receipts/*
 !receipts/README.md
+data/
+# Staged benchmark corpora are NEVER committed. MMLU 6.4 MiB, GPQA 1.3 MiB,
+# MBPP 0.55 MiB. Every receipt records the sha256 of the file it read, so a
+# fresh clone can re-stage and verify it reached the same bytes. Digests are
+# recorded in docs/EVIDENCE_REGISTER.md section 12.

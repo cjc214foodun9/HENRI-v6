@@ -755,3 +755,121 @@ specification describes. Two consequences:
 
 This is the first spec claim in the ingress track to be confirmed rather
 than qualified or falsified.
+
+## 12. Phase 4 gates: corpora staged, named arm measured, history bounded
+
+All four items below were executed in order. Every number is OBSERVED on
+this host unless labelled DERIVED. No benchmark claim is made.
+
+### 12.1 Corpora staged and schema-verified
+
+| corpus | rows | sha256 | required columns |
+|---|---|---|---|
+| `mmlu.csv` | 14,042 | `15b6785d49e0012602e089558a7a0dfb916baf97e9295aa25b48062f13c6afbb` | all present |
+| `gpqa_diamond.csv` | 198 | `41d1213cd7a4998605a26c2798500652572007161b3a92817ba46b35befcd305` | all present |
+| `mbpp.jsonl` | 974 | `ccf64ceae9c5403bf50a044cb6d505bfd2a2963ee58338ba268fd65beab92a9f` | `text`, `code`, `test_list` |
+
+MMLU answer distribution is near-uniform (`A` 3222, `B` 3462, `C` 3582,
+`D` 3776), so a fixed-letter policy cannot beat chance. Corpora are
+gitignored; the digests above let a fresh clone verify its own copy.
+
+### 12.2 The named arm, and the number it produced
+
+`benchmarks/wave_rank.py` runs one arm at a time and stamps the arm on the
+receipt. It refuses to emit a score without one.
+
+* `v6` — `ring_bundle` circular mean in Z_256, `to_complex_phasor` lift,
+  three slots exactly zero, `readout.select` at `beta* = 26.10`.
+* `chance` — deterministic uniform pick, keyed on item text.
+* `legacy` — NOT run here. Read from a real V2 receipt on the same rows.
+
+| arm | benchmark | n | correct | acc | z | p |
+|---|---|---|---|---|---|---|
+| v6 | MMLU | 400 | 109 | 0.2725 | +0.98 | 0.163 |
+| chance | MMLU | 400 | 105 | 0.2625 | +0.52 | 0.302 |
+| v6 | GPQA | 198 (full) | 59 | 0.2980 | +1.48 | 0.070 |
+| legacy V2 | MMLU | 400 | 120 | 0.3000 | +2.25 | 0.012 |
+
+**The v6 arm is at chance.** That is the correct, expected result. Ingress
+is a deterministic hash of each word, so `car` and `automobile` are
+unrelated by construction. The arm measures wave bundling and calibrated
+readout, not meaning. Four arms were tested, so the legacy `p = 0.012` is
+uncorrected and not decisive; at n=40 the same arm read 0.45 and at n=20
+read 0.55, which is what a small effect looks like when n moves.
+
+Three candidate trivial baselines were measured to test whether the legacy
+edge is an artefact. None reproduces it:
+
+| baseline | n | acc | p |
+|---|---|---|---|
+| longest option | 400 | 0.2525 | 0.477 |
+| most question-overlap words | 400 | 0.2475 | 0.569 |
+| shortest option | 400 | 0.1975 | 0.993 (below chance) |
+
+### 12.3 The Margin Law does NOT hold on this codebook, and that is the finding
+
+v6 MMLU telemetry: `t = 0.073207`, `c_max = 0.383656`,
+`margin = 0.029045`. The law predicts `t(1 - c_max) = 0.045121`.
+Residual `-0.016076`, which is **3.5x** the concentration noise floor
+`sqrt(ln 4 / 65536) = 0.004599`.
+
+The law's correction term assumes incoherent rivals. Here only four rivals
+exist and they share most of their words, so `c_max` is 0.38 and the rival
+terms sum coherently instead of cancelling. The law is a large-`M`,
+low-coherence result. It is not violated; it is out of domain. GPQA shows
+the same shape at `c_max = 0.526451`, residual `-0.024076`.
+
+Consequence: margin is not a usable confidence gate on option sets drawn
+from overlapping text. The Stage-8 result in section 12.6 of the report
+still holds, because there the codebook was orthogonalised first.
+
+### 12.4 Viscoelastic history is bounded by exact arithmetic
+
+`henri/history_budget.py` derives every capacity from the measured anchor
+instead of remembering one.
+
+| quantity | value | note |
+|---|---|---|
+| L2 measured (`sm_120`) | 96 MiB | corrected a 128 MiB claim |
+| per worker, P=4 complex64 | 2,097,152 B | 2.00 MiB exactly |
+| B=256 full history | 536,870,912 B | **5.333x** L2, impossible |
+| pinned projector | 33,554,432 B | **32.00 MiB**, not 33.55 MiB |
+| usable after reserve | 67,108,864 B | 64.00 MiB exactly |
+| capacity | **32 workers** | zero slack remains |
+
+UNIT-LABEL DEFECT. The analysis calls the projector `33.55 MiB`. It is
+`33.55 MB` decimal, exactly `32 MiB` binary. The labels were swapped and
+every derived capacity was one worker low. With the binary value the
+directive's `B_active <= 32` is EXACTLY saturated, leaving zero L2 for a
+codebook. 32 is an upper bound, not a working setpoint.
+
+Low-rank `r = 64` covers all 256 workers, but only because one
+`(65536, 64)` basis is SHARED at 32.00 MiB. Charging that basis per worker
+would need 8 GiB, which is 85x L2. The test asserts both sides.
+
+`reports` carry `evicted` and `clipped`, so a clipped batch cannot be
+mistaken for a full one. Negative controls: flat stress must still clip
+224 of 256, and a per-worker basis must overflow.
+
+### 12.5 The kernel is sealed, and the seal was tested by trying to break it
+
+`scripts/verify_kernel_integrity.py` hashes six kernel files from the GIT
+OBJECT STORE, not the working tree, so CRLF cannot fake drift. Status
+`SEALED` at `79c61e4`. Two check kinds: exact digest, and semantic
+invariants that a digest cannot express (`beta* = 26.1`,
+`TAU_VETO_CEILING = 0.0431`, `margin = top - second`).
+
+Three negative controls prove the seal can fail: a wrong pinned digest,
+a missing file, and an absent invariant all read `DRIFT`.
+
+### 12.6 Suite
+
+`377 passed, 14 skipped, 377 collected` in 5.43 s. Hardware gate skips,
+never passes.
+
+### 12.7 Non-claims
+
+No benchmark claim. No task solved. No SOTA claim. The commercial API is
+not market-ready. What exists is: staged and digest-verified corpora, one
+named arm that measures at chance and says so, an arithmetic bound on the
+delay buffer, and a kernel seal with tested failure modes.
