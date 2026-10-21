@@ -873,3 +873,163 @@ No benchmark claim. No task solved. No SOTA claim. The commercial API is
 not market-ready. What exists is: staged and digest-verified corpora, one
 named arm that measures at chance and says so, an arithmetic bound on the
 delay buffer, and a kernel seal with tested failure modes.
+
+## 13. Semantic backbone: built, measured, and four claims falsified
+
+The Phase 4B directive proposed a five-stage semantic backbone to lift the
+v6 arm off chance. It is built (`henri/semantic_backbone.py`), it is tested
+(13 tests), and **it does not produce benchmark dominance**. Three of the
+four pre-registered gates fail. The failures are the deliverable.
+
+### 13.1 Promotion of the previous phase, verified
+
+`scripts/promotion_gate.py` read `PROMOTE` at `170f420`: tree clean, kernel
+`SEALED`, 377 passed, 0 failed, 0 errors, 14 skipped, floor 370. Merged
+`--no-ff` to `main`. Remote readback
+`refs/heads/main = 99dc20ec0845c4ba6cb129be9ab63f7c13afafd1`, byte-equal to
+local HEAD.
+
+### 13.2 The Bochner phase lift is correct, and the specification's own normalisation is not
+
+CLOSED FORM. `E[Re<Psi(u),Psi(v)>] = exp(-sigma^2 (1-rho))`. Verified
+numerically across `sigma in {0.5, 1, sqrt2, 2, 3, 4}` at
+`D_slot = 16384`: maximum relative error **0.042152** against the closed
+form.
+
+SPEC DEFECT FALSIFIED. `HENRI-ARCH-2026-PERFECTED-SEMANTIC-BACKBONE`
+specifies `Omega^T Omega = (16384/d_sem) I`, the UNIT-norm row convention.
+At `d_sem = 384` with `sigma = sqrt2` that makes the effective bandwidth
+`sigma/sqrt(384)`, and every pair collapses toward coherence 1. Measured
+with unit rows: synonym `0.9928` against a **shuffled control of 0.9866**.
+The map destroyed all discrimination while appearing to pass a
+`t >= 0.65` gate. This is the second vacuous-control defect this project
+has caught, and the first one that would have passed.
+
+The repair is `Omega Omega^T = d_sem I`, i.e. rows scaled by `sqrt(d_sem)`.
+That reproduced the closed form (0.1465 measured vs 0.1363 predicted on a
+fresh pair) and restored discrimination: synonym `0.6268` against control
+`0.3203`.
+
+### 13.3 G-SEM1 — synonymy marginal, negation FALSIFIED
+
+| gate | value | verdict |
+|---|---|---|
+| synonym coherence `>= 0.65` | **0.6268** | FAIL, marginally |
+| shuffled control | 0.3203 | control holds |
+| proposition antonym `<= -0.50` | **+0.0465** | FAIL |
+| bare antonym `<= -0.50` | **+0.4948** | FAIL |
+| polarity slot product `< 0` | **-0.800** | separates by sign |
+
+The synonym gate fails for a stated reason: a frozen encoder puts synonyms
+at `rho = 0.826`, not the `0.90` the specification assumed. At
+`sigma = sqrt2`, `exp(-2(1-0.826)) = 0.706`, and the measured value is
+0.627 once the polarity slot's constant contribution is included.
+
+THE NEGATION CLAIM IS FALSIFIED, AND THE REASON MATTERS. A frozen sentence
+encoder places antonyms at POSITIVE cosine `+0.622` mean
+(`increase/decrease` 0.608, `hot/cold` 0.519, `positive/negative` 0.714).
+The distributional hypothesis explains it: antonyms occur in the same
+contexts. Therefore polarity CANNOT come from a linear functional of the
+embedding, which is what the specification proposes. Polarity is
+recoverable only from an explicit lexical signal, and here it is: a fixed
+role basis plus `+128 mod 256` gives an exact half-turn, mean polarity
+product `-0.800` over 10 proposition pairs.
+
+### 13.4 G-SEM2 — whitening works exactly; the Margin Law still fails
+
+| quantity | before | after |
+|---|---|---|
+| option `c_max` | 0.8078 | **0.000000** |
+| Margin Law residual | 0.056588 | **0.015767** |
+| noise floor | 0.004599 | 0.004599 |
+
+Whitening is exact. The `gamma = 0` control leaves `c_max` at 0.8078, so
+the gate can fail. The derivation says `gamma = 1` is optimal because any
+`gamma < 1` leaves `(1-gamma)` of the carrier in every rival, so the
+default is derived rather than tuned.
+
+But the Margin Law residual is still **3.4x** the floor after whitening at
+`c_max = 0`. With `c_max = 0` the law predicts `margin = t`, and the
+measured margin is not `t`. So the law does NOT become an exact confidence
+gate on natural-language options. The specification's claim that whitening
+"restores exact operation" is FALSIFIED.
+
+Two further corrections, both measured:
+
+* Common-mode rejection does NOT orthogonalise. Projecting `K` rows off the
+  centroid leaves them spanning only `K-1` dimensions, so they are all
+  orthogonal to the removed mode yet still mutually correlated. Measured
+  residual `0.237`, not 0. The specification's Stage V-A claim that
+  subtraction drives `c_max` to 0 is FALSE. Only the Stiefel step does that.
+* Whitening is NOT a neutral re-ranking. With `G = Re(X X^H)` and
+  `X_ortho = G^{-1/2} X` the scores satisfy `s_ortho = G^{-1/2} s_raw`, so
+  `argmax` can change. Measured: whitening moved MMLU from `0.3050` down
+  to `0.2475`.
+
+### 13.5 G-SEM4 — FALSIFIED, and the apparent edge is a letter prior
+
+| arm | bench | n | correct | acc | z | p |
+|---|---|---|---|---|---|---|
+| v6 hash | MMLU | 400 | 109 | 0.2725 | +0.98 | 0.163 |
+| chance | MMLU | 400 | 105 | 0.2625 | +0.52 | 0.302 |
+| **sem, no whiten** | MMLU | 400 | 122 | **0.3050** | +2.48 | 0.0065 |
+| sem, whiten | MMLU | 400 | 99 | 0.2475 | -0.17 | 0.569 |
+| v6 hash | GPQA | 198 | 59 | 0.2980 | +1.48 | 0.070 |
+| **sem, no whiten** | GPQA | 198 | 46 | **0.2323** | -0.66 | 0.744 |
+
+The pre-registered bar was `z >= +4.0` after Bonferroni. Best result is
+`+2.48` BEFORE correction, and GPQA is BELOW chance. FALSIFIED.
+
+The MMLU `0.3050` does not survive scrutiny. On this 400-row subset the
+gold letters are imbalanced (A 75, B 93, C 126, D 106). A policy that
+always answers the modal letter `C` scores **0.3150**, which is HIGHER
+than the semantic arm. A paired McNemar comparison gives
+`arm_only = 89`, `baseline_only = 93`, `z = -0.2965`, `p = 0.617`.
+**The arm is not better than a trivial letter prior.**
+
+Two trivial baselines were also checked on the same rows and neither
+explains the result: longest-option `0.2525`, question-word-overlap
+`0.2475`.
+
+### 13.6 DeltaMemory capacity — derived, then confirmed to the row
+
+DERIVATION. `henri/memory.py` stores `S = V K^H` with `V,K` each
+`(D, rank)`, so `rank(S) <= rank` by construction, independent of `m`.
+Recall gives `S k_a = v_a + sum_{b!=a} v_b <k_b,k_a>`. If the `{v_a}` are
+linearly independent, exact recovery of `m` associations forces
+`rank(S) >= m`, hence `m <= rank`. That is a rank wall, not a tuning
+issue. For `m > rank` the crosstalk residual is `E||e_a||^2 ~ (m-1)/D`,
+giving the classical VSA tolerance capacity `m* ~ D` far above the wall.
+**The binding constraint is `min(rank, m*) = rank`.**
+
+MEASURED, `D = 4096`, `rank = 64`:
+
+| m | recall (err < 0.5) | mean error | within exact |
+|---|---|---|---|
+| 16 | 1.000 | 0.0000 | yes |
+| 32 | 1.000 | 0.0000 | yes |
+| **64** | **1.000** | **0.0000** | **yes** |
+| 128 | 0.070 | 1.0662 | no |
+| 256 | 0.035 | 1.2006 | no |
+
+Exact to the row at `m = rank`, collapse immediately after. The bound is
+confirmed, not asserted.
+
+CONSEQUENCE FOR INGESTION. With `rank = 64` a single cartridge holds 64
+exact associations. Reaching the MMLU auxiliary bank (about 1,500 rows)
+needs at least 24 cartridges, or `rank >= 1536` in one cartridge at
+`D = 65536` (which is `1536 x 65536 complex128 = 1.6 GiB` of factors).
+"Zero-SGD knowledge ingestion into one DeltaMemory" is therefore not a
+capacity plan; it is a cartridge-partitioning problem.
+
+### 13.7 Suite and non-claims
+
+`390 passed, 0 failed, 0 errors, 14 skipped.` Kernel still `SEALED`.
+
+NON-CLAIMS. No benchmark dominance. No SOTA. The semantic arm is at
+chance once a letter prior is controlled for, and below chance on GPQA.
+The semantic backbone is a real, tested transducer with an honest kernel;
+it is not an intelligence improvement. What it establishes is negative and
+useful: the remaining gap is not the phase lift, not the whitening, and
+not the memory capacity. It is that a frozen sentence embedding preserves
+topical similarity, not deductive consequence.
