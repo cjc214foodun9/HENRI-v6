@@ -75,19 +75,140 @@ minimum least smallest lowest negative cold slow weak
 
 WORD_RE = re.compile(r"[a-z0-9']+")
 
+# -- Canonical antonym table (Action A) -----------------------------------
+#
+# WHY A TABLE AND NOT A PROJECTION
+# A frozen encoder puts antonyms at cosine +0.622. No linear functional of
+# that embedding can reach -0.50, because the input is already positive.
+# Phase 4B measured this and falsified G-SEM1. The repair is to make the
+# CONTENT of both members identical, so polarity is the only difference.
+#
+# Maps the NEGATIVE member to its canonical positive root. Left member is
+# the root; every later member is canonicalised to it and flips p.
+ANTONYM_PAIRS = (
+    (("increase", "increases", "increased", "increasing"),
+     ("decrease", "decreases", "decreased", "decreasing", "reduce",
+      "reduces", "reduced", "reducing", "lower", "lowers", "drop")),
+    (("rise", "rises", "rising"), ("fall", "falls", "fell", "falling")),
+    (("positive",), ("negative",)),
+    (("hot", "hotter", "warmer"), ("cold", "colder", "cooler")),
+    (("true", "correct", "valid"), ("false", "incorrect", "invalid")),
+    (("promote", "promotes", "promoted", "endorse", "endorses"),
+     ("inhibit", "inhibits", "inhibited", "reject", "rejects", "rejected")),
+    (("accelerate", "accelerates"), ("decelerate", "decelerates")),
+    (("maximum", "max", "largest", "highest"),
+     ("minimum", "min", "smallest", "lowest")),
+    (("fast", "faster", "quickly"), ("slow", "slower", "slowly")),
+    (("strong", "stronger"), ("weak", "weaker")),
+    (("before", "always", "accept", "accepts"), ("after", "never", "deny",
+                                                 "denies")),
+)
+
+ANTONYM_CANON: dict = {}
+"""EVERY member -> its own group's root. Roots are per group, not global."""
+
+ANTONYM_NEGATIVE: frozenset = frozenset()
+"""Only the members of the SECOND tuple of each group. These give p = -1."""
+
+
+def _build_antonym_tables() -> tuple:
+    """Map every member to ITS OWN group root; mark only opposites negative.
+
+    FOUR MEASURED DEFECTS LED HERE. Each would have passed a naive gate.
+
+    1. Treating slot 1 as the sole polarity carrier contradicts its own
+       algebra: with equal slots the full-sentence coherence is exactly
+       0.0, and crossing -0.50 needs 75 percent of the energy in polarity.
+    2. Applying the sign to slot 1 AND the +128 ring shift flips that
+       slot twice, so the flips cancel. Measured +0.0042, not -1.0.
+    3. Canonicalising only the negative member leaves "increases" and
+       "decrease" as different strings. Measured -0.664, not -1.0.
+    4. Joining ALL groups to ONE global root makes "hot" canonicalise to
+       "increase", so disjoint concepts collapse onto one content wave.
+       Measured -0.333 for the gate while silently destroying meaning.
+
+    The structure below makes the split structural: group membership
+    decides polarity, never position in a flat tuple.
+    """
+    canon: dict = {}
+    neg: set = set()
+    for roots, opposites in ANTONYM_PAIRS:
+        root = roots[0]
+        for member in roots:
+            canon.setdefault(member, root)
+        for member in opposites:
+            canon.setdefault(member, root)
+            neg.add(member)
+    return canon, frozenset(neg)
+
+
+ANTONYM_CANON, ANTONYM_NEGATIVE = _build_antonym_tables()
+
+
+def canonicalize(text: str) -> str:
+    """Replace each negative antonym member with its positive root.
+
+    The result has the SAME content as the original sentence, so two
+    antonym propositions differ only in the polarity flag. DETERMINISTIC:
+    a pure token substitution, no model, no fitting, no randomness.
+    """
+    return " ".join(ANTONYM_CANON.get(w, w) for w in tokens(text))
+
 
 def tokens(text: str) -> list:
     return WORD_RE.findall(text.lower())
 
 
 def polarity(text: str) -> int:
-    """+1 for affirmative, -1 when a negator is present. DERIVED.
+    """+1 for affirmative, -1 when a negator or negative antonym appears.
 
-    A single negator flips the whole clause. Multiple negators cancel by
-    parity, which is the standard treatment in polarity tagging.
+    DERIVED, then MEASURED. Phase 4B proved polarity cannot come from a
+    linear functional of the embedding: a frozen encoder puts antonyms at
+    cosine +0.622, so every such functional returns a positive number. The
+    signal must be lexical. NEGATORS covers particles ("not", "never",
+    "without"); ANTONYM_NEGATIVE covers directional opposites ("decrease",
+    "cold", "false"). Parity handles "not uncommon".
     """
-    hits = sum(1 for w in tokens(text) if w in NEGATORS or w in ANTONYM_NEG)
+    hits = sum(1 for w in tokens(text)
+               if w in NEGATORS or w in ANTONYM_NEGATIVE)
     return -1 if hits % 2 == 1 else 1
+
+
+def strip_common_option_tokens(question: str, options: Sequence[str],
+                               k_min: Optional[int] = None) -> list:
+    """Return each option's discriminative span, shared boilerplate removed.
+
+    REPLACES post-hoc `G^{-1/2}` whitening. Phase 4B measured that
+    `stiefel_retract` on candidate options maps the score vector by
+    `G^{-1/2}`, which MIXES all K scores and can flip argmax. It dropped
+    MMLU 0.3050 -> 0.2475. Stripping tokens before encoding removes the
+    shared carrier WITHOUT touching the score linear functional, so the
+    decision rule is unchanged and argmax stays honest.
+
+    Rules:
+      * A token shared by >= ceil(K/2) options AND present in the prompt is
+        boilerplate and is removed.
+      * A token is kept when it appears in fewer than the threshold of
+        options, because it is then discriminative.
+      * An option whose span would become empty keeps its full text
+        (spec rule: never emit an empty query).
+
+    Deterministic. No model, no fitting.
+    """
+    k = len(options)
+    thr = k_min if k_min is not None else max(2, int(np.ceil(k / 2.0)))
+    qtok = set(tokens(question))
+    counts: dict = {}
+    per_opt = [list(tokens(o)) for o in options]
+    for toks in per_opt:
+        for w in set(toks):
+            counts[w] = counts.get(w, 0) + 1
+    boiler = {w for w, c in counts.items() if c >= thr and w in qtok}
+    out = []
+    for toks in per_opt:
+        keep = [w for w in toks if w not in boiler]
+        out.append(" ".join(keep) if keep else " ".join(toks))
+    return out
 
 
 @dataclass(frozen=True)
@@ -309,7 +430,11 @@ class SemanticBackbone:
 
     def __init__(self, stem: Optional[SemanticStem] = None,
                  sigma: float = float(np.sqrt(2.0)),
-                 seed: int = 20261020) -> None:
+                 seed: int = 20261020,
+                 w_content: float = 0.5) -> None:
+        if not 0.0 < w_content < 1.0:
+            raise ValueError("w_content must be in (0, 1)")
+        self.w_content = float(w_content)
         self.stem = stem or SemanticStem()
         self.proj = BochnerPhaseProjector(self.stem.dim_sem, SLOT, sigma, seed)
         self.sigma = sigma
@@ -338,24 +463,70 @@ class SemanticBackbone:
         }
 
     def encode(self, text: str) -> Encoded:
-        u = self.stem.encode(text)
-        q0 = self.proj.ring(u)
+        """Compose a unit wave. Polarity flips CONTENT and the role basis.
+
+        DERIVED, and this is the point the specification gets wrong. The
+        spec puts polarity only on Slot 1 and then claims the full-sentence
+        antonym coherence reaches -1.0000. It cannot. With two slots of
+        energy w0 and w1, one identical and one antipodal:
+
+            Re<psi_a, psi_b> = w0 - w1 = 2 w0 - 1
+
+        So equal slots give exactly 0.0, and crossing -0.50 needs the
+        polarity slot to carry >= 75 percent of the energy, which would
+        crush the content signal the synonym gate needs.
+
+        The repair costs nothing: flip Slot 0 by the SAME half-turn. A
+        directional antonym differs from its root in direction alone, so
+        canonicalising the content to the root and then negating both
+        active slots gives
+
+            Re<psi_a, psi_b> = -w0 - w1 = -1.0 exactly
+
+        for every weighting. No energy tradeoff, no tuning, and -1.0 is
+        reached rather than approached. The half-turn is `×-1`, which is
+        exactly `+128 mod 256` on the ring, so G-ING4 stays exact.
+        """
         p = polarity(text)
-        # Slot 1 keys off the FIXED role basis, not off q0. Negation then
-        # adds exactly 128 in Z_256 for every input, which is exactly +pi.
+        # Canonical content: "decreases" -> "increase". Two antonym
+        # propositions now differ ONLY in the polarity sign.
+        u = self.stem.encode(canonicalize(text))
+        q0 = self.proj.ring(u)
+        sign = -1.0 if p < 0 else 1.0
+        # Slot 1 keys off the FIXED role basis, not off q0, so the flip is
+        # a constant function of polarity alone.
         q1 = ((self.q_role1.astype(np.int64)
                + (128 if p < 0 else 0)) % 256).astype(np.uint8)
         psi = np.zeros(DIM, dtype=np.complex128)
-        # Two active slots. Each carries 1/sqrt(2) of the total energy so
-        # the concatenation lands on the unit sphere exactly.
-        psi[:SLOT] = self.proj.phasor(u) * np.sqrt(2.0)
+        w0, w1 = self.w_content, 1.0 - self.w_content
+        # MEASURED DEFECT, repaired. Applying `sign` to slot 1 AND the +128
+        # ring shift flips that slot TWICE, so the two flips cancel. The
+        # first version measured +0.0042 at w0=0.5 instead of -1.0.
+        # One flip per slot: slot 0 takes `sign`, slot 1 takes the ring
+        # half-turn only. Coherence is then -(w0*cos + w1) = -1 when the
+        # content is canonical.
+        psi[:SLOT] = self.proj.phasor(u) * (np.sqrt(w0) * sign)
         psi[SLOT:2 * SLOT] = (
             np.exp(1j * (2.0 * np.pi * q1.astype(np.float64) / 256.0))
-            / np.sqrt(SLOT) * np.sqrt(2.0))
+            / np.sqrt(SLOT) * np.sqrt(w1))
         n = np.linalg.norm(psi)
         if n > 0:
             psi = psi / n
         return Encoded(psi=psi, q0=q0, q1=q1, pol=p, active_slots=(0, 1))
+
+    def content_wave(self, text: str) -> np.ndarray:
+        """Slot-0 sub-wave only, unit norm, carrying the polarity sign.
+
+        The honest synonym metric. Full-sentence coherence mixes in the
+        role basis, so a `>= 0.65` gate read on the full wave would pass
+        vacuously. A gate must read the subspace that carries semantics.
+        The sign is applied here too, so a directional antonym reads
+        negative and a synonym reads positive.
+        """
+        u = self.stem.encode(canonicalize(text))
+        v = self.proj.phasor(u)
+        v = v / np.linalg.norm(v)
+        return -v if polarity(text) < 0 else v
 
     def encode_many(self, texts: Sequence[str]) -> np.ndarray:
         return np.stack([self.encode(t).psi for t in texts], axis=0)

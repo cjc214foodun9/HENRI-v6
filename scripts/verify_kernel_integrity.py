@@ -146,6 +146,8 @@ def main() -> int:
     ap.add_argument("--out", default="receipts/kernel_integrity.json")
     ap.add_argument("--allow-drift", action="store_true",
                     help="report drift but exit 0 (human override, logged)")
+    ap.add_argument("--json", action="store_true",
+                    help="print the receipt as JSON on stdout (machine read)")
     a = ap.parse_args()
 
     rec = check(a.rev)
@@ -154,6 +156,10 @@ def main() -> int:
         out = REPO / out
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(rec, indent=2), encoding="utf-8")
+
+    if a.json:
+        print(json.dumps(rec))
+        return 0 if rec["status"] == "SEALED" or a.allow_drift else 1
 
     print(f"[KERNEL] rev={rec['rev']} files={rec['files_checked']}"
           f" status={rec['status']}")
