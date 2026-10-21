@@ -1033,3 +1033,196 @@ it is not an intelligence improvement. What it establishes is negative and
 useful: the remaining gap is not the phase lift, not the whitening, and
 not the memory capacity. It is that a frozen sentence embedding preserves
 topical similarity, not deductive consequence.
+
+## 14. Phase 5: five actions, one repair that reaches -1.0 exactly, and one falsification
+
+All five actions executed. Every number below is from a run on this host.
+Kernel remained `SEALED` at every step. Suite: **401 passed, 0 failed, 0
+errors, 14 skipped**.
+
+### 14.1 Action A — the spec's -1.0000 is a sub-wave quantity, not a sentence quantity
+
+CHALLENGE, stated before implementation. The directive claims that
+canonicalising antonyms plus a `+128 mod 256` half-turn on Slot 1 drives
+"Slot-1 inner product to -1.0000" and "full-sentence antonym coherence
+below -0.50". The second does not follow from the first. With two slots of
+energy `w0` and `w1`, one identical and one antipodal:
+
+    Re<psi_a, psi_b> = w0 - w1 = 2*w0 - 1
+
+Equal slots give **exactly 0.0000**, never -1.0000. Crossing -0.50 needs
+`w0 <= 0.25`, i.e. 75 percent of the energy in polarity — which would crush
+the synonym gate that the same action must also satisfy.
+
+DERIVED REPAIR. Flip Slot 0 by the SAME half-turn. A directional antonym
+differs from its root in direction alone, so canonicalise the content and
+negate both active slots:
+
+    Re<psi_a, psi_b> = -w0 - w1 = -1.0 exactly
+
+for every weighting. No energy tradeoff. Measured, `w0 in {0.5, 0.3, 0.2}`:
+
+| w0 | full-sentence antonym | bare antonym | synonym (content) | `2*w0 - 1` |
+|---|---|---|---|---|
+| 0.50 | **-1.0000** | -1.0000 | +0.7177 | +0.0000 |
+| 0.30 | **-1.0000** | -1.0000 | +0.7177 | -0.4000 |
+| 0.20 | **-1.0000** | -1.0000 | +0.7177 | -0.6000 |
+
+The `2*w0 - 1` column is what the spec's construction would have produced.
+Both gates now pass with margin, at every weighting, and the synonym gate is
+unaffected. `-1.0` is reached, not approached.
+
+THREE DEFECTS IN MY OWN REPAIR, each caught by measurement and each of which
+would have passed a naive gate:
+
+1. Applying `sign` to Slot 1 **and** the `+128` ring shift flips that slot
+   twice. Measured **+0.0042** at `w0 = 0.5` instead of -1.0.
+2. Canonicalising only the negative member leaves `"increases"` and
+   `"decrease"` as different strings. Measured **-0.664**.
+3. Joining all groups to ONE global root makes `"hot"` canonicalise to
+   `"increase"`, collapsing disjoint concepts onto one content wave.
+   Measured **-0.3333** for the gate while silently destroying meaning.
+
+The final table makes group membership structural: each group carries its
+own root, and only the second tuple of each group bears polarity.
+
+### 14.2 Action B — the spec contradicts its own Section 1.2 proof
+
+The directive's Action B step 4 says to orthogonalise cartridge keys at
+write time and then "match against `K_c_ortho` via `readout.select`". That
+is the exact equation Phase 4B falsified. `stiefel_retract` mixes keys, so
+matching a raw query against mixed keys gives `s_ortho = G^-1/2 s_raw` — the
+same argmax distortion, re-entering through the memory path.
+
+MEASURED, `D = 4096`, `m = 64`, 40 random queries: **argmax differed on
+40/40**. The mixing is not theoretical.
+
+IMPLEMENTED SPLIT (measured, not assumed):
+* MATCH against the ORIGINAL keys. Premise similarity preserved.
+* READ by index through `DeltaMemory`, whose stored factors are orthonormal.
+* ROUTE by the centroid of ORIGINAL keys, not orthogonalised ones.
+
+IS THE WRITE-TIME STIEFEL STEP NEEDED? **No.** Measured: the gated delta rule
+already orthogonalises internally. Writing 64 correlated keys with raw
+pairwise coherence up to `c_max = 0.9934` produced a STORED-key Gram with
+maximum off-diagonal **0.000000**, and paired recall 1.0000 at every
+coherence level:
+
+| raw `c_max` | 0.0362 | 0.1741 | 0.7046 | 0.9433 | 0.9934 |
+|---|---|---|---|---|---|
+| paired recall | 1.0000 | 1.0000 | 1.0000 | 1.0000 | 1.0000 |
+
+So external key orthogonalisation is redundant for storage, and the
+match/read split is mandatory. The step is retained as an option and OFF by
+default: a redundant matrix inverse is a cost with no measured benefit.
+
+A claim from one advisory reference, that correlated keys break recall even
+at `m <= rank`, is **refuted by measurement** at the scale tested. Recorded
+because the refutation is the evidence.
+
+### 14.3 Action C — W_deduce FALSIFIED, and the leakage check caught two of my own bugs
+
+G-P5C1 SPLIT PROVENANCE. Held-out is exactly `items[:400]` in file order,
+which is what `wave_rank.load_items` reads. Ingestion is the other 13,632
+rows.
+
+Two leakage false-positives, both my own:
+1. `record_id` from the CSV `''` column has only **1534 distinct values
+   across 14,042 rows** (it restarts per subject; `0` appears 57 times). It
+   reported **152** overlapping ids on a split that shares no rows. Replaced
+   with the file index.
+2. Hashing the QUESTION alone reported **1** overlap. The cause is a generic
+   stem, `"Which of the following statements is true?"`, which recurs across
+   subjects with different options. Item identity is
+   (question, options, answer), so that is what the digest covers.
+
+FINAL, CLEAN: `id_overlap = 0`, `item_overlap = 0`, `stem_overlap = 1`
+(disclosed, not asserted away). Paraphrase audit: **78** of 120 held-out
+questions have a bank question with token-set Jaccard > 0.8. That is a
+disclosure about MMLU, not a defect in the split.
+
+G-P5C3/C4 RESULT:
+
+| arm | held-out retrieval top-1 | mean own similarity |
+|---|---|---|
+| `W_deduce` (ridge, lam=1.0) | **0.165** | 0.306052 |
+| control: no transition (identity) | **0.190** | 0.323451 |
+| control: shuffled Q->A pairs | 0.125 | 0.212885 |
+
+Ridge fit `R^2 = 0.214741` on the ingestion split; shuffled-pair `R^2 =
+-0.012155`, which is the correct null.
+
+VERDICT: `FALSIFIED_DOES_NOT_BEAT_CONTROLS`. `W_deduce` is WORSE than the
+identity map. It beats only the shuffled control, which is the signature of
+learning a mean-direction prior rather than a deduction. A 384x384 linear
+functional of one pooled embedding cannot carry deductive consequence. This
+extends the Phase 4B finding rather than contradicting it.
+
+G-P5C5. Cartridge recall is RETRIEVAL, not deduction. Probe at `D = 4096`:
+exact recall error **0.0**, router hit correct. The bank is disjoint from
+the query, so the recalled wave is the answer to the nearest PREMISE.
+
+FOOTPRINT, recorded before allocating: one cartridge at `D = 65536`,
+`rank = 64`, complex128 is `2 * 65536 * 64 * 16 = 134,217,728 B = 128 MiB`.
+The 13,632-row bank needs **213 cartridges = 26.62 GiB** at complex128, or
+**13.31 GiB** at complex64. The directive's `C = 256` is silent on bytes.
+At complex128 this does not fit beside anything else on a 32 GiB card.
+
+### 14.4 Action D — rotation invariance proven; stripping gains, but not over the letter prior
+
+Harness changes: content-digest tie-break (never option index), 4x cyclic
+rotation check, and paired McNemar against both controls.
+
+ROTATION: `INVARIANT`, rate **1.000000**. The selected answer text does not
+change under `(A,B,C,D) -> (B,C,D,A)`. A position-dependent tie-break would
+have shown here.
+
+MMLU, `n = 400`:
+
+| arm | acc | z | p | modal-letter control | McNemar vs modal |
+|---|---|---|---|---|---|
+| `v6_semantic_strip` | **0.3250** | +3.4064 | 0.000329 | 0.3150 | z=0.2917, **p=0.7705** |
+| `v6_semantic_nowhiten` (4B) | 0.3050 | +2.48 | 0.0065 | 0.3150 | z=-0.2965, p=0.617 |
+| word-overlap control | 0.2475 | | | | |
+| uniform chance | 0.2500 | | | | |
+
+Stripping is a real improvement over Phase 4B (0.3050 -> 0.3250) and it
+removes the `G^-1/2` score mixing. It is **still not decisive**: the paired
+McNemar against the modal-letter control reads `p = 0.7705`, verdict
+`NO_DIFFERENCE`. The arm now edges the letter prior but does not beat it
+significantly. Mean `c_max` after stripping is 0.8166, so the Margin Law
+remains out of domain on overlapping options — consistent with §13.4.
+
+### 14.5 Action E — API surface, with one honesty correction
+
+`henri/api.py` exposes `rank_options`, `ingest_cartridge`, `verify_seal`.
+Verified live: selection, `margin`, `t`, `c_max`, `seal_status = SEALED`,
+rotation invariance across four option orders, and `ingest_cartridge`
+rejecting above the rank wall.
+
+CORRECTION TO THE DIRECTIVE: it asks for a "signed" Epistemic Receipt. No
+secret exists in this module, so a signature would be a false claim. The
+receipt carries a **sha256 self-digest** over its own payload, the same
+mechanism `promotion_gate.py` uses, and labels itself
+`sha256_self_digest_not_signature`. It proves internal consistency and
+detects tampering. It does not prove who produced it.
+
+`sagnac_delta` is reported as `None`, not `0.0`, because the veto path is not
+wired into this endpoint. Reporting `0.0` would be a fabricated measurement.
+
+### 14.6 What the five actions establish
+
+| action | verdict |
+|---|---|
+| A antonym polarity | **-1.0000 exact**, weight-invariant, both gates pass |
+| B cartridge bank | match/read split correct; write-time Stiefel **redundant**, measured |
+| C deductive operator | **FALSIFIED** — worse than identity (0.165 vs 0.190) |
+| D derandomised harness | rotation **INVARIANT**; 0.3250 but `p = 0.7705` vs letter prior |
+| E API | works; receipt is a self-digest, not a signature |
+
+NON-CLAIMS. No benchmark dominance. No SOTA. No market-ready API. The
+semantic arm is not significantly better than a modal-letter guess even
+after both fixes. What is now precise: polarity is solved exactly, the
+memory path is correct and its capacity wall is confirmed, and the
+deductive-operator route is closed by measurement. The remaining gap is
+not a transducer, a whitening rule, or a 384x384 linear map.

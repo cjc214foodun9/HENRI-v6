@@ -162,38 +162,60 @@ def rank_v6(question: str, options: list, tok: QFHRRTokenizer,
 
 
 def rank_v6_semantic(question: str, options: list, bb,
-                     cfg_full: WaveConfig, whiten: bool) -> dict:
+                     cfg_full: WaveConfig, whiten: bool,
+                     strip: bool = False) -> dict:
     """Rank options through the semantic backbone.
 
-    Two sub-arms, because whitening is NOT a neutral re-ranking. Writing
-    `G = Re(X X^H)` and `X_ortho = G^{-1/2} X` gives `s_ortho = G^{-1/2}
-    s_raw`, so `argmax` can change. Accuracy decides which rule is better;
-    this function never assumes.
-    """
-    from henri.semantic_backbone import common_mode_reject, whiten_options
+    DECISION-RULE INTEGRITY. Phase 4B measured that `stiefel_retract` on
+    candidate options maps the score vector by `G^{-1/2}`, which mixes all
+    K scores and can flip argmax. The `whiten` path is retained ONLY as a
+    labelled control so the harm stays reproducible. The default path for
+    Phase 5 is `strip`, which removes shared boilerplate tokens BEFORE
+    encoding and leaves the score linear functional untouched.
 
+    Tie-breaking uses the option's content digest, never its index. A tie
+    broken by position would re-introduce exactly the letter prior that
+    Action D exists to eliminate.
+    """
+    from henri.semantic_backbone import (common_mode_reject, whiten_options,
+                                         strip_common_option_tokens)
+
+    texts = list(options)
+    strip_rep = {}
+    if strip:
+        texts = strip_common_option_tokens(question, texts)
+        strip_rep["stripped"] = True
     q_psi = bb.encode(question).psi
-    book = np.stack([bb.encode(o).psi for o in options], axis=0)
-    rep = {}
+    book = np.stack([bb.encode(o).psi for o in texts], axis=0)
+    rep = dict(strip_rep)
     if whiten:
         book, q_psi, rep_cm = common_mode_reject(book, q_psi, gamma=1.0)
         book, q_psi, rep_w = whiten_options(book, q_psi)
-        rep = {**rep_cm, **rep_w}
+        rep = {**rep, **rep_cm, **rep_w}
     state = WaveState(q_psi, cfg_full)
-    res = select(state, book, floor=None)
+    scores = np.real(book @ np.conj(state.psi))
+    # Content-digest tie-break. Never the index.
+    digests = [hashlib.sha256(t.encode("utf-8")).hexdigest() for t in texts]
+    order = sorted(range(len(scores)),
+                   key=lambda i: (-round(float(scores[i]), 12), digests[i]))
+    sel = int(order[0])
+    top = float(scores[sel])
+    second = float(scores[order[1]]) if len(order) > 1 else -1.0
     g = np.real(book @ book.conj().T)
     np.fill_diagonal(g, 0.0)
     c_max = float(np.max(g)) if book.shape[0] > 1 else 0.0
-    ent = entropy_at_beta(np.real(book @ np.conj(state.psi)), beta=BETA_STAR)
+    ent = entropy_at_beta(scores, beta=BETA_STAR)
     return {
-        "selected_idx": int(res.index),
-        "t": float(res.top_score),
-        "second": float(res.second_score),
-        "margin": float(res.margin),
+        "selected_idx": sel,
+        "t": top,
+        "second": second,
+        "margin": top - second,
         "c_max": c_max,
         "entropy_beta_star": float(ent),
         "whitened": bool(whiten),
+        "strip": bool(strip),
         "c_max_before_whiten": rep.get("c_max_before"),
+        "selected_digest": digests[sel],
     }
 
 
@@ -254,8 +276,9 @@ def run(name: str, arm: str, limit: Optional[int], legacy: Optional[str],
         bb = SemanticBackbone(sigma=float(np.sqrt(2.0)), seed=seed)
     salt = f"{name}|{arm}|{digest[:12]}"
     whiten = arm in ("v6_semantic", "v6_semantic_whiten")
-    if arm == "v6_semantic_nowhiten":
+    if arm in ("v6_semantic_nowhiten", "v6_semantic_strip"):
         whiten = False
+    strip = "strip" in arm
     per_item, correct = [], 0
     t_vals, m_vals, c_vals, e_vals = [], [], [], []
     started = time.perf_counter()
@@ -264,7 +287,7 @@ def run(name: str, arm: str, limit: Optional[int], legacy: Optional[str],
             r = rank_v6(it["question"], it["options"], tok, cfg_full, salt)
         elif arm.startswith("v6_semantic"):
             r = rank_v6_semantic(it["question"], it["options"], bb,
-                                 cfg_full, whiten)
+                                 cfg_full, whiten, strip=strip)
         else:
             r = rank_chance(it["question"], it["options"], seed)
         if "status" in r:
@@ -321,6 +344,21 @@ def run(name: str, arm: str, limit: Optional[int], legacy: Optional[str],
         }
     if legacy:
         rec["legacy_reference"] = read_legacy(legacy, digest)
+
+    # ACTION D: paired controls on the SAME rows, plus rotation invariance.
+    arm_hits = [r.get("is_correct", False) for r in per_item if "is_correct" in r]
+    rec["controls"] = {
+        "modal_letter": round(float(np.mean(modal_letter_control(items))), 6),
+        "word_overlap": round(float(np.mean(word_overlap_control(items))), 6),
+        "uniform_chance": 0.25,
+    }
+    if arm_hits:
+        rec["mcnemar_vs_modal_letter"] = _mcnemar(arm_hits,
+                                                  modal_letter_control(items))
+        rec["mcnemar_vs_word_overlap"] = _mcnemar(arm_hits,
+                                                  word_overlap_control(items))
+    rec["rotation_check"] = check_permutation_invariance(
+        items, arm, limit=min(40, len(items)), seed=seed)
     return rec
 
 
@@ -337,6 +375,107 @@ def read_legacy(path: str, digest: str) -> dict:
         "accuracy": d.get("accuracy"),
         "egress_path": d.get("egress_path"),
         "note": "Number came from the V2 tree. It is not a v6 score.",
+    }
+
+
+def _mcnemar(arm_hits: list, ctrl_hits: list) -> dict:
+    """Paired McNemar test between an arm and a control on the same items.
+
+    WHY PAIRED. An unpaired comparison of two accuracies hides which items
+    moved. The 4B result is the cautionary case: the semantic arm scored
+    0.3050 against a modal-letter control at 0.3150, and only the paired
+    test showed the arm was not better (`p = 0.617`).
+    """
+    import math
+    b = sum(1 for a, c in zip(arm_hits, ctrl_hits) if a and not c)
+    c_ = sum(1 for a, c in zip(arm_hits, ctrl_hits) if c and not a)
+    n = b + c_
+    if n == 0:
+        return {"arm_only": 0, "control_only": 0, "z": None,
+                "p_value": None, "verdict": "NO_DISCORDANT_PAIRS"}
+    z = (b - c_) / math.sqrt(n) if n > 0 else 0.0
+    p = 0.5 * math.erfc(abs(z) / math.sqrt(2.0))
+    return {
+        "arm_only": int(b),
+        "control_only": int(c_),
+        "z": round(z, 4),
+        "p_value": round(2.0 * p, 8),
+        "verdict": ("ARM_BETTER" if p < 0.05 and b > c_
+                    else "CONTROL_BETTER" if p < 0.05 and c_ > b
+                    else "NO_DIFFERENCE"),
+    }
+
+
+def modal_letter_control(items: list) -> list:
+    """Always answer the modal gold letter. A letter-prior baseline.
+
+    Not a model. It is the floor an arm must clear to claim anything about
+    language. On the 4B subset it scored 0.3150, above the semantic arm.
+    """
+    from collections import Counter
+    cnt = Counter(it["correct_idx"] for it in items)
+    modal = cnt.most_common(1)[0][0] if cnt else 0
+    return [it["correct_idx"] == modal for it in items]
+
+
+def word_overlap_control(items: list) -> list:
+    """Pick the option sharing the most words with the question."""
+    from henri.semantic_backbone import tokens
+    out = []
+    for it in items:
+        q = set(tokens(it["question"]))
+        best, bi = -1, 0
+        for i, o in enumerate(it["options"]):
+            s = len(q & set(tokens(o)))
+            if s > best:
+                best, bi = s, i
+        out.append(bi == it["correct_idx"])
+    return out
+
+
+def check_permutation_invariance(items: list, arm: str, limit: Optional[int],
+                                 seed: int) -> dict:
+    """Rotate options 4 times; the SELECTED TEXT must not change.
+
+    ACTION D. Any index-dependent tie-break, slot asymmetry or positional
+    projection shows up here as a changed selection. A fixed-letter policy
+    scores exactly 0.2500 under rotation by construction, so this also
+    proves the harness has no letter bias of its own.
+    """
+    probe = items[:limit] if limit else items
+    bb = None
+    if arm.startswith("v6_semantic"):
+        from henri.semantic_backbone import SemanticBackbone
+        bb = SemanticBackbone(sigma=float(np.sqrt(2.0)), seed=seed)
+    cfg_full = WaveConfig(dim=65536)
+    stable = 0
+    changed = []
+    for it in probe:
+        chosen = set()
+        for r in range(4):
+            opts = it["options"][r:] + it["options"][:r]
+            if arm.startswith("v6_semantic"):
+                res = rank_v6_semantic(it["question"], opts, bb, cfg_full,
+                                       whiten=(arm == "v6_semantic_whiten"),
+                                       strip=("strip" in arm))
+                chosen.add(res["selected_digest"])
+            else:
+                import hashlib as _h
+                k = _h.sha256(
+                    (it["question"] + "|" + str(seed)).encode()).digest()
+                idx = k[0] % len(opts)
+                chosen.add(_h.sha256(opts[idx].encode()).hexdigest())
+        if len(chosen) == 1:
+            stable += 1
+        elif len(changed) < 5:
+            changed.append(it["record_id"])
+    n = len(probe)
+    return {
+        "items": n,
+        "rotation_invariant": stable,
+        "rotation_invariance_rate": round(stable / max(1, n), 6),
+        "verdict": "INVARIANT" if stable == n else "POSITION_DEPENDENT",
+        "example_unstable_ids": changed,
     }
 
 
@@ -379,7 +518,7 @@ def main() -> int:
     ap.add_argument("--benchmark", choices=sorted(CANONICAL), default="mmlu")
     ap.add_argument("--arm", required=True,
                     choices=["v6", "chance", "v6_semantic", "v6_semantic_whiten",
-                             "v6_semantic_nowhiten"])
+                             "v6_semantic_nowhiten", "v6_semantic_strip"])
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--legacy-receipt", default=None)
     ap.add_argument("--out", default=None)

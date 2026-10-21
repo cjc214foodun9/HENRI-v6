@@ -650,6 +650,94 @@ auxiliary bank needs at least 24 cartridges, or
 <code>D = 65536</code>). "Zero-SGD ingestion into one DeltaMemory" is not a
 capacity plan; it is a partitioning problem.</p>
 
+<h2>Phase 5 — five actions: one exact repair, one falsification</h2>
+<p class="sub">Polarity now reaches -1.0000 exactly at every slot weighting. The cartridge
+bank is correct and its write-time step measured redundant. And the deductive
+operator is worse than identity. Suite: 401 passed, 14 skipped, kernel SEALED.</p>
+
+<h3>Action A — the spec's -1.0000 is a sub-wave quantity</h3>
+<p>The directive claims canonicalising antonyms plus a <code>+128 mod 256</code>
+half-turn on Slot 1 drives full-sentence antonym coherence below -0.50. It does
+not follow. With two slots of energy <code>w0</code> and <code>w1</code>, one
+identical and one antipodal, coherence is <code>2&middot;w0 - 1</code>:</p>
+<table>
+  <tr><th>w0</th><th>spec's construction</th><th>both slots flipped</th><th>synonym</th></tr>
+  <tr><td>0.50</td><td class="neg">+0.0000</td><td><strong>-1.0000</strong></td><td>+0.7177</td></tr>
+  <tr><td>0.30</td><td class="neg">-0.4000</td><td><strong>-1.0000</strong></td><td>+0.7177</td></tr>
+  <tr><td>0.20</td><td>-0.6000</td><td><strong>-1.0000</strong></td><td>+0.7177</td></tr>
+</table>
+<p>Equal slots give exactly zero, never -1.0. Crossing -0.50 the spec's way needs
+75&nbsp;percent of the energy in polarity, which crushes the synonym gate.
+<strong>The repair costs nothing:</strong> flip Slot 0 by the same half-turn, since a
+directional antonym differs from its root in direction alone. Coherence becomes
+<code>-w0 - w1 = -1.0</code> exactly, at every weighting, with no tradeoff.</p>
+<p>Three defects in my own repair, each caught by measurement, each of which would
+have passed a naive gate: applying the sign <em>and</em> the ring shift flips slot 1
+twice (<code>+0.0042</code>); canonicalising only the negative member leaves
+<code>"increases"</code> and <code>"decrease"</code> distinct (<code>-0.664</code>);
+one global root collapses <code>"hot"</code> onto <code>"increase"</code>
+(<code>-0.3333</code> while silently destroying meaning).</p>
+
+<h3>Action B — the spec contradicts its own proof</h3>
+<p>Action B says orthogonalise cartridge keys, then "match against
+<code>K_c_ortho</code>". That is the equation Phase 4B falsified, re-entering
+through the memory path: <code>s_ortho = G^(-1/2) s_raw</code>. Measured at
+<code>D=4096, m=64</code>: argmax differed on <strong>40/40</strong> queries.</p>
+<p>Implemented split: <strong>match on original keys</strong>, <strong>read by index</strong>
+through <code>DeltaMemory</code>, <strong>route by original-key centroid</strong>.</p>
+<p>Is the write-time step needed at all? <strong>No.</strong> The gated delta rule
+already orthogonalises internally. Writing 64 keys with raw coherence up to
+0.9934 left a stored-key Gram with off-diagonal <strong>0.000000</strong> and paired
+recall 1.0000 at every level. External key orthogonalisation adds cost, no benefit.</p>
+
+<h3>Action C — W_deduce falsified</h3>
+<table>
+  <tr><th>arm</th><th>held-out retrieval top-1</th><th>mean own similarity</th></tr>
+  <tr><td>W_deduce (ridge, lam=1.0, R&sup2;=0.2147)</td><td>0.165</td><td>0.306052</td></tr>
+  <tr><td>control: identity (no transition)</td><td><strong>0.190</strong></td><td>0.323451</td></tr>
+  <tr><td>control: shuffled Q&rarr;A pairs</td><td>0.125</td><td>0.212885</td></tr>
+</table>
+<p><code>FALSIFIED_DOES_NOT_BEAT_CONTROLS</code>. The operator is <em>worse</em> than
+doing nothing. It beats only the shuffled control — the signature of a mean-direction
+prior, not deduction. A 384&times;384 linear functional of one pooled embedding cannot
+carry deductive consequence.</p>
+<p>Two leakage false-positives, both mine. The CSV index column has only
+<strong>1534 distinct values across 14,042 rows</strong> (it restarts per subject),
+reporting 152 overlaps on a split sharing no rows. And hashing the question alone
+reported 1 overlap: a generic stem, <em>"Which of the following statements is true?"</em>.
+Item identity is question + options + answer. Final: <code>id_overlap = 0</code>,
+<code>item_overlap = 0</code>, stem overlap 1, disclosed.</p>
+<p><strong>Footprint, recorded before allocating:</strong> one cartridge at D=65536,
+rank=64, complex128 is 128&nbsp;MiB. The 13,632-row bank needs 213 cartridges =
+<strong>26.62&nbsp;GiB</strong> (13.31&nbsp;GiB at complex64). The spec's C=256 is silent
+on bytes. At complex128 this does not fit beside anything else on a 32&nbsp;GiB card.</p>
+
+<h3>Action D — rotation invariant, but not decisive</h3>
+<p>Content-digest tie-break (never index), 4&times; cyclic rotation, paired McNemar.
+Rotation: <code>INVARIANT</code>, rate 1.000000.</p>
+<table>
+  <tr><th>arm</th><th>acc</th><th>z</th><th>p</th><th>McNemar vs modal letter</th></tr>
+  <tr><td>v6_semantic_strip (n=400)</td><td>0.3250</td><td>+3.4064</td><td>0.000329</td><td class="neg">z=0.2917, p=0.7705</td></tr>
+  <tr><td>v6_semantic_nowhiten (4B)</td><td>0.3050</td><td>+2.48</td><td>0.0065</td><td>z=-0.2965, p=0.617</td></tr>
+  <tr><td>modal-letter control</td><td>0.3150</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+  <tr><td>word-overlap control</td><td>0.2475</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+</table>
+<p>Stripping improves on 4B and removes the score mixing, but the paired test
+reads <strong>p = 0.7705</strong>, verdict <code>NO_DIFFERENCE</code>. The arm edges the
+letter prior and does not significantly beat it. Mean c_max after stripping is
+0.8166, so the Margin Law stays out of domain on overlapping options.</p>
+
+<h3>Action E — API surface, with one honesty correction</h3>
+<p><code>henri/api.py</code> exposes <code>rank_options</code>,
+<code>ingest_cartridge</code>, <code>verify_seal</code>. Verified live, including
+rotation invariance across four option orders and rejection above the rank wall.</p>
+<p><strong>Correction:</strong> the directive asks for a <em>signed</em> receipt. No
+secret exists in the module, so a signature would be a false claim. The receipt
+carries a sha256 self-digest labelled
+<code>sha256_self_digest_not_signature</code>. It detects tampering; it does not
+prove who produced it. <code>sagnac_delta</code> reports <code>None</code>, not
+<code>0.0</code>, because the veto is not wired to this endpoint.</p>
+
 <h2>Decisions that are yours</h2>
 <table>
   <tr><th>Decision</th><th>State</th><th>Options</th></tr>
