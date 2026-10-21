@@ -738,6 +738,136 @@ carries a sha256 self-digest labelled
 prove who produced it. <code>sagnac_delta</code> reports <code>None</code>, not
 <code>0.0</code>, because the veto is not wired to this endpoint.</p>
 
+<h2>Phase 6 — five actions, fifteen measured defects, no benchmark claim</h2>
+<p class="sub">Calibration holds and the order channel works. The cold tier costs
+1.832 GiB instead of 26.625 GiB. The margin gate could not fail until the
+threshold moved off the null. Open-loop MBPP ranking does not discriminate.
+Text alternative: this section reports five actions with measured values, two
+rejected specification claims, and fifteen defects found by measurement.
+Suite: 423 passed, 14 skipped, kernel SEALED.</p>
+
+<h3>Action 1 — two spec claims rejected before code</h3>
+<p>Three findings are arithmetic, not measurements. The regularised covariance
+whitener <code>(&#931; + &#955;I)<sup>-1/2</sup></code> is a full-rank mixing
+matrix. Applied to options it is the operator Phase 4B falsified. Fitting it
+offline changes provenance, not effect. The token rotor cannot separate
+<code>'ab'</code> from <code>'ba'</code>, because
+<code>tokens('ab') = ['ab']</code> is one token at position zero. And one inner
+product cannot carry both gates: <code>feasibility()</code> searches the simplex
+at step 0.02 and finds zero solutions. Order therefore gets its own channel,
+which leaves Action A's -1.0000 untouched by construction.</p>
+<table>
+  <caption>Gates, p=3, fitted on 2,000 ingestion rows, zero held-out rows</caption>
+  <tr><th>Gate</th><th>Measured</th><th>Verdict</th></tr>
+  <tr><td>held rows in fit</td><td>0</td><td>PASS</td></tr>
+  <tr><td>mean option c<sub>max</sub></td><td>0.781052 &rarr; <strong>0.770887</strong></td><td>PASS vs 0.816555</td></tr>
+  <tr><td>retrieval top-1</td><td>0.19 &rarr; <strong>0.1925</strong></td><td>PASS</td></tr>
+  <tr><td>rotation invariance</td><td>1.000000</td><td>PASS</td></tr>
+  <tr><td>rotor, spec pairs</td><td>0.041089 / -0.107643</td><td>PASS</td></tr>
+  <tr><td>Action A preserved</td><td>antonym -1.0000, synonym 0.699913</td><td>PASS</td></tr>
+</table>
+<p>The two extra order pairs I added fail their own 0.10 bar: 0.119477 and
+0.252345. With orthogonal character codes the cosine approximates matching over
+total positions, which is 1/6 and 6/28 for those pairs. Reported bounded, not
+rounded up. Four defects in my own order channel were caught by measurement. A
+scalar stride is a global phase, so it cannot separate anything: measured
+0.8456. Reusing the semantic stem injected
+<code>cos('a','b') = 0.6357</code>: measured 0.478. And
+<code>char_codes</code> read the raw string while <code>char_positions</code>
+filtered punctuation, misaligning every character: 0.4577 &rarr; -0.107643
+after the fix.</p>
+
+<h3>Action 2 — cold tier costs 1.832 GiB, not 26.625 GiB</h3>
+<p>A cold cartridge stores keys and values: <code>2 x 64 x 2 x 16384 =
+4,194,304 B</code>, exactly 4.00 MiB. The directive's 16x assumed keys only;
+storing both in the same budget doubles the factor.</p>
+<table>
+  <caption>Tier budget, 213 cartridges covering 13,632 rows</caption>
+  <tr><th>Quantity</th><th>Bytes</th><th>GiB</th></tr>
+  <tr><td>complex128 baseline</td><td>28,588,354,560</td><td>26.625</td></tr>
+  <tr><td>uint8 cold tier</td><td>893,386,752</td><td><strong>0.832</strong></td></tr>
+  <tr><td>hot LRU ceiling, max 8</td><td>1,073,741,824</td><td>1.000</td></tr>
+  <tr><td>tier total</td><td>1,967,128,576</td><td><strong>1.832</strong></td></tr>
+</table>
+<p>Reduction is 32.00x against complex128. Seven gates pass, including two
+negative controls: a non-unit input must not preserve magnitude, and a zero hot
+ceiling is rejected at construction.</p>
+
+<h3>Action 3 — the margin gate could not fail, and now can</h3>
+<p>The real sealed statistic takes <code>WaveState</code> objects, not bare
+arrays. A reference transcript asserted arrays; the source wins. Live value:
+<code>sagnac_delta = 0.371490214</code>. Failures record
+<code>sagnac_error</code> rather than a fabricated zero.</p>
+<p>The first wiring reported an out-of-bank query as a hit with
+<code>w_mem = 0.0455</code>, breaking the zero-degradation guarantee. The cause
+is algebra. Slot 1 carries a fixed role basis identical for every input, so
+unrelated text scores <code>+0.5705</code> on the full wave and
+<code>+0.0705</code> on the content subspace. A mean of <code>+0.6255</code>
+puts <code>tau_hit = 0.55</code> inside the null. A threshold that cannot
+separate a hit from noise is not a gate.</p>
+<table>
+  <caption>Margin gate after reading t_key on the content subspace</caption>
+  <tr><th>Query</th><th>t<sub>key</sub></th><th>hit</th><th>w<sub>mem</sub></th></tr>
+  <tr><td>in-bank</td><td>0.887598</td><td>True</td><td>0.500</td></tr>
+  <tr><td>out-of-bank</td><td>0.140924</td><td><strong>False</strong></td><td><strong>0.0</strong></td></tr>
+</table>
+<p>One more defect surfaced at the same time: the router stored
+<code>(C, cold_slot)</code> centroids while <code>route()</code> normalised the
+full wave, a broadcast error on every call once
+<code>cold_slot &lt; dim</code>.</p>
+
+<h3>Action 4 — pooled rotation, scope SUBSET_SMOKE</h3>
+<p><code>pooled_rotation_trials</code> was defined but never called, so the
+receipt carried null. A definition is not a measurement. Now wired at n = 60.</p>
+<table>
+  <caption>Pooled 4x cyclic rotation, arm v6_semantic_strip</caption>
+  <tr><th>Quantity</th><th>Value</th></tr>
+  <tr><td>pooled trials</td><td>240</td></tr>
+  <tr><td>pooled arm accuracy</td><td>0.416667</td></tr>
+  <tr><td>unrotated accuracy</td><td>0.416667</td></tr>
+  <tr><td>fixed-letter baseline</td><td>0.250000 by construction</td></tr>
+  <tr><td>McNemar vs fixed letter</td><td>z = 3.8139, p = 0.00013682, ARM_BETTER</td></tr>
+  <tr><td>stratified split</td><td>A 100 / B 100 / C 100 / D 100</td></tr>
+</table>
+<p>Pooled accuracy equals unrotated accuracy exactly. That identity is the
+verification: a rotation-invariant arm must preserve accuracy while the
+fixed-letter control is forced to 0.2500. The stratified split first drew from
+the limit slice and came out 14 / 18 / 18 / 10, which is not balanced; it now
+draws from the full corpus. Scope is n = 60 and is not comparable to the Phase 5
+n = 400 figure of 0.3250.</p>
+
+<h3>Action 5 — MBPP open-loop ranking is not well posed</h3>
+<table>
+  <caption>K = 8 pool, n = 60 held-out tasks, 800/174 split</caption>
+  <tr><th>Metric</th><th>Value</th><th>Reference</th></tr>
+  <tr><td>wave top-1</td><td><strong>0.0</strong></td><td>chance 0.1250</td></tr>
+  <tr><td>wave top-3</td><td>0.4333</td><td>chance 0.3750</td></tr>
+  <tr><td>exec-verified top-1</td><td>0.4167</td><td>gold oracle 1.0</td></tr>
+  <tr><td>mean tie-group size</td><td>1.6333</td><td>needs &lt; 1.5</td></tr>
+  <tr><td>gold in max-score group</td><td>0.20</td><td>control 0.05, lift 4.0x</td></tr>
+</table>
+<p>Top-1 at exactly zero is below chance, which signals index-driven selection.
+Confirmed: most tasks have tied scores, so <code>argsort</code> returns a fixed
+order and <code>argmax</code> cannot rank a plateau. Three defects were fixed
+here. Mutation validity was 0.5714 on the first run, so the negatives were not
+negatives and the closed-loop number measured pool weakness; the mutations now
+change semantics. And the size-matched control added <code>1/|G|</code>
+unconditionally, counting a hit when gold was absent, which produced a fake
+0.2353 lift. After conditioning the lift is 4.0x. Even so, a mean tie-group of
+1.6333 means the open-loop statistic is not well posed at this pool design.</p>
+
+<h3>What Phase 6 establishes</h3>
+<p>Fifteen defects were found by measurement: eleven in production code, two in
+my own test fixtures, and two specification claims rejected or bounded before
+code. Calibration and the order channel hold. The cold tier costs 1.832 GiB
+against a 3.0 GiB gate. The margin gate now fails for out-of-bank queries.
+Pooled rotation is invariant. MBPP open-loop ranking does not discriminate.</p>
+<p><strong>Non-claims.</strong> No benchmark dominance. No SOTA. No
+market-ready API. The c<sub>max</sub> move from 0.7811 to 0.7709 is small and is
+not a breakthrough. The Action 4 win is a 60-item smoke test. The covariance
+whitener is rejected on algebra, not measurement. Every number above comes from
+a receipt on disk.</p>
+
 <h2>Decisions that are yours</h2>
 <table>
   <tr><th>Decision</th><th>State</th><th>Options</th></tr>
