@@ -543,6 +543,113 @@ is not that regime. Consequence: margin is not a usable confidence gate on optio
 sets drawn from overlapping text. The Stage-8 result still holds, because there the
 codebook was orthogonalised first.</p>
 
+<h2>Phase 4B — semantic backbone: built, and four claims falsified</h2>
+<p class="sub">The phase lift is mathematically correct. The whitening is exact. The
+memory bound is confirmed to the row. And the arm still reads at chance once a
+trivial letter prior is controlled for. The failures are the deliverable.</p>
+
+<h3>Promotion of the prior phase, verified</h3>
+<p><code>promotion_gate.py</code> read <code>PROMOTE</code> at <code>170f420</code>:
+tree clean, kernel SEALED, 377 passed, 0 failed, floor 370. Merged
+<code>--no-ff</code> to <code>main</code>. Remote readback
+<code>refs/heads/main = 99dc20ec0845c4ba6cb129be9ab63f7c13afafd1</code>,
+byte-equal to local HEAD.</p>
+
+<h3>A defect that would have passed: the specification's own normalisation</h3>
+<p>The directive specifies <code>Omega^T Omega = (16384/d_sem) I</code>, the
+unit-norm row convention. At <code>d_sem = 384</code> with
+<code>sigma = sqrt2</code> that makes the effective bandwidth
+<code>sigma/sqrt(384)</code>, and every pair collapses toward coherence 1.</p>
+<table>
+  <tr><th>frame normalisation</th><th>synonym</th><th>shuffled control</th><th>meaning</th></tr>
+  <tr><td>unit rows (as specified)</td><td>0.9928</td><td class="neg">0.9866</td><td>gate "passes", all discrimination destroyed</td></tr>
+  <tr><td><code>Omega Omega^T = d I</code></td><td>0.6268</td><td>0.3203</td><td>discrimination restored</td></tr>
+</table>
+<p>The first row is the second vacuous-control defect this project has caught,
+and the first that would have shipped. The repair is a factor of
+<code>sqrt(d_sem)</code>. After it, the closed form holds across
+<code>sigma in {0.5, 1, sqrt2, 2, 3, 4}</code> with maximum relative error
+<strong>0.042152</strong>.</p>
+
+<h3>G-SEM1 — synonymy marginal, negation falsified</h3>
+<table>
+  <tr><th>gate</th><th>measured</th><th>verdict</th></tr>
+  <tr><td>synonym <code>&ge; 0.65</code></td><td>0.6268</td><td class="blk">FAIL, marginally</td></tr>
+  <tr><td>shuffled control</td><td>0.3203</td><td>control holds</td></tr>
+  <tr><td>proposition antonym <code>&le; -0.50</code></td><td class="neg">+0.0465</td><td class="neg">FAIL</td></tr>
+  <tr><td>bare antonym <code>&le; -0.50</code></td><td class="neg">+0.4948</td><td class="neg">FAIL</td></tr>
+  <tr><td>polarity slot product <code>&lt; 0</code></td><td>-0.800</td><td>separates by sign</td></tr>
+</table>
+<p><strong>The negation claim is falsified, and the reason matters.</strong> A
+frozen encoder places antonyms at positive cosine, mean
+<code>+0.622</code> (<code>increase/decrease</code> 0.608, <code>hot/cold</code>
+0.519, <code>positive/negative</code> 0.714). The distributional hypothesis
+explains it: antonyms occur in the same contexts. So polarity cannot come from
+a linear functional of the embedding, which is what the spec proposes. It is
+recoverable only from an explicit lexical signal, and here it is: a fixed role
+basis plus <code>+128 mod 256</code> gives an exact half-turn.</p>
+
+<h3>G-SEM2 — whitening exact, Margin Law still out of domain</h3>
+<table>
+  <tr><th>quantity</th><th>before</th><th>after</th></tr>
+  <tr><td>option <code>c_max</code></td><td>0.8078</td><td>0.000000</td></tr>
+  <tr><td>Margin Law residual</td><td>0.056588</td><td class="neg">0.015767</td></tr>
+  <tr><td>noise floor</td><td>0.004599</td><td>0.004599</td></tr>
+</table>
+<p>Whitening is exact and the <code>gamma = 0</code> control leaves
+<code>c_max</code> untouched, so the gate can fail. But with
+<code>c_max = 0</code> the law predicts <code>margin = t</code>, and the measured
+margin is not <code>t</code>. The residual stays <strong>3.4&times;</strong> the
+floor. "Whitening restores exact operation" is <strong>FALSIFIED</strong>.</p>
+<p>Two further corrections. Common-mode rejection does <em>not</em> orthogonalise:
+projecting K rows off the centroid leaves them spanning only K-1 dimensions, so
+they stay mutually correlated (measured residual 0.237). And whitening is
+<em>not</em> a neutral re-ranking: <code>s_ortho = G^(-1/2) s_raw</code>, so
+argmax can move. It moved MMLU from 0.3050 down to 0.2475.</p>
+
+<h3>G-SEM4 — falsified, and the apparent edge is a letter prior</h3>
+<table>
+  <tr><th>arm</th><th>bench</th><th>n</th><th>correct</th><th>acc</th><th>z</th><th>p</th></tr>
+  <tr><td>v6 hash</td><td>MMLU</td><td>400</td><td>109</td><td>0.2725</td><td>+0.98</td><td>0.163</td></tr>
+  <tr><td>chance</td><td>MMLU</td><td>400</td><td>105</td><td>0.2625</td><td>+0.52</td><td>0.302</td></tr>
+  <tr><td><strong>semantic, no whiten</strong></td><td>MMLU</td><td>400</td><td>122</td><td>0.3050</td><td>+2.48</td><td>0.0065</td></tr>
+  <tr><td>semantic, whiten</td><td>MMLU</td><td>400</td><td>99</td><td>0.2475</td><td>-0.17</td><td>0.569</td></tr>
+  <tr><td>v6 hash</td><td>GPQA</td><td>198</td><td>59</td><td>0.2980</td><td>+1.48</td><td>0.070</td></tr>
+  <tr><td><strong>semantic, no whiten</strong></td><td>GPQA</td><td>198</td><td>46</td><td class="neg">0.2323</td><td>-0.66</td><td>0.744</td></tr>
+</table>
+<p>Pre-registered bar was <code>z &ge; +4.0</code> after Bonferroni. Best result
+is +2.48 <em>before</em> correction, and GPQA is below chance.</p>
+<p><strong>The MMLU 0.3050 does not survive scrutiny.</strong> Gold letters on
+this subset are imbalanced (A 75, B 93, C 126, D 106). Always answering the modal
+letter C scores <strong>0.3150</strong> &mdash; higher than the semantic arm. Paired
+McNemar: <code>arm_only = 89</code>, <code>baseline_only = 93</code>,
+<code>z = -0.2965</code>, <code>p = 0.617</code>. The arm is not better than a
+letter prior. Longest-option (0.2525) and word-overlap (0.2475) baselines were
+also checked.</p>
+
+<h3>DeltaMemory capacity — derived, then confirmed to the row</h3>
+<p><code>henri/memory.py</code> stores <code>S = V K^H</code> with both factors
+<code>(D, rank)</code>, so <code>rank(S) &le; rank</code> by construction,
+independent of <code>m</code>. Exact recovery of <code>m</code> independent
+associations forces <code>rank(S) &ge; m</code>, hence <code>m &le; rank</code>.
+That is a rank wall. The tolerance capacity is <code>m* ~ D</code>, far above it.
+The binding constraint is <code>min(rank, m*) = rank</code>.</p>
+<table>
+  <tr><th>m</th><th>recall (err &lt; 0.5)</th><th>mean error</th><th>within exact</th></tr>
+  <tr><td>16</td><td>1.000</td><td>0.0000</td><td>yes</td></tr>
+  <tr><td>32</td><td>1.000</td><td>0.0000</td><td>yes</td></tr>
+  <tr><td><strong>64</strong></td><td><strong>1.000</strong></td><td><strong>0.0000</strong></td><td><strong>yes</strong></td></tr>
+  <tr><td>128</td><td class="neg">0.070</td><td>1.0662</td><td>no</td></tr>
+  <tr><td>256</td><td class="neg">0.035</td><td>1.2006</td><td>no</td></tr>
+</table>
+<p>Exact to the row at <code>m = rank</code>, collapse immediately after
+(<code>D = 4096</code>, <code>rank = 64</code>). Consequence: with
+<code>rank = 64</code> one cartridge holds 64 exact associations. The MMLU
+auxiliary bank needs at least 24 cartridges, or
+<code>rank &ge; 1536</code> in one cartridge (1.6 GiB of factors at
+<code>D = 65536</code>). "Zero-SGD ingestion into one DeltaMemory" is not a
+capacity plan; it is a partitioning problem.</p>
+
 <h2>Decisions that are yours</h2>
 <table>
   <tr><th>Decision</th><th>State</th><th>Options</th></tr>

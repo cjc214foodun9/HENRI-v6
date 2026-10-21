@@ -161,6 +161,42 @@ def rank_v6(question: str, options: list, tok: QFHRRTokenizer,
     }
 
 
+def rank_v6_semantic(question: str, options: list, bb,
+                     cfg_full: WaveConfig, whiten: bool) -> dict:
+    """Rank options through the semantic backbone.
+
+    Two sub-arms, because whitening is NOT a neutral re-ranking. Writing
+    `G = Re(X X^H)` and `X_ortho = G^{-1/2} X` gives `s_ortho = G^{-1/2}
+    s_raw`, so `argmax` can change. Accuracy decides which rule is better;
+    this function never assumes.
+    """
+    from henri.semantic_backbone import common_mode_reject, whiten_options
+
+    q_psi = bb.encode(question).psi
+    book = np.stack([bb.encode(o).psi for o in options], axis=0)
+    rep = {}
+    if whiten:
+        book, q_psi, rep_cm = common_mode_reject(book, q_psi, gamma=1.0)
+        book, q_psi, rep_w = whiten_options(book, q_psi)
+        rep = {**rep_cm, **rep_w}
+    state = WaveState(q_psi, cfg_full)
+    res = select(state, book, floor=None)
+    g = np.real(book @ book.conj().T)
+    np.fill_diagonal(g, 0.0)
+    c_max = float(np.max(g)) if book.shape[0] > 1 else 0.0
+    ent = entropy_at_beta(np.real(book @ np.conj(state.psi)), beta=BETA_STAR)
+    return {
+        "selected_idx": int(res.index),
+        "t": float(res.top_score),
+        "second": float(res.second_score),
+        "margin": float(res.margin),
+        "c_max": c_max,
+        "entropy_beta_star": float(ent),
+        "whitened": bool(whiten),
+        "c_max_before_whiten": rep.get("c_max_before"),
+    }
+
+
 # -- chance arm ----------------------------------------------------------
 
 def rank_chance(question: str, options: list, seed: int) -> dict:
@@ -210,15 +246,25 @@ def run(name: str, arm: str, limit: Optional[int], legacy: Optional[str],
         seed: int = 20261020) -> dict:
     items, digest = load_items(name, limit)
     cfg_slot = WaveConfig(dim=16384)
+    cfg_full = WaveConfig(dim=65536)
     tok = QFHRRTokenizer(cfg_slot, seed=seed) if arm == "v6" else None
+    bb = None
+    if arm.startswith("v6_semantic"):
+        from henri.semantic_backbone import SemanticBackbone
+        bb = SemanticBackbone(sigma=float(np.sqrt(2.0)), seed=seed)
     salt = f"{name}|{arm}|{digest[:12]}"
-
+    whiten = arm in ("v6_semantic", "v6_semantic_whiten")
+    if arm == "v6_semantic_nowhiten":
+        whiten = False
     per_item, correct = [], 0
     t_vals, m_vals, c_vals, e_vals = [], [], [], []
     started = time.perf_counter()
     for it in items:
         if arm == "v6":
-            r = rank_v6(it["question"], it["options"], tok, cfg_slot, salt)
+            r = rank_v6(it["question"], it["options"], tok, cfg_full, salt)
+        elif arm.startswith("v6_semantic"):
+            r = rank_v6_semantic(it["question"], it["options"], bb,
+                                 cfg_full, whiten)
         else:
             r = rank_chance(it["question"], it["options"], seed)
         if "status" in r:
@@ -299,8 +345,7 @@ def _significance(correct: int, n: int, p0: float = 0.25) -> dict:
 
     The raw gap `acc - 0.25` is not evidence on 40 items. This returns the
     z statistic with a continuity correction and its one-sided p-value, so
-    a reader cannot mistake a 2-item edge for a signal. `math.erfc` keeps
-    the runner dependency-free.
+    a reader cannot mistake a 2-item edge for a signal.
     """
     import math
 
@@ -332,7 +377,9 @@ def _significance(correct: int, n: int, p0: float = 0.25) -> dict:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--benchmark", choices=sorted(CANONICAL), default="mmlu")
-    ap.add_argument("--arm", choices=["v6", "chance"], required=True)
+    ap.add_argument("--arm", required=True,
+                    choices=["v6", "chance", "v6_semantic", "v6_semantic_whiten",
+                             "v6_semantic_nowhiten"])
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--legacy-receipt", default=None)
     ap.add_argument("--out", default=None)
