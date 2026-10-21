@@ -160,6 +160,24 @@ def test_unit_rows_normalizes():
 
 
 def test_large_k_refused():
-    """Guard against an accidental large Gram allocation."""
-    with pytest.raises(MemoryError, match="constraint C7"):
-        gram_matrix(_random_rows(600, 512))
+    """Guard against an accidental large Gram allocation.
+
+    The guard is a BYTE BUDGET, not a fixed 512-row cap. The 512 cap made
+    the retraction trigger unevaluable at production cartridge size
+    (M=4096), which was a measured defect, not protection. This test pins
+    the budget so the guard cannot disappear, and pins that a production
+    M x M Gram is NOT refused.
+    """
+    from henri import gram as gram_module
+
+    saved = gram_module.GRAM_BYTES_LIMIT
+    try:
+        gram_module.GRAM_BYTES_LIMIT = 1024
+        with pytest.raises(MemoryError, match="budget"):
+            gram_matrix(_random_rows(600, 512))
+    finally:
+        gram_module.GRAM_BYTES_LIMIT = saved
+
+    # The dual form at production size must pass the guard.
+    assert gram_matrix(_random_rows(600, 512)).shape == (600, 600)
+    assert gram_module.GRAM_BYTES_LIMIT >= 600 * 600 * 16

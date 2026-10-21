@@ -61,6 +61,7 @@ from typing import List, Optional
 import numpy as np
 
 from henri.config import WaveConfig
+from henri import form_pin
 from henri.sagnac import sagnac_delta
 from henri.state import WaveState
 
@@ -130,13 +131,22 @@ class PassReceipt:
     wave: WaveState
     delta_sagnac: float
     verified: bool = True
+    statistic: str = field(default=form_pin.DENSE_FORM)
+    dilution: float = field(default=1.0)
 
     def as_dict(self) -> dict:
-        return {
+        out = {
             "status": self.status,
             "delta_sagnac": float(self.delta_sagnac),
             "verified": bool(self.verified),
         }
+        # Emitted only when it is not the identity, so dense receipts stay
+        # byte-identical. A reported dilution is measurable; silence was the
+        # defect (see henri/form_pin.py).
+        if self.dilution != 1.0 or self.statistic != form_pin.DENSE_FORM:
+            out["statistic"] = self.statistic
+            out["dilution"] = float(self.dilution)
+        return out
 
 
 @dataclass
@@ -148,15 +158,21 @@ class VetoReceipt:
     intensity_dark: float
     mismatch: np.ndarray
     verified: bool = False
+    statistic: str = field(default=form_pin.DENSE_FORM)
+    dilution: float = field(default=1.0)
 
     def as_dict(self) -> dict:
-        return {
+        out = {
             "status": self.status,
             "delta_sagnac": float(self.delta_sagnac),
             "intensity_dark": float(self.intensity_dark),
             "mismatch_norm": float(np.linalg.norm(self.mismatch)),
             "verified": False,
         }
+        if self.dilution != 1.0 or self.statistic != form_pin.DENSE_FORM:
+            out["statistic"] = self.statistic
+            out["dilution"] = float(self.dilution)
+        return out
 
 
 class SagnacHomodyneGate:
@@ -169,12 +185,28 @@ class SagnacHomodyneGate:
     """
 
     def __init__(
-        self, tau_veto: float = TAU_VETO_CEILING, cfg: Optional[WaveConfig] = None
+        self, tau_veto: float = TAU_VETO_CEILING, cfg: Optional[WaveConfig] = None,
+        statistic: Optional[str] = None, family: Optional[str] = None,
     ) -> None:
         if not 0.0 < tau_veto <= 1.0:
             raise ValueError("tau_veto must be in (0, 1]")
         self.tau_veto = float(tau_veto)
         self.cfg = cfg
+        self.family = family
+        # Pins the FORM at construction. An unmeasured family or an unknown
+        # statistic name raises here, before any wave is read.
+        self.statistic = form_pin.require_form(statistic, None, family)
+
+    def statistic_value(self, psi_cand: WaveState, psi_axiom: WaveState) -> float:
+        """The pinned statistic for this gate.
+
+        `form_pin.DENSE_FORM` is the spec form and is what tau was calibrated
+        against on unit-modulus rows. `form_pin.INVARIANT_FORM` is immune to
+        zero-filled dimensions, which constraint C6 mandates.
+        """
+        if self.statistic == form_pin.INVARIANT_FORM:
+            return form_pin.form_inner_product(psi_cand.psi, psi_axiom.psi)
+        return form_pin.form_phase(psi_cand.psi, psi_axiom.psi)
 
     # -- statistics ----------------------------------------------------
 
@@ -231,9 +263,13 @@ class SagnacHomodyneGate:
         loses the failure signature the thermostat needs.
         """
         delta, mismatch = self.compute_phase_divergence(psi_cand, psi_axiom)
+        if self.statistic != form_pin.DENSE_FORM:
+            delta = self.statistic_value(psi_cand, psi_axiom)
+        dilution = form_pin.dilution_factor(psi_cand.psi)
         if delta <= self.tau_veto:
             return PassReceipt(
-                status=CONSTRUCTIVE, wave=psi_cand, delta_sagnac=delta
+                status=CONSTRUCTIVE, wave=psi_cand, delta_sagnac=delta,
+                statistic=self.statistic, dilution=dilution,
             )
         intensity_dark = 0.5 * (1.0 - float(np.cos(delta)))
         if recoil_buffer is not None:
@@ -243,6 +279,8 @@ class SagnacHomodyneGate:
             delta_sagnac=delta,
             intensity_dark=intensity_dark,
             mismatch=mismatch,
+            statistic=self.statistic,
+            dilution=dilution,
         )
 
     def veto_decision(

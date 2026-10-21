@@ -24,7 +24,9 @@ import numpy as np
 from henri.config import N_SLOTS, WaveConfig
 from henri.hopfield import cleanup
 from henri.koopman import KoopmanOperator
-from henri.kuramoto import LOCK_THRESHOLD, KuramotoState, lock, order_parameter
+from henri.kuramoto import (
+    LOCK_THRESHOLD, KuramotoState, lock, lock_steps_for_dim, order_parameter,
+)
 from henri.readout import ActionEnvelope, ReadoutResult, make_envelope, select
 from henri.sagnac import VetoCalibration, confidence, veto
 from henri.state import WaveState
@@ -121,7 +123,7 @@ def run_pipeline(
     coupling: float = 6.0,
     dt: float = 1e-3,
     relax_steps: int = 3,
-    lock_steps: int = 200,
+    lock_steps: Optional[int] = None,
     seed: Optional[int] = None,
 ) -> PipelineResult:
     """Execute the full CPU pipeline once.
@@ -137,7 +139,10 @@ def run_pipeline(
         coupling: Kuramoto coupling K.
         dt: integration step.
         relax_steps: Koopman steps.
-        lock_steps: Kuramoto iterations.
+        lock_steps: Kuramoto iterations. `None` derives the budget from
+            the dimension with `lock_steps_for_dim`, which scales as
+            `2 ln(D) / K`. A fixed budget calibrated at small D is too
+            short at D = 65536 (defect F8).
         seed: seed for operator construction.
 
     Returns:
@@ -155,6 +160,8 @@ def run_pipeline(
 
     # 2. relax: Kuramoto lock, reported not assumed
     ku = KuramotoState.from_wave(relaxed, rng=rng)
+    if lock_steps is None:
+        lock_steps = lock_steps_for_dim(cfg.dim, coupling=coupling, dt=dt)
     ku_locked, r_trace = lock(ku, coupling, dt, lock_steps)
     r_final = order_parameter(ku_locked.phases)[0]
     locked = bool(r_final >= LOCK_THRESHOLD)
@@ -207,6 +214,7 @@ def run_pipeline(
             "energy_steps": int(energy_trace.size),
             "r_initial": float(r_trace[0]),
             "r_final": float(r_final),
+            "lock_steps_used": int(lock_steps),
             "margin": float(result.margin),
             "group_size": int(result.group_size),
             "entropy": float(result.entropy),

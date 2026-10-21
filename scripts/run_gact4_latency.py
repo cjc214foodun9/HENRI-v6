@@ -29,11 +29,18 @@ with no code change.
 PRE-REGISTERED DECISION RULE
 - No working CUDA device -> status G-ACT4_BLOCKED, exit 2. Not a failure
   of the kernel; a missing prerequisite, reported as such.
-- Working device -> G-ACT4_PASS when full-cycle p99 <= 50 us, else
-  G-ACT4_FAIL with a per-stage breakdown.
+- Working device -> TWO contracts, reported separately:
+  * OPTICAL (50 us, TELEMETRY_ONLY). The target for the BaTiO3 ASIC. It
+    is recorded on every run and it never gates anything. Owner
+    directive, Phase 4, section 1, reclassified this from a gate.
+  * DIGITAL TWIN (50000 us, the gate). `G-ACT4_DIGITAL_TWIN_PASS` when
+    full-cycle p99 <= 50 ms, else `..._FAIL`. A digital twin is judged by
+    functional isomorphism, not by wall-clock.
 - The veto statistic is measured on device. Any stage still on CPU is
   LABELED, and the cycle number is called an UPPER BOUND, not a claim
   that all stages are GPU-resident.
+- Bifurcation, not deletion: the 50 us number stays in every receipt. A
+  gate removed outright loses the measurement the optical program needs.
 """
 
 from __future__ import annotations
@@ -53,7 +60,25 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 TAU_SPEC = 0.0431
-CONTRACT_US = 50.0
+
+OPTICAL_CONTRACT_US = 50.0
+"""Timing target for the future thin-film BaTiO3 optical ASIC.
+
+Reclassified TELEMETRY_ONLY by owner directive, Phase 4. It is recorded on
+every run and it never gates the digital twin. Deleting it would destroy
+the number the optical program needs, so it is kept and labelled.
+"""
+
+DIGITAL_TWIN_CONTRACT_US = 50_000.0
+"""Gate for the GPU/CPU digital twin. 50 ms per end-to-end wave cycle.
+
+This is 1000x the optical target, because a digital twin is judged by
+functional isomorphism, not by wall-clock. Owner directive, Phase 4,
+section 1.
+"""
+
+CONTRACT_US = DIGITAL_TWIN_CONTRACT_US
+"""Backward-compatible alias. `--contract-us` overrides the gate."""
 
 PROBE = (
     "import json,sys;"
@@ -169,8 +194,19 @@ def measure(dev_index: int):
         "full_cycle": {**cs, "path": "GPU veto + CPU decision/bookkeeping"},
         "stages_not_gpu_ported": ["koopman", "thermostat", "environment",
                                   "phase_ramp"],
-        "verdict": ("G-ACT4_PASS" if cs["p99_us"] <= CONTRACT_US
-                    else "G-ACT4_FAIL"),
+        "optical_telemetry": {
+            "contract_us": OPTICAL_CONTRACT_US,
+            "measured_cycle_p99_us": cs["p99_us"],
+            "measured_veto_p99_us": vs["p99_us"],
+            "status": "TELEMETRY_ONLY",
+            "would_pass_optical_contract": bool(cs["p99_us"] <= OPTICAL_CONTRACT_US),
+        },
+        "digital_twin": {
+            "contract_us": CONTRACT_US,
+            "measured_cycle_p99_us": cs["p99_us"],
+        },
+        "verdict": ("G-ACT4_DIGITAL_TWIN_PASS" if cs["p99_us"] <= CONTRACT_US
+                    else "G-ACT4_DIGITAL_TWIN_FAIL"),
     }
 
 
@@ -178,7 +214,15 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", type=str,
                     default="receipts/gact4_latency.json")
+    ap.add_argument("--contract-us", type=float,
+                    default=DIGITAL_TWIN_CONTRACT_US,
+                    help="digital twin cycle gate in microseconds (default "
+                         "50000). The optical 50 us target is telemetry and "
+                         "never gates this run.")
     a = ap.parse_args()
+
+    global CONTRACT_US
+    CONTRACT_US = float(a.contract_us)
 
     t0 = time.perf_counter()
     probes = [probe(p) for p in candidate_pythons()]
@@ -187,6 +231,8 @@ def main() -> int:
     rec = {
         "probe": "gact4_latency",
         "contract_us": CONTRACT_US,
+        "optical_contract_us": OPTICAL_CONTRACT_US,
+        "optical_contract_status": "TELEMETRY_ONLY",
         "dim": 65536,
         "interpreter_probes": probes,
         "n_cuda_capable": len(working),
@@ -212,7 +258,7 @@ def main() -> int:
         rec.update(measure(0))
         rec["status"] = rec["verdict"]
         verdict = rec["verdict"]
-        rc = 0 if verdict == "G-ACT4_PASS" else 1
+        rc = 0 if verdict == "G-ACT4_DIGITAL_TWIN_PASS" else 1
 
     rec["wall_clock_s"] = time.perf_counter() - t0
 
@@ -236,6 +282,13 @@ def main() -> int:
               file=sys.stderr)
         print(f"veto p99={rec['veto_statistic_gpu']['p99_us']:.2f}us "
               f"cycle p99={rec['full_cycle']['p99_us']:.2f}us",
+              file=sys.stderr)
+        print(f"digital twin gate {CONTRACT_US:.0f}us -> "
+              f"{'PASS' if rec['full_cycle']['p99_us'] <= CONTRACT_US else 'FAIL'}",
+              file=sys.stderr)
+        print(f"optical telemetry ({OPTICAL_CONTRACT_US:.0f}us target, "
+              f"TELEMETRY_ONLY): "
+              f"{'would pass' if rec['full_cycle']['p99_us'] <= OPTICAL_CONTRACT_US else 'over'}",
               file=sys.stderr)
     else:
         print("no working CUDA device on this host", file=sys.stderr)

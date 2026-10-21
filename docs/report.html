@@ -45,13 +45,15 @@
 <body>
 
 <h1>HENRI v6 — build state</h1>
-<p class="sub">CPU wave-mechanical kernel, built from scratch at
-<code>C:\Users\chan\Desktop\HENRI v6</code>. Commit <code>802e2a0</code>.
-All figures measured at production dimension <code>D = 65536</code>.</p>
+<p class="sub">Wave-mechanical kernel, built from scratch at
+<code>C:\Users\chan\Desktop\HENRI v6</code>. Commit <code>c40ccbe6</code>.
+All figures measured at production dimension <code>D = 65536</code>.
+Blackwell figures were measured on a rented <code>RTX 5090</code>
+(sm_120, 170 SM, <code>torch 2.8.0+cu128</code>), not on the authoring host.</p>
 
 <h2>Verified at production dimension</h2>
 <div class="grid">
-  <div class="kpi"><span>tests</span><b>204 pass</b>9 skipped</div>
+  <div class="kpi"><span>tests</span><b>339 pass</b>14 skipped, 353 collected</div>
   <div class="kpi"><span>full-D wall clock</span><b>9.48 s</b>8 stages</div>
   <div class="kpi"><span>veto separation</span><b>1.000</b>bar 0.70</div>
   <div class="kpi"><span>kuramoto r</span><b>0.992</b>from 0.0039</div>
@@ -108,7 +110,7 @@ is present but not identical to the query.
 <h2>Blocked — needs conditions this host does not have</h2>
 <table>
   <tr><th>Item</th><th>Blocking condition</th></tr>
-  <tr><td class="blk">G-U3 swarm latency ≤ 50 µs</td><td>Needs RTX 5090 CUDA. Host reports <code>cuda_available = False</code>.</td></tr>
+  <tr><td class="blk">G-U3 full swarm latency ≤ 50 µs</td><td>Still unmeasured. The rented 5090 measured the veto chain only (132.34 &micro;s amortized). Koopman, thermostat, environment and phase ramp remain host-side per the harness's own <code>stages_not_gpu_ported</code> field.</td></tr>
   <tr><td class="blk">G-U7 VRAM ≤ 2.5 GiB</td><td>No GPU on this host.</td></tr>
   <tr><td class="blk">G-U4 mutual information ≥ 0.95</td><td>KSG estimator not implemented.</td></tr>
   <tr><td class="blk">G-M3 / G-M6</td><td>No trajectory bank; no 30-day aging simulation.</td></tr>
@@ -170,7 +172,8 @@ All numbers measured at <code>D&nbsp;=&nbsp;65536</code>.</p>
   <tr><td>G-ACT2 coherent leak</td><td>&lt; 1e-5</td><td class="ok">1.884e-12</td><td>PASS</td></tr>
   <tr><td>G-ACT2 null relaxation</td><td>&ge; 0.15</td><td class="ok">17.07</td><td>PASS</td></tr>
   <tr><td>G-ACT3 recovery error</td><td>&lt; 1e-6</td><td class="ok">4.441e-16</td><td>PASS</td></tr>
-  <tr><td>G-ACT4 cycle latency</td><td>&le; 50&nbsp;&micro;s</td><td class="blk">1739.8&nbsp;&micro;s (veto alone)</td><td>BLOCKED</td></tr>
+  <tr><td>G-ACT4 optical target</td><td>&le; 50&nbsp;&micro;s (ASIC)</td><td class="blk">215.2&nbsp;&micro;s p99 on RTX 5090; veto alone 194.6&nbsp;&micro;s</td><td>TELEMETRY_ONLY</td></tr>
+  <tr><td>G-ACT4 digital twin</td><td>&le; 50&nbsp;000&nbsp;&micro;s</td><td class="ok">215.2&nbsp;&micro;s p99</td><td>PASS</td></tr>
 </table>
 
 <p class="sub"><b>Four spec conflicts found by measurement, before building.</b></p>
@@ -218,6 +221,327 @@ max absolute residual <b>0.002334</b> against a 0.05 bar, 12 of 12 unit-norm cel
 applicable. The non-unit-norm control missed by a factor of ~10&sup6;, so the
 <b>unit-norm premise is load bearing</b>, not incidental. Scope limit: the learning
 targets are generated pairs, not a real-world corpus.</p>
+
+<h2>Blackwell measured — G-ACT4 answered, and the answer is FAIL</h2>
+<p class="sub">Rented <code>RTX 5090</code> for one hour, $0.5548/h, destroyed after the
+run. Repository pinned at <code>c40ccbe6</code> and verified on the host before
+any timing. Receipt <code>gact4_latency.json</code>, sha256
+<code>45e9b3c7&#8230;</code>, readback verified by the harness itself. Receipts stay
+gitignored per repo policy; the probe that produced it is committed and
+re-runnable on any Blackwell host. The verdict
+below is the harness's own, not a reinterpretation.</p>
+
+<table>
+  <tr><th>Quantity</th><th>Measured on RTX 5090</th></tr>
+  <tr><td>Compute capability / SM count</td><td>12.0 (sm_120) / 170</td></tr>
+  <tr><td>L2 cache</td><td><b>100,663,296 B = 96 MiB</b></td></tr>
+  <tr><td>VRAM</td><td>31.36 GiB usable</td></tr>
+  <tr><td>torch / CUDA / driver</td><td>2.8.0+cu128 / 12.8 / 580.173.02</td></tr>
+  <tr><td>SM clock during run</td><td>2910 MHz (max 3105 MHz), 46 &deg;C</td></tr>
+</table>
+
+<p class="sub"><b>The feasibility analysis asserted 128 MiB of L2 on this part.
+The device reports 96 MiB.</b> That is a 25% error in every cache-residency
+calculation derived from it, and it is load bearing for the B=256 delay-buffer
+claim below.</p>
+
+<table>
+  <tr><th>Measurement</th><th>p50</th><th>p95</th><th>p99</th><th>Verdict</th></tr>
+  <tr><td>Veto statistic, host-synchronous (shipped harness path)</td>
+      <td class="neg">179.65 &micro;s</td><td>187.26 &micro;s</td><td>194.56 &micro;s</td><td>FAIL vs 50 &micro;s</td></tr>
+  <tr><td>Full cycle = GPU veto + CPU decision and bookkeeping</td>
+      <td class="neg">199.12 &micro;s</td><td>208.54 &micro;s</td><td>215.24 &micro;s</td><td>G-ACT4_FAIL</td></tr>
+  <tr><td>Same op chain, device-resident, amortized over 2000 launches</td>
+      <td colspan="3" class="neg">132.34 &micro;s</td><td>FAIL even with no host sync</td></tr>
+  <tr><td>Bare single elementwise multiply, same shape</td>
+      <td colspan="3">16.34 &micro;s</td><td>the launch floor</td></tr>
+  <tr><td>One device-to-host scalar read (<code>.item()</code>)</td>
+      <td colspan="3">9.20 &micro;s</td><td>not the dominant term</td></tr>
+</table>
+
+<p class="sub"><b>The contract is a launch-count budget, not a FLOP budget.</b>
+The shipped chain issues about eight kernels. 8 &times; 16.34 &micro;s = 131 &micro;s,
+which matches the measured 132.34 &micro;s amortized cost to 1%. At D=65536 the
+data volume is 512 KiB per tensor, so a fused kernel would be bandwidth-bound at
+roughly 3 &micro;s. Meeting 50 &micro;s therefore requires at most three kernel
+launches, or CUDA Graphs. <b>No amount of arithmetic optimization helps while the
+chain stays at eight launches.</b> This is a testable prediction, not a claim
+that the target is met.</p>
+
+<p class="sub">The CPU baseline in the previous section was 1739.8 &micro;s. The
+GPU is <b>8.9&times;</b> faster on the same statistic and still <b>3.9&times;</b>
+over contract. Porting did not rescue the gate; it relocated the bottleneck.</p>
+
+<h2>Statistic-form pinning — ratified, with a correction the probe could not see</h2>
+<p class="sub"><b>Ratification, with one change of direction.</b> One tau suffices:
+every family crosses at <code>sqrt(2*tau) = 0.2936</code>, measured <code>0.2967</code>
+in a fresh full-D run (<code>receipts/blackwell_5090</code> sibling receipt,
+sha256 <code>2ad0c623&#8230;</code>). But the register proposed pinning the
+<b>phase-mean</b> form as authoritative. Measurement says the opposite: the
+phase-mean form is the one that is not invariant.</p>
+
+<p class="sub">A dimension where <code>c_d = 0</code> has <code>angle(0) = 0</code>,
+so <code>cos = 1</code>, so it contributes <b>zero stress</b> while still
+counting in the denominator. Constraint C6 mandates exactly zeroed unused slots.
+The phase-mean form is therefore diluted by <code>D / n_active</code>.</p>
+
+<table>
+  <tr><th>eps (rad)</th><th>phase-mean form</th><th>magnitude-weighted form</th><th>ratio</th><th>Closed form</th></tr>
+  <tr><td>0.1500</td><td>0.002797</td><td>0.011187</td><td>4.00</td><td>eps&sup2;/8 vs eps&sup2;/2</td></tr>
+  <tr><td>0.2936</td><td>0.010543</td><td>0.042171</td><td>4.00</td><td>crossing of the weighted form</td></tr>
+  <tr><td>0.4000</td><td class="ok">0.019227 PASS</td><td class="neg">0.076906 VETO</td><td>4.00</td><td>decisions disagree</td></tr>
+  <tr><td>0.5872</td><td>0.039638</td><td>0.158550</td><td>4.00</td><td>crossing of the phase form</td></tr>
+</table>
+
+<p class="sub">The veto crossing moves from <code>0.2936</code> to
+<code>0.5872</code> when three slots are zeroed: a <b>doubling of tolerated phase
+corruption</b>, on a state shape the constraint system requires. The divergence
+is exactly <code>D/n_active</code> in every row, so it is structural, not noise.</p>
+
+<p class="sub"><b>Why the seven-family probe could not find this.</b> All seven
+families are dense, so <code>n_active = D</code> and the two forms cross within
+<code>0.0002</code> in eps. The <code>sensor</code> divergence of
+<code>1.231e-01</code> is a curve <b>maximum at large eps</b>, not a crossing
+difference. A probe whose families cannot be sparse cannot detect a sparsity
+defect. <code>henri/form_pin.py</code> now evaluates the pin on the
+<b>state</b>, not on the family label, and the gate reports the dilution factor
+it applied instead of hiding it.</p>
+
+<h2>A gate that cannot run cannot gate</h2>
+<p class="sub"><code>henri/gram.py</code> supports retraction at M=1024 in this
+build. The metric that decides whether to retract does not:
+<code>crosstalk()</code> and <code>needs_retraction()</code> raise
+<code>MemoryError</code> above <code>M = 512</code> under constraint C7.</p>
+
+<table>
+  <tr><th>M</th><th><code>stiefel_retract</code></th><th><code>crosstalk</code></th><th><code>needs_retraction</code></th></tr>
+  <tr><td>256</td><td class="ok">ok</td><td class="ok">5.0e-04</td><td class="ok">False</td></tr>
+  <tr><td>512</td><td class="ok">ok</td><td class="ok">5.0e-04</td><td class="ok">False</td></tr>
+  <tr><td>1024</td><td class="ok">ok, shape (1024, 2048)</td><td class="neg">MemoryError</td><td class="neg">MemoryError</td></tr>
+</table>
+
+<p class="sub">The architecture specifies <code>M = 4096</code> cartridges with a
+retraction trigger at <code>c_max &gt; 0.8889</code>. At that size the trigger
+cannot be evaluated at all. The cartridge gate is therefore unenforced, not
+passing.</p>
+
+<h2>Three stress tests, measured</h2>
+
+<h3 style="font-size:.85rem;margin:1rem 0 .3rem">1. Dual Gram Stiefel retraction: M&times;M versus D&times;D</h3>
+<table>
+  <tr><th>M (D=65536, complex64)</th><th>form G</th><th>eigh</th><th>apply</th><th>total via eigh</th><th>Newton-Schulz</th><th>c_max after</th><th>orth. error</th></tr>
+  <tr><td>512</td><td>46.6 ms</td><td>58.0 ms</td><td>6.6 ms</td><td>111.2 ms</td><td>2.56 ms</td><td>&lt;1e-4</td><td>&lt;1e-4</td></tr>
+  <tr><td>1024</td><td>14.9 ms</td><td>113.3 ms</td><td>23.6 ms</td><td>151.7 ms</td><td>13.6 ms</td><td>&lt;1e-4</td><td>&lt;1e-4</td></tr>
+  <tr><td>2048</td><td>60.6 ms</td><td>32.9 ms</td><td>89.3 ms</td><td>182.8 ms</td><td>103.8 ms</td><td>&lt;1e-4</td><td>&lt;1e-4</td></tr>
+  <tr><td>4096</td><td>257.9 ms</td><td>135.1 ms</td><td>368.5 ms</td><td class="neg">761.5 ms</td><td class="neg">1007.0 ms (15 iters)</td><td>&lt;1e-4</td><td>&lt;1e-4</td></tr>
+</table>
+<p class="sub">The dual form is algebraically exact and mandatory: a
+<code>D&times;D</code> Gram at <code>D = 65536</code> is 32 GiB in complex64 and
+64 GiB in complex128, and the latter cannot be allocated at all on a 32 GiB card.
+Static memory scales as <code>16 M&sup2;</code> bytes, so M=8192 costs 1 GiB and
+M=D costs the same as the dense form. The two costs cross where
+<code>9M&sup3; = 2M&sup2;D</code>, that is <code>M &asymp; 2D/9 &asymp; 14.5k</code>:
+below that the Gram product dominates, above it the eigen-solve does.</p>
+<p class="sub"><b>The &ldquo;&lt; 6 ms&rdquo; claim is wrong by 127&times;.</b>
+Measured 761.5 ms at M=4096. Newton-Schulz on the same operand measured 1007.0 ms
+over 15 iterations, so it is <em>slower</em> than eigh here, not faster. Any design
+that puts retraction inside a 50 &micro;s loop is impossible on this arithmetic;
+retraction must stay on the cold path.</p>
+
+<h3 style="font-size:.85rem;margin:1rem 0 .3rem">2. L2 residency of the viscoelastic delay buffer at B = 256</h3>
+<table>
+  <tr><th>Encoding</th><th>per worker (P=4, D=65536)</th><th>B=256 total</th><th>vs 96 MiB L2</th><th>Stream time per tick</th></tr>
+  <tr><td>complex64</td><td>2.00 MiB</td><td class="neg">512 MiB</td><td class="neg">5.33&times; over</td><td class="neg">377 &micro;s</td></tr>
+  <tr><td>bf16 phase</td><td>0.50 MiB</td><td class="neg">128 MiB</td><td class="neg">1.33&times; over</td><td>94 &micro;s</td></tr>
+  <tr><td>fp8 phase</td><td>0.25 MiB</td><td>64 MiB</td><td>67% of L2</td><td>47 &micro;s</td></tr>
+</table>
+<p class="sub">Measured copy bandwidth on the card: <b>2846 GB/s read+write</b>
+(4 GiB in 2.81 ms), i.e. about 1.42 TB/s each way. At B=256 in complex64 the
+buffer streams <b>377 &micro;s per tick</b>, 7.5&times; the 50 &micro;s contract, before
+any arithmetic.</p>
+<p class="sub"><b>Residency is impossible at B=256 for a second reason.</b> The
+pinned invariant projector is 32 MiB and the FP8 codebook at M=8192 is 512 MiB.
+FP8 delay buffer 64 MiB + projector 32 MiB = <b>96 MiB, exactly 100% of L2</b>,
+leaving zero bytes for the codebook or any other resident stream. The largest
+B that fits complex64 history plus the pinned projector is <b>B_active = 32</b>,
+eight times smaller than planned. The honest options are: keep history for
+Sagnac-stressed workers only, or store the low-rank delta instead of four full
+snapshots.</p>
+
+<h3 style="font-size:.85rem;margin:1rem 0 .3rem">3. Tripartite resonator convergence under Sagnac phase noise</h3>
+<p class="sub">Codebook <code>M = 1024</code>, unit-modulus rows,
+<code>D = 65536</code>, binding by circular convolution, readout at
+<code>beta = 26.10</code>, factors projected to the torus between iterations.</p>
+<table>
+  <tr><th>Configuration</th><th>Accuracy</th><th>Solved (all 3)</th><th>Median iterations</th></tr>
+  <tr><td>Ceiling: unbind with TRUE keys</td><td class="ok">t = 0.498, gap 0.983</td><td class="ok">12 / 12</td><td>1</td></tr>
+  <tr><td>k=2, fixed beta, one factor known</td><td>0.833</td><td>5 / 6</td><td>2</td></tr>
+  <tr><td>k=2, annealed beta, random init</td><td>0.667</td><td>4 / 6</td><td>8</td></tr>
+  <tr><td>k=3, fixed beta, random init</td><td class="neg">0.000</td><td class="neg">0 / 6</td><td>never</td></tr>
+  <tr><td>k=3, annealed beta, random init</td><td class="neg">0.000</td><td class="neg">0 / 6</td><td>never</td></tr>
+  <tr><td>k=3, annealed beta, one factor known</td><td class="neg">0.000</td><td class="neg">0 / 6</td><td>never</td></tr>
+</table>
+<table>
+  <tr><th>M</th><th>D/M</th><th>Ceiling top-1</th><th>k=3 solved (fixed)</th><th>k=3 solved (annealed)</th></tr>
+  <tr><td>32</td><td>2048</td><td>8/8</td><td>3/8</td><td>2/8</td></tr>
+  <tr><td>64</td><td>1024</td><td>8/8</td><td>0/8</td><td>3/8</td></tr>
+  <tr><td>128</td><td>512</td><td>8/8</td><td>3/8</td><td>1/8</td></tr>
+  <tr><td>256</td><td>256</td><td>8/8</td><td>1/8</td><td>0/8</td></tr>
+  <tr><td>512</td><td>128</td><td>8/8</td><td class="neg">0/8</td><td class="neg">0/8</td></tr>
+  <tr><td>1024</td><td>64</td><td>8/8</td><td class="neg">0/8</td><td class="neg">0/8</td></tr>
+</table>
+<p class="sub"><b>The operator is not the problem; the coupling is.</b> With true
+keys the unbind recovers the factor at <code>t = 0.498</code> with a readout gap of
+0.983 and 12/12 top-1 hits. The 3-factor loop returns zero at every noise level
+<em>including eps = 0</em>, and no schedule or initialization rescues it. Removing
+the sphere projection between iterations changed nothing, so that hypothesis is
+falsified too.</p>
+<p class="sub"><b>Falsified claim.</b> &ldquo;Factorize 1000 random 3-way bound
+operators from an M=4096 codebook at &ge;98% top-1 in &le;15 iterations.&rdquo;
+Measured: <b>0% at M=512 and M=1024</b>, 12.5% at M=256, and 37.5% at M=32 where
+the codebook is 32 rows wide. Capacity for the 3-way loop is bounded near
+<code>M &le; 256</code> at D=65536, and it is not reliable even there.
+<code>henri/resonator.py</code> does not exist in the tree: this was a
+pre-registration probe, and it stops the module from being built on a false
+theorem.</p>
+<p class="sub">Latency: one unbind plus readout measured 527 &micro;s, so a
+3-factor iteration is about 1.58 ms and 15 iterations about 23.7 ms against a
+claimed &lt;90 &micro;s. That gap is the same launch-count effect measured in the
+G-ACT4 section, not a separate defect.</p>
+
+<h2>Phase 4 — digital twin directives, executed and measured</h2>
+<p class="sub">Owner directive <code>HENRI-ARCH-2026-V6-REPORT-ADJUDICATION-MVP-API</code>.
+Gate split, three kernel defects, and the Stage-8 closure. Every number below
+is from a run on this host at <code>D = 65536</code>.</p>
+
+<table>
+  <tr><th>Directive item</th><th>State</th><th>Measured evidence</th></tr>
+  <tr><td>50 &micro;s reclassified TELEMETRY_ONLY</td><td class="ok">DONE</td>
+      <td>Harness now reports two contracts. Optical stays recorded at 215.24 &micro;s p99 and never gates. Digital twin gate 50&nbsp;000 &micro;s &rarr; PASS.</td></tr>
+  <tr><td><code>gram.py</code> coherence above M=512</td><td class="ok">DONE</td>
+      <td>Blockwise sweep. Matches the dense reference to 1e-12 at M=64/256/97. Runs at M=4096 in 3.33 s. Old cap made the retraction trigger unevaluable.</td></tr>
+  <tr><td>Kuramoto budget <code>ceil(c ln D)</code></td><td class="ok">DONE</td>
+      <td>Pipeline default was a fixed 200. At D=65536: 200 steps &rarr; r=0.166, not locked; derived 3697 &rarr; r=<b>0.985</b>, locked. 17.5 s vs 1.2 s.</td></tr>
+  <tr><td>Koopman unit-sphere projection</td><td class="ok">ALREADY SATISFIED</td>
+      <td><code>KoopmanOperator.step</code> projects through <code>WaveState.from_complex</code>; <code>run_pipeline</code> uses <code>step</code>, never <code>apply_raw</code>. Norm drift 1.1e-16. No edit needed; adding one would be cosmetic.</td></tr>
+  <tr><td>Viscoelastic history bound</td><td class="blk">OPEN</td>
+      <td>Recorded, not done. <code>langevin.ViscoelasticState.history</code> still stores full <code>D</code> vectors. The bound is now arithmetic: 2.0 MiB/worker complex64, 96 MiB L2 &rarr; <b>B_active &le; 32</b> with the 32 MiB projector pinned. Low-rank r=64 changes the memory kernel and needs its own measurement.</td></tr>
+  <tr><td>Stage-8 readout plateau</td><td class="ok">CLOSED</td>
+      <td>Law confirmed on a non-identical target. See the table below.</td></tr>
+</table>
+
+<h3 style="font-size:.85rem;margin:1rem 0 .3rem">Stage-8: the fixture the report asked for</h3>
+<p class="sub">Query built as <code>Psi_q = to_sphere(t X_i + sqrt(1-t^2) Psi_perp)</code> with
+<code>Re&lt;Psi_perp, X_i&gt; = 0</code>, so the signal projection is <code>t</code>
+by construction and <code>t = 1</code> is excluded. Codebook M=256,
+<code>c_max = 0.012269</code>, noise floor <code>sqrt(2 ln M / 2D) = 0.00920</code>.</p>
+
+<table>
+  <tr><th>t</th><th>margin</th><th>t(1&minus;c_max)</th><th>residual</th><th>residual / noise</th><th>top-1</th><th>H at beta*</th></tr>
+  <tr><td>0.300</td><td>0.29266</td><td>0.29632</td><td>&minus;0.00365</td><td>0.40</td><td class="ok">1.00</td><td>1.48e&minus;01</td></tr>
+  <tr><td>0.500</td><td>0.49239</td><td>0.49387</td><td>&minus;0.00147</td><td>0.16</td><td class="ok">1.00</td><td>1.39e&minus;03</td></tr>
+  <tr><td>0.700</td><td>0.69180</td><td>0.69141</td><td>+0.00039</td><td>0.04</td><td class="ok">1.00</td><td>1.03e&minus;05</td></tr>
+  <tr><td>0.800</td><td>0.79237</td><td>0.79019</td><td>+0.00218</td><td>0.24</td><td class="ok">1.00</td><td>8.63e&minus;07</td></tr>
+  <tr><td>0.900</td><td>0.89236</td><td>0.88896</td><td>+0.00340</td><td>0.37</td><td class="ok">1.00</td><td>7.10e&minus;08</td></tr>
+</table>
+
+<p class="sub"><b>Verdict <code>STAGE8_LAW_CONFIRMED</code>.</b> Maximum residual
+0.0037 against a 0.05 tolerance, and every residual sits <em>below</em> the
+predicted noise floor (ratio &le; 0.40). Top-1 is 1.00 at every <code>t</code>,
+including <code>t = 0.3</code>. Entropy at <code>beta* = 26.10</code> falls from
+0.148 to 7.1e&minus;08 as the margin widens, so the readout separates a
+borderline cell from a decisive one. Receipt sha256 <code>b75a8dd6&#8230;</code>.</p>
+
+<p class="sub"><b>Through the pipeline, with a matched and an unrelated axiom.</b>
+Matched (axiom = the query's own target): top-1 <b>1.00</b>, abstain 0%, margin
+0.992. Unrelated (random axiom): abstain <b>1.00</b> at every t. The first
+version of this arm held one random axiom for every query and reported 0%
+accuracy &mdash; that was my fixture defect, not a pipeline failure. The veto
+was doing exactly what a fail-closed gate should.</p>
+
+<p class="sub"><b>Learned <code>DeltaMemory</code> arm.</b> 64 write-then-recall
+pairs with corrupted keys: recall <b>1.00</b> at every <code>t</code> from 0.3 to
+0.9, margin 0.973&ndash;0.993, entropy at beta* exactly 0.0. The repaired
+one-step store recovers at machine precision.</p>
+
+<p class="sub">Probe: <code>scripts/probe_stage8_readout.py</code>. Decision
+rule was fixed in the module docstring before the first run: PASS when
+<code>|residual| &le; 0.05</code> for every t and top-1 is 1.0 for
+<code>t &ge; 0.5</code>.</p>
+
+<h2>Phase 4 gates — four items executed, and one of them says no</h2>
+<p class="sub">Corpora staged and digest-verified. One named arm measured at chance.
+The delay buffer bounded by exact arithmetic. The kernel sealed, and the seal tested
+by trying to break it. No score is claimed.</p>
+
+<h3>Gate 1 — corpora staged, schema verified before any code trusted them</h3>
+<table>
+  <tr><th>corpus</th><th>rows</th><th>sha256</th><th>required columns</th></tr>
+  <tr><td>mmlu.csv</td><td>14,042</td><td><code>15b6785d&#8230;</code></td><td>all present</td></tr>
+  <tr><td>gpqa_diamond.csv</td><td>198</td><td><code>41d1213c&#8230;</code></td><td>all present</td></tr>
+  <tr><td>mbpp.jsonl</td><td>974</td><td><code>ccf64cea&#8230;</code></td><td><code>text</code>, <code>code</code>, <code>test_list</code></td></tr>
+</table>
+<p>MMLU answer letters are near-uniform (A 3222, B 3462, C 3582, D 3776), so a
+fixed-letter policy cannot beat chance. Corpora are gitignored. The digests let a
+fresh clone verify its own copy.</p>
+
+<h3>Gate 2 — the named arm, and the number it produced</h3>
+<p><code>benchmarks/wave_rank.py</code> runs one arm at a time and stamps the arm on
+every receipt. It refuses to emit a score without one. The <code>v6</code> arm uses
+<code>ring_bundle</code> circular-mean bundling, the sphere lift, three slots at exact
+zero, and <code>readout.select</code> at &beta;* = 26.10.</p>
+<table>
+  <tr><th>arm</th><th>benchmark</th><th>n</th><th>correct</th><th>acc</th><th>z</th><th>p</th><th>verdict</th></tr>
+  <tr><td>v6</td><td>MMLU</td><td>400</td><td>109</td><td>0.2725</td><td>+0.98</td><td>0.163</td><td class="blk">at chance</td></tr>
+  <tr><td>chance</td><td>MMLU</td><td>400</td><td>105</td><td>0.2625</td><td>+0.52</td><td>0.302</td><td class="blk">at chance</td></tr>
+  <tr><td>v6</td><td>GPQA</td><td>198 full</td><td>59</td><td>0.2980</td><td>+1.48</td><td>0.070</td><td class="blk">at chance</td></tr>
+  <tr><td>legacy V2</td><td>MMLU</td><td>400</td><td>120</td><td>0.3000</td><td>+2.25</td><td>0.012</td><td>uncorrected</td></tr>
+</table>
+<p><strong>The v6 arm is at chance, and that is the correct result.</strong> Ingress is
+a deterministic hash of each word, so <code>car</code> and <code>automobile</code> are
+unrelated by construction. The arm measures bundling and calibrated readout, not
+meaning. The semantic backbone that would change this is unbuilt.</p>
+<p>Four arms were tested, so the legacy <code>p = 0.012</code> is uncorrected and not
+decisive. Three trivial baselines were measured to test whether it is an artefact.
+None reproduces it: longest option 0.2525 (p 0.477), most question-overlap words
+0.2475 (p 0.569), shortest option 0.1975 (below chance).</p>
+
+<h3>Gate 3 — the delay buffer, bounded by arithmetic instead of prose</h3>
+<table>
+  <tr><th>quantity</th><th>value</th><th>note</th></tr>
+  <tr><td>L2 measured, sm_120</td><td>96 MiB</td><td>corrected a 128 MiB claim</td></tr>
+  <tr><td>per worker, P=4 complex64</td><td>2,097,152 B</td><td>2.00 MiB exactly</td></tr>
+  <tr><td>B=256 full history</td><td>536,870,912 B</td><td class="neg">5.333&times; L2, impossible</td></tr>
+  <tr><td>pinned projector</td><td>33,554,432 B</td><td>32.00 MiB, not 33.55 MiB</td></tr>
+  <tr><td>capacity</td><td><strong>32 workers</strong></td><td>zero L2 slack remains</td></tr>
+</table>
+<p><strong>Unit-label defect.</strong> The analysis calls the projector 33.55 MiB. It is
+33.55 MB decimal, exactly 32 MiB binary. The labels were swapped, and every derived
+capacity was one worker low. With the binary value, <code>B_active &le; 32</code> is
+exactly saturated. 32 is an upper bound, not a working setpoint. Low-rank r=64 covers
+all 256 workers only because one basis is shared at 32 MiB; charging it per worker
+would need 8 GiB, 85&times; L2.</p>
+
+<h3>Gate 4 — the kernel is sealed, and the seal was tested by trying to break it</h3>
+<p><code>scripts/verify_kernel_integrity.py</code> hashes six kernel files from the
+<strong>git object store</strong>, not the working tree, so CRLF cannot fake drift.
+Status <code>SEALED</code>. Two check kinds: exact digest, and semantic invariants a
+digest cannot express (&beta;* = 26.1, <code>TAU_VETO_CEILING = 0.0431</code>,
+<code>margin = top - second</code>). Three negative controls prove the seal can
+fail: a wrong pinned digest, a missing file, and an absent invariant all read
+<code>DRIFT</code>.</p>
+
+<h3>A finding the gate produced: the Margin Law is out of domain here</h3>
+<p>v6 MMLU telemetry gives <code>t = 0.073207</code>, <code>c_max = 0.383656</code>,
+<code>margin = 0.029045</code>. The law predicts <code>t(1 - c_max) =
+0.045121</code>. Residual <code>-0.016076</code>, which is <strong>3.5&times;</strong>
+the noise floor <code>sqrt(ln 4 / 65536) = 0.004599</code>.</p>
+<p>The correction term assumes incoherent rivals. Here four rivals share most of
+their words, so <code>c_max</code> is 0.38 and the rival terms add instead of
+cancelling. The law is not violated; it is a large-M, low-coherence result and this
+is not that regime. Consequence: margin is not a usable confidence gate on option
+sets drawn from overlapping text. The Stage-8 result still holds, because there the
+codebook was orthogonalised first.</p>
 
 <h2>Decisions that are yours</h2>
 <table>
