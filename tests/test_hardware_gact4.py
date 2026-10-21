@@ -81,8 +81,13 @@ def _cuda_ready() -> bool:
 
 
 @pytest.mark.hardware
-def test_gact4_full_cycle_within_contract(tmp_path):
-    """Skip with no CUDA device; assert the measured contract when there is."""
+def test_gact4_digital_twin_cycle_within_contract(tmp_path):
+    """Skip with no CUDA device; assert the DIGITAL TWIN contract when there is.
+
+    The 50 us optical target is asserted to be PRESENT and to be labelled
+    TELEMETRY_ONLY. It is not asserted to pass, because it is not a gate.
+    Bifurcation: a receipt that dropped the optical number would fail here.
+    """
     if not _cuda_ready():
         pytest.skip("no working CUDA device; G-ACT4 BLOCKED by prerequisite")
 
@@ -96,6 +101,14 @@ def test_gact4_full_cycle_within_contract(tmp_path):
         r.returncode, r.stderr[-2000:])
 
     rec = json.loads(out.read_text(encoding="utf-8"))
-    assert rec["status"] == "G-ACT4_PASS", rec.get("status")
+    assert rec["status"] == "G-ACT4_DIGITAL_TWIN_PASS", rec.get("status")
     assert rec["full_cycle"]["p99_us"] <= rec["contract_us"]
+    assert rec["contract_us"] == 50_000.0, (
+        "the digital twin gate must be 50 ms, not the 50 us optical target")
     assert rec["device"]["name"], "device name must be recorded"
+
+    tele = rec["optical_telemetry"]
+    assert tele["status"] == "TELEMETRY_ONLY"
+    assert tele["contract_us"] == 50.0
+    assert tele["measured_cycle_p99_us"] == rec["full_cycle"]["p99_us"]
+    assert isinstance(tele["would_pass_optical_contract"], bool)

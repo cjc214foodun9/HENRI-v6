@@ -34,19 +34,35 @@ if TYPE_CHECKING:  # pragma: no cover - import cycle guard for type hints only
 
 _EPS = 1e-30
 
+DENSE_SIDE_LIMIT = 16384
+"""Largest square side this module will materialize as one complex128
+array. 16384**2 * 16 B = 4 GiB. A production `D = 65536` Gram is 68.7 GiB
+and stays refused. The earlier limit of 512 refused an `M x M` dual Gram
+at production cartridge sizes, which made the retraction trigger
+unevaluable (defect recorded in docs/report.html)."""
+
+GRAM_BYTES_LIMIT = 2 * 1024 ** 3
+"""Peak budget for a materialized `M x M` Gram. Above this the callers
+that need a number use the blockwise path and never allocate it."""
+
+GRAM_BLOCK_ROWS = 512
+"""Row block for the blockwise coherence sweep."""
+
 
 def assert_no_dense_dxd(*arrays: np.ndarray) -> None:
-    """Raise if any array is a square matrix at wave dimension.
+    """Raise if any array is a dense wave-dimension square matrix.
 
-    A `k x k` Gram matrix with small `k` is allowed. The guard fires
-    only when side length exceeds the dual cap.
+    The guard is on SIDE LENGTH, not on the mere fact of being square. A
+    dual `M x M` Gram with `M` far below `D` is the supported form; a
+    `D x D` object is the one constraint C7 refuses.
     """
     for arr in arrays:
         a = np.asarray(arr)
-        if a.ndim == 2 and a.shape[0] == a.shape[1] and a.shape[0] > 512:
+        if a.ndim == 2 and a.shape[0] == a.shape[1] and a.shape[0] > DENSE_SIDE_LIMIT:
             raise MemoryError(
                 f"dense {a.shape[0]}x{a.shape[1]} allocation refused "
-                "(constraint C7). Use the dual k x k form."
+                f"(constraint C7: side above {DENSE_SIDE_LIMIT}). "
+                "Use the dual k x k form."
             )
 
 
@@ -65,43 +81,77 @@ def gram_matrix(patterns: np.ndarray, normalize: bool = True) -> np.ndarray:
         patterns: array of shape `(k, D)`. Rows are memory patterns.
         normalize: unit-normalize rows first. Default True so the
             crosstalk metric is scale-free.
+
+    Raises:
+        MemoryError: when the materialized `k x k` Gram would exceed
+            `GRAM_BYTES_LIMIT`. `crosstalk` and `max_crosstalk` do NOT
+            call this function above the budget; they sweep in blocks.
     """
     x = np.asarray(patterns, dtype=np.complex128)
     if x.ndim != 2:
         raise ValueError(f"patterns must be 2-D, got shape {x.shape}")
-    if x.shape[0] > 512:
+    k = int(x.shape[0])
+    need = k * k * 16
+    if need > GRAM_BYTES_LIMIT:
         raise MemoryError(
-            f"refusing a {x.shape[0]}x{x.shape[0]} Gram matrix "
-            "(constraint C7: k must stay small)"
+            f"refusing a {k}x{k} Gram matrix: {need / 2**30:.2f} GiB exceeds "
+            f"the {GRAM_BYTES_LIMIT / 2**30:.1f} GiB budget. Use crosstalk() "
+            "or max_crosstalk(), which sweep in blocks."
         )
     if normalize:
         x = unit_rows(x)
     return x @ x.conj().T
 
 
+def _coherence_sweep(patterns: np.ndarray, block_rows: int = GRAM_BLOCK_ROWS):
+    """Yield `(offset, block)` of the normalized Gram, one row block at a time.
+
+    The block is `|G|` for the requested rows against every column. The
+    full `k x k` matrix is never allocated.
+    """
+    x = np.asarray(patterns, dtype=np.complex128)
+    norms = np.linalg.norm(x, axis=1)
+    if not np.allclose(norms, 1.0, rtol=0.0, atol=1e-12):
+        x = unit_rows(x)
+    k = int(x.shape[0])
+    step = max(1, int(block_rows))
+    for start in range(0, k, step):
+        stop = min(k, start + step)
+        yield start, np.abs(x[start:stop] @ x.conj().T)
+
+
 def crosstalk(patterns: np.ndarray) -> float:
     """Mean squared off-diagonal coherence. Gate G-U2 metric.
 
+    Blockwise, so it runs at any `M` without an `M x M` allocation.
     Returns 0.0 for fewer than two patterns.
-    
     """
-    gram = gram_matrix(patterns)
-    k = gram.shape[0]
+    x = np.asarray(patterns)
+    k = int(x.shape[0])
     if k < 2:
         return 0.0
-    mag2 = np.abs(gram) ** 2
-    off_diagonal = float(np.sum(mag2) - np.sum(np.diag(mag2)))
-    return off_diagonal / (k * (k - 1))
+    total = 0.0
+    for start, mag in _coherence_sweep(x):
+        sq = mag ** 2
+        rows = np.arange(start, start + mag.shape[0])
+        sq[rows - start, rows] = 0.0   # drop the diagonal without copying
+        total += float(np.sum(sq))
+    return total / float(k * (k - 1))
 
 
 def max_crosstalk(patterns: np.ndarray) -> float:
     """Largest off-diagonal coherence magnitude. Worst-case partner."""
-    gram = gram_matrix(patterns)
-    if gram.shape[0] < 2:
+    x = np.asarray(patterns)
+    k = int(x.shape[0])
+    if k < 2:
         return 0.0
-    mag = np.abs(gram).copy()
-    np.fill_diagonal(mag, 0.0)
-    return float(np.max(mag))
+    worst = 0.0
+    for start, mag in _coherence_sweep(x):
+        rows = np.arange(start, start + mag.shape[0])
+        mag[rows - start, rows] = 0.0
+        block_max = float(np.max(mag)) if mag.size else 0.0
+        worst = max(worst, block_max)
+    return worst
 
 
 def stiefel_retract(patterns: np.ndarray, tol: float = 1e-10) -> np.ndarray:
