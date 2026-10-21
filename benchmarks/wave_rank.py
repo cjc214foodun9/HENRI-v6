@@ -359,6 +359,44 @@ def run(name: str, arm: str, limit: Optional[int], legacy: Optional[str],
                                                   word_overlap_control(items))
     rec["rotation_check"] = check_permutation_invariance(
         items, arm, limit=min(40, len(items)), seed=seed)
+
+    # ACTION 4 (WIRED). Measured defect: `pooled_rotation_trials` was
+    # DEFINED but never CALLED, so the receipt carried no pooled block and
+    # a reader saw `None`. Definitions are not measurements.
+    if arm_hits:
+        pooled = pooled_rotation_trials(items, arm, seed)
+        full_items, _ = load_items(name, None)
+        trials = pooled["trials"]
+        # Fixed-letter control: always answer index 2 ('C'). Under the 4x
+        # rotation the gold index shifts, so this control scores exactly
+        # 0.2500 by construction rather than by luck.
+        letter_ctrl = [{"record_id": t["record_id"], "rot": t["rot"],
+                        "is_correct": t["correct_idx"] == 2} for t in trials]
+        arm_vec = [t["is_correct"] for t in trials]
+        ctrl_vec = [t["is_correct"] for t in letter_ctrl]
+        rec["pooled_rotation"] = {
+            "trials": pooled["n"],
+            "gold_letters_per_class": pooled["n"] // 4,
+            "arm_accuracy": round(float(np.mean(arm_vec)), 6),
+            "fixed_letter_baseline": round(float(np.mean(ctrl_vec)), 6),
+            "mcnemar_vs_fixed_letter": _mcnemar(arm_vec, ctrl_vec),
+            "scope": "POOLED_4X_ROTATION",
+            "note": "Gold letters are balanced n/4 per class by construction.",
+        }
+        strat = stratified_letter_balanced(full_items, n_per_letter=100,
+                                          seed=seed)
+        counts = [sum(1 for i in strat if i["correct_idx"] == k)
+                  for k in range(4)]
+        rec["stratified_split"] = {
+            "n": len(strat),
+            "source": "FULL_CORPUS",
+            "gold_letters": dict(zip("ABCD", counts)),
+            "balanced": bool(len(set(counts)) == 1),
+            "fixed_letter_baseline": round(1.0 / 4.0, 4),
+            "note": "Built from the FULL corpus, not the --limit slice. A "
+                    "measured defect: drawing it from the 60-row slice gave "
+                    "A 14 / B 18 / C 18 / D 10, which is not balanced.",
+        }
     return rec
 
 
@@ -477,6 +515,74 @@ def check_permutation_invariance(items: list, arm: str, limit: Optional[int],
         "verdict": "INVARIANT" if stable == n else "POSITION_DEPENDENT",
         "example_unstable_ids": changed,
     }
+
+
+def pooled_rotation_trials(items: list, arm: str, seed: int) -> dict:
+    """Run each item under all 4 cyclic option rotations.
+
+    ACTION 4. Returns 4n trials whose gold letters are exactly balanced (n
+    per letter), so ANY fixed-letter policy scores exactly 0.2500 by
+    construction. A rotation-invariant arm keeps its unrotated accuracy.
+
+    GOLD-INDEX SHIFT. Rotating options left by `r` moves the option at index
+    `i` to index `(i - r) mod 4`, so the gold index becomes
+    `(correct_idx - r) mod 4`. Getting this backwards would score the arm
+    against a permuted label and manufacture a false result.
+    """
+    cfg_full = WaveConfig(dim=65536)
+    bb = None
+    tok = None
+    if arm.startswith("v6_semantic"):
+        from henri.semantic_backbone import SemanticBackbone
+        bb = SemanticBackbone(sigma=float(np.sqrt(2.0)), seed=seed)
+    elif arm == "v6":
+        tok = QFHRRTokenizer(WaveConfig(dim=16384), seed=seed)
+    trials = []
+    for it in items:
+        for rot in range(4):
+            opts = it["options"][rot:] + it["options"][:rot]
+            ci = (it["correct_idx"] - rot) % 4
+            if arm.startswith("v6_semantic"):
+                res = rank_v6_semantic(
+                    it["question"], opts, bb, cfg_full, whiten=False,
+                    strip=("strip" in arm))
+                sel = res["selected_idx"]
+            elif arm == "v6":
+                res = rank_v6(it["question"], opts, tok, cfg_full,
+                              f"pooled|{seed}")
+                sel = res["selected_idx"]
+            else:
+                h = hashlib.sha256(
+                    (it["question"] + f"|{seed}|{rot}").encode()).digest()
+                sel = h[0] % 4
+            trials.append({"record_id": it["record_id"], "rot": rot,
+                           "correct_idx": ci, "selected_idx": sel,
+                           "is_correct": sel == ci})
+    return {"trials": trials, "n": len(trials)}
+
+
+def stratified_letter_balanced(items: list, n_per_letter: int = 100,
+                              seed: int = 20261020) -> list:
+    """Deterministic split with exactly `n_per_letter` rows per gold letter.
+
+    ACTION 4. The legacy first-400 split carries gold imbalance
+    (A 75, B 93, C 126, D 106), which lets a modal-letter policy score
+    0.3150. This split removes that confound structurally: a fixed-letter
+    policy cannot exceed 0.2500 on it.
+
+    Returns fewer rows if a letter class is smaller than `n_per_letter`, and
+    reports the shortfall rather than silently padding.
+    """
+    rng = np.random.default_rng(seed)
+    by_letter: dict = {}
+    for it in items:
+        by_letter.setdefault(int(it["correct_idx"]), []).append(it)
+    out = []
+    for letter in sorted(by_letter):
+        pool = by_letter[letter]
+        perm = rng.permutation(len(pool))
+        out.extend(pool[int(i)] for i in perm[:n_per_letter])
+    return out
 
 
 def _significance(correct: int, n: int, p0: float = 0.25) -> dict:

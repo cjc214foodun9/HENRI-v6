@@ -40,6 +40,27 @@ BETA_STAR = 26.1
 `henri.readout.entropy_at_beta`. Defined here because the sealed readout
 exposes it as a default argument, not as a module constant."""
 
+TAU_HIT = 0.55
+"""Minimum matched-key similarity `t_key` for a cartridge to contribute.
+
+Below it the bank contributes nothing, so an out-of-bank question cannot be
+degraded by memory. This bound is a design choice, not a measurement; the
+probe reports the observed `t_key` distribution so a reader can judge it.
+"""
+
+W_MEM_MAX = 0.5
+
+
+def margin_gate_weight(t_key: float) -> float:
+    """`w_mem = clip((t_key - tau_hit) / (1 - tau_hit), 0, W_MEM_MAX)`.
+
+    Zero below `tau_hit`, ramping linearly to 0.5 at `t_key = 1`. The 0.5 cap
+    means the recalled wave can never outvote the query's own content.
+    """
+    if t_key < TAU_HIT:
+        return 0.0
+    return float(min(W_MEM_MAX, (t_key - TAU_HIT) / (1.0 - TAU_HIT)))
+
 __all__ = ["DigitalTwinAPI", "Receipt"]
 
 
@@ -93,12 +114,19 @@ class DigitalTwinAPI:
 
     # -- 1. ranking ------------------------------------------------------
     def rank_options(self, question: str, options: Sequence[str],
-                     strip: bool = True) -> Receipt:
+                     strip: bool = True,
+                     signing_key: Optional[bytes] = None) -> Receipt:
         """Rank candidate options; return the winner and its telemetry.
 
         Stripping removes boilerplate before encoding, so the score linear
         functional is never modified. Ties break on content digest, never
         on position, so option order cannot influence the answer.
+
+        Phase 6 Action 3 adds three things: the real magnitude-weighted
+        Sagnac statistic on the winning wave, optional HMAC-SHA256 signing
+        when `signing_key` is supplied, and margin-gated cartridge retrieval
+        with `w_mem` blending. With no key the receipt stays a self-digest
+        and says so.
         """
         opts = list(options)
         texts = strip_common_option_tokens(question, opts) if strip else opts
@@ -115,7 +143,56 @@ class DigitalTwinAPI:
         np.fill_diagonal(g, 0.0)
         c_max = float(np.max(g)) if book.shape[0] > 1 else 0.0
         pol = self.backbone.encode(question).pol
-        return Receipt({
+
+        # -- Action 3a: REAL Sagnac telemetry -----------------------------
+        # The sealed statistic is `henri.sagnac.sagnac_delta`, whose
+        # signature takes WaveState objects, not bare arrays. It computes the
+        # MAGNITUDE-WEIGHTED mean phase divergence pinned in Phase 4.
+        # A failure records `sagnac_error`; it never fabricates 0.0.
+        sagnac_delta = None
+        sagnac_error = None
+        try:
+            from henri.config import WaveConfig
+            from henri.sagnac import sagnac_delta as _sagnac
+            from henri.state import WaveState
+            # DIM COMES FROM THE WAVE, NOT FROM self.dim. The backbone always
+            # emits DIM=65536, so a WaveConfig built from a smaller API dim
+            # raises on shape and the statistic silently reports None.
+            _cfg = WaveConfig(dim=int(np.asarray(q).shape[0]))
+            sagnac_delta = float(_sagnac(WaveState(book[sel], _cfg),
+                                         WaveState(q, _cfg)))
+        except Exception as exc:                # noqa: BLE001
+            sagnac_error = f"{type(exc).__name__}: {exc}"
+
+        # -- Action 3c: margin-gated cartridge readout --------------------
+        w_mem = 0.0
+        cartridge_hit = False
+        cartridge_info = None
+        if self.bank is not None and self.bank.cartridges:
+            res = self.bank.query(q, k_route=1)
+            if res.hits and res.value is not None:
+                cartridge_info = res.to_dict()
+                w_mem = margin_gate_weight(res.t)
+                cartridge_hit = bool(res.t >= TAU_HIT)
+                if w_mem > 0.0:
+                    # Convex blend toward the recalled consequent, then
+                    # renormalise. w_mem <= 0.5, so memory can never outvote
+                    # the query's own content.
+                    q2 = q + w_mem * (res.value - q)
+                    n2 = float(np.linalg.norm(q2))
+                    if n2 > 0:
+                        q2 = q2 / n2
+                    scores2 = np.real(book @ np.conj(q2))
+                    order2 = sorted(
+                        range(len(scores2)),
+                        key=lambda i: (-round(float(scores2[i]), 12),
+                                       digests[i]))
+                    sel = int(order2[0])
+                    top = float(scores2[sel])
+                    second = (float(scores2[order2[1]])
+                              if len(order2) > 1 else -1.0)
+
+        payload = {
             "endpoint": "rank_options",
             "question_sha256": hashlib.sha256(question.encode()).hexdigest(),
             "selected_index": sel,
@@ -128,12 +205,28 @@ class DigitalTwinAPI:
             "beta_star": BETA_STAR,
             "question_polarity": int(pol),
             "stripped": bool(strip),
-            "sagnac_delta": None,
-            "sagnac_note": "veto not run on this path; requires an invariant "
-                           "projector. Reported as None rather than 0.0.",
-            "cartridge_hit": False,
+            "sagnac_delta": sagnac_delta,
+            "sagnac_error": sagnac_error,
+            "cartridge_hit": cartridge_hit,
+            "cartridge": cartridge_info,
+            "w_mem": round(w_mem, 6),
+            "tau_hit": TAU_HIT,
             "seal_status": self.verify_seal()["status"],
-        })
+        }
+        # -- Action 3b: HMAC only when a key exists -----------------------
+        # No key means no signature. The self-digest detects tampering; it
+        # does not authenticate a producer, and the label says so.
+        if signing_key is not None:
+            import hmac as _hmac
+            blob = json.dumps(payload, sort_keys=True,
+                              separators=(",", ":"),
+                              default=str).encode("utf-8")
+            payload["hmac_sha256"] = _hmac.new(
+                signing_key, blob, hashlib.sha256).hexdigest()
+            payload["signature_kind"] = "hmac_sha256_with_explicit_key"
+        else:
+            payload["signature_kind"] = "sha256_self_digest_not_signature"
+        return Receipt(payload)
 
     # -- 2. ingestion ----------------------------------------------------
     def ingest_cartridge(self, keys: Sequence[str], values: Sequence[str],
@@ -142,6 +235,11 @@ class DigitalTwinAPI:
 
         Raises when the pair count exceeds the rank wall, because exact
         recall above it is impossible and silently degrading is worse.
+
+        DIMENSION COMES FROM THE WAVE, NOT FROM self.dim. Measured defect:
+        `DigitalTwinAPI(dim=4096)` built a bank at 4096 while `SemanticBackbone`
+        always emits `DIM = 65536`, so `DeltaMemory._check` raised
+        `expected length 4096, got 65536`. The encoded wave is authoritative.
         """
         if len(keys) != len(values):
             raise ValueError("keys and values must have equal length")
@@ -149,11 +247,15 @@ class DigitalTwinAPI:
             raise ValueError(
                 f"{len(keys)} pairs exceeds rank={self.rank}. Exact recall "
                 "is impossible above the wall; split the cartridge.")
-        if self.bank is None:
-            self.bank = CartridgeBank(dim=self.dim, rank=self.rank,
-                                      dtype=self.dtype)
         k = np.stack([self.backbone.encode(t).psi for t in keys], axis=0)
         v = np.stack([self.backbone.encode(t).psi for t in values], axis=0)
+        wave_dim = int(k.shape[1])
+        if self.bank is None:
+            self.bank = CartridgeBank(dim=wave_dim, rank=self.rank,
+                                      dtype=self.dtype)
+        elif self.bank.dim != wave_dim:
+            raise ValueError(
+                f"bank dim {self.bank.dim} != wave dim {wave_dim}")
         c = self.bank.add_cartridge(k, v, subject=subject)
         self.bank.finalize()
         return Receipt({
@@ -162,8 +264,8 @@ class DigitalTwinAPI:
             "rows": c.rows,
             "subject": subject,
             "rank": self.rank,
-            "dim": self.dim,
-            "bytes_this_cartridge": cartridge_bytes(self.dim, self.rank,
+            "dim": wave_dim,
+            "bytes_this_cartridge": cartridge_bytes(wave_dim, self.rank,
                                                     self.dtype),
             "bank": self.bank.stats(),
             "seal_status": self.verify_seal()["status"],

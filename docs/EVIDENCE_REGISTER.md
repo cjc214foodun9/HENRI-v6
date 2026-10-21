@@ -1226,3 +1226,229 @@ after both fixes. What is now precise: polarity is solved exactly, the
 memory path is correct and its capacity wall is confirmed, and the
 deductive-operator route is closed by measurement. The remaining gap is
 not a transducer, a whitening rule, or a 384x384 linear map.
+
+## 15. Phase 6: five actions, thirteen measured defects, zero benchmark claims
+
+All five Phase-6 actions executed on `main` with a dirty tree until commit.
+Kernel stayed `SEALED` at every step.
+
+Two reference transcripts described Phase 6 as already complete with numbers
+(`c_max 0.8140 -> 0.6147`, retrieval `0.190 -> 0.255`, rotor `0.0117`, cold
+`0.79 GiB`) and a pushed `main`. At session start this tree held **zero**
+Phase-6 artifacts and `main` was `7ef596e`. Prose is not evidence; the
+receipts below are.
+
+### 15.1 Promotion of Phase 5 completed first
+
+`promotion_gate.py` read `PROMOTE` at `7a5fb4b` (tree clean, kernel SEALED,
+401 passed, 14 skipped, floor 370). Merged `--no-ff`, pushed, remote
+readback `08f3d4ba225953febd73f38ea3426918305b201d`, byte-equal to local.
+
+### 15.2 Action 1 — calibration and an order channel
+
+TWO SPEC CLAIMS REJECTED BEFORE CODE.
+
+1. The regularized covariance whitener `W_iso = (Sigma + lam I)^{-1/2}` is a
+   FULL-RANK mixing matrix. Applied to option embeddings it is the same
+   score-mixing operator Phase 4B falsified (`s_ortho = G^-1/2 s_raw`).
+   Fitting it offline changes where the matrix comes from, not what it does
+   to `argmax`. REJECTED on algebra. Only All-but-the-Top is implemented:
+
+       u_cal = normalize((u - mu) - P_top P_top^T (u - mu))
+
+   `mu` and `P_top` are per-text constants independent of the option set, so
+   the score functional stays a fixed inner product.
+
+2. A token-position rotor cannot separate `'ab'` from `'ba'`. Measured:
+   `tokens('ab') = ['ab']`, one token, and `tokens('ba') = ['ba']`, one
+   token. Both sit at position 0, so a token rotor assigns identical phases.
+   An order channel must be CHARACTER-level.
+
+3. A single inner product cannot carry both gates. With `cos_sem = 0.63` for
+   an order-permuted pair and slot energies summing to 1:
+
+       cos = w0*cos_sem + w1*1 + w2*cos_order
+
+   `feasibility()` searches the simplex at step 0.02 and finds **0**
+   solutions. Closest miss: `w0 = 0.04, w1 = 0.52, w2 = 0.44` giving
+   `cos_order = 0.1052` against a 0.10 bar. VERDICT
+   `INFEASIBLE_NEEDS_SEPARATE_CHANNEL`. Order is therefore its own channel,
+   which also guarantees Action A's `-1.0000` is untouched by construction.
+
+MEASURED RESULTS, `p_components = 3`, fitted on 2,000 ingestion rows:
+
+| gate | value | verdict |
+|---|---|---|
+| G-P6A1 held rows in fit | 0 | PASS |
+| G-P6A2 mean `c_max` | 0.781052 -> 0.770887 | PASS vs 0.816555 baseline |
+| G-P6A3 retrieval top-1 | 0.19 -> 0.1925 | PASS |
+| G-P6A4 rotation invariance | 1.000000 | PASS |
+| G-P6A5 rotor, spec pairs | `ab/ba` 0.041089, `mv/(qB)/qB/(mv)` -0.107643 | PASS |
+| G-P6A6 Action A preserved | antonym -1.0000, synonym 0.699913 | PASS |
+| explained fraction removed | 0.099044 | — |
+
+The two EXTRA pairs I added fail their own 0.10 bar: `'r = mv/(qB)'` vs
+`'r = qB/(mv)'` at 0.119477 and word-order reversal at 0.252345. The bound is
+arithmetic, not a bug: with orthogonal character codes the cosine
+approximates `matching_positions / n_positions`, which is 1/6 and 6/28 for
+those pairs. Reported as `PASS_SPEC_EXTENDED_BOUNDED` rather than rounded up.
+
+FOUR DEFECTS IN MY OWN ORDER CHANNEL, each caught by measurement:
+
+1. A scalar stride `37*j` added to every dimension is a GLOBAL PHASE.
+   Multiplying a wave by `exp(i*2*pi*37/256)` does not change its direction,
+   so `sum(u + r*v)` and `sum(v + r*u)` coincide. Measured 0.8456, worse
+   than raw.
+2. Reusing the semantic stem as the character code injected
+   `cos(stem('a'), stem('b')) = 0.6357` into an order statistic. Measured
+   0.478. Fixed with orthogonal character codes.
+3. `char_codes` iterated the RAW string while `char_positions` filtered
+   punctuation, so `'mv/(qB)'` produced 7 codes against 4 pairs and `zip`
+   handed each character a punctuation code. Measured 0.4577 -> -0.107643
+   after alignment.
+4. The scalar-offset version produced `1.0` for `u == v`, proving the
+   collapse analytically before any patch.
+
+### 15.3 Action 2 — cold uint8 tier and bounded LRU
+
+| quantity | value |
+|---|---|
+| cold cartridge, 64 rows, keys AND values | `2*64*2*16384 = 4,194,304 B` = **4.00 MiB** |
+| 213 cartridges (13,632 rows) | **0.832 GiB** |
+| complex128 equivalent | **26.625 GiB** |
+| reduction | **32.00x** |
+| hot LRU ceiling, max 8 | **1.00 GiB** |
+| tier total | **1.832 GiB** against a 3.0 GiB gate |
+
+The directive claimed 16x because its byte budget assumed keys only; storing
+both in the same budget doubles the factor. Seven gates PASS: round-trip
+within half a bin `pi/256 = 0.012272`; paired recall error `0.0`; footprint;
+LRU evictions > 0 with entries <= 3; write-time Stiefel retired from the
+default path; plus two negative controls (a non-unit input must not preserve
+magnitude; a zero hot ceiling is rejected at construction).
+
+### 15.4 Action 3 — live Sagnac, HMAC, margin gate
+
+The real sealed statistic is `henri.sagnac.sagnac_delta`, which takes
+`WaveState` objects — not bare arrays. A reference transcript asserted the
+array signature; the source disagrees, so the source wins.
+
+`rank_options` now reports a measured float, live-verified at
+`sagnac_delta = 0.371490214` on an in-bank query. Failures record
+`sagnac_error` rather than a fabricated `0.0`.
+
+HMAC: `signing_key=b"..."` yields `hmac_sha256_with_explicit_key`; absent
+yields `sha256_self_digest_not_signature`.
+
+MARGIN GATE, and the defect it exposed. Measured `w_mem` ramp:
+`0.0 -> 0.0`, `0.55 -> 0.0`, `0.70 -> 0.3333`, `0.90 -> 0.5000`.
+
+The first wiring reported an out-of-bank query as `cartridge_hit = True` at
+`w_mem = 0.0455`, violating the directive's zero-degradation guarantee. Cause
+is algebra, not tuning: slot 1 carries a FIXED role basis identical for every
+input, contributing a constant `+w1`:
+
+    cos(unrelated, full wave)     = +0.5705
+    cos(unrelated, slot0 content) = +0.0705
+    mean over 8 unrelated pairs   = +0.6255
+
+With that floor, `tau_hit = 0.55` sits INSIDE the null distribution. A
+threshold that cannot separate a hit from noise is not a gate. Reading
+`t_key` on the CONTENT subspace restores the margin. After the fix, live:
+
+| query | `t_key` | `cartridge_hit` | `w_mem` |
+|---|---|---|---|
+| in-bank | 0.887598 | True | 0.500 |
+| out-of-bank | 0.140924 | **False** | **0.0** |
+
+A second defect surfaced at the same time: the router stored
+`(C, cold_slot)` centroids while `route()` normalised the full wave, a
+broadcast error on every call once `cold_slot < dim`. Both fixed together.
+
+### 15.5 Action 4 — pooled rotation and stratified split
+
+The reference transcript's claim that `pooled_rotation` returned `None` was
+correct at the time it looked: the function was DEFINED but never CALLED. A
+definition is not a measurement. Now wired.
+
+Measured at `n = 60` items, `--arm v6_semantic_strip` (`SUBSET_SMOKE`):
+
+| quantity | value |
+|---|---|
+| unrotated accuracy | 0.416667 |
+| pooled trials | 240 |
+| pooled arm accuracy | 0.416667 |
+| fixed-letter baseline | 0.250000 |
+| McNemar vs fixed letter | arm_only 75, control_only 35, z = 3.8139, p = 0.00013682, `ARM_BETTER` |
+| stratified split | A 100 / B 100 / C 100 / D 100, `balanced = True`, source `FULL_CORPUS` |
+
+Pooled accuracy exactly equals unrotated accuracy. That identity IS the
+Action 4 verification: a rotation-invariant arm must preserve accuracy while
+the fixed-letter control is forced to 0.2500 by construction.
+
+TWO DEFECTS HERE. The stratified split was first drawn from the `--limit`
+slice and came out `A 14 / B 18 / C 18 / D 10` — not balanced. It now draws
+from the FULL corpus. And the gold-index shift needed pinning: rotating left
+by `r` moves gold to `(correct_idx - r) mod 4`, and the inverse map would
+score the arm against a permuted label.
+
+Scope is labelled `SUBSET_SMOKE` at n=60. It is not comparable to the Phase 5
+n=400 figure of 0.3250.
+
+### 15.6 Action 5 — MBPP ranking and sandboxed verification
+
+Deterministic 800/174 split. Zero task-id overlap and zero ITEM overlap, where
+item identity is `(text, code, tests)`. A text-only digest reported 2 false
+overlaps because MBPP reuses short prompts across tasks with different tests;
+disclosed as `prompt_text_overlap = 2`, not asserted away.
+
+K=8 pool: gold plus 7 deterministic mutations. Measured, `n_eval = 60`:
+
+| metric | value | reference |
+|---|---|---|
+| wave top-1 | **0.0** | chance 0.1250 |
+| wave top-3 | 0.4333 | chance 0.3750 |
+| exec-verified top-1 | 0.4167 | — |
+| gold oracle pass rate | 1.0 | ceiling |
+| pool-slot-0 baseline | 0.1167 | — |
+| mean tie-group size | 1.6333 | well-posed needs < 1.5 |
+| gold in max-score group | 0.20 | size-matched control 0.05, lift **4.0x** |
+
+THREE DEFECTS IN THIS PROBE.
+
+1. Mutation validity was **0.5714** on the first run: most "negatives" still
+   passed the assertions, so `exec_verified = 0.95` measured pool weakness,
+   not ranking. Rewritten to mutate semantics (parameter rename, constant
+   shift, operand swap, guard deletion, `return None`) rather than spelling.
+   Now measured and reported as `mutation_pass_rate` with an explicit
+   `effective_negative_rate`.
+2. Wave top-1 at exactly **0.0** is BELOW chance, which is the signature of
+   index-driven selection. Confirmed: 8 of 10 tasks have TIED scores, so
+   `argsort` returns a fixed order. `argmax` cannot rank a plateau. The
+   tie-robust statistic is reported instead.
+3. The size-matched control added `1/|G|` UNCONDITIONALLY, counting a hit even
+   when gold was NOT in the max group. That produced a fake
+   `lift = 0.2353`. A uniform pick from the max group hits gold with
+   probability `1/|G|` only when gold is in it. After conditioning:
+   `lift = 4.0x`.
+
+Even at a 4.0x lift over a size-matched control, `mean tie-group 1.6333`
+means the open-loop ranking statistic is not well posed at this pool design.
+The honest reading: MBPP open-loop wave ranking does not discriminate with
+this candidate construction.
+
+### 15.7 What Phase 6 establishes
+
+| action | verdict |
+|---|---|
+| 1 calibration + order channel | 6 gates PASS, 2 spec claims rejected, 4 self-defects fixed |
+| 2 cold tier + LRU | 7 gates PASS, 32x, 1.832 GiB against 3.0 |
+| 3 Sagnac + HMAC + margin gate | live-verified, 2 self-defects fixed, gate now can fail |
+| 4 pooled rotation | wired, identity holds, stratified split balanced |
+| 5 MBPP | split clean, 3 self-defects fixed, open-loop ranking NOT well posed |
+
+NON-CLAIMS. No benchmark dominance. No SOTA. No market-ready API. The
+covariance-whitener variant is rejected on ALGEBRA, not on a measurement.
+`c_max` moved 0.781052 -> 0.770887, which is a small reduction and must not
+be narrated as a breakthrough. The MBPP open-loop ranker does not
+discriminate. Every number above is from a receipt on disk.
