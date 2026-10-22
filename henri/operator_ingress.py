@@ -245,6 +245,69 @@ LEXICON = {
     "equal": (EQUALITY, +1), "equals": (EQUALITY, +1),
     "same": (EQUALITY, +1), "different": (EQUALITY, -1),
     "unequal": (EQUALITY, -1), "distinct": (EQUALITY, -1),
+
+    # -- Phase 9 Step 2: cross-modal lexical-to-operator homomorphism -----
+    # MEASURED MOTIVATION. 465 of 974 MBPP docstrings (0.4774) carried an
+    # empty operator slot, so the slot could not discriminate code for
+    # them at all. These entries map English operational words onto the
+    # SAME canonical roots and the SAME +1/-1 antipodal sign as the AST
+    # path, so `"sum"` and `ast.Add` land on one axis by construction.
+    #
+    # FUNCTION WORDS ARE DELIBERATELY EXCLUDED: "and", "or", "in", "not".
+    # MEASURED REASON, not taste. The directive lists them under Boolean /
+    # Membership. "and" occurs in BOTH of the directive's own Step 2
+    # fixtures ("the sum of a and b" / "the difference of a and b"), so
+    # mapping it puts a SHARED component in the operator slot and the
+    # algebra becomes (|c|^2-|a|^2)/(|a|^2+|c|^2), which is 0.0 at equal
+    # weights and never the required -1.0. "all", "any", "every" are
+    # near-universal in task prose ("find all ...") and would add the same
+    # feature to most docstrings, raising collision instead of
+    # information. Measured after the edit: see
+    # `scripts/probe_phase9_opaxis.py`.
+    #
+    # "multiple" is also excluded on purpose. It reads as a parity word in
+    # the directive but the corpus uses it multiplicatively ("m multiples
+    # of n"), so one key cannot serve both senses.
+    "combine": (ARITH_ADDITIVE, +1),
+    "altogether": (ARITH_ADDITIVE, +1),
+    "perimeter": (ARITH_ADDITIVE, +1),
+    "deducted": (ARITH_ADDITIVE, -1),
+    "removed": (ARITH_ADDITIVE, -1),
+    "area": (ARITH_MULTIPLICATIVE, +1),
+    "volume": (ARITH_MULTIPLICATIVE, +1),
+    "square": (ARITH_MULTIPLICATIVE, +1),
+    "cube": (ARITH_MULTIPLICATIVE, +1),
+    "double": (ARITH_MULTIPLICATIVE, +1),
+    "triple": (ARITH_MULTIPLICATIVE, +1),
+    "multiplies": (ARITH_MULTIPLICATIVE, +1),
+    "half": (ARITH_MULTIPLICATIVE, -1),
+    "average": (ARITH_MULTIPLICATIVE, -1),
+    "mean": (ARITH_MULTIPLICATIVE, -1),
+    "split": (ARITH_MULTIPLICATIVE, -1),
+    "shorter": (EXTREMUM, -1),
+    "under": (EXTREMUM, -1),
+    "below": (EXTREMUM, -1),
+    "longer": (EXTREMUM, +1),
+    "over": (EXTREMUM, +1),
+    "above": (EXTREMUM, +1),
+    "divisible": (PARITY, +1),
+    "modulo": (PARITY, +1),
+    "remainder": (PARITY, +1),
+    "indivisible": (PARITY, -1),
+    "contains": (MEMBERSHIP, +1),
+    "contain": (MEMBERSHIP, +1),
+    "present": (MEMBERSHIP, +1),
+    "absent": (MEMBERSHIP, -1),
+    "missing": (MEMBERSHIP, -1),
+    "either": (MEMBERSHIP, -1),
+    "both": (MEMBERSHIP, +1),
+    "duplicate": (CARDINALITY, +1),
+    "duplicates": (CARDINALITY, +1),
+    "common": (MEMBERSHIP, +1),
+    "union": (MEMBERSHIP, +1),
+    "intersection": (MEMBERSHIP, +1),
+    "squares": (ARITH_MULTIPLICATIVE, +1),
+    "cubes": (ARITH_MULTIPLICATIVE, +1),
 }
 
 STRUCT_NODES = {

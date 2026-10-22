@@ -133,6 +133,7 @@ def solve_verified_code(backbone, spec: str, candidates: Sequence[str],
     wrong mechanism.
     """
     synthesis = None
+    meta_of: dict = {}
     cands = [c for c in candidates if isinstance(c, str) and c.strip()]
 
     if not cands and synthesize_from_bank:
@@ -164,6 +165,7 @@ def solve_verified_code(backbone, spec: str, candidates: Sequence[str],
         }
         cands = [r["text"] for r in rows]
         origin_of = {r["text"]: r["origin"] for r in rows}
+        meta_of = {r["text"]: r for r in rows}
         if not cands:
             return {"verdict": "NO_CANDIDATES", "n_candidates": 0,
                     "n_tests": len(tests), "executed": [],
@@ -226,6 +228,16 @@ def solve_verified_code(backbone, spec: str, candidates: Sequence[str],
             # synthesis arm cannot be credited to retrieval rather than
             # mutation, and the two are different mechanisms.
             entry["origin"] = origin_of.get(code, "unknown")
+            m = meta_of.get(code) or {}
+            entry["adapted"] = bool(m.get("adapted", False))
+            entry["mutation"] = str(m.get("mutation", "unknown"))
+            # The Step 4 split the directive asks for. `adapted` means the
+            # SIGNATURE was rewritten to the target name and arity, which
+            # is a different mechanism from an operator swap.
+            entry["provenance"] = ("bank_adapted" if entry["adapted"]
+                                   else "mutated"
+                                   if entry["origin"] == "mutated"
+                                   else "retrieved")
         executed.append(entry)
 
     passing = [e for e in executed if e["ok"]]

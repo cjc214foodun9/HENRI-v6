@@ -1,0 +1,65 @@
+{
+  "clauses": [
+    {
+      "bar": "== -1.0 (tol 1e-12)",
+      "id": "S2-1",
+      "pass": true,
+      "value": -1.0,
+      "what": "cos(sum_doc, diff_doc) == -1.0"
+    },
+    {
+      "bar": "> +0.70",
+      "id": "S2-2",
+      "pass": true,
+      "value": 0.707106781186548,
+      "what": "cos(sum_doc, code +) > +0.70"
+    },
+    {
+      "bar": "< -0.70",
+      "id": "S2-3",
+      "pass": true,
+      "value": -0.707106781186548,
+      "what": "cos(sum_doc, code -) < -0.70"
+    },
+    {
+      "bar": "<= 0.10",
+      "id": "S2-4",
+      "n": 974,
+      "pass": false,
+      "value": 0.374743,
+      "what": "zero operator slot fraction <= 0.10",
+      "zero": 365
+    },
+    {
+      "bar": "< +0.70",
+      "id": "S2-5",
+      "pass": true,
+      "value": 0.0,
+      "what": "bleed control: cos(sum_doc, code *) < +0.70"
+    },
+    {
+      "bar": "< 0.10",
+      "frac_positive_pairs": 0.166171,
+      "id": "S2-6",
+      "pairs": 16471,
+      "pass": true,
+      "value": 0.072679706,
+      "what": "mean pairwise op-slot cosine < 0.10"
+    },
+    {
+      "bar": "== -1.0 (tol 1e-12)",
+      "id": "S2-7",
+      "pass": true,
+      "value": -1.0,
+      "what": "cos(code +, code -) == -1.0 (Phase 8 held)"
+    }
+  ],
+  "cos_bleed_div": 0.0,
+  "lexicon_size": 121,
+  "mechanism_note": "S2-4 fails by design. The directive's own word lists gain 58 of 465 zero-slot docstrings. The residue is find/check/convert/sort/regex/extract, which name no arithmetic operation. An empty operator slot is correct for them. Forcing the rate to 0.10 requires mapping semantically empty verbs, which collapses the S2-6 collision control.",
+  "n_clauses_pass": 6,
+  "probe": "phase9_step2_cross_modal_operator",
+  "receipt_sha256": "5e2e7949c19c00fc8a9ec06103b68eb093e14d7d1d211abc1b9d5e58412fe314",
+  "slot_dim": 16384,
+  "verdict": "S2_PARTIAL_6_OF_7"
+}

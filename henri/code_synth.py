@@ -317,35 +317,220 @@ def spec_entry_name(spec: str) -> Optional[str]:
     return m.group(1) if m else None
 
 
+def target_signature(tests: Sequence[str]):
+    """`(name, arity)` read from the ASSERTIONS by AST.
+
+    Returns `(None, None)` when no assertion parses to a call. The caller
+    must then skip adaptation rather than guess: a wrong arity makes every
+    candidate raise `TypeError` and the arm would look like a ranking
+    failure instead of an adaptation failure.
+
+    Arity counts POSITIONAL arguments only. A test that passes keywords
+    would under-count, so `n_keywords` is returned too and the caller can
+    refuse an ambiguous case.
+    """
+    for t in tests:
+        try:
+            tree = ast.parse(t.strip())
+        except SyntaxError:
+            continue
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
+                nkw = len([k for k in node.keywords
+                           if k.arg is not None])
+                return node.func.id, len(node.args), nkw
+    return None, None, 0
+
+
+def _adapt_params(old: ast.arguments, arity: int) -> list[ast.arg]:
+    """Resize the positional list WITHOUT breaking body name references.
+
+    MEASURED DEFECT IN MY FIRST DRAFT, repaired. It replaced every name
+    with a synthetic one, so `def foo(x, y, z)` became `def add(a, b)` while
+    the body still said `x + y + z`. Every adapted candidate then raised
+    `NameError` on its first call, and a generative gate would have recorded
+    a false zero for a reason unrelated to the operator channel.
+
+    Rule: KEEP the original names for the parameters that survive, so the
+    body stays bound. Truncate the excess. Append synthetic names only when
+    the target needs MORE parameters than the template declares; an unbound
+    name there is unavoidable and is reported by `NameError` in that case,
+    which the sandbox records honestly.
+
+    Defaults are dropped. A stored default can absorb a missing positional
+    and silently change the effective arity, which is the defect this
+    function exists to prevent.
+    """
+    existing = [a.arg for a in list(getattr(old, "posonlyargs", []))
+                + list(old.args)]
+    keep = existing[:arity]
+    missing = arity - len(keep)
+    for i in range(missing):
+        # Avoid colliding with a surviving name.
+        cand, k = f"p{i}", 0
+        while cand in keep:
+            k += 1
+            cand = f"p{i}_{k}"
+        keep.append(cand)
+    return [ast.arg(arg=n) for n in keep]
+
+
+def adapt_arity(source: str, name: Optional[str],
+                arity: Optional[int]) -> Optional[str]:
+    """Rewrite the entry signature to `name` with exactly `arity` params.
+
+    Phase 9, Step 4. Retrieval returns a template whose function usually
+    takes a different number of arguments than the target tests call with.
+    Without this, every candidate raised `TypeError` on the first call and
+    the generative arm measured zero for a trivial reason.
+
+    Parameter NAMES are irrelevant to the tests, which pass positionals;
+    only the COUNT matters. Defaults are dropped because a stored default
+    could silently absorb a missing argument and change the arity again.
+    """
+    if arity is None or arity < 0:
+        return None
+    try:
+        tree = ast.parse(source)
+    except SyntaxError:
+        return None
+    fns = [n for n in tree.body if isinstance(n, ast.FunctionDef)]
+    if not fns:
+        return None
+    fn = fns[0]
+    if name and name.isidentifier():
+        fn.name = name
+    params = _adapt_params(fn.args, int(arity))
+    fn.args = ast.arguments(posonlyargs=[], args=params, vararg=None,
+                            kwonlyargs=[], kw_defaults=[], kwarg=None,
+                            defaults=[])
+    ast.fix_missing_locations(tree)
+    try:
+        return ast.unparse(tree)
+    except Exception:                     # noqa: BLE001
+        return None
+
+
+def _op_slot(text: str, dim: int = 16384) -> Optional[np.ndarray]:
+    """Operator-slot wave for one text, or None when the slot is empty.
+
+    `dim` defaults to 16384, the MEASURED width of the operator slot basis:
+    `OperatorEncoded.slot_operator.shape == (16384,)`. The first draft
+    defaulted to 4096, which was self-consistent but introduced a second
+    slot-width convention alongside the module's own. One term, one width.
+
+    Imported lazily: `operator_ingress` is optional for callers that score
+    without the operator channel, and a module-level import would make this
+    module unimportable if that file were absent.
+    """
+    try:
+        from henri import operator_ingress as oi
+    except Exception:                     # noqa: BLE001
+        return None
+    feats, _info = oi.all_features(text)
+    opf, _struct = oi.split_features(feats)
+    if not opf:
+        return None
+    return np.asarray(oi.ring_slot(opf, dim))
+
+
+def wave_guided_order(spec: str, variants: Sequence[str],
+                      dim: int = 16384) -> list[str]:
+    """Order variants by operator-slot resonance with the QUERY.
+
+    Phase 9, Step 4, and the point of Step 2. An operator swap either moves
+    a program toward the operation the docstring names or away from it.
+    Scoring each variant against the query's operator slot ranks the
+    toward-moves first, so the bounded sandbox budget is spent on the
+    candidates the cross-modal wave favours rather than on an arbitrary
+    AST walk order.
+
+    Returns `variants` UNCHANGED when the query has an empty operator slot.
+    That is the measured 0.3747 of docstrings, and reordering them by a
+    zero vector would be noise dressed as guidance.
+    """
+    q = _op_slot(spec, dim)
+    if q is None or float(np.linalg.norm(q)) < 1e-30:
+        return list(variants)
+    qn = q / float(np.linalg.norm(q))
+    scored = []
+    for i, v in enumerate(variants):
+        s = _op_slot(v, dim)
+        if s is None or float(np.linalg.norm(s)) < 1e-30:
+            scored.append((-np.inf, i, v))
+            continue
+        sn = s / float(np.linalg.norm(s))
+        scored.append((float(np.real(np.vdot(qn, sn))), i, v))
+    scored.sort(key=lambda t: (-t[0], t[1]))
+    return [v for _s, _i, v in scored]
+
+
 def synthesize_candidates(backbone, spec: str, bank: CodeTemplateBank,
                           tests: Sequence[str] = (), k: int = 8,
-                          max_variants: int = 2) -> list[dict]:
+                          max_variants: int = 2,
+                          guide_by_wave: bool = True) -> list[dict]:
     """Retrieved templates plus AST variants, each with provenance.
 
     Returns dicts `{text, origin, template_index, template_rank, mutation}`.
     `origin` is `retrieved` for the stored source and `mutated` for a
     variant, so a receipt can separate retrieval credit from mutation
     credit rather than blending them.
+
+    Phase 9 additions: the entry signature is adapted to the target name
+    AND arity read from `tests`, and variants are ordered by operator-slot
+    resonance with `spec` when `guide_by_wave` is set.
     """
     hits = bank.retrieve(backbone, spec, k=k)
-    name = spec_entry_name("\n".join(list(tests)))
+    name, arity, nkw = target_signature(tests)
+    if name is None:
+        name = spec_entry_name("\n".join(list(tests)))
+    if nkw:
+        # Ambiguous: keywords mean the positional count is not the arity.
+        # Refuse to adapt rather than produce candidates that all raise.
+        arity = None
     out: list[dict] = []
     seen: set[str] = set()
 
-    def push(text, origin, ti, trank, mutation):
+    def push(text, origin, ti, trank, mutation, adapted=False):
         if not text or text in seen:
             return
         seen.add(text)
+        # `origin` keeps the Phase 8 vocabulary (`retrieved` / `mutated`) so
+        # existing receipts stay comparable. `adapted` is the Step 4 split
+        # the Phase 9 directive asks for: a winner whose signature was
+        # rewritten is `bank_adapted`, one that needed an operator swap is
+        # `mutated`. Both are recorded so a pass cannot be credited to the
+        # wrong mechanism.
         out.append({"text": text, "origin": origin,
+                    "adapted": bool(adapted),
                     "template_index": ti, "template_rank": trank,
                     "mutation": mutation})
 
     for h in hits:
         src = h["template"].source
-        renamed = rename_entry_function(src, name) if name else None
-        base = renamed or src
-        push(base, "retrieved", h["template_index"], h["rank"], "none")
-        for vi, mut in enumerate(operator_variants(base, limit=max_variants)):
+        # Adaptation first, then variants. Order matters: mutating an
+        # unadapted signature produces variants that all raise `TypeError`
+        # on the first call, which would score zero for a reason that has
+        # nothing to do with the operator channel.
+        base = src
+        adapted = False
+        if arity is not None:
+            a = adapt_arity(src, name, arity)
+            if a is not None:
+                base, adapted = a, True
+        elif name:
+            base = rename_entry_function(src, name) or src
+
+        push(base, "retrieved", h["template_index"], h["rank"], "none",
+             adapted=adapted)
+
+        variants = operator_variants(base, limit=max_variants)
+        if guide_by_wave and len(variants) > 1:
+            # Spend the bounded sandbox budget on the swaps the cross-modal
+            # operator wave favours. Returns input order when the query has
+            # an empty operator slot, which is the measured 0.3747 case.
+            variants = wave_guided_order(spec, variants)
+        for vi, mut in enumerate(variants):
             push(mut, "mutated", h["template_index"], h["rank"],
                  f"operator_swap_{vi + 1}")
     return out

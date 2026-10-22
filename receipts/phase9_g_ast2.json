@@ -1,0 +1,75 @@
+{
+  "chance": 0.125,
+  "clauses": [
+    {
+      "bar": "== 1.0",
+      "id": "A2-1",
+      "pass": true,
+      "value": 1.0,
+      "what": "pool validity after rejection == 1.0000"
+    },
+    {
+      "bar": "reported, no bar",
+      "id": "A2-2",
+      "pass": true,
+      "raw_pass_rate_of_attempts": 0.173523,
+      "value": 0.778571,
+      "what": "raw generator validity (MBPP property)"
+    },
+    {
+      "bar": "> 0.1250, z >= +2.5",
+      "id": "A2-3",
+      "pass": true,
+      "value": 0.4,
+      "what": "wave top-1 > 0.1250 and z >= +2.5",
+      "z": 5.259
+    },
+    {
+      "bar": "wave > stem",
+      "control": 0.25,
+      "id": "A2-4",
+      "pass": true,
+      "value": 0.4,
+      "what": "wave top-1 > stem_384d top-1"
+    },
+    {
+      "bar": "reported, no bar",
+      "id": "A2-5",
+      "pass": true,
+      "pool_base_rate_filtered": 0.125,
+      "raw_pool_base_rate": 0.31875,
+      "value": 0.4,
+      "what": "closed-loop rate vs the pool's own base rate"
+    }
+  ],
+  "dim_stem": 384,
+  "dim_wave": 65536,
+  "dropped": 0,
+  "frac_attempts_passing": 0.173523,
+  "k_pool": 8,
+  "labelling": "DISCRIMINATION benchmark. Distractors are rejected by running them, so the pool carries answer knowledge. It cannot support a generation claim. The raw column reports the unfiltered generator.",
+  "mean_attempts_per_pool": 8.55,
+  "n_items": 40,
+  "n_tasks_target": 40,
+  "pool_validity_constructed": 1.0,
+  "probe": "phase9_g_ast2",
+  "raw_generator_validity": 0.778571,
+  "raw_pool_base_rate": 0.31875,
+  "receipt_sha256": "b00d04c9f7bc61d4650c98e2f27746ff9dc0621aa447c2558713e953ba03c4dd",
+  "split_seed": 20261020,
+  "stem_384d": {
+    "mean_tie_group": 1.0,
+    "n": 40,
+    "top1_acc": 0.25,
+    "top1_correct": 10
+  },
+  "train_held_overlap": 0,
+  "verdict": "G_AST2_PASS",
+  "wall_clock_s": 36.75,
+  "wave": {
+    "mean_tie_group": 1.05,
+    "n": 40,
+    "top1_acc": 0.4,
+    "top1_correct": 16
+  }
+}
