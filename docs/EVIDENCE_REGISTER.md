@@ -1965,3 +1965,39 @@ Latency is run-variable on this host. The RATIO is the stable quantity:
 across six steps in both runs. The shipped receipt is authoritative for the
 numbers. This note exists so the two runs cannot be confused, and neither
 number is adjusted.
+## 20.9 Receipt identity: body self-digest vs file sha256
+
+MEASURED CORRECTION. Sections 20.2, 20.3 and 20.6 quote a "sha256" for
+receipt files. Those values are BODY SELF-DIGESTS, not file hashes. The label
+was wrong and I wrote it into this register and into the commit message for
+`08b9307`. No receipt is corrupt; only the label is.
+
+Two identities exist per receipt that carries the self-field:
+
+| identity | how to reproduce | scope |
+|---|---|---|
+| body self-digest | strip `receipt_sha256_of_body_before_self_field`, re-serialise `json.dumps(indent=2, sort_keys=True)`, sha256 | proves internal consistency |
+| file sha256 | `sha256sum receipts/<name>.json` | identifies the committed bytes |
+
+Measured, all four self-fields recompute exactly:
+
+| receipt | body self-digest | file sha256 |
+|---|---|---|
+| `phase8_robotics_full_D.json` | `51c302f13853e343` | `5db6db8aa0517232` |
+| `phase8_g_koop1.json` | `d19179d04bc08fe0` | `f4013a56d85828fb` |
+| `phase9_opaxis.json` | `5e2e7949c19c00fc` | `25f9293f823387b9` |
+| `phase9_g_ast2.json` | `b00d04c9f7bc61d4` | `08b32288c6381d60` |
+
+`phase9_g_synth1.json` (`c3cd5ed68f49b29f`) and
+`phase9_g_synth1_leakcheck.json` (`d4dbd944649a3651`) carry no self-field,
+so only the file hash exists for them.
+
+A self-digest proves linkage from payload to field. It does not prove the
+field is unaltered, because an editor can rewrite both. It is not a
+signature and not a MAC. Section 17 already records this limit; this section
+adds the reproduction recipe so a reader can check either number instead of
+trusting the citation.
+
+SOURCE FIXED. `scripts/probe_phase8_robotics.py` printed the body digest as
+`receipt sha256`. It now prints `body_sha256_self_field` and
+`file_sha256_on_disk` on separate lines.

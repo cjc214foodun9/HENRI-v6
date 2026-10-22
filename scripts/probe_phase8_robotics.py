@@ -211,8 +211,18 @@ def main() -> int:
     back = json.loads(OUT.read_text(encoding="utf-8"))
     ok = (back["arms"][2]["sagnac_delta_final"]
           == arms[2]["sagnac_delta_final"])
-    print("receipt %s sha256 %s readback %s"
-          % (OUT, digest[:16], "OK" if ok else "MISMATCH"))
+    # TWO IDENTITIES, LABELLED SEPARATELY.
+    # `digest` is the digest of the body BEFORE the self-field was added, which
+    # is what makes the receipt self-verifiable: strip the field, re-serialise,
+    # and the recomputed digest must equal the stored one. It is NOT the file's
+    # sha256, and `sha256sum` on the file will never reproduce it. The first
+    # draft printed it as "sha256", and that label propagated into the evidence
+    # register and a commit message, so a reader could verify neither number.
+    file_sha = hashlib.sha256(OUT.read_bytes()).hexdigest()
+    print("receipt %s" % OUT)
+    print("  body_sha256_self_field %s" % digest[:16])
+    print("  file_sha256_on_disk    %s" % file_sha[:16])
+    print("  readback %s" % ("OK" if ok else "MISMATCH"))
 
     gated = [a for a in arms if a["arm"] != "R4_VACUOUS_no_axiom"]
     all_pass = all(a["arm_verdict"] == "PASS" for a in gated)
