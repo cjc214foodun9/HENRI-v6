@@ -1588,3 +1588,70 @@ market-ready API. The directive's progress framing (57 percent to 78 to
 100) is narrative, not measurement. Phase 6 numbers stand unchanged:
 `c_max 0.781052 -> 0.770887`, retrieval `0.19 -> 0.1925`, MBPP open-loop
 top-1 `0.0` (below chance), tie-group `1.6333`.
+
+## 17. Correction to section 16.7, and the Phase 7 promotion record
+
+### 17.1 Retracted claim
+
+Section 16.7 states: "`HENRI-main` is not present on this host
+(`ls "C:/Users/chan/Desktop"` lists only `HENRI v6`)."
+
+**The parenthetical is wrong and is retracted.** The command actually printed
+19 entries: `HENRI v6`, `HENRI 7B SWARM`, `HENRI-GEMMA`, `henri-ground-zero`,
+`HENRI Research Vault`, `HENRI-consolidation-backup-20260911`,
+`HENRI_V2.zip`, `BMAD6`, `desktop.ini`, and 10 link files.
+
+**Error mechanism.** I wrote the parenthetical from an impression of an
+earlier narrower listing instead of from the output of the command run in the
+same session. The output was plain and available. This is the
+measurement-fidelity defect class: prose substituted for the recorded bytes.
+
+### 17.2 What stands, on its own evidence
+
+Each of these is a separate deterministic check whose result did not change:
+
+| check | result |
+|---|---|
+| `test -d "C:/Users/chan/Desktop/HENRI-main"` | ABSENT |
+| `test -d "V2"` inside this repo | ABSENT |
+| `test -d "henri/egress"` | ABSENT |
+| `find` for rosetta, unbinder, grammar_mask, secure_executor | 0 matches |
+
+The BLOCKED verdict in 16.7 therefore stands. Only the framing sentence
+changes.
+
+### 17.3 Residual claim, stated precisely
+
+The named Phase-7 upstream modules are absent from this checkout and from the
+paths checked. I did not enumerate every directory on this host. I therefore
+cannot claim those modules exist nowhere, and I do not.
+
+### 17.4 Phase 7 promotion record, absent from section 16
+
+Section 16 was written before the commit, so it carries no SHAs. Measured:
+
+| step | value |
+|---|---|
+| review branch | `review/phase7-daemon` |
+| commit | `80bb8bbf2430b3eb034a5c0215352a58bd414e29` |
+| commit contents | 7 files, 980 insertions, 0 deletions |
+| promotion gate | `verdict=PROMOTE rev=80bb8bb`, digest `e4c93251471ec90d445992c1ccb32b02` |
+| gate inputs | tree clean, kernel SEALED, 440 passed, 14 skipped, floor 370 |
+| merge | `534d8d25bac890b26308feb7ad199d6f47ae20c2`, `--no-ff`, ancestor rc=0 |
+| push | `08f3d4b..`/`611fa76..534d8d2`, `PUSH_RC=0` |
+| local SHA | `534d8d25bac890b26308feb7ad199d6f47ae20c2` |
+| remote SHA | `534d8d25bac890b26308feb7ad199d6f47ae20c2` |
+| merged tree | `3d1ac60571c64aa3e55128839ac71b893cfe809e` |
+| gated tree | `3d1ac60571c64aa3e55128839ac71b893cfe809e` |
+
+Identical tree hashes certify that promoted content equals gated content
+without re-running the suite.
+
+### 17.5 Non-claims carried forward
+
+No benchmark dominance, no SOTA, no market-ready API. `tenant_id` is a
+namespace key, not an authenticated identity; there is no auth, rate limit,
+TLS, or cross-process isolation, and the daemon binds `127.0.0.1` only.
+gRPC is installed but no gRPC service is wired; only FastAPI is exercised.
+Phase 6 numbers stand unchanged: c_max 0.781052 -> 0.770887, retrieval
+0.19 -> 0.1925, MBPP open-loop top-1 0.0 (below chance), tie-group 1.6333.
