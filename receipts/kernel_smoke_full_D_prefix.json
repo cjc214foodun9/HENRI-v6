@@ -1,0 +1,157 @@
+{
+  "environment": {
+    "git_rev": "ec7effe0725b12fa2e99044d71a5eccef313a790",
+    "numpy": "2.4.3",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "python": "3.11.15"
+  },
+  "evidence_label": "OBSERVED",
+  "non_claims": [
+    "No benchmark task was attempted or solved.",
+    "No photonic substrate figure is measured.",
+    "Code health is not intelligence."
+  ],
+  "params": {
+    "codebook": 32,
+    "dim": 65536,
+    "seed": 20261012
+  },
+  "receipt_sha256": "2da9af4339551b4044f39bf66a2838e3010d297149df9108a178ed3a7cc7d00e",
+  "schema": "henri.v6.kernel_smoke/1",
+  "scope": "CPU kernel only. No GPU, no ARC task solved, no capability claim.",
+  "stages": {
+    "binding": {
+      "bound_norm_error": 0.0,
+      "note": "coherence saturates near 0.707 = 1/sqrt(2); it does NOT improve with dimension",
+      "recovery_coherence": 0.7054554019647458,
+      "recovery_residual": 0.29454459803525423
+    },
+    "centroid_snap": {
+      "index": 2,
+      "n_centroids": 6
+    },
+    "codebook": {
+      "crosstalk_after": -7.162729191130042e-18,
+      "crosstalk_before": 1.4570240811690073e-05,
+      "gate_u2_bound": 0.12,
+      "gate_u2_pass": true,
+      "n_patterns": 32
+    },
+    "config": {
+      "blocks": 8192,
+      "dim": 65536,
+      "n_slots": 4,
+      "r_koopman": 64,
+      "r_memory": 64,
+      "slot_span": 16384
+    },
+    "ingress": {
+      "norm": 1.0,
+      "slot3_is_exactly_zero": true,
+      "slot_bleed_active": 0.0,
+      "slot_energy": [
+        0.3325987179399959,
+        0.3332786900068065,
+        0.33412259205319755,
+        0.0
+      ],
+      "unit_norm_error": 0.0
+    },
+    "koopman": {
+      "is_unitary": false,
+      "projected_norm_error": 1.1102230246251565e-16,
+      "raw_norm_drift": 0.3514219950141546,
+      "skew_hermitian": true,
+      "spec_claim_falsified": true
+    },
+    "kuramoto": {
+      "increased": true,
+      "lock_threshold": 0.88,
+      "locked": false,
+      "r_after": 0.011954222707992653,
+      "r_before": 0.003906497600839979
+    },
+    "pipeline": {
+      "envelope": {
+        "confidence": 0.17673333383533552,
+        "kind": "abstain",
+        "payload": {
+          "reason": "sagnac_dark_port"
+        },
+        "verified": false,
+        "veto_reason": "delta exceeds calibrated epsilon"
+      },
+      "index": -1,
+      "locked": false,
+      "order_parameter": 0.0059968749069417415,
+      "readout": {
+        "abstained": false,
+        "entropy": 0.9999999994129746,
+        "floor": null,
+        "group_size": 1,
+        "index": 8,
+        "margin": 6.835233598390111e-05,
+        "second_score": 0.176892431675935,
+        "tie_fraction": 0.03125,
+        "top_score": 0.1769607840119189,
+        "used_group_key": false
+      },
+      "stages": {
+        "confidence": 0.17673333383533552,
+        "energy_final": -0.18891179437715683,
+        "energy_initial": 0.32731025940684494,
+        "energy_steps": 13,
+        "entropy": 0.9999999994129746,
+        "epsilon": 0.008114290673129585,
+        "group_size": 1,
+        "margin": 6.835233598390111e-05,
+        "norm_drift": 0.0,
+        "r_final": 0.0059968749069417415,
+        "r_initial": 0.002911314848523945,
+        "slot_bleed_ingress": 0.0,
+        "slot_energy_ingress": [
+          0.3325987179399959,
+          0.3332786900068065,
+          0.33412259205319755,
+          0.0
+        ]
+      },
+      "veto_fired": true
+    },
+    "readout": {
+      "entropy": 0.9999999994129746,
+      "floor": null,
+      "group_size": 1,
+      "margin": 6.835233598390111e-05,
+      "no_floor_smuggled": true,
+      "selected_index": 8
+    },
+    "sagnac": {
+      "calibration": {
+        "baseline_coherence_mean": -6.984165658413278e-05,
+        "baseline_coherence_std": 0.0027280441099045726,
+        "capped": false,
+        "ceiling": 0.35,
+        "delta_mean": 1.000069841656584,
+        "delta_p95": 1.0049117863547403,
+        "epsilon": 0.008114290673129585,
+        "is_complex_family": true,
+        "n_pairs": 6000,
+        "sigma": 3.0
+      },
+      "directive3_bar": 0.7,
+      "directive3_pass": false,
+      "epsilon_is_not_the_retired_literal": true,
+      "separation": {
+        "epsilon": 0.008114290673129585,
+        "false_veto": 1.0,
+        "n_bad": 12,
+        "n_gold": 12,
+        "separation": 0.0,
+        "true_veto": 1.0
+      }
+    }
+  },
+  "status": "COMPLETE",
+  "wall_clock_s": 6.424986999947578
+}

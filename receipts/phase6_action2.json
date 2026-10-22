@@ -1,0 +1,63 @@
+{
+  "probe": "phase6_action2_cold_lru",
+  "G_P6B1": {
+    "bytes_per_cartridge": 4194304,
+    "max_phase_error_keys": 0.012271837,
+    "max_phase_error_values": 0.012271836,
+    "half_bin_bound": 0.012271846,
+    "verdict": "PASS"
+  },
+  "N1_nonunit": {
+    "input_mean_magnitude": 9.344506,
+    "reconstructed_mean_magnitude": 0.005524272,
+    "expected": 0.005524272,
+    "note": "Stores phase only. Magnitude is NOT preserved by design.",
+    "verdict": "PASS"
+  },
+  "G_P6B2": {
+    "paired_recall_error": 6.097511462245527e-16,
+    "router_cartridge": 0,
+    "verdict": "PASS"
+  },
+  "G_P6B3": {
+    "rows": 13632,
+    "cartridges": 213,
+    "cold_bytes_per_cartridge": 4194304,
+    "cold_mib_per_cartridge": 4.0,
+    "cold_total_gib": 0.832,
+    "complex128_gib": 26.625,
+    "reduction_factor": 32.0,
+    "hot_ceiling_gib_max8": 1.0,
+    "tier_total_gib": 1.832,
+    "gate_gib": 3.0,
+    "verdict": "PASS"
+  },
+  "G_P6B4": {
+    "entries": 3,
+    "max": 3,
+    "hits": 0,
+    "misses": 6,
+    "evictions": 9,
+    "verdict": "PASS"
+  },
+  "N2_zero_ceiling": {
+    "rejected": true,
+    "verdict": "PASS"
+  },
+  "G_P6B5": {
+    "default_write_stiefel": false,
+    "default_keys_ortho_set": false,
+    "optin_keys_ortho_set": true,
+    "verdict": "PASS"
+  },
+  "verdicts": {
+    "G_P6B1": "PASS",
+    "G_P6B2": "PASS",
+    "G_P6B3": "PASS",
+    "G_P6B4": "PASS",
+    "G_P6B5": "PASS",
+    "N1_nonunit": "PASS",
+    "N2_zero_ceiling": "PASS"
+  },
+  "all_pass": true
+}

@@ -39,6 +39,12 @@ app = FastAPI(title="HENRI Digital Twin", version="0.1.0")
 
 _API: Optional[DigitalTwinAPI] = None
 _BANKS: dict[str, CartridgeBank] = {}
+# Code-template banks, keyed by namespace. Separate from `_BANKS` on
+# purpose: `CartridgeBank` stores waves only, and a wave cannot be decoded
+# back into Python source. `CodeTemplateBank` holds the wave bank AND a text
+# registry beside it. Conflating the two would imply the wave core decoded
+# source, which it does not.
+_CODE_BANKS: dict[str, object] = {}
 
 
 def get_api() -> DigitalTwinAPI:
@@ -57,6 +63,7 @@ def set_api(api: DigitalTwinAPI) -> None:
 
 def reset_banks() -> None:
     _BANKS.clear()
+    _CODE_BANKS.clear()
 
 
 def _body(obj) -> dict:
@@ -90,10 +97,25 @@ class CartridgeMountRequest(BaseModel):
 
 class CodeSolveRequest(BaseModel):
     spec: str
-    candidates: list[str]
+    candidates: list[str] = []
     tests: list[str] = []
     top_k: int = 3
     timeout: Optional[int] = None
+    synthesize_from_bank: bool = False
+    k_templates: int = 8
+    max_variants: int = 2
+    tenant_id: str = "default"
+
+
+class CodeBankIngestRequest(BaseModel):
+    tenant_id: str
+    limit: int = 200
+
+
+class RoboticsStepRequest(BaseModel):
+    sensor_values: list[float]
+    axiom_reference: Optional[list[float]] = None
+    adapt_on_veto: bool = True
 
 
 # -- endpoints -----------------------------------------------------------
@@ -181,12 +203,159 @@ def cartridges_mount(req: CartridgeMountRequest) -> dict:
 def code_solve(req: CodeSolveRequest) -> dict:
     if not req.spec.strip():
         raise HTTPException(422, "spec is required")
-    if not req.candidates:
-        raise HTTPException(422, "at least one candidate is required")
     api = get_api()
+
+    bank = _CODE_BANKS.get(req.tenant_id)
+    if not req.candidates and not req.synthesize_from_bank:
+        raise HTTPException(
+            422, "at least one candidate is required unless "
+                 "synthesize_from_bank is set")
+    if req.synthesize_from_bank and bank is None:
+        # FAIL-CLOSED, and it says which reason. A missing bank is not an
+        # empty successful answer; it is a request that cannot be served.
+        return {
+            "endpoint": "code_solve",
+            "verdict": "NO_CANDIDATES",
+            "n_candidates": 0,
+            "n_tests": len(req.tests),
+            "executed": [],
+            "synthesize_from_bank": True,
+            "note": ("no code-template bank is mounted, so nothing can be "
+                     "synthesized. Ingest templates first."),
+        }
     return solve_verified_code(api.backbone, req.spec, req.candidates,
                                tests=req.tests, top_k=req.top_k,
-                               timeout=req.timeout)
+                               timeout=req.timeout,
+                               bank=bank,
+                               synthesize_from_bank=req.synthesize_from_bank,
+                               k_templates=req.k_templates,
+                               max_variants=req.max_variants)
+
+
+@app.post("/v1/code/bank/ingest")
+def code_bank_ingest(req: CodeBankIngestRequest) -> dict:
+    """Ingest (docstring, source) pairs from the staged MBPP corpus.
+
+    The corpus is read, never written. A missing corpus is 409, not an
+    empty bank dressed as success.
+    """
+    import json as _json
+    from pathlib import Path as _Path
+
+    from henri.code_synth import CodeTemplateBank, Template
+
+    if req.limit <= 0:
+        raise HTTPException(422, "limit must be positive")
+    api = get_api()
+    path = _Path(__file__).resolve().parents[1] / "data" / \
+        "official_benchmarks" / "mbpp.jsonl"
+    if not path.exists():
+        raise HTTPException(409, f"corpus missing: {path}")
+
+    rows = []
+    with path.open(encoding="utf-8") as fh:
+        for line in fh:
+            line = line.strip()
+            if not line:
+                continue
+            rows.append(_json.loads(line))
+            if len(rows) >= int(req.limit):
+                break
+    if not rows:
+        raise HTTPException(409, "corpus has no rows")
+
+    # SIZE THE BANK FROM THE WAVE, not from a hoped-for attribute.
+    # `SemanticBackbone` has no `.dim`; Phase 7 measured AttributeError on
+    # exactly that assumption.
+    dim = int(api.backbone.encode(rows[0]["text"]).psi.shape[0])
+    bank = CodeTemplateBank(dim=dim, rank=api.rank)
+    for r in rows:
+        text = str(r.get("text", "")).strip()
+        code = str(r.get("code", "")).strip()
+        if not text or not code:
+            continue
+        bank.add(api.backbone,
+                 Template(docstring=text, source=code,
+                          task_id=str(r.get("task_id", ""))))
+    if not bank.templates:
+        raise HTTPException(409, "corpus rows had no usable text/code pairs")
+    bank.finalize()
+    _CODE_BANKS[req.tenant_id] = bank
+    return {
+        "endpoint": "code_bank_ingest",
+        "tenant_id": req.tenant_id,
+        "corpus": path.name,
+        "templates": bank.rows,
+        "bank": bank.to_dict(),
+        "note": ("waves are stored for retrieval; SOURCE TEXT is kept in a "
+                 "registry beside them, because a wave cannot be decoded "
+                 "back into Python source"),
+    }
+
+
+# -- robotics: closed-loop active inference -------------------------------
+# The loop is built once and reused. At D=65536 construction costs ~0.17 s;
+# rebuilding per request would charge that to every step and make the
+# reported latency meaningless. `set_robotics` exists so tests can inject a
+# reduced-dimension loop instead of paying full-D cost on every case.
+
+_ROBOTICS = None
+
+
+def get_robotics():
+    global _ROBOTICS
+    if _ROBOTICS is None:
+        from henri.robotics_loop import RoboticsLoop
+        _ROBOTICS = RoboticsLoop()
+    return _ROBOTICS
+
+
+def set_robotics(loop) -> None:
+    global _ROBOTICS
+    _ROBOTICS = loop
+
+
+def reset_robotics() -> None:
+    global _ROBOTICS
+    _ROBOTICS = None
+
+
+@app.post("/v1/robotics/step")
+def robotics_step(req: RoboticsStepRequest) -> dict:
+    """One closed-loop step: ingest, predict, veto, relax, emit.
+
+    Fail-closed rules, all of them 422 rather than a silent pass:
+      * empty `sensor_values`            -> nothing to encode
+      * non-finite `sensor_values`       -> NaN propagates through the gate
+      * `axiom_reference` length differs -> the comparison is ill-posed
+
+    A MISSING `axiom_reference` is not an error. It returns
+    `vacuous_axiom: true` and `axiom_source: "self"`, because the loop then
+    compares the candidate against itself. That arm cannot detect a fault;
+    the flag says so instead of pretending a veto was evaluated.
+    """
+    if not req.sensor_values:
+        raise HTTPException(422, "sensor_values must not be empty")
+    arr = np.asarray(req.sensor_values, dtype=float)
+    if not np.all(np.isfinite(arr)):
+        raise HTTPException(422, "sensor_values must all be finite")
+    if req.axiom_reference is not None:
+        if len(req.axiom_reference) != len(req.sensor_values):
+            raise HTTPException(
+                422,
+                f"axiom_reference has {len(req.axiom_reference)} entries, "
+                f"sensor_values has {len(req.sensor_values)}")
+        ax = np.asarray(req.axiom_reference, dtype=float)
+        if not np.all(np.isfinite(ax)):
+            raise HTTPException(422, "axiom_reference must all be finite")
+
+    loop = get_robotics()
+    try:
+        return loop.step(req.sensor_values,
+                         axiom_reference=req.axiom_reference,
+                         adapt_on_veto=req.adapt_on_veto)
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
 
 
 if __name__ == "__main__":

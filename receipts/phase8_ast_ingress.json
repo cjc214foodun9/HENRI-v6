@@ -1,0 +1,87 @@
+{
+  "probe": "phase8_ast_ingress",
+  "n_eval": 60,
+  "k_pool": 8,
+  "chance_top1": 0.125,
+  "z_bar": 2.5,
+  "tie_bar": 1.6333,
+  "mutation_bar": 0.9,
+  "preregistration": "encoded in the module docstring before run 1",
+  "arms": {
+    "stem_cosine": {
+      "top1": 0.0,
+      "top1_count": 0,
+      "top3": 0.4333,
+      "z_vs_chance": -2.9277,
+      "mean_tie_group": 1.6333,
+      "gold_in_max_group": 0.2,
+      "size_matched_control": 0.05,
+      "lift_vs_control": 4.0,
+      "exec_verified_top1": 0.4167
+    },
+    "wave_v6": {
+      "top1": 0.05,
+      "top1_count": 3,
+      "top3": 0.5,
+      "z_vs_chance": -1.7566,
+      "mean_tie_group": 2.0167,
+      "gold_in_max_group": 0.3333,
+      "size_matched_control": 0.0886,
+      "lift_vs_control": 3.7618,
+      "exec_verified_top1": 0.5333
+    },
+    "wave_operator": {
+      "top1": 0.0333,
+      "top1_count": 2,
+      "top3": 0.4,
+      "z_vs_chance": -2.147,
+      "mean_tie_group": 1.85,
+      "gold_in_max_group": 0.2667,
+      "size_matched_control": 0.0692,
+      "lift_vs_control": 3.8554,
+      "exec_verified_top1": 0.4
+    }
+  },
+  "paired_c_vs_b": {
+    "c_only_correct": 0,
+    "b_only_correct": 1,
+    "disagreements": 1,
+    "picks_differ": 17,
+    "note": "McNemar counts on the discordant cells only."
+  },
+  "G_P6E6_mutation_validity": {
+    "runs": 420,
+    "passes": 205,
+    "pass_rate": 0.4881,
+    "valid_rate": 0.5119
+  },
+  "gold_oracle_pass_rate": 1.0,
+  "exec_reasons": {
+    "nonzero_exit": 215,
+    "pass": 265
+  },
+  "gates": {
+    "G_AST1_d_tie_group": {
+      "measured": 1.85,
+      "bar": 1.6333,
+      "pass": false
+    },
+    "G_AST1_e_z": {
+      "measured": -2.147,
+      "bar": 2.5,
+      "pass": false
+    },
+    "G_AST1_f_beats_static": {
+      "measured_c": 0.0333,
+      "measured_b": 0.05,
+      "pass": false
+    },
+    "G_AST1_g_mutation_validity": {
+      "measured": 0.5119,
+      "bar": 0.9,
+      "pass": false
+    }
+  },
+  "verdict": "G_AST1_FAIL",
+  "wall_clock_sec": 57.8
+}

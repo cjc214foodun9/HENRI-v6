@@ -1,0 +1,102 @@
+{
+  "probe": "phase6_action1",
+  "calibration": {
+    "variant": "all_but_the_top_pointwise",
+    "covariance_whitener": "REJECTED_mixing_operator",
+    "p_components": 3,
+    "n_texts": 2000,
+    "fitted": true,
+    "explained_fraction_removed": 0.099044
+  },
+  "G_P6A1": {
+    "held_rows_in_fit": 0,
+    "verdict": "PASS"
+  },
+  "G_P6A2": {
+    "mean_cmax_raw": 0.781052,
+    "mean_cmax_calibrated": 0.770887,
+    "phase5_baseline": 0.816555,
+    "below_baseline": true,
+    "verdict": "PASS"
+  },
+  "G_P6A3": {
+    "retrieval_raw": 0.19,
+    "retrieval_calibrated": 0.1925,
+    "phase5_baseline": 0.19,
+    "band": 0.02,
+    "verdict": "PASS"
+  },
+  "G_P6A4": {
+    "items": 40,
+    "invariant": 40,
+    "rate": 1.0,
+    "verdict": "PASS"
+  },
+  "G_P6A5": {
+    "channel": "orthogonal char codes + per-dimension position keys",
+    "spec_pairs": [
+      {
+        "a": "ab",
+        "b": "ba",
+        "cos": 0.041089,
+        "predicted_match_fraction": 0.0,
+        "passes_010": true
+      },
+      {
+        "a": "mv/(qB)",
+        "b": "qB/(mv)",
+        "cos": -0.107643,
+        "predicted_match_fraction": 0.0,
+        "passes_010": true
+      }
+    ],
+    "extended_pairs": [
+      {
+        "a": "r = mv/(qB)",
+        "b": "r = qB/(mv)",
+        "cos": 0.119477,
+        "predicted_match_fraction": 0.2,
+        "passes_010": false
+      },
+      {
+        "a": "pressure increases temperature",
+        "b": "temperature increases pressure",
+        "cos": 0.252345,
+        "predicted_match_fraction": 0.214286,
+        "passes_010": false
+      }
+    ],
+    "verdict": "PASS_SPEC_EXTENDED_BOUNDED",
+    "bound_note": "cos approximates matching_positions/n_positions. The two spec-named pairs have 0 matching positions and pass. The two extended pairs share a leading character or coincidental alignment, so their floor is 1/6 and 6/28. Crossing 0.10 there needs alignment-sensitive coding, not a phase rotor."
+  },
+  "G_P6A6": {
+    "antonym": -1.0,
+    "synonym": 0.699913,
+    "verdict": "PASS"
+  },
+  "N1_whitener": {
+    "mean_cmax_whitened": 0.752659,
+    "note": "Measured for the record. Rejected on ALGEBRA, not on this number: a full-rank mixing matrix changes argmax wherever G^-1/2 is non-diagonal.",
+    "used_in_production": false
+  },
+  "N2_control": {
+    "cmax_raw_direct": 0.972960428,
+    "cmax_via_noop_apply": 0.972960428,
+    "verdict": "PASS"
+  },
+  "feasibility": {
+    "feasible": false,
+    "n_solutions": 0,
+    "example": [],
+    "closest_miss": {
+      "w0": 0.04,
+      "w1": 0.52,
+      "w2": 0.44,
+      "cos_order": 0.1052,
+      "cos_syn": 0.5488,
+      "violation": 0.1064
+    },
+    "verdict": "INFEASIBLE_NEEDS_SEPARATE_CHANNEL"
+  },
+  "order_channel_note": "tokens('ab') is one token, so a token-position rotor assigns both strings position 0. Measured below in G_P6A5_token_rotor."
+}

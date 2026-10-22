@@ -1,0 +1,157 @@
+{
+  "environment": {
+    "git_rev": "uncommitted",
+    "numpy": "2.4.3",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "python": "3.11.15"
+  },
+  "evidence_label": "OBSERVED",
+  "non_claims": [
+    "No benchmark task was attempted or solved.",
+    "No photonic substrate figure is measured.",
+    "Code health is not intelligence."
+  ],
+  "params": {
+    "codebook": 32,
+    "dim": 1024,
+    "seed": 20261012
+  },
+  "receipt_sha256": "0f0dfb20e92184e43f1739a8b93663b701c0a7715740dc90764bb0425b2ac822",
+  "schema": "henri.v6.kernel_smoke/1",
+  "scope": "CPU kernel only. No GPU, no ARC task solved, no capability claim.",
+  "stages": {
+    "binding": {
+      "bound_norm_error": 0.0,
+      "note": "coherence saturates near 0.707 = 1/sqrt(2); it does NOT improve with dimension",
+      "recovery_coherence": 0.7055403505115524,
+      "recovery_residual": 0.2944596494884476
+    },
+    "centroid_snap": {
+      "index": 2,
+      "n_centroids": 6
+    },
+    "codebook": {
+      "crosstalk_after": 0.0,
+      "crosstalk_before": 0.0009635676295885698,
+      "gate_u2_bound": 0.12,
+      "gate_u2_pass": true,
+      "n_patterns": 32
+    },
+    "config": {
+      "blocks": 128,
+      "dim": 1024,
+      "n_slots": 4,
+      "r_koopman": 64,
+      "r_memory": 64,
+      "slot_span": 256
+    },
+    "ingress": {
+      "norm": 1.0000000000000002,
+      "slot3_is_exactly_zero": true,
+      "slot_bleed_active": 0.0,
+      "slot_energy": [
+        0.3113539676890969,
+        0.33695390574997247,
+        0.35169212656093046,
+        0.0
+      ],
+      "unit_norm_error": 2.220446049250313e-16
+    },
+    "koopman": {
+      "is_unitary": false,
+      "projected_norm_error": 1.1102230246251565e-16,
+      "raw_norm_drift": 7.307313634001808,
+      "skew_hermitian": true,
+      "spec_claim_falsified": true
+    },
+    "kuramoto": {
+      "increased": true,
+      "lock_threshold": 0.88,
+      "locked": false,
+      "r_after": 0.04617161737506616,
+      "r_before": 0.009281449434059345
+    },
+    "pipeline": {
+      "envelope": {
+        "confidence": 2.0611568007922187e-09,
+        "kind": "abstain",
+        "payload": {
+          "reason": "sagnac_dark_port"
+        },
+        "verified": false,
+        "veto_reason": "delta exceeds calibrated epsilon"
+      },
+      "index": -1,
+      "locked": false,
+      "order_parameter": 0.05275318656597297,
+      "readout": {
+        "abstained": false,
+        "entropy": 0.9918305452057495,
+        "floor": null,
+        "group_size": 1,
+        "index": 13,
+        "margin": 0.9999999979388428,
+        "second_score": 2.061156975131928e-09,
+        "tie_fraction": 0.03125,
+        "top_score": 0.9999999999999998,
+        "used_group_key": false
+      },
+      "stages": {
+        "confidence": 2.0611568007922187e-09,
+        "energy_final": -0.5000000031947901,
+        "energy_initial": 0.3204678380643126,
+        "energy_steps": 8,
+        "entropy": 0.9918305452057495,
+        "epsilon": 0.06667762168873993,
+        "group_size": 1,
+        "margin": 0.9999999979388428,
+        "norm_drift": 2.220446049250313e-16,
+        "r_final": 0.05275318656597297,
+        "r_initial": 0.027697869316574957,
+        "slot_bleed_ingress": 0.0,
+        "slot_energy_ingress": [
+          0.3113539676890969,
+          0.33695390574997247,
+          0.35169212656093046,
+          0.0
+        ]
+      },
+      "veto_fired": true
+    },
+    "readout": {
+      "entropy": 0.9918305452057495,
+      "floor": null,
+      "group_size": 1,
+      "margin": 0.9999999979388428,
+      "no_floor_smuggled": true,
+      "selected_index": 13
+    },
+    "sagnac": {
+      "calibration": {
+        "baseline_coherence_mean": -6.833930983548867e-05,
+        "baseline_coherence_std": 0.022248653666191807,
+        "capped": false,
+        "ceiling": 0.35,
+        "delta_mean": 1.0000683393098355,
+        "delta_p95": 1.0361557345449182,
+        "epsilon": 0.06667762168873993,
+        "is_complex_family": true,
+        "n_pairs": 6000,
+        "sigma": 3.0
+      },
+      "directive3_bar": 0.7,
+      "directive3_pass": true,
+      "epsilon_is_not_the_retired_literal": true,
+      "separation": {
+        "epsilon": 0.06667762168873993,
+        "false_veto": 0.0,
+        "n_bad": 12,
+        "n_gold": 12,
+        "separation": 1.0,
+        "true_veto": 1.0
+      }
+    }
+  },
+  "status": "COMPLETE",
+  "wall_clock_s": 0.14442919997964054
+}

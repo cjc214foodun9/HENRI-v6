@@ -1,0 +1,229 @@
+{
+  "arms": [
+    {
+      "action_projection": [
+        0.003113103,
+        0.002680132,
+        -0.004100029,
+        0.005910656,
+        -0.001065348,
+        -0.001949014,
+        -0.000595291,
+        0.003104502
+      ],
+      "action_slot_norm": 0.621304301,
+      "adaptation_steps": 0,
+      "arm": "R1_IDENTITY_safe",
+      "arm_verdict": "PASS",
+      "bar": {
+        "delta_initial_exact_zero": true,
+        "final_under_tau": true,
+        "no_veto": true,
+        "zero_steps": true
+      },
+      "checks": {
+        "delta_initial_exact_zero": true,
+        "final_under_tau": true,
+        "no_veto": true,
+        "zero_steps": true
+      },
+      "dilution_applied": 2.0,
+      "latency_per_step_us_derived": null,
+      "latency_us_internal": 33933.1,
+      "latency_us_wall": 34191.7,
+      "recoil_events": 0,
+      "recovery_verified": true,
+      "relaxation": [],
+      "sagnac_delta_final": 0.0,
+      "sagnac_delta_initial": 0.0,
+      "sensor_sha256": "f347b7ccbe414b549724ee50bb3fc6512383ad9d8a9564acc57656703e88c969",
+      "slot_energy": {
+        "slot0": 0.783569375,
+        "slot1": 0.621304301,
+        "slot2": 0.0,
+        "slot3": 0.0
+      },
+      "statistic_form": "inner_product",
+      "vetoed_initial": false
+    },
+    {
+      "action_projection": [
+        0.003107318,
+        0.002675002,
+        -0.004100631,
+        0.005910416,
+        -0.001069733,
+        -0.00193848,
+        -0.000608045,
+        0.003099014
+      ],
+      "action_slot_norm": 0.621314874,
+      "adaptation_steps": 0,
+      "arm": "R2_NEAR_safe",
+      "arm_verdict": "PASS",
+      "bar": {
+        "delta_initial_nonzero": true,
+        "final_under_tau": true,
+        "no_veto": true,
+        "zero_steps": true
+      },
+      "checks": {
+        "delta_initial_nonzero": true,
+        "final_under_tau": true,
+        "no_veto": true,
+        "zero_steps": true
+      },
+      "dilution_applied": 2.0,
+      "latency_per_step_us_derived": null,
+      "latency_us_internal": 33762.6,
+      "latency_us_wall": 34024.0,
+      "recoil_events": 0,
+      "recovery_verified": true,
+      "relaxation": [],
+      "sagnac_delta_final": 1.284e-06,
+      "sagnac_delta_initial": 1.284e-06,
+      "sensor_sha256": "fd3d7524681f17a61d11448fdd7edbb58868aeeb3b81f71ea0837e0ca0f9e7da",
+      "slot_energy": {
+        "slot0": 0.783560992,
+        "slot1": 0.621314874,
+        "slot2": 0.0,
+        "slot3": 0.0
+      },
+      "statistic_form": "inner_product",
+      "vetoed_initial": false
+    },
+    {
+      "action_projection": [
+        0.003042573,
+        0.001945488,
+        -0.003853732,
+        0.005880086,
+        -0.002188837,
+        0.00026661,
+        -0.002723321,
+        0.001941881
+      ],
+      "action_slot_norm": 0.619268104,
+      "adaptation_steps": 6,
+      "arm": "R3_UNSAFE_perturbed",
+      "arm_verdict": "FAIL",
+      "bar": {
+        "final_under_tau": true,
+        "initial_above_tau": true,
+        "twin_latency": true
+      },
+      "checks": {
+        "final_under_tau": true,
+        "initial_above_tau": true,
+        "twin_latency": false
+      },
+      "dilution_applied": 2.0,
+      "latency_per_step_us_derived": 12163.183,
+      "latency_us_internal": 72979.1,
+      "latency_us_wall": 73335.7,
+      "recoil_events": 1,
+      "recovery_verified": true,
+      "relaxation": [
+        {
+          "active_max": 0.0,
+          "clamped_fraction": 0.0,
+          "coherent_leak": 0.0
+        },
+        {
+          "active_max": 0.0,
+          "clamped_fraction": 0.0,
+          "coherent_leak": 0.0
+        },
+        {
+          "active_max": 0.0,
+          "clamped_fraction": 0.0,
+          "coherent_leak": 0.0
+        },
+        {
+          "active_max": 0.0,
+          "clamped_fraction": 0.0,
+          "coherent_leak": 0.0
+        },
+        {
+          "active_max": 0.0,
+          "clamped_fraction": 0.0,
+          "coherent_leak": 0.0
+        },
+        {
+          "active_max": 0.0,
+          "clamped_fraction": 0.0,
+          "coherent_leak": 0.0
+        }
+      ],
+      "sagnac_delta_final": 0.042648316,
+      "sagnac_delta_initial": 0.895710137,
+      "sensor_sha256": "3929f351b5c5508e2479ed8080793b6cea49d222f26c167570b6e6a5aa6ef9a8",
+      "slot_energy": {
+        "slot0": 0.785178779,
+        "slot1": 0.619268104,
+        "slot2": 0.000804078,
+        "slot3": 0.000807872
+      },
+      "statistic_form": "inner_product",
+      "vetoed_initial": true
+    },
+    {
+      "action_projection": [
+        0.003113103,
+        0.002680132,
+        -0.004100029,
+        0.005910656,
+        -0.001065348,
+        -0.001949014,
+        -0.000595291,
+        0.003104502
+      ],
+      "action_slot_norm": 0.621304301,
+      "adaptation_steps": 0,
+      "arm": "R4_VACUOUS_no_axiom",
+      "arm_verdict": "PASS",
+      "bar": {
+        "no_veto": true,
+        "zero_steps": true
+      },
+      "checks": {
+        "no_veto": true,
+        "zero_steps": true
+      },
+      "dilution_applied": 2.0,
+      "latency_per_step_us_derived": null,
+      "latency_us_internal": 17391.8,
+      "latency_us_wall": 17536.8,
+      "recoil_events": 1,
+      "recovery_verified": true,
+      "relaxation": [],
+      "sagnac_delta_final": 0.0,
+      "sagnac_delta_initial": 0.0,
+      "sensor_sha256": "f347b7ccbe414b549724ee50bb3fc6512383ad9d8a9564acc57656703e88c969",
+      "slot_energy": {
+        "slot0": 0.783569375,
+        "slot1": 0.621304301,
+        "slot2": 0.0,
+        "slot3": 0.0
+      },
+      "statistic_form": "inner_product",
+      "vacuous_axiom": true,
+      "vetoed_initial": false
+    }
+  ],
+  "build_s": 0.165,
+  "clause_note": "R1 identity is near-vacuous. R2 is the discriminating safe clause and carries a control that must be able to fire. R3 gates veto, recovery and twin latency. R4 records the no-axiom path, which is fail-open by design and marked.",
+  "defect_note": "This probe's first draft re-encoded sensor values and reported slot1 = 0.0 against the loop's act_norm = 0.621304. The probe was wrong, not the loop.",
+  "dim": 65536,
+  "latency_policy": {
+    "digital_twin_status": "GATED",
+    "digital_twin_us": 50000.0,
+    "host": "CPU, this machine; no working NVIDIA device present",
+    "note": "The digital-twin contract was written for ONE veto cycle. A k-step recovery is charged k cycles. The bar is not moved; per-step latency is reported instead.",
+    "optical_status": "TELEMETRY_ONLY",
+    "optical_us": 50.0
+  },
+  "probe": "phase8_robotics_full_D",
+  "receipt_sha256_of_body_before_self_field": "a4892c15b142d23349a5714b012d371df689aaba3992c7e568eed99807c0b3ca",
+  "tau_veto": 0.0431
+}

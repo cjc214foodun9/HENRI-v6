@@ -103,20 +103,77 @@ def rank_candidates(backbone, spec: str, candidates: Sequence[str]) -> dict:
 def solve_verified_code(backbone, spec: str, candidates: Sequence[str],
                         tests: Sequence[str] = (),
                         top_k: int = 3,
-                        timeout: int | None = None) -> dict:
+                        timeout: int | None = None,
+                        bank=None,
+                        synthesize_from_bank: bool = False,
+                        k_templates: int = 8,
+                        max_variants: int = 2) -> dict:
     """Rank, then execute-verify the top candidates.
 
     Verdicts:
         EXEC_VERIFIED              a top-k candidate passed every assertion
         NO_CANDIDATES_PASS         every executed candidate failed
         NO_TESTS_UNVERIFIABLE      no assertions supplied; nothing was run
-        NO_CANDIDATES              the pool was empty
+        NO_CANDIDATES              the pool was empty and no bank supplied one
         EXECUTOR_UNAVAILABLE       the staged executor could not load
 
     `NO_TESTS_UNVERIFIABLE` is the honesty gate. Without assertions there is
     no verification, and reporting a pass would be a fabricated outcome.
+
+    SYNTHESIS (Phase 8, ACTION 3). When the caller supplies no candidates
+    and `synthesize_from_bank` is set, the pool is built from `bank`:
+    top-`k_templates` retrieved templates, each with its AST operator
+    variants. Two honest limits stay visible in the receipt:
+      * no bank at all -> `NO_CANDIDATES`, never an empty success
+      * a bank whose templates share no operator with the spec -> the
+        retrieved source still ships, so the arm can fail rather than
+        silently return nothing
+    Credit is split: `origin` on every executed candidate says whether it
+    was `retrieved` or `mutated`, so a pass cannot be attributed to the
+    wrong mechanism.
     """
+    synthesis = None
     cands = [c for c in candidates if isinstance(c, str) and c.strip()]
+
+    if not cands and synthesize_from_bank:
+        if bank is None:
+            return {"verdict": "NO_CANDIDATES", "n_candidates": 0,
+                    "n_tests": len(tests), "executed": [],
+                    "synthesize_from_bank": True,
+                    "note": ("no candidates supplied and no bank mounted; "
+                             "nothing to synthesize from")}
+        from henri.code_synth import synthesize_candidates
+
+        rows = synthesize_candidates(backbone, spec, bank, tests=tests,
+                                     k=k_templates,
+                                     max_variants=max_variants)
+        synthesis = {
+            "bank_rows": int(getattr(bank, "rows", 0)),
+            "k_templates": int(k_templates),
+            "max_variants": int(max_variants),
+            "n_synthesized": len(rows),
+            "origins": {
+                "retrieved": sum(1 for r in rows if r["origin"] == "retrieved"),
+                "mutated": sum(1 for r in rows if r["origin"] == "mutated"),
+            },
+            "template_hits": [
+                {"template_rank": r["template_rank"],
+                 "template_index": r["template_index"],
+                 "mutation": r["mutation"]}
+                for r in rows],
+        }
+        cands = [r["text"] for r in rows]
+        origin_of = {r["text"]: r["origin"] for r in rows}
+        if not cands:
+            return {"verdict": "NO_CANDIDATES", "n_candidates": 0,
+                    "n_tests": len(tests), "executed": [],
+                    "synthesize_from_bank": True,
+                    "synthesis": synthesis,
+                    "note": ("bank mounted but retrieval produced no "
+                             "candidate text; nothing ranked or run")}
+    else:
+        origin_of = {}
+
     if not cands:
         return {"verdict": "NO_CANDIDATES", "n_candidates": 0,
                 "n_tests": len(tests), "executed": [],
@@ -133,6 +190,8 @@ def solve_verified_code(backbone, spec: str, candidates: Sequence[str],
         "tie_group_size": rk["tie_group_size"],
         "ranking_well_posed": bool(rk["tie_group_size"] <= 1),
     }
+    if synthesis is not None:
+        base["synthesis"] = synthesis
 
     if not tests:
         return {**base, "verdict": "NO_TESTS_UNVERIFIABLE", "executed": [],
@@ -155,13 +214,19 @@ def solve_verified_code(backbone, spec: str, candidates: Sequence[str],
     executed = []
     for pos, (score, idx, code) in enumerate(rk["ranked"][:max(1, int(top_k))]):
         res = run(code, list(tests), timeout=tmo)
-        executed.append({
+        entry = {
             "rank": pos + 1,
             "candidate_index": int(idx),
             "wave_score": round(float(score), 9),
             "ok": bool(res.get("ok", False)),
             "reason": str(res.get("reason", "unknown")),
-        })
+        }
+        if origin_of:
+            # Provenance per executed candidate. Without it a pass in a
+            # synthesis arm cannot be credited to retrieval rather than
+            # mutation, and the two are different mechanisms.
+            entry["origin"] = origin_of.get(code, "unknown")
+        executed.append(entry)
 
     passing = [e for e in executed if e["ok"]]
     verdict = "EXEC_VERIFIED" if passing else "NO_CANDIDATES_PASS"
@@ -170,6 +235,8 @@ def solve_verified_code(backbone, spec: str, candidates: Sequence[str],
         best = passing[0]
         winner = {"candidate_index": best["candidate_index"],
                   "wave_score": best["wave_score"]}
+        if "origin" in best:
+            winner["origin"] = best["origin"]
     return {**base, "verdict": verdict, "executed": executed,
             "n_executed": len(executed), "winner": winner,
             "exec_verified_top1": bool(passing and passing[0]["rank"] == 1),

@@ -7,6 +7,13 @@ dist/
 *.egg-info/
 receipts/*
 !receipts/README.md
+# MEASURED TRAP, repaired. `receipts/*` ignores every evidence receipt, so
+# `git add -A` would carry ZERO of them while a report could still claim
+# "receipts committed". Phase 8/9 receipts are named explicitly. Scratch
+# files (`_*.txt`) stay ignored on purpose: they are console dumps, not
+# evidence, and are deleted rather than committed.
+!receipts/phase*.json
+!receipts/kernel_*.json
 data/
 # Staged benchmark corpora are NEVER committed. MMLU 6.4 MiB, GPQA 1.3 MiB,
 # MBPP 0.55 MiB. Every receipt records the sha256 of the file it read, so a

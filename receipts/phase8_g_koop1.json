@@ -1,0 +1,402 @@
+{
+  "arms": [
+    {
+      "arm": "strip",
+      "delta_acc": 0.0,
+      "fit_chosen": {
+        "fit_acc": 0.45,
+        "fit_correct": 36,
+        "mean_tie_group": 1.15,
+        "w_mem": 0.0,
+        "w_trans": 0.0
+      },
+      "fit_n": 80,
+      "grid": [
+        {
+          "fit_acc": 0.45,
+          "fit_correct": 36,
+          "mean_tie_group": 1.15,
+          "w_mem": 0.0,
+          "w_trans": 0.0
+        },
+        {
+          "fit_acc": 0.45,
+          "fit_correct": 36,
+          "mean_tie_group": 1.15,
+          "w_mem": 0.05,
+          "w_trans": 0.0
+        },
+        {
+          "fit_acc": 0.45,
+          "fit_correct": 36,
+          "mean_tie_group": 1.15,
+          "w_mem": 0.1,
+          "w_trans": 0.0
+        },
+        {
+          "fit_acc": 0.45,
+          "fit_correct": 36,
+          "mean_tie_group": 1.15,
+          "w_mem": 0.2,
+          "w_trans": 0.0
+        },
+        {
+          "fit_acc": 0.4375,
+          "fit_correct": 35,
+          "mean_tie_group": 1.15,
+          "w_mem": 0.0,
+          "w_trans": 0.05
+        },
+        {
+          "fit_acc": 0.4375,
+          "fit_correct": 35,
+          "mean_tie_group": 1.15,
+          "w_mem": 0.05,
+          "w_trans": 0.05
+        },
+        {
+          "fit_acc": 0.4375,
+          "fit_correct": 35,
+          "mean_tie_group": 1.15,
+          "w_mem": 0.1,
+          "w_trans": 0.05
+        },
+        {
+          "fit_acc": 0.4375,
+          "fit_correct": 35,
+          "mean_tie_group": 1.15,
+          "w_mem": 0.2,
+          "w_trans": 0.05
+        },
+        {
+          "fit_acc": 0.4375,
+          "fit_correct": 35,
+          "mean_tie_group": 1.15,
+          "w_mem": 0.0,
+          "w_trans": 0.1
+        },
+        {
+          "fit_acc": 0.4375,
+          "fit_correct": 35,
+          "mean_tie_group": 1.15,
+          "w_mem": 0.05,
+          "w_trans": 0.1
+        },
+        {
+          "fit_acc": 0.4375,
+          "fit_correct": 35,
+          "mean_tie_group": 1.15,
+          "w_mem": 0.1,
+          "w_trans": 0.1
+        },
+        {
+          "fit_acc": 0.4375,
+          "fit_correct": 35,
+          "mean_tie_group": 1.15,
+          "w_mem": 0.2,
+          "w_trans": 0.1
+        },
+        {
+          "fit_acc": 0.4375,
+          "fit_correct": 35,
+          "mean_tie_group": 1.15,
+          "w_mem": 0.0,
+          "w_trans": 0.2
+        },
+        {
+          "fit_acc": 0.4375,
+          "fit_correct": 35,
+          "mean_tie_group": 1.15,
+          "w_mem": 0.05,
+          "w_trans": 0.2
+        },
+        {
+          "fit_acc": 0.4375,
+          "fit_correct": 35,
+          "mean_tie_group": 1.15,
+          "w_mem": 0.1,
+          "w_trans": 0.2
+        },
+        {
+          "fit_acc": 0.4375,
+          "fit_correct": 35,
+          "mean_tie_group": 1.15,
+          "w_mem": 0.2,
+          "w_trans": 0.2
+        },
+        {
+          "fit_acc": 0.45,
+          "fit_correct": 36,
+          "mean_tie_group": 1.15,
+          "w_mem": 0.0,
+          "w_trans": 0.4
+        },
+        {
+          "fit_acc": 0.45,
+          "fit_correct": 36,
+          "mean_tie_group": 1.15,
+          "w_mem": 0.05,
+          "w_trans": 0.4
+        },
+        {
+          "fit_acc": 0.45,
+          "fit_correct": 36,
+          "mean_tie_group": 1.15,
+          "w_mem": 0.1,
+          "w_trans": 0.4
+        },
+        {
+          "fit_acc": 0.45,
+          "fit_correct": 36,
+          "mean_tie_group": 1.15,
+          "w_mem": 0.2,
+          "w_trans": 0.4
+        }
+      ],
+      "held_arm": {
+        "acc": 0.375,
+        "correct": 15,
+        "mean_tie_group": 1.1,
+        "n": 40
+      },
+      "held_control_w0": {
+        "acc": 0.375,
+        "correct": 15,
+        "mean_tie_group": 1.1,
+        "n": 40
+      },
+      "held_n": 40,
+      "installed_weights": {
+        "w_mem": 0.0,
+        "w_trans": 0.0
+      },
+      "mcnemar": {
+        "arm_only": 0,
+        "control_only": 0,
+        "p": 1.0,
+        "verdict": "NO_DIFFERENCE",
+        "z": 0.0
+      },
+      "mutation_validity_fit": 1.0,
+      "mutation_validity_held": 1.0,
+      "recall_hit_rate_fit": 1.0,
+      "recall_rows_written": 80,
+      "top1_vs_chance": {
+        "p0": 0.125,
+        "z": 4.7809
+      },
+      "verdict": "G_KOOP1_FAIL"
+    },
+    {
+      "arm": "opast",
+      "delta_acc": 0.0,
+      "fit_chosen": {
+        "fit_acc": 0.35,
+        "fit_correct": 28,
+        "mean_tie_group": 1.05,
+        "w_mem": 0.0,
+        "w_trans": 0.0
+      },
+      "fit_n": 80,
+      "grid": [
+        {
+          "fit_acc": 0.35,
+          "fit_correct": 28,
+          "mean_tie_group": 1.05,
+          "w_mem": 0.0,
+          "w_trans": 0.0
+        },
+        {
+          "fit_acc": 0.35,
+          "fit_correct": 28,
+          "mean_tie_group": 1.05,
+          "w_mem": 0.05,
+          "w_trans": 0.0
+        },
+        {
+          "fit_acc": 0.35,
+          "fit_correct": 28,
+          "mean_tie_group": 1.05,
+          "w_mem": 0.1,
+          "w_trans": 0.0
+        },
+        {
+          "fit_acc": 0.35,
+          "fit_correct": 28,
+          "mean_tie_group": 1.05,
+          "w_mem": 0.2,
+          "w_trans": 0.0
+        },
+        {
+          "fit_acc": 0.3375,
+          "fit_correct": 27,
+          "mean_tie_group": 1.0,
+          "w_mem": 0.0,
+          "w_trans": 0.05
+        },
+        {
+          "fit_acc": 0.3375,
+          "fit_correct": 27,
+          "mean_tie_group": 1.0,
+          "w_mem": 0.05,
+          "w_trans": 0.05
+        },
+        {
+          "fit_acc": 0.3375,
+          "fit_correct": 27,
+          "mean_tie_group": 1.0,
+          "w_mem": 0.1,
+          "w_trans": 0.05
+        },
+        {
+          "fit_acc": 0.3375,
+          "fit_correct": 27,
+          "mean_tie_group": 1.0,
+          "w_mem": 0.2,
+          "w_trans": 0.05
+        },
+        {
+          "fit_acc": 0.3375,
+          "fit_correct": 27,
+          "mean_tie_group": 1.0,
+          "w_mem": 0.0,
+          "w_trans": 0.1
+        },
+        {
+          "fit_acc": 0.3375,
+          "fit_correct": 27,
+          "mean_tie_group": 1.0,
+          "w_mem": 0.05,
+          "w_trans": 0.1
+        },
+        {
+          "fit_acc": 0.3375,
+          "fit_correct": 27,
+          "mean_tie_group": 1.0,
+          "w_mem": 0.1,
+          "w_trans": 0.1
+        },
+        {
+          "fit_acc": 0.3375,
+          "fit_correct": 27,
+          "mean_tie_group": 1.0,
+          "w_mem": 0.2,
+          "w_trans": 0.1
+        },
+        {
+          "fit_acc": 0.3375,
+          "fit_correct": 27,
+          "mean_tie_group": 1.0,
+          "w_mem": 0.0,
+          "w_trans": 0.2
+        },
+        {
+          "fit_acc": 0.3375,
+          "fit_correct": 27,
+          "mean_tie_group": 1.0,
+          "w_mem": 0.05,
+          "w_trans": 0.2
+        },
+        {
+          "fit_acc": 0.3375,
+          "fit_correct": 27,
+          "mean_tie_group": 1.0,
+          "w_mem": 0.1,
+          "w_trans": 0.2
+        },
+        {
+          "fit_acc": 0.3375,
+          "fit_correct": 27,
+          "mean_tie_group": 1.0,
+          "w_mem": 0.2,
+          "w_trans": 0.2
+        },
+        {
+          "fit_acc": 0.35,
+          "fit_correct": 28,
+          "mean_tie_group": 1.0,
+          "w_mem": 0.0,
+          "w_trans": 0.4
+        },
+        {
+          "fit_acc": 0.35,
+          "fit_correct": 28,
+          "mean_tie_group": 1.0,
+          "w_mem": 0.05,
+          "w_trans": 0.4
+        },
+        {
+          "fit_acc": 0.35,
+          "fit_correct": 28,
+          "mean_tie_group": 1.0,
+          "w_mem": 0.1,
+          "w_trans": 0.4
+        },
+        {
+          "fit_acc": 0.35,
+          "fit_correct": 28,
+          "mean_tie_group": 1.0,
+          "w_mem": 0.2,
+          "w_trans": 0.4
+        }
+      ],
+      "held_arm": {
+        "acc": 0.35,
+        "correct": 14,
+        "mean_tie_group": 1.075,
+        "n": 40
+      },
+      "held_control_w0": {
+        "acc": 0.35,
+        "correct": 14,
+        "mean_tie_group": 1.075,
+        "n": 40
+      },
+      "held_n": 40,
+      "installed_weights": {
+        "w_mem": 0.0,
+        "w_trans": 0.0
+      },
+      "mcnemar": {
+        "arm_only": 0,
+        "control_only": 0,
+        "p": 1.0,
+        "verdict": "NO_DIFFERENCE",
+        "z": 0.0
+      },
+      "mutation_validity_fit": 1.0,
+      "mutation_validity_held": 1.0,
+      "recall_hit_rate_fit": 1.0,
+      "recall_rows_written": 80,
+      "top1_vs_chance": {
+        "p0": 0.125,
+        "z": 4.3028
+      },
+      "verdict": "G_KOOP1_FAIL"
+    }
+  ],
+  "dim": 65536,
+  "fit_held_task_overlap": 0,
+  "fit_n_target": 80,
+  "held_n_target": 40,
+  "k_pool": 8,
+  "policy": "weights chosen on FIT only; ties prefer the smaller weight so w=0 wins every tie; on FAIL the installed weights stay 0.0 and the coupling is not claimed",
+  "probe": "phase8_g_koop1",
+  "receipt_sha256": "d19179d04bc08fe0bdd2d9f186739c89597614aa66e681b9103600e67c5f2f78",
+  "split_seed": 20261020,
+  "tau_veto": 0.0431,
+  "w_grid": [
+    0.0,
+    0.05,
+    0.1,
+    0.2,
+    0.4
+  ],
+  "w_mem_grid": [
+    0.0,
+    0.05,
+    0.1,
+    0.2
+  ],
+  "wall_clock_s": 48.93
+}

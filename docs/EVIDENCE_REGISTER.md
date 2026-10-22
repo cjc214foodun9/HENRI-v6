@@ -1655,3 +1655,141 @@ TLS, or cross-process isolation, and the daemon binds `127.0.0.1` only.
 gRPC is installed but no gRPC service is wired; only FastAPI is exercised.
 Phase 6 numbers stand unchanged: c_max 0.781052 -> 0.770887, retrieval
 0.19 -> 0.1925, MBPP open-loop top-1 0.0 (below chance), tie-group 1.6333.
+
+## 18. Phase 8: operator ingress, robotics active inference, and a broken ruler
+
+Phase 8 is additive. No sealed kernel file changed; `verify_kernel_integrity.py`
+reports `SEALED` on 6 pinned files throughout.
+
+### 18.1 Operator ingress, and what it did not fix
+
+`henri/operator_ingress.py` maps Python AST operators to antipodal slots. On the
+Phase 7 fixture the operator-slot cosine between `a + b` and `a - b` is exactly
+`-1.000000000000000`, and `tie_group_size` drops `2 -> 1` with gold ranked first
+before execution. That clause passes.
+
+The corpus clause `G-AST1` FAILS as pre-registered: mean tie group `1.85` against
+a `< 1.6333` bar, open-loop top-1 z `-2.147` against `>= +2.5`, and mutation
+validity `0.5119` against `>= 0.90`. The gate was not relaxed.
+
+### 18.2 Three measured defects in the evaluation harness
+
+1. `scripts/mbpp_wave_eval.py` scores `bb.stem.encode`, a 384-dimensional
+   sentence cosine, and never builds a wave. No wave improvement could move it.
+2. 47.74 percent of MBPP docstrings (465 of 974) produce a zero-width operator
+   slot. The Phase 8 note of 45 percent is close; the measured value is 0.4774.
+3. 49 percent of mutated "negatives" still pass `test_list`. The random base rate
+   of any candidate passing is `0.5521`, so every arm's `exec_verified_top1` sits
+   BELOW a blindfolded pick. Open-loop ranking on that pool is ill-posed.
+
+`mbpp_wave_eval.py` stays unmodified as the registered Phase 6 control. Its
+receipts were the harness-fidelity check that reproduced every stored Phase 6
+number exactly.
+
+### 18.3 Robotics active inference at D = 65536
+
+`henri/robotics_loop.py` is wired read-only over six sealed modules and served at
+`POST /v1/robotics/step`.
+
+| arm | delta_init | vetoed | steps | delta_final |
+|---|---|---|---|---|
+| R1 identity | 0.000000 | False | 0 | 0.000000 |
+| R2 near, non-identical | 0.000001 | False | 0 | 0.000001 |
+| R3 unsafe | 0.895710 | True | 6 | 0.042648 |
+| R4 no axiom | 0.000000 | False | 0 | 0.000000 |
+
+R3 recovers under `tau_veto = 0.0431`. The raw total is `72979.1 us`, which
+EXCEEDS the 50000 us digital-twin contract. The contract is written for one veto
+cycle and a 6-step recovery is charged six cycles, so per-step latency
+`12163.2 us` is also recorded. Both numbers stand; neither replaces the other.
+
+Per-slot energy at R3 is `slot0 = 0.783569`, `slot1 = 0.621304`. The action slot
+is not near-empty. `statistic_form` reads `inner_product`, which IS
+`INVARIANT_FORM` (`form_pin.py:78`).
+
+### 18.4 Retracted external claims
+
+Two external reference notes asserted the remote was stale at `c40ccbe6`.
+Measured false: `git ls-remote origin` returns `main = 534d8d2`, byte-equal to
+local HEAD.
+
+The same notes reported a robotics table with `delta 0.4975`, `5 steps`,
+`213.8 us`, `dilution 4.0`, `act_norm 0.000786`. None of those values appears in
+any receipt on this host. Falsified.
+
+## 19. Phase 9 Step 1: G-KOOP1 verdict, router tests, and a receipts trap
+
+### 19.1 G-KOOP1 FAILS on both arms, and parsimony holds
+
+`receipts/phase8_g_koop1.json`, sha256 `d19179d04bc08fe0...`. Split is the
+registered 800/174 with zero task overlap; fit uses 80 rows and held-out 40.
+
+| arm | fit choice | held arm | held control | delta | McNemar | z vs 1/8 | verdict |
+|---|---|---|---|---|---|---|---|
+| strip | w 0.0 / 0.0 | 0.3750 | 0.3750 | +0.0000 | NO_DIFFERENCE | 4.78 | FAIL |
+| opast | w 0.0 / 0.0 | 0.3500 | 0.3500 | +0.0000 | NO_DIFFERENCE | 4.30 | FAIL |
+
+No weight in the grid improved held-out accuracy, so the installed weights stay
+`0.0` for both arms. The transition coupling is NOT claimed.
+
+The arm scores `0.3750` against a `0.1250` chance bar with `z = 4.78`. That is
+not evidence the ranker is strong. It is the degenerate pool again: the measured
+base rate was `0.5521`, so a blindfolded pick should score near `0.5521`. Read
+`z` here as a pool property, not a skill property.
+
+### 19.2 The import block was two defects, not one
+
+`dir(henri.operator_ingress)` exposes `OperatorAwareBackbone` and
+`OperatorEncoded`. There is no `OperatorAwareEncoder` and no `OperatorIngress`.
+The measured constructor is `(base=None, weights=(0.4, 0.1, 0.3, 0.2), dim=65536)`
+and `encode` returns a dataclass with fields `psi (65536,) complex128`,
+`slot_operator (16384,)`, `slot_structure (16384,)`, `pol`, `parsed`,
+`operator_stream`, `active_slots`.
+
+Fixing the name alone would have failed again. `np.asarray` on the dataclass
+yields a 0-d object array, so `_psi` would raise `ValueError: encoder emits width
+0`. The probe now extracts `.psi`.
+
+### 19.3 Cluster test coverage closes the Phase 8 gap
+
+`tests/test_phase8_koopman_router.py` adds 9 tests against a stub backbone, so no
+sentence weights load. Covered: `config_for` sizes from the wave not from a
+guessed attribute; `_psi` accepts an object with no `cfg` (the Phase 8
+`AttributeError`); a width mismatch raises instead of mixing dimensions; the
+pluggable encoder breaks the `a + b` versus `a - b` tie with the unencoded
+control held at `tie_group_size = 2`; the parsimony rule installs `w = 0.0` on an
+all-zero grid; `domain_of` matches a literal sha256 bucket; McNemar ignores
+concordant pairs; `CartridgeRecall` round-trips.
+
+Two defects in the first draft of that file, both repaired: `v = base - base`
+produced a zero vector and raised in `from_complex`, and `recall` was called with
+a bare array where it is typed `WaveState`.
+
+### 19.4 The receipts trap
+
+`git check-ignore -v receipts/phase8_robotics_full_D.json` matched
+`.gitignore:8:receipts/*`. Every evidence receipt was ignored, so `git add -A`
+would have carried ZERO receipts while a report could still claim "receipts
+committed". Repaired with explicit negation for `receipts/phase*.json` and
+`receipts/kernel_*.json`. Scratch console dumps (`receipts/_*.txt`) stay ignored
+and are deleted, never force-added.
+
+### 19.5 Step 2 fixture, measured before any edit
+
+Measured on the pre-existing module, so Step 2 starts from fact:
+
+| clause | measured | bar | verdict |
+|---|---|---|---|
+| cosine(sum_doc, difference_doc) | -1.000000000000 | == -1.0 | PASS |
+| cosine(sum_doc, `return a + b`) | +0.707106781187 | > +0.70 | PASS |
+| cosine(sum_doc, `return a - b`) | -0.707106781187 | < -0.70 | PASS |
+| zero operator slot, 974 docstrings | 0.4774 (465) | <= 0.10 | FAIL |
+
+The lexical bridge already exists for the three fixture clauses. Both references
+predicted `cos = 0.0` because `"and"` would map to the Boolean axis. Measured
+false: the shared operator feature set is `['ARITH_ADDITIVE']` alone, with weight
+`+1` against `-1`. `"and"` never enters the operator slot.
+
+The cross-modal margins are `0.0071` above the bar. A single stray stopword in
+the operator channel would flip those two clauses to FAIL. That fragility is the
+real Step 2 finding.
