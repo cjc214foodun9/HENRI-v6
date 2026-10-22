@@ -1,0 +1,35 @@
+{
+  "artifacts_sha256": {
+    "docs/EVIDENCE_REGISTER.md": "a2786d0a8e51a7f66e890d7b2eee532160432cf3a0b25346cd880cbb6aed07e9",
+    "receipts/phase8_g_koop1.json": "f4013a56d85828fbb71486fc4d398c44d83d542c9e19b39b8147e8f9b948f712",
+    "receipts/phase8_robotics_full_D.json": "5db6db8aa051723220cd22621f34a5aa1515c31ca5b8560fc1fed58fdd2329d8",
+    "receipts/phase9_g_ast2.json": "08b32288c6381d607dbe08a1624aa1669f5958d353ac4822b7afc4c97b588169",
+    "receipts/phase9_g_synth1.json": "c3cd5ed68f49b29f9e074c168fadcad8b6624fd3c66046565047b95819f0f103",
+    "receipts/phase9_g_synth1_leakcheck.json": "d4dbd944649a3651eb5a23a15233c5cc082ba56042f6a199bbdfd0a6d3f1f9c7",
+    "receipts/phase9_opaxis.json": "25f9293f823387b9a44d599cda77f1e4438dd57ed6c224a9e6906ad7182a8960"
+  },
+  "gates": {
+    "G_AST2": "PASS 5/5, wave top-1 0.40 vs stem_384d 0.25, discrimination only",
+    "G_KOOP1": "FAIL both arms, weights 0.0 (parsimony held; coupling not claimed)",
+    "G_SYNTH1": "PASS 5/5, exec_verified_rate 0.2250, control 0.0000, leak 0/9",
+    "ROBOTICS": "R3 FAIL on raw twin_latency, per_step 13574.833 us recorded beside it",
+    "S2": "PARTIAL 6/7, S2-4 zero-slot 0.3747 vs <=0.10 FAIL and not relaxed"
+  },
+  "head_before_commit": "661a35340a7c8dc5430a482dfc21cc3adb48b370",
+  "kernel": {
+    "returncode": 0,
+    "status": "SEALED"
+  },
+  "non_claims": [
+    "No SOTA and no benchmark dominance.",
+    "G_AST2 is a discrimination result on a pool filtered by execution; it supports no generation claim.",
+    "G_SYNTH1 measures 40 held-out tasks; strong enough to reject a zero, too few to rank against SOTA."
+  ],
+  "probe": "phase9_final",
+  "pytest": {
+    "failed": 0,
+    "passed": 493,
+    "returncode": 0,
+    "skipped": 14
+  }
+}

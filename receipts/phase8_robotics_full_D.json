@@ -29,8 +29,9 @@
       },
       "dilution_applied": 2.0,
       "latency_per_step_us_derived": null,
-      "latency_us_internal": 33933.1,
-      "latency_us_wall": 34191.7,
+      "latency_us_internal": 37453.5,
+      "latency_us_wall": 37697.7,
+      "per_step_latency_us": 37453.5,
       "recoil_events": 0,
       "recovery_verified": true,
       "relaxation": [],
@@ -44,6 +45,7 @@
         "slot3": 0.0
       },
       "statistic_form": "inner_product",
+      "total_latency_us": 37453.5,
       "vetoed_initial": false
     },
     {
@@ -75,8 +77,9 @@
       },
       "dilution_applied": 2.0,
       "latency_per_step_us_derived": null,
-      "latency_us_internal": 33762.6,
-      "latency_us_wall": 34024.0,
+      "latency_us_internal": 36974.8,
+      "latency_us_wall": 37219.9,
+      "per_step_latency_us": 36974.8,
       "recoil_events": 0,
       "recovery_verified": true,
       "relaxation": [],
@@ -90,6 +93,7 @@
         "slot3": 0.0
       },
       "statistic_form": "inner_product",
+      "total_latency_us": 36974.8,
       "vetoed_initial": false
     },
     {
@@ -110,17 +114,20 @@
       "bar": {
         "final_under_tau": true,
         "initial_above_tau": true,
+        "per_step_latency": true,
         "twin_latency": true
       },
       "checks": {
         "final_under_tau": true,
         "initial_above_tau": true,
+        "per_step_latency": true,
         "twin_latency": false
       },
       "dilution_applied": 2.0,
-      "latency_per_step_us_derived": 12163.183,
-      "latency_us_internal": 72979.1,
-      "latency_us_wall": 73335.7,
+      "latency_per_step_us_derived": 13574.833,
+      "latency_us_internal": 81449.0,
+      "latency_us_wall": 81757.4,
+      "per_step_latency_us": 13574.833,
       "recoil_events": 1,
       "recovery_verified": true,
       "relaxation": [
@@ -165,6 +172,7 @@
         "slot3": 0.000807872
       },
       "statistic_form": "inner_product",
+      "total_latency_us": 81449.0,
       "vetoed_initial": true
     },
     {
@@ -192,8 +200,9 @@
       },
       "dilution_applied": 2.0,
       "latency_per_step_us_derived": null,
-      "latency_us_internal": 17391.8,
-      "latency_us_wall": 17536.8,
+      "latency_us_internal": 19683.0,
+      "latency_us_wall": 19839.5,
+      "per_step_latency_us": 19683.0,
       "recoil_events": 1,
       "recovery_verified": true,
       "relaxation": [],
@@ -207,11 +216,12 @@
         "slot3": 0.0
       },
       "statistic_form": "inner_product",
+      "total_latency_us": 19683.0,
       "vacuous_axiom": true,
       "vetoed_initial": false
     }
   ],
-  "build_s": 0.165,
+  "build_s": 0.178,
   "clause_note": "R1 identity is near-vacuous. R2 is the discriminating safe clause and carries a control that must be able to fire. R3 gates veto, recovery and twin latency. R4 records the no-axiom path, which is fail-open by design and marked.",
   "defect_note": "This probe's first draft re-encoded sensor values and reported slot1 = 0.0 against the loop's act_norm = 0.621304. The probe was wrong, not the loop.",
   "dim": 65536,
@@ -224,6 +234,6 @@
     "optical_us": 50.0
   },
   "probe": "phase8_robotics_full_D",
-  "receipt_sha256_of_body_before_self_field": "a4892c15b142d23349a5714b012d371df689aaba3992c7e568eed99807c0b3ca",
+  "receipt_sha256_of_body_before_self_field": "51c302f13853e343bc646073d6bf9d7216e7f5c1ba96153667310d8a63d5fb48",
   "tau_veto": 0.0431
 }

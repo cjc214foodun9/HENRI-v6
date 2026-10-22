@@ -1793,3 +1793,175 @@ false: the shared operator feature set is `['ARITH_ADDITIVE']` alone, with weigh
 The cross-modal margins are `0.0071` above the bar. A single stray stopword in
 the operator channel would flip those two clauses to FAIL. That fragility is the
 real Step 2 finding.
+
+## 20. Phase 9 Step 2-4 and generative synthesis
+
+Measured 2026-10-21 on `main` at `661a353`. Kernel `SEALED`. No sealed file
+changed; every edit is additive.
+
+### 20.1 Step 2 cross-modal lexical-to-operator homomorphism
+
+Lexicon 81 -> 121 keys. Gate S2_PARTIAL_6_OF_7, six clauses of seven.
+
+| clause | measured | bar | verdict |
+|---|---|---|---|
+| S2-1 cos(sum_doc, difference_doc) | -1.000000000000 | == -1.0 | PASS |
+| S2-2 cos(sum_doc, `a + b`) | +0.707106781187 | > +0.70 | PASS |
+| S2-3 cos(sum_doc, `a - b`) | -0.707106781187 | < -0.70 | PASS |
+| S2-4 zero operator slot | 0.3747 | <= 0.10 | FAIL |
+| S2-5 bleed control, cos to `*` | 0.0 | < +0.70 | PASS |
+| S2-6 mean pairwise collision | 0.07268 | < 0.10 | PASS |
+| S2-7 code antipody held | -1.0 | == -1.0 | PASS |
+
+S2-4 STAYS FAIL. The bar is unreachable on this corpus by arithmetic, not by
+tuning. Coverage moved 0.4774 -> 0.3747, which is 465 -> 365 zero-slot
+docstrings. The residue names no operation at all: find, check, convert,
+sort, regex, extract. Driving the rate under 0.10 would require mapping
+verbs that denote no operation into the operator basis, which destroys the
+S2-6 collision control. Recorded as a bounded mechanism result.
+
+FALSIFIED REFERENCE CLAIM. Two advisory references predicted
+`cos(sum_doc, difference_doc) = 0.0`, on the argument that `"and"` maps to
+the Boolean axis. Measured -1.000000000000. The shared operator feature set
+is `['ARITH_ADDITIVE']` alone at +1 against -1. `"and"` never enters the
+operator slot, and the primary-root rule they proposed already exists in the
+module.
+
+### 20.2 Step 3 G-AST2 on verified-failing negatives
+
+Receipt `phase9_g_ast2.json`, verdict G_AST2_PASS, five clauses of five.
+
+| clause | measured | bar | verdict |
+|---|---|---|---|
+| A2-1 pool validity after rejection | 1.0000 constructed | == 1.0 | PASS |
+| A2-2 raw generator validity | 0.778571 | reported | PASS |
+| A2-3 wave top-1 | 0.4000, z = +5.259 | > 0.1250 | PASS |
+| A2-4 wave vs stem_384d | 0.4000 vs 0.2500 | wave > stem | PASS |
+| A2-5 closed-loop vs pool base | raw base 0.318750 | reported | PASS |
+
+40 held-out tasks, train/held overlap 0, 0 dropped, 36.7 s.
+
+THIS IS A DISCRIMINATION RESULT, NOT A GENERATION RESULT. A negative is
+admitted only when the sandbox reports failure, so validity 1.0 holds BY
+CONSTRUCTION and the 0.1250 chance level is constructed rather than
+discovered. Filtering by execution carries answer knowledge. The number
+supports no generation claim and must not be cited as one.
+
+Two recorded inflators. Ties break toward index 0, where the gold source
+sits, so the two tied items (mean tie group 1.05) can inflate 0.40 by up to
+0.05. `mbpp_wave_eval.py` is untouched as the registered Phase 6 control;
+`probe_phase9_mbpp_wave.py` is the additive replacement.
+
+### 20.3 Step 4 generative synthesis, G-SYNTH1
+
+Receipt `phase9_g_synth1.json`, verdict G_SYNTH1_PASS, executed rate 0.225.
+
+Caller supplies only a docstring and assertions. `candidates=[]`,
+`synthesize_from_bank=True`, 800-row bank, held 174 tasks, 40 evaluated,
+overlap 0 by task id.
+
+| clause | measured | bar | verdict |
+|---|---|---|---|
+| SY1 held-out overlap | 0 | == 0 | PASS |
+| SY2 exec verified rate | 0.2250, Wilson [0.1232, 0.3750] | reported | REPORTED |
+| SY3 full vs no-synthesis control | 0.2250 vs 0.0000 | strictly greater | PASS |
+| SY4 NameError share of failures | 0.0 of 652 | reported | REPORTED |
+| SY5 mean executions per task | 16.65 | <= 24 cap | PASS |
+
+Nine of forty held-out tasks solved with all assertions passing, from a cold
+docstring. Winners split `bank_adapted` 5 and `mutated` 4, so signature
+adaptation and operator-guided mutation each carry part of the result. Peak
+RSS 5679 MiB during the real 800-row ingest, measured rather than
+extrapolated.
+
+LEAKAGE CONTROL. Task-id overlap is not code overlap. A separate check
+compared each of the nine winning gold sources against all 800 bank rows,
+by normalised text and by AST with the function name stripped. Result 9/9
+`none`: `leak_exact_share 0.0000`, `leak_ast_share 0.0000`. Receipt
+`phase9_g_synth1_leakcheck.json`. The 0.225 is not retrieval of a stored
+answer.
+
+### 20.4 Defects found in my own work, each by running it
+
+`adapt_arity` substituted synthetic parameter names while the body still
+referenced the originals, producing `def add(a, b): return x + y + z`. Every
+adapted candidate raised `NameError`, and the generative gate would have
+recorded a false zero for a reason unrelated to the operator channel. Fixed
+before commit `661a353` and verified by execution: adapted source returns 7,
+truncation returns 42.
+
+`TOP_K` was declared but never passed to the call. `solve_verified_code`
+defaults to `top_k=3` and truncates the ranked pool BEFORE execution.
+Measured on task 803 of the real bank: `top_k=3` gives
+`NO_CANDIDATES_PASS` with `n_exec 3`, and `top_k=24` gives `EXEC_VERIFIED`
+with `n_exec 23`. The default would have measured the truncation and
+reported it as a generation failure.
+
+`wave_guided_order` defaulted to `dim=4096` while the operator slot basis is
+16384 wide, introducing a second slot-width convention. Aligned to 16384.
+
+The probe's print loop indexed `clauses["SY3"]["measured"]`, which does not
+exist, and raised `KeyError` AFTER the receipt was already written. A
+completed measurement looked like a crash. Display fix only; no clause
+changed.
+
+### 20.5 Retraction: the 14643 MiB bank figure
+
+A measurement script printed `rss delta 14643 MiB` for 800 templates. That
+number is WRONG. The per-template term added base RSS divided by the sample
+count, inflating it. The measured delta was 232 MiB over 50 templates. An
+advisory reference then repeated 14643 MiB back as a blocker. The real
+figure, measured during the actual G-SYNTH1 ingest, is
+`rss_delta_mib 4999.6`, `peak_rss_mib 5679.2` on a host with 31.1 GiB total
+and 17.0 GiB available. Anyone resurrecting 14643 MiB is citing a bug.
+
+### 20.6 Phase 9 Step 1, G-KOOP1
+
+Receipt `phase8_g_koop1.json`, sha256 `d19179d04bc08fe0`. Verdict FAIL on
+both arms, installed weights 0.0. Parsimony held: held-out accuracy did not
+strictly improve over the static control, so the coupling is NOT claimed.
+The measured `z = 4.78` against 1/8 must be read as a pool property, not a
+capability: the Phase 8 pool base rate was 0.5521, so near-chance play
+scores high there.
+
+The single-line import was two defects. The real exports are
+`OperatorAwareBackbone(base=None, weights=(0.4,0.1,0.3,0.2), dim=65536)`
+returning `OperatorEncoded`, a dataclass with `psi (65536,) complex128`.
+No `OperatorAwareEncoder` and no `OperatorIngress` exist. Fixing only the
+name would have failed again, because `np.asarray(dataclass)` yields a 0-d
+object array. Router tests `tests/test_phase8_koopman_router.py` pass 9.
+
+### 20.7 Robotics per-step latency
+
+`total_latency_us` and `per_step_latency_us` are now emitted and recorded
+beside the raw total. At D = 65536, arm R3 measures raw total 76457.8 us
+against the 50000 us single-cycle contract, which FAILS, and per-step
+12742.967 us, which passes the same contract. Both numbers are recorded and
+neither replaces the other. The arm stays FAIL on `twin_latency`: a 6-step
+recovery is charged 6 contract windows, and the contract is written per
+cycle. The bar is not moved; the applicable term is reported beside the
+failure.
+
+### 20.8 Standing constraints learned this phase
+
+A gate that cannot fail will pass. S2-4 was kept FAIL although it blocks a
+clean report, because a relaxed bar is not evidence.
+
+`receipts/*` was in `.gitignore`, so `git add -A` carried ZERO receipts
+while a report could still claim they were committed. Negated for
+`receipts/phase*.json`; scratch `_*.txt` stays ignored and is never
+force-added.
+
+Commit before measuring. Two consecutive phases lost measured work to a
+tool-iteration ceiling while it sat uncommitted.
+CORRECTION, APPENDED AFTER THE SECTION 20 WRITE. Section 20.7 quotes the first
+full-D re-run: raw total 76457.8 us, per-step 12742.967 us. The receipt that
+ships, `phase8_robotics_full_D.json` sha256 `51c302f13853e343`, records a
+SECOND run of the same probe: raw total 81449.0 us, per-step 13574.833 us.
+Both runs are real.
+
+Latency is run-variable on this host. The RATIO is the stable quantity:
+12742.967 / 76457.8 = 0.16667 and 13574.833 / 81449.0 = 0.16667, one sixth
+across six steps in both runs. The shipped receipt is authoritative for the
+numbers. This note exists so the two runs cannot be confused, and neither
+number is adjusted.

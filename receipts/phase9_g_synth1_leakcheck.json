@@ -1,0 +1,57 @@
+{
+  "counts": {
+    "ast": 0,
+    "exact": 0,
+    "none": 9
+  },
+  "detail": [
+    {
+      "leak": "none",
+      "matches_bank_task": "",
+      "task_id": "803"
+    },
+    {
+      "leak": "none",
+      "matches_bank_task": "",
+      "task_id": "807"
+    },
+    {
+      "leak": "none",
+      "matches_bank_task": "",
+      "task_id": "809"
+    },
+    {
+      "leak": "none",
+      "matches_bank_task": "",
+      "task_id": "813"
+    },
+    {
+      "leak": "none",
+      "matches_bank_task": "",
+      "task_id": "821"
+    },
+    {
+      "leak": "none",
+      "matches_bank_task": "",
+      "task_id": "824"
+    },
+    {
+      "leak": "none",
+      "matches_bank_task": "",
+      "task_id": "829"
+    },
+    {
+      "leak": "none",
+      "matches_bank_task": "",
+      "task_id": "831"
+    },
+    {
+      "leak": "none",
+      "matches_bank_task": "",
+      "task_id": "836"
+    }
+  ],
+  "n_winners": 9,
+  "note": "exact = normalised text equality; ast = equal AST after function-name stripping; none = no match",
+  "probe": "phase9_g_synth1_leakcheck"
+}

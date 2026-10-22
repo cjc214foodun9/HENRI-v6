@@ -74,6 +74,16 @@ def arm(loop, name, sensor, axiom, bar: dict) -> dict:
         "recoil_events": r["recoil_events"],
         "sensor_sha256": r["sensor_sha256"],
         "latency_us_internal": round(float(r["latency_us"]), 3),
+        # Phase 9, Step 1. Both fields come from the module now, so the
+        # receipt carries the per-step number the digital-twin contract is
+        # written for, beside the raw total. The contract covers ONE veto
+        # cycle; a 6-step recovery is charged 6 cycles, so a bare total
+        # comparison reports FAIL for a recovery that is on contract per
+        # step. Both are recorded and neither is dropped.
+        "total_latency_us": round(float(r.get("total_latency_us",
+                                             r["latency_us"])), 3),
+        "per_step_latency_us": round(float(r.get("per_step_latency_us",
+                                                 r["latency_us"])), 3),
         "latency_us_wall": round(float(wall_us), 3),
         "latency_per_step_us_derived": (
             round(float(r["latency_us"]) / steps, 3) if steps else None),
@@ -97,7 +107,14 @@ def arm(loop, name, sensor, axiom, bar: dict) -> dict:
     if "final_under_tau" in bar:
         checks["final_under_tau"] = float(r["sagnac_delta_final"]) <= TAU_VETO
     if "twin_latency" in bar:
+        # The RAW total against the one-cycle contract, kept as recorded.
         checks["twin_latency"] = float(r["latency_us"]) <= DIGITAL_TWIN_US
+    if "per_step_latency" in bar:
+        # The per-step number against the same contract. Reported beside
+        # the total so the two cannot be confused for each other.
+        checks["per_step_latency"] = (
+            float(r.get("per_step_latency_us", r["latency_us"]))
+            <= DIGITAL_TWIN_US)
     rec["checks"] = checks
     rec["arm_verdict"] = "PASS" if all(checks.values()) else "FAIL"
     return rec
@@ -127,7 +144,16 @@ def main() -> int:
     arms.append(arm(loop, "R3_UNSAFE_perturbed", UNSAFE, SAFE, {
         "initial_above_tau": True,
         "final_under_tau": True,
+        # MEASURED 2026-10-21 at D=65536: raw total 76457.8 us -> FAIL,
+        # per-step 12742.967 us -> PASS. Both checks are recorded so neither
+        # number can be mistaken for the other. The raw total is NOT dropped
+        # and NOT relaxed: the arm stays FAIL on `twin_latency` because a
+        # 6-step recovery is charged 6 one-cycle contract windows. The
+        # contract is written per cycle, so `per_step_latency` is the term
+        # that applies, and it is reported beside the failure rather than
+        # replacing it.
         "twin_latency": True,
+        "per_step_latency": True,
     }))
     arms.append(arm(loop, "R4_VACUOUS_no_axiom", SAFE, None, {
         "no_veto": True,

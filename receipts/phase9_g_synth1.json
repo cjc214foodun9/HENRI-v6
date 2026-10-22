@@ -1,0 +1,361 @@
+{
+  "bank": {
+    "add_s": 12.03,
+    "cartridges": 13,
+    "finalize_s": 20.96,
+    "peak_rss_mib": 5679.2,
+    "rows": 800,
+    "rss_delta_mib": 4999.6
+  },
+  "clauses": {
+    "SY1_heldout_overlap_zero": {
+      "bar": 0,
+      "measured": 0,
+      "verdict": "PASS"
+    },
+    "SY2_exec_verified_rate": {
+      "hits": 9,
+      "measured": 0.225,
+      "n": 40,
+      "verdict": "REPORTED",
+      "wilson95": [
+        0.12316,
+        0.375034
+      ]
+    },
+    "SY3_full_beats_no_synthesis": {
+      "bar": "full > control strictly",
+      "measured_control": 0.0,
+      "measured_full": 0.225,
+      "verdict": "PASS"
+    },
+    "SY4_nameerror_share_of_failures": {
+      "failed_total": 652,
+      "measured": 0.0,
+      "nameerror": 0,
+      "verdict": "REPORTED"
+    },
+    "SY5_mean_executions_within_cap": {
+      "cap": 24,
+      "measured": 16.65,
+      "verdict": "PASS"
+    }
+  },
+  "corpus": {
+    "held": 174,
+    "overlap": 0,
+    "rows": 974,
+    "train": 800
+  },
+  "generated_utc": "2026-10-22T05:28:44Z",
+  "notes": [
+    "Discrimination between arms is legitimate here: the bank holds no held-out task, so SY3 compares mechanisms, not answer leakage.",
+    "Retrieved-only control uses original signatures, so a pass there means the template already matched the target name and arity.",
+    "origin vocabulary: bank_adapted = signature rewritten; mutated = operator swap; retrieved = stored source unchanged."
+  ],
+  "params": {
+    "dim": 65536,
+    "k_templates": 8,
+    "max_variants": 2,
+    "n_tasks": 40,
+    "n_train": 800,
+    "rank": 64
+  },
+  "per_task": [
+    {
+      "control_ok": false,
+      "full_verdict": "NO_CANDIDATES_PASS",
+      "n_executed": 16,
+      "n_templates": 8,
+      "task_id": "801"
+    },
+    {
+      "control_ok": false,
+      "full_verdict": "NO_CANDIDATES_PASS",
+      "n_executed": 22,
+      "n_templates": 8,
+      "task_id": "802"
+    },
+    {
+      "control_ok": false,
+      "full_verdict": "EXEC_VERIFIED",
+      "n_executed": 23,
+      "n_templates": 8,
+      "task_id": "803"
+    },
+    {
+      "control_ok": false,
+      "full_verdict": "NO_CANDIDATES_PASS",
+      "n_executed": 22,
+      "n_templates": 8,
+      "task_id": "804"
+    },
+    {
+      "control_ok": false,
+      "full_verdict": "NO_CANDIDATES_PASS",
+      "n_executed": 12,
+      "n_templates": 8,
+      "task_id": "805"
+    },
+    {
+      "control_ok": false,
+      "full_verdict": "NO_CANDIDATES_PASS",
+      "n_executed": 15,
+      "n_templates": 8,
+      "task_id": "806"
+    },
+    {
+      "control_ok": false,
+      "full_verdict": "EXEC_VERIFIED",
+      "n_executed": 24,
+      "n_templates": 8,
+      "task_id": "807"
+    },
+    {
+      "control_ok": false,
+      "full_verdict": "NO_CANDIDATES_PASS",
+      "n_executed": 16,
+      "n_templates": 8,
+      "task_id": "808"
+    },
+    {
+      "control_ok": false,
+      "full_verdict": "EXEC_VERIFIED",
+      "n_executed": 11,
+      "n_templates": 8,
+      "task_id": "809"
+    },
+    {
+      "control_ok": false,
+      "full_verdict": "NO_CANDIDATES_PASS",
+      "n_executed": 11,
+      "n_templates": 8,
+      "task_id": "810"
+    },
+    {
+      "control_ok": false,
+      "full_verdict": "NO_CANDIDATES_PASS",
+      "n_executed": 15,
+      "n_templates": 8,
+      "task_id": "811"
+    },
+    {
+      "control_ok": false,
+      "full_verdict": "NO_CANDIDATES_PASS",
+      "n_executed": 8,
+      "n_templates": 8,
+      "task_id": "812"
+    },
+    {
+      "control_ok": false,
+      "full_verdict": "EXEC_VERIFIED",
+      "n_executed": 16,
+      "n_templates": 8,
+      "task_id": "813"
+    },
+    {
+      "control_ok": false,
+      "full_verdict": "NO_CANDIDATES_PASS",
+      "n_executed": 20,
+      "n_templates": 8,
+      "task_id": "814"
+    },
+    {
+      "control_ok": false,
+      "full_verdict": "NO_CANDIDATES_PASS",
+      "n_executed": 24,
+      "n_templates": 8,
+      "task_id": "815"
+    },
+    {
+      "control_ok": false,
+      "full_verdict": "NO_CANDIDATES_PASS",
+      "n_executed": 10,
+      "n_templates": 8,
+      "task_id": "816"
+    },
+    {
+      "control_ok": false,
+      "full_verdict": "NO_CANDIDATES_PASS",
+      "n_executed": 21,
+      "n_templates": 8,
+      "task_id": "817"
+    },
+    {
+      "control_ok": false,
+      "full_verdict": "NO_CANDIDATES_PASS",
+      "n_executed": 17,
+      "n_templates": 8,
+      "task_id": "818"
+    },
+    {
+      "control_ok": false,
+      "full_verdict": "NO_CANDIDATES_PASS",
+      "n_executed": 8,
+      "n_templates": 8,
+      "task_id": "819"
+    },
+    {
+      "control_ok": false,
+      "full_verdict": "NO_CANDIDATES_PASS",
+      "n_executed": 23,
+      "n_templates": 8,
+      "task_id": "820"
+    },
+    {
+      "control_ok": false,
+      "full_verdict": "EXEC_VERIFIED",
+      "n_executed": 11,
+      "n_templates": 8,
+      "task_id": "821"
+    },
+    {
+      "control_ok": false,
+      "full_verdict": "NO_CANDIDATES_PASS",
+      "n_executed": 16,
+      "n_templates": 8,
+      "task_id": "822"
+    },
+    {
+      "control_ok": false,
+      "full_verdict": "NO_CANDIDATES_PASS",
+      "n_executed": 10,
+      "n_templates": 8,
+      "task_id": "823"
+    },
+    {
+      "control_ok": false,
+      "full_verdict": "EXEC_VERIFIED",
+      "n_executed": 21,
+      "n_templates": 8,
+      "task_id": "824"
+    },
+    {
+      "control_ok": false,
+      "full_verdict": "NO_CANDIDATES_PASS",
+      "n_executed": 8,
+      "n_templates": 8,
+      "task_id": "825"
+    },
+    {
+      "control_ok": false,
+      "full_verdict": "NO_CANDIDATES_PASS",
+      "n_executed": 23,
+      "n_templates": 8,
+      "task_id": "826"
+    },
+    {
+      "control_ok": false,
+      "full_verdict": "NO_CANDIDATES_PASS",
+      "n_executed": 12,
+      "n_templates": 8,
+      "task_id": "827"
+    },
+    {
+      "control_ok": false,
+      "full_verdict": "NO_CANDIDATES_PASS",
+      "n_executed": 18,
+      "n_templates": 8,
+      "task_id": "828"
+    },
+    {
+      "control_ok": false,
+      "full_verdict": "EXEC_VERIFIED",
+      "n_executed": 15,
+      "n_templates": 8,
+      "task_id": "829"
+    },
+    {
+      "control_ok": false,
+      "full_verdict": "NO_CANDIDATES_PASS",
+      "n_executed": 19,
+      "n_templates": 8,
+      "task_id": "830"
+    },
+    {
+      "control_ok": false,
+      "full_verdict": "EXEC_VERIFIED",
+      "n_executed": 19,
+      "n_templates": 8,
+      "task_id": "831"
+    },
+    {
+      "control_ok": false,
+      "full_verdict": "NO_CANDIDATES_PASS",
+      "n_executed": 15,
+      "n_templates": 8,
+      "task_id": "832"
+    },
+    {
+      "control_ok": false,
+      "full_verdict": "NO_CANDIDATES_PASS",
+      "n_executed": 10,
+      "n_templates": 8,
+      "task_id": "833"
+    },
+    {
+      "control_ok": false,
+      "full_verdict": "NO_CANDIDATES_PASS",
+      "n_executed": 20,
+      "n_templates": 8,
+      "task_id": "834"
+    },
+    {
+      "control_ok": false,
+      "full_verdict": "NO_CANDIDATES_PASS",
+      "n_executed": 17,
+      "n_templates": 8,
+      "task_id": "835"
+    },
+    {
+      "control_ok": false,
+      "full_verdict": "EXEC_VERIFIED",
+      "n_executed": 24,
+      "n_templates": 8,
+      "task_id": "836"
+    },
+    {
+      "control_ok": false,
+      "full_verdict": "NO_CANDIDATES_PASS",
+      "n_executed": 24,
+      "n_templates": 8,
+      "task_id": "837"
+    },
+    {
+      "control_ok": false,
+      "full_verdict": "NO_CANDIDATES_PASS",
+      "n_executed": 18,
+      "n_templates": 8,
+      "task_id": "838"
+    },
+    {
+      "control_ok": false,
+      "full_verdict": "NO_CANDIDATES_PASS",
+      "n_executed": 11,
+      "n_templates": 8,
+      "task_id": "839"
+    },
+    {
+      "control_ok": false,
+      "full_verdict": "NO_CANDIDATES_PASS",
+      "n_executed": 21,
+      "n_templates": 8,
+      "task_id": "840"
+    }
+  ],
+  "probe": "phase9_g_synth1",
+  "results": {
+    "control_hits": 0,
+    "control_rate": 0.0,
+    "eval_s": 113.9,
+    "exec_verified_hits": 9,
+    "exec_verified_rate": 0.225,
+    "mean_executions_per_task": 16.65,
+    "no_candidates_tasks": 0,
+    "winners_by_origin": {
+      "bank_adapted": 5,
+      "mutated": 4
+    }
+  },
+  "verdict": "G_SYNTH1_PASS"
+}
