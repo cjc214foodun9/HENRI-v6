@@ -1,0 +1,196 @@
+{
+  "clauses": [
+    {
+      "id": "M1",
+      "pass": true,
+      "requires": "w_morph=0.0 reproduces 0.4000 and returns base exactly",
+      "value": {
+        "accuracy_match": true,
+        "all_vectors_exact_at_w0": true,
+        "held_acc_at_w0": 0.4,
+        "n_items": 40,
+        "phase9_expected": 0.4
+      }
+    },
+    {
+      "id": "M2",
+      "pass": true,
+      "requires": "shut gate returns base bit-exactly; held accuracy >= 0.4000",
+      "value": {
+        "bar": 0.4,
+        "held_acc": 0.4,
+        "selected_w": 0.05,
+        "shut_exact": 40,
+        "shut_n": 40,
+        "zero_degradation_by_construction": true
+      }
+    },
+    {
+      "id": "M3",
+      "pass": true,
+      "requires": "on slot1-silent items the gated arm is not worse",
+      "value": {
+        "base_top1": 6,
+        "delta": 0,
+        "gated_top1": 6,
+        "n": 15
+      }
+    },
+    {
+      "counted": false,
+      "id": "M4",
+      "pass": true,
+      "requires": "parsimony: selection on train, ties toward smaller w",
+      "value": {
+        "held_table": [
+          {
+            "channel_added": 0,
+            "held_acc": 0.4,
+            "shut_n": 40,
+            "w_morph": 0.0
+          },
+          {
+            "channel_added": 0,
+            "held_acc": 0.4,
+            "shut_n": 40,
+            "w_morph": 0.05
+          },
+          {
+            "channel_added": 0,
+            "held_acc": 0.4,
+            "shut_n": 40,
+            "w_morph": 0.1
+          },
+          {
+            "channel_added": 0,
+            "held_acc": 0.4,
+            "shut_n": 40,
+            "w_morph": 0.2
+          }
+        ],
+        "selected_w": 0.05,
+        "train_table": [
+          {
+            "channel_added": 0,
+            "shut_exact": 40,
+            "shut_n": 40,
+            "ties": 43,
+            "train_acc": 0.375,
+            "w_morph": 0.0
+          },
+          {
+            "channel_added": 1,
+            "shut_exact": 39,
+            "shut_n": 39,
+            "ties": 43,
+            "train_acc": 0.4,
+            "w_morph": 0.05
+          },
+          {
+            "channel_added": 1,
+            "shut_exact": 39,
+            "shut_n": 39,
+            "ties": 43,
+            "train_acc": 0.4,
+            "w_morph": 0.1
+          },
+          {
+            "channel_added": 1,
+            "shut_exact": 39,
+            "shut_n": 39,
+            "ties": 43,
+            "train_acc": 0.4,
+            "w_morph": 0.2
+          }
+        ]
+      }
+    },
+    {
+      "id": "M5",
+      "pass": false,
+      "requires": "the channel must ACT on held-out at least once",
+      "value": {
+        "gate_reason_histogram": {
+          "primary_tie_no_channel_signal": 1,
+          "slot1_active_untied": 24,
+          "slot1_silent_no_channel_signal": 15
+        },
+        "held_channel_added": 0,
+        "n_held": 40,
+        "train_channel_added": 1,
+        "why": "A PASS earned by never firing is vacuous. The first run closed the gate on 40/40 held-out items at every weight and still printed PASS, because the shut branch returns base untouched and every other clause was satisfied by the baseline. This clause makes the mechanism itself the object of the test."
+      }
+    },
+    {
+      "id": "M6",
+      "pass": true,
+      "requires": "on the structural split the channel must engage and not regress",
+      "value": {
+        "base": {
+          "n": 25,
+          "shut_n": 25,
+          "top1_acc": 0.44
+        },
+        "gated": {
+          "channel_added": 2,
+          "delta": 0.08,
+          "gate_reason_histogram": {
+            "slot1_silent": 2,
+            "slot1_silent_no_channel_signal": 22,
+            "slot1_silent_zero_variance": 1
+          },
+          "n": 25,
+          "provenance": {
+            "n_from_held": 0,
+            "n_from_train": 0,
+            "provenance": "none"
+          },
+          "shut_exact": 23,
+          "shut_n": 23,
+          "top1_acc": 0.52
+        },
+        "heldout_gast2_is_arithmetic": true,
+        "no_regression": true,
+        "note": "G-AST2 cannot test this channel: its prompts are arithmetic and the pruned lexicon ignores them."
+      }
+    }
+  ],
+  "corpus": {
+    "n_held": 40,
+    "n_train": 40
+  },
+  "decision_rule": "select w_morph on TRAIN, ties toward the smaller weight; evaluate ONCE on held-out",
+  "design": {
+    "candidates_read_as": "AST (pool holds Python snippets)",
+    "channel": "additive on the SCORE, behind the null-space gate",
+    "lexicon": "STRUCTURAL_ONLY_AXES (pruned) in operator_ingress",
+    "psi_modified": false,
+    "why": "a fifth slot on the unit sphere rescales slots 0-2 by 1/sqrt(2)/1/sqrt(2.5) = 0.8000; nothing here touches psi"
+  },
+  "falsified_premise": {
+    "consequence": "the divisor would always be 1, so it is NOT implemented",
+    "directive_asked": "normalise the channel by active structural axes",
+    "measured": "ring_slot/morph_slot already return unit vectors: 1, 2 and 3 active axes all give ||slot|| = 1.000000"
+  },
+  "file_sha256_on_disk": "25eac00059556b4ba4c015854cd3ed1dcb67c5651c1d459f39fbf02ded50ffdb",
+  "file_sha256_on_disk_note": "hash of the serialization BEFORE this field was inserted. A file cannot contain its own SHA256. The reproducible external identity is in the sibling '<name>.sha256' sidecar, verifiable with `sha256sum -c`.",
+  "grid": [
+    0.0,
+    0.05,
+    0.1,
+    0.2
+  ],
+  "n_clauses_pass": 4,
+  "prior_regression": {
+    "file": "receipts/phase10_g_morph1.json",
+    "m4_bar": 0.4,
+    "m4_value": 0.325,
+    "verdict": "G_MORPH1_PARTIAL_3_OF_4"
+  },
+  "probe": "phase11_g_morph1b",
+  "receipt_sha256_of_body_before_self_field": "68b6e08a7f8e0d00a81665d22fddc4e6072b4aa221621fc69f4d41abc735ec25",
+  "selected_w_on_train": 0.05,
+  "status": "PHASE 11 STEP 1 pre-registered gate",
+  "verdict": "G_MORPH1B_STRUCTURAL_ONLY_4_OF_5",
+  "wall_clock_s": 81.2
+}

@@ -808,6 +808,178 @@ MORPH_CALL = {
     "tuple": (MORPH_MAP_DICT, -1),
 }
 
+# -- PHASE 11 STEP 1: pruned, high-precision structural lexicon -------------
+#
+# WHY THIS IS A SEPARATE TABLE AND NOT AN EDIT
+# `tests/test_phase10_structural_morphisms.py` pins the Slot-1 and Slot-2
+# vectors byte-identical (`0d55b5ee...`, `59ed073d...`). Mutating MORPH_AXES
+# or MORPH_WORDS in place would move those pins and turn a Phase 10 result
+# into a moving target. Everything below is ADDITIVE: the Phase 10 tables and
+# every function that reads them are untouched.
+#
+# WHY THE PRUNING IS NEEDED AT ALL
+# Phase 10 Step 1 measured `MORPH_COUNT_IDX` firing on 558/974 MBPP docstrings
+# and `MORPH_MAP_DICT` on 384/974. Those rates come from words that dominate
+# ARITHMETIC prose: "count", "values", "find", "first", "last", "list", "set".
+# A feature that fires on 57% of the corpus cannot discriminate within it, and
+# its small margin was paid for by Slot 0-1 dilution (0.707107 -> 0.632456).
+# This table keeps only tokens that name a structural TRANSFORMATION.
+#
+# THE DROPPED TOKENS ARE LISTED, NOT SILENTLY OMITTED
+# Arithmetic-prose false triggers removed: "count", "occurrences", "amount",
+# "length", "frequency", "index", "position", "find", "locate", "first",
+# "last", "nth", "values", "keys", "map", "dict", "list", "array", "set",
+# "number", "sequence", "elements", "lookup", "mapping", "order", "ordering",
+# "words", "slice", "substring", "parse", "tokens", "keep", "select",
+# "matching", "only", "extract".
+#
+# "set" IS DROPPED DELIBERATELY even though it is Axis 4's own name. In MBPP
+# prose "set" is overwhelmingly a verb ("set the value to") or part of
+# "offset"/"subset"; the word-boundary rule already blocks the latter two, but
+# the verb sense remains frequent. "unique"/"distinct"/"deduplicate"/"union"
+# carry Axis 4 without that ambiguity.
+STRUCTURAL_ONLY_AXES = {
+    MORPH_ORDER: (
+        frozenset(("reverse", "reversed", "backward", "palindrome",
+                   "reversal")),
+        frozenset(("sort", "sorted", "ascending", "descending",
+                   "alphabetical")),
+    ),
+    MORPH_FILTER: (
+        frozenset(("filter", "filtering", "findall")),
+        frozenset(("remove", "delete", "drop", "exclude", "strip",
+                   "replace")),
+    ),
+    MORPH_SPLIT_JOIN: (
+        frozenset(("split", "separate", "tokenize")),
+        frozenset(("join", "concatenate", "merge")),
+    ),
+    MORPH_SET: (
+        frozenset(("unique", "distinct", "deduplicate", "union",
+                   "uniques")),
+        frozenset(("intersection", "overlap", "duplicate",
+                   "duplicates", "shared")),
+    ),
+    MORPH_SHAPE: (
+        frozenset(("flatten", "unnest", "flattened")),
+        frozenset(("zip", "chunk", "nested")),
+    ),
+    MORPH_CASE: (
+        frozenset(("uppercase", "upper", "capitalize", "capitalized",
+                   "title")),
+        frozenset(("lowercase", "lower", "swapcase")),
+    ),
+    MORPH_MAP_DICT: (
+        frozenset(("dictionary", "mapping")),
+        frozenset(("tuple",)),
+    ),
+}
+
+# Axis 6 (Cardinality/Position) is ABSENT BY DESIGN, not by oversight. Every
+# token in it ("count", "length", "occurrences", "index", "position", "find",
+# "first", "last", "nth") is ordinary arithmetic vocabulary. The axis remains
+# available through the unpruned Phase 10 tables for any caller that wants it;
+# it is simply not part of the high-precision channel.
+
+STRUCTURAL_ONLY_WORDS: dict = {}
+for _sroot, (_splus, _sminus) in STRUCTURAL_ONLY_AXES.items():
+    for _sw in _splus:
+        STRUCTURAL_ONLY_WORDS.setdefault(_sw, (_sroot, +1))
+    for _sw in _sminus:
+        STRUCTURAL_ONLY_WORDS.setdefault(_sw, (_sroot, -1))
+
+# AST side, pruned by the same principle. MEASURED TRAP: pruning only the word
+# list leaves the AST triggers live -- MORPH_ATTR keeps "count", "find",
+# "values" and MORPH_CALL keeps "counter", "len", "sum". A candidate program
+# calling len() would then fire a "structural" axis, so the channel would be
+# dense in code exactly where it was pruned in prose.
+STRUCTURAL_ONLY_ATTR = {
+    "reverse": (MORPH_ORDER, +1),
+    "sort": (MORPH_ORDER, -1),
+    "remove": (MORPH_FILTER, -1),
+    "pop": (MORPH_FILTER, -1),
+    "strip": (MORPH_FILTER, -1),
+    "replace": (MORPH_FILTER, -1),
+    "split": (MORPH_SPLIT_JOIN, +1),
+    "join": (MORPH_SPLIT_JOIN, -1),
+    "intersection": (MORPH_SET, -1),
+    "union": (MORPH_SET, +1),
+    "upper": (MORPH_CASE, +1),
+    "lower": (MORPH_CASE, -1),
+    "capitalize": (MORPH_CASE, +1),
+    "title": (MORPH_CASE, +1),
+    "swapcase": (MORPH_CASE, -1),
+}
+
+STRUCTURAL_ONLY_CALL = {
+    "reversed": (MORPH_ORDER, +1),
+    "sorted": (MORPH_ORDER, -1),
+    "filter": (MORPH_FILTER, +1),
+    "findall": (MORPH_FILTER, +1),
+    "re.findall": (MORPH_FILTER, +1),
+    "frozenset": (MORPH_SET, +1),
+    "tuple": (MORPH_MAP_DICT, -1),
+}
+
+
+def structural_morphology_from_text(text: str) -> List[Feature]:
+    """Morphism features from the PRUNED lexicon only.
+
+    Same `(root, sign, depth)` shape as `morphology_from_text`, so
+    `morph_slot` consumes it unchanged. Word boundaries are load-bearing for
+    the same measured reason recorded there: a substring match fires "sort"
+    inside "assorted" and inflates coverage without discriminating.
+    """
+    low = text.lower()
+    out: List[Feature] = []
+    for word, (root, sign) in STRUCTURAL_ONLY_WORDS.items():
+        if re.search(r"\b" + re.escape(word) + r"\b", low):
+            out.append((root, sign, 0))
+    return out
+
+
+def structural_morphology_from_ast(code: str) -> Tuple[List[Feature], bool]:
+    """Structural-only features from Python syntax.
+
+    Mirrors `morphology_from_ast` for the pruned tables. Container literals
+    stay non-triggers for the reason recorded there. Returns `([], False)` on
+    parse failure so a caller can distinguish "no structure" from "bad code".
+    """
+    try:
+        tree = ast.parse(code)
+    except (SyntaxError, ValueError, MemoryError):
+        return [], False
+
+    feats: List[Feature] = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Attribute) and node.attr in STRUCTURAL_ONLY_ATTR:
+            root, sign = STRUCTURAL_ONLY_ATTR[node.attr]
+            feats.append((root, sign, 1))
+        elif isinstance(node, ast.Call):
+            name = _call_name(node.func)
+            bare = _bare(name)
+            if name in STRUCTURAL_ONLY_CALL:
+                root, sign = STRUCTURAL_ONLY_CALL[name]
+                feats.append((root, sign, 1))
+            elif bare in STRUCTURAL_ONLY_CALL:
+                root, sign = STRUCTURAL_ONLY_CALL[bare]
+                feats.append((root, sign, 1))
+            # `reverse=True` flips the ORDER pole, whether it is passed to the
+            # builtin `sorted` or to the bound `.sort` method.
+            # MEASURED DEFECT, repaired: the first version searched for
+            # `keywords` on the `ast.Attribute` node. An Attribute never
+            # carries keywords (verified: hasattr(node, "keywords") is False),
+            # so `x.sort(reverse=True)` fired plain ORDER(-1) and lost its
+            # flip. The loop belongs here, on the Call, where keywords live.
+            if bare in ("sort", "sorted"):
+                for kw in node.keywords or []:
+                    if kw.arg == "reverse":
+                        feats.append((MORPH_ORDER, +1, 1))
+        elif _slice_is_reverse(node):
+            feats.append((MORPH_ORDER, +1, 1))
+    return feats, True
+
+
 def _morph_phrase_hits(text_lower: str) -> List[Feature]:
     """Phrase triggers, matched before single words so "how many" wins."""
     out: List[Feature] = []

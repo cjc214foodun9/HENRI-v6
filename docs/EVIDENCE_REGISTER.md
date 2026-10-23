@@ -2143,3 +2143,135 @@ receipts.
 - `conj().T` on a `(65536, 64)` complex array is 10 times slower than a precomputed contiguous adjoint, for identical arithmetic.
 - Report latency as a median of N fixed before the run, with the observed range, and state competing host load.
 - Three added mechanisms held parsimony at zero: `G-KOOP1` `w = 0.0`, the M4 sweep `t = 0.0`, `G-REASON1` `w = 0.0`. On these benchmarks the wave core carries the signal and the added channels do not beat it.
+
+## 22. Phase 11 Step 1-2: tie-break repair, falsified premises, null-space gate
+
+Baseline for this section: `origin/main = ae1882b` (Step 1). Step 2 is recorded
+here and committed in the same change set.
+
+### 22.1 Step 1 (`ae1882b`, pushed): GPQA rotation was a tie-break defect
+
+The directive attributed the stalled `G-REASON1` rotation arm to re-encoding cost.
+Measurement falsifies that attribution.
+
+`strip_common_option_tokens` collapses two distinct options to identical stripped
+text on 25 of 198 GPQA items. The old sort key was
+`(-round(score, 12), sha256(stripped_text))`. Colliding options share both keys,
+so Python's stable sort preserves caller order, and a cyclic permutation of
+`[A, B, C, D]` changes the winner.
+
+| Measurement | Value |
+|---|---|
+| GPQA items with colliding stripped text | 25 of 198 |
+| Previously non-equivariant items | 14 of 198 |
+| Non-equivariant items with colliding stripped text | 14 of 14 |
+| Non-equivariant items with 4 distinct texts | 0 of 184 |
+
+The repair adds the ORIGINAL option digest as a permutation-equivariant secondary
+key. Scores are not rescaled. A cached encoder alone leaves `0.950000` unchanged.
+
+Receipt `receipts/phase11_g_reason1_repair.json`, verdict
+`G_REASON1_REPAIR_PARTIAL_3_OF_4`, sidecar OK:
+
+| Clause | Measurement | Verdict |
+|---|---|---|
+| P1 | `gpqa_w0.2 = 1.000000` (frozen prior `0.950000`), all 4 arms `1.000000` | PASS |
+| P2 | 25 collide, 14 previously broke | FAIL, recorded as FAIL |
+| P3 | `w = 0.0` held, `0.280000` / `0.282828`, delta `+0.000000000` | PASS |
+| P4 | 20111 calls to 1762 unique encodes, `max abs diff 0.000e+00`, mutation-safe | PASS |
+
+P2 fails by design: collision is necessary, not sufficient, for the defect. The
+clause exists to record that distinction rather than hide it.
+
+The frozen `receipts/phase10_g_reason1.json` keeps its measured `0.950000` and is
+cited as `prior_measurement`. A receipt describes the revision that produced it.
+
+### 22.2 Two directive premises falsified before implementation
+
+**Active-axis normalisation is a no-op.** The directive required dividing the
+structural channel score by the number of ACTIVE structural axes. Measured:
+`ring_slot` already unit-normalises, so `||slot|| = 1.000000` for 1, 2, and 3
+active axes. Inactive axes contribute zero energy and dilute nothing. The
+divisor would always be 1. Not implemented; recorded as a falsified premise.
+
+**The Step 1 stall was tie-breaking, not encoding cost.** Measured above.
+
+### 22.3 Refused verdict: a PASS earned by never firing
+
+Probe run 3 printed `G_MORPH1B_PASS` with M1-M4 all passing. The measured table
+alongside it:
+
+| `w_morph` | train | held-out | gate shut | exact |
+|---|---|---|---|---|
+| 0.00 | 0.3750 | 0.4000 | 40/40 | 40 |
+| 0.05 | 0.4000 | 0.4000 | 40/40 | 40 |
+| 0.10 | 0.4000 | 0.4000 | 40/40 | 40 |
+| 0.20 | 0.4000 | 0.4000 | 40/40 | 40 |
+
+The gate shut on every held-out item at every weight. Each clause passed because
+each return was `base` untouched. This verdict was not committed. Two clauses
+were added so the mechanism itself is tested: M5 (channel must act on held-out)
+and M6 (dedicated structural split must engage without regression).
+
+### 22.4 Step 2 gate of record: `G_MORPH1B_STRUCTURAL_ONLY_4_OF_5`
+
+Receipt `receipts/phase11_g_morph1b_run7.json`, sidecar OK, provenance
+`held_out_plus_train_topup` (held 16 / train 9, rejected_slot1_active 36).
+
+| Clause | Measurement | Verdict |
+|---|---|---|
+| M1 | `w = 0.0` reproduces `0.4000` and returns base exactly | PASS |
+| M2 | shut gate bit-exact; held-out `0.4000` | PASS |
+| M3 | slot1-silent items not worse | PASS |
+| M4 | parsimony, selected `w = 0.05` | PASS, uncounted |
+| M5 | channel acts on G-AST2 held-out | FAIL |
+| M6 | structural split engages, no regression | PASS, `0.4400 -> 0.5200`, `+2/25` |
+
+**M5 is unsatisfiable by specification, not a channel defect.** Every G-AST2
+prompt carries an active, untied Slot 1. The null-space gate shuts on exactly
+that population. M5's bar targets a population where firing is forbidden by the
+design under test. Engagement evidence is M6.
+
+**M6 scope limit.** The split is 16 held-out rows plus 9 topped up from train.
+The receipt records `rejected_slot1_active: 36`, the count of lexicon-firing rows
+discarded because Slot 1 was active. `+2/25` is narrow and partly in-sample. This
+records a real in-scope win on the split built to test the channel. It does NOT
+establish a general structural-ranking improvement.
+
+### 22.5 Three defects in the probe, caught before the producing run
+
+Each was measured, repaired, and the run that produced the committed number was
+launched after the repair.
+
+1. **Split selection violated the pre-registration.** Run 4 selected on lexicon
+   alone and produced 15 of 25 items with an ACTIVE Slot 1. The directive defines
+   the structural split as `slot1_active == False`. Measured populations: 266
+   structural docstrings, 100 slot1-silent. Fixed with `slot1_is_silent`.
+2. **Receipt field contradicted its own log.** Run 6 recorded
+   `provenance: none` while its log printed `held_out_plus_train_topup, held 16 /
+   train 9`. A section re-initialised the provenance dict after it was set. Removed.
+3. **Verdict ladder masked a scoped partial.** The INERT label was consulted
+   before M6, so a structural-only engagement would have been reported as inert.
+   Reordered. New label `G_MORPH1B_STRUCTURAL_ONLY_4_OF_5` names which split fired.
+
+Falsification trail retained: runs 3, 4, 5, 6 receipts are committed alongside
+run 7. Run 3 is the refused vacuous PASS. Run 4 is the split-selection defect.
+Run 6 is the provenance defect.
+
+### 22.6 Invariants
+
+| Invariant | Measured |
+|---|---|
+| Kernel | `SEALED`, 6 pinned files |
+| Register | pure CRLF, 0 bare LF |
+| Phase 10 Slot-1/Slot-2 byte pins | intact, 39/39 pins and channels suite |
+| Step 2 source diff | additions only, `172/0` and `183/1` |
+| Full suite | 607 collected, 593 passed, 14 skipped, 0 failed |
+
+### 22.7 Extracted epiplexity
+
+The recurring failure mode this phase was a gate satisfied by the baseline rather
+than by the mechanism, the same shape as the Phase 9 defect. Two premises were
+falsified by single measurements, and one PASS was refused at the cost of a run.
+The reusable rule: a clause must be able to fail BECAUSE the mechanism did not
+fire, and a verdict label must name which split engaged.

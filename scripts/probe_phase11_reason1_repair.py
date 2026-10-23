@@ -65,6 +65,7 @@ from __future__ import annotations
 
 import hashlib
 import importlib.util
+import os
 import sys
 import time
 from pathlib import Path
@@ -77,6 +78,20 @@ from henri.receipt import FILE_FIELD, write_receipt
 
 REPO = Path(__file__).resolve().parents[1]
 OUT = REPO / "receipts" / "phase11_g_reason1_repair.json"
+
+# -- SINGLE-WRITER GUARD, added after a measured clobber ---------------------
+#
+# Two concurrent runs of this probe wrote the SAME fixed path. The second
+# overwrote a receipt that was already committed and pushed. Measurements
+# survived byte-identically (only `wall_clock_s` and the two self-hash fields
+# moved), but the hazard is structural: a later run could silently replace a
+# committed result with a different one under the same filename.
+#
+# `HENRI_RECEIPT_OUT` lets a caller write somewhere else. The default stays
+# the canonical path so the ordinary invocation is unchanged.
+_receipt_out = os.environ.get("HENRI_RECEIPT_OUT")
+if _receipt_out:
+    OUT = Path(_receipt_out)
 
 # Fixed before the first run.
 WEIGHTS = ((0.0, "w0.0"), (0.2, "w0.2"))
