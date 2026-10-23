@@ -1,0 +1,249 @@
+{
+  "arms": [
+    {
+      "action_slot_norm": 0.621304301,
+      "adaptation_steps": 0,
+      "arm": "R1_IDENTITY_safe",
+      "latency_us_wall": 41997.3,
+      "per_step_latency_us": 41660.2,
+      "recovery_verified": true,
+      "sagnac_delta_final": 0.0,
+      "sagnac_delta_initial": 0.0,
+      "slot_energy": {
+        "slot0": 0.783569375,
+        "slot1": 0.621304301,
+        "slot2": 0.0,
+        "slot3": 0.0
+      },
+      "statistic_form": "inner_product",
+      "total_latency_us": 41660.2,
+      "vetoed_initial": false
+    },
+    {
+      "action_slot_norm": 0.621314874,
+      "adaptation_steps": 0,
+      "arm": "R2_NEAR_safe",
+      "latency_us_wall": 17933.1,
+      "per_step_latency_us": 17690.7,
+      "recovery_verified": true,
+      "sagnac_delta_final": 1.284e-06,
+      "sagnac_delta_initial": 1.284e-06,
+      "slot_energy": {
+        "slot0": 0.783560992,
+        "slot1": 0.621314874,
+        "slot2": 0.0,
+        "slot3": 0.0
+      },
+      "statistic_form": "inner_product",
+      "total_latency_us": 17690.7,
+      "vetoed_initial": false
+    },
+    {
+      "action_slot_norm": 0.619268104,
+      "adaptation_steps": 6,
+      "arm": "R3_UNSAFE_perturbed",
+      "latency_us_wall": 40135.1,
+      "per_step_latency_us": 6631.683,
+      "recovery_verified": true,
+      "sagnac_delta_final": 0.042648316,
+      "sagnac_delta_initial": 0.895710137,
+      "slot_energy": {
+        "slot0": 0.785178779,
+        "slot1": 0.619268104,
+        "slot2": 0.000804078,
+        "slot3": 0.000807872
+      },
+      "statistic_form": "inner_product",
+      "total_latency_us": 39790.1,
+      "vetoed_initial": true
+    },
+    {
+      "action_slot_norm": 0.621304301,
+      "adaptation_steps": 0,
+      "arm": "R4_VACUOUS_no_axiom",
+      "latency_us_wall": 9280.9,
+      "per_step_latency_us": 9170.5,
+      "recovery_verified": true,
+      "sagnac_delta_final": 0.0,
+      "sagnac_delta_initial": 0.0,
+      "slot_energy": {
+        "slot0": 0.783569375,
+        "slot1": 0.621304301,
+        "slot2": 0.0,
+        "slot3": 0.0
+      },
+      "statistic_form": "inner_product",
+      "total_latency_us": 9170.5,
+      "vetoed_initial": false
+    }
+  ],
+  "clauses": [
+    {
+      "bar": "|diff| <= 1e-12 and identical step counts",
+      "id": "B1",
+      "pass": true,
+      "value": [
+        {
+          "arm": "R1_IDENTITY_safe",
+          "delta_final_abs_diff": 0.0,
+          "delta_initial_abs_diff": 0.0,
+          "pass": true,
+          "prior_delta_final": 0.0,
+          "prior_delta_initial": 0.0,
+          "slot_norm_max_abs_diff": 0.0,
+          "steps_now": 0,
+          "steps_prior": 0
+        },
+        {
+          "arm": "R2_NEAR_safe",
+          "delta_final_abs_diff": 0.0,
+          "delta_initial_abs_diff": 0.0,
+          "pass": true,
+          "prior_delta_final": 1.284e-06,
+          "prior_delta_initial": 1.284e-06,
+          "slot_norm_max_abs_diff": 0.0,
+          "steps_now": 0,
+          "steps_prior": 0
+        },
+        {
+          "arm": "R3_UNSAFE_perturbed",
+          "delta_final_abs_diff": 0.0,
+          "delta_initial_abs_diff": 0.0,
+          "pass": true,
+          "prior_delta_final": 0.042648316,
+          "prior_delta_initial": 0.895710137,
+          "slot_norm_max_abs_diff": 0.0,
+          "steps_now": 6,
+          "steps_prior": 6
+        },
+        {
+          "arm": "R4_VACUOUS_no_axiom",
+          "delta_final_abs_diff": 0.0,
+          "delta_initial_abs_diff": 0.0,
+          "pass": true,
+          "prior_delta_final": 0.0,
+          "prior_delta_initial": 0.0,
+          "slot_norm_max_abs_diff": 0.0,
+          "steps_now": 0,
+          "steps_prior": 0
+        }
+      ],
+      "what": "R1-R4 reproduce Phase-8 deltas/steps/norms"
+    },
+    {
+      "bar": "<= 1e-12",
+      "id": "B2",
+      "pass": true,
+      "value": {
+        "koopman_axiom_max_abs": 1.30393060744403e-17,
+        "koopman_sensor_max_abs": 1.3904866443919908e-17,
+        "pass": true,
+        "relaxation_max_abs": 0.0,
+        "tol": 1e-12
+      },
+      "what": "full-D equivalence of both optimizations"
+    },
+    {
+      "bar": "median of 7",
+      "id": "B3",
+      "pass": true,
+      "value": {
+        "all_us": [
+          39934.5,
+          40132.3,
+          47178.4,
+          43572.0,
+          42932.8,
+          43371.6,
+          41875.5
+        ],
+        "bar_us": 50000.0,
+        "max_us": 47178.4,
+        "median_us": 42932.8,
+        "min_us": 39934.5,
+        "n": 7,
+        "prior_total_us": 81449.0
+      },
+      "what": "R3 total recovery <= 50,000 us"
+    },
+    {
+      "bar": "the Phase-9 clause is not lost",
+      "id": "B4",
+      "pass": true,
+      "value": {
+        "bar_us": 50000.0,
+        "per_step_us": 6631.683,
+        "prior_per_step_us": 13574.833
+      },
+      "what": "R3 per-step latency <= 50,000 us"
+    }
+  ],
+  "digital_twin_us": 50000.0,
+  "dim": 65536,
+  "file_sha256_on_disk": "b562a9fb9cb4d2e60d955ce6983f4f28c9d3cd06dd7cb492fef42b2c53283291",
+  "file_sha256_on_disk_note": "hash of the serialization BEFORE this field was inserted. A file cannot contain its own SHA256. The reproducible external identity is in the sibling '<name>.sha256' sidecar, verifiable with `sha256sum -c`.",
+  "latency": {
+    "improvement_pct": 47.29,
+    "improvement_us": 38516.2,
+    "prior_per_step_us": 13574.833,
+    "prior_total_us": 81449.0,
+    "r3_total": {
+      "all_us": [
+        39934.5,
+        40132.3,
+        47178.4,
+        43572.0,
+        42932.8,
+        43371.6,
+        41875.5
+      ],
+      "max_us": 47178.4,
+      "median_us": 42932.8,
+      "min_us": 39934.5,
+      "n": 7
+    }
+  },
+  "latency_note": "wall clock on this host, median of 7. Not a real-time claim. The 50 us optical contract stays TELEMETRY_ONLY.",
+  "n_clauses_pass": 4,
+  "n_repeat": 7,
+  "optical_us": {
+    "status": "TELEMETRY_ONLY",
+    "value": 50.0
+  },
+  "optimizations": [
+    {
+      "measured": {
+        "relax_once_before_us": 6232.6,
+        "spectral_temps_share_us": 3604.9
+      },
+      "what": "temperature field computed once per recovery",
+      "why_exact": "compute_spectral_temperatures is a pure function of the recoil comb and axiom basis; neither changes inside the loop. MEASURED: comb identical across all 6 steps."
+    },
+    {
+      "measured": {
+        "batched_us": 16309,
+        "max_abs_diff": 2.201e-17,
+        "two_separate_us": 23991
+      },
+      "what": "one batched Koopman pass for sensor and axiom",
+      "why_exact": "the operator is applied column-wise and the low-rank term is a matrix product either way"
+    }
+  ],
+  "probe": "phase10_robotics_full_D",
+  "receipt_sha256_of_body_before_self_field": "58faeb2f2d573985653f8c1bc4ccd9983c78d84c07d0c4ab5a345ebbca4b92c4",
+  "rejected_optimization": {
+    "measured_after_relaxation_prior": {
+      "slot2": 0.000804078,
+      "slot3": 0.000807872
+    },
+    "measured_assembled": {
+      "slot2": 0.0,
+      "slot3": 0.0
+    },
+    "what": "slice [0:32768] during the inner recovery loop",
+    "why_rejected": "slots 2 and 3 are EXACTLY zero on the assembled candidate but NON-ZERO after relaxation. MEASURED here and in the Phase-8 R3 arm (slot2 0.000804078, slot3 0.000807872). Slicing would truncate live state and break B1 and B2."
+  },
+  "tau_veto": 0.0431,
+  "verdict": "G_ROB2_PASS",
+  "wall_clock_s": 0.69
+}

@@ -2001,3 +2001,145 @@ trusting the citation.
 SOURCE FIXED. `scripts/probe_phase8_robotics.py` printed the body digest as
 `receipt sha256`. It now prints `body_sha256_self_field` and
 `file_sha256_on_disk` on separate lines.
+
+## 21. Phase 10: structural morphisms, CEGIS repair, reason channels, robotics latency
+
+Phase 10 executed four pre-registered gates on top of `854605d`. Three mechanisms
+were added; one existing loop was optimized. Two gates pass whole, two pass
+partial. Every FAIL is recorded as measured, and two of the four gates produced a
+null result for the added mechanism.
+
+### 21.1 Step 1, G-MORPH1: PARTIAL 3 of 4, M4 FAIL
+
+An 8-axis structural morphism channel was added to `henri/operator_ingress.py` as
+an APPEND-ONLY block. The arithmetic channel is byte-identical: pins
+`0d55b5ee` (slot 1) and `59ed073d` (slot 2) were taken BEFORE the edit and
+reproduce after it.
+
+| Clause | Measured | Bar | Verdict |
+| :--- | :--- | :--- | :--- |
+| M1 | axis projection `-1.000000000000` (full channel `0.0`) | `== -1.0` | PASS |
+| M2 | `+1.0` / `-0.707106781187` | `> +0.70` / `< -0.70` | PASS |
+| M3 | `0.901437` combined, both-empty `0.098563` | `>= 0.88` | PASS |
+| M4 | `0.3250` | `>= 0.4000` | **FAIL** |
+
+M4 is the load-bearing clause and it fails. Attribution was measured, not guessed:
+of 40 `G-AST2` prompts, the 31 that fire a morphism axis fall `12 -> 9` correct,
+while the 9 that fire none stay `4 -> 4`. Populating a fifth slot is zero-sum,
+because `psi` is unit-normalised across four slots: slots 0-2 rescale
+`0.707107 -> 0.632456` when slot 3 gains energy.
+
+M3 and M4 are one phenomenon. Coverage rose because `MORPH_COUNT_IDX` fires on
+`558` of 974 docstrings and `MORPH_MAP_DICT` on `384`, driven by the words
+`count`, `values`, `find`, `first`, `last`, `list`, `set`. Those words dominate
+ARITHMETIC prose. Coverage is a corpus statistic and is not evidence of ranking
+power.
+
+A pre-registered weight sweep, selecting on train and evaluating once on held-out,
+chose `t = 0.00`, which DISABLES the channel. The verdict string was corrected
+from `M4_RECOVERED` to `M4_PARSIMONY_HELD_CHANNEL_OFF` before commit. Reporting a
+baseline as a channel win is the Phase 9 label defect in new clothing.
+
+M1 also required a correction. The directive's own fixture cannot reach `-1.0`:
+`"reverse a list"` and `"sort a list"` BOTH fire Axis 8 on `list`, so the full
+channel reads `0.0`. The `-1.0` is measured on the axis projection. Both numbers
+ship.
+
+### 21.2 Step 2, G-CEGIS1: PASS 4 of 4
+
+`henri/code_verify.py` gained an optional second round, `max_cegis_rounds`. It
+defaults to `1`, so the registered `G-SYNTH1` path is unchanged and the gate
+measures `1` against `2` rather than comparing a new path to itself.
+
+| Clause | Measured |
+| :--- | :--- |
+| C1 no regression at rounds=1 | byte-identical baseline |
+| C2 held-out `exec_verified_rate` | `0.2250 -> 0.2750`, 2 tasks gained of 40 |
+| C3 provenance | winners tagged `origin="cegis_repair"` |
+| C4 refusal | `unclassified` returned when the residual matches no case |
+
+The margin is `+2` tasks on `n = 40`. It is recorded at that width and is not
+stated as a capability. The classifier refuses rather than guesses: a fixture with
+delta `3` correctly returned `unclassified`.
+
+### 21.3 Step 3, G-REASON1: PARTIAL 2 of 3, parsimony holds `w = 0.0`
+
+Operator and morphism channels were wired into `/v1/reason/rank` and
+`benchmarks/wave_rank.py` as an ADDITIVE score term with `channel_weight = 0.0`
+by default, so the prior path is byte-identical. A fifth slot was rejected here
+for the reason measured in 21.1.
+
+| Clause | Measured | Verdict |
+| :--- | :--- | :--- |
+| R1 4x rotation invariance | `mmlu_w0.0 1.000000`, `mmlu_w0.2 1.000000`, `gpqa_w0.2 0.950000` | **FAIL** |
+| R2 STEM operator fixture | `3/8` wave-only vs `3/8` channel, no gain | reported, NOT counted |
+| R3 MMLU/GPQA held-out | both corpora `delta +0.0000`, parity | PASS |
+| R4 selection on train only | `w = 0.0` chosen on both | PASS |
+
+Parsimony selected `w = 0.0` on BOTH corpora, which disables the channel. The bar
+is then met by the wave core, not by the added term. The verdict string names
+this: `G_REASON1_PARTIAL_2_OF_3`.
+
+The R2 clause originally carried `"pass": True` while being described as
+"reported, not a bar", and the tally counted it. That is a gate that cannot fail.
+A clause I cannot fail must not consume a pass slot, so R2 now carries
+`counted: false` and the tally excludes it.
+
+Scope is `SUBSET_SMOKE_STRATIFIED`: 200 MMLU rows and 198 GPQA rows, fixed before
+the run. A subset result is not a benchmark score and is not quoted as one.
+
+### 21.4 Step 4, G-ROB2: PASS 4 of 4, total recovery below the 50 ms twin
+
+| Clause | Measured | Bar | Verdict |
+| :--- | :--- | :--- | :--- |
+| B1 R1-R4 reproduce Phase 8 | deltas, steps and slot norms identical | `<= 1e-12` | PASS |
+| B2 full-D equivalence | koopman `1.390e-17` / `1.304e-17`, relaxation `0.000e+00` | `<= 1e-12` | PASS |
+| B3 R3 total recovery | `42,932.8 us` median of 7 | `<= 50,000` | PASS |
+| B4 R3 per-step latency | `6,632 us` | `<= 50,000` | PASS |
+
+Recorded prior total was `81,449.0 us`. Measured now `42,932.8 us`, a reduction of
+`38,516.2 us` or `47.29` percent. R3 recovery is unchanged at
+`0.895710 -> 0.042648` in 6 steps, and the slot norms match Phase 8 digit for
+digit: `slot2 0.000804078`, `slot3 0.000807872`.
+
+THE DIRECTIVE'S SLICING PRESCRIPTION WAS TESTED AND REJECTED. It proposed
+operating on `[0:32768]` during the inner loop because the inactive slots are
+zero. Measured: slots 2 and 3 are EXACTLY zero on the assembled candidate, but
+NON-ZERO after relaxation, in this run and in the Phase 8 R3 arm. Slicing would
+truncate live state and break B1 and B2. The savings came from removing
+redundant work instead, with arithmetic preserved:
+
+| Optimization | Before | After | Why exact |
+| :--- | :--- | :--- | :--- |
+| temperature field per recovery | 6 recomputations, `3,604.9 us` each | computed once | pure function of comb and basis; comb byte-identical across all 6 steps |
+| Koopman pass | two passes `23,991 us` | one 2-column batch `16,309 us` | column-wise application; `max abs diff 2.201e-17` |
+| right adjoint | `right.conj().T` per call `9,156 us` | cached contiguous `845 us` | identical arithmetic; non-contiguous transpose blocked the fast path; diff `0.000e+00` |
+
+An intermediate state measured `50,233 us` and FAILED B3 while 8 to 9 competing
+Python processes ran on this host. That run was recorded as FAIL. Further
+optimization, not a re-run, brought the measurement to `42,932.8 us`.
+
+### 21.5 Defect found in my own receipt writer
+
+`henri/receipt.py` was written to prevent the Phase 9 label defect. It reproduced
+it. The writer inserted `file_sha256_on_disk`, then hashed the file and returned
+that hash. The returned value was correct; the EMBEDDED value was the hash of the
+serialization before the field was inserted. Measured on all four Phase 10
+receipts: embedded value did not equal `sha256sum` of the file.
+
+The arithmetic is not repairable by iteration: a file cannot contain its own
+SHA256. The reproducible identity therefore moved to a sibling
+`<name>.json.sha256` sidecar, verifiable with `sha256sum -c`, and the embedded
+field now carries a note saying what it is. `verify_receipt` checks the sidecar.
+Measured after the fix: `body_match True` and `file_match True` on all four
+receipts.
+
+### 21.6 Standing constraints learned this phase
+
+- A file cannot contain its own hash. Put the reproducible identity in a sibling.
+- A clause that cannot fail must not consume a pass slot. Count only clauses that can fail.
+- Coverage is not ranking power. A word-frequency win can bind the mass that ranking needs.
+- Do not slice an inactive slot unless it is EXACTLY zero AT THE POINT OF USE, not merely at assembly.
+- `conj().T` on a `(65536, 64)` complex array is 10 times slower than a precomputed contiguous adjoint, for identical arithmetic.
+- Report latency as a median of N fixed before the run, with the observed range, and state competing host load.
+- Three added mechanisms held parsimony at zero: `G-KOOP1` `w = 0.0`, the M4 sweep `t = 0.0`, `G-REASON1` `w = 0.0`. On these benchmarks the wave core carries the signal and the added channels do not beat it.
