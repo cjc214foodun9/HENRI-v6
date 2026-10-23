@@ -27,6 +27,10 @@ import numpy as np
 
 REPO = Path(__file__).resolve().parents[1]
 
+MAX_CEGIS_EXEC = 6
+"""Repair-execution budget per task. Each repair costs one sandboxed run,
+so an unbounded list turns a synthesis gate into a search gate."""
+
 _MODULE = None
 _LOAD_ERROR: str | None = None
 
@@ -107,7 +111,8 @@ def solve_verified_code(backbone, spec: str, candidates: Sequence[str],
                         bank=None,
                         synthesize_from_bank: bool = False,
                         k_templates: int = 8,
-                        max_variants: int = 2) -> dict:
+                        max_variants: int = 2,
+                        max_cegis_rounds: int = 1) -> dict:
     """Rank, then execute-verify the top candidates.
 
     Verdicts:
@@ -240,6 +245,79 @@ def solve_verified_code(backbone, spec: str, candidates: Sequence[str],
                                    else "retrieved")
         executed.append(entry)
 
+    # -- PHASE 10 STEP 2: counterfactual execution-guided repair --------
+    #
+    # `max_cegis_rounds` defaults to 1, which SKIPS this block entirely, so
+    # the registered `G-SYNTH1` baseline reproduces bit-for-bit and the
+    # probe can measure 1-vs-2 as the gate rather than comparing against a
+    # drifted control.
+    #
+    # THE FAILURE SIGNAL WAS BEING DISCARDED HERE. `run_candidate` returns
+    # only `ok` and a coarse `reason`, so the loop above learns THAT a
+    # candidate failed and nothing about WHY. `henri.cegis` re-runs the
+    # failing candidate in its own instrumented child to read both sides of
+    # the first failing assertion, then synthesizes a bounded AST repair.
+    #
+    # Every repair is re-verified through the SAME `run` callable as the
+    # first round. A repair that passes in the probe process but not in the
+    # real sandbox is not a pass, and the probe is not permitted to vote.
+    cegis = None
+    if not any(e["ok"] for e in executed) and int(max_cegis_rounds) >= 2:
+        from henri.cegis import CEGIS_ORIGIN, probe_failure, synthesise_repairs
+
+        # Snapshot ROUND-1 entries. Iterating `executed` directly while
+        # appending to it would revisit a repair entry and index
+        # `rk["ranked"]` with a rank that does not exist there.
+        round1 = list(executed)
+        cegis = {"rounds_requested": int(max_cegis_rounds),
+                 "probes": [], "repairs": [], "n_repairs": 0,
+                 "origin": CEGIS_ORIGIN}
+        attempted: set = {str(c) for c in cands}
+        for e in round1:
+            if len(cegis["repairs"]) >= MAX_CEGIS_EXEC:
+                break
+            src = rk["ranked"][e["rank"] - 1][2]
+            residual = probe_failure(src, list(tests), timeout=tmo)
+            if residual is None:
+                continue
+            cegis["probes"].append({"rank": e["rank"],
+                                    "residual": residual.to_dict()})
+            for rep in synthesise_repairs(src, residual):
+                if rep["text"] in attempted:
+                    continue
+                attempted.add(rep["text"])
+                res2 = run(rep["text"], list(tests), timeout=tmo)
+                cegis["repairs"].append({
+                    "from_rank": e["rank"],
+                    "mechanism": rep["mechanism"],
+                    "residual_kind": rep["residual_kind"],
+                    "ok": bool(res2.get("ok", False)),
+                    "reason": str(res2.get("reason", "unknown")),
+                    "origin": CEGIS_ORIGIN,
+                    "text_sha256": _sha(rep["text"]),
+                })
+                if res2.get("ok"):
+                    # A winner is appended to `executed` LAST so it cannot
+                    # displace the round-1 ordering, and it keeps the
+                    # `origin` provenance the receipt needs.
+                    executed.append({
+                        "rank": len(executed) + 1,
+                        "candidate_index": -1,
+                        "wave_score": None,
+                        "ok": True,
+                        "reason": "pass",
+                        "origin": CEGIS_ORIGIN,
+                        "mutation": rep["mechanism"],
+                        "adapted": False,
+                        "provenance": CEGIS_ORIGIN,
+                        "repair_of_rank": e["rank"],
+                    })
+                    break
+            if any(x.get("ok") for x in executed
+                   if x.get("origin") == CEGIS_ORIGIN):
+                break
+        cegis["n_repairs"] = len(cegis["repairs"])
+
     passing = [e for e in executed if e["ok"]]
     verdict = "EXEC_VERIFIED" if passing else "NO_CANDIDATES_PASS"
     winner = None
@@ -249,12 +327,21 @@ def solve_verified_code(backbone, spec: str, candidates: Sequence[str],
                   "wave_score": best["wave_score"]}
         if "origin" in best:
             winner["origin"] = best["origin"]
-    return {**base, "verdict": verdict, "executed": executed,
-            "n_executed": len(executed), "winner": winner,
-            "exec_verified_top1": bool(passing and passing[0]["rank"] == 1),
-            "note": ("execution-verified against supplied assertions"
-                     if passing else
-                     "every executed candidate failed its assertions")}
+    out = {**base, "verdict": verdict, "executed": executed,
+           "n_executed": len(executed), "winner": winner,
+           "exec_verified_top1": bool(passing and passing[0]["rank"] == 1),
+           "note": ("execution-verified against supplied assertions"
+                    if passing else
+                    "every executed candidate failed its assertions")}
+    # PROVENANCE FIX. The repair round ran but its record never reached the
+    # caller, so a `cegis_repair` winner could not be distinguished from a
+    # round-1 win by anyone reading the receipt. The block is emitted only
+    # when it actually ran, so the registered 1-round baseline keeps its
+    # exact prior shape.
+    if cegis is not None:
+        out["cegis"] = cegis
+        out["cegis_rounds"] = int(max_cegis_rounds)
+    return out
 
 
 def _sha(text: str) -> str:
