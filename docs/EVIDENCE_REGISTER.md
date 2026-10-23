@@ -2275,3 +2275,128 @@ than by the mechanism, the same shape as the Phase 9 defect. Two premises were
 falsified by single measurements, and one PASS was refused at the cost of a run.
 The reusable rule: a clause must be able to fail BECAUSE the mechanism did not
 fire, and a verdict label must name which split engaged.
+## 23. Phase 11 Step 3: NameError/import repair, and the premise it falsified
+
+Baseline for this section: `origin/main = c13c286` (Step 2). Step 3 is recorded
+here and committed in the same change set.
+
+### What was built
+
+`G-CEGIS1` (`704d623`) lifted held-out MBPP `0.2250 -> 0.2750` with
+value-residual repair and left two failure classes untouched, because neither
+produces a repairable value residual. Execution aborts before `return`, so
+`actual` and `expected` never exist.
+
+Three mechanisms were added in `henri/cegis.py`:
+
+- **Load-time residual.** A `NameError` at module load previously returned
+  `None` from `probe_failure`, so the most common crash earned zero repair
+  budget. It now yields a `FailureResidual`.
+- **Message capture.** The sandbox discarded `str(exc)`. Without it no repair
+  can recover the offending name. Both the load path and the per-test path now
+  record `exception_msg`.
+- **Two bounded repairs.** `repair_missing_import` prepends an import from a
+  closed 33-entry table. `repair_unbound_name` remaps a donor variable to the
+  first formal parameter. The two are mutually exclusive: measured defect,
+  both fired for `sqrt`, and `rebind_sqrt` rewrote `sqrt(x)` to `x(x)`,
+  replacing a clean `NameError` with `'int' object is not callable` and
+  mislabelling the residual class.
+
+Arity extraction (`target_signature`) and adaptation (`adapt_arity`) already
+existed and were already wired at `code_synth.py:484` and `:518`. The Phase 11
+directive claimed they had to be built. They did not.
+
+### Measured result
+
+`G-SYNTH2_PASS`, 5 of 5 counted clauses. Receipt
+`receipts/phase11_g_synth2_run3.json`, sidecar `sha256sum -c` returns `OK`,
+`body_match True`, `file_match True`.
+
+| Clause | Measured | Verdict |
+| :--- | :--- | :--- |
+| S1 | 4/4 NameError fixtures, 2/2 arity fixtures | PASS |
+| S2 | 34 NameError probes, 34 repairs attempted | PASS |
+| S3 | held-out `0.3000` (12/40) vs bar `0.3000` | PASS |
+| S4 | `0.3000` vs paired control `0.2250` (9/40) | PASS |
+| S5 | winner origins all known labels | PASS |
+| S6 | attribution, reported not counted | 1 of 3 gains |
+
+Held-out rate `0.2250 -> 0.3000`, zero losses.
+
+### Why the PASS is not the headline
+
+Attribution is measured, not assumed. Three tasks were gained:
+
+| Task | Residual kinds | Credited mechanism | Class |
+| :--- | :--- | :--- | :--- |
+| 816 | `unclassified`, `unclassified`, `name_error` x3 | `rebind_test_tup2` | new |
+| 820 | `sign_flip` x7 | `sign_flip_1` | prior |
+| 839 | `type_mismatch` | `return_type_list` | prior |
+
+NameError repair efficacy is **1 ok of 34 probes, 2.9%**. Two of three gains
+came from Phase 10 value-residual mechanisms reaching more candidates in round
+two, not from the Phase 11 code.
+
+S3 passes with **zero margin**. One task flips it.
+
+### The confound, disclosed in the receipt
+
+The paired control is `max_cegis_rounds=1`; the new arm is `2`. The two arms
+therefore differ by **round count** as well as by the Phase 11 mechanisms. An
+extra CEGIS round is a Phase 10 capability. A rate gain alone cannot be
+attributed to the `name_error` code. The clean isolation is a third arm at
+`max_cegis_rounds=2` with the `name_error` branch disabled. That arm is
+pre-registered as `G-SYNTH3` and is **not** measured here. The receipt field
+`confound_note` states this.
+
+### Falsified premise
+
+The Phase 11 directive held that `NameError` and arity crashes dominate the
+remaining MBPP failures and that fixing them is "the exact key to unlocking the
+next massive leap." Measured residual histogram on held-out (n=40):
+
+```
+exception      105
+type_mismatch   91
+unclassified    50
+name_error      34
+sign_flip       18
+numeric_offset   5
+```
+
+`NameError` is fourth. `exception` and `unclassified` together outnumber every
+repairable class, and both still earn zero repair budget. The next leverage is
+`exception`, not `NameError`. Diagnostic precedes design here: sample what
+`exception` residuals actually are before writing any repair.
+
+### Gate defect, recorded
+
+S2 was registered as engagement (`probes > 0 AND attempted > 0`). It passed
+because the mechanism fired 34 times, not because it worked. That is the same
+vacuous-bar shape refused in the Step 2 gate, one level up. S2 was **not**
+re-cut after the fact: the per-task data was already seen, so any threshold
+chosen now would be fitted to observations. S1-S5 stand verbatim as registered,
+and S6 records the truth beside them. Efficacy becomes a counted bar only in
+the separately pre-registered `G-SYNTH3`.
+
+### Receipt identity, corrected
+
+The probe printed `body_match None file_match None`, which was read as a receipt
+failure and nearly blocked this commit. It was a probe defect: the code read
+`body_match` and `file_match` from the `write_receipt` return, where those keys
+do not exist. They exist only in `verify_receipt`. The embedded
+`file_sha256_on_disk` mismatch is documented behaviour, the pre-insertion hash;
+the sidecar is the reproducible identity. The probe now calls
+`verify_receipt(OUT)` so the producing run verifies its own artefact.
+
+### Suite and kernel
+
+643 collected, 629 passed, 14 skipped, 0 failed. Kernel `SEALED` across six
+pinned files. `G-CEGIS1` regression suite 28/28 after the `kind` change.
+
+**Extracted epiplexity.** The Step 2 rule was necessary and not sufficient. A
+clause must fail when the mechanism does not fire; that guards inertness. The
+next failure mode is a mechanism that fires constantly, lands 3% of the time,
+and has credit claimed by neighbouring mechanisms already working. Corrected
+rule: measure efficacy, and attribute each gain to the mechanism that produced
+it, before a pass is declared.

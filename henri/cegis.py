@@ -59,6 +59,7 @@ from __future__ import annotations
 
 import ast
 import json
+import re
 import subprocess
 import sys
 import tempfile
@@ -93,10 +94,17 @@ class FailureResidual:
     expected_type: Optional[str] = None
     actual_value: object = None
     expected_value: object = None
+    exception_msg: Optional[str] = None
 
     @property
     def kind(self) -> str:
-        """Classify into the three repair classes, or `unclassified`."""
+        """Classify into the repair classes, or `unclassified`."""
+        # PHASE 11 STEP 3. `NameError` is split OUT of `exception` because it
+        # is the one exception class with a bounded AST repair. Without this
+        # branch it fell through to `exception`, `synthesise_repairs` returned
+        # [], and the most common MBPP synthesis crash earned no budget.
+        if self.exception_type == "NameError":
+            return "name_error"
         if self.exception_type and self.actual_repr is None:
             return "exception"
         if self.actual_type is None or self.expected_type is None:
@@ -131,6 +139,10 @@ class FailureResidual:
             "expected_repr": _clip(self.expected_repr),
             "actual_type": self.actual_type,
             "expected_type": self.expected_type,
+            # PHASE 11 STEP 3. The name is the only thing that drives a
+            # NameError repair, so a receipt that omits it cannot be audited
+            # for whether the mechanism had a target.
+            "exception_msg": _clip(self.exception_msg, 160),
         }
 
 
@@ -204,7 +216,12 @@ try:
     exec(compile(SOURCE, "<candidate>", "exec"), ns)
 except BaseException as exc:
     report["loaded"] = False
+    # MEASURED NEED: the type alone cannot drive a NameError repair. The name
+    # is only present in `str(exc)`. Without it `synthesise_repairs` has no
+    # target to import or rebind, so the residual is unrepairable by
+    # construction and the arm under-reports for a reason unrelated to code.
     report["load_error"] = type(exc).__name__
+    report["load_error_msg"] = str(exc)[:200]
     print("__CEGIS__" + json.dumps(report))
     raise SystemExit(0)
 
@@ -213,6 +230,7 @@ for i, t in enumerate(TESTS):
         exec(compile(t, "<test>", "exec"), ns)
     except BaseException as exc:
         rec = {"index": i, "test": t, "exception_type": type(exc).__name__,
+               "exception_msg": str(exc)[:200],
                "actual": None, "expected": None,
                "actual_type": None, "expected_type": None,
                "actual_repr": None, "expected_repr": None}
@@ -259,7 +277,17 @@ def probe_failure(code: str, tests: Sequence[str],
         if line is None:
             return None
         rep = json.loads(line[len(marker):])
-        if not rep.get("loaded") or not rep.get("failures"):
+        # MEASURED NEED: a LOAD-TIME NameError (`sqrt` used before any import
+        # was ever added) sets loaded=False and failures=[]. The guard below
+        # returned None, so the single most common MBPP synthesis crash earned
+        # zero repair budget. Split the case and carry it as a residual.
+        if not rep.get("loaded"):
+            if rep.get("load_error") == "NameError":
+                return FailureResidual(
+                    index=-1, test="", exception_type="NameError",
+                    exception_msg=rep.get("load_error_msg"))
+            return None
+        if not rep.get("failures"):
             return None
         rec = rep["failures"][0]
         return FailureResidual(
@@ -271,6 +299,7 @@ def probe_failure(code: str, tests: Sequence[str],
             expected_type=rec.get("expected_type"),
             actual_value=_unsafe(rec.get("actual")),
             expected_value=_unsafe(rec.get("expected")),
+            exception_msg=rec.get("exception_msg"),
         )
     except (subprocess.TimeoutExpired, json.JSONDecodeError, OSError,
             KeyError, ValueError):
@@ -471,6 +500,162 @@ def repair_sign_flip(source: str) -> List[str]:
     return out[:2]
 
 
+# -- NameError / missing-import repair (Phase 11 Step 3) -------------------
+#
+# MEASURED NEED, from `G-CEGIS1` (`704d623`). Round-2 value-residual repair
+# lifted held-out MBPP 0.2250 -> 0.2750, and the remaining failures split into
+# two classes that carry NO repairable value residual:
+#
+#   NameError   a template body references a stdlib symbol that was never
+#               imported (`sqrt` from `math`), or a donor variable that was
+#               renamed away. Execution aborts before `return`, so there is no
+#               `actual` value to compare against `expected`.
+#   TypeError   call arity differs from the assertion's call. Handled upstream
+#               in `code_synth.adapt_arity`, not here.
+#
+# A value-residual repair cannot reach either class. These two mechanisms are
+# the only bounded repairs available, and both are AST-exact: no string
+# rewriting, no guessing at a target name.
+#
+# The import table is EXPLICIT and closed. An unexpected name returns no
+# candidate rather than a speculative import, because a wrong import turns a
+# clean NameError into a different, harder failure.
+
+STDLIB_IMPORTS = {
+    "math": "import math",
+    "re": "import re",
+    "heapq": "import heapq",
+    "itertools": "import itertools",
+    "collections": "import collections",
+    "functools": "import functools",
+    "sys": "import sys",
+    "operator": "import operator",
+    "string": "import string",
+    "Counter": "from collections import Counter",
+    "defaultdict": "from collections import defaultdict",
+    "deque": "from collections import deque",
+    "OrderedDict": "from collections import OrderedDict",
+    "reduce": "from functools import reduce",
+    "gcd": "from math import gcd",
+    "lcm": "from math import lcm",
+    "sqrt": "from math import sqrt",
+    "ceil": "from math import ceil",
+    "floor": "from math import floor",
+    "log": "from math import log",
+    "log2": "from math import log2",
+    "factorial": "from math import factorial",
+    "pi": "from math import pi",
+    "e": "from math import e",
+    "inf": "from math import inf",
+    "perm": "from itertools import permutations as perm",
+    "permutations": "from itertools import permutations",
+    "combinations": "from itertools import combinations",
+    "product": "from itertools import product",
+    "accumulate": "from itertools import accumulate",
+    "chain": "from itertools import chain",
+    "heappush": "from heapq import heappush",
+    "heappop": "from heapq import heappop",
+    "heapify": "from heapq import heapify",
+}
+
+_NAMEERROR_RE = re.compile(r"name '([^']+)' is not defined")
+
+
+def _missing_name(message):
+    """Recover `X` from `NameError: name 'X' is not defined`.
+
+    Returns None for any other message shape. A miss must not invent a name.
+    """
+    if not message:
+        return None
+    m = _NAMEERROR_RE.search(message)
+    return m.group(1) if m else None
+
+
+def repair_missing_import(source: str, name: str) -> Optional[str]:
+    """Prepend the stdlib import for `name`, if the table names one.
+
+    The import goes FIRST in the module body so it precedes every reference.
+    Returns None when the table has no entry: an unknown name is not a stdlib
+    symbol, so an import would be a fabrication.
+    """
+    stmt = STDLIB_IMPORTS.get(name)
+    if not stmt:
+        return None
+    try:
+        tree = ast.parse(source)
+    except SyntaxError:
+        return None
+    # Already imported? Then the NameError came from somewhere else and this
+    # repair would be a no-op that reports as a mechanism.
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for a in node.names:
+                if (a.asname or a.name.split(".")[0]) == name:
+                    return None
+        if isinstance(node, ast.ImportFrom):
+            for a in node.names:
+                if (a.asname or a.name) == name:
+                    return None
+    imp = ast.parse(stmt).body[0]
+    tree.body.insert(0, imp)
+    ast.fix_missing_locations(tree)
+    try:
+        return ast.unparse(tree)
+    except Exception:                     # noqa: BLE001
+        return None
+
+
+def repair_unbound_name(source: str, name: str) -> Optional[str]:
+    """Rebind a Load-context `name` to the entry function's first parameter.
+
+    Only fires when the name is genuinely unbound: not a parameter, not
+    assigned anywhere in the function, not a builtin, not the function's own
+    name. Otherwise the rebinding would be a semantic change disguised as a
+    repair.
+    """
+    import builtins
+
+    if not name or not name.isidentifier():
+        return None
+    if hasattr(builtins, name):
+        return None
+    try:
+        tree = ast.parse(source)
+    except SyntaxError:
+        return None
+    fns = [n for n in tree.body if isinstance(n, ast.FunctionDef)]
+    if not fns:
+        return None
+    fn = fns[0]
+    params = [a.arg for a in list(getattr(fn.args, "posonlyargs", []))
+              + list(fn.args.args)]
+    if not params:
+        return None
+    if name in params or name == fn.name:
+        return None
+    # Assigned inside the body? Then it is a local, and the NameError is a
+    # use-before-assignment bug that rebinding would silently paper over.
+    for node in ast.walk(fn):
+        if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Store) \
+                and node.id == name:
+            return None
+    target = params[0]
+    hits = 0
+    for node in ast.walk(fn):
+        if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load) \
+                and node.id == name:
+            node.id = target
+            hits += 1
+    if hits == 0:
+        return None
+    ast.fix_missing_locations(tree)
+    try:
+        return ast.unparse(tree)
+    except Exception:                     # noqa: BLE001
+        return None
+
+
 def synthesise_repairs(source: str, residual: FailureResidual,
                        max_candidates: int = MAX_CEGIS_CANDIDATES
                        ) -> List[dict]:
@@ -492,7 +677,24 @@ def synthesise_repairs(source: str, residual: FailureResidual,
                      "mechanism": mechanism,
                      "residual_kind": kind})
 
-    if kind == "type_mismatch" and residual.expected_type:
+    if kind == "name_error":
+        # MUTUALLY EXCLUSIVE MECHANISMS. Measured defect in my first version:
+        # for `sqrt` both fired, and `rebind_sqrt` rewrote `sqrt(x)` to
+        # `x(x)`, which executes and raises `'int' object is not callable`.
+        # A repair that replaces a clean NameError with a confusing TypeError
+        # is worse than no repair, because it mislabels the residual class.
+        #
+        # A name in the closed stdlib table has a correct import. A name
+        # outside it cannot be imported without fabricating a module. So the
+        # first match wins and the second is not attempted.
+        nm = _missing_name(residual.exception_msg)
+        if nm:
+            if nm in STDLIB_IMPORTS:
+                push(repair_missing_import(source, nm), "import_%s" % nm)
+            else:
+                push(repair_unbound_name(source, nm), "rebind_%s" % nm)
+
+    elif kind == "type_mismatch" and residual.expected_type:
         push(repair_return_type(source, residual.expected_type),
              "return_type_%s" % residual.expected_type)
 
@@ -512,4 +714,5 @@ def synthesise_repairs(source: str, residual: FailureResidual,
 
 __all__ = ["FailureResidual", "probe_failure", "synthesise_repairs",
            "repair_return_type", "repair_numeric_offset", "repair_sign_flip",
+           "repair_missing_import", "repair_unbound_name", "STDLIB_IMPORTS",
            "CEGIS_ORIGIN", "MAX_CEGIS_CANDIDATES", "PROBE_TIMEOUT_S"]
