@@ -37,6 +37,29 @@ from typing import Any
 
 BODY_FIELD = "receipt_sha256_of_body_before_self_field"
 FILE_FIELD = "file_sha256_on_disk"
+FILE_FIELD_LABEL = "file_sha256_on_disk_note"
+SIDECAR_SUFFIX = ".sha256"
+
+# -- MEASURED DEFECT IN THE FIRST VERSION OF THIS FILE ------------------
+#
+# The first version wrote `FILE_FIELD`, then hashed the file and RETURNED
+# that hash. The returned value was correct. The EMBEDDED value was the
+# hash of the serialization BEFORE the field was inserted, because the
+# field's own bytes could not be part of it.
+#
+# MEASURED, before the fix, on all four Phase 10 receipts: embedded
+# `file_sha256_on_disk` did not equal `sha256sum` of the file. That is the
+# exact Phase 9 label defect, reproduced inside the module written to
+# prevent it.
+#
+# The arithmetic is not repairable by iteration in general: a file cannot
+# contain its own SHA256. So the reproducible identity moves to a SIDECAR,
+# and the embedded field carries a label saying what it actually is.
+FILE_FIELD_NOTE = (
+    "hash of the serialization BEFORE this field was inserted. A file "
+    "cannot contain its own SHA256. The reproducible external identity "
+    "is in the sibling '<name>.sha256' sidecar, verifiable with "
+    "`sha256sum -c`.")
 
 
 def _canonical(body: dict) -> bytes:
@@ -66,38 +89,59 @@ def write_receipt(path: str | Path, body: dict[str, Any]) -> dict[str, str]:
     # file hash. Re-hashing after this write is what makes the printed
     # value reproducible by `sha256sum`.
     payload[FILE_FIELD] = file_sha
+    payload[FILE_FIELD_LABEL] = FILE_FIELD_NOTE
     out.write_bytes(_canonical(payload))
     final = hashlib.sha256(out.read_bytes()).hexdigest()
 
-    return {BODY_FIELD: body_sha, FILE_FIELD: final, "path": str(out)}
+    # THIRD ARTIFACT: the only value a reader can reproduce. `sha256sum -c`
+    # on this sidecar either passes or fails, with no interpretation.
+    sidecar = out.with_suffix(out.suffix + SIDECAR_SUFFIX)
+    # MEASURED DEFECT: `write_text("%s  %s\n")` becomes CRLF on Windows, so
+    # the sidecar line reads `abc...  name.json\r`. `sha256sum -c` then fails
+    # with `FAILED open or read` because the filename carries a stray CR.
+    # A sidecar no reader can check is not a reproducible identity, so the
+    # newline is pinned to LF and the bytes are written explicitly.
+    sidecar.write_bytes(("%s  %s\n" % (final, out.name)).encode("utf-8"))
+
+    return {BODY_FIELD: body_sha, FILE_FIELD: final, "path": str(out),
+            "sidecar": str(sidecar)}
 
 
 def verify_receipt(path: str | Path) -> dict:
     """Recompute both identities from the file on disk.
 
     `body_match` strips the self-field and re-canonicalises, exactly the
-    operation the field name declares. `file_match` hashes the bytes.
+    operation the field name declares. `file_match` checks the SIDECAR,
+    because that is the only identity a reader can reproduce: a file
+    cannot contain its own SHA256.
     """
     p = Path(path)
     raw = p.read_bytes()
     doc = json.loads(raw.decode("utf-8"))
     stored_body = doc.pop(BODY_FIELD, None)
     stored_file = doc.pop(FILE_FIELD, None)
+    doc.pop(FILE_FIELD_LABEL, None)
     body_sha = hashlib.sha256(_canonical(doc)).hexdigest()
-    file_sha = hashlib.sha256(raw).hexdigest()
-    # NOTE: `file_sha` cannot equal `stored_file` here, because popping the
-    # two fields changes the bytes. It is reported for the record only.
+    actual = hashlib.sha256(raw).hexdigest()
+
+    sidecar = p.with_suffix(p.suffix + SIDECAR_SUFFIX)
+    claimed = None
+    if sidecar.exists():
+        text = sidecar.read_text(encoding="utf-8").split()
+        claimed = text[0] if text else None
+
     return {
         "path": str(p),
         "body_sha256_self_field": stored_body,
         "body_recomputed": body_sha,
         "body_match": bool(stored_body == body_sha),
-        "file_sha256_on_disk": stored_file,
-        "file_recomputed_after_pop": file_sha,
-        "file_note": ("recomputed value differs by construction: this "
-                      "function removed the two identity fields before "
-                      "hashing. Use `sha256sum` on the file for the "
-                      "external identity."),
+        "file_sha256_actual": actual,
+        "file_sha256_sidecar": claimed,
+        "file_match": bool(claimed == actual),
+        "sidecar": str(sidecar) if sidecar.exists() else None,
+        "embedded_file_field_note": (
+            "the embedded `file_sha256_on_disk` is the PRE-INSERTION hash "
+            "and is NOT reproducible. Trust the sidecar."),
     }
 
 

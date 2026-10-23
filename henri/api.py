@@ -115,7 +115,8 @@ class DigitalTwinAPI:
     # -- 1. ranking ------------------------------------------------------
     def rank_options(self, question: str, options: Sequence[str],
                      strip: bool = True,
-                     signing_key: Optional[bytes] = None) -> Receipt:
+                     signing_key: Optional[bytes] = None,
+                     channel_weight: float = 0.0) -> Receipt:
         """Rank candidate options; return the winner and its telemetry.
 
         Stripping removes boilerplate before encoding, so the score linear
@@ -133,6 +134,24 @@ class DigitalTwinAPI:
         q = self.backbone.encode(question).psi
         book = np.stack([self.backbone.encode(t).psi for t in texts], axis=0)
         scores = np.real(book @ np.conj(q))
+        # -- PHASE 10 STEP 3: additive operator + morphism contrast --------
+        #
+        # `channel_weight = 0.0` (the default) leaves `scores` BYTE-IDENTICAL,
+        # so every Phase 5/6 receipt stays numerically valid.
+        #
+        # THE CHANNEL IS ADDITIVE AND NEVER REWRITES `psi`. Step 1 measured
+        # that populating a fifth slot rescales slots 0-2 (0.707107 ->
+        # 0.632456) and moved G-AST2 top-1 0.4000 -> 0.3250. A second score
+        # term cannot repeat that defect, because the wave keeps full energy.
+        #
+        # CONTRAST IS TAKEN AGAINST THE OPTION-MEAN. That is the only contrast
+        # that makes the score permutation-equivariant, which is what makes
+        # 4x rotation invariance exact rather than lucky.
+        channel_meta = {"channel_weight": 0.0, "channel_added": False}
+        if float(channel_weight) > 0.0:
+            from henri.reason_channels import blended_scores
+            scores, channel_meta = blended_scores(
+                scores, question, texts, float(channel_weight))
         digests = [hashlib.sha256(t.encode("utf-8")).hexdigest() for t in texts]
         order = sorted(range(len(scores)),
                        key=lambda i: (-round(float(scores[i]), 12), digests[i]))
@@ -210,6 +229,14 @@ class DigitalTwinAPI:
             "cartridge_hit": cartridge_hit,
             "cartridge": cartridge_info,
             "w_mem": round(w_mem, 6),
+            "channel_weight": float(channel_meta.get("channel_weight", 0.0)),
+            "channel_added": bool(channel_meta.get("channel_added", False)),
+            "channel_n_op_live": channel_meta.get("n_op_live"),
+            "channel_n_morph_live": channel_meta.get("n_morph_live"),
+            "channel_question_has_operator": channel_meta.get(
+                "question_has_operator"),
+            "channel_question_has_morphism": channel_meta.get(
+                "question_has_morphism"),
             "tau_hit": TAU_HIT,
             "seal_status": self.verify_seal()["status"],
         }

@@ -82,6 +82,7 @@ class RankRequest(BaseModel):
     options: list[str]
     strip: bool = True
     signing_key: Optional[str] = None
+    channel_weight: float = 0.0
 
 
 class CartridgeWriteRequest(BaseModel):
@@ -136,7 +137,8 @@ def reason_rank(req: RankRequest) -> dict:
         raise HTTPException(422, "at least two options are required")
     key = req.signing_key.encode("utf-8") if req.signing_key else None
     return _body(get_api().rank_options(req.question, req.options,
-                                        strip=req.strip, signing_key=key))
+                                        strip=req.strip, signing_key=key,
+                                        channel_weight=req.channel_weight))
 
 
 @app.post("/v1/cartridges/write")

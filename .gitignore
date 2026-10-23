@@ -14,6 +14,21 @@ receipts/*
 # evidence, and are deleted rather than committed.
 !receipts/phase*.json
 !receipts/kernel_*.json
+# PHASE 10: the reproducible file identity lives in these sidecars, because a
+# file cannot contain its own SHA256. Ignoring them would make every receipt
+# unverifiable in a fresh clone: the embedded field is the pre-insertion hash
+# and is NOT reproducible by design. `sha256sum -c` on the sidecar is the
+# check a reader can actually run.
+#
+# MEASURED TRAP, avoided. A bare `!receipts/*.json.sha256` un-ignores ALL
+# sidecars, including 11 whose `.json` is itself untracked (`margin_law`,
+# `ingress_smoke_full_D`, `stage8_readout_full_D`, `tau_veto_*`,
+# `readout_*`, `nonunit_*`, `learned_codebook_law_full_D`). A fresh clone
+# would then hold sidecars whose targets are absent and `sha256sum -c`
+# would fail. That is the same defect one level up. The negation is
+# narrowed to the prefixes whose receipts ARE tracked.
+!receipts/phase*.json.sha256
+!receipts/kernel_*.json.sha256
 data/
 # Staged benchmark corpora are NEVER committed. MMLU 6.4 MiB, GPQA 1.3 MiB,
 # MBPP 0.55 MiB. Every receipt records the sha256 of the file it read, so a

@@ -1,0 +1,371 @@
+{
+  "clauses": [
+    {
+      "bar": "1.000000 on every arm",
+      "counted": true,
+      "id": "R1",
+      "pass": false,
+      "value": {
+        "gpqa_w0.2": 0.95,
+        "mmlu_w0.0": 1.0,
+        "mmlu_w0.2": 1.0
+      },
+      "what": "4x rotation invariance == 1.000000"
+    },
+    {
+      "bar": "none: my own fixture cannot gate HENRI",
+      "counted": false,
+      "id": "R2",
+      "pass": false,
+      "value": {
+        "channel": {
+          "accuracy": 0.375,
+          "correct": 3,
+          "n": 8,
+          "weight": 0.2,
+          "wilson95": [
+            0.136842,
+            0.694262
+          ]
+        },
+        "gain_tasks": 0,
+        "wave_only": {
+          "accuracy": 0.375,
+          "correct": 3,
+          "n": 8,
+          "weight": 0.0,
+          "wilson95": [
+            0.136842,
+            0.694262
+          ]
+        }
+      },
+      "what": "STEM operator fixture (REPORTED, NOT COUNTED)"
+    },
+    {
+      "bar": "no corpus degrades at its own train-selected weight",
+      "counted": true,
+      "id": "R3",
+      "pass": true,
+      "value": {
+        "gpqa": {
+          "delta": 0.0,
+          "pass": true,
+          "selected_weight": 0.0,
+          "verdict": "KEEP"
+        },
+        "mmlu": {
+          "delta": 0.0,
+          "pass": true,
+          "selected_weight": 0.0,
+          "verdict": "KEEP"
+        }
+      },
+      "what": "MMLU/GPQA held-out match or improve"
+    },
+    {
+      "bar": "selection on train only",
+      "counted": true,
+      "id": "R4",
+      "pass": true,
+      "value": {
+        "gpqa": 0.0,
+        "mmlu": 0.0
+      },
+      "what": "weight selected on train, evaluated once"
+    }
+  ],
+  "dataset_sha256": {
+    "gpqa": "41d1213cd7a4998605a26c2798500652572007161b3a92817ba46b35befcd305",
+    "mmlu": "15b6785d49e0012602e089558a7a0dfb916baf97e9295aa25b48062f13c6afbb"
+  },
+  "file_sha256_on_disk": "64da53f5b34620da8b81e47b0b3d242fa65b857f18fd985ca0aa9e508f964748",
+  "file_sha256_on_disk_note": "hash of the serialization BEFORE this field was inserted. A file cannot contain its own SHA256. The reproducible external identity is in the sibling '<name>.sha256' sidecar, verifiable with `sha256sum -c`.",
+  "n_clauses_pass": 2,
+  "n_per_letter": 50,
+  "per_corpus": {
+    "gpqa": {
+      "delta_vs_wave": 0.0,
+      "eval_at_selected": {
+        "accuracy": 0.282828,
+        "correct": 28,
+        "n": 99,
+        "weight": 0.0,
+        "wilson95": [
+          0.203518,
+          0.378363
+        ]
+      },
+      "eval_at_zero": {
+        "accuracy": 0.282828,
+        "correct": 28,
+        "n": 99,
+        "weight": 0.0,
+        "wilson95": [
+          0.203518,
+          0.378363
+        ]
+      },
+      "eval_table": [
+        {
+          "accuracy": 0.282828,
+          "correct": 28,
+          "n": 99,
+          "weight": 0.0,
+          "wilson95": [
+            0.203518,
+            0.378363
+          ]
+        },
+        {
+          "accuracy": 0.282828,
+          "correct": 28,
+          "n": 99,
+          "weight": 0.1,
+          "wilson95": [
+            0.203518,
+            0.378363
+          ]
+        },
+        {
+          "accuracy": 0.282828,
+          "correct": 28,
+          "n": 99,
+          "weight": 0.2,
+          "wilson95": [
+            0.203518,
+            0.378363
+          ]
+        },
+        {
+          "accuracy": 0.282828,
+          "correct": 28,
+          "n": 99,
+          "weight": 0.3,
+          "wilson95": [
+            0.203518,
+            0.378363
+          ]
+        }
+      ],
+      "improved": false,
+      "n_eval": 99,
+      "n_train": 99,
+      "parity": true,
+      "selected_weight": 0.0,
+      "train_table": [
+        {
+          "accuracy": 0.252525,
+          "correct": 25,
+          "n": 99,
+          "weight": 0.0,
+          "wilson95": [
+            0.177293,
+            0.346247
+          ]
+        },
+        {
+          "accuracy": 0.252525,
+          "correct": 25,
+          "n": 99,
+          "weight": 0.1,
+          "wilson95": [
+            0.177293,
+            0.346247
+          ]
+        },
+        {
+          "accuracy": 0.252525,
+          "correct": 25,
+          "n": 99,
+          "weight": 0.2,
+          "wilson95": [
+            0.177293,
+            0.346247
+          ]
+        },
+        {
+          "accuracy": 0.252525,
+          "correct": 25,
+          "n": 99,
+          "weight": 0.3,
+          "wilson95": [
+            0.177293,
+            0.346247
+          ]
+        }
+      ]
+    },
+    "mmlu": {
+      "delta_vs_wave": 0.0,
+      "eval_at_selected": {
+        "accuracy": 0.28,
+        "correct": 28,
+        "n": 100,
+        "weight": 0.0,
+        "wilson95": [
+          0.201396,
+          0.374882
+        ]
+      },
+      "eval_at_zero": {
+        "accuracy": 0.28,
+        "correct": 28,
+        "n": 100,
+        "weight": 0.0,
+        "wilson95": [
+          0.201396,
+          0.374882
+        ]
+      },
+      "eval_table": [
+        {
+          "accuracy": 0.28,
+          "correct": 28,
+          "n": 100,
+          "weight": 0.0,
+          "wilson95": [
+            0.201396,
+            0.374882
+          ]
+        },
+        {
+          "accuracy": 0.27,
+          "correct": 27,
+          "n": 100,
+          "weight": 0.1,
+          "wilson95": [
+            0.192695,
+            0.364323
+          ]
+        },
+        {
+          "accuracy": 0.27,
+          "correct": 27,
+          "n": 100,
+          "weight": 0.2,
+          "wilson95": [
+            0.192695,
+            0.364323
+          ]
+        },
+        {
+          "accuracy": 0.27,
+          "correct": 27,
+          "n": 100,
+          "weight": 0.3,
+          "wilson95": [
+            0.192695,
+            0.364323
+          ]
+        }
+      ],
+      "improved": false,
+      "n_eval": 100,
+      "n_train": 100,
+      "parity": true,
+      "selected_weight": 0.0,
+      "train_table": [
+        {
+          "accuracy": 0.2,
+          "correct": 20,
+          "n": 100,
+          "weight": 0.0,
+          "wilson95": [
+            0.133366,
+            0.288831
+          ]
+        },
+        {
+          "accuracy": 0.19,
+          "correct": 19,
+          "n": 100,
+          "weight": 0.1,
+          "wilson95": [
+            0.125147,
+            0.27779
+          ]
+        },
+        {
+          "accuracy": 0.19,
+          "correct": 19,
+          "n": 100,
+          "weight": 0.2,
+          "wilson95": [
+            0.125147,
+            0.27779
+          ]
+        },
+        {
+          "accuracy": 0.19,
+          "correct": 19,
+          "n": 100,
+          "weight": 0.3,
+          "wilson95": [
+            0.125147,
+            0.27779
+          ]
+        }
+      ]
+    }
+  },
+  "prediction_recorded_before_run": "R3 was expected to read parity at best on MMLU and possibly a loss. MMLU/GPQA residuals are mostly domain knowledge, not an operator contrast, so an operator term is noise there.",
+  "probe": "phase10_g_reason1",
+  "receipt_sha256_of_body_before_self_field": "c42bde0c0f121cfbbf1a834b9689de7cdf37eb9ff5223691e90f78ba2b7c64c1",
+  "rotation": {
+    "gpqa_w0.2": {
+      "example_ids": [
+        "recBXlqrZUCR897It",
+        "recFaL6j8UMhutXrc"
+      ],
+      "items": 40,
+      "rate": 0.95,
+      "rotation_invariant": 38
+    },
+    "mmlu_w0.0": {
+      "example_ids": [],
+      "items": 40,
+      "rate": 1.0,
+      "rotation_invariant": 40
+    },
+    "mmlu_w0.2": {
+      "example_ids": [],
+      "items": 40,
+      "rate": 1.0,
+      "rotation_invariant": 40
+    }
+  },
+  "scope": "SUBSET_SMOKE_STRATIFIED",
+  "scope_note": "Stratified subsample, not the full test set. 200 MMLU rows and 198 GPQA rows. A subset result is SUBSET_SMOKE and must not be quoted as a benchmark score.",
+  "stem_fixture": {
+    "channel": {
+      "accuracy": 0.375,
+      "correct": 3,
+      "n": 8,
+      "weight": 0.2,
+      "wilson95": [
+        0.136842,
+        0.694262
+      ]
+    },
+    "n": 8,
+    "wave_only": {
+      "accuracy": 0.375,
+      "correct": 3,
+      "n": 8,
+      "weight": 0.0,
+      "wilson95": [
+        0.136842,
+        0.694262
+      ]
+    }
+  },
+  "verdict": "G_REASON1_PARTIAL_2_OF_3",
+  "w_grid": [
+    0.0,
+    0.1,
+    0.2,
+    0.3
+  ],
+  "wall_clock_s": 175.71
+}

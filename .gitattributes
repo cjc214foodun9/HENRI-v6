@@ -1,0 +1,18 @@
+# MEASURED DEFECT, pinned here so it cannot recur on checkout.
+#
+# `core.autocrlf=true` on this host converts LF to CRLF when git touches a
+# text file. That bit the evidence sidecars once already: a sidecar written
+# as "<sha>  name.json\n" was read as "<sha>  name.json\r", and
+# `sha256sum -c` failed with `FAILED open or read` because the trailing CR
+# became part of the FILENAME.
+#
+# A sidecar is machine-read, not human-read. It must keep LF on every host,
+# or the only reproducible receipt identity in the repository stops working.
+# eol=lf stores LF in the blob and checks out LF regardless of platform.
+receipts/*.sha256 text eol=lf
+
+# The register is deliberately CRLF in the worktree and in the blob. Pinning
+# it stops a checkout on another host from silently flipping 2145 lines to LF
+# and invalidating the line-ending clause recorded in Phase 9/10.
+docs/EVIDENCE_REGISTER.md text eol=crlf
+docs/report.html text eol=crlf
