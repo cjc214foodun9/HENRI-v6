@@ -65,9 +65,42 @@ from __future__ import annotations
 
 from typing import List, Sequence, Tuple
 
+import hashlib
+
 import numpy as np
 
 DEFAULT_SLOT = 16384
+
+# -- MEASURED NEED: per-text encoding memoisation ---------------------------
+#
+# The GPQA 4x rotation arm re-encodes the same stem and the same four options
+# on every one of the four cyclic shifts, so identical long paragraphs are
+# encoded 4x. `channel_slots` is a PURE FUNCTION of (text, dim), so caching it
+# changes speed and nothing else: the cached value is byte-identical to a
+# recomputation. Floating-point operations are unaffected, by construction.
+#
+# Copies are returned so a caller cannot mutate a cached array in place and
+# poison later reads.
+_SLOT_CACHE: dict = {}
+_CACHE_STATS = {"hits": 0, "misses": 0}
+
+
+def _cached_channel_slots(text: str, dim: int = DEFAULT_SLOT):
+    key = (hashlib.sha256(text.encode("utf-8")).hexdigest(), int(dim))
+    hit = _SLOT_CACHE.get(key)
+    if hit is None:
+        _CACHE_STATS["misses"] += 1
+        q_op, q_mo = channel_slots(text, dim)
+        hit = (np.array(q_op, copy=True), np.array(q_mo, copy=True))
+        _SLOT_CACHE[key] = hit
+    else:
+        _CACHE_STATS["hits"] += 1
+    return np.array(hit[0], copy=True), np.array(hit[1], copy=True)
+
+
+def cache_stats() -> dict:
+    """Measured hit/miss counts. Reported in receipts, never inferred."""
+    return dict(_CACHE_STATS, size=len(_SLOT_CACHE))
 """Operator and morphism sub-wave width at D = 65536."""
 
 W_GRID = (0.0, 0.1, 0.2, 0.3)
@@ -151,13 +184,17 @@ def channel_scores(question: str, options: Sequence[str],
     the mean of the two channels, and a channel with no live option reports
     all zeros rather than a fabricated ranking.
     """
-    q_op, q_mo = channel_slots(question, dim)
+    q_op, q_mo = _cached_channel_slots(question, dim)
     q_op_u, q_op_live = _unit(q_op)
     q_mo_u, q_mo_live = _unit(q_mo)
 
     opts = list(options)
-    c_op = contrastive([channel_slots(o, dim)[0] for o in opts])
-    c_mo = contrastive([channel_slots(o, dim)[1] for o in opts])
+    # One cached call per option, reused for BOTH channels. The Phase 10 code
+    # called `channel_slots(o, dim)` twice per option (once for [0], once for
+    # [1]), so it encoded every option twice. Same values, half the work.
+    per_opt = [_cached_channel_slots(o, dim) for o in opts]
+    c_op = contrastive([v[0] for v in per_opt])
+    c_mo = contrastive([v[1] for v in per_opt])
 
     op = _masked_cos(q_op_u, c_op, q_op_live)
     mo = _masked_cos(q_mo_u, c_mo, q_mo_live)

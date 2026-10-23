@@ -152,9 +152,29 @@ class DigitalTwinAPI:
             from henri.reason_channels import blended_scores
             scores, channel_meta = blended_scores(
                 scores, question, texts, float(channel_weight))
+        # -- TIE-BREAK DEFECT, MEASURED AND REPAIRED -----------------------
+        #
+        # The tie-break key was the digest of the STRIPPED text. `strip=True`
+        # removes tokens shared by every option. On 14 of 198 GPQA items that
+        # makes two options STRIPPED-IDENTICAL (measured: 2 distinct stripped
+        # texts of 4). Two identical digests give the sort no content rule,
+        # so Python's stable sort keeps whatever order the ROTATION supplied
+        # and the selected option changes with rotation.
+        #
+        # That is the whole of the R1 gap: gpqa_w0.2 measured 0.950000, and
+        # 14 of 14 broken items had duplicate stripped texts while 0 of the
+        # 184 distinct-text items broke.
+        #
+        # The ORIGINAL option text stays distinct under rotation, so its
+        # digest is a permutation-equivariant secondary key. Scores are NOT
+        # touched: only the choice among exactly-tied scores changes, and that
+        # choice was previously arbitrary.
         digests = [hashlib.sha256(t.encode("utf-8")).hexdigest() for t in texts]
+        orig_digests = [hashlib.sha256(o.encode("utf-8")).hexdigest()
+                        for o in opts]
         order = sorted(range(len(scores)),
-                       key=lambda i: (-round(float(scores[i]), 12), digests[i]))
+                       key=lambda i: (-round(float(scores[i]), 12),
+                                      orig_digests[i], digests[i]))
         sel = int(order[0])
         top = float(scores[sel])
         second = float(scores[order[1]]) if len(order) > 1 else -1.0

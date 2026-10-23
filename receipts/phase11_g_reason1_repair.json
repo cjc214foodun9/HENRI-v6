@@ -1,0 +1,97 @@
+{
+  "clauses": [
+    {
+      "bar": "1.000000 on every arm through the real endpoint",
+      "id": "P1",
+      "pass": true,
+      "value": {
+        "gpqa_w0.0": 1.0,
+        "gpqa_w0.2": 1.0,
+        "mmlu_w0.0": 1.0,
+        "mmlu_w0.2": 1.0
+      },
+      "what": "4x rotation invariance == 1.000000, all arms"
+    },
+    {
+      "bar": "collision count equals the cited pre-repair broken count",
+      "id": "P2",
+      "pass": false,
+      "value": {
+        "equality": false,
+        "n_colliding": 25,
+        "n_gpqa": 198,
+        "prior_broken": 14,
+        "prior_n": 198
+      },
+      "what": "every non-equivariant item is a stripped-text collision"
+    },
+    {
+      "bar": "selected weight stays 0.0",
+      "id": "P3",
+      "pass": true,
+      "value": {
+        "equality": {
+          "gpqa": true,
+          "mmlu": true
+        },
+        "eval_now_w0.0": {
+          "gpqa": 0.282828,
+          "mmlu": 0.28
+        },
+        "eval_prior_w0.0": {
+          "gpqa": 0.282828,
+          "mmlu": 0.28
+        },
+        "note": "weights are NOT re-selected here; the committed selection is cited and only its w=0.0 accuracy is re-measured",
+        "selected_weight": {
+          "gpqa": 0.0,
+          "mmlu": 0.0
+        },
+        "selection_rerun": false
+      },
+      "what": "parsimony unchanged at w = 0.0 on both corpora"
+    },
+    {
+      "bar": "0 mismatches, not poisoned",
+      "id": "P4",
+      "pass": true,
+      "value": {
+        "mismatches": 0,
+        "mutation_poisoned": false,
+        "pass": true,
+        "stats": {
+          "hits": 6204,
+          "misses": 1766,
+          "size": 1766
+        },
+        "texts": 4
+      },
+      "what": "cache is bit-identical and mutation-safe"
+    }
+  ],
+  "corpus_sha256": {
+    "gpqa": "41d1213cd7a4998605a26c2798500652572007161b3a92817ba46b35befcd305",
+    "mmlu": "15b6785d49e0012602e089558a7a0dfb916baf97e9295aa25b48062f13c6afbb"
+  },
+  "file_sha256_on_disk": "908459a91b26aa8f8d3f9d2e1a6cf5a47165ab9616dad6501f8fa8fb2f8c7a8a",
+  "file_sha256_on_disk_note": "hash of the serialization BEFORE this field was inserted. A file cannot contain its own SHA256. The reproducible external identity is in the sibling '<name>.sha256' sidecar, verifiable with `sha256sum -c`.",
+  "mechanism": {
+    "cure": "secondary key is the digest of the ORIGINAL option text, which stays distinct under rotation; scores are untouched, only arbitrary tie choice becomes content-determined",
+    "defect": "sort key was (-score, digest_of_STRIPPED_text); stripping made two options identical, so the given digest matched and the stable sort kept the rotation order",
+    "not_the_cause": "encoding memoisation. A cache changes speed and cannot change a deterministic score."
+  },
+  "n_clauses_pass": 3,
+  "prior_measurement": {
+    "broken_items": 14,
+    "gpqa_w0.2_rate": 0.95,
+    "label": "CITED, not re-derived: the defective sort key no longer exists in the code, so this value cannot be re-measured through the current endpoint.",
+    "n_gpqa": 198
+  },
+  "prior_receipt": "receipts/phase10_g_reason1.json",
+  "prior_receipt_commit": "ea5dea6",
+  "prior_receipt_frozen": true,
+  "probe": "phase11_g_reason1_repair",
+  "receipt_sha256_of_body_before_self_field": "7b189952f5d085f4dec3f7464ba485c4c6058d1fb88a2e817d3194eca13e19e0",
+  "verdict": "G_REASON1_REPAIR_PARTIAL_3_OF_4",
+  "wall_clock_s": 990.12
+}
