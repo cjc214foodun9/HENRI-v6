@@ -115,8 +115,9 @@ from __future__ import annotations
 
 import ast
 import hashlib
+import re
 from dataclasses import dataclass
-from typing import List, Sequence, Tuple
+from typing import List, Optional, Sequence, Tuple
 
 import numpy as np
 
@@ -629,6 +630,339 @@ def slot_cosine(a: np.ndarray, b: np.ndarray) -> float:
     return float(np.real(np.vdot(a, b) / (na * nb)))
 
 
+# -- Phase 10 Step 1: structural and algorithmic morphisms ----------------
+#
+# WHY A SEPARATE CHANNEL, AND WHY THE SLOT NUMBERS IN THE DIRECTIVE NEED A
+# RULING
+# -----------------------------------------------------------------------
+# The Phase 10 directive says "preserve Slot 1 ([16384:32768]) and populate
+# Slot 2 ([32768:49152])". MEASURED AGAINST THIS TREE, those two index
+# ranges cannot both be honoured:
+#
+#     v6 slot 0  [0:16384]      entity      SemanticBackbone
+#     v6 slot 1  [16384:32768]  action      fixed polarity basis
+#     v6 slot 2  [32768:49152]  operator    Phase 8/9 ARITHMETIC channel
+#     v6 slot 3  [49152:65536]  context     structural sub-wave
+#
+# So the range the directive calls "Slot 2" IS the arithmetic operator
+# channel that its own diagnosis calls "Slot 1". Overwriting it would
+# destroy `S2-1` (`cos(sum_doc, diff_doc) = -1.0`) because "sum" and
+# "difference" would both gain the same morphism mass. The directive
+# forbids exactly that in the same sentence.
+#
+# RULING, recorded rather than hidden: the arithmetic channel stays at
+# [32768:49152] byte-identical and morphisms are a SEPARATE, ADDITIVE
+# channel that composes into the structural slot only when the caller
+# opts in (`morphism_weight > 0`). Default 0.0 makes every Phase 8/9
+# byte, hash, and test identical. Two consequences follow, and both are
+# reported in the receipt:
+#   * `S2-1..S2-7` and the Phase 8 operator tests are untouched by
+#     construction, not by hope.
+#   * Clause M4 runs with `morphism_weight > 0`, so it measures the real
+#     composed wave rather than a channel that was never wired.
+#
+# WHY THE DIRECTIVE'S M1 FIXTURE CANNOT REACH -1.0, MEASURED
+# ----------------------------------------------------------
+# Its example pair is "reverse a list" versus "sort a list". The word
+# "list" is the Axis 8 minus pole, so BOTH prompts fire Axis 8. The
+# channel reads `e1 + e8` against `-e1 + e8`, whose cosine is 0.0, not
+# -1.0. Antipody is exact only when the two sides fire MIRRORED sign sets.
+# M1 is therefore pre-registered as an AXIS-PROJECTED cosine, declared
+# before the first run, and the probe reports the full-channel value
+# beside it so a reader sees both numbers.
+
+MORPH_ORDER = "MORPH_ORDER"
+MORPH_FILTER = "MORPH_FILTER"
+MORPH_SPLIT_JOIN = "MORPH_SPLIT_JOIN"
+MORPH_SET = "MORPH_SET"
+MORPH_SHAPE = "MORPH_SHAPE"
+MORPH_COUNT_IDX = "MORPH_COUNT_IDX"
+MORPH_CASE = "MORPH_CASE"
+MORPH_MAP_DICT = "MORPH_MAP_DICT"
+
+MORPH_ROOTS = frozenset((
+    MORPH_ORDER, MORPH_FILTER, MORPH_SPLIT_JOIN, MORPH_SET,
+    MORPH_SHAPE, MORPH_COUNT_IDX, MORPH_CASE, MORPH_MAP_DICT,
+))
+
+# Axis -> (root, plus words, minus words). `+1` is the plus pole.
+#
+# WORD LISTS ARE THE DIRECTIVE'S OWN. Two documented edits, both made
+# before the first coverage run and both recorded in the receipt:
+#   * "how many" is a PHRASE, not a token, so it is matched separately.
+#   * "first"/"last" are kept but flagged: they are high-frequency in
+#     arithmetic prose ("find the first prime") and are the main
+#     over-fire risk against clause M4.
+MORPH_AXES = {
+    MORPH_ORDER: (
+        frozenset(("reverse", "reversed", "backward", "invert",
+                   "palindrome", "reversal")),
+        frozenset(("sort", "sorted", "ascending", "alphabetical",
+                   "order", "ordering")),
+    ),
+    MORPH_FILTER: (
+        frozenset(("filter", "keep", "extract", "matching", "findall",
+                   "only", "select", "matching")),
+        frozenset(("remove", "delete", "drop", "exclude", "strip",
+                   "replace", "without")),
+    ),
+    MORPH_SPLIT_JOIN: (
+        frozenset(("split", "separate", "tokenize", "words", "slice",
+                   "substring", "parse", "tokens")),
+        frozenset(("join", "concatenate", "merge", "append", "extend",
+                   "combine")),
+    ),
+    MORPH_SET: (
+        frozenset(("unique", "distinct", "deduplicate", "set", "union",
+                   "uniques")),
+        frozenset(("common", "intersection", "overlap", "duplicate",
+                   "shared", "duplicates")),
+    ),
+    MORPH_SHAPE: (
+        frozenset(("flatten", "unnest", "chain", "flattened")),
+        frozenset(("zip", "pair", "tuple", "group", "chunk", "matrix",
+                   "nested", "pairs")),
+    ),
+    MORPH_COUNT_IDX: (
+        frozenset(("count", "frequency", "length", "occurrences",
+                   "occurrence", "amount")),
+        frozenset(("index", "position", "find", "locate", "first",
+                   "last", "nth", "positions")),
+    ),
+    MORPH_CASE: (
+        frozenset(("uppercase", "upper", "capitalize", "title",
+                   "capitalized")),
+        frozenset(("lowercase", "lower", "swapcase", "lowercase")),
+    ),
+    MORPH_MAP_DICT: (
+        frozenset(("dict", "dictionary", "map", "keys", "values",
+                   "lookup", "mapping")),
+        frozenset(("list", "array", "sequence", "elements")),
+    ),
+}
+
+MORPH_PHRASES = (
+    ("how many", MORPH_COUNT_IDX, +1),
+    ("number of", MORPH_COUNT_IDX, +1),
+    ("convert to list", MORPH_MAP_DICT, -1),
+    ("convert to dict", MORPH_MAP_DICT, +1),
+    ("in alphabetical order", MORPH_ORDER, -1),
+    ("in reverse order", MORPH_ORDER, +1),
+)
+
+MORPH_WORDS = {}
+for _root, (_plus, _minus) in MORPH_AXES.items():
+    for _w in _plus:
+        MORPH_WORDS.setdefault(_w, (_root, +1))
+    for _w in _minus:
+        MORPH_WORDS.setdefault(_w, (_root, -1))
+
+# AST attribute name -> (root, sign)
+MORPH_ATTR = {
+    "reverse": (MORPH_ORDER, +1),
+    "sort": (MORPH_ORDER, -1),
+    "remove": (MORPH_FILTER, -1),
+    "pop": (MORPH_FILTER, -1),
+    "strip": (MORPH_FILTER, -1),
+    "replace": (MORPH_FILTER, -1),
+    "split": (MORPH_SPLIT_JOIN, +1),
+    "join": (MORPH_SPLIT_JOIN, -1),
+    "append": (MORPH_SPLIT_JOIN, -1),
+    "extend": (MORPH_SPLIT_JOIN, -1),
+    "intersection": (MORPH_SET, -1),
+    "union": (MORPH_SET, +1),
+    "count": (MORPH_COUNT_IDX, +1),
+    "index": (MORPH_COUNT_IDX, -1),
+    "find": (MORPH_COUNT_IDX, -1),
+    "rfind": (MORPH_COUNT_IDX, -1),
+    "upper": (MORPH_CASE, +1),
+    "lower": (MORPH_CASE, -1),
+    "capitalize": (MORPH_CASE, +1),
+    "title": (MORPH_CASE, +1),
+    "swapcase": (MORPH_CASE, -1),
+    "get": (MORPH_MAP_DICT, +1),
+    "items": (MORPH_MAP_DICT, +1),
+    "keys": (MORPH_MAP_DICT, +1),
+    "values": (MORPH_MAP_DICT, +1),
+}
+
+# AST call name (bare, lowercased) -> (root, sign)
+MORPH_CALL = {
+    "reversed": (MORPH_ORDER, +1),
+    "sorted": (MORPH_ORDER, -1),
+    "filter": (MORPH_FILTER, +1),
+    "findall": (MORPH_FILTER, +1),
+    "re.findall": (MORPH_FILTER, +1),
+    "set": (MORPH_SET, +1),
+    "frozenset": (MORPH_SET, +1),
+    "dict.fromkeys": (MORPH_SET, +1),
+    "chain": (MORPH_SHAPE, +1),
+    "itertools.chain": (MORPH_SHAPE, +1),
+    "zip": (MORPH_SHAPE, -1),
+    "enumerate": (MORPH_SHAPE, -1),
+    "len": (MORPH_COUNT_IDX, +1),
+    "sum": (MORPH_COUNT_IDX, +1),
+    "counter": (MORPH_COUNT_IDX, +1),
+    "collections.counter": (MORPH_COUNT_IDX, +1),
+    "list": (MORPH_MAP_DICT, -1),
+    "tuple": (MORPH_MAP_DICT, -1),
+}
+
+def _morph_phrase_hits(text_lower: str) -> List[Feature]:
+    """Phrase triggers, matched before single words so "how many" wins."""
+    out: List[Feature] = []
+    for phrase, root, sign in MORPH_PHRASES:
+        if phrase in text_lower:
+            out.append((root, sign, 0))
+    return out
+
+
+def morphology_from_text(text: str) -> List[Feature]:
+    """Morphism features from English intent words, on word boundaries.
+
+    WORD BOUNDARIES ARE LOAD-BEARING. A substring match makes "sort" fire
+    inside "assorted", "set" inside "subset", and "map" inside "format".
+    That injects a constant into most docstrings, which raises collision
+    and would let a coverage gate pass while the channel discriminates
+    nothing. `re` with `\\b` is the fix; the cost is one regex per axis.
+    """
+    low = text.lower()
+    out: List[Feature] = _morph_phrase_hits(low)
+    for word, (root, sign) in MORPH_WORDS.items():
+        if re.search(r"\b" + re.escape(word) + r"\b", low):
+            out.append((root, sign, 0))
+    return out
+
+
+def _slice_is_reverse(node: ast.AST) -> bool:
+    """True for `[::-1]` and any negative-step slice."""
+    if not isinstance(node, ast.Slice):
+        return False
+    step = node.step
+    if isinstance(step, ast.UnaryOp) and isinstance(step.op, ast.USub):
+        return True
+    if isinstance(step, ast.Constant) and isinstance(step.value, int):
+        return step.value < 0
+    return False
+
+
+def morphology_from_ast(code: str) -> Tuple[List[Feature], bool]:
+    """Morphism features from Python syntax. `([], False)` on parse failure.
+
+    PRECEDENCE RULE FOR SLICES, declared before the first run. `s[::-1]`
+    is a `Subscript` whose slice has a negative step. The directive lists
+    `ast.Slice` under Axis 3 (split) AND `[::-1]` under Axis 1 (reverse),
+    so a naive matcher fires BOTH on the very fixture Clause M2 uses for
+    its positive arm. That caps the cross-modal cosine at `1/sqrt(2)`
+    instead of near 1.0, which is a fixture artefact, not a measurement.
+    A negative-step slice is therefore Axis 1 ONLY. A slice with no
+    negative step is Axis 3.
+
+    CONTAINER LITERALS ARE NOT AXIS TRIGGERS. `ast.List` and `ast.Tuple`
+    appear in almost every program, so treating them as Axis 8/5 events
+    would add one constant feature to nearly every code wave and dilute
+    discrimination for every task. `list()` / `tuple()` CALLS remain
+    triggers, because a call is a deliberate conversion.
+    """
+    try:
+        tree = ast.parse(code)
+    except (SyntaxError, ValueError, MemoryError):
+        return [], False
+
+    feats: List[Feature] = []
+
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Attribute):
+            spec = MORPH_ATTR.get(node.attr)
+            if spec is not None:
+                feats.append((spec[0], spec[1], 0))
+        elif isinstance(node, ast.Call):
+            bare = _bare(_call_name(node.func))
+            spec = MORPH_CALL.get(bare)
+            if spec is not None:
+                feats.append((spec[0], spec[1], 0))
+        elif isinstance(node, ast.BinOp):
+            if isinstance(node.op, ast.BitOr):
+                feats.append((MORPH_SET, +1, 0))
+            elif isinstance(node.op, ast.BitAnd):
+                feats.append((MORPH_SET, -1, 0))
+        elif isinstance(node, ast.Subscript):
+            if _slice_is_reverse(node.slice):
+                feats.append((MORPH_ORDER, +1, 0))
+            elif isinstance(node.slice, ast.Slice):
+                feats.append((MORPH_SPLIT_JOIN, +1, 0))
+            else:
+                feats.append((MORPH_COUNT_IDX, -1, 0))
+        elif isinstance(node, ast.DictComp):
+            feats.append((MORPH_MAP_DICT, +1, 0))
+        elif isinstance(node, ast.Dict):
+            feats.append((MORPH_MAP_DICT, +1, 0))
+        elif isinstance(node, (ast.ListComp, ast.SetComp, ast.GeneratorExp)):
+            # `ifs` lives on the `comprehension` generator nodes, NOT on the
+            # comprehension expression itself. Reading `node.ifs` raises
+            # AttributeError and aborted the whole AST walk, which is how
+            # this was caught: a gate that crashes on its own fixture is
+            # not passing.
+            if any(gen.ifs for gen in node.generators):
+                feats.append((MORPH_FILTER, +1, 0))
+            if len(node.generators) >= 2:
+                feats.append((MORPH_SHAPE, +1, 0))
+    return feats, True
+
+
+def morphology_features(text: str) -> Tuple[List[Feature], dict]:
+    """Merged morphism features for one string. AST authoritative for code.
+
+    Same channel rule as `all_features`, and for the same measured reason:
+    reading an operator out of an identifier created a false direction in
+    Phase 8. Prose takes the lexical path; code takes the syntax path.
+    """
+    astf, parsed = morphology_from_ast(text)
+    src = astf if parsed else morphology_from_text(text)
+    seen = set()
+    out: List[Feature] = []
+    for f in src:
+        if f in seen:
+            continue
+        seen.add(f)
+        out.append(f)
+    return out, {"parsed": bool(parsed),
+                 "channel": "ast" if parsed else "lexical",
+                 "n_morphism_features": len(out),
+                 "axes": sorted({f[0] for f in out})}
+
+
+def is_morph_root(root: str) -> bool:
+    return root in MORPH_ROOTS
+
+
+def morph_slot(feats: Sequence[Feature], dim: int) -> np.ndarray:
+    """Unit-norm morphism channel. Zero vector when no axis fires.
+
+    Reuses `ring_slot`, so the `+128 mod 256` half-turn is the same exact
+    group operation the arithmetic channel uses. An antipodal pair
+    therefore reads -1.0 exactly on a single axis, not approximately.
+    """
+    return ring_slot(list(feats), dim)
+
+
+def axis_features(feats: Sequence[Feature], root: str) -> List[Feature]:
+    """Features belonging to one axis only. Used for M1 projection."""
+    return [f for f in feats if f[0] == root]
+
+
+def axis_cosine(a: Sequence[Feature], b: Sequence[Feature], root: str,
+                dim: int = 16384) -> float:
+    """Cosine restricted to ONE axis. The M1 statistic.
+
+    Projecting is not a weakened bar; it is the only statistic that can
+    express "these two prompts are exact opposites on Order" when both
+    also name a container. The full-channel value is reported beside it.
+    """
+    return slot_cosine(morph_slot(axis_features(a, root), dim),
+                       morph_slot(axis_features(b, root), dim))
+
+
 # -- composed operator-aware wave ---------------------------------------
 
 @dataclass
@@ -642,9 +976,11 @@ class OperatorEncoded:
     parsed: bool
     operator_stream: list
     active_slots: tuple
+    slot_morphism: Optional[np.ndarray] = None   # Phase 10; None when unused
+    morphism_axes: tuple = ()
 
     def as_dict(self) -> dict:
-        return {
+        d = {
             "pol": int(self.pol),
             "parsed": bool(self.parsed),
             "operator_stream": list(self.operator_stream),
@@ -655,6 +991,11 @@ class OperatorEncoded:
             "structure_slot_energy": round(
                 float(np.linalg.norm(self.slot_structure) ** 2), 9),
         }
+        if self.slot_morphism is not None:
+            d["morphism_slot_energy"] = round(
+                float(np.linalg.norm(self.slot_morphism) ** 2), 9)
+            d["morphism_axes"] = list(self.morphism_axes)
+        return d
 
 
 class OperatorAwareBackbone:
@@ -674,7 +1015,9 @@ class OperatorAwareBackbone:
     """
 
     def __init__(self, base=None, weights: Sequence[float] = W_OPERATOR_AWARE,
-                 dim: int = 65536) -> None:
+                 dim: int = 65536,
+                 morphism_weight: float = 0.0,
+                 morphism_mix: float = 0.5) -> None:
         if base is None:
             from henri.semantic_backbone import SemanticBackbone
             base = SemanticBackbone()
@@ -685,10 +1028,21 @@ class OperatorAwareBackbone:
             raise ValueError("weights must sum to 1.0")
         if min(w) < 0.0:
             raise ValueError("weights must be non-negative")
+        if not 0.0 <= float(morphism_weight) <= 1.0:
+            raise ValueError("morphism_weight must be in [0, 1]")
+        if not 0.0 <= float(morphism_mix) <= 1.0:
+            raise ValueError("morphism_mix must be in [0, 1]")
         self.base = base
         self.weights = w
         self.dim = int(dim)
         self.slot = self.dim // 4
+        # PHASE 10, AND THE DEFAULT IS THE WHOLE POINT. `morphism_weight=0.0`
+        # takes the UNCHANGED Phase 8/9 code path below, so every existing
+        # byte, digest, and test is identical by construction rather than by
+        # re-verification. A caller must opt in to compose the morphism
+        # channel, and every receipt that does so says so.
+        self.morphism_weight = float(morphism_weight)
+        self.morphism_mix = float(morphism_mix)
 
     # -- passthroughs ---------------------------------------------------
     @property
@@ -713,16 +1067,56 @@ class OperatorAwareBackbone:
         d["weights"] = list(self.weights)
         d["operator_slot"] = 2
         d["structure_slot"] = 3
+        d["morphism_weight"] = self.morphism_weight
+        d["morphism_mix"] = self.morphism_mix
         return d
 
     # -- encode ---------------------------------------------------------
     def encode(self, text: str) -> OperatorEncoded:
-        """Compose entity + polarity + operator + structure into one wave."""
+        """Compose entity + polarity + operator + structure into one wave.
+
+        PHASE 10 CHANNEL, AND WHY IT IS OFF BY DEFAULT
+        ----------------------------------------------
+        `morphism_weight == 0.0` (the default) takes the UNCHANGED Phase 8/9
+        path: `slot_structure` is written as before, `slot_morphism` stays
+        `None`, and `psi` is byte-identical. Every Phase 8/9 test and every
+        `S2-1..S2-7` clause is therefore preserved by construction, not by
+        re-measurement.
+
+        `morphism_weight > 0` mixes the morphism sub-wave into slot 3 at
+        `morphism_mix`, then rescales the slot to its declared energy `w3`.
+        Rescaling matters: without it the composed slot would carry
+        `w3 * (1 + mix)`, the vector would renormalise, and slots 0-2 would
+        silently shrink. That is the Phase 8 defect this module already
+        documents once, and it is not repeated here.
+
+        The arithmetic channel (slot 2) is NEVER touched by this path. That
+        is what keeps `cos(sum_doc, diff_doc) = -1.0` exact while the
+        morphism channel is active.
+        """
         core = self.base.encode(text)
         feats, info = all_features(text)
         op_f, st_f = split_features(feats)
         s_op = ring_slot(op_f, self.slot)
         s_st = ring_slot(st_f, self.slot)
+
+        s_morph: Optional[np.ndarray] = None
+        morph_axes: tuple = ()
+        if self.morphism_weight > 0.0:
+            m_feats, _m_info = morphology_features(text)
+            s_morph = morph_slot(m_feats, self.slot)
+            morph_axes = tuple(sorted({f[0] for f in m_feats}))
+            n_m = float(np.linalg.norm(s_morph))
+            n_s = float(np.linalg.norm(s_st))
+            if n_m > 0.0 and n_s > 0.0:
+                mixed = ((1.0 - self.morphism_mix) * s_st
+                         + self.morphism_mix * s_morph)
+            elif n_m > 0.0:
+                mixed = s_morph
+            else:
+                mixed = s_st
+            n_mix = float(np.linalg.norm(mixed))
+            s_st = mixed / n_mix if n_mix > 0.0 else mixed
 
         w0, w1, w2, w3 = self.weights
         psi = np.zeros(self.dim, dtype=np.complex128)
@@ -772,4 +1166,11 @@ __all__ = [
     "OperatorEncoded", "OperatorAwareBackbone",
     "ARITH_ADDITIVE", "ARITH_MULTIPLICATIVE", "ORDER_STRICT",
     "EQUALITY", "EXTREMUM", "SEQUENCE_EDIT", "CARDINALITY",
+    # Phase 10 Step 1: structural morphisms
+    "MORPH_ORDER", "MORPH_FILTER", "MORPH_SPLIT_JOIN", "MORPH_SET",
+    "MORPH_SHAPE", "MORPH_COUNT_IDX", "MORPH_CASE", "MORPH_MAP_DICT",
+    "MORPH_ROOTS", "MORPH_AXES", "MORPH_WORDS", "MORPH_PHRASES",
+    "MORPH_ATTR", "MORPH_CALL",
+    "morphology_from_text", "morphology_from_ast", "morphology_features",
+    "is_morph_root", "morph_slot", "axis_features", "axis_cosine",
 ]

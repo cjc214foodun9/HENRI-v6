@@ -1,0 +1,187 @@
+{
+  "decision_rule": "select argmax TRAIN top-1, ties toward smaller t; evaluate ONCE on held-out. Selection on train prevents selection-on-test.",
+  "decomposition_exact": true,
+  "decomposition_self_check": {
+    "t0_reproduces_phase9": {
+      "expected": 0.4,
+      "match": true,
+      "measured": 0.4,
+      "t": 0.0
+    },
+    "t20_reproduces_registered": {
+      "expected": 0.325,
+      "match": true,
+      "measured": 0.325,
+      "t": 0.2
+    }
+  },
+  "file_sha256_on_disk": "922f3f6f265ba0c5213a1ce4f7ec957942610c078c9e8da7a7202c8f6d205e21",
+  "grid": [
+    0.0,
+    0.05,
+    0.1,
+    0.15,
+    0.2
+  ],
+  "heldout_at_selected": {
+    "mean_tie_group": 1.05,
+    "n": 40,
+    "t": 0.0,
+    "top1_acc": 0.4,
+    "top1_correct": 16,
+    "weights": [
+      0.5,
+      0.125,
+      0.375,
+      0.0
+    ]
+  },
+  "heldout_table": [
+    {
+      "mean_tie_group": 1.05,
+      "n": 40,
+      "t": 0.0,
+      "top1_acc": 0.4,
+      "top1_correct": 16,
+      "weights": [
+        0.5,
+        0.125,
+        0.375,
+        0.0
+      ]
+    },
+    {
+      "mean_tie_group": 1.05,
+      "n": 40,
+      "t": 0.05,
+      "top1_acc": 0.35,
+      "top1_correct": 14,
+      "weights": [
+        0.475,
+        0.11875,
+        0.35625,
+        0.05
+      ]
+    },
+    {
+      "mean_tie_group": 1.05,
+      "n": 40,
+      "t": 0.1,
+      "top1_acc": 0.375,
+      "top1_correct": 15,
+      "weights": [
+        0.45,
+        0.1125,
+        0.3375,
+        0.1
+      ]
+    },
+    {
+      "mean_tie_group": 1.05,
+      "n": 40,
+      "t": 0.15,
+      "top1_acc": 0.35,
+      "top1_correct": 14,
+      "weights": [
+        0.425,
+        0.10625,
+        0.31875,
+        0.15
+      ]
+    },
+    {
+      "mean_tie_group": 1.05,
+      "n": 40,
+      "t": 0.2,
+      "top1_acc": 0.325,
+      "top1_correct": 13,
+      "weights": [
+        0.4,
+        0.1,
+        0.3,
+        0.2
+      ]
+    }
+  ],
+  "mechanism": "The channel takes ranking mass from slots 0-2 in proportion to t. It reads strongly as an ENCODER (M1 -1.0, M2 +1.0, M3 0.9014 coverage) but its features are noisy on arithmetic prose, so it does not rank the G-AST2 pool better.",
+  "probe": "phase10_g_morph1_m4_sweep",
+  "receipt_sha256_of_body_before_self_field": "f153da21d86a9883df6596bfa0d514157abc75ec96324c26c2475610c43c9762",
+  "registered_result": {
+    "file": "receipts/phase10_g_morph1.json",
+    "m4_bar": 0.4,
+    "m4_pass": false,
+    "m4_value": 0.325,
+    "verdict": "G_MORPH1_PARTIAL_3_OF_4"
+  },
+  "selected_t_on_train": 0.0,
+  "status": "ADDITIVE FOLLOW-UP to the registered G_MORPH1 receipt",
+  "train_table": [
+    {
+      "mean_tie_group": 1.075,
+      "n": 40,
+      "t": 0.0,
+      "top1_acc": 0.425,
+      "top1_correct": 17,
+      "weights": [
+        0.5,
+        0.125,
+        0.375,
+        0.0
+      ]
+    },
+    {
+      "mean_tie_group": 1.075,
+      "n": 40,
+      "t": 0.05,
+      "top1_acc": 0.425,
+      "top1_correct": 17,
+      "weights": [
+        0.475,
+        0.11875,
+        0.35625,
+        0.05
+      ]
+    },
+    {
+      "mean_tie_group": 1.075,
+      "n": 40,
+      "t": 0.1,
+      "top1_acc": 0.4,
+      "top1_correct": 16,
+      "weights": [
+        0.45,
+        0.1125,
+        0.3375,
+        0.1
+      ]
+    },
+    {
+      "mean_tie_group": 1.075,
+      "n": 40,
+      "t": 0.15,
+      "top1_acc": 0.4,
+      "top1_correct": 16,
+      "weights": [
+        0.425,
+        0.10625,
+        0.31875,
+        0.15
+      ]
+    },
+    {
+      "mean_tie_group": 1.075,
+      "n": 40,
+      "t": 0.2,
+      "top1_acc": 0.4,
+      "top1_correct": 16,
+      "weights": [
+        0.4,
+        0.1,
+        0.3,
+        0.2
+      ]
+    }
+  ],
+  "verdict": "M4_PARSIMONY_HELD_CHANNEL_OFF",
+  "wall_clock_s": 60.2
+}
