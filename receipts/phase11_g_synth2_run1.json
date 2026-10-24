@@ -1,0 +1,915 @@
+{
+  "clauses": [
+    {
+      "bar": "all fixtures",
+      "cases": {
+        "arity": [
+          {
+            "adapted": true,
+            "assert_arity": 2,
+            "executes_and_passes": false,
+            "name": "two_scalar_args",
+            "signature_arity": 2
+          },
+          {
+            "adapted": true,
+            "assert_arity": 1,
+            "executes_and_passes": true,
+            "name": "one_list_arg",
+            "signature_arity": 1
+          }
+        ],
+        "name_error": [
+          {
+            "credited": [
+              "import_sqrt"
+            ],
+            "expected_mechanism": "import_sqrt",
+            "kind_matched": true,
+            "mechanism_matched": true,
+            "mechanisms": [
+              "import_sqrt"
+            ],
+            "name": "missing_math_sqrt",
+            "repaired": true,
+            "residual_kinds": [
+              "name_error"
+            ],
+            "verdict": "EXEC_VERIFIED"
+          },
+          {
+            "credited": [
+              "import_re"
+            ],
+            "expected_mechanism": "import_re",
+            "kind_matched": true,
+            "mechanism_matched": true,
+            "mechanisms": [
+              "import_re"
+            ],
+            "name": "missing_re_import",
+            "repaired": true,
+            "residual_kinds": [
+              "name_error"
+            ],
+            "verdict": "EXEC_VERIFIED"
+          },
+          {
+            "credited": [
+              "import_Counter"
+            ],
+            "expected_mechanism": "import_Counter",
+            "kind_matched": true,
+            "mechanism_matched": true,
+            "mechanisms": [
+              "import_Counter"
+            ],
+            "name": "missing_counter_import",
+            "repaired": true,
+            "residual_kinds": [
+              "name_error"
+            ],
+            "verdict": "EXEC_VERIFIED"
+          },
+          {
+            "credited": [
+              "rebind_arr"
+            ],
+            "expected_mechanism": "rebind_arr",
+            "kind_matched": true,
+            "mechanism_matched": true,
+            "mechanisms": [
+              "rebind_arr"
+            ],
+            "name": "unbound_donor_variable",
+            "repaired": true,
+            "residual_kinds": [
+              "name_error"
+            ],
+            "verdict": "EXEC_VERIFIED"
+          }
+        ]
+      },
+      "id": "S1",
+      "pass": false,
+      "value": "4/4 name_error, 1/2 arity",
+      "what": "deterministic fixtures repair to EXEC_VERIFIED"
+    },
+    {
+      "bar": "probes > 0 AND attempted > 0",
+      "id": "S2",
+      "pass": true,
+      "value": {
+        "name_error_probes": 34,
+        "repairs_attempted": 34,
+        "repairs_ok": 1
+      },
+      "what": "ENGAGEMENT: held-out detected NameError and attempted repair"
+    },
+    {
+      "bar": ">= 0.3000",
+      "hits": 12,
+      "id": "S3",
+      "n": 40,
+      "pass": true,
+      "value": 0.3,
+      "what": "held-out exec_verified_rate reaches the pre-registered bar"
+    },
+    {
+      "bar": "new > control strictly",
+      "control": 0.225,
+      "control_hits": 9,
+      "id": "S4",
+      "new_hits": 12,
+      "pass": true,
+      "value": 0.3,
+      "what": "held-out rate strictly exceeds the paired control arm"
+    },
+    {
+      "bar": "no unknown origin",
+      "id": "S5",
+      "pass": true,
+      "value": {
+        "cegis_repair": 3,
+        "mutated": 4,
+        "retrieved": 5
+      },
+      "what": "attribution: every winner origin is a known label"
+    }
+  ],
+  "control_note": "The control arm is RE-RUN in this process with max_cegis_rounds=1, not read from the G-CEGIS1 receipt, because the repair path changed. Comparing a current arm against a past implementation would not be a paired measurement.",
+  "corpus": {
+    "held": 174,
+    "overlap": 0,
+    "rows": 974,
+    "train": 800
+  },
+  "engagement": {
+    "name_error_probes": 34,
+    "repairs_attempted": 34,
+    "repairs_ok": 1
+  },
+  "file_sha256_on_disk": "fa1bede50112c0f29693c77ad0f5d86076bdcfd849bbf113b5c82dfe5248f608",
+  "file_sha256_on_disk_note": "hash of the serialization BEFORE this field was inserted. A file cannot contain its own SHA256. The reproducible external identity is in the sibling '<name>.sha256' sidecar, verifiable with `sha256sum -c`.",
+  "n_clauses_pass": 4,
+  "params": {
+    "cegis1_baseline_cited": 0.275,
+    "dim": 65536,
+    "k_templates": 8,
+    "max_variants": 2,
+    "n_tasks": 40,
+    "n_train": 800,
+    "rank": 64,
+    "rate_bar": 0.3,
+    "top_k": 24
+  },
+  "per_task": [
+    {
+      "control_ok": false,
+      "control_verdict": "NO_CANDIDATES_PASS",
+      "n_repairs": 1,
+      "new_ok": false,
+      "new_verdict": "NO_CANDIDATES_PASS",
+      "residual_kinds": [
+        "unclassified",
+        "exception",
+        "unclassified",
+        "exception",
+        "exception",
+        "numeric_offset",
+        "unclassified",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception"
+      ],
+      "task_id": "801",
+      "winner_origin": null
+    },
+    {
+      "control_ok": false,
+      "control_verdict": "NO_CANDIDATES_PASS",
+      "n_repairs": 6,
+      "new_ok": false,
+      "new_verdict": "NO_CANDIDATES_PASS",
+      "residual_kinds": [
+        "numeric_offset",
+        "numeric_offset",
+        "numeric_offset"
+      ],
+      "task_id": "802",
+      "winner_origin": null
+    },
+    {
+      "control_ok": true,
+      "control_verdict": "EXEC_VERIFIED",
+      "n_repairs": 0,
+      "new_ok": true,
+      "new_verdict": "EXEC_VERIFIED",
+      "residual_kinds": [],
+      "task_id": "803",
+      "winner_origin": "retrieved"
+    },
+    {
+      "control_ok": false,
+      "control_verdict": "NO_CANDIDATES_PASS",
+      "n_repairs": 6,
+      "new_ok": false,
+      "new_verdict": "NO_CANDIDATES_PASS",
+      "residual_kinds": [
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "sign_flip",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "sign_flip",
+        "sign_flip",
+        "exception",
+        "exception",
+        "exception",
+        "name_error",
+        "name_error"
+      ],
+      "task_id": "804",
+      "winner_origin": null
+    },
+    {
+      "control_ok": false,
+      "control_verdict": "NO_CANDIDATES_PASS",
+      "n_repairs": 4,
+      "new_ok": false,
+      "new_verdict": "NO_CANDIDATES_PASS",
+      "residual_kinds": [
+        "unclassified",
+        "unclassified",
+        "exception",
+        "type_mismatch",
+        "unclassified",
+        "unclassified",
+        "type_mismatch",
+        "unclassified",
+        "unclassified",
+        "name_error",
+        "name_error",
+        "exception"
+      ],
+      "task_id": "805",
+      "winner_origin": null
+    },
+    {
+      "control_ok": false,
+      "control_verdict": "NO_CANDIDATES_PASS",
+      "n_repairs": 6,
+      "new_ok": false,
+      "new_verdict": "NO_CANDIDATES_PASS",
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "exception",
+        "type_mismatch",
+        "type_mismatch",
+        "exception",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "name_error",
+        "name_error"
+      ],
+      "task_id": "806",
+      "winner_origin": null
+    },
+    {
+      "control_ok": true,
+      "control_verdict": "EXEC_VERIFIED",
+      "n_repairs": 0,
+      "new_ok": true,
+      "new_verdict": "EXEC_VERIFIED",
+      "residual_kinds": [],
+      "task_id": "807",
+      "winner_origin": "mutated"
+    },
+    {
+      "control_ok": false,
+      "control_verdict": "NO_CANDIDATES_PASS",
+      "n_repairs": 6,
+      "new_ok": false,
+      "new_verdict": "NO_CANDIDATES_PASS",
+      "residual_kinds": [
+        "exception",
+        "exception",
+        "exception",
+        "sign_flip",
+        "sign_flip",
+        "exception",
+        "exception",
+        "sign_flip",
+        "exception",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch"
+      ],
+      "task_id": "808",
+      "winner_origin": null
+    },
+    {
+      "control_ok": true,
+      "control_verdict": "EXEC_VERIFIED",
+      "n_repairs": 0,
+      "new_ok": true,
+      "new_verdict": "EXEC_VERIFIED",
+      "residual_kinds": [],
+      "task_id": "809",
+      "winner_origin": "mutated"
+    },
+    {
+      "control_ok": false,
+      "control_verdict": "NO_CANDIDATES_PASS",
+      "n_repairs": 1,
+      "new_ok": false,
+      "new_verdict": "NO_CANDIDATES_PASS",
+      "residual_kinds": [
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "type_mismatch",
+        "exception",
+        "exception"
+      ],
+      "task_id": "810",
+      "winner_origin": null
+    },
+    {
+      "control_ok": false,
+      "control_verdict": "NO_CANDIDATES_PASS",
+      "n_repairs": 6,
+      "new_ok": false,
+      "new_verdict": "NO_CANDIDATES_PASS",
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "sign_flip",
+        "sign_flip",
+        "sign_flip"
+      ],
+      "task_id": "811",
+      "winner_origin": null
+    },
+    {
+      "control_ok": false,
+      "control_verdict": "NO_CANDIDATES_PASS",
+      "n_repairs": 4,
+      "new_ok": false,
+      "new_verdict": "NO_CANDIDATES_PASS",
+      "residual_kinds": [
+        "unclassified",
+        "name_error",
+        "unclassified",
+        "type_mismatch",
+        "type_mismatch",
+        "name_error",
+        "unclassified",
+        "unclassified"
+      ],
+      "task_id": "812",
+      "winner_origin": null
+    },
+    {
+      "control_ok": true,
+      "control_verdict": "EXEC_VERIFIED",
+      "n_repairs": 0,
+      "new_ok": true,
+      "new_verdict": "EXEC_VERIFIED",
+      "residual_kinds": [],
+      "task_id": "813",
+      "winner_origin": "retrieved"
+    },
+    {
+      "control_ok": false,
+      "control_verdict": "NO_CANDIDATES_PASS",
+      "n_repairs": 6,
+      "new_ok": false,
+      "new_verdict": "NO_CANDIDATES_PASS",
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "unclassified",
+        "type_mismatch",
+        "unclassified",
+        "type_mismatch",
+        "unclassified",
+        "type_mismatch"
+      ],
+      "task_id": "814",
+      "winner_origin": null
+    },
+    {
+      "control_ok": false,
+      "control_verdict": "NO_CANDIDATES_PASS",
+      "n_repairs": 6,
+      "new_ok": false,
+      "new_verdict": "NO_CANDIDATES_PASS",
+      "residual_kinds": [
+        "exception",
+        "exception",
+        "exception",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "exception",
+        "type_mismatch",
+        "exception",
+        "exception",
+        "exception",
+        "name_error"
+      ],
+      "task_id": "815",
+      "winner_origin": null
+    },
+    {
+      "control_ok": false,
+      "control_verdict": "NO_CANDIDATES_PASS",
+      "n_repairs": 3,
+      "new_ok": true,
+      "new_verdict": "EXEC_VERIFIED",
+      "residual_kinds": [
+        "unclassified",
+        "unclassified",
+        "name_error",
+        "name_error",
+        "name_error"
+      ],
+      "task_id": "816",
+      "winner_origin": "cegis_repair"
+    },
+    {
+      "control_ok": false,
+      "control_verdict": "NO_CANDIDATES_PASS",
+      "n_repairs": 3,
+      "new_ok": false,
+      "new_verdict": "NO_CANDIDATES_PASS",
+      "residual_kinds": [
+        "unclassified",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception"
+      ],
+      "task_id": "817",
+      "winner_origin": null
+    },
+    {
+      "control_ok": false,
+      "control_verdict": "NO_CANDIDATES_PASS",
+      "n_repairs": 6,
+      "new_ok": false,
+      "new_verdict": "NO_CANDIDATES_PASS",
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "unclassified",
+        "name_error",
+        "name_error",
+        "name_error"
+      ],
+      "task_id": "818",
+      "winner_origin": null
+    },
+    {
+      "control_ok": false,
+      "control_verdict": "NO_CANDIDATES_PASS",
+      "n_repairs": 6,
+      "new_ok": false,
+      "new_verdict": "NO_CANDIDATES_PASS",
+      "residual_kinds": [
+        "exception",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "exception",
+        "type_mismatch",
+        "type_mismatch"
+      ],
+      "task_id": "819",
+      "winner_origin": null
+    },
+    {
+      "control_ok": false,
+      "control_verdict": "NO_CANDIDATES_PASS",
+      "n_repairs": 4,
+      "new_ok": true,
+      "new_verdict": "EXEC_VERIFIED",
+      "residual_kinds": [
+        "sign_flip",
+        "sign_flip",
+        "sign_flip",
+        "sign_flip",
+        "sign_flip",
+        "sign_flip",
+        "sign_flip"
+      ],
+      "task_id": "820",
+      "winner_origin": "cegis_repair"
+    },
+    {
+      "control_ok": true,
+      "control_verdict": "EXEC_VERIFIED",
+      "n_repairs": 0,
+      "new_ok": true,
+      "new_verdict": "EXEC_VERIFIED",
+      "residual_kinds": [],
+      "task_id": "821",
+      "winner_origin": "retrieved"
+    },
+    {
+      "control_ok": false,
+      "control_verdict": "NO_CANDIDATES_PASS",
+      "n_repairs": 6,
+      "new_ok": false,
+      "new_verdict": "NO_CANDIDATES_PASS",
+      "residual_kinds": [
+        "sign_flip",
+        "sign_flip",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "name_error",
+        "name_error",
+        "name_error",
+        "name_error"
+      ],
+      "task_id": "822",
+      "winner_origin": null
+    },
+    {
+      "control_ok": false,
+      "control_verdict": "NO_CANDIDATES_PASS",
+      "n_repairs": 6,
+      "new_ok": false,
+      "new_verdict": "NO_CANDIDATES_PASS",
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "type_mismatch",
+        "unclassified",
+        "type_mismatch"
+      ],
+      "task_id": "823",
+      "winner_origin": null
+    },
+    {
+      "control_ok": true,
+      "control_verdict": "EXEC_VERIFIED",
+      "n_repairs": 0,
+      "new_ok": true,
+      "new_verdict": "EXEC_VERIFIED",
+      "residual_kinds": [],
+      "task_id": "824",
+      "winner_origin": "retrieved"
+    },
+    {
+      "control_ok": false,
+      "control_verdict": "NO_CANDIDATES_PASS",
+      "n_repairs": 2,
+      "new_ok": false,
+      "new_verdict": "NO_CANDIDATES_PASS",
+      "residual_kinds": [
+        "exception",
+        "exception",
+        "name_error",
+        "name_error",
+        "unclassified",
+        "exception",
+        "exception",
+        "exception"
+      ],
+      "task_id": "825",
+      "winner_origin": null
+    },
+    {
+      "control_ok": false,
+      "control_verdict": "NO_CANDIDATES_PASS",
+      "n_repairs": 6,
+      "new_ok": false,
+      "new_verdict": "NO_CANDIDATES_PASS",
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch"
+      ],
+      "task_id": "826",
+      "winner_origin": null
+    },
+    {
+      "control_ok": false,
+      "control_verdict": "NO_CANDIDATES_PASS",
+      "n_repairs": 4,
+      "new_ok": false,
+      "new_verdict": "NO_CANDIDATES_PASS",
+      "residual_kinds": [
+        "name_error",
+        "name_error",
+        "exception",
+        "exception",
+        "unclassified",
+        "name_error",
+        "name_error",
+        "exception",
+        "unclassified",
+        "exception",
+        "exception",
+        "unclassified"
+      ],
+      "task_id": "827",
+      "winner_origin": null
+    },
+    {
+      "control_ok": false,
+      "control_verdict": "NO_CANDIDATES_PASS",
+      "n_repairs": 6,
+      "new_ok": false,
+      "new_verdict": "NO_CANDIDATES_PASS",
+      "residual_kinds": [
+        "name_error",
+        "name_error",
+        "name_error",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch"
+      ],
+      "task_id": "828",
+      "winner_origin": null
+    },
+    {
+      "control_ok": true,
+      "control_verdict": "EXEC_VERIFIED",
+      "n_repairs": 0,
+      "new_ok": true,
+      "new_verdict": "EXEC_VERIFIED",
+      "residual_kinds": [],
+      "task_id": "829",
+      "winner_origin": "retrieved"
+    },
+    {
+      "control_ok": false,
+      "control_verdict": "NO_CANDIDATES_PASS",
+      "n_repairs": 4,
+      "new_ok": false,
+      "new_verdict": "NO_CANDIDATES_PASS",
+      "residual_kinds": [
+        "exception",
+        "type_mismatch",
+        "unclassified",
+        "type_mismatch",
+        "type_mismatch",
+        "unclassified",
+        "type_mismatch",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception"
+      ],
+      "task_id": "830",
+      "winner_origin": null
+    },
+    {
+      "control_ok": true,
+      "control_verdict": "EXEC_VERIFIED",
+      "n_repairs": 0,
+      "new_ok": true,
+      "new_verdict": "EXEC_VERIFIED",
+      "residual_kinds": [],
+      "task_id": "831",
+      "winner_origin": "mutated"
+    },
+    {
+      "control_ok": false,
+      "control_verdict": "NO_CANDIDATES_PASS",
+      "n_repairs": 6,
+      "new_ok": false,
+      "new_verdict": "NO_CANDIDATES_PASS",
+      "residual_kinds": [
+        "type_mismatch",
+        "name_error",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "exception",
+        "type_mismatch"
+      ],
+      "task_id": "832",
+      "winner_origin": null
+    },
+    {
+      "control_ok": false,
+      "control_verdict": "NO_CANDIDATES_PASS",
+      "n_repairs": 5,
+      "new_ok": false,
+      "new_verdict": "NO_CANDIDATES_PASS",
+      "residual_kinds": [
+        "name_error",
+        "name_error",
+        "name_error",
+        "exception",
+        "name_error",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "name_error"
+      ],
+      "task_id": "833",
+      "winner_origin": null
+    },
+    {
+      "control_ok": false,
+      "control_verdict": "NO_CANDIDATES_PASS",
+      "n_repairs": 6,
+      "new_ok": false,
+      "new_verdict": "NO_CANDIDATES_PASS",
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch"
+      ],
+      "task_id": "834",
+      "winner_origin": null
+    },
+    {
+      "control_ok": false,
+      "control_verdict": "NO_CANDIDATES_PASS",
+      "n_repairs": 6,
+      "new_ok": false,
+      "new_verdict": "NO_CANDIDATES_PASS",
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch"
+      ],
+      "task_id": "835",
+      "winner_origin": null
+    },
+    {
+      "control_ok": true,
+      "control_verdict": "EXEC_VERIFIED",
+      "n_repairs": 0,
+      "new_ok": true,
+      "new_verdict": "EXEC_VERIFIED",
+      "residual_kinds": [],
+      "task_id": "836",
+      "winner_origin": "mutated"
+    },
+    {
+      "control_ok": false,
+      "control_verdict": "NO_CANDIDATES_PASS",
+      "n_repairs": 6,
+      "new_ok": false,
+      "new_verdict": "NO_CANDIDATES_PASS",
+      "residual_kinds": [
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "type_mismatch",
+        "unclassified",
+        "unclassified",
+        "type_mismatch",
+        "unclassified",
+        "unclassified",
+        "exception",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "type_mismatch"
+      ],
+      "task_id": "837",
+      "winner_origin": null
+    },
+    {
+      "control_ok": false,
+      "control_verdict": "NO_CANDIDATES_PASS",
+      "n_repairs": 6,
+      "new_ok": false,
+      "new_verdict": "NO_CANDIDATES_PASS",
+      "residual_kinds": [
+        "type_mismatch",
+        "numeric_offset",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch"
+      ],
+      "task_id": "838",
+      "winner_origin": null
+    },
+    {
+      "control_ok": false,
+      "control_verdict": "NO_CANDIDATES_PASS",
+      "n_repairs": 1,
+      "new_ok": true,
+      "new_verdict": "EXEC_VERIFIED",
+      "residual_kinds": [
+        "type_mismatch"
+      ],
+      "task_id": "839",
+      "winner_origin": "cegis_repair"
+    },
+    {
+      "control_ok": false,
+      "control_verdict": "NO_CANDIDATES_PASS",
+      "n_repairs": 6,
+      "new_ok": false,
+      "new_verdict": "NO_CANDIDATES_PASS",
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch"
+      ],
+      "task_id": "840",
+      "winner_origin": null
+    }
+  ],
+  "prediction_recorded_before_run": "S3 was expected to be the binding clause. NameError and arity failures are a minority of the 29 remaining MBPP misses, so the rate was predicted to land between 0.2750 and 0.3250.",
+  "probe": "phase11_g_synth2",
+  "receipt_sha256_of_body_before_self_field": "c052179431387d2aa5f4ea4a04c640ec5f8174ede104c7fa4ab74bd987e6d0b5",
+  "residual_kind_histogram": {
+    "exception": 105,
+    "name_error": 34,
+    "numeric_offset": 5,
+    "sign_flip": 18,
+    "type_mismatch": 91,
+    "unclassified": 50
+  },
+  "verdict": "G_SYNTH2_PARTIAL_4_OF_5",
+  "wall_clock_s": 291.54
+}
