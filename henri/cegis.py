@@ -59,6 +59,7 @@ from __future__ import annotations
 
 import ast
 import json
+import os
 import re
 import subprocess
 import sys
@@ -71,6 +72,23 @@ REPO = Path(__file__).resolve().parents[1]
 
 CEGIS_ORIGIN = "cegis_repair"
 MAX_CEGIS_CANDIDATES = 4
+
+# -- G-SYNTH3 ablation switch ------------------------------------------------
+#
+# THIS IS A DISABLE FLAG, NOT A DEFAULT-OFF FEATURE FLAG. `name_error` repair
+# shipped ON in `4ceabd3`, so default MUST stay "1" or that commit's receipt
+# stops describing its own revision.
+#
+# READ FRESH ON EVERY CALL. An import-cached constant would make both ablation
+# arms execute identical code, so the gate could never detect an inert
+# mechanism. The probe sets the variable between arms in one process; only a
+# live read makes the comparison real.
+NAME_ERROR_REPAIR_ENV = "HENRI_CEGIS_NAME_ERROR_REPAIR"
+
+
+def name_error_repair_enabled() -> bool:
+    """False only when the operator disables it explicitly."""
+    return os.environ.get(NAME_ERROR_REPAIR_ENV, "1").strip() != "0"
 """Bounded repair budget per failing candidate. Each repair costs one
 sandboxed execution, so an unbounded list would turn a synthesis gate into
 a search gate without saying so."""
@@ -678,6 +696,17 @@ def synthesise_repairs(source: str, residual: FailureResidual,
                      "residual_kind": kind})
 
     if kind == "name_error":
+        # G-SYNTH3 ABLATION GATE. Read the switch HERE, not at import, so the
+        # two arms of the ablation differ in exactly one flag. When disabled,
+        # NO name_error candidate is emitted, so the round budget is spent only
+        # on the other residual classes. That isolates this branch's marginal
+        # contribution at a MATCHED round count.
+        if not name_error_repair_enabled():
+            # MEASURED DEFECT, fixed here: this line read `return repairs` and
+            # the accumulator is `rows`. Python does not check that at compile
+            # time, so the ablation arm died with `NameError: name 'repairs'`
+            # instead of returning an empty candidate list.
+            return rows[:int(max(1, max_candidates))]
         # MUTUALLY EXCLUSIVE MECHANISMS. Measured defect in my first version:
         # for `sqrt` both fired, and `rebind_sqrt` rewrote `sqrt(x)` to
         # `x(x)`, which executes and raises `'int' object is not callable`.

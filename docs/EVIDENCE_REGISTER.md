@@ -2517,3 +2517,108 @@ next diagnostic unauditable.
 | 0.7000 ceiling unreachable | DERIVED |
 | Shape adaptation is the mechanism | HYPOTHESIS |
 | Shape adaptation converts 6 tasks | BLOCKED — untested |
+
+## 25. G-SYNTH3: round-matched name_error ablation, and a bar-encoding defect
+
+Baseline for this section: `origin/main = 351897b`. This section records Item 1 of
+the Phase 11 four-item directive. It adds one ablation switch, one probe, one
+re-analysis, and one correction. It changes no threshold and no scorer default.
+
+### 25.1 The confound this gate removes
+
+`4ceabd3` (`G-SYNTH2`) reported held-out MBPP `0.2250 -> 0.3000` with three gains
+and attributed one of them to the `name_error` branch. Its receipt records
+`confound_note`: the paired control ran `max_cegis_rounds=1` against treatment
+`max_cegis_rounds=2`. So the `+3` measured "an extra CEGIS round helps". It did
+not measure the shipped branch.
+
+Both arms here run `max_cegis_rounds=2`. Exactly one variable differs:
+`HENRI_CEGIS_NAME_ERROR_REPAIR` = `0` (control) or `1` (treatment).
+
+### 25.2 The switch, and why it reads live
+
+`henri/cegis.py` gains `name_error_repair_enabled()`, default `1`. It is a
+DISABLE flag, not a default-OFF feature flag: the branch shipped ON in
+`4ceabd3`, so flipping the default would make that receipt stop describing its
+own revision.
+
+The switch is read at DISPATCH, not at import. An import-cached constant would
+make both arms execute identical code, and the gate could then report a
+difference of zero without the reader being able to distinguish "the branch adds
+nothing" from "the ablation never ran". `tests/test_phase11_synth3_flag.py`
+pins the live read: it flips the variable twice within one process and asserts
+`(True, False, True)`.
+
+### 25.3 Measured results
+
+Corpus: 800 train rows, first 40 held-out tasks, one shared bank, deterministic
+arms.
+
+| Arm | Rounds | Flag | Hits | Rate | name_error candidates |
+| :--- | ---: | ---: | ---: | ---: | ---: |
+| Control | 2 | 0 | 11/40 | 0.2750 | 0 |
+| Treatment | 2 | 1 | 12/40 | 0.3000 | 34 |
+
+One gain: task `816`. Zero losses.
+
+Attribution is clean, and it is not a shot-count artifact. Control reached
+`NO_CANDIDATES_PASS` on 816 with `n_repairs: 0` and `mechanisms: []`, because the
+residual was `name_error` and that class earned zero budget. Treatment emitted
+`rebind_test_tup2` three times; one verified. The branch supplied the only
+candidate in the class that could execute.
+
+Efficacy is 1 of 34 emitted candidates, matching the 2.9% measured in `4ceabd3`.
+
+### 25.4 Bar-encoding defect, measured
+
+`BAR_DELTA = 0.025` was registered before the run as "one task of forty". The
+first sealed receipt (`tag=run3`) failed T2:
+
+```
+12/40 - 11/40        = 0.024999999999999967
+0.024999999999999967 >= 0.025   ->  False
+shortfall            = 3.47e-17
+```
+
+The bar failed on its own representation. In exact arithmetic
+`12/40 - 11/40 = 1/40 = 0.025`, and one task of forty was gained.
+
+### 25.5 Correction, stated with its limits
+
+`scripts/reanalyze_synth3_bar.py` recomputes T2 in integer task counts from the
+sealed `run3` per-task records. It runs no task and edits no source receipt.
+
+- Threshold unchanged: `0.025`, which is `1/40`.
+- Changed: comparison domain, float ratio to integer count.
+- `run3.json` KEEPS its verdict `G_SYNTH3_BELOW_BAR`. It is not edited.
+- The strict-float reading is preserved as a non-counted clause `C3` in the
+  correction receipt, with its `3.47e-17` shortfall.
+
+Verdict of record: `G_SYNTH3_PASS_AT_TASK_COUNT_BAR`. The name carries the
+boundary so it cannot be read as a clean pass.
+
+A re-run was rejected. Re-running would mint a PASS from the same numbers, and
+an auditor could not separate that from moving the bar after seeing the outcome.
+A re-analysis from sealed data is checkable: every input is read out of
+`run3.json`, and the arithmetic is reproduced in the correction script.
+
+### 25.6 Scope, stated plainly
+
+`+1 task of 40`. Both arms are deterministic on one bank, seed, and task list,
+so the gain is reproducible rather than sampling noise. It is still ONE task.
+This does not establish a general capability gain, and it does not license
+extending the branch.
+
+`ablation_inert: false` — control emitted 0 name_error candidates. The
+engagement precondition held, so the clauses were not vacuous.
+
+### 25.7 Status
+
+| Item | Class |
+| :--- | :--- |
+| Matched-rounds ablation executes | OBSERVED |
+| `+1` task, zero losses, one mechanism | OBSERVED |
+| Efficacy 1 of 34 candidates | OBSERVED |
+| Bar failed on float representation | OBSERVED |
+| Task-count reading met | DERIVED |
+| Branch earns a general gain | FALSIFIED — one task |

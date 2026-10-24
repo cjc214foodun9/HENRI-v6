@@ -1,0 +1,2198 @@
+{
+  "ablation_inert": false,
+  "attributed_gains": [
+    "816"
+  ],
+  "clauses": [
+    {
+      "bar": "treatment >= control",
+      "counted": true,
+      "id": "T1",
+      "pass": true,
+      "value": {
+        "control": 0.275,
+        "delta": 0.024999999999999967,
+        "treatment": 0.3
+      },
+      "what": "no regression at matched rounds"
+    },
+    {
+      "bar": "delta >= 0.025 AND >=1 attributed gain",
+      "counted": true,
+      "id": "T2",
+      "pass": false,
+      "value": {
+        "attributed_gains": [
+          "816"
+        ],
+        "bar": 0.025,
+        "delta": 0.024999999999999967
+      },
+      "what": "efficacy, not engagement"
+    },
+    {
+      "bar": "losses == 0",
+      "counted": true,
+      "id": "T3",
+      "pass": true,
+      "value": {
+        "losses": []
+      },
+      "what": "zero losses"
+    },
+    {
+      "bar": "reported only",
+      "counted": false,
+      "id": "T4",
+      "pass": true,
+      "value": {
+        "attributed": [
+          "816"
+        ],
+        "counted": false,
+        "gains": [
+          "816"
+        ],
+        "unattributed": []
+      },
+      "what": "attribution integrity"
+    }
+  ],
+  "control": {
+    "counters": {
+      "all_candidates": 126,
+      "kind_hist": {
+        "exception": 114,
+        "name_error": 56,
+        "numeric_offset": 6,
+        "sign_flip": 19,
+        "type_mismatch": 99,
+        "unclassified": 56
+      },
+      "name_error_candidates": 0,
+      "name_error_candidates_ok": 0,
+      "name_error_probes": 56
+    },
+    "hits": 11,
+    "rate": 0.275
+  },
+  "corpus": {
+    "bank_rows": 800,
+    "held": 174,
+    "n_tasks": 40,
+    "overlap": 0,
+    "train": 800
+  },
+  "delta": 0.024999999999999967,
+  "design": {
+    "control_value": "0",
+    "differing_flag": "HENRI_CEGIS_NAME_ERROR_REPAIR",
+    "rounds_both_arms": 2,
+    "treatment_value": "1",
+    "why_matched": "G-SYNTH2's control used rounds=1, so its +3 was an extra-round effect, not a branch effect."
+  },
+  "file_sha256_on_disk": "f1105d8b97e2149bb7cf15c99d15f4ab30ef9caca572a4f287d1d83a3efa330f",
+  "file_sha256_on_disk_note": "hash of the serialization BEFORE this field was inserted. A file cannot contain its own SHA256. The reproducible external identity is in the sibling '<name>.sha256' sidecar, verifiable with `sha256sum -c`.",
+  "gains": [
+    "816"
+  ],
+  "losses": [],
+  "n_clauses_counted": 3,
+  "n_clauses_pass": 2,
+  "per_task_control": [
+    {
+      "mechanisms": [
+        "numeric_offset_+2_1"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 1,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "unclassified",
+        "exception",
+        "unclassified",
+        "exception",
+        "exception",
+        "numeric_offset",
+        "unclassified",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception"
+      ],
+      "task_id": "801",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [
+        "numeric_offset_+1_1",
+        "numeric_offset_+1_2",
+        "numeric_offset_-2_1",
+        "numeric_offset_-2_2",
+        "numeric_offset_+1_1",
+        "numeric_offset_+1_2"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 6,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "numeric_offset",
+        "numeric_offset",
+        "numeric_offset"
+      ],
+      "task_id": "802",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [],
+      "mechanisms_ok": [],
+      "n_repairs": 0,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": true,
+      "residual_kinds": [],
+      "task_id": "803",
+      "verdict": "EXEC_VERIFIED",
+      "winner_origin": "retrieved"
+    },
+    {
+      "mechanisms": [
+        "sign_flip_1",
+        "sign_flip_2",
+        "sign_flip_2",
+        "sign_flip_2",
+        "return_type_bool"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 5,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "sign_flip",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "sign_flip",
+        "sign_flip",
+        "exception",
+        "exception",
+        "exception",
+        "name_error",
+        "name_error",
+        "type_mismatch",
+        "exception",
+        "exception",
+        "name_error",
+        "name_error",
+        "name_error"
+      ],
+      "task_id": "804",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [
+        "return_type_list",
+        "return_type_list"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 2,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "unclassified",
+        "unclassified",
+        "exception",
+        "type_mismatch",
+        "unclassified",
+        "unclassified",
+        "type_mismatch",
+        "unclassified",
+        "unclassified",
+        "name_error",
+        "name_error",
+        "exception"
+      ],
+      "task_id": "805",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [
+        "return_type_int",
+        "return_type_int",
+        "return_type_int",
+        "return_type_int",
+        "return_type_int",
+        "return_type_int"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 6,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "exception",
+        "type_mismatch",
+        "type_mismatch",
+        "exception",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "name_error",
+        "name_error",
+        "name_error",
+        "type_mismatch",
+        "type_mismatch"
+      ],
+      "task_id": "806",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [],
+      "mechanisms_ok": [],
+      "n_repairs": 0,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": true,
+      "residual_kinds": [],
+      "task_id": "807",
+      "verdict": "EXEC_VERIFIED",
+      "winner_origin": "mutated"
+    },
+    {
+      "mechanisms": [
+        "sign_flip_1",
+        "sign_flip_1",
+        "sign_flip_2",
+        "return_type_bool",
+        "return_type_bool",
+        "return_type_bool"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 6,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "exception",
+        "exception",
+        "exception",
+        "sign_flip",
+        "sign_flip",
+        "exception",
+        "exception",
+        "sign_flip",
+        "exception",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch"
+      ],
+      "task_id": "808",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [],
+      "mechanisms_ok": [],
+      "n_repairs": 0,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": true,
+      "residual_kinds": [],
+      "task_id": "809",
+      "verdict": "EXEC_VERIFIED",
+      "winner_origin": "mutated"
+    },
+    {
+      "mechanisms": [
+        "return_type_list"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 1,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "type_mismatch",
+        "exception",
+        "exception"
+      ],
+      "task_id": "810",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [
+        "return_type_bool",
+        "return_type_bool",
+        "return_type_bool",
+        "sign_flip_2",
+        "sign_flip_2",
+        "sign_flip_1"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 6,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "sign_flip",
+        "sign_flip",
+        "sign_flip"
+      ],
+      "task_id": "811",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [
+        "return_type_str",
+        "return_type_str"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 2,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "unclassified",
+        "name_error",
+        "unclassified",
+        "type_mismatch",
+        "type_mismatch",
+        "name_error",
+        "unclassified",
+        "unclassified"
+      ],
+      "task_id": "812",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [],
+      "mechanisms_ok": [],
+      "n_repairs": 0,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": true,
+      "residual_kinds": [],
+      "task_id": "813",
+      "verdict": "EXEC_VERIFIED",
+      "winner_origin": "retrieved"
+    },
+    {
+      "mechanisms": [
+        "return_type_int",
+        "return_type_int",
+        "return_type_int",
+        "return_type_int",
+        "return_type_int",
+        "return_type_int"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 6,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "unclassified",
+        "type_mismatch",
+        "unclassified",
+        "type_mismatch",
+        "unclassified",
+        "type_mismatch"
+      ],
+      "task_id": "814",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [
+        "return_type_list",
+        "return_type_list",
+        "return_type_list",
+        "return_type_list",
+        "return_type_list"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 5,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "exception",
+        "exception",
+        "exception",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "exception",
+        "type_mismatch",
+        "exception",
+        "exception",
+        "exception",
+        "name_error",
+        "name_error",
+        "name_error",
+        "name_error",
+        "name_error",
+        "name_error",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "name_error",
+        "name_error",
+        "name_error"
+      ],
+      "task_id": "815",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [],
+      "mechanisms_ok": [],
+      "n_repairs": 0,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "unclassified",
+        "unclassified",
+        "name_error",
+        "name_error",
+        "name_error",
+        "exception",
+        "exception",
+        "name_error",
+        "name_error",
+        "name_error"
+      ],
+      "task_id": "816",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [
+        "return_type_list",
+        "return_type_list",
+        "return_type_list"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 3,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "unclassified",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception"
+      ],
+      "task_id": "817",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [
+        "return_type_int",
+        "return_type_int",
+        "return_type_int",
+        "numeric_offset_-1_1",
+        "numeric_offset_-1_2",
+        "return_type_int"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 6,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "unclassified",
+        "name_error",
+        "name_error",
+        "name_error",
+        "unclassified",
+        "numeric_offset",
+        "type_mismatch"
+      ],
+      "task_id": "818",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [
+        "return_type_tuple",
+        "return_type_tuple",
+        "return_type_tuple",
+        "return_type_tuple",
+        "return_type_tuple",
+        "return_type_tuple"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 6,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "exception",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "exception",
+        "type_mismatch",
+        "type_mismatch"
+      ],
+      "task_id": "819",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [
+        "sign_flip_1",
+        "sign_flip_2",
+        "sign_flip_2",
+        "sign_flip_1"
+      ],
+      "mechanisms_ok": [
+        "sign_flip_1"
+      ],
+      "n_repairs": 4,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": true,
+      "residual_kinds": [
+        "sign_flip",
+        "sign_flip",
+        "sign_flip",
+        "sign_flip",
+        "sign_flip",
+        "sign_flip",
+        "sign_flip"
+      ],
+      "task_id": "820",
+      "verdict": "EXEC_VERIFIED",
+      "winner_origin": "cegis_repair"
+    },
+    {
+      "mechanisms": [],
+      "mechanisms_ok": [],
+      "n_repairs": 0,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": true,
+      "residual_kinds": [],
+      "task_id": "821",
+      "verdict": "EXEC_VERIFIED",
+      "winner_origin": "retrieved"
+    },
+    {
+      "mechanisms": [
+        "sign_flip_2",
+        "sign_flip_2"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 2,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "sign_flip",
+        "sign_flip",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "name_error",
+        "name_error",
+        "name_error",
+        "name_error",
+        "name_error",
+        "exception",
+        "sign_flip",
+        "exception"
+      ],
+      "task_id": "822",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [
+        "return_type_str",
+        "return_type_str",
+        "return_type_str",
+        "return_type_str",
+        "return_type_str",
+        "return_type_str"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 6,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "type_mismatch",
+        "unclassified",
+        "type_mismatch"
+      ],
+      "task_id": "823",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [],
+      "mechanisms_ok": [],
+      "n_repairs": 0,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": true,
+      "residual_kinds": [],
+      "task_id": "824",
+      "verdict": "EXEC_VERIFIED",
+      "winner_origin": "retrieved"
+    },
+    {
+      "mechanisms": [],
+      "mechanisms_ok": [],
+      "n_repairs": 0,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "exception",
+        "exception",
+        "name_error",
+        "name_error",
+        "unclassified",
+        "exception",
+        "exception",
+        "exception"
+      ],
+      "task_id": "825",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [
+        "return_type_str",
+        "return_type_str",
+        "return_type_str",
+        "return_type_str",
+        "return_type_str",
+        "return_type_str"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 6,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch"
+      ],
+      "task_id": "826",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [],
+      "mechanisms_ok": [],
+      "n_repairs": 0,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "name_error",
+        "name_error",
+        "exception",
+        "exception",
+        "unclassified",
+        "name_error",
+        "name_error",
+        "exception",
+        "unclassified",
+        "exception",
+        "exception",
+        "unclassified"
+      ],
+      "task_id": "827",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [
+        "return_type_tuple",
+        "return_type_tuple",
+        "return_type_tuple",
+        "return_type_tuple",
+        "return_type_tuple",
+        "return_type_tuple"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 6,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "name_error",
+        "name_error",
+        "name_error",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "name_error",
+        "name_error",
+        "name_error",
+        "type_mismatch",
+        "unclassified",
+        "unclassified",
+        "name_error",
+        "name_error",
+        "name_error",
+        "type_mismatch",
+        "type_mismatch"
+      ],
+      "task_id": "828",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [],
+      "mechanisms_ok": [],
+      "n_repairs": 0,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": true,
+      "residual_kinds": [],
+      "task_id": "829",
+      "verdict": "EXEC_VERIFIED",
+      "winner_origin": "retrieved"
+    },
+    {
+      "mechanisms": [
+        "return_type_int",
+        "return_type_int",
+        "return_type_int",
+        "return_type_int"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 4,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "exception",
+        "type_mismatch",
+        "unclassified",
+        "type_mismatch",
+        "type_mismatch",
+        "unclassified",
+        "type_mismatch",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception"
+      ],
+      "task_id": "830",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [],
+      "mechanisms_ok": [],
+      "n_repairs": 0,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": true,
+      "residual_kinds": [],
+      "task_id": "831",
+      "verdict": "EXEC_VERIFIED",
+      "winner_origin": "mutated"
+    },
+    {
+      "mechanisms": [
+        "return_type_int",
+        "return_type_int",
+        "return_type_int",
+        "return_type_int",
+        "return_type_int",
+        "return_type_int"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 6,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "name_error",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "exception",
+        "type_mismatch",
+        "exception",
+        "exception",
+        "exception",
+        "type_mismatch"
+      ],
+      "task_id": "832",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [],
+      "mechanisms_ok": [],
+      "n_repairs": 0,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "name_error",
+        "name_error",
+        "name_error",
+        "exception",
+        "name_error",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "name_error"
+      ],
+      "task_id": "833",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [
+        "return_type_list",
+        "return_type_list",
+        "return_type_list",
+        "return_type_list",
+        "return_type_list",
+        "return_type_list"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 6,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch"
+      ],
+      "task_id": "834",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [
+        "return_type_float",
+        "return_type_float",
+        "return_type_float",
+        "return_type_float",
+        "return_type_float",
+        "return_type_float"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 6,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch"
+      ],
+      "task_id": "835",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [],
+      "mechanisms_ok": [],
+      "n_repairs": 0,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": true,
+      "residual_kinds": [],
+      "task_id": "836",
+      "verdict": "EXEC_VERIFIED",
+      "winner_origin": "mutated"
+    },
+    {
+      "mechanisms": [
+        "return_type_int",
+        "return_type_int",
+        "return_type_int",
+        "return_type_int",
+        "return_type_int",
+        "return_type_int"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 6,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "type_mismatch",
+        "unclassified",
+        "unclassified",
+        "type_mismatch",
+        "unclassified",
+        "unclassified",
+        "exception",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "type_mismatch"
+      ],
+      "task_id": "837",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [
+        "return_type_int",
+        "numeric_offset_+1_1",
+        "numeric_offset_+1_2",
+        "return_type_int",
+        "return_type_int",
+        "return_type_int"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 6,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "numeric_offset",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch"
+      ],
+      "task_id": "838",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [
+        "return_type_list"
+      ],
+      "mechanisms_ok": [
+        "return_type_list"
+      ],
+      "n_repairs": 1,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": true,
+      "residual_kinds": [
+        "type_mismatch"
+      ],
+      "task_id": "839",
+      "verdict": "EXEC_VERIFIED",
+      "winner_origin": "cegis_repair"
+    },
+    {
+      "mechanisms": [
+        "return_type_str",
+        "return_type_str",
+        "return_type_str",
+        "return_type_str",
+        "return_type_str",
+        "return_type_str"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 6,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch"
+      ],
+      "task_id": "840",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    }
+  ],
+  "per_task_treatment": [
+    {
+      "mechanisms": [
+        "numeric_offset_+2_1"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 1,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "unclassified",
+        "exception",
+        "unclassified",
+        "exception",
+        "exception",
+        "numeric_offset",
+        "unclassified",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception"
+      ],
+      "task_id": "801",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [
+        "numeric_offset_+1_1",
+        "numeric_offset_+1_2",
+        "numeric_offset_-2_1",
+        "numeric_offset_-2_2",
+        "numeric_offset_+1_1",
+        "numeric_offset_+1_2"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 6,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "numeric_offset",
+        "numeric_offset",
+        "numeric_offset"
+      ],
+      "task_id": "802",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [],
+      "mechanisms_ok": [],
+      "n_repairs": 0,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": true,
+      "residual_kinds": [],
+      "task_id": "803",
+      "verdict": "EXEC_VERIFIED",
+      "winner_origin": "retrieved"
+    },
+    {
+      "mechanisms": [
+        "sign_flip_1",
+        "sign_flip_2",
+        "sign_flip_2",
+        "sign_flip_2",
+        "rebind_multiply_int",
+        "rebind_multiply_int"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 6,
+      "name_error_candidates": [
+        "rebind_multiply_int",
+        "rebind_multiply_int"
+      ],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "sign_flip",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "sign_flip",
+        "sign_flip",
+        "exception",
+        "exception",
+        "exception",
+        "name_error",
+        "name_error"
+      ],
+      "task_id": "804",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [
+        "return_type_list",
+        "return_type_list",
+        "rebind_nums2",
+        "rebind_nums2"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 4,
+      "name_error_candidates": [
+        "rebind_nums2",
+        "rebind_nums2"
+      ],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "unclassified",
+        "unclassified",
+        "exception",
+        "type_mismatch",
+        "unclassified",
+        "unclassified",
+        "type_mismatch",
+        "unclassified",
+        "unclassified",
+        "name_error",
+        "name_error",
+        "exception"
+      ],
+      "task_id": "805",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [
+        "return_type_int",
+        "return_type_int",
+        "return_type_int",
+        "return_type_int",
+        "rebind_str2",
+        "rebind_str2"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 6,
+      "name_error_candidates": [
+        "rebind_str2",
+        "rebind_str2"
+      ],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "exception",
+        "type_mismatch",
+        "type_mismatch",
+        "exception",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "name_error",
+        "name_error"
+      ],
+      "task_id": "806",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [],
+      "mechanisms_ok": [],
+      "n_repairs": 0,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": true,
+      "residual_kinds": [],
+      "task_id": "807",
+      "verdict": "EXEC_VERIFIED",
+      "winner_origin": "mutated"
+    },
+    {
+      "mechanisms": [
+        "sign_flip_1",
+        "sign_flip_1",
+        "sign_flip_2",
+        "return_type_bool",
+        "return_type_bool",
+        "return_type_bool"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 6,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "exception",
+        "exception",
+        "exception",
+        "sign_flip",
+        "sign_flip",
+        "exception",
+        "exception",
+        "sign_flip",
+        "exception",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch"
+      ],
+      "task_id": "808",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [],
+      "mechanisms_ok": [],
+      "n_repairs": 0,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": true,
+      "residual_kinds": [],
+      "task_id": "809",
+      "verdict": "EXEC_VERIFIED",
+      "winner_origin": "mutated"
+    },
+    {
+      "mechanisms": [
+        "return_type_list"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 1,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "type_mismatch",
+        "exception",
+        "exception"
+      ],
+      "task_id": "810",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [
+        "return_type_bool",
+        "return_type_bool",
+        "return_type_bool",
+        "sign_flip_2",
+        "sign_flip_2",
+        "sign_flip_1"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 6,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "sign_flip",
+        "sign_flip",
+        "sign_flip"
+      ],
+      "task_id": "811",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [
+        "rebind_ch",
+        "return_type_str",
+        "return_type_str",
+        "rebind_text"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 4,
+      "name_error_candidates": [
+        "rebind_ch",
+        "rebind_text"
+      ],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "unclassified",
+        "name_error",
+        "unclassified",
+        "type_mismatch",
+        "type_mismatch",
+        "name_error",
+        "unclassified",
+        "unclassified"
+      ],
+      "task_id": "812",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [],
+      "mechanisms_ok": [],
+      "n_repairs": 0,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": true,
+      "residual_kinds": [],
+      "task_id": "813",
+      "verdict": "EXEC_VERIFIED",
+      "winner_origin": "retrieved"
+    },
+    {
+      "mechanisms": [
+        "return_type_int",
+        "return_type_int",
+        "return_type_int",
+        "return_type_int",
+        "return_type_int",
+        "return_type_int"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 6,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "unclassified",
+        "type_mismatch",
+        "unclassified",
+        "type_mismatch",
+        "unclassified",
+        "type_mismatch"
+      ],
+      "task_id": "814",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [
+        "return_type_list",
+        "return_type_list",
+        "return_type_list",
+        "return_type_list",
+        "return_type_list",
+        "rebind_right_element"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 6,
+      "name_error_candidates": [
+        "rebind_right_element"
+      ],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "exception",
+        "exception",
+        "exception",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "exception",
+        "type_mismatch",
+        "exception",
+        "exception",
+        "exception",
+        "name_error"
+      ],
+      "task_id": "815",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [
+        "rebind_test_tup2",
+        "rebind_test_tup2",
+        "rebind_test_tup2"
+      ],
+      "mechanisms_ok": [
+        "rebind_test_tup2"
+      ],
+      "n_repairs": 3,
+      "name_error_candidates": [
+        "rebind_test_tup2",
+        "rebind_test_tup2",
+        "rebind_test_tup2"
+      ],
+      "name_error_candidates_ok": [
+        "rebind_test_tup2"
+      ],
+      "ok": true,
+      "residual_kinds": [
+        "unclassified",
+        "unclassified",
+        "name_error",
+        "name_error",
+        "name_error"
+      ],
+      "task_id": "816",
+      "verdict": "EXEC_VERIFIED",
+      "winner_origin": "cegis_repair"
+    },
+    {
+      "mechanisms": [
+        "return_type_list",
+        "return_type_list",
+        "return_type_list"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 3,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "unclassified",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception"
+      ],
+      "task_id": "817",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [
+        "return_type_int",
+        "return_type_int",
+        "return_type_int",
+        "rebind_str2",
+        "rebind_str2",
+        "rebind_str2"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 6,
+      "name_error_candidates": [
+        "rebind_str2",
+        "rebind_str2",
+        "rebind_str2"
+      ],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "unclassified",
+        "name_error",
+        "name_error",
+        "name_error"
+      ],
+      "task_id": "818",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [
+        "return_type_tuple",
+        "return_type_tuple",
+        "return_type_tuple",
+        "return_type_tuple",
+        "return_type_tuple",
+        "return_type_tuple"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 6,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "exception",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "exception",
+        "type_mismatch",
+        "type_mismatch"
+      ],
+      "task_id": "819",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [
+        "sign_flip_1",
+        "sign_flip_2",
+        "sign_flip_2",
+        "sign_flip_1"
+      ],
+      "mechanisms_ok": [
+        "sign_flip_1"
+      ],
+      "n_repairs": 4,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": true,
+      "residual_kinds": [
+        "sign_flip",
+        "sign_flip",
+        "sign_flip",
+        "sign_flip",
+        "sign_flip",
+        "sign_flip",
+        "sign_flip"
+      ],
+      "task_id": "820",
+      "verdict": "EXEC_VERIFIED",
+      "winner_origin": "cegis_repair"
+    },
+    {
+      "mechanisms": [],
+      "mechanisms_ok": [],
+      "n_repairs": 0,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": true,
+      "residual_kinds": [],
+      "task_id": "821",
+      "verdict": "EXEC_VERIFIED",
+      "winner_origin": "retrieved"
+    },
+    {
+      "mechanisms": [
+        "sign_flip_2",
+        "sign_flip_2",
+        "rebind_element",
+        "rebind_element",
+        "rebind_text",
+        "rebind_sale_amount"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 6,
+      "name_error_candidates": [
+        "rebind_element",
+        "rebind_element",
+        "rebind_text",
+        "rebind_sale_amount"
+      ],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "sign_flip",
+        "sign_flip",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "name_error",
+        "name_error",
+        "name_error",
+        "name_error"
+      ],
+      "task_id": "822",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [
+        "return_type_str",
+        "return_type_str",
+        "return_type_str",
+        "return_type_str",
+        "return_type_str",
+        "return_type_str"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 6,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "type_mismatch",
+        "unclassified",
+        "type_mismatch"
+      ],
+      "task_id": "823",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [],
+      "mechanisms_ok": [],
+      "n_repairs": 0,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": true,
+      "residual_kinds": [],
+      "task_id": "824",
+      "verdict": "EXEC_VERIFIED",
+      "winner_origin": "retrieved"
+    },
+    {
+      "mechanisms": [
+        "rebind_l3",
+        "rebind_l3"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 2,
+      "name_error_candidates": [
+        "rebind_l3",
+        "rebind_l3"
+      ],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "exception",
+        "exception",
+        "name_error",
+        "name_error",
+        "unclassified",
+        "exception",
+        "exception",
+        "exception"
+      ],
+      "task_id": "825",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [
+        "return_type_str",
+        "return_type_str",
+        "return_type_str",
+        "return_type_str",
+        "return_type_str",
+        "return_type_str"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 6,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch"
+      ],
+      "task_id": "826",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [
+        "rebind_n",
+        "rebind_n",
+        "rebind_n",
+        "rebind_n"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 4,
+      "name_error_candidates": [
+        "rebind_n",
+        "rebind_n",
+        "rebind_n",
+        "rebind_n"
+      ],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "name_error",
+        "name_error",
+        "exception",
+        "exception",
+        "unclassified",
+        "name_error",
+        "name_error",
+        "exception",
+        "unclassified",
+        "exception",
+        "exception",
+        "unclassified"
+      ],
+      "task_id": "827",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [
+        "rebind_char",
+        "rebind_char",
+        "rebind_char",
+        "return_type_tuple",
+        "return_type_tuple",
+        "return_type_tuple"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 6,
+      "name_error_candidates": [
+        "rebind_char",
+        "rebind_char",
+        "rebind_char"
+      ],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "name_error",
+        "name_error",
+        "name_error",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch"
+      ],
+      "task_id": "828",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [],
+      "mechanisms_ok": [],
+      "n_repairs": 0,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": true,
+      "residual_kinds": [],
+      "task_id": "829",
+      "verdict": "EXEC_VERIFIED",
+      "winner_origin": "retrieved"
+    },
+    {
+      "mechanisms": [
+        "return_type_int",
+        "return_type_int",
+        "return_type_int",
+        "return_type_int"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 4,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "exception",
+        "type_mismatch",
+        "unclassified",
+        "type_mismatch",
+        "type_mismatch",
+        "unclassified",
+        "type_mismatch",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception"
+      ],
+      "task_id": "830",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [],
+      "mechanisms_ok": [],
+      "n_repairs": 0,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": true,
+      "residual_kinds": [],
+      "task_id": "831",
+      "verdict": "EXEC_VERIFIED",
+      "winner_origin": "mutated"
+    },
+    {
+      "mechanisms": [
+        "return_type_int",
+        "rebind_patterns",
+        "return_type_int",
+        "return_type_int",
+        "return_type_int",
+        "return_type_int"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 6,
+      "name_error_candidates": [
+        "rebind_patterns"
+      ],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "name_error",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "exception",
+        "type_mismatch"
+      ],
+      "task_id": "832",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [
+        "rebind_key",
+        "rebind_n",
+        "rebind_n",
+        "rebind_test_dict",
+        "rebind_l2"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 5,
+      "name_error_candidates": [
+        "rebind_key",
+        "rebind_n",
+        "rebind_n",
+        "rebind_test_dict",
+        "rebind_l2"
+      ],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "name_error",
+        "name_error",
+        "name_error",
+        "exception",
+        "name_error",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "name_error"
+      ],
+      "task_id": "833",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [
+        "return_type_list",
+        "return_type_list",
+        "return_type_list",
+        "return_type_list",
+        "return_type_list",
+        "return_type_list"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 6,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch"
+      ],
+      "task_id": "834",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [
+        "return_type_float",
+        "return_type_float",
+        "return_type_float",
+        "return_type_float",
+        "return_type_float",
+        "return_type_float"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 6,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch"
+      ],
+      "task_id": "835",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [],
+      "mechanisms_ok": [],
+      "n_repairs": 0,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": true,
+      "residual_kinds": [],
+      "task_id": "836",
+      "verdict": "EXEC_VERIFIED",
+      "winner_origin": "mutated"
+    },
+    {
+      "mechanisms": [
+        "return_type_int",
+        "return_type_int",
+        "return_type_int",
+        "return_type_int",
+        "return_type_int",
+        "return_type_int"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 6,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "type_mismatch",
+        "unclassified",
+        "unclassified",
+        "type_mismatch",
+        "unclassified",
+        "unclassified",
+        "exception",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "type_mismatch"
+      ],
+      "task_id": "837",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [
+        "return_type_int",
+        "numeric_offset_+1_1",
+        "numeric_offset_+1_2",
+        "return_type_int",
+        "return_type_int",
+        "return_type_int"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 6,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "numeric_offset",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch"
+      ],
+      "task_id": "838",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    },
+    {
+      "mechanisms": [
+        "return_type_list"
+      ],
+      "mechanisms_ok": [
+        "return_type_list"
+      ],
+      "n_repairs": 1,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": true,
+      "residual_kinds": [
+        "type_mismatch"
+      ],
+      "task_id": "839",
+      "verdict": "EXEC_VERIFIED",
+      "winner_origin": "cegis_repair"
+    },
+    {
+      "mechanisms": [
+        "return_type_str",
+        "return_type_str",
+        "return_type_str",
+        "return_type_str",
+        "return_type_str",
+        "return_type_str"
+      ],
+      "mechanisms_ok": [],
+      "n_repairs": 6,
+      "name_error_candidates": [],
+      "name_error_candidates_ok": [],
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch"
+      ],
+      "task_id": "840",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_origin": null
+    }
+  ],
+  "prediction_recorded_before_run": "Run 3's single name_error gain (task 816) is round-count confounded and does not predict this gate. Predicted marginal effect: 0 to 1 tasks. A zero result is a finding.",
+  "probe": "phase11_g_synth3_round_matched_name_error_ablation",
+  "receipt_sha256_of_body_before_self_field": "d8cc00d205e82975c4478b9234310d74e1b74dc2a8a36c23e72ceb3cb0a7cd98",
+  "tag": "run3",
+  "treatment": {
+    "counters": {
+      "all_candidates": 150,
+      "kind_hist": {
+        "exception": 105,
+        "name_error": 34,
+        "numeric_offset": 5,
+        "sign_flip": 18,
+        "type_mismatch": 91,
+        "unclassified": 50
+      },
+      "name_error_candidates": 34,
+      "name_error_candidates_ok": 1,
+      "name_error_probes": 34
+    },
+    "hits": 12,
+    "rate": 0.3
+  },
+  "verdict": "G_SYNTH3_BELOW_BAR",
+  "wall_clock_s": 315.94
+}

@@ -1,0 +1,85 @@
+{
+  "both_readings": {
+    "strict_float": {
+      "delta": 0.024999999999999967,
+      "pass": false,
+      "shortfall": 3.469446951953614e-17
+    },
+    "task_count": {
+      "gain_tasks": 1,
+      "needed": 1,
+      "pass": true
+    }
+  },
+  "clauses": [
+    {
+      "counted": true,
+      "id": "C1",
+      "pass": true,
+      "value": {
+        "attributed": [
+          "816"
+        ],
+        "gain_tasks": 1,
+        "needed": 1
+      },
+      "what": "efficacy at the task-count bar"
+    },
+    {
+      "counted": true,
+      "id": "C2",
+      "pass": true,
+      "value": {
+        "losses": []
+      },
+      "what": "zero losses"
+    },
+    {
+      "counted": false,
+      "id": "C3",
+      "pass": true,
+      "value": {
+        "delta": 0.024999999999999967,
+        "pass": false,
+        "shortfall": 3.469446951953614e-17
+      },
+      "what": "strict-float reading retained for audit"
+    }
+  ],
+  "defect": {
+    "bar_registered_as": "one task of forty",
+    "changed": "comparison domain: float ratio -> integer task count",
+    "description": "T2 compared binary-float ratio differences against 0.025. 12/40 - 11/40 evaluates to 0.024999999999999967, short of 0.025 by 3.47e-17, so the bar failed on representation.",
+    "threshold_unchanged": 0.025
+  },
+  "does_not_edit_source": true,
+  "file_sha256_on_disk": "96241890e22af574d86176eff70486b528963edd129891efc3e819e02dbd6901",
+  "file_sha256_on_disk_note": "hash of the serialization BEFORE this field was inserted. A file cannot contain its own SHA256. The reproducible external identity is in the sibling '<name>.sha256' sidecar, verifiable with `sha256sum -c`.",
+  "kind": "REANALYSIS_OF_SEALED_RECEIPT",
+  "measured": {
+    "attributed_gains": [
+      "816"
+    ],
+    "control_hits": 11,
+    "control_name_error_candidates": 0,
+    "delta_tasks": 1,
+    "gains": [
+      "816"
+    ],
+    "losses": [],
+    "n_tasks": 40,
+    "treatment_hits": 12,
+    "treatment_name_error_candidates": 34
+  },
+  "probe": "phase11_g_synth3_bar_encoding_correction",
+  "receipt_sha256_of_body_before_self_field": "716ca992bbf7d3d31ea86f03a32c5d22617740039327dec632f16d725f749472",
+  "runs_no_tasks": true,
+  "scope_limit": "+1 task of 40. Both arms are deterministic on one bank, seed, and task list, so the gain is reproducible rather than sampling noise. It is still one task and does not establish a general capability gain. 34 name_error candidates were emitted and 1 became a verified solve.",
+  "source_receipt": "phase11_g_synth3_run3.json",
+  "source_receipt_verified": {
+    "body_match": true,
+    "file_match": true
+  },
+  "supersedes_nothing": "run3.json keeps its verdict G_SYNTH3_BELOW_BAR. This receipt records the same numbers under the bar's registered units.",
+  "verdict": "G_SYNTH3_PASS_AT_TASK_COUNT_BAR"
+}
