@@ -186,5 +186,67 @@ def test_call_site_is_additive():
     text = (ROOT / "henri" / "code_synth.py").read_text(encoding="utf-8")
     assert "if shape_adapt_enabled():" in text
     assert "shape_adapted=True" in text
+    # RESTORED. My patch that appended the provenance test used these two
+    # assertions as ANCHORS and dropped them, so the file gained a test while
+    # silently losing the ADDITIVE guard. A net loss of coverage is not
+    # progress, and a diff that deletes a guard is the defect this suite
+    # exists to catch.
     assert "base = shaped" not in text
     assert "base, adapted = shaped" not in text
+
+# -- winner provenance: the gate defect that made T2 unreachable -----------
+
+def test_winner_carries_provenance_so_attribution_can_fail(monkeypatch):
+    """`G-SHAPE1` run1 could not pass T2 under ANY input.
+
+    `code_verify.py` built `winner` from `candidate_index`, `wave_score` and
+    `origin` only. It never copied `provenance`, while the probe judged
+    attribution with `winner_provenance == "shape_adapted"`. `attributed` was
+    therefore empty by construction.
+
+    A source-text assertion would NOT catch this: the string `provenance`
+    already appeared on the executed rows. This test drives a real call and
+    reads the emitted dict, so a future refactor that drops the field fails.
+    """
+    import numpy as np
+
+    import henri.code_synth as cs
+    import henri.code_verify as cv
+
+    shape_src = "def f(a):\n    return a[0]\n"
+    rows = [{"text": shape_src, "origin": "mutated", "adapted": False,
+             "shape_adapted": True, "mutation": "shape_adapt",
+             "template_index": 0, "template_rank": 1}]
+
+    class _Bank:
+        rows = 1
+
+        def __len__(self):
+            return 1
+
+    class _Exec:
+        EXEC_TIMEOUT = 6
+
+        def run_candidate(self, code, tests, timeout=None):
+            return {"ok": True, "reason": "pass"}
+
+    monkeypatch.setattr(cs, "synthesize_candidates",
+                        lambda bb, spec, bank, tests=(), k=8,
+                        max_variants=2: rows)
+    monkeypatch.setattr(
+        cv, "rank_candidates",
+        lambda bb, spec, cands: {
+            "ranked": [(1.0, 0, cands[0])], "scores": np.array([1.0]),
+            "top1_index": 0, "top1_score": 1.0,
+            "tie_group_size": 1, "n": 1})
+    monkeypatch.setattr(cv, "load_mbpp_executor", lambda: _Exec())
+
+    out = cv.solve_verified_code(None, "return the first element", [],
+                                 ["assert f(5) == 5"], bank=_Bank(),
+                                 synthesize_from_bank=True)
+
+    assert out["verdict"] == "EXEC_VERIFIED"
+    assert out["winner"] is not None
+    assert out["winner"]["provenance"] == "shape_adapted"
+    assert out["winner"]["shape_adapted"] is True
+

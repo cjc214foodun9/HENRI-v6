@@ -1,0 +1,1594 @@
+{
+  "ablation_inert": false,
+  "attributed_gains": [],
+  "bar_tasks": 1,
+  "clauses": [
+    {
+      "counted": true,
+      "id": "T1",
+      "pass": true,
+      "value": {
+        "control": 12,
+        "treatment": 13
+      },
+      "what": "treatment does not lose"
+    },
+    {
+      "counted": true,
+      "id": "T2",
+      "pass": false,
+      "value": {
+        "attributed": [],
+        "bar_tasks": 1,
+        "gain_tasks": 1
+      },
+      "what": "efficacy, attributed to the mechanism"
+    },
+    {
+      "counted": true,
+      "id": "T3",
+      "pass": true,
+      "value": {
+        "losses": []
+      },
+      "what": "zero losses"
+    },
+    {
+      "counted": false,
+      "id": "T4",
+      "pass": null,
+      "value": {
+        "attributed": [],
+        "gains": [
+          "808"
+        ],
+        "unattributed": [
+          "808"
+        ]
+      },
+      "what": "attribution detail, reported not a bar"
+    },
+    {
+      "counted": false,
+      "id": "T5",
+      "pass": true,
+      "value": {
+        "control_candidates": 0,
+        "control_leak": false,
+        "treatment_candidates": 127,
+        "treatment_silent": false
+      },
+      "what": "engagement precondition, both directions"
+    }
+  ],
+  "control": {
+    "counters": {
+      "all_candidates": 666,
+      "exception_probes": 105,
+      "shape_candidates": 0,
+      "shape_candidates_ok": 0,
+      "tasks_with_shape": 0
+    },
+    "hits": 12
+  },
+  "gain_tasks": 1,
+  "gains": [
+    "808"
+  ],
+  "gate": "G-SHAPE1",
+  "losses": [],
+  "n": 40,
+  "per_task_control": [
+    {
+      "n_repairs": 1,
+      "n_shape": 0,
+      "ok": false,
+      "residual_kinds": [
+        "unclassified",
+        "exception",
+        "unclassified",
+        "exception",
+        "exception",
+        "numeric_offset",
+        "unclassified",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "801",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 6,
+      "n_shape": 0,
+      "ok": false,
+      "residual_kinds": [
+        "numeric_offset",
+        "numeric_offset",
+        "numeric_offset"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "802",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 0,
+      "n_shape": 0,
+      "ok": true,
+      "residual_kinds": [],
+      "shape_candidates_ok": [],
+      "task_id": "803",
+      "verdict": "EXEC_VERIFIED",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 6,
+      "n_shape": 0,
+      "ok": false,
+      "residual_kinds": [
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "sign_flip",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "sign_flip",
+        "sign_flip",
+        "exception",
+        "exception",
+        "exception",
+        "name_error",
+        "name_error"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "804",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 4,
+      "n_shape": 0,
+      "ok": false,
+      "residual_kinds": [
+        "unclassified",
+        "unclassified",
+        "exception",
+        "type_mismatch",
+        "unclassified",
+        "unclassified",
+        "type_mismatch",
+        "unclassified",
+        "unclassified",
+        "name_error",
+        "name_error",
+        "exception"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "805",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 6,
+      "n_shape": 0,
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "exception",
+        "type_mismatch",
+        "type_mismatch",
+        "exception",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "name_error",
+        "name_error"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "806",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 0,
+      "n_shape": 0,
+      "ok": true,
+      "residual_kinds": [],
+      "shape_candidates_ok": [],
+      "task_id": "807",
+      "verdict": "EXEC_VERIFIED",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 6,
+      "n_shape": 0,
+      "ok": false,
+      "residual_kinds": [
+        "exception",
+        "exception",
+        "exception",
+        "sign_flip",
+        "sign_flip",
+        "exception",
+        "exception",
+        "sign_flip",
+        "exception",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "808",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 0,
+      "n_shape": 0,
+      "ok": true,
+      "residual_kinds": [],
+      "shape_candidates_ok": [],
+      "task_id": "809",
+      "verdict": "EXEC_VERIFIED",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 1,
+      "n_shape": 0,
+      "ok": false,
+      "residual_kinds": [
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "type_mismatch",
+        "exception",
+        "exception"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "810",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 6,
+      "n_shape": 0,
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "sign_flip",
+        "sign_flip",
+        "sign_flip"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "811",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 4,
+      "n_shape": 0,
+      "ok": false,
+      "residual_kinds": [
+        "unclassified",
+        "name_error",
+        "unclassified",
+        "type_mismatch",
+        "type_mismatch",
+        "name_error",
+        "unclassified",
+        "unclassified"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "812",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 0,
+      "n_shape": 0,
+      "ok": true,
+      "residual_kinds": [],
+      "shape_candidates_ok": [],
+      "task_id": "813",
+      "verdict": "EXEC_VERIFIED",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 6,
+      "n_shape": 0,
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "unclassified",
+        "type_mismatch",
+        "unclassified",
+        "type_mismatch",
+        "unclassified",
+        "type_mismatch"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "814",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 6,
+      "n_shape": 0,
+      "ok": false,
+      "residual_kinds": [
+        "exception",
+        "exception",
+        "exception",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "exception",
+        "type_mismatch",
+        "exception",
+        "exception",
+        "exception",
+        "name_error"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "815",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 3,
+      "n_shape": 0,
+      "ok": true,
+      "residual_kinds": [
+        "unclassified",
+        "unclassified",
+        "name_error",
+        "name_error",
+        "name_error"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "816",
+      "verdict": "EXEC_VERIFIED",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 3,
+      "n_shape": 0,
+      "ok": false,
+      "residual_kinds": [
+        "unclassified",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "817",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 6,
+      "n_shape": 0,
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "unclassified",
+        "name_error",
+        "name_error",
+        "name_error"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "818",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 6,
+      "n_shape": 0,
+      "ok": false,
+      "residual_kinds": [
+        "exception",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "exception",
+        "type_mismatch",
+        "type_mismatch"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "819",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 4,
+      "n_shape": 0,
+      "ok": true,
+      "residual_kinds": [
+        "sign_flip",
+        "sign_flip",
+        "sign_flip",
+        "sign_flip",
+        "sign_flip",
+        "sign_flip",
+        "sign_flip"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "820",
+      "verdict": "EXEC_VERIFIED",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 0,
+      "n_shape": 0,
+      "ok": true,
+      "residual_kinds": [],
+      "shape_candidates_ok": [],
+      "task_id": "821",
+      "verdict": "EXEC_VERIFIED",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 6,
+      "n_shape": 0,
+      "ok": false,
+      "residual_kinds": [
+        "sign_flip",
+        "sign_flip",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "name_error",
+        "name_error",
+        "name_error",
+        "name_error"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "822",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 6,
+      "n_shape": 0,
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "type_mismatch",
+        "unclassified",
+        "type_mismatch"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "823",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 0,
+      "n_shape": 0,
+      "ok": true,
+      "residual_kinds": [],
+      "shape_candidates_ok": [],
+      "task_id": "824",
+      "verdict": "EXEC_VERIFIED",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 2,
+      "n_shape": 0,
+      "ok": false,
+      "residual_kinds": [
+        "exception",
+        "exception",
+        "name_error",
+        "name_error",
+        "unclassified",
+        "exception",
+        "exception",
+        "exception"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "825",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 6,
+      "n_shape": 0,
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "826",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 4,
+      "n_shape": 0,
+      "ok": false,
+      "residual_kinds": [
+        "name_error",
+        "name_error",
+        "exception",
+        "exception",
+        "unclassified",
+        "name_error",
+        "name_error",
+        "exception",
+        "unclassified",
+        "exception",
+        "exception",
+        "unclassified"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "827",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 6,
+      "n_shape": 0,
+      "ok": false,
+      "residual_kinds": [
+        "name_error",
+        "name_error",
+        "name_error",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "828",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 0,
+      "n_shape": 0,
+      "ok": true,
+      "residual_kinds": [],
+      "shape_candidates_ok": [],
+      "task_id": "829",
+      "verdict": "EXEC_VERIFIED",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 4,
+      "n_shape": 0,
+      "ok": false,
+      "residual_kinds": [
+        "exception",
+        "type_mismatch",
+        "unclassified",
+        "type_mismatch",
+        "type_mismatch",
+        "unclassified",
+        "type_mismatch",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "830",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 0,
+      "n_shape": 0,
+      "ok": true,
+      "residual_kinds": [],
+      "shape_candidates_ok": [],
+      "task_id": "831",
+      "verdict": "EXEC_VERIFIED",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 6,
+      "n_shape": 0,
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "name_error",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "exception",
+        "type_mismatch"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "832",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 5,
+      "n_shape": 0,
+      "ok": false,
+      "residual_kinds": [
+        "name_error",
+        "name_error",
+        "name_error",
+        "exception",
+        "name_error",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "name_error"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "833",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 6,
+      "n_shape": 0,
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "834",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 6,
+      "n_shape": 0,
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "835",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 0,
+      "n_shape": 0,
+      "ok": true,
+      "residual_kinds": [],
+      "shape_candidates_ok": [],
+      "task_id": "836",
+      "verdict": "EXEC_VERIFIED",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 6,
+      "n_shape": 0,
+      "ok": false,
+      "residual_kinds": [
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "type_mismatch",
+        "unclassified",
+        "unclassified",
+        "type_mismatch",
+        "unclassified",
+        "unclassified",
+        "exception",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "type_mismatch"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "837",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 6,
+      "n_shape": 0,
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "numeric_offset",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "838",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 1,
+      "n_shape": 0,
+      "ok": true,
+      "residual_kinds": [
+        "type_mismatch"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "839",
+      "verdict": "EXEC_VERIFIED",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 6,
+      "n_shape": 0,
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "840",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    }
+  ],
+  "per_task_treatment": [
+    {
+      "n_repairs": 2,
+      "n_shape": 4,
+      "ok": false,
+      "residual_kinds": [
+        "unclassified",
+        "exception",
+        "unclassified",
+        "exception",
+        "exception",
+        "numeric_offset",
+        "unclassified",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "numeric_offset",
+        "exception",
+        "exception",
+        "unclassified"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "801",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 6,
+      "n_shape": 8,
+      "ok": false,
+      "residual_kinds": [
+        "numeric_offset",
+        "numeric_offset",
+        "numeric_offset"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "802",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 0,
+      "n_shape": 0,
+      "ok": true,
+      "residual_kinds": [],
+      "shape_candidates_ok": [],
+      "task_id": "803",
+      "verdict": "EXEC_VERIFIED",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 6,
+      "n_shape": 1,
+      "ok": false,
+      "residual_kinds": [
+        "name_error",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "sign_flip",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "sign_flip",
+        "sign_flip",
+        "exception",
+        "exception",
+        "exception",
+        "name_error"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "804",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 5,
+      "n_shape": 4,
+      "ok": false,
+      "residual_kinds": [
+        "unclassified",
+        "unclassified",
+        "exception",
+        "type_mismatch",
+        "unclassified",
+        "unclassified",
+        "type_mismatch",
+        "unclassified",
+        "unclassified",
+        "name_error",
+        "name_error",
+        "exception",
+        "exception",
+        "unclassified",
+        "unclassified",
+        "type_mismatch"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "805",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 6,
+      "n_shape": 3,
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "exception",
+        "type_mismatch",
+        "type_mismatch",
+        "exception",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "name_error",
+        "name_error"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "806",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 0,
+      "n_shape": 4,
+      "ok": true,
+      "residual_kinds": [],
+      "shape_candidates_ok": [],
+      "task_id": "807",
+      "verdict": "EXEC_VERIFIED",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 0,
+      "n_shape": 5,
+      "ok": true,
+      "residual_kinds": [],
+      "shape_candidates_ok": [
+        "shape_adapt"
+      ],
+      "task_id": "808",
+      "verdict": "EXEC_VERIFIED",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 0,
+      "n_shape": 0,
+      "ok": true,
+      "residual_kinds": [],
+      "shape_candidates_ok": [],
+      "task_id": "809",
+      "verdict": "EXEC_VERIFIED",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 3,
+      "n_shape": 5,
+      "ok": false,
+      "residual_kinds": [
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "type_mismatch",
+        "exception",
+        "exception",
+        "type_mismatch",
+        "type_mismatch",
+        "exception",
+        "exception",
+        "unclassified"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "810",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 6,
+      "n_shape": 4,
+      "ok": false,
+      "residual_kinds": [
+        "sign_flip",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "sign_flip",
+        "sign_flip"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "811",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 5,
+      "n_shape": 1,
+      "ok": false,
+      "residual_kinds": [
+        "unclassified",
+        "name_error",
+        "unclassified",
+        "type_mismatch",
+        "type_mismatch",
+        "name_error",
+        "unclassified",
+        "unclassified",
+        "name_error"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "812",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 0,
+      "n_shape": 7,
+      "ok": true,
+      "residual_kinds": [],
+      "shape_candidates_ok": [
+        "shape_adapt"
+      ],
+      "task_id": "813",
+      "verdict": "EXEC_VERIFIED",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 6,
+      "n_shape": 0,
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "unclassified",
+        "type_mismatch",
+        "unclassified",
+        "type_mismatch",
+        "unclassified",
+        "type_mismatch"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "814",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 6,
+      "n_shape": 8,
+      "ok": false,
+      "residual_kinds": [
+        "name_error",
+        "name_error",
+        "name_error",
+        "unclassified",
+        "exception",
+        "type_mismatch",
+        "type_mismatch",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "type_mismatch"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "815",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 4,
+      "n_shape": 1,
+      "ok": true,
+      "residual_kinds": [
+        "unclassified",
+        "name_error",
+        "unclassified",
+        "name_error",
+        "name_error",
+        "name_error"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "816",
+      "verdict": "EXEC_VERIFIED",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 4,
+      "n_shape": 1,
+      "ok": false,
+      "residual_kinds": [
+        "unclassified",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "type_mismatch",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "817",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 6,
+      "n_shape": 4,
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "unclassified",
+        "name_error",
+        "name_error",
+        "name_error"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "818",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 6,
+      "n_shape": 4,
+      "ok": false,
+      "residual_kinds": [
+        "exception",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "exception",
+        "type_mismatch",
+        "type_mismatch"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "819",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 6,
+      "n_shape": 2,
+      "ok": true,
+      "residual_kinds": [
+        "sign_flip",
+        "sign_flip",
+        "sign_flip",
+        "sign_flip",
+        "sign_flip",
+        "sign_flip",
+        "sign_flip",
+        "sign_flip"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "820",
+      "verdict": "EXEC_VERIFIED",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 0,
+      "n_shape": 1,
+      "ok": true,
+      "residual_kinds": [],
+      "shape_candidates_ok": [],
+      "task_id": "821",
+      "verdict": "EXEC_VERIFIED",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 6,
+      "n_shape": 4,
+      "ok": false,
+      "residual_kinds": [
+        "sign_flip",
+        "sign_flip",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "sign_flip",
+        "exception",
+        "exception",
+        "name_error",
+        "name_error"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "822",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 6,
+      "n_shape": 3,
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "type_mismatch",
+        "unclassified",
+        "unclassified",
+        "type_mismatch"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "823",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 0,
+      "n_shape": 5,
+      "ok": true,
+      "residual_kinds": [],
+      "shape_candidates_ok": [],
+      "task_id": "824",
+      "verdict": "EXEC_VERIFIED",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 2,
+      "n_shape": 2,
+      "ok": false,
+      "residual_kinds": [
+        "exception",
+        "exception",
+        "exception",
+        "name_error",
+        "name_error",
+        "unclassified",
+        "exception",
+        "exception",
+        "unclassified",
+        "exception"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "825",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 6,
+      "n_shape": 1,
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "826",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 6,
+      "n_shape": 4,
+      "ok": false,
+      "residual_kinds": [
+        "name_error",
+        "name_error",
+        "exception",
+        "exception",
+        "exception",
+        "unclassified",
+        "name_error",
+        "name_error",
+        "exception",
+        "unclassified",
+        "exception",
+        "exception",
+        "unclassified",
+        "name_error",
+        "unclassified",
+        "name_error"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "827",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 6,
+      "n_shape": 8,
+      "ok": false,
+      "residual_kinds": [
+        "name_error",
+        "name_error",
+        "name_error",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "828",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 0,
+      "n_shape": 6,
+      "ok": true,
+      "residual_kinds": [],
+      "shape_candidates_ok": [
+        "shape_adapt",
+        "shape_adapt"
+      ],
+      "task_id": "829",
+      "verdict": "EXEC_VERIFIED",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 4,
+      "n_shape": 0,
+      "ok": false,
+      "residual_kinds": [
+        "exception",
+        "type_mismatch",
+        "unclassified",
+        "type_mismatch",
+        "type_mismatch",
+        "unclassified",
+        "type_mismatch",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "exception"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "830",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 0,
+      "n_shape": 5,
+      "ok": true,
+      "residual_kinds": [],
+      "shape_candidates_ok": [],
+      "task_id": "831",
+      "verdict": "EXEC_VERIFIED",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 6,
+      "n_shape": 3,
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "name_error",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "exception",
+        "type_mismatch"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "832",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 5,
+      "n_shape": 3,
+      "ok": false,
+      "residual_kinds": [
+        "name_error",
+        "name_error",
+        "name_error",
+        "exception",
+        "name_error",
+        "exception",
+        "exception",
+        "exception",
+        "exception",
+        "name_error",
+        "exception",
+        "exception",
+        "exception"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "833",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 6,
+      "n_shape": 1,
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "834",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 6,
+      "n_shape": 3,
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "835",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 0,
+      "n_shape": 7,
+      "ok": true,
+      "residual_kinds": [],
+      "shape_candidates_ok": [],
+      "task_id": "836",
+      "verdict": "EXEC_VERIFIED",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 6,
+      "n_shape": 0,
+      "ok": false,
+      "residual_kinds": [
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "type_mismatch",
+        "unclassified",
+        "unclassified",
+        "type_mismatch",
+        "unclassified",
+        "unclassified",
+        "exception",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "unclassified",
+        "type_mismatch"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "837",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 7,
+      "n_shape": 1,
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "numeric_offset",
+        "type_mismatch",
+        "type_mismatch",
+        "numeric_offset"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "838",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 1,
+      "n_shape": 3,
+      "ok": true,
+      "residual_kinds": [
+        "type_mismatch"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "839",
+      "verdict": "EXEC_VERIFIED",
+      "winner_provenance": null
+    },
+    {
+      "n_repairs": 6,
+      "n_shape": 1,
+      "ok": false,
+      "residual_kinds": [
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch",
+        "type_mismatch"
+      ],
+      "shape_candidates_ok": [],
+      "task_id": "840",
+      "verdict": "NO_CANDIDATES_PASS",
+      "winner_provenance": null
+    }
+  ],
+  "pre_registered": {
+    "bar_tasks": 1,
+    "bar_units": "integer task count, never a float ratio",
+    "ceiling_basis": "6/40 tasks carry exception as LAST residual; 0 as sole residual (register 24)",
+    "ceiling_tasks": 6,
+    "delta_zero_is_reportable": true,
+    "engagement": "control must emit zero AND treatment must emit at least one",
+    "rounds": 2
+  },
+  "tag": "run1",
+  "treatment": {
+    "counters": {
+      "all_candidates": 920,
+      "exception_probes": 107,
+      "shape_candidates": 127,
+      "shape_candidates_ok": 4,
+      "tasks_with_shape": 35
+    },
+    "hits": 13
+  },
+  "verdict": "G_SHAPE1_NO_EFFICACY",
+  "wall_clock_s": 333.9
+}

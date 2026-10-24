@@ -336,6 +336,17 @@ def solve_verified_code(backbone, spec: str, candidates: Sequence[str],
                   "wave_score": best["wave_score"]}
         if "origin" in best:
             winner["origin"] = best["origin"]
+        # PHASE 11 ITEM 3 GATE DEFECT, FIXED HERE. `G-SHAPE1` run1 judged
+        # attribution with `winner_provenance == "shape_adapted"`, but this
+        # dict never carried `provenance`: it copied only `origin`. So
+        # `attributed` was empty by construction and clause T2 could not pass
+        # under ANY input. A gate that cannot fail carries no efficacy
+        # information, so run1's efficacy half is UNMEASURED, not negative.
+        #
+        # ADDITIVE. Nothing is removed and no branch moves. `.get` keeps rows
+        # that never carried the key from raising.
+        winner["provenance"] = best.get("provenance")
+        winner["shape_adapted"] = bool(best.get("shape_adapted", False))
     out = {**base, "verdict": verdict, "executed": executed,
            "n_executed": len(executed), "winner": winner,
            "exec_verified_top1": bool(passing and passing[0]["rank"] == 1),

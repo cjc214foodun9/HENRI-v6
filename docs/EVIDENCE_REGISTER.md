@@ -2622,3 +2622,188 @@ engagement precondition held, so the clauses were not vacuous.
 | Bar failed on float representation | OBSERVED |
 | Task-count reading met | DERIVED |
 | Branch earns a general gain | FALSIFIED — one task |
+
+## 26. G-SHAPE1: argument-shape adaptation, an unreachable gate clause, and the corrected verdict
+
+Baseline for this section: `origin/main = aaf6e49`. This section records Item 3 of
+the Phase 11 four-item directive. It corrects nothing in §24 or §25; it extends them.
+
+### The mechanism
+
+`henri/code_synth.py` gained three symbols: `shape_use_sites`, `adapt_shape`, and
+`shape_adapt_enabled`. Detection is use-site driven: an `ast.Subscript` whose value
+resolves to a parameter, or an `ast.For` iterable that resolves to a parameter.
+Loop-header bindings are excluded because the target is written, not read.
+
+The rewrite is ADDITIVE. The guarded form ships as an EXTRA candidate with
+`mutation="shape_adapt"`; no branch assigns `base = shaped`, and a test asserts that
+absence. A pass must not be creditable to a mechanism that deleted the working
+candidate.
+
+`henri/code_verify.py` gives `shape_adapted` precedence over `adapted` in
+`provenance`, so a guarded pass is never credited to arity rewriting.
+
+Default is OFF, read at dispatch through `HENRI_CODE_SYNTH_SHAPE_ADAPT`. The flag is a
+DISABLE switch for ablation, not a feature switch: absent or unset means enabled.
+
+Limit, pinned as `test_guard_legalises_but_does_not_repair_arithmetic`: `f(5) -> 6`
+proves the guard makes the CALL legal. It does not prove the body computes correctly.
+
+### Run 1: a gain, and a clause that could not fail
+
+Both arms ran `max_cegis_rounds=2` on 40 held-out tasks. One variable differed.
+
+| Arm | `SHAPE_ADAPT` | Hits | shape candidates | exec-verified |
+|---|---|---:|---:|---:|
+| Control | `0` | 12/40 | **0** | 0 |
+| Treatment | `1` | 13/40 | 127 | 4 |
+
+`gain_tasks +1`, `gains ['808']`, `losses []`, `ablation_inert False`,
+`tasks_with_shape 35`.
+
+Run 1 recorded `G_SHAPE1_NO_EFFICACY` because clause `T2` failed. That verdict was
+not usable. `henri/code_verify.py:332-338` built the `winner` dict from
+`candidate_index`, `wave_score`, and `origin` only. It never copied `provenance`. The
+probe judged attribution with `winner_provenance == "shape_adapted"`, so `attributed`
+was empty BY CONSTRUCTION and `T2` could not pass under any input.
+
+Measured before the repair:
+
+```
+grep -c 'winner["provenance"]' henri/code_verify.py   ->  0
+run1 per-task winner_provenance (non-null count)      ->  0 / 40
+```
+
+This is the class this programme already paid for twice: a quantity is defined and
+written on the executed rows, but no consumer reads it at the decision point. A
+definition is not a measurement. A gate that cannot fail carries no efficacy
+information, so run 1's efficacy half is UNMEASURED, not negative.
+
+`receipts/phase11_g_shape1_run1.json` is NOT edited. Its `G_SHAPE1_NO_EFFICACY`
+label stands as the record of what the unreachable gate produced.
+
+### The repair, and why a re-analysis was not possible
+
+The fix is two additive lines beside `winner["origin"] = best["origin"]`:
+
+```python
+winner["provenance"] = best.get("provenance")
+winner["shape_adapted"] = bool(best.get("shape_adapted", False))
+```
+
+A precondition mattered and was checked before patching. `entry["provenance"]` is
+written only on the execution path, at line 250. Had `best` come from the pre-execution
+candidate list, `best.get("provenance")` would return `None` and the patch would be
+inert. `best = passing[0]` at line 334 reads from `executed`, so the field is present.
+
+`G-SYNTH3` (§25) could be corrected by re-analysing sealed per-task data, because the
+task counts were recorded. Here the field was never recorded at all, so a re-run was
+required. Run 2 is not optional.
+
+### Run 2: the corrected verdict
+
+| Arm | `SHAPE_ADAPT` | Hits | shape candidates | exception probes | all candidates |
+|---|---|---:|---:|---:|---:|
+| Control | `0` | 12/40 | 0 | 105 | 666 |
+| Treatment | `1` | 13/40 | 127 | 107 | 920 |
+
+Clauses: `T1` True, `T2` **True**, `T3` True, `T5` True. `pass` for `T4` is `null`
+with `counted: False`; it reports, it does not gate.
+
+Verdict of record: `G_SHAPE1_PASS`. `attributed_gains ["808"]`,
+`bar_tasks 1`, `gain_tasks 1`, `wall_clock 324.5 s`.
+
+The attribution channel moved from unpopulated to populated:
+
+```
+run1  winner_provenance 808 = None             non-null provenance  0 / 40
+run2  winner_provenance 808 = shape_adapted    non-null provenance 13 / 40
+```
+
+Task 808, run 2 treatment: `verdict EXEC_VERIFIED`, `winner_provenance shape_adapted`,
+`shape_candidates_ok ["shape_adapt"]`, `n_shape 5`, `residual_kinds []`.
+
+So `+1` is now OBSERVED at the assignment level rather than INFERRED. The direction of
+the fix matters: `T2` moved from unreachable to passable, and then passed. A clause that
+became reachable and still failed would have been the honest negative.
+
+### Faithfulness: the reporting-only patch changed no behaviour
+
+A patch described as reporting-only must not move the control arm. Measured:
+
+```
+control hits            12 -> 12          MATCH
+exception_probes       105 -> 105         MATCH
+all_candidates         666 -> 666         MATCH
+per-task control identical: True | differing tasks: []
+```
+
+The diagnostic baseline in §24 reports 105 total exceptions. Control reproduces it
+exactly, so the arms remain comparable and the `+1` is not a harness artifact.
+
+### The exception side effect, stated precisely
+
+`exception_probes` rose `105 -> 107` in treatment. That number is a PROBE count, not a
+task count, and it rises because the candidate pool grew `666 -> 920`: more candidates
+mean more differential probes.
+
+Task-level movement, measured:
+
+```
+tasks newly carrying an exception residual : []      (0)
+tasks dropping an exception residual       : ['808'] (1)
+```
+
+No task acquired an exception residual under shape adaptation. One task lost it, and
+that task is the gain. The pre-registered ceiling was `<= 6/40`, derived from §24's
+measurement that 6 tasks carry `exception` as the LAST residual and 0 as the sole
+residual. Measured `+1` sits inside that ceiling.
+
+### What this does not claim
+
+One task of forty, on one bank, one seed, one task list. Reproducible, not sampling
+noise, and not a general capability gain. `+1` on `n=40` is a point estimate without a
+confidence bound that excludes zero. The ceiling is quoted with the result because a
+mechanism that lifts 1 of 6 reachable tasks is bounded by the fixture, not by the idea.
+
+### Cross-check: a reference claim falsified
+
+An advisory layer reported that two tasks ACQUIRED new exception residuals under shape
+adaptation. Measured: zero tasks acquired one; one task dropped one. The `105 -> 107`
+delta is pool size. The advisory number was not adopted. It also reported the pre-repair
+`grep count = 0` after the repair had landed, and a monotonic-ramp commit SHA that
+`git cat-file` returned ABSENT.
+
+### Addendum: a defect this delivery introduced and caught in its own diff
+
+Recorded here because the project records its defect mechanisms additively, and
+because this one survived two drafts of this section.
+
+The patch that appended the winner-provenance test used two existing assertions as
+edit anchors:
+
+```
+assert "base = shaped" not in text
+assert "base, adapted = shaped" not in text
+```
+
+They were consumed as anchors and dropped. Measured in the staged diff:
+
+```
+tests/test_phase11_shape.py    57 insertions, 2 deletions
+```
+
+The file gained a test while silently losing the ADDITIVE guard, which is the
+invariant the whole mechanism rests on: the guarded candidate ships as an EXTRA
+candidate and never replaces the working one. A net loss of coverage is not progress.
+A diff that deletes a guard is the defect this suite exists to catch, and it appeared
+inside the suite.
+
+Restored, and the staged diff re-measured:
+
+```
+tests/test_phase11_shape.py    62 insertions, 0 deletions
+```
+
+Rule: read the deletion count of a staged diff before committing. A patch whose
+anchors are assertions can eat them. `57 2` was the tell.
