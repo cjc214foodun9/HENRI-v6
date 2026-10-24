@@ -2400,3 +2400,120 @@ next failure mode is a mechanism that fires constantly, lands 3% of the time,
 and has credit claimed by neighbouring mechanisms already working. Corrected
 rule: measure efficacy, and attribute each gain to the mechanism that produced
 it, before a pass is declared.
+
+## 24. Correction to §23: the exception bucket is a TYPE problem, not a residual class
+
+Baseline for this section: `origin/main = 4ceabd3`. This section is additive. It
+does not edit §23. It records a diagnostic that corrects §23's forward claim and
+makes its evidence auditable.
+
+### 24.1 Superseded claim
+
+§23 stated: "the next real leverage is `exception` (105) and `unclassified` (50),
+both currently get zero budget."
+
+That claim is directionally right and mechanistically wrong. It treats
+`exception` as a residual CLASS that a new repair branch could consume. The
+diagnostic shows `exception` is a container for six exception TYPES, and one
+type holds 82.9% of the mass. The repair belongs inside argument-shape
+adaptation, not in a new CEGIS branch.
+
+### 24.2 Measured composition
+
+Command: `python -u scripts/diag_synth_exception_breakdown.py`. Wall clock
+179 s. Corpus: train 800, held 174, n_tasks 40. Evidence:
+`receipts/diag_synth_exception_breakdown.json`, now tracked, sha256 sidecar
+verified with `sha256sum -c`.
+
+| Exception type | Count | Share |
+| :--- | ---: | ---: |
+| `TypeError` | 87 | 82.9% |
+| `ValueError` | 6 | 5.7% |
+| `ZeroDivisionError` | 4 | 3.8% |
+| `IndexError` | 3 | 2.9% |
+| `UnboundLocalError` | 3 | 2.9% |
+| `AttributeError` | 2 | 1.9% |
+| **Total** | **105** | **100.0%** |
+
+Distinct types: 6. Top-3 concentration: 97 of 105 (92.4%). No long tail. The
+dominant type is one mechanism, not noise.
+
+Residual-class histogram over the same 303 probes: `exception` 105,
+`type_mismatch` 91, `unclassified` 50, `name_error` 34, `sign_flip` 18,
+`numeric_offset` 5.
+
+### 24.3 What `TypeError` means here
+
+Observed message shapes are `'int' object is not subscriptable` and
+`'int' object is not iterable`. A template retrieved from `CartridgeBank`
+indexes or iterates a parameter. The test passes a scalar `int`. So the failure
+is an ARGUMENT SHAPE mismatch, not a value residual and not an unbound name.
+
+This is the same family `adapt_arity` addresses at the signature level. It does
+not address use sites. `adapt_arity` legalises the CALL. It does not legalise
+the BODY.
+
+### 24.4 Measured ceiling, and why 0.7000 is not a target
+
+Sixteen distinct tasks carry at least one `exception` residual. All sixteen are
+unsolved. The naive ceiling is 28 unsolved of 40, so 28/40 = 0.7000 if every
+`exception` were repaired.
+
+That number is not achievable by a single mechanism. Measured:
+
+- Tasks whose SOLE residual class is `exception`: **0**.
+- Tasks whose LAST residual is `exception`: **6** — `801`, `805`, `810`, `817`,
+  `825`, `830`.
+
+Every one of the 16 tasks carries multiple residual classes in sequence. A task
+flips only when its last blocker is removed. So shape adaptation can convert at
+most those 6 tasks, and only if its own repair holds through the remaining
+sequence. Quote 6/40 as the reachable bound, never 28/40.
+
+### 24.5 Error mechanism in the §23 claim
+
+§23 inferred leverage from COUNTS alone. It read `exception` 105 against
+`name_error` 34 and concluded the larger count is the larger lever. Two facts
+that inference missed:
+
+1. Count is not reachability. A class with a large count but no single-residual
+   task cannot flip anything alone.
+2. A class label is not a mechanism. `exception` spans six types; only the
+   dominant one maps to an existing mechanism.
+
+The correction rule: before allocating budget to a residual class, measure its
+TYPE composition and its position in each task's residual sequence. Both are
+required. Count alone misallocates.
+
+### 24.6 Redirected action
+
+Pre-registered next mechanism: argument-shape adaptation at USE sites, as
+ADDITIVE candidate generation. Detect `ast.Subscript`, `ast.For`, and
+comprehension over a parameter. Emit a wrapped-argument candidate. Never
+replace the original candidate. Execution verifies.
+
+Two mechanisms stay separate. `G-SYNTH3` isolates the shipped `name_error`
+branch at matched round count. `G-SHAPE1` tests shape adaptation. Two gates, one
+each. Do not report a shape win as "exception repair".
+
+### 24.7 Evidence tracking repair
+
+`.gitignore` excluded `receipts/*`, so this section's evidence was unauditable
+while §23 cited it. Two narrow negations were added: `!receipts/diag*.json` and
+`!receipts/diag*.json.sha256`. No other prefix gained tracking. Verified:
+`git check-ignore -v` no longer reports the diagnostic JSON, and unrelated
+receipt logs remain ignored.
+
+The alternative, `git add -f`, was rejected. It fixes one file and leaves the
+next diagnostic unauditable.
+
+### 24.8 Status
+
+| Item | Class |
+| :--- | :--- |
+| Exception composition 82.9% `TypeError` | OBSERVED |
+| Zero sole-residual tasks | OBSERVED |
+| Six last-blocker tasks | OBSERVED |
+| 0.7000 ceiling unreachable | DERIVED |
+| Shape adaptation is the mechanism | HYPOTHESIS |
+| Shape adaptation converts 6 tasks | BLOCKED — untested |

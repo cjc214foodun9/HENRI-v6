@@ -1,0 +1,162 @@
+{
+ "probe": "DIAGNOSTIC_synth_exception_breakdown",
+ "note": "Diagnostic only. No gate, no bar, no verdict. Establishes no threshold and changes no code.",
+ "corpus": {
+  "train": 800,
+  "held": 174,
+  "n_tasks": 40
+ },
+ "kind_histogram": {
+  "unclassified": 50,
+  "exception": 105,
+  "numeric_offset": 5,
+  "sign_flip": 18,
+  "name_error": 34,
+  "type_mismatch": 91
+ },
+ "exception_histogram": {
+  "TypeError": 87,
+  "ValueError": 6,
+  "IndexError": 3,
+  "UnboundLocalError": 3,
+  "AttributeError": 2,
+  "ZeroDivisionError": 4
+ },
+ "exception_tasks": {
+  "TypeError": [
+   "801",
+   "804",
+   "806",
+   "808",
+   "810",
+   "815",
+   "817",
+   "819",
+   "822",
+   "825",
+   "827",
+   "830",
+   "832",
+   "833"
+  ],
+  "ValueError": [
+   "805",
+   "827",
+   "830"
+  ],
+  "IndexError": [
+   "815",
+   "825",
+   "830"
+  ],
+  "UnboundLocalError": [
+   "815"
+  ],
+  "AttributeError": [
+   "822"
+  ],
+  "ZeroDivisionError": [
+   "830",
+   "837"
+  ]
+ },
+ "exception_message_examples": {
+  "TypeError": [
+   "'int' object is not subscriptable",
+   "'int' object is not iterable",
+   "'int' object is not iterable"
+  ],
+  "ValueError": [
+   "max() arg is an empty sequence",
+   "too many values to unpack (expected 2)",
+   "too many values to unpack (expected 2)"
+  ],
+  "IndexError": [
+   "list index out of range",
+   "list index out of range",
+   "list index out of range"
+  ],
+  "UnboundLocalError": [
+   "cannot access local variable 'high' where it is not associated with a value",
+   "cannot access local variable 'high' where it is not associated with a value",
+   "cannot access local variable 'high' where it is not associated with a value"
+  ],
+  "AttributeError": [
+   "'str' object has no attribute 'sort'",
+   "'str' object has no attribute 'sort'"
+  ],
+  "ZeroDivisionError": [
+   "float floor division by zero",
+   "float floor division by zero",
+   "float floor division by zero"
+  ]
+ },
+ "concentration": {
+  "n_distinct": 6,
+  "top1": {
+   "type": "TypeError",
+   "count": 87
+  },
+  "top3_count": 97,
+  "total": 105
+ },
+ "unclassified_samples": [
+  {
+   "task_id": "801",
+   "exception_type": "AssertionError",
+   "exception_msg": "",
+   "actual_repr": "0",
+   "expected_repr": "3"
+  },
+  {
+   "task_id": "801",
+   "exception_type": "AssertionError",
+   "exception_msg": "",
+   "actual_repr": "0",
+   "expected_repr": "3"
+  },
+  {
+   "task_id": "801",
+   "exception_type": "AssertionError",
+   "exception_msg": "",
+   "actual_repr": "0",
+   "expected_repr": "3"
+  },
+  {
+   "task_id": "805",
+   "exception_type": "AssertionError",
+   "exception_msg": "",
+   "actual_repr": "[2]",
+   "expected_repr": "[10, 11, 12]"
+  },
+  {
+   "task_id": "805",
+   "exception_type": "AssertionError",
+   "exception_msg": "",
+   "actual_repr": "[0, 1, 3]",
+   "expected_repr": "[10, 11, 12]"
+  },
+  {
+   "task_id": "805",
+   "exception_type": "AssertionError",
+   "exception_msg": "",
+   "actual_repr": "[1, 2, 3]",
+   "expected_repr": "[10, 11, 12]"
+  },
+  {
+   "task_id": "805",
+   "exception_type": "AssertionError",
+   "exception_msg": "",
+   "actual_repr": "[1, 2, 3]",
+   "expected_repr": "[10, 11, 12]"
+  },
+  {
+   "task_id": "805",
+   "exception_type": "AssertionError",
+   "exception_msg": "",
+   "actual_repr": "[1, 2, 3]",
+   "expected_repr": "[10, 11, 12]"
+  }
+ ],
+ "wall_clock_s": 178.72
+}

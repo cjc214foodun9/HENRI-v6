@@ -29,6 +29,13 @@ receipts/*
 # narrowed to the prefixes whose receipts ARE tracked.
 !receipts/phase*.json.sha256
 !receipts/kernel_*.json.sha256
+# MEASURED NEED (Phase 11). `receipts/*` excluded
+# `diag_synth_exception_breakdown.json`, so the Register §24 correction rested
+# on evidence no auditor could read. `git add -f` would fix one file and leave
+# the next diagnostic unauditable again, so the blindness is repaired here.
+# Narrowed to `diag*` exactly: no other prefix gains tracking.
+!receipts/diag*.json
+!receipts/diag*.json.sha256
 data/
 # Staged benchmark corpora are NEVER committed. MMLU 6.4 MiB, GPQA 1.3 MiB,
 # MBPP 0.55 MiB. Every receipt records the sha256 of the file it read, so a
