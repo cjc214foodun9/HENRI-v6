@@ -161,6 +161,8 @@ def solve_verified_code(backbone, spec: str, candidates: Sequence[str],
             "origins": {
                 "retrieved": sum(1 for r in rows if r["origin"] == "retrieved"),
                 "mutated": sum(1 for r in rows if r["origin"] == "mutated"),
+                "shape_adapted": sum(1 for r in rows
+                                     if r.get("shape_adapted")),
             },
             "template_hits": [
                 {"template_rank": r["template_rank"],
@@ -235,11 +237,18 @@ def solve_verified_code(backbone, spec: str, candidates: Sequence[str],
             entry["origin"] = origin_of.get(code, "unknown")
             m = meta_of.get(code) or {}
             entry["adapted"] = bool(m.get("adapted", False))
+            entry["shape_adapted"] = bool(m.get("shape_adapted", False))
             entry["mutation"] = str(m.get("mutation", "unknown"))
             # The Step 4 split the directive asks for. `adapted` means the
             # SIGNATURE was rewritten to the target name and arity, which
             # is a different mechanism from an operator swap.
-            entry["provenance"] = ("bank_adapted" if entry["adapted"]
+            #
+            # Phase 11 item 3 adds `shape_adapted`, which takes precedence:
+            # a guarded-argument candidate is a USE-SITE rewrite, and
+            # crediting it to arity would attribute a pass to the wrong
+            # mechanism. Distinct string, never merged.
+            entry["provenance"] = ("shape_adapted" if entry["shape_adapted"]
+                                   else "bank_adapted" if entry["adapted"]
                                    else "mutated"
                                    if entry["origin"] == "mutated"
                                    else "retrieved")

@@ -30,6 +30,7 @@ variant costs a sandboxed execution.
 from __future__ import annotations
 
 import ast
+import os
 from dataclasses import dataclass
 from typing import Optional, Sequence
 
@@ -411,6 +412,126 @@ def adapt_arity(source: str, name: Optional[str],
         return None
 
 
+SHAPE_ADAPT_ENV = "HENRI_CODE_SYNTH_SHAPE_ADAPT"
+
+_SEQUENCE_TYPES = "(list, tuple, str, bytes, dict)"
+
+
+def shape_adapt_enabled() -> bool:
+    """Live read of the shape-adaptation switch.
+
+    DEFAULT OFF. This is a NEW mechanism and its gate has not run. Phase 11
+    item 1 measured the cost of an import-cached switch: both ablation arms
+    would execute identical code, so a zero delta cannot be read as "the
+    mechanism adds nothing" rather than "the ablation never fired".
+
+    Read at DISPATCH. `os.environ` is re-read on every call for that reason.
+    """
+    raw = os.environ.get(SHAPE_ADAPT_ENV)
+    if raw is None:
+        return False
+    return raw.strip().lower() not in ("", "0", "false", "no", "off")
+
+
+def _entry_function(tree):
+    for n in tree.body:
+        if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            return n
+    return None
+
+
+def _param_set(fn) -> set:
+    out = set()
+    for a in list(getattr(fn.args, "posonlyargs", [])) + list(fn.args.args):
+        out.add(a.arg)
+    return out
+
+
+def shape_use_sites(source: str) -> list:
+    """Parameters the body SUBSCRIPTS or ITERATES, in first-seen order.
+
+    MEASURED MOTIVATION (register 24): the `exception` bucket is 87/105
+    `TypeError`, and the observed messages are `'int' object is not
+    subscriptable` and `'int' object is not iterable`. That is argument
+    SHAPE, not arity: the test already passes the right COUNT of arguments,
+    while the body treats one of them as a sequence.
+
+    Bindings are excluded. A name in a `for` header TARGET is written, not
+    read, so guarding it would inject a store the author did not write.
+    """
+    try:
+        tree = ast.parse(source)
+    except SyntaxError:
+        return []
+    fn = _entry_function(tree)
+    if fn is None:
+        return []
+    params = _param_set(fn)
+    if not params:
+        return []
+    hits, seen = [], set()
+    for node in ast.walk(fn):
+        if isinstance(node, ast.Subscript):
+            v = node.value
+            if isinstance(v, ast.Name) and v.id in params and v.id not in seen:
+                seen.add(v.id)
+                hits.append((v.id, "subscript"))
+        elif isinstance(node, (ast.For, ast.AsyncFor)):
+            it = node.iter
+            if isinstance(it, ast.Name) and it.id in params and it.id not in seen:
+                seen.add(it.id)
+                hits.append((it.id, "iterate"))
+    return hits
+
+
+def adapt_shape(source: str, name: Optional[str] = None) -> Optional[str]:
+    """Coerce subscripted/iterated parameters to a sequence at entry.
+
+    ADDITIVE BY CONSTRUCTION. The caller keeps the original candidate and
+    offers the guarded form as an EXTRA candidate, so a pass cannot be
+    credited to a mechanism that deleted the working one.
+
+    Returns None when no use site applies, so provenance stays honest
+    instead of recording a rewrite that did nothing.
+
+    Limit, stated rather than hidden: the guard is semantics-preserving for
+    sequence inputs and for scalars, but it cannot rescue a body whose
+    arithmetic is wrong. It makes the call legal, not the function correct.
+    """
+    hits = shape_use_sites(source)
+    if not hits:
+        return None
+    try:
+        tree = ast.parse(source)
+    except SyntaxError:
+        return None
+    fn = _entry_function(tree)
+    if fn is None:
+        return None
+    if name and name.isidentifier():
+        fn.name = name
+    guards = []
+    for pname, _kind in hits:
+        guard = ast.parse(
+            "if not isinstance(%s, %s):\n    %s = [%s]\n"
+            % (pname, _SEQUENCE_TYPES, pname, pname)
+        ).body[0]
+        guards.append(guard)
+    body = list(fn.body)
+    at = 0
+    # Keep a leading docstring first; a guard above it would erase __doc__.
+    if (body and isinstance(body[0], ast.Expr)
+            and isinstance(body[0].value, ast.Constant)
+            and isinstance(body[0].value.value, str)):
+        at = 1
+    fn.body = body[:at] + guards + body[at:]
+    ast.fix_missing_locations(tree)
+    try:
+        return ast.unparse(tree)
+    except Exception:                     # noqa: BLE001
+        return None
+
+
 def _op_slot(text: str, dim: int = 16384) -> Optional[np.ndarray]:
     """Operator-slot wave for one text, or None when the slot is empty.
 
@@ -491,7 +612,8 @@ def synthesize_candidates(backbone, spec: str, bank: CodeTemplateBank,
     out: list[dict] = []
     seen: set[str] = set()
 
-    def push(text, origin, ti, trank, mutation, adapted=False):
+    def push(text, origin, ti, trank, mutation, adapted=False,
+             shape_adapted=False):
         if not text or text in seen:
             return
         seen.add(text)
@@ -503,6 +625,7 @@ def synthesize_candidates(backbone, spec: str, bank: CodeTemplateBank,
         # wrong mechanism.
         out.append({"text": text, "origin": origin,
                     "adapted": bool(adapted),
+                    "shape_adapted": bool(shape_adapted),
                     "template_index": ti, "template_rank": trank,
                     "mutation": mutation})
 
@@ -523,6 +646,16 @@ def synthesize_candidates(backbone, spec: str, bank: CodeTemplateBank,
 
         push(base, "retrieved", h["template_index"], h["rank"], "none",
              adapted=adapted)
+
+        # ADDITIVE shape candidate (Phase 11 item 3, register 24). NEVER
+        # replaces `base`: a pass cannot be credited to a mechanism that
+        # deleted the working candidate. Emitted only when the body actually
+        # subscripts or iterates a parameter, so provenance stays honest.
+        if shape_adapt_enabled():
+            shaped = adapt_shape(base, name)
+            if shaped is not None and shaped != base:
+                push(shaped, "retrieved", h["template_index"], h["rank"],
+                     "shape_adapt", shape_adapted=True)
 
         variants = operator_variants(base, limit=max_variants)
         if guide_by_wave and len(variants) > 1:
