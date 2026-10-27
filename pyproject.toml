@@ -11,7 +11,17 @@ requires-python = ">=3.10"
 dependencies = ["numpy>=1.24"]
 
 [project.optional-dependencies]
-test = ["pytest>=7.4"]
+# The suite is not runnable from this metadata without all four. Measured:
+# without `sentence-transformers` the backbone silently uses its char-ngram
+# fallback and four tests fail; without fastapi/httpx two modules fail to
+# collect; without pillow two sensor-ingress tests raise.
+test = [
+    "pytest>=7.4",
+    "fastapi>=0.110",
+    "httpx>=0.27",
+    "pillow>=10.0",
+    "sentence-transformers>=2.7",
+]
 
 [tool.setuptools.packages.find]
 include = ["henri*"]
