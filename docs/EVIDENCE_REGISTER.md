@@ -2807,3 +2807,51 @@ tests/test_phase11_shape.py    62 insertions, 0 deletions
 
 Rule: read the deletion count of a staged diff before committing. A patch whose
 anchors are assertions can eat them. `57 2` was the tell.
+
+---
+
+## 27. v0.7.0-OMEGA: Amendments 1-7, 9/9 gates, torch parity 4/4 (CPU only), 2026-10-26
+
+**Verdict: IMPLEMENTED_AND_VERIFIED (scoped, CPU).** Seven amendments exist as additive
+NumPy `complex128` modules with a falsifiable gate suite. No benchmark capability claim.
+
+**Provenance.** Base `288c606bf77a785859feca31e8b298e513f2d164` -> merge `098b052` on `main`.
+Branch `omega/v7-impl`: `559c8d3` (modules + gates), `d6eea2d` (test deps + torch mirrors).
+
+**Environment (recorded, not assumed).** Windows 11; Python 3.11.15 (`C:/Users/chan/omega-venv`);
+NumPy 2.4.6; pytest 9.1.1; torch **2.14.1+cpu**; `torch.cuda.is_available() == False`;
+`nvidia-smi` returns a permission error. **No CUDA device was measured in this entry.**
+
+**Measured on `main` @ `098b052`.**
+- Omega gates: **9/9 counted PASS** (`scripts/verify_omega_release.py`, exit 0).
+- Legacy suite: **0 failed** (`pytest -q`, exit 0).
+- Torch parity: **4/4 PASS** (`scripts/verify_torch_parity.py`), complex64 vs complex128,
+  max relative error 7.97e-07 at D=4096.
+
+**Disposition of the four inherited failures.** Root cause is an undeclared environment
+dependency, not a code defect. Without `sentence-transformers` the backbone silently uses its
+char-ngram fallback; paired and shuffled controls then read 0.56733 vs 0.56738 (no separation).
+Installing the real encoder made the suite 0-failed with **zero production code edits**. The
+dependency is now declared in `[project.optional-dependencies].test` alongside fastapi, httpx
+and pillow. No test was edited; no pin was regenerated.
+
+**Claim boundaries (unchanged).**
+- Resonator >=99% blind unbinding: **NOT ESTABLISHED** (n=8, Wilson95 lower bound 0.676).
+- 16.7M orthogonal engrams: **NOT DEMONSTRATED**; per-chart `c_max` 1.74e-15 only.
+- Bounded-depth stack (27 frames at D=4096), **not** Turing completeness.
+- AST grammar bank is a five-snippet toy; syntax validity is by construction plus `ast.parse`.
+- Motor head discards phase (`phase_discarding_readout`); not a calibrated torque decoder.
+- The sheaf is near-identity plus a rank-r correction; it cannot synthesize an arbitrary map.
+
+**Constants.** `tau_veto = 0.00811` has **zero instantiations** in this tree. Shipped values are
+`TAU_VETO_CEILING = 0.0431` and the 0.35 calibration ceiling; every Omega gate uses 0.0431.
+`beta* = 26.10` is used only where the spine already ships it, subject to constraint C3.
+
+**Control preserved.** `tests/test_gates.py::test_g_u5_resonator_family_is_not_shipped` stays
+green: the new module is `henri/omega_resonator.py`, and `henri/resonator.py` remains absent.
+
+**Vast: BLOCKED_NO_CREDIT.** CLI authenticated; 0 instances; balance 0. Offers visible at
+~$0.60/hr. No latency figure is claimed for any GPU.
+
+**Artifacts.** `docs/OMEGA_RELEASE.md` (11 defects fixed at the mechanism);
+`scripts/verify_omega_release.py`; `scripts/verify_torch_parity.py`.
