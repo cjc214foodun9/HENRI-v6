@@ -2906,3 +2906,44 @@ no `~/.git-credentials`, and the credential helper cannot answer non-interactive
 
 **Not established.** No benchmark. No SOTA. No physical BTO. No TimescaleDB. No SLM.
 No CUDA latency. No Turing completeness. No OOD generality.
+
+---
+
+## 29. TimescaleDB ledger container: 6/6 gates incl. real restart, push BLOCKED, 2026-10-26
+
+**Verdict: OBSERVED (container, CPU).** Zone C now has a durable backend. GitHub remains unpushed.
+
+**Delivered.** `henri/timescale_ledger.py` (`TimescaleLedgerStore` behind the existing
+`LedgerStore` protocol), `docker-compose.yml` (`timescale/timescaledb:latest-pg16`, port 55432,
+named volume, healthcheck), `scripts/verify_timescale_ledger.py` (two-phase: write, restart,
+verify). Base `74025c7`.
+
+**Measured.** Container `Up (healthy)`, `pg_isready` accepts connections. 64 engrams written,
+container restarted, 6/6 gates pass:
+- TS-1 restart survival: rows `64 == 64`
+- TS-2 byte-exact bins: blob sha256 match, `uint8`
+- TS-3 hypertable: `hypertables=1`, `time_dims=1`
+- TS-4 rehydrated Stiefel: `c_max 1.05e-15` against a `1e-6` bar
+- TS-5 storage recall: `64/64` after BYTEA deserialisation
+- TS-6 kill control: unrelated-query margin `0.0008` against a `<0.10` bar
+
+**Defect caught by the gate.** `PRIMARY KEY (record_id)` alone made `create_hypertable` fail:
+`cannot create a unique index without the column "ts"`. TimescaleDB requires the partitioning
+column in every unique index. Fixed with `PRIMARY KEY (record_id, ts)` and `ON CONFLICT DO NOTHING`.
+The gate could not pass until the schema was correct, which is the point.
+
+**GitHub: BLOCKED_CREDENTIALS.** `git push` timed out after 150 s with `credential.helper manager`
+(GCM present at `/mingw64/bin`). Remote `main` remains `288c606`; local `main` is `74025c7` plus
+this entry. No push is claimed. A completed interactive GCM prompt or a repo-scoped PAT is required.
+
+**Vast: BLOCKED_NO_CREDIT.** The provided key authenticates (`vastai show user` returns a row)
+and reports **balance 0**; 0 instances; RTX 5090 offers visible near $0.60/hr. The key adds no
+credit. No instance was rented and no GPU latency is claimed.
+
+**Security.** The key transited chat in plaintext and must be rotated. It was written once to
+`~/.vast_api_key`, never echoed, never placed in a command line, and never committed:
+an exact-match scan of the working tree returns 0 hits.
+
+**Not done, and not claimed.** Zone C MiniLM axiom seeding with a held-out retrieval gate;
+the Zone A transducer ensemble; torch CUDA and Triton kernels for Blackwell. The last requires
+CUDA, and this host measures `torch 2.14.1+cpu`, `cuda False`.

@@ -1,0 +1,21 @@
+services:
+  timescaledb:
+    image: timescale/timescaledb:latest-pg16
+    container_name: henri-timescaledb
+    environment:
+      POSTGRES_PASSWORD: henri_local_only
+      POSTGRES_DB: henri
+      POSTGRES_USER: postgres
+    ports:
+      - "55432:5432"
+    volumes:
+      - henri_tsdb:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d henri"]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+    restart: unless-stopped
+
+volumes:
+  henri_tsdb:
