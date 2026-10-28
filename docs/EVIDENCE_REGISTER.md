@@ -2947,3 +2947,37 @@ an exact-match scan of the working tree returns 0 hits.
 **Not done, and not claimed.** Zone C MiniLM axiom seeding with a held-out retrieval gate;
 the Zone A transducer ensemble; torch CUDA and Triton kernels for Blackwell. The last requires
 CUDA, and this host measures `torch 2.14.1+cpu`, `cuda False`.
+
+---
+
+## 30. Zone C seeding from MiniLM: 3/4 gates, SEED-3 FALSIFIED at this construction, 2026-10-26
+
+**Verdict: PARTIAL. One counted clause fails and is recorded, not retuned.**
+
+**Delivered.** `henri/axiom_seed.py` (40 slot-routed axiom triples lifted from
+`sentence-transformers/all-MiniLM-L6-v2`, committed through the HHRG ledger) and
+`scripts/verify_axiom_seed.py`. Novel vocabulary is lifted too, so the novelty gap
+measures unseen compositions rather than missing tokens.
+
+**Measured (CPU, offline encoder, 6.3 s).**
+- SEED-1 PASS: 40/40 engrams, `c_max 2.71e-12` against a `1e-6` bar.
+- SEED-2 PASS: in-bank top-1 object recall `40/40 = 1.000` against a `0.90` bar.
+- SEED-3 **FAIL**: known margin `0.0023`, novel margin `0.0003`, gap `0.0019` against a
+  `0.10` bar. A collapse-to-bank defect was the stated failure mode; the measured gap is
+  ~50x below the bar.
+- SEED-4 PASS: random-query margin `0.0038` against a `<0.10` bar.
+
+**Diagnosis (stated as a limit, not solved).** An exact-match query separates from its
+nearest neighbour by `0.0023`, while the two-slot geometry predicts roughly `0.5`
+(shared relation slot contributes `1/2`). Recall is 40/40 but by a hair. Therefore the
+`HHRGMemory` margin statistic is near-uniform at this construction and cannot support a
+novelty threshold. `SEED-2` alone would be a lookup table wearing a recall number.
+**Consequence: the margin is not a usable epistemic confidence signal until this is
+diagnosed. No threshold was moved to hide it.**
+
+**Not claimed.** This is a seeded axiom bank with measured retrieval. It is NOT world
+knowledge, NOT a benchmark score, and NOT generalization.
+
+**Still blocked.** GitHub push (`BLOCKED_CREDENTIALS`; GCM device flow emitted no code).
+Vast (`BLOCKED_NO_CREDIT`; balance 0 with the provided key). Triton and CUDA (no device;
+`torch 2.14.1+cpu`, `cuda False`). Zone A ensemble not built.
