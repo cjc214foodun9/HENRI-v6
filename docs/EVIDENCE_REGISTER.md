@@ -2855,3 +2855,54 @@ green: the new module is `henri/omega_resonator.py`, and `henri/resonator.py` re
 
 **Artifacts.** `docs/OMEGA_RELEASE.md` (11 defects fixed at the mechanism);
 `scripts/verify_omega_release.py`; `scripts/verify_torch_parity.py`.
+
+---
+
+## 28. v0.7.1-BTO-SYMBIONT: 3-zone build, 18/18 gates, GitHub push BLOCKED, 2026-10-26
+
+**Verdict: IMPLEMENTED_AND_VERIFIED (scoped, CPU, digital twin).** Four additive modules
+implement Zones A, B, C and the orchestrator. No benchmark or hardware claim.
+
+**Files.** `henri/transducer_swarm.py`, `henri/bto_pockels_d2nn.py`,
+`henri/holographic_ledger.py`, `henri/symbiotic_cavity.py`,
+`scripts/verify_symbiotic_release.py`. Base `92bb59e` (entry 27).
+
+**Measured on CPU: NumPy complex128, torch 2.14.1+cpu, `cuda False`.**
+- Zone gates: **18/18** (`verify_symbiotic_release.py`, exit 0, 1.5 s).
+- Legacy suite: **0 failed**.
+- Zone A: slot disjointness 0.00e+00; grid 64/64 with scrambled-code control 0.094;
+  prefix (16,64) invariant; synonym 0.999852 / unrelated 0.005336.
+- Zone B: identity at V=0,T=0 0.00e+00; norm drift 0.00e+00; Lambda 1.000 -> 23.094
+  monotone; Pockels phase linear to 0.00e+00; hot/cold authority ratio 9.819 with a
+  kappa=0 control at 1.000000; U^-1 U residual 8.58e-17.
+- Zone C: c_max 1.32e-15; uint8 phase-only fidelity 0.99997489 against a 0.99992470 bar,
+  with a 16-bin control at 0.993569; JIT prefix invariant at (16,64); CPU latency
+  1.44 -> 3.80 ms; commit atomicity holds under an injected store failure.
+- Cavity: taught law 1 pass / 0 heated / margin 0.8165; Curie repair 7 heated passes to
+  cos 0.999049; kappa=0 kill control stops at 0.886661 and does not converge;
+  compositional transfer converges with the novel entity absent from the ledger.
+
+**Deviations from the source document, deliberate.**
+- `tau_veto = 0.0431`, the shipped constant. The document's `0.00811` has zero
+  instantiations in this tree.
+- Theorem 9.1 is implemented as CONTROLLABILITY, not universality. L*D free phases
+  cannot span U(D), which needs D^2 parameters.
+- Theorem 9.2's SNR claim is not implemented. Chart hops are reported; SNR is not claimed.
+- Zone C is in-memory. The TimescaleDB backend raises `NotImplementedError` by design.
+- The SLM and the physical BTO device are BLOCKED. This is a digital twin.
+
+**Six defects caught in this entry's own suite before it went green.**
+1. `reachable_shift` called on a layer that does not define it.
+2. Prefix projection chunked from `d_slot` instead of `d_model`.
+3. An always-raising store could never seed the ledger, so the atomicity gate could not run.
+4. The repair loop stopped at the veto threshold and could not reach 0.99.
+5. A vacuous gate: the uint8 cosine was a raw inner product of 113.65 and could not fail.
+6. A label mismatch between the module and its gate.
+
+**GitHub: BLOCKED_CREDENTIALS.** Local `main` is ahead of remote `main` (`288c606`).
+`git push` returns `fatal: unable to get password from user`. No token in the environment,
+no `~/.git-credentials`, and the credential helper cannot answer non-interactively.
+**No push is claimed.**
+
+**Not established.** No benchmark. No SOTA. No physical BTO. No TimescaleDB. No SLM.
+No CUDA latency. No Turing completeness. No OOD generality.
