@@ -62,6 +62,10 @@ class HenriOmegaPipeline:
         self.max_thermostat_steps = int(max_thermostat_steps)
         self.thermostat_sigma = float(thermostat_sigma)
         self.seed = int(seed)
+        # The thermostat draws noise.  It must come from a generator this object
+        # owns: the process-global RNG made two runs with the same seed differ,
+        # which is exactly what a reproducibility claim cannot tolerate.
+        self._thermostat_rng = np.random.default_rng(self.seed)
 
         self.lexicon = HarmonicLexicon(
             vocab_size=512, d_slot=self.d_slot, d_sem=64, seed=seed
@@ -158,6 +162,16 @@ class HenriOmegaPipeline:
         return np.asarray(rule_torus) * np.asarray(z_test_torus)
 
     # --------------------------------------------------------------------- step
+    def reset_rng(self, seed: Optional[int] = None) -> None:
+        """Restart the thermostat noise stream.
+
+        Determinism is per fresh instance, or per call to this method.  Replaying
+        a run means: reset, then call ``step`` with the same arguments.
+        """
+        self._thermostat_rng = np.random.default_rng(
+            self.seed if seed is None else int(seed)
+        )
+
     def step(
         self,
         query_tokens: Optional[Sequence[str]] = None,
@@ -211,8 +225,8 @@ class HenriOmegaPipeline:
                     continue
                 err_k = max(float(result.delta_phi_slots[k]), 1e-6)
                 white = (
-                    np.random.standard_normal(self.d_slot)
-                    + 1j * np.random.standard_normal(self.d_slot)
+                    self._thermostat_rng.standard_normal(self.d_slot)
+                    + 1j * self._thermostat_rng.standard_normal(self.d_slot)
                 ) / math.sqrt(2.0 * float(self.d_slot))
                 band = slice(k * self.d_slot, (k + 1) * self.d_slot)
                 ou_noise[band] = 0.8 * ou_noise[band] + math.sqrt(0.36) * white

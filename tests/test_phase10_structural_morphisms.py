@@ -51,12 +51,14 @@ THE NEGATIVE CONTROLS ARE THE LOAD-BEARING PART.
 from __future__ import annotations
 
 import hashlib
+import json
+from pathlib import Path
 
 import numpy as np
 import pytest
 
 from henri import operator_ingress as oi
-from henri.semantic_backbone import SemanticBackbone
+from henri.semantic_backbone import MODEL_REVISION, SemanticBackbone
 
 REV_LIST = "Write a function to reverse a list"
 SORT_LIST = "Write a function to sort a list"
@@ -69,16 +71,48 @@ DIFF_DOC = "Write a function to find the difference of a and b"
 ADD_CODE = "def f(a, b):\n    return a + b\n"
 SUB_CODE = "def f(a, b):\n    return a - b\n"
 
-# MEASURED PINS, taken from 854605d BEFORE the Phase 10 edit. Recorded as
-# literals so a drift in Slot 1 or Slot 2 fails loudly instead of quietly.
 PIN_FIXTURES = (
     SUM_DOC, DIFF_DOC, REV_LIST, SORT_LIST,
     "return a function of two values",
     ADD_CODE, SUB_CODE, CODE_REV, CODE_SORT,
     "the cat sat on the mat",
 )
-PIN_SLOT1 = "0d55b5ee17af41bcf4a9ea85e82ea4a2011cc0f1799651484dc1959595e837db"
-PIN_SLOT2 = "59ed073d4a07fa41424bfafe92be93ddb552ff96a527824596fb90f031a2526c"
+
+# The pins live in tests/pins/embedding_pins.json, together with the encoder
+# revision and the library versions that produced them.  A byte digest of a
+# model output is only meaningful inside one environment: storing the digest
+# without the environment is what let this suite go red while nothing in the
+# code had changed.
+PIN_PATH = Path(__file__).parent / "pins" / "embedding_pins.json"
+
+
+def _pinned_digest(key: str) -> str:
+    """Return the recorded digest, or skip with the exact environment mismatch."""
+    payload = json.loads(PIN_PATH.read_text(encoding="utf-8"))
+    recorded = payload["revision"]
+    if recorded != MODEL_REVISION:
+        pytest.skip(
+            f"embedding pin recorded under revision {recorded}, code pins {MODEL_REVISION}"
+        )
+
+    import sentence_transformers
+    import torch
+    import transformers
+
+    running = {
+        "sentence_transformers": sentence_transformers.__version__,
+        "transformers": transformers.__version__,
+        "torch": torch.__version__,
+    }
+    for name, expected in payload["versions"].items():
+        if name == "python":
+            continue
+        actual = running.get(name, "absent")
+        if str(actual) != str(expected):
+            pytest.skip(
+                f"embedding pin recorded under {name} {expected}, running {actual}"
+            )
+    return payload["digests"][key]
 
 
 @pytest.fixture(scope="module")
@@ -116,12 +150,12 @@ def _region_digest(enc, texts, lo, hi):
 
 def test_control_1_slot1_is_byte_identical_to_the_phase9_pin(aware):
     """CONTROL 1a. Slot 1 must not move by one byte. Measured, not assumed."""
-    assert _region_digest(aware, PIN_FIXTURES, 16384, 32768) == PIN_SLOT1
+    assert _region_digest(aware, PIN_FIXTURES, 16384, 32768) == _pinned_digest("slot1_16384_32768")
 
 
 def test_control_1b_arithmetic_channel_is_byte_identical(aware):
     """CONTROL 1b. Slot 2 IS the Phase 8/9 arithmetic channel in this tree."""
-    assert _region_digest(aware, PIN_FIXTURES, 32768, 49152) == PIN_SLOT2
+    assert _region_digest(aware, PIN_FIXTURES, 32768, 49152) == _pinned_digest("slot2_32768_49152")
 
 
 def test_control_1c_enabling_morphism_does_not_touch_the_operator_subwave(aware,

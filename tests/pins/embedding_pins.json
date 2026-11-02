@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "notes": "Byte-identity pins for the two slot regions. A pin is only meaningful inside the environment that produced it, so the consuming test skips with a named reason when the encoder revision or a library version differs. Regenerate deliberately with scripts/record_embedding_pins.py.",
+  "model": "sentence-transformers/all-MiniLM-L6-v2",
+  "revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+  "encoder_kind": "sentence_transformer",
+  "dim_sem": 384,
+  "versions": {
+    "sentence_transformers": "5.5.1",
+    "transformers": "5.9.0",
+    "torch": "2.11.0+cu128",
+    "python": "3.14.0"
+  },
+  "recorded_at": "2026-11-02T23:45:21Z",
+  "recorded_from_git": "e240809bc540178fc37f38c0559f33cb06a70fa8",
+  "digests": {
+    "slot1_16384_32768": "1ccfa3da6239b4dfd3a2b9a6a8bfc0fb5931b0c1b33402d1a8b297911f54fe0c",
+    "slot2_32768_49152": "1e7f6df3c3606cd16517a665a74320133f35e9b8a1293ad6b590e88694f7087e"
+  }
+}

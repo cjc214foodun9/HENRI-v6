@@ -22,6 +22,10 @@ import numpy as np
 from henri.harmonic_lexicon import HarmonicLexicon
 
 MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
+# Pinned upstream revision.  A model loaded by name alone is not reproducible:
+# a new upstream commit changes embeddings, which changes every slot digest.
+# Recorded in docs/MODEL_PINS.md and guarded by tests/test_embedding_pin.py.
+MODEL_REVISION = "1110a243fdf4706b3f48f1d95db1a4f5529b4d41"
 
 
 @dataclass
@@ -36,9 +40,11 @@ def _load_encoder(device: str = "cpu"):
     from sentence_transformers import SentenceTransformer
 
     try:
-        return SentenceTransformer(MODEL_NAME, device=device, local_files_only=True)
+        return SentenceTransformer(
+            MODEL_NAME, device=device, revision=MODEL_REVISION, local_files_only=True
+        )
     except Exception:
-        return SentenceTransformer(MODEL_NAME, device=device)
+        return SentenceTransformer(MODEL_NAME, device=device, revision=MODEL_REVISION)
 
 
 def default_axioms() -> List[Tuple[str, str, str]]:

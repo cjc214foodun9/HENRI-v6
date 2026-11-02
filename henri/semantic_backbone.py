@@ -216,6 +216,13 @@ class StemInfo:
     dim_sem: int
     model: str
     offline: bool
+    revision: str = ""
+
+
+# The encoder identity is part of the measurement.  A name alone resolves to
+# whatever upstream published last, which silently changes every slot digest.
+MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
+MODEL_REVISION = "1110a243fdf4706b3f48f1d95db1a4f5529b4d41"
 
 
 class SemanticStem:
@@ -223,20 +230,24 @@ class SemanticStem:
 
     Args:
         model_name: sentence-transformers id. Loaded offline.
+        revision: upstream commit to load. Pinned, because a name is not a
+            version.
         allow_fallback: when True and the model is unavailable, use a
             deterministic character-PMI stem. The fallback is WEAKER and
             the receipt says which stem ran.
     """
 
-    def __init__(self, model_name: str = "sentence-transformers/all-MiniLM-L6-v2",
+    def __init__(self, model_name: str = MODEL_NAME,
+                 revision: str = MODEL_REVISION,
                  allow_fallback: bool = True) -> None:
         self.model_name = model_name
+        self.revision = revision
         self._model = None
         self._cache: dict = {}
         self.kind = "unloaded"
         try:
             from sentence_transformers import SentenceTransformer
-            self._model = SentenceTransformer(model_name, device="cpu")
+            self._model = SentenceTransformer(model_name, device="cpu", revision=revision)
             self.kind = "sentence_transformer"
         except Exception:
             if not allow_fallback:
@@ -252,7 +263,8 @@ class SemanticStem:
 
     def info(self) -> StemInfo:
         return StemInfo(dim_sem=self.dim_sem, model=self.model_name,
-                        offline=bool(os.environ.get("HF_HUB_OFFLINE")))
+                        offline=bool(os.environ.get("HF_HUB_OFFLINE")),
+                        revision=self.revision)
 
     # -- fallback -------------------------------------------------------
 

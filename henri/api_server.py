@@ -27,6 +27,8 @@ from __future__ import annotations
 
 from typing import Optional
 
+import math
+
 import numpy as np
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
@@ -76,6 +78,18 @@ def _body(obj) -> dict:
 # Validation is explicit rather than relying on pydantic version-specific
 # Field keywords. A wrong keyword on `list[str]` raises at import time in one
 # major version and warns in another, so the check lives in the handler.
+
+# -- input limits --------------------------------------------------------
+# A request that cannot be served in bounded time must be refused at the edge,
+# not allowed to exhaust memory or hold a worker.  The numbers come from the
+# model geometry: 65,536 sensor channels is the production D, and 256 items is
+# far above any measured call.  Every limit is 422, never a truncated success.
+
+MAX_TEXT_CHARS = 20_000
+MAX_ITEMS = 256
+MAX_SENSOR_VALUES = 65_536
+MAX_BANK_INGEST = 10_000
+
 
 class RankRequest(BaseModel):
     question: str
@@ -133,8 +147,18 @@ def health_executor() -> dict:
 
 @app.post("/v1/reason/rank")
 def reason_rank(req: RankRequest) -> dict:
+    if not req.question.strip():
+        raise HTTPException(422, "question is required")
+    if len(req.question) > MAX_TEXT_CHARS:
+        raise HTTPException(422, f"question exceeds {MAX_TEXT_CHARS} characters")
     if len(req.options) < 2:
         raise HTTPException(422, "at least two options are required")
+    if len(req.options) > MAX_ITEMS:
+        raise HTTPException(422, f"at most {MAX_ITEMS} options are permitted")
+    if any(len(option) > MAX_TEXT_CHARS for option in req.options):
+        raise HTTPException(422, f"an option exceeds {MAX_TEXT_CHARS} characters")
+    if not math.isfinite(float(req.channel_weight)):
+        raise HTTPException(422, "channel_weight must be finite")
     key = req.signing_key.encode("utf-8") if req.signing_key else None
     return _body(get_api().rank_options(req.question, req.options,
                                         strip=req.strip, signing_key=key,
@@ -149,6 +173,12 @@ def cartridges_write(req: CartridgeWriteRequest) -> dict:
         raise HTTPException(422, "keys and values must have equal length")
     if not req.keys:
         raise HTTPException(422, "at least one pair is required")
+    if len(req.keys) > MAX_ITEMS:
+        raise HTTPException(422, f"at most {MAX_ITEMS} pairs are permitted")
+    if any(len(key) > MAX_TEXT_CHARS for key in req.keys) or any(
+        len(value) > MAX_TEXT_CHARS for value in req.values
+    ):
+        raise HTTPException(422, f"a key or value exceeds {MAX_TEXT_CHARS} characters")
 
     api = get_api()
     # MEASURED DEFECT, repaired. The first draft used
@@ -205,6 +235,10 @@ def cartridges_mount(req: CartridgeMountRequest) -> dict:
 def code_solve(req: CodeSolveRequest) -> dict:
     if not req.spec.strip():
         raise HTTPException(422, "spec is required")
+    if len(req.spec) > MAX_TEXT_CHARS:
+        raise HTTPException(422, f"spec exceeds {MAX_TEXT_CHARS} characters")
+    if len(req.candidates) > MAX_ITEMS or len(req.tests) > MAX_ITEMS:
+        raise HTTPException(422, f"at most {MAX_ITEMS} candidates and tests are permitted")
     api = get_api()
 
     bank = _CODE_BANKS.get(req.tenant_id)
@@ -338,6 +372,8 @@ def robotics_step(req: RoboticsStepRequest) -> dict:
     """
     if not req.sensor_values:
         raise HTTPException(422, "sensor_values must not be empty")
+    if len(req.sensor_values) > MAX_SENSOR_VALUES:
+        raise HTTPException(422, f"at most {MAX_SENSOR_VALUES} sensor values are permitted")
     arr = np.asarray(req.sensor_values, dtype=float)
     if not np.all(np.isfinite(arr)):
         raise HTTPException(422, "sensor_values must all be finite")

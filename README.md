@@ -23,6 +23,22 @@ Deferred with `BLOCKED` labels: BaTiO3 photonics, TimescaleDB
 hypertables, the 448M decoder, FP8/NVFP4 quantization, L2 pinning,
 Triton kernels, GPU latency and VRAM gates.
 
+## Compute scope: CPU only, by decision
+
+`run_pipeline` is a `numpy`/`complex128` implementation at `D = 65536`. It is
+**CPU-only**. There is no CUDA path for the pipeline, and a GPU benchmark of the
+kernel is therefore not possible today. `omega_torch.py` carries a small torch
+subset (`KoopmanSheafT`, `hopfield_readout_t`, `stiefel_retract_t`); it is not the
+pipeline.
+
+This is a recorded decision, not an oversight. Porting the pipeline is a project
+with its own budget, and the parity test it needs does not exist yet. Measure the
+kernel on CPU, label the machine, and never present a serving-model GPU run as a
+kernel GPU claim. The decision record is
+`../deepseek-harness/default-workspace/HENRI/docs/KERNEL_SCOPE.md`.
+
+Evidence label: `DERIVED` from the module inventory, `BLOCKED` for any GPU claim.
+
 ## Evidence policy
 
 Every material result carries one label:
