@@ -7,9 +7,9 @@
       "train_triples": 217,
       "test_triples": 71,
       "holarch": {
-        "train_accuracy": 0.8894009216589862,
-        "test_accuracy": 0.647887323943662,
-        "parameters": 189711
+        "train_accuracy": 0.695852534562212,
+        "test_accuracy": 0.5070422535211268,
+        "parameters": 175311
       },
       "flat_mlp": {
         "train_accuracy": 1.0,
@@ -17,15 +17,15 @@
         "parameters": 158984
       },
       "holarch_generalises": true,
-      "flat_mlp_below_0_30": false
+      "holarch_beats_mlp": false
     },
     "low_data": {
       "train_triples": 71,
       "test_triples": 217,
       "holarch": {
-        "train_accuracy": 0.9859154929577465,
-        "test_accuracy": 0.3548387096774194,
-        "parameters": 189711
+        "train_accuracy": 0.9154929577464789,
+        "test_accuracy": 0.41935483870967744,
+        "parameters": 175311
       },
       "flat_mlp": {
         "train_accuracy": 1.0,
@@ -33,12 +33,12 @@
         "parameters": 158984
       },
       "holarch_generalises": true,
-      "flat_mlp_below_0_30": false
+      "holarch_beats_mlp": true
     }
   },
   "gate": {
     "standard_passed": false,
-    "low_data_passed": false,
+    "low_data_passed": true,
     "passed": false
   },
   "evidence": "OBSERVED"

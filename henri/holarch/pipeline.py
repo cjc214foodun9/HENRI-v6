@@ -39,7 +39,7 @@ import torch.nn.functional as F
 
 from henri.holarch.config import TASK_IDS, TASK_NAMES, HolarchConfig
 from henri.holarch.zone_a import LeanSwarm, ReplayBuffer, SwarmOutput
-from henri.holarch.zone_b import PhotonicCore, PhotonicState, _unit
+from henri.holarch.zone_b import PhotonicCore, PhotonicState, _unit, sagnac_delta
 from henri.holarch.zone_c import MemoryRead, ZoneCMemory
 
 _EPS = 1e-8
@@ -263,6 +263,16 @@ class HenriHolarch(nn.Module):
         self.relational_proj = nn.Linear(
             self.zone_b.relational_width, self.d_feat, bias=False
         )
+        # Trilinear gate starts at 1; the three pairwise products start at
+        # 0.1 so they can help but cannot dominate a 72-triple fit.
+        gate = torch.cat(
+            [
+                torch.ones(int(cfg.pool_k)),
+                0.1 * torch.ones(self.zone_b.relational_width - int(cfg.pool_k)),
+            ]
+        )
+        self.relational_gate = nn.Parameter(gate)
+        self.relational_dropout = nn.Dropout(0.2)
         self.memory_proj = nn.Linear(
             int(cfg.context_tokens) * int(cfg.context_dim), self.d_feat, bias=False
         )
@@ -402,25 +412,29 @@ class HenriHolarch(nn.Module):
             )
 
         tau_residual = self.veto_epsilon(task)
-        delta_sagnac = photonic.delta_memory
+
+        # Decision B: the axiom lives in the POST-photonic space. Project the
+        # softmax context bundle through the same plates once, without gradient,
+        # and compare output to output.
+        if use_photonic and use_memory and bool(has_hits.any()):
+            with torch.no_grad():
+                axiom_out = self.zone_b(context_wave, apply_memory=False).bright
+            axiom_out = torch.where(
+                has_hits.unsqueeze(-1), axiom_out, photonic.bright.detach()
+            )
+        else:
+            axiom_out = photonic.bright.detach()
+        delta_sagnac = sagnac_delta(photonic.bright, axiom_out)
+
         if (
             relax
             and not training
             and use_photonic
-            and axiom is not None
             and int(self.cfg.relax_steps) > 0
             and bool((delta_sagnac > tau_residual).any())
         ):
-            # Relax every row. Rows without a memory hit use their own wave as
-            # the reference, so their residual is zero and the loop is a no-op
-            # for them. Gating on has_hits.all() was a bug: one unmatched row
-            # disabled relaxation for the whole batch.
-            relax_axiom = torch.where(has_hits.unsqueeze(-1), axiom, fused)
-            relaxed, _trace = self.zone_b.relax(
-                fused, relax_axiom, tolerance=float(tau_residual)
-            )
-            relaxed.delta_memory = torch.where(
-                has_hits, relaxed.delta_memory, torch.zeros_like(relaxed.delta_memory)
+            relaxed, _trace = self.zone_b.relax_output(
+                fused, axiom_out, tolerance=float(tau_residual)
             )
             photonic = relaxed
             delta_sagnac = photonic.delta_memory
@@ -428,9 +442,14 @@ class HenriHolarch(nn.Module):
         if use_optical_features:
             raw = self.feature_proj(photonic.features[:, : self.zone_b.raw_width])
             if task == "relational":
-                raw = raw + self.relational_proj(
-                    photonic.features[:, self.zone_b.raw_width :]
-                )
+                # Decision C: the relational head reads the pure trilinear
+                # product only. The pairwise products stay in the tensor for
+                # diagnosis but are not fed to the head, so a 72-triple run
+                # cannot memorise a two-slot shortcut.
+                product = photonic.features[:, self.zone_b.raw_width :]
+                if training:
+                    product = self.relational_dropout(product)
+                raw = raw + self.relational_proj(product * self.relational_gate)
             optical = raw
         else:
             optical = 0.0
@@ -550,7 +569,7 @@ class HenriHolarch(nn.Module):
             output = self.forward(task, batch, training=False, relax=False)
             mask = output.memory_mask
             if bool(mask.any()):
-                deltas.extend(float(v) for v in output.photonic.delta_memory[mask].cpu())
+                deltas.extend(float(v) for v in output.delta_sagnac[mask].cpu())
         if not deltas:
             return {"epsilon": float(self.zone_b.epsilon), "n": 0.0, "calibrated": 0.0}
         values = torch.tensor(deltas, dtype=torch.float32)

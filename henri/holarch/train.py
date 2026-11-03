@@ -122,6 +122,13 @@ class Trainer:
         )
         loss = F.cross_entropy(output.task_logits, batch.y.long())
         total = loss + float(self.config.aux_weight) * output.swarm.load_balance
+        if task_name == "relational":
+            l2 = (
+                self.model.relational_proj.weight.pow(2).sum()
+                + self.model.trilinear_head.weight.pow(2).sum()
+                + self.model.relational_gate.pow(2).sum()
+            )
+            total = total + 0.05 * l2
         if float(self.config.ood_weight) > 0.0 and task_name in {"vision", "action"}:
             # Outlier exposure: push the wave of a uniform input away from the
             # wave of a real input. This is what makes the raw Gram statistic a

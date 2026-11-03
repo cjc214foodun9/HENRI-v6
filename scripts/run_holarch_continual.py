@@ -176,6 +176,62 @@ def main() -> int:
         row["shifted_gain"] = row["shifted"] - baseline
         row["retention"] = row["original"] / max(original_before, 1e-9)
 
+    # Associative rule shift: the pixels stay, the labels rotate by three.
+    # Fast weights are an associative map and should adapt without backprop.
+    shift = 3
+
+    def rule_accuracy(model, offset: int) -> float:
+        correct = 0
+        total = 0
+        with torch.no_grad():
+            for batch in tasks["vision"].epoch(64, "val"):
+                labels = (batch.y + offset) % 10
+                output = model("vision", batch.x, training=False, use_memory=False)
+                correct += int((output.predicted() == labels).sum())
+                total += int(labels.numel())
+        return correct / max(total, 1)
+
+    def rule_batches():
+        generator = torch.Generator().manual_seed(31)
+        for _ in range(int(args.batches)):
+            batch = tasks["vision"].sample(32, "train")
+            yield batch.x, (batch.y + shift) % 10
+
+    rule = {}
+    model.load_state_dict(anchors)
+    rule["no_adaptation"] = {
+        "shifted": rule_accuracy(model, shift),
+        "original": rule_accuracy(model, 0),
+    }
+    model.load_state_dict(anchors)
+    for x, y in rule_batches():
+        output = model("vision", x, training=False, use_memory=False)
+        model.fast_learn(output, y, lr=0.2)
+    rule["fast_weights_only"] = {
+        "shifted": rule_accuracy(model, shift),
+        "original": rule_accuracy(model, 0),
+    }
+    model.load_state_dict(anchors)
+    optimizer = torch.optim.AdamW([p for p in model.parameters() if p.requires_grad], lr=1e-3)
+    for x, y in rule_batches():
+        index = torch.randint(0, old_x.shape[0], (x.shape[0],), generator=torch.Generator().manual_seed(5))
+        mix_x = torch.cat([x, old_x[index]])
+        mix_y = torch.cat([y, old_y[index]])
+        output = model("vision", mix_x, training=True, use_memory=False)
+        loss = F.cross_entropy(output.task_logits, mix_y)
+        optimizer.zero_grad(set_to_none=True)
+        loss.backward()
+        optimizer.step()
+    rule["replay_mixed"] = {
+        "shifted": rule_accuracy(model, shift),
+        "original": rule_accuracy(model, 0),
+    }
+    rule_baseline = rule["no_adaptation"]["shifted"]
+    for name, row in rule.items():
+        row["shifted_gain"] = row["shifted"] - rule_baseline
+        row["retention"] = row["original"] / max(original_before, 1e-9)
+    rows["rule_shift"] = rule
+
     payload = {
         "task": "vision-pixel-permutation",
         "steps": int(args.steps),
@@ -183,6 +239,7 @@ def main() -> int:
         "permutation_seed": 99,
         "original_before_shift": original_before,
         "variants": rows,
+        "rule_shift": rule,
         "evidence": "OBSERVED",
     }
     out = Path(args.out)

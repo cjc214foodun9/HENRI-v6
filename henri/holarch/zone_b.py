@@ -47,7 +47,7 @@ from __future__ import annotations
 
 import math
 from contextlib import contextmanager
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Dict, Optional, Sequence, Tuple
 
 import torch
@@ -615,6 +615,73 @@ class PhotonicCore(nn.Module):
                 if stalled >= 2:
                     break
         return best_state, trace
+
+    def _replace_bright(
+        self,
+        state: PhotonicState,
+        bright: torch.Tensor,
+        axiom_out: torch.Tensor,
+    ) -> PhotonicState:
+        """Rebuild a state after an egress-space phase correction."""
+        stats = self.wave_stats(bright)
+        delta = sagnac_delta(bright, axiom_out)
+        delta_slots = self.slot_delta(bright, axiom_out)
+        features, trilinear = self.pool_features(
+            bright, state.dark, stats, state.temperature, state.gain, delta
+        )
+        return replace(
+            state,
+            bright=bright,
+            delta_memory=delta,
+            delta_slots=delta_slots,
+            visibility=(1.0 - delta).clamp(-1.0, 1.0),
+            entropy=stats[:, 0],
+            features=features,
+            trilinear=trilinear,
+        )
+
+    def relax_output(
+        self,
+        psi: torch.Tensor,
+        axiom_out: torch.Tensor,
+        steps: Optional[int] = None,
+        alpha_thermal: Optional[float] = None,
+        fraction: Optional[float] = None,
+        tolerance: float = 0.35,
+    ) -> Tuple[PhotonicState, List[float]]:
+        """Relax in the POST-photonic attractor space.
+
+        Decision B: the old loop pulled a post-photonic wave toward a
+        pre-photonic memory wave, which partially erased the optical
+        transform. Here the axiom is B_theta(context), computed once with
+        no gradient, and every pass re-propagates the plates with heater
+        feedback before the egress phase correction.
+        """
+        if axiom_out is None:
+            raise ValueError("relax_output needs a post-photonic axiom")
+        steps = int(self.cfg.relax_steps if steps is None else steps)
+        alpha = float(self.cfg.alpha_thermal if alpha_thermal is None else alpha_thermal)
+        eta = float(0.15 if fraction is None else fraction)
+        axiom = _unit(axiom_out.to(torch.complex64))
+        state = self.forward(psi, apply_memory=False)
+        best = self._replace_bright(state, state.bright, axiom)
+        best_delta = float(best.delta_memory.mean().detach())
+        trace = [best_delta]
+        for _ in range(max(0, steps)):
+            if best_delta <= float(tolerance):
+                break
+            feedback = alpha * self.slot_delta(state.bright, axiom).detach()
+            state = self.forward(psi, thermal_feedback=feedback, apply_memory=False)
+            phase = torch.angle(axiom * state.bright.conj())
+            corrected = _unit(state.bright * torch.exp(1j * eta * phase))
+            candidate = self._replace_bright(state, corrected, axiom)
+            delta = float(candidate.delta_memory.mean().detach())
+            trace.append(delta)
+            state = candidate
+            if delta < best_delta:
+                best = candidate
+                best_delta = delta
+        return best, trace
 
     # ------------------------------------------------------- learning hooks
     @torch.no_grad()

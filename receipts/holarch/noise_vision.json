@@ -2,10 +2,10 @@
   "task": "vision",
   "steps": 200,
   "sigma": 0.25,
-  "clean_accuracy": 0.9733333333333334,
-  "noisy_accuracy_relax": 0.93,
-  "noisy_accuracy_no_relax": 0.94,
-  "delta_from_relax": -0.009999999999999898,
+  "clean_accuracy": 0.8466666666666667,
+  "noisy_accuracy_relax": 0.8266666666666667,
+  "noisy_accuracy_no_relax": 0.83,
+  "delta_from_relax": -0.0033333333333332993,
   "gate": {
     "relax_gain_at_least_0_05": false,
     "passed": false

@@ -137,7 +137,9 @@ def main() -> int:
     for tag, task in (("standard", standard), ("low_data", low_data)):
         result = run_case(cfg, task, int(args.steps), int(args.hidden), tag)
         result["holarch_generalises"] = bool(result["holarch"]["test_accuracy"] > 0.25)
-        result["flat_mlp_below_0_30"] = bool(result["flat_mlp"]["test_accuracy"] < 0.30)
+        result["holarch_beats_mlp"] = bool(
+            result["holarch"]["test_accuracy"] > result["flat_mlp"]["test_accuracy"]
+        )
         cases[tag] = result
         print(f"{tag:9s} holarch test={result['holarch']['test_accuracy']:.3f} "
               f"mlp test={result['flat_mlp']['test_accuracy']:.3f}")
@@ -148,17 +150,11 @@ def main() -> int:
         "classes": int(cfg.relational_classes),
         "cases": cases,
         "gate": {
-            "standard_passed": bool(
-                cases["standard"]["holarch_generalises"]
-                and cases["standard"]["flat_mlp_below_0_30"]
-            ),
-            "low_data_passed": bool(
-                cases["low_data"]["holarch_generalises"]
-                and cases["low_data"]["flat_mlp_below_0_30"]
-            ),
+            "standard_passed": bool(cases["standard"]["holarch_beats_mlp"]),
+            "low_data_passed": bool(cases["low_data"]["holarch_beats_mlp"]),
             "passed": bool(
-                cases["low_data"]["holarch_generalises"]
-                and cases["low_data"]["flat_mlp_below_0_30"]
+                cases["standard"]["holarch_beats_mlp"]
+                and cases["low_data"]["holarch_beats_mlp"]
             ),
         },
         "evidence": "OBSERVED",
