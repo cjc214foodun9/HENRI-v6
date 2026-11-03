@@ -167,8 +167,11 @@ class DiffractivePlate(nn.Module):
         self.log_kerr = nn.Parameter(torch.tensor(math.log(float(kerr))))
 
         frequencies = torch.fft.fftfreq(self.d_slot, dtype=torch.float32)
-        chirp = torch.exp(-1j * float(zeta) * math.pi * frequencies.pow(2))
-        self.register_buffer("transfer", chirp.to(torch.complex64), persistent=True)
+        self.register_buffer("frequencies", frequencies, persistent=False)
+        # Decision 1: per-slot dispersion. A learnable zeta lets a spatial
+        # slot keep diffractive mixing while a symbolic slot can drive its
+        # chirp toward zero and preserve channel-wise phase alignment.
+        self.zeta = nn.Parameter(torch.full((self.n_slots,), float(zeta)))
 
     @property
     def kerr(self) -> torch.Tensor:
@@ -193,7 +196,10 @@ class DiffractivePlate(nn.Module):
         drive = self.drive().reshape(1, self.n_slots, 1)
         phase = self.phase.unsqueeze(0) + float(direction) * self.pockels_gain * gain.unsqueeze(-1) * drive
         field = psi * torch.exp(1j * phase)
-        field = torch.fft.ifft(torch.fft.fft(field, dim=-1) * self.transfer, dim=-1)
+        transfer = torch.exp(
+            -1j * self.zeta.reshape(-1, 1) * math.pi * self.frequencies.pow(2)
+        ).to(torch.complex64)
+        field = torch.fft.ifft(torch.fft.fft(field, dim=-1) * transfer.unsqueeze(0), dim=-1)
         intensity = field.abs().pow(2) * float(self.d_slot)
         field = field * torch.exp(1j * self.kerr * intensity)
         return field.contiguous()
@@ -229,6 +235,7 @@ class PhotonicState:
     free_energy: torch.Tensor
     norm_drift: float
     features: torch.Tensor
+    trilinear: torch.Tensor
     extra: Dict[str, float] = field(default_factory=dict)
 
     def summary(self) -> Dict[str, float]:
@@ -350,8 +357,21 @@ class PhotonicCore(nn.Module):
 
     @property
     def feature_width(self) -> int:
-        """Pooled features: slot unbinding + dark energy + eight scalars."""
-        return self.n_slots * self.pool_k + self.n_slots + 8
+        """Slot readouts, trilinear and bilinear products, dark energy, scalars.
+
+        4K raw + K trilinear + 3K bilinear + 4 dark + 8 scalars = 8K + 12.
+        """
+        return 8 * self.pool_k + self.n_slots + 8
+
+    @property
+    def raw_width(self) -> int:
+        """Raw slot readouts, dark energy, and scalars: 4K + 12."""
+        return 4 * self.pool_k + self.n_slots + 8
+
+    @property
+    def relational_width(self) -> int:
+        """Trilinear plus bilinear products: 4K."""
+        return 4 * self.pool_k
 
     # ------------------------------------------------------------ statistics
     def wave_stats(self, psi: torch.Tensor) -> torch.Tensor:
@@ -472,7 +492,9 @@ class PhotonicCore(nn.Module):
         free_energy = internal - temperature.mean(dim=-1) * entropy
 
         drift = float((energy - 1.0).abs().max().detach())
-        features = self.pool_features(bright, dark, stats, temperature, gain, delta_memory)
+        features, trilinear = self.pool_features(
+            bright, dark, stats, temperature, gain, delta_memory
+        )
 
         return PhotonicState(
             bright=bright,
@@ -487,6 +509,7 @@ class PhotonicCore(nn.Module):
             free_energy=free_energy,
             norm_drift=drift,
             features=features,
+            trilinear=trilinear,
             extra={
                 "bright_power": float(bright_power.mean().detach()),
                 "dark_power": float(dark_power.mean().detach()),
@@ -513,7 +536,16 @@ class PhotonicCore(nn.Module):
         """
         batch = bright.shape[0]
         slots = bright.reshape(batch, self.n_slots, self.d_slot)
-        unbound = self.pool(slots)
+        unbound = self.pool(slots).reshape(batch, self.n_slots, self.pool_k)
+        trilinear = unbound[:, 0] * unbound[:, 1] * unbound[:, 2]
+        bilinear = torch.cat(
+            [
+                unbound[:, 0] * unbound[:, 1],
+                unbound[:, 1] * unbound[:, 2],
+                unbound[:, 0] * unbound[:, 2],
+            ],
+            dim=-1,
+        )
         dark_energy = dark.reshape(batch, self.n_slots, -1).abs().pow(2).sum(dim=-1)
         scalars = torch.stack(
             [
@@ -528,7 +560,13 @@ class PhotonicCore(nn.Module):
             ],
             dim=-1,
         )
-        return torch.cat([unbound, dark_energy, scalars], dim=-1)
+        # Raw slot readouts first so non-relational tasks can use only the
+        # slot geometry; the trilinear and bilinear products follow for the
+        # relational head.
+        features = torch.cat(
+            [unbound.flatten(1), dark_energy, scalars, trilinear, bilinear], dim=-1
+        )
+        return features, trilinear
 
     def relax(
         self,

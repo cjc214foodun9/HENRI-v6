@@ -70,7 +70,7 @@ g_s = Re(U_s psi_s)          U_s U_s^H = I       (QR retraction every pass)
 features = [g_0 || g_1 || g_2 || g_3 || dark energy || 8 scalars]
 ~~~
 
-K = 16 in the CI profile, 32 in production, 64 in the Blackwell profile. The
+K = 32 in the CI and production profiles, 64 in the Blackwell profile. The
 QR retraction runs in the forward pass, so the basis stays on the manifold
 during training rather than being regularised toward it. A test measures
 max |U U^H - I| < 1e-4.
@@ -147,34 +147,35 @@ the product into slot 3, which is VSA binding and is parameter free.
 ## 5. Measured results
 
 Receipt: receipts/holarch/holarch_small.json
-SHA-256: 78a45fd665233f196460cdf07be5b9c86514956f6ed2d98ea6ce0029048e5e54
+SHA-256: 4e91866f163467bfe7fbb848f7dcba66a21e2c8d5a055a3a502e17a0cc31166f
 
 Configuration: HolarchConfig.small(), 300 steps per task, batch 32, 20 DAgger
-rounds, outlier exposure weight 3.0, 172,031 parameters, TimescaleDB backend.
+rounds, outlier exposure weight 3.0, 189,711 parameters, TimescaleDB backend.
 
 | Task | Metric | Validation | Test | Chance |
 |---|---|---|---|---|
-| Vision | accuracy | 0.930 | 0.943 | 0.100 |
-| Language | next-char accuracy | 0.253 | 0.241 | 0.010 |
-| Language | perplexity | 16.23 | 17.52 | 96 |
-| Action | one-step accuracy | 0.738 | 0.738 | 0.250 |
-| Action | closed-loop success | 0.542 | - | 0.031 random |
-| Relational | held-out triple accuracy | 0.563 | 0.563 | 0.125 |
+| Vision | accuracy | 0.967 | 0.966 | 0.100 |
+| Language | next-char accuracy | 0.222 | 0.222 | 0.010 |
+| Language | perplexity | 16.60 | 17.70 | 96 |
+| Action | one-step accuracy | 0.763 | 0.763 | 0.250 |
+| Action | closed-loop success | 0.417 | - | 0.031 random |
+| Relational | held-out triple accuracy | 0.479 | 0.479 | 0.125 |
 | Memory | recall@1 over 200 windows | 0.965 | - | - |
 
 Per-task selective prediction:
 
 | Task | Veto rate | Coverage | Selective accuracy |
 |---|---|---|---|
-| Vision | 0.013 | 0.987 | 0.936 |
-| Language | 0.003 | 0.997 | 0.254 |
-| Action | 0.013 | 0.988 | 0.734 |
-| Relational | 0.085 | 0.916 | 0.523 |
+| Vision | 0.017 | 0.983 | 0.973 |
+| Language | 0.014 | 0.986 | 0.225 |
+| Action | 0.000 | 1.000 | 0.763 |
+| Relational | 0.000 | 1.000 | 0.479 |
 
-Outlier exposure costs accuracy: with weight 0.2 the same pipeline reaches
-0.957 vision accuracy but only 0.668 OOD veto; with weight 3.0 it reaches
-0.930 and 1.000 OOD veto. The canonical receipt records the hardened setting
-because Directive 2 gates on the OOD rate.
+Outlier exposure still trades accuracy for separation: with weight 0.2 the
+same pipeline reaches 0.95 vision accuracy but only 0.79 OOD veto; with
+weight 3.0 it reaches 0.966 and 1.000. The DC-subtracted projector recovered
+the accuracy at the hardened setting; it did not make weight 0.2 sufficient.
+The canonical receipt records the hardened setting.
 
 ## 6. Ablation
 
@@ -182,42 +183,43 @@ receipts/holarch/ablation_vision.json, 150 steps, same seed, vision only.
 
 | Variant | Accuracy | Delta vs full |
 |---|---|---|
-| full | 0.903 | 0.000 |
-| identity optics (plates bypassed) | 0.677 | -0.227 |
-| no Zone B features | 0.230 | -0.673 |
-| no routing (one expert) | 0.770 | -0.133 |
-| no Zone C | 0.880 | -0.023 |
-| no fast weights | 0.850 | -0.053 |
+| full | 0.890 | 0.000 |
+| identity optics (plates bypassed) | 0.847 | -0.043 |
+| no Zone B features | 0.313 | -0.577 |
+| no routing (one expert) | 0.893 | +0.003 |
+| no Zone C | 0.883 | -0.007 |
+| no fast weights | 0.903 | +0.013 |
 
-With the skip severed, the optical transform is load-bearing. Removing the
-plates and keeping the same Stiefel readout costs 22.7 points; removing the
-optical features entirely costs 67.3 points. Routing and the fast path now
-carry measurable signal as well.
+With the skip severed, the optical feature path is load-bearing: removing it
+costs 57.7 points. The stricter identity-optics control now costs only 4.3
+points, down from 22.7 in the previous revision. The richer Stiefel readout
+(K = 32 plus bilinear products) gives the bypass enough linear capacity to
+recover most of the task. The gate passes on the removal definition and
+fails the stricter control, and both numbers are reported.
 
 ## 7. Directive gates
 
 | Gate | Requirement | Measured | Verdict |
 |---|---|---|---|
-| D1 | removing Zone B drops accuracy by at least 0.10 | features removed: -0.673; identity optics: -0.227 | PASS |
-| D2 | OOD veto >= 0.95 and false veto <= 0.02 | 1.000 and 0.013 | PASS |
-| D3 | cold-start action success >= 0.40 | 0.542 (no relax: 0.542) | PASS |
-| D4 | holarch factorises unseen triples, flat MLP < 0.25 | holarch 0.549, MLP 0.704 | FAIL |
+| D1 | removing Zone B drops accuracy by at least 0.10 | features removed: -0.577; identity optics: -0.043 | PASS on removal / FAIL strict |
+| D2 | OOD veto >= 0.95 and false veto <= 0.02 | 1.000 and 0.017 | PASS |
+| D3 | cold-start action success >= 0.40 | 0.417 (no relax: 0.458) | PASS on threshold |
+| D4 | holarch factorises unseen triples, flat MLP < 0.30 | standard 0.648 vs 0.634; low-data 0.355 vs 0.410 | FAIL |
 
-D3 needs a note. The threshold passes, but the thermodynamic loop is neutral:
-the same checkpoint without the loop scores 0.542 as well. The gain over the
-earlier cold start comes from 20 DAgger rounds. The loop lowers the wave
-residual, but a lower residual does not translate into a better action on this
-grid, and the receipt records both numbers.
+D3 needs a note. The threshold passes by 0.017, but the thermodynamic loop is
+negative: the same checkpoint without the loop scores 0.458, so the loop costs
+0.042. The gain over the earlier cold start comes from 20 DAgger rounds. The
+noisy-observation probe confirms the direction: 0.930 with the loop against
+0.940 without at sigma = 0.25. The loop lowers the wave residual, but a lower
+residual does not translate into a better action.
 
-D4 also needs a note. The holarch generalises to unseen triples (0.549
-against 0.125 chance) and its train-test gap is smaller than the MLP's
-(0.811 to 0.549, versus 1.000 to 0.704). It does not beat the MLP, and the
-MLP is far above the 0.25 ceiling. With 217 training triples a 159k-parameter
-MLP memorises the training set and still generalises; the optical readout is
-not constrained to the trilinear form, so binding does not confer an
-advantage at this scale. The gate is a measured failure, not a wording
-problem. The canonical 300-step run reaches 0.563 on the same task; the
-400-step comparison script above is the number in this row.
+D4 also needs a note. With the factored trilinear Stiefel readout the
+holarch now beats the flat MLP on the standard split (0.648 against 0.634)
+and overfits less (train 0.889 against 1.000). At the low-data split the
+holarch reaches 0.355 against the MLP's 0.410, so the MLP is not below 0.30
+and the gate fails. The readout narrowed the gap; it did not invert it at 25
+percent training density. The canonical 300-step run reaches 0.479 on the
+standard task.
 
 ## 8. Continuous learning
 
@@ -227,11 +229,13 @@ domain after adaptation.
 
 | Method | Shifted accuracy | Gain | Retention |
 |---|---|---|---|
-| no adaptation | 0.107 | 0.000 | 1.000 |
-| fast weights only | 0.113 | +0.007 | 0.981 |
-| fine-tune only | 0.633 | +0.527 | 0.739 |
-| replay (mixed) | 0.717 | +0.610 | 1.057 |
-| fast + replay (mixed) | 0.707 | +0.600 | 1.053 |
+| no adaptation | 0.093 | 0.000 | 1.000 |
+| fast weights only | 0.110 | +0.017 | 0.968 |
+| optical imprint only | 0.087 | -0.007 | 0.993 |
+| imprint + fast | 0.083 | -0.010 | 0.950 |
+| fine-tune only | 0.643 | +0.550 | 0.862 |
+| replay (mixed) | 0.677 | +0.583 | 1.000 |
+| fast + replay (mixed) | 0.640 | +0.547 | 0.979 |
 
 Replay carries the adaptation. The fast path adds nothing on this probe and
 costs 0.003 retention. Retention above 1.0 for replay is measured, not a
@@ -244,9 +248,9 @@ batch, declared 0.75 GiB runtime reserve.
 
 | Profile | Dim | Parameters | Training GiB | Headroom GiB | Fits |
 |---|---|---|---|---|---|
-| small (CI) | 256 | 172,031 | 0.765 | 31.24 | yes |
-| production | 4096 | 5,724,253 | 0.911 | 31.089 | yes |
-| blackwell | 8192 | 26,170,711 | 1.359 | 30.641 | yes |
+| small (CI) | 256 | 189,711 | 0.766 | 31.234 | yes |
+| production | 4096 | 5,757,301 | 0.914 | 31.086 | yes |
+| blackwell | 8192 | 26,302,327 | 1.368 | 30.632 | yes |
 
 No CUDA device was present in this checkout. The device column of every
 receipt says cpu. The budget is an accounting result labelled DERIVED; GPU
@@ -271,10 +275,11 @@ Observed:
 
 - Skip severed, Stiefel slot unbinding, slot mixing, and a two-condition veto
   all run end to end on CPU.
-- The optical stage is load-bearing on vision: identity optics costs 0.227.
-- The two-condition veto reaches 1.000 on uniform noise at 0.010 false veto.
-- The thermodynamic loop lowers the residual monotonically but is neutral on
-  grid success in this configuration (0.542 with and without).
+- The optical feature path is load-bearing on vision: removing it costs
+  0.577. The stricter identity-optics control costs 0.043.
+- The two-condition veto reaches 1.000 on uniform noise at 0.017 false veto.
+- The thermodynamic loop lowers the residual monotonically but costs 0.042
+  on grid success (0.417 with, 0.458 without).
 - The relational task is learnable and the holarch generalises to held-out
   triples, but a flat MLP generalises better at this scale.
 
@@ -287,9 +292,67 @@ Not claimed:
   dependency, not a property of the statistic alone.
 - The relational gate did not pass.
 - The thermodynamic loop is not shown to improve action success; it is
-  measured as neutral on the canonical checkpoint.
+  measured as negative on the canonical checkpoint and on the noisy probe.
 
-## 12. Reproduce
+## 12. Decisions 1-4 outcomes
+
+Decision 1, factored trilinear readout. The slot readouts are projected
+onto four Stiefel bases, and the element-wise products g0*g1*g2 (K) and
+[g0*g1 || g1*g2 || g0*g2] (3K) are added to the feature vector. A linear
+trilinear head reads the product directly into the relational classes.
+Per-slot chirp is now a learnable parameter, so a symbolic slot can drive
+its dispersion toward zero.
+
+| Split | Holarch train | Holarch test | MLP train | MLP test |
+|---|---|---|---|---|
+| standard, 25 percent held out | 0.889 | 0.648 | 1.000 | 0.634 |
+| low data, 75 percent held out | 0.986 | 0.355 | 1.000 | 0.410 |
+
+The trilinear readout inverts the standard comparison and halves the
+overfit gap. It does not put the MLP below 0.30 on the low-data split, so
+Gate D4 remains FAIL.
+
+Decision 2, physical re-propagation under noise. Relaxation already calls
+the full photonic forward pass on every step with the updated heater
+feedback, so the plates re-propagate; the earlier implementation was not
+open-loop in that sense. The missing piece was a task-level benefit, and it
+is still missing. At sigma = 0.25 on the vision split:
+
+| Condition | Accuracy |
+|---|---|
+| clean | 0.973 |
+| noisy, relaxation on | 0.930 |
+| noisy, relaxation off | 0.940 |
+
+The loop costs 1.0 point on noisy input. Target-slot associative unbinding
+was not implemented; adding it would need a label codebook in slot 3 and a
+memory readout, which is a new mechanism rather than a repair of this one.
+
+Decision 3, removing the exposure tax. The projector now subtracts the
+latent DC and renormalises before the phase map. That recovered the
+hardened-setting accuracy to 0.966 test (above the 0.957 target) while
+keeping OOD at 1.000. It did not make weight 0.2 sufficient: at 0.2 the
+same pipeline gives 0.95 accuracy and 0.79 OOD, because the s_max
+distributions still overlap in the tail. The phase-dispersion statistic was
+measured and discarded: in-distribution 0.945 against noise 0.948.
+
+Decision 4, coordinated plasticity. Zone B optical imprint and Zone A fast
+weights were run together on every adaptation batch, with no autograd.
+
+| Arm | Shifted | Gain | Retention |
+|---|---|---|---|
+| no adaptation | 0.093 | 0.000 | 1.000 |
+| optical imprint only | 0.087 | -0.007 | 0.993 |
+| fast weights only | 0.110 | +0.017 | 0.968 |
+| imprint + fast | 0.083 | -0.010 | 0.950 |
+| replay (mixed) | 0.677 | +0.583 | 1.000 |
+
+The single-plate imprint cannot undo a pixel permutation, and combining it
+with the fast path is worse than either alone. Replay remains the only arm
+that adapts without forgetting. The coordination hypothesis is not
+supported by this measurement.
+
+## 13. Reproduce
 
 ~~~powershell
 $env:PYTHONPATH = "$PWD"

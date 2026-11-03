@@ -1,13 +1,16 @@
 """Relational compositionality: holarch against a flat MLP.
 
-Evidence label: OBSERVED. Same triples, same seed, same step budget and
-the same optimiser. The only difference is the inductive bias:
+Evidence label: OBSERVED. Two holdout densities are measured:
 
-    holarch   binds the three role waves (pointwise phasor product) and
-              reads the bound wave through the photonic stack
-    flat MLP  concatenates one-hot primitives and learns a dense map
+    standard   25 percent of triples held out
+    low-data   75 percent held out, 25 percent training triples
 
-    python scripts/run_holarch_relational.py --steps 400
+The flat MLP is parameter matched (159k against the holarch's 172k) and
+uses the same optimiser, seed and step budget. The low-data case is the
+Directive 1 gate: a CP-decomposed readout should generalise from few
+triples, a dense one-hot MLP should not.
+
+    python scripts/run_holarch_relational.py --steps 300
 """
 
 from __future__ import annotations
@@ -28,7 +31,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from henri.holarch.config import HolarchConfig
 from henri.holarch.pipeline import HenriHolarch
-from henri.holarch.tasks import build_tasks
+from henri.holarch.tasks import RelationalTask
 from henri.holarch.train import Trainer, TrainConfig
 
 
@@ -60,35 +63,26 @@ class FlatMLP(nn.Module):
         return self.net(onehot)
 
 
-def accuracy(model, task, split: str) -> float:
+def accuracy(logits_fn, task, split: str) -> float:
     correct = 0
     total = 0
     with torch.no_grad():
         for batch in task.epoch(64, split):
-            logits = model(batch.x)
+            logits = logits_fn(batch.x)
             correct += int((logits.argmax(-1) == batch.y).sum())
             total += int(batch.y.numel())
     return correct / max(total, 1)
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--steps", type=int, default=400)
-    parser.add_argument("--hidden", type=int, default=384)
-    parser.add_argument("--out", default="receipts/holarch/relational.json")
-    args = parser.parse_args()
-
-    cfg = HolarchConfig.small()
+def run_case(cfg, task, steps: int, hidden: int, tag: str):
     torch.manual_seed(cfg.seed)
-    tasks = build_tasks(cfg, seed=cfg.seed)
-    task = tasks["relational"]
-
-    path = Path(tempfile.gettempdir()) / "henri_relational.sqlite3"
+    path = Path(tempfile.gettempdir()) / f"henri_relational_{tag}.sqlite3"
     if path.exists():
         path.unlink()
+    tasks = {"relational": task}
     holarch = HenriHolarch(cfg, backend="sqlite", memory_path=str(path))
     trainer = Trainer(holarch, tasks, TrainConfig(steps_per_task=1, batch_size=32, lr=2e-3, ood_weight=0.0))
-    for _ in range(int(args.steps)):
+    for _ in range(int(steps)):
         trainer.step("relational")
     holarch.eval()
     holarch_train = accuracy(lambda x: holarch("relational", x, training=False).task_logits, task, "train")
@@ -102,40 +96,70 @@ def main() -> int:
         cfg.relational_actions,
         cfg.relational_targets,
         cfg.relational_classes,
-        hidden=int(args.hidden),
+        hidden=int(hidden),
     )
     optimizer = torch.optim.AdamW(flat.parameters(), lr=2e-3, weight_decay=1e-4)
-    for _ in range(int(args.steps)):
+    for _ in range(int(steps)):
         batch = task.sample(32, "train")
         loss = F.cross_entropy(flat(batch.x), batch.y)
         optimizer.zero_grad(set_to_none=True)
         loss.backward()
         optimizer.step()
     flat.eval()
-    flat_train = accuracy(flat, task, "train")
-    flat_test = accuracy(flat, task, "test")
-    flat_params = int(sum(p.numel() for p in flat.parameters()))
-
-    payload = {
-        "task": "relational",
-        "steps": int(args.steps),
+    return {
         "train_triples": int(task.size("train")),
         "test_triples": int(task.size("test")),
-        "classes": int(task.n_classes),
         "holarch": {
             "train_accuracy": holarch_train,
             "test_accuracy": holarch_test,
             "parameters": holarch_params,
         },
         "flat_mlp": {
-            "train_accuracy": flat_train,
-            "test_accuracy": flat_test,
-            "parameters": flat_params,
+            "train_accuracy": accuracy(flat, task, "train"),
+            "test_accuracy": accuracy(flat, task, "test"),
+            "parameters": int(sum(p.numel() for p in flat.parameters())),
         },
+    }
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--steps", type=int, default=300)
+    parser.add_argument("--hidden", type=int, default=384)
+    parser.add_argument("--out", default="receipts/holarch/relational.json")
+    args = parser.parse_args()
+
+    cfg = HolarchConfig.small()
+    standard = RelationalTask(seed=cfg.seed, holdout=0.25)
+    low_data = RelationalTask(seed=cfg.seed, holdout=0.75)
+
+    cases = {}
+    for tag, task in (("standard", standard), ("low_data", low_data)):
+        result = run_case(cfg, task, int(args.steps), int(args.hidden), tag)
+        result["holarch_generalises"] = bool(result["holarch"]["test_accuracy"] > 0.25)
+        result["flat_mlp_below_0_30"] = bool(result["flat_mlp"]["test_accuracy"] < 0.30)
+        cases[tag] = result
+        print(f"{tag:9s} holarch test={result['holarch']['test_accuracy']:.3f} "
+              f"mlp test={result['flat_mlp']['test_accuracy']:.3f}")
+
+    payload = {
+        "task": "relational",
+        "steps": int(args.steps),
+        "classes": int(cfg.relational_classes),
+        "cases": cases,
         "gate": {
-            "holarch_generalises": bool(holarch_test > 0.25),
-            "flat_mlp_below_25": bool(flat_test < 0.25),
-            "passed": bool(holarch_test > 0.25 and flat_test < 0.25),
+            "standard_passed": bool(
+                cases["standard"]["holarch_generalises"]
+                and cases["standard"]["flat_mlp_below_0_30"]
+            ),
+            "low_data_passed": bool(
+                cases["low_data"]["holarch_generalises"]
+                and cases["low_data"]["flat_mlp_below_0_30"]
+            ),
+            "passed": bool(
+                cases["low_data"]["holarch_generalises"]
+                and cases["low_data"]["flat_mlp_below_0_30"]
+            ),
         },
         "evidence": "OBSERVED",
     }

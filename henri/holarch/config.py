@@ -224,7 +224,7 @@ class HolarchConfig:
             photonic_layers=2,
             d_latent=32,
             d_feat=48,
-            pool_k=16,
+            pool_k=32,
             n_experts=4,
             expert_hidden=48,
             fast_rank=8,

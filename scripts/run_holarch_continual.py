@@ -92,6 +92,26 @@ def main() -> int:
         "original": accuracy(model, tasks["vision"]),
     }
 
+    # optical phase-conjugate imprint only (Zone B, no backprop)
+    model.load_state_dict(anchors)
+    for x, y in shifted_batches():
+        model.imprint("vision", x, y, rate=0.2)
+    rows["imprint_only"] = {
+        "shifted": accuracy(model, tasks["vision"], permutation),
+        "original": accuracy(model, tasks["vision"]),
+    }
+
+    # coordinated plasticity: Zone B imprint plus Zone A fast weights
+    model.load_state_dict(anchors)
+    for x, y in shifted_batches():
+        output = model("vision", x, training=False, use_memory=False)
+        model.fast_learn(output, y, lr=0.2)
+        model.imprint("vision", x, y, rate=0.2)
+    rows["imprint_plus_fast"] = {
+        "shifted": accuracy(model, tasks["vision"], permutation),
+        "original": accuracy(model, tasks["vision"]),
+    }
+
     # plain fine-tuning on the new domain
     model.load_state_dict(anchors)
     optimizer = torch.optim.AdamW([p for p in model.parameters() if p.requires_grad], lr=1e-3)

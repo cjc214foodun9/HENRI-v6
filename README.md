@@ -27,14 +27,14 @@ python -m henri.holarch budget       # 32 GiB accounting
 python -m henri.holarch train --steps 300 --name holarch_small
 ```
 
-Measured on CPU: 93.0 percent validation and 94.3 percent test on 8x8
-digits, 25.3 percent next-character prediction over 96 classes, 73.8
-percent one-step grid-world accuracy and 54.2 percent closed-loop success,
-56.3 percent on held-out relational triples, 0.965 memory recall@1.
+Measured on CPU: 96.7 percent validation and 96.6 percent test on 8x8
+digits, 22.2 percent next-character prediction over 96 classes, 76.3
+percent one-step grid-world accuracy and 41.7 percent closed-loop success,
+47.9 percent on held-out relational triples, 0.965 memory recall@1.
 Footprint 0.91 GiB at production width on a 32 GiB budget. The optical
-stage contributes +22.7 points over identity optics. Directive gates D1 to
-D3 pass; D4 is a measured failure. Full numbers, ablations,
-continual-learning tables, and non-claims are in
+feature path contributes +57.7 points when removed; the stricter identity
+control costs 4.3. Gate D4 remains a measured failure. Full numbers,
+ablations, continual-learning tables, and non-claims are in
 [docs/HOLARCH.md](docs/HOLARCH.md).
 
 No GPU was present in this checkout. Every receipt says `device: cpu`;

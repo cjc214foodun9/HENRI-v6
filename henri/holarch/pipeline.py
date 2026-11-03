@@ -63,11 +63,14 @@ class WaveProjector(nn.Module):
             self.phase.bias.uniform_(-math.pi, math.pi, generator=generator)
 
     def forward(self, latent: torch.Tensor) -> torch.Tensor:
-        # Normalise the latent to a fixed RMS before projection. Without this
-        # a small encoder output produces a phase spread of ~0.02 rad and every
-        # input collapses onto the same wave (measured coherence 0.998).
+        # Decision 3: zero-mean, unit-variance layer normalisation before the
+        # phase map. A raw uniform image has a DC mean of about 0.5, and the
+        # first linear layer turns that constant into a phase cluster. Removing
+        # the DC and fixing the scale separates uniform noise without the
+        # outlier-exposure accuracy tax.
         scale = math.sqrt(float(latent.shape[-1]))
-        scaled = F.normalize(latent, dim=-1) * scale
+        centred = latent - latent.mean(dim=-1, keepdim=True)
+        scaled = F.normalize(centred, dim=-1) * scale
         amplitude = F.softplus(self.amplitude(scaled) * 0.5) + 1e-4
         phase = self.phase(scaled)
         wave = torch.polar(amplitude, phase)
@@ -166,7 +169,8 @@ class SlotWaveProjector(nn.Module):
 
     def forward(self, latent: torch.Tensor) -> torch.Tensor:
         scale = math.sqrt(float(latent.shape[-1]))
-        scaled = F.normalize(latent, dim=-1) * scale
+        centred = latent - latent.mean(dim=-1, keepdim=True)
+        scaled = F.normalize(centred, dim=-1) * scale
         amplitude = F.softplus(self.amplitude(scaled) * 0.5) + 1e-4
         phase = self.phase(scaled)
         return torch.polar(amplitude, phase)
@@ -255,7 +259,10 @@ class HenriHolarch(nn.Module):
             int(cfg.d_slot), self.d_latent, seed=int(cfg.seed) + 350
         )
         self.zone_b = PhotonicCore(cfg)
-        self.feature_proj = nn.Linear(self.zone_b.feature_width, self.d_feat)
+        self.feature_proj = nn.Linear(self.zone_b.raw_width, self.d_feat)
+        self.relational_proj = nn.Linear(
+            self.zone_b.relational_width, self.d_feat, bias=False
+        )
         self.memory_proj = nn.Linear(
             int(cfg.context_tokens) * int(cfg.context_dim), self.d_feat, bias=False
         )
@@ -266,6 +273,7 @@ class HenriHolarch(nn.Module):
         with torch.no_grad():
             self.memory_proj.weight.mul_(0.05)
         self.zone_a = LeanSwarm(cfg)
+        self.trilinear_head = nn.Linear(int(cfg.pool_k), int(cfg.relational_classes))
         self.memory_gate = nn.Parameter(torch.tensor(-1.0))
         self.skip_alpha = float(cfg.skip_alpha)
         for name in TASK_NAMES:
@@ -417,7 +425,15 @@ class HenriHolarch(nn.Module):
             photonic = relaxed
             delta_sagnac = photonic.delta_memory
 
-        optical = self.feature_proj(photonic.features) if use_optical_features else 0.0
+        if use_optical_features:
+            raw = self.feature_proj(photonic.features[:, : self.zone_b.raw_width])
+            if task == "relational":
+                raw = raw + self.relational_proj(
+                    photonic.features[:, self.zone_b.raw_width :]
+                )
+            optical = raw
+        else:
+            optical = 0.0
         features = optical + self.memory_proj(prefix) + alpha * self.latent_skip(skip_vector)
         features = F.gelu(features)
 
@@ -433,6 +449,8 @@ class HenriHolarch(nn.Module):
 
         start, end = self.zone_a.task_slice(task)
         task_logits = swarm.logits[:, start:end]
+        if task == "relational":
+            task_logits = task_logits + self.trilinear_head(photonic.trilinear)
         margin = task_logits.topk(2, dim=-1).values
         margin = (margin[:, 0] - margin[:, 1]) if task_logits.shape[-1] > 1 else margin[:, 0]
 

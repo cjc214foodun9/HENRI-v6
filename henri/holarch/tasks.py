@@ -456,8 +456,8 @@ class RelationalTask:
         rank: int = 3,
         holdout: float = 0.25,
     ) -> None:
-        if not 0.0 < float(holdout) < 0.5:
-            raise ValueError("holdout must lie in (0, 0.5)")
+        if not 0.0 < float(holdout) < 0.9:
+            raise ValueError("holdout must lie in (0, 0.9)")
         generator = np.random.default_rng(int(seed) + 5)
         self.entities = int(entities)
         self.actions = int(actions)
@@ -498,14 +498,31 @@ class RelationalTask:
         if labels is None:
             raise ValueError("could not draw a readout that covers every class")
 
-        train_index: List[int] = []
-        test_index: List[int] = []
-        for label in range(self.n_classes):
-            pool = np.flatnonzero(labels == label)
-            generator.shuffle(pool)
-            take = max(1, int(round(self.holdout * len(pool))))
-            test_index.extend(pool[:take].tolist())
-            train_index.extend(pool[take:].tolist())
+        split = None
+        for _ in range(128):
+            train_index: List[int] = []
+            test_index: List[int] = []
+            for label in range(self.n_classes):
+                pool = np.flatnonzero(labels == label)
+                generator.shuffle(pool)
+                take = max(1, int(round(self.holdout * len(pool))))
+                test_index.extend(pool[:take].tolist())
+                train_index.extend(pool[take:].tolist())
+            candidate_train = triples[np.array(train_index)]
+            covers = all(
+                {int(row[column]) for row in candidate_train} == set(range(size))
+                for column, size in (
+                    (0, self.entities),
+                    (1, self.actions),
+                    (2, self.targets),
+                )
+            )
+            if covers:
+                split = (train_index, test_index)
+                break
+        if split is None:
+            raise ValueError("could not split the triples with full primitive coverage")
+        train_index, test_index = split
         self.x_train = triples[np.array(train_index)]
         self.y_train = labels[np.array(train_index)]
         self.x_test = triples[np.array(test_index)]

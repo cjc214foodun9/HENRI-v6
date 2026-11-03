@@ -1,0 +1,14 @@
+{
+  "task": "vision",
+  "steps": 200,
+  "sigma": 0.25,
+  "clean_accuracy": 0.9733333333333334,
+  "noisy_accuracy_relax": 0.93,
+  "noisy_accuracy_no_relax": 0.94,
+  "delta_from_relax": -0.009999999999999898,
+  "gate": {
+    "relax_gain_at_least_0_05": false,
+    "passed": false
+  },
+  "evidence": "OBSERVED"
+}

@@ -1,22 +1,44 @@
 {
   "task": "relational",
-  "steps": 400,
-  "train_triples": 217,
-  "test_triples": 71,
+  "steps": 300,
   "classes": 8,
-  "holarch": {
-    "train_accuracy": 0.8110599078341014,
-    "test_accuracy": 0.5492957746478874,
-    "parameters": 172031
-  },
-  "flat_mlp": {
-    "train_accuracy": 1.0,
-    "test_accuracy": 0.704225352112676,
-    "parameters": 158984
+  "cases": {
+    "standard": {
+      "train_triples": 217,
+      "test_triples": 71,
+      "holarch": {
+        "train_accuracy": 0.8894009216589862,
+        "test_accuracy": 0.647887323943662,
+        "parameters": 189711
+      },
+      "flat_mlp": {
+        "train_accuracy": 1.0,
+        "test_accuracy": 0.6338028169014085,
+        "parameters": 158984
+      },
+      "holarch_generalises": true,
+      "flat_mlp_below_0_30": false
+    },
+    "low_data": {
+      "train_triples": 71,
+      "test_triples": 217,
+      "holarch": {
+        "train_accuracy": 0.9859154929577465,
+        "test_accuracy": 0.3548387096774194,
+        "parameters": 189711
+      },
+      "flat_mlp": {
+        "train_accuracy": 1.0,
+        "test_accuracy": 0.41013824884792627,
+        "parameters": 158984
+      },
+      "holarch_generalises": true,
+      "flat_mlp_below_0_30": false
+    }
   },
   "gate": {
-    "holarch_generalises": true,
-    "flat_mlp_below_25": false,
+    "standard_passed": false,
+    "low_data_passed": false,
     "passed": false
   },
   "evidence": "OBSERVED"
