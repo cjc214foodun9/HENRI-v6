@@ -54,6 +54,14 @@ class TrainConfig:
     consolidate_steps: int = 1
     ood_weight: float = 3.0
     ood_margin: float = 0.0
+    prototype_refresh: int = 50
+    """Steps between in-training prototype rebuilds. 0 disables.
+
+    Decision 6 couples the Zone C prototype logits to the task readout, so
+    the head needs the bank to exist while it trains. A rebuild every N
+    steps per task gives it one without leaking labels: the bank is the
+    class mean of the model's own clean waves.
+    """
     eval_every: int = 0
     eval_limit: int = 600
     seed: int = 20261102
@@ -99,6 +107,7 @@ class Trainer:
         }
         self.history = History()
         self._step = 0
+        self._task_steps = {name: 0 for name in TASK_NAMES}
         self.flags: Dict[str, bool] = {
             "use_photonic": True,
             "use_swarm": True,
@@ -123,12 +132,19 @@ class Trainer:
         loss = F.cross_entropy(output.task_logits, batch.y.long())
         total = loss + float(self.config.aux_weight) * output.swarm.load_balance
         if task_name == "relational":
+            # Decision 3 right-sizes this penalty. The retired 0.05 was
+            # measured to hold training accuracy at 0.696 on the standard
+            # split while the same head reached 0.915 on the low-data split.
             l2 = (
                 self.model.relational_proj.weight.pow(2).sum()
-                + self.model.trilinear_head.weight.pow(2).sum()
                 + self.model.relational_gate.pow(2).sum()
             )
-            total = total + 0.05 * l2
+            if self.model.trilinear_head is not None:
+                l2 = l2 + self.model.trilinear_head.weight.pow(2).sum()
+            if getattr(self.model, "relational_expert", None) is not None:
+                for parameter in self.model.relational_expert.parameters():
+                    l2 = l2 + parameter.pow(2).sum()
+            total = total + float(self.model.cfg.relational_l2) * l2
         if float(self.config.ood_weight) > 0.0 and task_name in {"vision", "action"}:
             # Outlier exposure: push the wave of a uniform input away from the
             # wave of a real input. This is what makes the raw Gram statistic a
@@ -162,6 +178,16 @@ class Trainer:
                 steps=int(self.config.consolidate_steps),
             )
         self._step += 1
+        self._task_steps[task_name] = self._task_steps.get(task_name, 0) + 1
+        refresh = int(self.config.prototype_refresh)
+        if (
+            refresh > 0
+            and self._task_steps[task_name] % refresh == 0
+            and self._task_steps[task_name] <= 4 * refresh
+        ):
+            self.model.calibrate_prototypes(
+                task_name, [task.sample(64, "train") for _ in range(2)]
+            )
         record = {
             "step": float(self._step),
             "task": float(_task_id(task_name)),
@@ -364,10 +390,26 @@ def run_experiment(
     if calibrate and getattr(model, "memory", None) is not None:
         calibration = {}
         for name in TASK_NAMES:
-            batches = [tasks[name].sample(32, "val").x for _ in range(4)]
+            # Eight batches, not four: both thresholds are tail quantiles,
+            # and a 128-wave sample estimates a 1st percentile too noisily.
+            # The measured false-veto rate moved 0.003 -> 0.030 when the
+            # wave family changed under a 128-wave calibration.
+            batches = [tasks[name].sample(32, "val").x for _ in range(8)]
             residual = model.calibrate_veto(name, batches, ceiling=0.98)
             chance = model.calibrate_chance(name, batches)
             calibration[name] = {**residual, **chance}
+        # Decision 2: build the clean post-photonic attractor bank from the
+        # training split, then let relaxation read it. This runs BEFORE the
+        # evaluation so the deployed loop is the one being measured.
+        prototypes = {}
+        for name in TASK_NAMES:
+            clean = [tasks[name].sample(64, "train") for _ in range(4)]
+            prototypes[name] = model.calibrate_prototypes(name, clean)
+            # The surprise threshold needs the bank, so it is calibrated
+            # after the prototypes and before any evaluation.
+            calibration[name].update(
+                model.calibrate_gate(name, [tasks[name].sample(32, "val").x for _ in range(4)])
+            )
     else:
         calibration = {
             name: {
@@ -377,6 +419,7 @@ def run_experiment(
             }
             for name in TASK_NAMES
         }
+        prototypes = {name: model.prototypes[name].report() for name in TASK_NAMES}
 
     limits = evaluate_limits or {}
     metrics = evaluate(model, tasks, "val", limit=int(limits.get("val", 600)))
@@ -401,6 +444,10 @@ def run_experiment(
         ood_rates.append(float(ood.veto.float().mean()))
     ood_veto = float(np.mean(ood_rates))
     in_dist_veto = float(metrics.get("vision_veto_rate", float("nan")))
+    # Persist the attractor bank as axiomatic Zone C engrams after the
+    # recall and success metrics, so the memory numbers stay comparable to
+    # the previous revision and the store is still the home of the bank.
+    prototype_writes = model.store_prototypes() if hasattr(model, "store_prototypes") else {}
     budget = budget_report(model, train_config.batch_size, cfg)
     elapsed = time.perf_counter() - start
 
@@ -418,6 +465,15 @@ def run_experiment(
         "parameters": model.parameter_count(),
         "seed": int(cfg.seed if seed is None else seed),
         "calibration": calibration,
+        "prototypes": prototypes,
+        "prototype_writes": prototype_writes,
+        "proto_alpha": float(model.proto_alpha.detach()),
+        "relax_mode": str(cfg.relax_mode),
+        "relational_binding": str(cfg.relational_binding),
+        "readout": str(cfg.readout),
+        "vision_encoder": str(cfg.vision_encoder),
+        "vision_size": int(cfg.vision_size),
+        "fast_gate": bool(cfg.fast_gate),
         "metrics": metrics,
         "test": test_metrics,
         "memory": recall,

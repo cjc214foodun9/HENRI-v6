@@ -27,15 +27,22 @@ python -m henri.holarch budget       # 32 GiB accounting
 python -m henri.holarch train --steps 300 --name holarch_small
 ```
 
-Measured on CPU: 93.3 percent validation and 95.6 percent test on 8x8
-digits, 23.1 percent next-character prediction over 96 classes, 76.3
-percent one-step grid-world accuracy and 47.9 percent closed-loop success,
-49.3 percent on held-out relational triples, 0.930 memory recall@1.
-Footprint 0.92 GiB at production width on a 32 GiB budget. Removing the
-optical feature path costs 67 points; bypassing the plates costs nothing
-measurable, so the strict Gate D1 control fails. Gate D4 fails the
-both-splits rule. Full numbers, ablations, continual-learning tables, and
-non-claims are in [docs/HOLARCH.md](docs/HOLARCH.md).
+Measured on CPU: 95.0 percent validation and 95.6 percent test on 8x8
+digits, 23.4 percent next-character prediction over 96 classes, 77.5
+percent one-step grid-world accuracy and 58.3 percent closed-loop success,
+0.955 memory recall@1. Footprint 0.77 GiB at CI width on a 32 GiB budget.
+Removing the optical feature path costs 59 points. With the Stiefel rows
+anchored to a physical Fourier detector frame and an intensity-dependent
+plate phase, the plates beat the identity bypass by 0.069 at 8x8 and 0.091
+at 16x16 (mean 0.080 against the strict 0.10 bar). Gate D4 now passes on
+both relational splits (0.765 against 0.704 standard, 0.481 against 0.406
+low data) once the bilinear model gets 600 optimisation steps; the previous
+0.710 ceiling was under-training, not feature rank. A new symbolic solver
+navigates unseen rule graphs at 1.000 exact match for 1-3 hops and refuses
+every unreachable query, and the agentic sidecar answers structural code
+questions from Zone C with zero file reads and compiles ACE playbooks whose
+steps it recovers exactly. Full numbers, ablations, continual-learning
+tables, and non-claims are in [docs/HOLARCH.md](docs/HOLARCH.md).
 
 No GPU was present in this checkout. Every receipt says `device: cpu`;
 no Blackwell timing claim is made.

@@ -3,90 +3,111 @@
   "steps": 150,
   "adaptation_batches": 24,
   "permutation_seed": 99,
-  "original_before_shift": 0.84,
+  "original_before_shift": 0.91,
+  "gate_calibration": {
+    "tau_plasticity": 0.6041423067450516,
+    "surprise_mean": 0.1729573654010892,
+    "surprise_quantile": 0.5941423067450516,
+    "quantile": 0.995,
+    "n": 128.0,
+    "calibrated": 1.0
+  },
   "variants": {
     "no_adaptation": {
-      "shifted": 0.08333333333333333,
-      "original": 0.84,
+      "shifted": 0.043333333333333335,
+      "original": 0.91,
+      "gate_rate": 0.0,
       "shifted_gain": 0.0,
       "retention": 1.0
     },
-    "fast_weights_only": {
-      "shifted": 0.11666666666666667,
-      "original": 0.76,
-      "shifted_gain": 0.03333333333333334,
-      "retention": 0.9047619047619048
-    },
-    "imprint_only": {
-      "shifted": 0.07,
-      "original": 0.81,
-      "shifted_gain": -0.013333333333333322,
-      "retention": 0.9642857142857144
-    },
-    "imprint_plus_fast": {
-      "shifted": 0.10666666666666667,
-      "original": 0.7833333333333333,
-      "shifted_gain": 0.023333333333333345,
-      "retention": 0.9325396825396826
-    },
-    "finetune_only": {
-      "shifted": 0.5,
-      "original": 0.48,
-      "shifted_gain": 0.4166666666666667,
-      "retention": 0.5714285714285714
-    },
-    "replay_mixed": {
-      "shifted": 0.5833333333333334,
-      "original": 0.83,
-      "shifted_gain": 0.5,
-      "retention": 0.9880952380952381
-    },
-    "fast_plus_replay_mixed": {
-      "shifted": 0.5966666666666667,
+    "fast_ungated": {
+      "shifted": 0.02666666666666667,
       "original": 0.8333333333333334,
-      "shifted_gain": 0.5133333333333333,
-      "retention": 0.9920634920634921
+      "gate_rate": 0.3723958333333333,
+      "shifted_gain": -0.016666666666666666,
+      "retention": 0.9157509157509157
     },
-    "rule_shift": {
-      "no_adaptation": {
-        "shifted": 0.01,
-        "original": 0.84,
-        "shifted_gain": 0.0,
-        "retention": 1.0
-      },
-      "fast_weights_only": {
-        "shifted": 0.03,
-        "original": 0.8266666666666667,
-        "shifted_gain": 0.019999999999999997,
-        "retention": 0.9841269841269842
-      },
-      "replay_mixed": {
-        "shifted": 0.25333333333333335,
-        "original": 0.3233333333333333,
-        "shifted_gain": 0.24333333333333335,
-        "retention": 0.3849206349206349
-      }
+    "fast_gated": {
+      "shifted": 0.06333333333333334,
+      "original": 0.8633333333333333,
+      "gate_rate": 0.34375,
+      "shifted_gain": 0.020000000000000004,
+      "retention": 0.9487179487179487
+    },
+    "replay_ungated": {
+      "shifted": 0.5766666666666667,
+      "original": 0.9133333333333333,
+      "gate_rate": 0.9479166666666666,
+      "shifted_gain": 0.5333333333333333,
+      "retention": 1.0036630036630036
+    },
+    "replay_gated": {
+      "shifted": 0.54,
+      "original": 0.9166666666666666,
+      "gate_rate": 0.9713541666666666,
+      "shifted_gain": 0.4966666666666667,
+      "retention": 1.0073260073260073
+    }
+  },
+  "stationary": {
+    "fast_ungated": {
+      "before": 0.91,
+      "after": 0.8966666666666666,
+      "drift": -0.01333333333333342,
+      "gate_rate": 0.0
+    },
+    "fast_gated": {
+      "before": 0.91,
+      "after": 0.9066666666666666,
+      "drift": -0.0033333333333334103,
+      "gate_rate": 0.0
     }
   },
   "rule_shift": {
-    "no_adaptation": {
-      "shifted": 0.01,
-      "original": 0.84,
-      "shifted_gain": 0.0,
-      "retention": 1.0
+    "rules": [
+      0,
+      3
+    ],
+    "context": {
+      "context_bound": {
+        "rule_0": 0.95,
+        "rule_3": 0.9333333333333333,
+        "combined": 0.9416666666666667
+      },
+      "unconditioned": {
+        "rule_0": 0.2733333333333333,
+        "rule_3": 0.6933333333333334,
+        "combined": 0.48333333333333334
+      }
     },
-    "fast_weights_only": {
-      "shifted": 0.03,
-      "original": 0.8266666666666667,
-      "shifted_gain": 0.019999999999999997,
-      "retention": 0.9841269841269842
+    "adaptation": {
+      "no_adaptation": {
+        "rule_0": 0.95,
+        "rule_3": 0.9333333333333333,
+        "combined": 0.9416666666666667
+      },
+      "fast": {
+        "rule_0": 0.94,
+        "rule_3": 0.9266666666666666,
+        "fast_gate_rate": 1.0,
+        "combined": 0.9333333333333333
+      },
+      "replay": {
+        "rule_0": 0.7633333333333333,
+        "rule_3": 0.7,
+        "fast_gate_rate": 1.0,
+        "combined": 0.7316666666666667
+      }
     },
-    "replay_mixed": {
-      "shifted": 0.25333333333333335,
-      "original": 0.3233333333333333,
-      "shifted_gain": 0.24333333333333335,
-      "retention": 0.3849206349206349
-    }
+    "fano_bound": 0.5
+  },
+  "gate": {
+    "gated_stationary_drift_at_most_0_005": true,
+    "gated_keeps_replay_gain": true,
+    "context_combined_above_conditioned_baseline": true,
+    "context_bound_combined_above_fano": true,
+    "context_beats_unconditioned": true,
+    "passed": true
   },
   "evidence": "OBSERVED"
 }

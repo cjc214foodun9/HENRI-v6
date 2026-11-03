@@ -1,0 +1,93 @@
+{
+  "config_digest": "585c38e66f297ee8",
+  "steps": 120,
+  "veto": {
+    "clean_veto_rate": 0.0,
+    "ood_veto_rate": 1.0,
+    "clean_s_max": 0.8350983262062073,
+    "ood_s_max": 0.25024256110191345
+  },
+  "code_index": {
+    "files_parsed": 13.0,
+    "lines_parsed": 6639.0,
+    "parse_seconds": 0.07090929999685613,
+    "edges": 439.0,
+    "nodes": 217.0,
+    "edges_ingested": 439.0,
+    "engrams_before": 120.0,
+    "engrams_after": 559.0,
+    "parameters_unchanged": 1.0,
+    "tau_coherence": 0.9800000000000004,
+    "coherence_median": 1.0,
+    "n": 439.0
+  },
+  "topology": {
+    "edges": 72.0,
+    "tau_coherence": 0.9800000000000004,
+    "two_hop_accuracy": 1.0,
+    "two_hop_n": 40.0,
+    "unreachable_refused": 1.0,
+    "unreachable_text": "ABSTAIN: coherence below tau"
+  },
+  "adaptation": {
+    "shifted": {
+      "gate_mean": 1.0,
+      "surprise_mean": 0.7089470028877258,
+      "examples": 32.0
+    },
+    "familiar": {
+      "gate_mean": 0.03125,
+      "surprise_mean": 0.3952573537826538,
+      "examples": 32.0
+    }
+  },
+  "playbook": {
+    "compiled": {
+      "steps": 5.0,
+      "version": 1.0,
+      "engram_id": 632.0,
+      "tier": 3.0
+    },
+    "recall_coherence": 0.999513787632319,
+    "decoded": [
+      "READ_INDEX",
+      "LOCATE_SYMBOL",
+      "EDIT_CALLSITE",
+      "RUN_TESTS",
+      "VERIFY_VETO"
+    ],
+    "exact_steps": 5.0,
+    "steps": 5.0,
+    "text": "PLAN refactor [verified]\n  1. READ_INDEX\n  2. LOCATE_SYMBOL\n  3. EDIT_CALLSITE\n  4. RUN_TESTS\n  5. VERIFY_VETO"
+  },
+  "prototype_recall": {
+    "alignment": 1.2273261547088623,
+    "labels": [
+      3,
+      7,
+      6,
+      6,
+      9,
+      5,
+      9,
+      9
+    ]
+  },
+  "report": {
+    "engrams": 632.0,
+    "symbols": 283.0,
+    "playbooks": 1.0,
+    "parameters": 222022.0,
+    "backend": 0.0
+  },
+  "gate": {
+    "ood_veto_at_least_0_95": true,
+    "false_veto_at_most_0_05": true,
+    "code_index_edges_positive": true,
+    "topology_two_hop_at_least_0_80": true,
+    "unreachable_refused": true,
+    "playbook_exact": true,
+    "passed": true
+  },
+  "evidence": "OBSERVED"
+}

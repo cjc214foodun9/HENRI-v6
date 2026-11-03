@@ -66,6 +66,46 @@ class SwarmOutput:
     novelty: torch.Tensor
 
 
+class UniversalSubspace(nn.Module):
+    """Shared orthonormal coordinate frame across all four tasks.
+
+    Evidence label: DERIVED for the algebra, OBSERVED for the effect a run
+    measures. Decision 8 cites the universal weight subspace hypothesis:
+    different modalities converge on a low-rank shared frame of relational
+    primitives (identity, negation, containment, causal transition). This
+    module makes that frame explicit and shared:
+
+        x' = x + U_univ diag(sigma^(m)) U_univ^T x
+
+    U_univ is r orthonormal rows of R^d_feat, retracted every pass. Each
+    task carries only r diagonal gains, so a relational coordinate learned
+    on vision is available to action and to symbolic text without a new
+    dense weight matrix.
+    """
+
+    def __init__(self, d_feat: int, rank: int, n_tasks: int, seed: int = 0, scale: float = 0.1) -> None:
+        super().__init__()
+        self.d_feat = int(d_feat)
+        self.rank = int(rank)
+        generator = torch.Generator().manual_seed(int(seed))
+        self.weight = nn.Parameter(
+            float(scale) * torch.randn(self.rank, self.d_feat, generator=generator)
+        )
+        self.sigma = nn.Parameter(torch.ones(int(n_tasks), self.rank))
+
+    def basis(self) -> torch.Tensor:
+        q, r = torch.linalg.qr(self.weight.transpose(-1, -2))
+        diagonal = torch.diagonal(r, dim1=-2, dim2=-1)
+        sign = torch.where(diagonal >= 0.0, torch.ones_like(diagonal), -torch.ones_like(diagonal))
+        return (q * sign.unsqueeze(-2)).transpose(-1, -2).contiguous()
+
+    def forward(self, x: torch.Tensor, task: torch.Tensor) -> torch.Tensor:
+        basis = self.basis()
+        code = x @ basis.transpose(-1, -2)
+        gain = self.sigma[task.reshape(-1).long()]
+        return x + (code * gain) @ basis
+
+
 class FastWeightExpert(nn.Module):
     """Two-layer MLP plus a rank-r delta-rule associative memory."""
 
@@ -114,6 +154,7 @@ class FastWeightExpert(nn.Module):
         lr: float,
         start: int,
         end: int,
+        weights: Optional[torch.Tensor] = None,
     ) -> float:
         """One delta-rule write. Returns the pre-update cross entropy.
 
@@ -124,6 +165,11 @@ class FastWeightExpert(nn.Module):
             lr: fast learning rate.
             start: first output row of this task's label block.
             end: one past the last output row.
+            weights: optional per-example plasticity gate in [0, 1]. A
+                zero entry contributes no delta, which is how Decision 4
+                freezes the fast path on familiar inputs. The denominator
+                is the surviving weight mass, so the step size does not
+                shrink when most of a batch is gated shut.
         """
         if x.shape[0] == 0:
             return 0.0
@@ -133,8 +179,18 @@ class FastWeightExpert(nn.Module):
         probs = torch.softmax(logits, dim=-1)
         one_hot = F.one_hot(target.long(), num_classes=end - start).to(probs.dtype)
         error = one_hot - probs
+        gate = None
+        if weights is not None:
+            gate = weights.reshape(-1, 1).to(probs.dtype).clamp_min(0.0)
+            mass = float(gate.sum())
+            if mass <= 1e-6:
+                return float(loss.detach())
+            error = error * gate
+            denominator = mass
+        else:
+            denominator = float(max(1, x.shape[0]))
         code = x @ self.A.t()
-        delta = error.t() @ code / max(1, x.shape[0])
+        delta = error.t() @ code / denominator
         self.B[start:end].add_(float(lr) * delta)
         self.B.clamp_(-6.0, 6.0)
         self.centroid.mul_(0.9).add_(0.1 * x.mean(dim=0))
@@ -184,10 +240,23 @@ class LeanSwarm(nn.Module):
                 for index in range(self.n_experts)
             ]
         )
+        # Decision 8: one shared orthonormal frame, per-task diagonal gains.
+        rank = int(getattr(cfg, "universal_rank", 0))
+        self.universal = (
+            UniversalSubspace(self.d_feat, rank, int(cfg.n_tasks), seed=int(cfg.seed) + 400)
+            if rank > 0
+            else None
+        )
         self.router = nn.Linear(self.d_feat, self.n_experts)
         with torch.no_grad():
             self.router.weight.mul_(0.5)
             self.router.bias.zero_()
+        # Decision 1 attribution probe: a single linear projection from the
+        # pooled photonic features to the label blocks. No MLP, no routing,
+        # no fast memory. Any accuracy the model keeps in this mode comes
+        # from the optical features alone.
+        self.linear_only = str(getattr(cfg, "readout", "swarm")) == "linear"
+        self.linear = nn.Linear(self.d_feat, self.d_out)
         self.task_embedding = nn.Embedding(int(cfg.n_tasks), self.d_feat)
         with torch.no_grad():
             self.task_embedding.weight.mul_(0.1)
@@ -221,6 +290,21 @@ class LeanSwarm(nn.Module):
         else:
             task = torch.full((batch,), int(task_id), dtype=torch.long, device=features.device)
         x = features + self.task_embedding(task.long())
+        if self.universal is not None:
+            x = self.universal(x, task.long())
+        if self.linear_only:
+            logits = self.linear(x)
+            return SwarmOutput(
+                logits=logits,
+                expert_logits=logits.unsqueeze(0),
+                router_probs=torch.full(
+                    (batch, self.n_experts), 1.0 / self.n_experts, device=features.device
+                ),
+                weights=torch.ones(batch, 1, device=features.device),
+                selected=torch.zeros(batch, 1, dtype=torch.long, device=features.device),
+                load_balance=features.new_zeros(()),
+                novelty=features.new_zeros(batch, self.n_experts),
+            )
 
         expert_logits = torch.stack([expert(x) for expert in self.experts], dim=0)
         router_logits = self.router(x)
@@ -268,30 +352,42 @@ class LeanSwarm(nn.Module):
         labels: torch.Tensor,
         task_id: int,
         lr: float = 0.05,
+        weights: Optional[torch.Tensor] = None,
     ) -> Dict[str, float]:
-        """Write every routed expert's fast memory. No backpropagation."""
+        """Write every routed expert's fast memory. No backpropagation.
+
+        Args:
+            weights: optional per-example plasticity gate in [0, 1]. It is
+                the surprise gate of Decision 4, already reduced to a
+                scalar per example.
+        """
+        if self.linear_only:
+            return {}
         batch = features.shape[0]
         task = torch.full((batch,), int(task_id), dtype=torch.long, device=features.device)
         x = features + self.task_embedding(task)
         router_logits = self.router(x)
         probs = torch.softmax(router_logits, dim=-1)
         top_values, selected = torch.topk(probs, k=self.top_k, dim=-1)
-        weights = torch.softmax(top_values, dim=-1)
+        mix_weights = torch.softmax(top_values, dim=-1)
         start, end = self.task_slice(_TASK_NAMES[int(task_id)])
         losses: Dict[str, float] = {}
         for index, expert in enumerate(self.experts):
             mask = (selected == index).any(dim=-1)
             if not bool(mask.any()):
                 continue
-            weight = weights[selected == index].mean().item()
+            weight = mix_weights[selected == index].mean().item()
             losses[f"expert_{index}"] = expert.online_update(
                 x[mask],
                 labels[mask].long(),
                 lr=float(lr) * (0.5 + 0.5 * weight),
                 start=start,
                 end=end,
+                weights=None if weights is None else weights[mask],
             )
-        losses["routed"] = float(weights.mean())
+        losses["routed"] = float(mix_weights.mean())
+        if weights is not None:
+            losses["gate_mean"] = float(weights.mean())
         return losses
 
     def explore(

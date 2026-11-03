@@ -1,45 +1,140 @@
 {
   "task": "relational",
-  "steps": 300,
+  "budget_sweep": {
+    "300": {
+      "conv_train": 0.6589861751152074,
+      "conv_test": 0.5352112676056338,
+      "mlp_train": 0.9953917050691244,
+      "mlp_test": 0.6197183098591549
+    },
+    "600": {
+      "conv_train": 0.9308755760368663,
+      "conv_test": 0.8028169014084507,
+      "mlp_train": 1.0,
+      "mlp_test": 0.676056338028169
+    },
+    "900": {
+      "conv_train": 0.9815668202764977,
+      "conv_test": 0.8873239436619719,
+      "mlp_train": 1.0,
+      "mlp_test": 0.704225352112676
+    }
+  },
+  "steps": 600,
   "classes": 8,
+  "seeds": [
+    20261102,
+    20261103,
+    20261104
+  ],
   "cases": {
     "standard": {
       "train_triples": 217,
       "test_triples": 71,
-      "holarch": {
-        "train_accuracy": 0.695852534562212,
-        "test_accuracy": 0.5070422535211268,
-        "parameters": 175311
-      },
       "flat_mlp": {
         "train_accuracy": 1.0,
-        "test_accuracy": 0.6338028169014085,
+        "test_accuracy": 0.704225352112676,
         "parameters": 158984
       },
-      "holarch_generalises": true,
-      "holarch_beats_mlp": false
+      "arms": {
+        "conv_shift": {
+          "train_accuracy_mean": 0.9109062980030721,
+          "test_accuracy_mean": 0.7652582159624414,
+          "test_accuracy_per_seed": [
+            0.7605633802816901,
+            0.7323943661971831,
+            0.8028169014084507
+          ],
+          "parameters": 222022.0,
+          "head_width": 128.0,
+          "final_train_loss": 0.24077803989251453,
+          "beats_mlp": true
+        },
+        "wave": {
+          "train_accuracy_mean": 0.9385560675883257,
+          "test_accuracy_mean": 0.6431924882629109,
+          "test_accuracy_per_seed": [
+            0.647887323943662,
+            0.676056338028169,
+            0.6056338028169014
+          ],
+          "parameters": 185990.0,
+          "head_width": 64.0,
+          "final_train_loss": 0.07812475475172202,
+          "beats_mlp": false
+        },
+        "trilinear": {
+          "train_accuracy_mean": 0.9431643625192012,
+          "test_accuracy_mean": 0.6338028169014085,
+          "test_accuracy_per_seed": [
+            0.5915492957746479,
+            0.704225352112676,
+            0.6056338028169014
+          ],
+          "parameters": 183558.0,
+          "head_width": 64.0,
+          "final_train_loss": 0.11405595714847246,
+          "beats_mlp": false
+        }
+      }
     },
     "low_data": {
       "train_triples": 71,
       "test_triples": 217,
-      "holarch": {
-        "train_accuracy": 0.9154929577464789,
-        "test_accuracy": 0.41935483870967744,
-        "parameters": 175311
-      },
       "flat_mlp": {
         "train_accuracy": 1.0,
-        "test_accuracy": 0.41013824884792627,
+        "test_accuracy": 0.4055299539170507,
         "parameters": 158984
       },
-      "holarch_generalises": true,
-      "holarch_beats_mlp": true
+      "arms": {
+        "conv_shift": {
+          "train_accuracy_mean": 0.971830985915493,
+          "test_accuracy_mean": 0.4807987711213518,
+          "test_accuracy_per_seed": [
+            0.4976958525345622,
+            0.47465437788018433,
+            0.4700460829493088
+          ],
+          "parameters": 222022.0,
+          "head_width": 128.0,
+          "final_train_loss": 0.04370794066538414,
+          "beats_mlp": true
+        },
+        "wave": {
+          "train_accuracy_mean": 0.9906103286384976,
+          "test_accuracy_mean": 0.4623655913978495,
+          "test_accuracy_per_seed": [
+            0.47465437788018433,
+            0.4423963133640553,
+            0.4700460829493088
+          ],
+          "parameters": 185990.0,
+          "head_width": 64.0,
+          "final_train_loss": 0.0018814051213363805,
+          "beats_mlp": true
+        },
+        "trilinear": {
+          "train_accuracy_mean": 0.971830985915493,
+          "test_accuracy_mean": 0.4116743471582181,
+          "test_accuracy_per_seed": [
+            0.4470046082949309,
+            0.391705069124424,
+            0.39631336405529954
+          ],
+          "parameters": 183558.0,
+          "head_width": 64.0,
+          "final_train_loss": 0.004236281573927651,
+          "beats_mlp": true
+        }
+      }
     }
   },
   "gate": {
-    "standard_passed": false,
-    "low_data_passed": true,
-    "passed": false
+    "conv_standard_passed": true,
+    "conv_low_data_passed": true,
+    "passed": true,
+    "wave_standard_passed": false,
+    "trilinear_standard_passed": false
   },
   "evidence": "OBSERVED"
 }

@@ -17,7 +17,13 @@ from henri.holarch.config import (
     VRAM_BUDGET_GB,
     HolarchConfig,
 )
-from henri.holarch.pipeline import HenriHolarch, HolarchOutput, WaveProjector
+from henri.holarch.pipeline import (
+    HenriHolarch,
+    HolarchOutput,
+    RelationalBasis,
+    SLMWaveProjector,
+    WaveProjector,
+)
 from henri.holarch.zone_a import FastWeightExpert, LeanSwarm, ReplayBuffer, SwarmOutput
 from henri.holarch.zone_b import (
     DiffractivePlate,
@@ -31,6 +37,7 @@ from henri.holarch.zone_c import (
     Engram,
     MemoryHit,
     MemoryRead,
+    PrototypeBank,
     SQLiteEngramStore,
     TimescaleEngramStore,
     ZoneCMemory,
@@ -45,6 +52,8 @@ __all__ = [
     "HenriHolarch",
     "HolarchOutput",
     "WaveProjector",
+    "SLMWaveProjector",
+    "RelationalBasis",
     "FastWeightExpert",
     "LeanSwarm",
     "ReplayBuffer",
@@ -61,4 +70,5 @@ __all__ = [
     "SQLiteEngramStore",
     "TimescaleEngramStore",
     "ZoneCMemory",
+    "PrototypeBank",
 ]

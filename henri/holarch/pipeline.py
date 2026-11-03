@@ -40,7 +40,7 @@ import torch.nn.functional as F
 from henri.holarch.config import TASK_IDS, TASK_NAMES, HolarchConfig
 from henri.holarch.zone_a import LeanSwarm, ReplayBuffer, SwarmOutput
 from henri.holarch.zone_b import PhotonicCore, PhotonicState, _unit, sagnac_delta
-from henri.holarch.zone_c import MemoryRead, ZoneCMemory
+from henri.holarch.zone_c import MemoryRead, PrototypeBank, ZoneCMemory
 
 _EPS = 1e-8
 
@@ -153,6 +153,81 @@ class RelationalEncoder(nn.Module):
         )
 
 
+class SLMWaveProjector(nn.Module):
+    """Parameter-free phase-only sensor: pixel values drive wave phases.
+
+    Decision 1 asks for an information bottleneck in which the optical
+    stack is the only nonlinearity between the sensor and the readout.
+    A learned convolutional encoder would hide that bottleneck: it can
+    compress 256 pixels into 32 latent values before the plates are ever
+    reached. This module removes it.
+
+    The map is injective in the regime |gain * x| < pi, so no information
+    is destroyed before the photonic kernel. Components past n_pixels stay
+    at phase zero and contribute a constant vector that the readout bias
+    absorbs.
+    """
+
+    def __init__(self, dim: int, n_pixels: int, gain: float = 1.0) -> None:
+        super().__init__()
+        self.dim = int(dim)
+        self.n_pixels = int(n_pixels)
+        self.gain = float(gain)
+        if self.n_pixels > self.dim:
+            raise ValueError("n_pixels must not exceed the wave dimension")
+        if self.gain <= 0.0:
+            raise ValueError("slm_gain must be positive")
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        flat = x.reshape(x.shape[0], -1)
+        if flat.shape[1] != self.n_pixels:
+            raise ValueError(
+                f"expected {self.n_pixels} sensor values, got {flat.shape[1]}"
+            )
+        phase = torch.zeros(
+            flat.shape[0], self.dim, dtype=torch.float32, device=flat.device
+        )
+        phase[:, : self.n_pixels] = self.gain * flat.to(torch.float32)
+        amplitude = torch.ones_like(phase)
+        return _unit(torch.polar(amplitude, phase))
+
+
+class RelationalBasis(nn.Module):
+    """Dedicated Stiefel basis for the bound relational wave.
+
+    Decision 3 binds the three role phasors in the d_slot complex domain
+    and then reads the result through this basis. Rows are orthonormal
+    (QR retraction every pass) and both quadratures are returned, so the
+    head sees 2 * k real values per bound wave and keeps the phase
+    information that a magnitude-only readout would discard.
+    """
+
+    def __init__(self, d_slot: int, k: int, seed: int = 0) -> None:
+        super().__init__()
+        self.d_slot = int(d_slot)
+        self.k = int(k)
+        generator = torch.Generator().manual_seed(int(seed))
+        scale = 1.0 / math.sqrt(float(d_slot))
+        self.weight_real = nn.Parameter(scale * torch.randn(self.k, self.d_slot, generator=generator))
+        self.weight_imag = nn.Parameter(scale * torch.randn(self.k, self.d_slot, generator=generator))
+
+    @property
+    def width(self) -> int:
+        return 2 * self.k
+
+    def basis(self) -> torch.Tensor:
+        weight = torch.complex(self.weight_real, self.weight_imag)
+        q, r = torch.linalg.qr(weight.transpose(-1, -2))
+        diagonal = torch.diagonal(r, dim1=-2, dim2=-1).real
+        sign = torch.where(diagonal >= 0.0, torch.ones_like(diagonal), -torch.ones_like(diagonal))
+        q = q * torch.complex(sign, torch.zeros_like(sign)).unsqueeze(-2)
+        return q.transpose(-1, -2).contiguous()
+
+    def forward(self, bound: torch.Tensor) -> torch.Tensor:
+        projection = torch.einsum("bd,kd->bk", bound, self.basis().conj())
+        return torch.cat([projection.real, projection.imag], dim=-1)
+
+
 class SlotWaveProjector(nn.Module):
     """Map each role latent into its own wave slot."""
 
@@ -258,13 +333,42 @@ class HenriHolarch(nn.Module):
         self.projector["relational"] = SlotWaveProjector(
             int(cfg.d_slot), self.d_latent, seed=int(cfg.seed) + 350
         )
+        # Decision 1: the phase-only sensor carries the vision pixels with
+        # no learned encoder, so the plates are the only nonlinearity.
+        self.vision_slm = (
+            SLMWaveProjector(self.dim, int(cfg.vision_size) ** 2, float(cfg.slm_gain))
+            if str(cfg.vision_encoder) == "slm"
+            else None
+        )
         self.zone_b = PhotonicCore(cfg)
         self.feature_proj = nn.Linear(self.zone_b.raw_width, self.d_feat)
-        self.relational_proj = nn.Linear(
-            self.zone_b.relational_width, self.d_feat, bias=False
+        # Decision 3: bind in the d_slot complex domain, then read through
+        # a dedicated Stiefel basis. The retired control reads the K-dim
+        # real product instead.
+        self.relational_binding = str(cfg.relational_binding)
+        self.relational_head = str(cfg.relational_head)
+        self.relational_basis = RelationalBasis(
+            int(cfg.d_slot), int(cfg.relational_k), seed=int(cfg.seed) + 360
         )
+        # Decision 7: M cyclic readout frames of the bound wave. Circular
+        # convolution commutes with a cyclic shift, so reading roll(psi, s)
+        # is exactly binding with roll(psi_action, s): the M frames give the
+        # head M different frequency alignments of the same composition.
+        self.relational_shifts = [
+            (index * int(cfg.d_slot)) // int(cfg.relational_shifts)
+            for index in range(int(cfg.relational_shifts))
+        ]
+        if self.relational_binding == "conv_shift":
+            relational_width = len(self.relational_shifts) * self.relational_basis.width
+        elif self.relational_binding == "wave":
+            relational_width = self.relational_basis.width
+        else:
+            relational_width = self.zone_b.relational_width
+        self.relational_width = int(relational_width)
+        self.relational_proj = nn.Linear(self.relational_width, self.d_feat, bias=False)
         # Trilinear gate starts at 1; the three pairwise products start at
-        # 0.1 so they can help but cannot dominate a 72-triple fit.
+        # 0.1 so they can help but cannot dominate a 72-triple fit. It is
+        # only read by the retired trilinear control arm.
         gate = torch.cat(
             [
                 torch.ones(int(cfg.pool_k)),
@@ -272,7 +376,7 @@ class HenriHolarch(nn.Module):
             ]
         )
         self.relational_gate = nn.Parameter(gate)
-        self.relational_dropout = nn.Dropout(0.2)
+        self.relational_dropout = nn.Dropout(float(cfg.relational_dropout))
         self.memory_proj = nn.Linear(
             int(cfg.context_tokens) * int(cfg.context_dim), self.d_feat, bias=False
         )
@@ -283,7 +387,29 @@ class HenriHolarch(nn.Module):
         with torch.no_grad():
             self.memory_proj.weight.mul_(0.05)
         self.zone_a = LeanSwarm(cfg)
-        self.trilinear_head = nn.Linear(int(cfg.pool_k), int(cfg.relational_classes))
+        # Decision 7: in 'expert' mode the bound block is routed through the
+        # Zone A relational MLP, so the standalone linear head is not built.
+        if self.relational_head == "expert" and self.relational_binding != "trilinear":
+            self.trilinear_head = None
+            # Decision 7: a dedicated two-layer relational micro-net over the
+            # concatenated unbound and bound blocks. The shared swarm expert
+            # is 48 wide; the baseline MLP is 384 wide, and that gap was the
+            # real ceiling, not the number of bound features.
+            expert_in = 3 * int(cfg.pool_k) + self.relational_width
+            self.relational_expert = nn.Sequential(
+                nn.Linear(int(expert_in), int(cfg.relational_hidden)),
+                nn.GELU(),
+                nn.Dropout(float(cfg.relational_dropout)),
+                nn.Linear(int(cfg.relational_hidden), int(cfg.relational_classes)),
+            )
+        else:
+            self.relational_expert = None
+            head_width = (
+                self.relational_width if self.relational_binding != "trilinear" else int(cfg.pool_k)
+            )
+            self.trilinear_head = nn.Linear(int(head_width), int(cfg.relational_classes))
+        # Decision 6: scale of the calibrated Hopfield prototype logits.
+        self.proto_alpha = nn.Parameter(torch.tensor(float(cfg.proto_alpha_init)))
         self.memory_gate = nn.Parameter(torch.tensor(-1.0))
         self.skip_alpha = float(cfg.skip_alpha)
         for name in TASK_NAMES:
@@ -292,17 +418,36 @@ class HenriHolarch(nn.Module):
         self.memory = memory if memory is not None else ZoneCMemory(
             cfg, backend=backend, path=memory_path, dsn=dsn, table=table
         )
+        # Decision 2: one clean post-photonic attractor bank per task. The
+        # numpy bank holds the floats; the tensor buffer carries the same
+        # rows through the checkpoint so the relaxation loop can use them.
+        self.prototypes: Dict[str, PrototypeBank] = {
+            name: PrototypeBank(self.dim) for name in TASK_NAMES
+        }
+        for name in TASK_NAMES:
+            self.register_buffer(
+                f"prototype_{name}", torch.zeros(0, self.dim, dtype=torch.complex64)
+            )
+            self.register_buffer(
+                f"prototype_class_{name}", torch.zeros(0, dtype=torch.long)
+            )
+        self._rule_cache: Dict[int, torch.Tensor] = {}
         self.register_buffer("abstain", torch.tensor(0.0))
+        self.register_buffer("gate_tau", torch.tensor(float(cfg.fast_gate_tau)))
 
     # ------------------------------------------------------------- encoding
-    def encode(self, task: str, x: torch.Tensor) -> torch.Tensor:
+    def encode(
+        self, task: str, x: torch.Tensor, rule_id=None
+    ) -> torch.Tensor:
         """Encode raw modality data to a unit complex wave."""
         if task not in self.encoders:
             raise ValueError(f"unknown task {task!r}")
-        latent = self.encoders[task](x)
-        if task == "relational":
-            return self._relational_wave(latent)
-        return self.projector[task](latent)
+        if task == "vision" and self.vision_slm is not None:
+            wave = self.vision_slm(x)
+        else:
+            latent = self.encoders[task](x)
+            wave = self._relational_wave(latent) if task == "relational" else self.projector[task](latent)
+        return wave if rule_id is None else self.apply_rule(wave, rule_id)
 
     def _relational_wave(self, latent: torch.Tensor) -> torch.Tensor:
         """Bind the three role slots by pointwise phasor product.
@@ -312,9 +457,218 @@ class HenriHolarch(nn.Module):
         binding, and it is parameter free.
         """
         waves = self.projector["relational"](latent)
-        bound = _unit((waves[:, 0] * waves[:, 1] * waves[:, 2]).unsqueeze(1))
+        if self.relational_binding == "conv_shift":
+            # Decision 7: circular convolution mixes every frequency channel
+            # with every other one, where the diagonal product never did.
+            transform = torch.fft.fft(waves, dim=-1)
+            bound = torch.fft.ifft(
+                transform[:, 0] * transform[:, 1] * transform[:, 2], dim=-1
+            )
+        else:
+            bound = waves[:, 0] * waves[:, 1] * waves[:, 2]
+        bound = _unit(bound.unsqueeze(1))
         slots = torch.cat([waves, bound], dim=1)
         return _unit(slots.reshape(slots.shape[0], -1))
+
+    # ---------------------------------------------------------- prototypes
+    def prototype_waves(self, task: str) -> torch.Tensor:
+        """The stored prototype tensor of one task, shape (M, dim)."""
+        return getattr(self, f"prototype_{task}")
+
+    @torch.no_grad()
+    def calibrate_prototypes(
+        self,
+        task: str,
+        samples: Sequence,
+        max_prototypes: int = 64,
+    ) -> Dict[str, float]:
+        """Build the clean post-photonic attractor bank of one task.
+
+        The samples argument is a sequence of task batches. Every clean
+        input is passed through the plates and the bright port is
+        averaged per class. No noisy query touches this path, which is
+        the point of Decision 2.
+        """
+        if not samples:
+            return {"prototypes": 0.0, "prototype_beta": 0.0}
+        x = torch.cat([sample.x for sample in samples])
+        y = torch.cat([sample.y for sample in samples])
+        psi = self.encode(task, x)
+        bright = self.zone_b(psi).bright.detach().cpu().numpy()
+        bank = self.prototypes[task]
+        stats = bank.build(bright, y.detach().cpu().numpy(), max_prototypes=max_prototypes)
+        stats.update(bank.calibrate_beta(bright))
+        stats.update(bank.accuracy(bright, y.detach().cpu().numpy()))
+        self.set_prototypes(task)
+        return stats
+
+    @torch.no_grad()
+    def set_prototypes(self, task: str) -> int:
+        """Copy the numpy bank into the registered tensor buffer."""
+        bank = self.prototypes[task]
+        tensor = torch.from_numpy(np.ascontiguousarray(bank.phi)).to(torch.complex64)
+        buffer = getattr(self, f"prototype_{task}")
+        if buffer.shape != tensor.shape:
+            setattr(self, f"prototype_{task}", tensor)
+        else:
+            buffer.copy_(tensor)
+        classes = torch.from_numpy(np.ascontiguousarray(bank.labels)).to(torch.long)
+        class_buffer = getattr(self, f"prototype_class_{task}")
+        if class_buffer.shape != classes.shape:
+            setattr(self, f"prototype_class_{task}", classes)
+        else:
+            class_buffer.copy_(classes)
+        return int(tensor.shape[0])
+
+    @torch.no_grad()
+    def store_prototypes(self, task: Optional[str] = None) -> Dict[str, float]:
+        """Persist the bank as axiomatic (tier-3) Zone C engrams."""
+        total = 0.0
+        for name in ([task] if task else list(TASK_NAMES)):
+            bank = self.prototypes[name]
+            if len(bank) and getattr(self, "memory", None) is not None:
+                total += float(bank.write_to_memory(self.memory))
+        return {"prototype_engrams_written": total}
+
+    def prototype_logits(
+        self, task: str, bright: torch.Tensor, n_classes: int
+    ) -> Optional[torch.Tensor]:
+        """Calibrated Hopfield prototype logits, shape (batch, n_classes).
+
+        Decision 6: the relaxation loop minimises an energy whose minimum is
+        a prototype, yet the swarm head never saw the prototypes. This block
+        adds beta * Re<psi, phi_c> to the task logits, standardised so its
+        scale cannot swamp the trained head, and scattered onto the class
+        ids the bank was built from.
+        """
+        bank = self.prototype_waves(task)
+        if int(bank.numel()) == 0:
+            return None
+        labels = getattr(self, f"prototype_class_{task}")
+        if int(labels.numel()) != int(bank.shape[0]):
+            return None
+        align = self.zone_b.alignment(bright, bank) * float(self.prototypes[task].beta)
+        align = align - align.mean(dim=-1, keepdim=True)
+        align = align / align.std(dim=-1, keepdim=True).clamp_min(1e-4)
+        out = torch.zeros(
+            bright.shape[0], int(n_classes), device=bright.device, dtype=torch.float32
+        )
+        index = labels.unsqueeze(0).expand(align.shape[0], -1)
+        out.scatter_add_(1, index, align.to(out.dtype))
+        return out
+
+    @torch.no_grad()
+    def load_prototypes(self, task: str) -> int:
+        """Reload one task's bank from the axiomatic Zone C engrams."""
+        bank = self.prototypes[task]
+        count = bank.load_from_memory(self.memory)
+        self.set_prototypes(task)
+        return count
+
+    @torch.no_grad()
+    def surprise(self, task: str, bright: torch.Tensor) -> torch.Tensor:
+        """Per-sample surprise: distance from the clean attractor bank.
+
+        This is the Gram residual of Decision 4. A familiar input lands on
+        a prototype (surprise near zero); a distribution shift does not.
+        """
+        bank = self.prototype_waves(task)
+        if bank.numel() == 0:
+            return torch.ones(bright.shape[0])
+        align = self.zone_b.alignment(_unit(bright.to(torch.complex64)), bank)
+        return 1.0 - align.max(dim=-1).values
+
+    @torch.no_grad()
+    def calibrate_gate(
+        self,
+        task: str,
+        batches: Sequence[torch.Tensor],
+        quantile: float = 0.995,
+        margin: float = 0.01,
+    ) -> Dict[str, float]:
+        """Set the plasticity threshold from the familiar surprise tail.
+
+        The threshold is a high quantile of the surprise of in-distribution
+        inputs plus a margin, so a familiar sample closes the gate and a
+        distribution shift opens it. A literal threshold would be
+        constraint C2 repeated on a new statistic.
+        """
+        values: List[float] = []
+        for batch in batches:
+            output = self.forward(task, batch, training=False, relax=False)
+            values.extend(float(v) for v in self.surprise(task, output.photonic.bright).cpu())
+        if not values:
+            return {"tau_plasticity": float(self.gate_tau), "n": 0.0, "calibrated": 0.0}
+        tau = max(0.0, float(np.quantile(values, float(quantile))) + float(margin))
+        self.gate_tau.fill_(tau)
+        return {
+            "tau_plasticity": tau,
+            "surprise_mean": float(np.mean(values)),
+            "surprise_quantile": float(np.quantile(values, float(quantile))),
+            "quantile": float(quantile),
+            "n": float(len(values)),
+            "calibrated": 1.0,
+        }
+
+    def rule_wave(self, rule_id: int) -> torch.Tensor:
+        """Deterministic context phasor for one rule id, length d_slot.
+
+        Decision 4 binds the rule into slot 3, so the same pixels under two
+        rules map to two different input waves and the label contradiction
+        disappears. The phasor is seeded, so a receipt can replay it.
+        """
+        key = int(rule_id)
+        if key not in self._rule_cache:
+            generator = torch.Generator().manual_seed(int(self.cfg.seed) * 100003 + key)
+            real = torch.randn(int(self.cfg.d_slot), generator=generator)
+            imag = torch.randn(int(self.cfg.d_slot), generator=generator)
+            self._rule_cache[key] = _unit(torch.complex(real, imag))
+        return self._rule_cache[key]
+
+    def apply_rule(self, psi_in: torch.Tensor, rule_id) -> torch.Tensor:
+        """Overwrite slot 3 with the rule phasor and renormalise.
+
+        rule_id may be one integer or one integer per example, so a single
+        batch can carry two rules and the model must condition on slot 3
+        within the batch rather than across steps.
+        """
+        slots = psi_in.reshape(
+            psi_in.shape[0], int(self.cfg.n_slots), int(self.cfg.d_slot)
+        ).clone()
+        if isinstance(rule_id, torch.Tensor) or isinstance(rule_id, (list, tuple)):
+            ids = [int(value) for value in rule_id]
+            if len(ids) != slots.shape[0]:
+                raise ValueError("per-example rule ids must match the batch size")
+            waves = torch.stack([self.rule_wave(value) for value in ids])
+            slots[:, 3] = waves.to(psi_in.device)
+        else:
+            slots[:, 3] = self.rule_wave(int(rule_id)).to(psi_in.device)
+        return _unit(slots.reshape(psi_in.shape[0], -1))
+
+    def relational_features(self, photonic: PhotonicState) -> torch.Tensor:
+        """Relational readout block: 2 * relational_k real values.
+
+        The bound wave travels in slot 3 through the plates and the slot
+        mixer, so the basis reads a bound relational wave that the optical
+        stack has already filtered. Both quadratures are kept: the phase
+        of the composition is the information that survives binding.
+        """
+        if self.relational_binding in {"conv_shift", "wave"}:
+            slots = photonic.bright.reshape(
+                photonic.bright.shape[0], int(self.cfg.n_slots), int(self.cfg.d_slot)
+            )
+            bound = slots[:, 3]
+            if self.relational_binding == "conv_shift":
+                return torch.cat(
+                    [
+                        self.relational_basis(torch.roll(bound, shift, dims=-1))
+                        for shift in self.relational_shifts
+                    ],
+                    dim=-1,
+                )
+            return self.relational_basis(bound)
+        block = photonic.features[:, self.zone_b.raw_width :]
+        return block * self.relational_gate
 
     def encode_observation(self, observation) -> torch.Tensor:
         """Encode one grid-world observation (numpy or tensor, 75 values)."""
@@ -335,6 +689,7 @@ class HenriHolarch(nn.Module):
         memory_k: int = 4,
         skip_alpha: Optional[float] = None,
         relax: bool = True,
+        rule_id=None,
     ) -> HolarchOutput:
         """Run one batch through the holarch.
 
@@ -349,6 +704,11 @@ class HenriHolarch(nn.Module):
                 used, which is the routing ablation.
             training: enables novelty-biased routing.
             memory_k: engrams fused per query.
+            relax: run the thermodynamic loop. Decision 2 anchors it in
+                the clean prototype bank when one exists.
+            rule_id: optional context rule. When given, the deterministic
+                rule phasor replaces slot 3, so identical pixels under two
+                rules are two different input waves (Decision 4).
         """
         if task not in TASK_IDS:
             raise ValueError(f"unknown task {task!r}")
@@ -356,10 +716,18 @@ class HenriHolarch(nn.Module):
             latent = self.encoders[task](x)
             psi_in = self._relational_wave(latent)
             skip_vector = latent.mean(dim=1)
+        elif task == "vision" and self.vision_slm is not None:
+            # Decision 1: no learned encoder. The pixel field enters the
+            # plates directly, so the readout bottleneck is honest.
+            psi_in = self.vision_slm(x)
+            latent = torch.zeros(psi_in.shape[0], self.d_latent)
+            skip_vector = latent
         else:
             latent = self.encoders[task](x)
             psi_in = self.projector[task](latent)
             skip_vector = latent
+        if rule_id is not None:
+            psi_in = self.apply_rule(psi_in, rule_id)
         batch = psi_in.shape[0]
         alpha = self.skip_alpha if skip_alpha is None else float(skip_alpha)
 
@@ -426,30 +794,61 @@ class HenriHolarch(nn.Module):
             axiom_out = photonic.bright.detach()
         delta_sagnac = sagnac_delta(photonic.bright, axiom_out)
 
+        # Decision 2: relax toward the clean post-photonic prototypes when a
+        # bank exists; otherwise fall back to the post-photonic axiom pull of
+        # Decision B. The veto residual is always measured against the
+        # context axiom, so Gate D2 calibration is unchanged.
+        bank = self.prototype_waves(task)
+        use_prototypes = (
+            str(self.cfg.relax_mode) == "prototype" and int(bank.numel()) > 0
+        )
         if (
             relax
-            and not training
+            and (not training or bool(self.cfg.relax_training))
             and use_photonic
             and int(self.cfg.relax_steps) > 0
-            and bool((delta_sagnac > tau_residual).any())
+            and (use_prototypes or bool((delta_sagnac > tau_residual).any()))
         ):
-            relaxed, _trace = self.zone_b.relax_output(
-                fused, axiom_out, tolerance=float(tau_residual)
-            )
-            photonic = relaxed
-            delta_sagnac = photonic.delta_memory
+            if use_prototypes:
+                # Heat only where the wave is unfamiliar. Relaxing a
+                # familiar input would trade within-class detail for
+                # attractor alignment and cost accuracy on clean data,
+                # which is exactly what a denoiser must not do.
+                surprise = self.surprise(task, photonic.bright)
+                mask = surprise > float(self.gate_tau)
+                if bool(mask.any()):
+                    relaxed, _trace = self.zone_b.relax_prototype(
+                        fused,
+                        bank,
+                        beta=float(self.prototypes[task].beta),
+                        lambda_dark=float(self.cfg.prototype_lambda_dark),
+                        eta=float(self.cfg.prototype_eta),
+                    )
+                    merged = torch.where(
+                        mask.unsqueeze(-1), relaxed.bright, photonic.bright
+                    )
+                    photonic = self.zone_b._replace_bright(photonic, merged, axiom_out)
+            else:
+                photonic, _trace = self.zone_b.relax_output(
+                    fused, axiom_out, tolerance=float(tau_residual)
+                )
+            # The veto statistic stays the RAW pass. The loop is a repair
+            # applied after the epistemic check, and calibrate_veto measures
+            # the raw residual. Reporting the post-repair residual as the
+            # veto input raised the measured false-veto rate from 0.003 to
+            # 0.030 in the first run of this revision.
 
+        relative = None
         if use_optical_features:
             raw = self.feature_proj(photonic.features[:, : self.zone_b.raw_width])
             if task == "relational":
-                # Decision C: the relational head reads the pure trilinear
-                # product only. The pairwise products stay in the tensor for
-                # diagnosis but are not fed to the head, so a 72-triple run
-                # cannot memorise a two-slot shortcut.
-                product = photonic.features[:, self.zone_b.raw_width :]
+                # Decision 3: the head reads the bound wave projected
+                # through its own Stiefel basis, so the composition keeps
+                # all d_slot phases before any compression.
+                relative = self.relational_features(photonic)
                 if training:
-                    product = self.relational_dropout(product)
-                raw = raw + self.relational_proj(product * self.relational_gate)
+                    relative = self.relational_dropout(relative)
+                raw = raw + self.relational_proj(relative)
             optical = raw
         else:
             optical = 0.0
@@ -468,8 +867,29 @@ class HenriHolarch(nn.Module):
 
         start, end = self.zone_a.task_slice(task)
         task_logits = swarm.logits[:, start:end]
-        if task == "relational":
-            task_logits = task_logits + self.trilinear_head(photonic.trilinear)
+        if task == "relational" and self.relational_expert is not None:
+            unbound = photonic.features[:, : 3 * int(self.cfg.pool_k)]
+            bound = (
+                relative if relative is not None else self.relational_features(photonic)
+            )
+            if training:
+                bound = self.relational_dropout(bound)
+            task_logits = self.relational_expert(torch.cat([unbound, bound], dim=-1))
+        elif task == "relational" and self.trilinear_head is not None:
+            if self.relational_binding == "trilinear":
+                head_input = photonic.trilinear
+            else:
+                head_input = (
+                    relative if relative is not None else self.relational_features(photonic)
+                )
+            task_logits = task_logits + self.trilinear_head(head_input)
+        # The prototype logits ARE optical features: they read the bright
+        # port. The optical ablation must switch them off too, or the
+        # "no Zone B features" arm still sees the plates through the bank.
+        if bool(self.cfg.prototype_logits) and use_optical_features:
+            proto = self.prototype_logits(task, photonic.bright, task_logits.shape[-1])
+            if proto is not None:
+                task_logits = task_logits + self.proto_alpha * proto
         margin = task_logits.topk(2, dim=-1).values
         margin = (margin[:, 0] - margin[:, 1]) if task_logits.shape[-1] > 1 else margin[:, 0]
 
@@ -517,11 +937,43 @@ class HenriHolarch(nn.Module):
             written += 1
         return written
 
-    def fast_learn(self, output: HolarchOutput, labels: torch.Tensor, lr: float = 0.05) -> Dict[str, float]:
+    def plasticity_gate(self, output: HolarchOutput) -> torch.Tensor:
+        """Decision 4 surprise gate, one scalar in {0, 1} per example.
+
+            eta_eff = eta * 1[surprise > tau_plasticity OR s_max < tau_familiar]
+
+        The first term is the post-photonic prototype residual. The second
+        fires only on a genuine Zone C retrieval: a query with no engram
+        hit reports s_max = 0, and treating that as "unfamiliar" would open
+        the gate on every empty memory.
+        """
+        surprise = self.surprise(output.task, output.photonic.bright)
+        gate_open = surprise > float(self.gate_tau)
+        familiar = float(self.cfg.fast_gate_familiar)
+        if familiar > 0.0:
+            gate_open = gate_open | (output.memory_mask & (output.s_max < familiar))
+        return gate_open.to(torch.float32)
+
+    def fast_learn(
+        self,
+        output: HolarchOutput,
+        labels: torch.Tensor,
+        lr: float = 0.05,
+        gate: bool = True,
+    ) -> Dict[str, float]:
         """Zone A delta-rule write for the batch that produced output."""
         start, end = self.zone_a.task_slice(output.task)
+        weights = (
+            self.plasticity_gate(output)
+            if (gate and bool(self.cfg.fast_gate))
+            else None
+        )
         return self.zone_a.online_update(
-            output.features.detach(), labels.long(), TASK_IDS[output.task], lr=float(lr)
+            output.features.detach(),
+            labels.long(),
+            TASK_IDS[output.task],
+            lr=float(lr),
+            weights=weights,
         )
 
     @torch.no_grad()

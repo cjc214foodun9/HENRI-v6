@@ -51,11 +51,27 @@ class Batch:
 
 
 class DigitsTask:
-    """8x8 handwritten digit classification."""
+    """Handwritten digit classification, or its 2x2 patch composition.
+
+    size = 8 gives the sklearn 8x8 grid: d_input = 64.
+    size = 16 gives a 16x16 canvas that tiles four independent 8x8 digit
+    patches into four quadrants: d_input = 256. Quadrants 0 and 1 carry
+    the label; quadrants 2 and 3 are independent digit patches that carry
+    no label information. That is a true information bottleneck against a
+    4K = 64 readout: 256 input values, of which at most 128 are task
+    relevant, must be compressed into 64 readout values.
+    """
 
     name = "vision"
 
-    def __init__(self, seed: int = 0, n_train: int = 1200, n_val: int = 300) -> None:
+    def __init__(
+        self,
+        seed: int = 0,
+        n_train: int = 1200,
+        n_val: int = 300,
+        size: int = 8,
+        composition: str = "sum",
+    ) -> None:
         from sklearn.datasets import load_digits
 
         data = load_digits()
@@ -63,17 +79,68 @@ class DigitsTask:
         labels = data.target.astype(np.int64)
         images = (images - images.mean()) / (images.std() + 1e-6)
         generator = np.random.default_rng(int(seed))
-        order = generator.permutation(len(images))
-        train = order[: int(n_train)]
-        val = order[int(n_train) : int(n_train) + int(n_val)]
-        test = order[int(n_train) + int(n_val) :]
-        self.splits = {
-            "train": (images[train], labels[train]),
-            "val": (images[val], labels[val]),
-            "test": (images[test], labels[test]),
-        }
+        self.image_size = int(size)
+        self.composition = str(composition)
+        if self.image_size == 8:
+            order = generator.permutation(len(images))
+            train = order[: int(n_train)]
+            val = order[int(n_train) : int(n_train) + int(n_val)]
+            test = order[int(n_train) + int(n_val) :]
+            self.splits = {
+                "train": (images[train], labels[train]),
+                "val": (images[val], labels[val]),
+                "test": (images[test], labels[test]),
+            }
+        elif self.image_size == 16:
+            total = int(n_train) + int(n_val) + int(round(0.75 * int(n_train)))
+            canvas, outcome = self._compose(generator, images, labels, total, self.composition)
+            train = np.arange(int(n_train))
+            val = np.arange(int(n_train), int(n_train) + int(n_val))
+            test = np.arange(int(n_train) + int(n_val), total)
+            self.splits = {
+                "train": (canvas[train], outcome[train]),
+                "val": (canvas[val], outcome[val]),
+                "test": (canvas[test], outcome[test]),
+            }
+        else:
+            raise ValueError("size must be 8 or 16")
         self.n_classes = 10
         self.generator = torch.Generator().manual_seed(int(seed) + 1)
+
+    @staticmethod
+    def _compose(
+        generator: np.random.Generator,
+        images: np.ndarray,
+        labels: np.ndarray,
+        count: int,
+        rule: str,
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        """Tile four independent digits and apply the composition label.
+
+        The quadrant layout is fixed, so the label is a deterministic
+        nonlinear function of the two informative quadrants and nothing
+        else. Both informative quadrants enter the label, so a model that
+        reads only one of them cannot exceed the marginal ceiling.
+        """
+        if rule not in {"sum", "diff", "clutter"}:
+            raise ValueError("composition rule must be 'sum', 'diff', or 'clutter'")
+        index = generator.integers(0, len(images), size=(int(count), 4))
+        patches = images[index]
+        canvas = np.zeros((int(count), 16, 16), dtype=np.float32)
+        canvas[:, 0:8, 0:8] = patches[:, 0]
+        canvas[:, 0:8, 8:16] = patches[:, 1]
+        canvas[:, 8:16, 0:8] = patches[:, 2]
+        canvas[:, 8:16, 8:16] = patches[:, 3]
+        digit = labels[index]
+        if rule == "sum":
+            outcome = (digit[:, 0] + digit[:, 1]) % 10
+        elif rule == "diff":
+            outcome = np.abs(digit[:, 0] - digit[:, 1])
+        else:
+            # Clutter: quadrant 0 is the label, the other three are
+            # independent digits. d_input = 256, informative = 64.
+            outcome = digit[:, 0]
+        return canvas.astype(np.float32), outcome.astype(np.int64)
 
     def size(self, split: str = "train") -> int:
         return int(self.splits[split][0].shape[0])
@@ -561,7 +628,11 @@ def build_tasks(cfg, seed: Optional[int] = None) -> Dict[str, object]:
     """Construct the three tasks with the config's vocabulary width."""
     seed = int(cfg.seed if seed is None else seed)
     return {
-        "vision": DigitsTask(seed=seed),
+        "vision": DigitsTask(
+            seed=seed,
+            size=int(getattr(cfg, "vision_size", 8)),
+            composition=str(getattr(cfg, "vision_composition", "sum")),
+        ),
         "language": CharLMTask(seed=seed, vocab_size=int(cfg.vocab_size)),
         "action": GridWorldTask(seed=seed),
         "relational": RelationalTask(

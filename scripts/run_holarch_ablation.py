@@ -24,7 +24,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from henri.holarch.config import HolarchConfig
 from henri.holarch.pipeline import HenriHolarch
 from henri.holarch.tasks import build_tasks
-from henri.holarch.train import Trainer, TrainConfig, evaluate
+from henri.holarch.train import Trainer, TrainConfig
 
 
 VARIANTS = {
@@ -55,7 +55,33 @@ def main() -> int:
         trainer = Trainer(model, tasks, TrainConfig(steps_per_task=int(args.steps), batch_size=32))
         trainer.flags.update(flags)
         history = trainer.fit(steps_per_task=int(args.steps), order=["vision"])
-        metrics = evaluate(model, tasks, "val", limit=300, flags=trainer.flags)
+        # Vision only: this receipt is a vision ablation, and evaluating the
+        # other three tasks would triple the wall clock for no extra claim.
+        correct = 0
+        total = 0
+        loss_sum = 0.0
+        batches = 0
+        with torch.no_grad():
+            for batch in tasks["vision"].epoch(64, "val"):
+                output = model(
+                    "vision",
+                    batch.x,
+                    training=False,
+                    use_photonic=trainer.flags["use_photonic"],
+                    use_swarm=trainer.flags["use_swarm"],
+                    use_memory=trainer.flags["use_memory"],
+                    use_optical_features=trainer.flags["use_optical_features"],
+                )
+                correct += int((output.predicted() == batch.y).sum())
+                total += int(batch.y.numel())
+                loss_sum += float(torch.nn.functional.cross_entropy(output.task_logits, batch.y))
+                batches += 1
+                if total >= 300:
+                    break
+        metrics = {
+            "vision_accuracy": correct / max(total, 1),
+            "vision_loss": loss_sum / max(batches, 1),
+        }
         rows[name] = {
             "vision_accuracy": metrics["vision_accuracy"],
             "vision_loss": metrics["vision_loss"],

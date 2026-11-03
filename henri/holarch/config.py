@@ -56,6 +56,24 @@ class HolarchConfig:
         propagation_zeta: 4f propagation strength in radians at the
             Nyquist frequency.
         voltage_bound: hard bound on the normalised drive voltage.
+        vision_size: canvas side of the vision sensor. 8 is the sklearn
+            8x8 grid (d_input = 64). 16 is the 2x2 patch-composition
+            canvas (d_input = 256) used by the Gate D1 bottleneck probe.
+        vision_composition: label rule of the 16x16 canvas. 'sum' is
+            (d0 + d1) mod 10 over the two informative quadrants, 'diff' is
+            |d0 - d1|. 'clutter' labels the canvas by quadrant 0 and fills
+            the other three quadrants with independent distractor digits,
+            so 75 percent of the input energy is task irrelevant.
+        vision_encoder: 'conv' learned convolutional encoder, or 'slm' a
+            parameter-free phase-only spatial light modulator. 'slm'
+            removes the learned encoder so the only nonlinearity between
+            pixels and the readout is the photonic stack.
+        slm_gain: phase radians per unit of standardised pixel value for
+            the phase-only sensor.
+        readout: 'swarm' (Zone A experts) or 'linear' (one linear probe
+            over the pooled photonic features). 'linear' is the Gate D1
+            attribution probe: it removes the Zone A MLP so any accuracy
+            difference is attributable to the optics.
         d_feat: feature width handed to Zone A.
         n_experts: lean experts in the Zone A swarm.
         expert_hidden: per-expert hidden width.
@@ -65,6 +83,56 @@ class HolarchConfig:
         vocab_size: character vocabulary for the language task.
         n_vision_classes: digit classes.
         n_actions: grid-world action count.
+        relational_binding: 'wave' binds the three role phasors in the
+            d_slot complex domain and reads them through a dedicated
+            Stiefel basis (Decision 3), 'trilinear' is the retired
+            K-dim real product (Decision C control arm).
+        relational_k: complex rows of the relational Stiefel basis. Both
+            quadratures are read, so the head width is 2 * relational_k per
+            bound wave.
+        relational_shifts: number of cyclic frequency shifts bound by
+            circular convolution (Decision 7). One shift reproduces the
+            single diagonal product; four cross-mix frequency channels.
+        relational_head: 'expert' routes the bound block through the Zone A
+            relational MLP (Decision 7); 'linear' keeps the old standalone
+            linear head.
+        universal_rank: rank of the shared Zone A weight subspace that all
+            four tasks read through (Decision 8). 0 disables it.
+        relational_hidden: width of the dedicated relational expert. The CI
+            swarm expert is 48 wide; Decision 7 asks the relational path to
+            match the MLP baseline's non-linear capacity, so it gets its own
+            two-layer micro-net over [g0||g1||g2||g_rel].
+        relational_dropout: dropout on the relational feature block.
+        relational_l2: weight decay applied to the relational head only.
+        relax_mode: 'prototype' anchors relaxation in the clean
+            post-photonic prototype bank (Decision 2), 'axiom' is the
+            retired pull toward the post-photonic context bundle.
+        prototype_lambda_dark: weight of the Stiefel nullspace term in the
+            relaxation energy.
+        prototype_eta: egress phase step per relaxation pass.
+        prototype_beta: inverse temperature of the prototype competition.
+            0 means calibrate it from the bank (constraint C3 refuses the
+            transferred literal).
+        relax_training: run the relaxation loop during training as well, so
+            the readout is trained on the cleaned wave it will be served.
+            Off by default: every pass costs one extra propagation.
+        prototype_logits: add the calibrated Hopfield prototype logits
+            beta * Re<psi, phi_c> to the task logits (Decision 6). The head
+            lets the relaxation loop change the DECISION, not only the wave.
+        proto_alpha_init: initial scale of the prototype logit block.
+        stiefel_mode: 'learned' keeps the Gate D1 gauge freedom (a free
+            Stiefel basis absorbs any unitary optical transform). 'fixed'
+            anchors the rows to a canonical Fourier detector frame, so the
+            plates are the only beam-steerer (Decision 5).
+        kerr_interplate: electro-optic intensity coefficient. The plate
+            phase becomes theta + dir * g * Lambda(T) * (V + gamma |psi|^2),
+            which makes the stack non-linear in amplitude and impossible to
+            collapse into one matrix multiply (Decision 5).
+        fast_gate: gate Zone A fast-weight plasticity on Zone B surprise.
+        fast_gate_tau: surprise threshold on the prototype or Sagnac
+            residual above which plasticity opens.
+        fast_gate_familiar: raw Gram coherence below which plasticity
+            opens even when the residual is small.
         gram_dims: complex projection width stored per Zone C engram.
         chart_capacity: engrams per holographic chart before compaction.
         cache_capacity: resident wave cache (bounded, paged from disk).
@@ -96,6 +164,27 @@ class HolarchConfig:
     propagation_zeta: float = 1.0
     voltage_bound: float = 1.0
 
+    vision_size: int = 8
+    vision_composition: str = "sum"
+    vision_encoder: str = "conv"
+    slm_gain: float = 1.0
+    readout: str = "swarm"
+
+    relax_mode: str = "prototype"
+    prototype_lambda_dark: float = 0.5
+    prototype_eta: float = 0.15
+    prototype_beta: float = 0.0
+    relax_training: bool = False
+    prototype_logits: bool = True
+    proto_alpha_init: float = 0.05
+
+    stiefel_mode: str = "learned"
+    kerr_interplate: float = 0.0
+
+    fast_gate: bool = False
+    fast_gate_tau: float = 0.05
+    fast_gate_familiar: float = 0.0
+
     d_latent: int = 128
     d_feat: int = 192
     n_experts: int = 8
@@ -111,6 +200,14 @@ class HolarchConfig:
     relational_actions: int = 6
     relational_targets: int = 8
     relational_classes: int = 8
+    relational_binding: str = "conv_shift"
+    relational_k: int = 16
+    relational_shifts: int = 4
+    relational_head: str = "expert"
+    relational_dropout: float = 0.05
+    relational_l2: float = 5e-4
+    relational_hidden: int = 192
+    universal_rank: int = 8
 
     gram_dims: int = 64
     chart_capacity: int = 256
@@ -158,6 +255,46 @@ class HolarchConfig:
             raise ValueError("kerr must be positive")
         if self.voltage_bound <= 0.0:
             raise ValueError("voltage_bound must be positive")
+        if self.vision_size not in {8, 16}:
+            raise ValueError("vision_size must be 8 or 16")
+        if self.vision_composition not in {"sum", "diff", "clutter"}:
+            raise ValueError("vision_composition must be 'sum', 'diff', or 'clutter'")
+        if self.vision_encoder not in {"conv", "slm"}:
+            raise ValueError("vision_encoder must be 'conv' or 'slm'")
+        if self.vision_size ** 2 > self.dim:
+            raise ValueError("vision_size**2 must not exceed dim")
+        if self.slm_gain <= 0.0:
+            raise ValueError("slm_gain must be positive")
+        if self.readout not in {"swarm", "linear"}:
+            raise ValueError("readout must be 'swarm' or 'linear'")
+        if self.relax_mode not in {"prototype", "axiom"}:
+            raise ValueError("relax_mode must be 'prototype' or 'axiom'")
+        if self.prototype_lambda_dark < 0.0:
+            raise ValueError("prototype_lambda_dark must be >= 0")
+        if not 0.0 <= self.prototype_eta <= 1.0:
+            raise ValueError("prototype_eta must lie in [0, 1]")
+        if self.prototype_beta < 0.0:
+            raise ValueError("prototype_beta must be >= 0")
+        if self.relational_binding not in {"conv_shift", "wave", "trilinear"}:
+            raise ValueError("relational_binding must be 'conv_shift', 'wave', or 'trilinear'")
+        if self.relational_head not in {"expert", "linear"}:
+            raise ValueError("relational_head must be 'expert' or 'linear'")
+        if not 1 <= self.relational_k <= self.d_slot:
+            raise ValueError("relational_k must lie in [1, d_slot]")
+        if not 1 <= self.relational_shifts <= self.d_slot:
+            raise ValueError("relational_shifts must lie in [1, d_slot]")
+        if not 0 <= self.universal_rank <= self.d_feat:
+            raise ValueError("universal_rank must lie in [0, d_feat]")
+        if self.stiefel_mode not in {"learned", "fixed"}:
+            raise ValueError("stiefel_mode must be 'learned' or 'fixed'")
+        if self.kerr_interplate < 0.0:
+            raise ValueError("kerr_interplate must be >= 0")
+        if self.proto_alpha_init < 0.0:
+            raise ValueError("proto_alpha_init must be >= 0")
+        if not 0.0 <= self.relational_dropout < 1.0:
+            raise ValueError("relational_dropout must lie in [0, 1)")
+        if self.relational_l2 < 0.0:
+            raise ValueError("relational_l2 must be >= 0")
         if self.n_experts < 1 or self.expert_hidden < 1:
             raise ValueError("swarm widths must be positive")
         if not 1 <= self.top_k <= self.n_experts:

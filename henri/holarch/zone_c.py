@@ -811,6 +811,15 @@ class ZoneCMemory:
             prefix = np.zeros((tokens, int(self.cfg.context_dim)), dtype=np.float32)
         return prefix.astype(np.float32), read
 
+    def axiomatic_engrams(self) -> List[Tuple[int, int]]:
+        """(engram_id, label) for every axiomatic (tier-3) row.
+
+        Tier-3 rows are the clean prototype bank of Decision 2. They are
+        never pruned, so the attractor bank survives compaction and decay.
+        """
+        rows = self.store.metadata(self.dim)
+        return [(int(row[0]), int(row[2])) for row in rows if int(row[4]) >= TIER_AXIOMATIC]
+
     # ------------------------------------------------------------- lifecycle
     def _raw_weight(self, now: Optional[float] = None) -> np.ndarray:
         """Finite-timescale decay, before the axiomatic floor is applied."""
@@ -938,3 +947,181 @@ class ZoneCMemory:
     def close(self) -> None:
         self.store.close()
 
+
+class PrototypeBank:
+    """Clean post-photonic Hopfield attractors, stored in Zone C.
+
+    Evidence label: DERIVED for the energy, OBSERVED for every alignment,
+    snap accuracy and beta the calibration returns.
+
+    Decision 2 replaces a pull toward B_theta(psi_context_in) with a pull
+    toward sharp prototypes. The reason is physical: the context bundle is
+    retrieved with the NOISY query, so it already contains the noise that
+    the loop is supposed to remove. A prototype is the unit-normalised mean
+    of the post-photonic wave of the CLEAN training samples of one class,
+    so the attractor carries no sensor noise by construction.
+
+    The competition is a softmax over alignments with inverse temperature
+    beta. Constraint C3 refuses the transferred literal beta* = 26.10: that
+    value was fitted on the functor-score readout, and no measurement ties
+    it to this one. beta is therefore calibrated from the bank's own
+    alignment gaps, and the refused literal is recorded, not used.
+    """
+
+    BETA_STAR_REFERENCE = 26.10
+    """The C3-refused literal. Kept for audit, never applied."""
+
+    BETA_TARGET_DECADES = 4.0
+    """Declared sharpness target: a one-median-gap lead gives e^4 ~ 54.6."""
+
+    def __init__(self, dim: int, beta: float = 0.0) -> None:
+        self.dim = int(dim)
+        self.phi = np.zeros((0, self.dim), dtype=np.complex64)
+        self.labels = np.zeros(0, dtype=np.int64)
+        self.counts = np.zeros(0, dtype=np.int64)
+        self.beta = float(beta)
+        self.beta_source = "declared" if float(beta) > 0.0 else "uncalibrated"
+
+    def __len__(self) -> int:
+        return int(self.phi.shape[0])
+
+    # ----------------------------------------------------------------- build
+    def build(
+        self,
+        waves: np.ndarray,
+        labels: np.ndarray,
+        max_prototypes: int = 64,
+    ) -> Dict[str, float]:
+        """Build one prototype per class from clean post-photonic waves."""
+        waves = np.asarray(waves, dtype=np.complex64)
+        labels = np.asarray(labels, dtype=np.int64)
+        if waves.ndim != 2 or waves.shape[1] != self.dim:
+            raise ValueError(f"expected (N, {self.dim}) waves, got {waves.shape}")
+        if waves.shape[0] != labels.shape[0]:
+            raise ValueError("waves and labels must align")
+        rows: List[np.ndarray] = []
+        classes: List[int] = []
+        counts: List[int] = []
+        for label in sorted(int(v) for v in np.unique(labels)):
+            block = waves[labels == label]
+            if block.size == 0:
+                continue
+            rows.append(_unit(block.mean(axis=0).astype(np.complex64)))
+            classes.append(int(label))
+            counts.append(int(block.shape[0]))
+        order = np.argsort(-np.asarray(counts))[: int(max_prototypes)]
+        self.phi = np.stack([rows[int(i)] for i in order]).astype(np.complex64)
+        self.labels = np.asarray([classes[int(i)] for i in order], dtype=np.int64)
+        self.counts = np.asarray([counts[int(i)] for i in order], dtype=np.int64)
+        return {
+            "prototypes": float(len(self.phi)),
+            "prototype_classes": float(len(np.unique(self.labels))) if len(self) else 0.0,
+            "prototype_min_support": float(self.counts.min()) if len(self) else 0.0,
+        }
+
+    # ------------------------------------------------------------- retrieval
+    def alignments(self, waves: np.ndarray) -> np.ndarray:
+        """Re<psi, phi_m> for every wave, shape (N, M).
+
+        The prototype rows are unit norm and the query is not assumed to
+        be, so a caller that needs a cosine must normalise first. The
+        energy uses this raw inner product, exactly as written in
+        Decision 2.
+        """
+        waves = np.asarray(waves, dtype=np.complex64)
+        if len(self) == 0:
+            return np.zeros((waves.shape[0], 0), dtype=np.float32)
+        return np.real(waves @ self.phi.conj().T).astype(np.float32)
+
+    def competition(self, wave: np.ndarray) -> Tuple[np.ndarray, int]:
+        """Softmax over prototypes at the calibrated beta, and the snap index."""
+        scores = self.alignments(np.asarray(wave, dtype=np.complex64).reshape(1, -1))[0]
+        if scores.size == 0:
+            return np.zeros(0, dtype=np.float32), -1
+        scaled = float(self.beta) * scores.astype(np.float64)
+        scaled -= scaled.max()
+        weights = np.exp(scaled)
+        weights /= max(weights.sum(), _EPS)
+        return weights.astype(np.float32), int(np.argmax(scores))
+
+    def snap(self, waves: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+        """Nearest prototype index and its stored label, shape (N,)."""
+        scores = self.alignments(waves)
+        if scores.shape[1] == 0:
+            return np.full(scores.shape[0], -1, dtype=np.int64), np.zeros(scores.shape[0])
+        index = np.argmax(scores, axis=1)
+        return index.astype(np.int64), self.labels[index]
+
+    def calibrate_beta(self, clean_waves: np.ndarray) -> Dict[str, float]:
+        """Set beta so a typical correct lead is BETA_TARGET_DECADES sharp."""
+        scores = self.alignments(clean_waves)
+        if scores.size == 0 or scores.shape[1] < 2:
+            self.beta = 1.0
+            self.beta_source = "default"
+            return {
+                "beta": 1.0,
+                "beta_median_gap": 0.0,
+                "beta_source": 0.0,
+                "beta_star_refused": self.BETA_STAR_REFERENCE,
+            }
+        ordered = np.sort(scores, axis=1)
+        gaps = ordered[:, -1] - ordered[:, -2]
+        median_gap = float(np.median(gaps))
+        beta = self.BETA_TARGET_DECADES / max(median_gap, 1e-3)
+        self.beta = float(beta)
+        self.beta_source = "calibrated"
+        return {
+            "beta": float(beta),
+            "beta_median_gap": median_gap,
+            "beta_source": 1.0,
+            "beta_star_refused": self.BETA_STAR_REFERENCE,
+        }
+
+    def accuracy(self, waves: np.ndarray, labels: np.ndarray) -> Dict[str, float]:
+        """Snap accuracy and mean top-1 alignment of the bank."""
+        scores = self.alignments(waves)
+        if scores.size == 0:
+            return {"prototype_accuracy": float("nan"), "prototype_alignment": float("nan")}
+        _, predicted = self.snap(waves)
+        return {
+            "prototype_accuracy": float(np.mean(predicted == np.asarray(labels))),
+            "prototype_alignment": float(np.mean(scores.max(axis=1))),
+        }
+
+    # -------------------------------------------------------------- zone c io
+    def write_to_memory(self, memory: "ZoneCMemory", tier: int = TIER_AXIOMATIC) -> int:
+        """Persist every prototype as an axiomatic Zone C engram."""
+        written = 0
+        for wave, label in zip(self.phi, self.labels):
+            memory.write(wave, label=int(label), tier=int(tier))
+            written += 1
+        return written
+
+    def load_from_memory(self, memory: "ZoneCMemory") -> int:
+        """Reload the bank from the axiomatic engrams already in Zone C."""
+        rows = memory.axiomatic_engrams()
+        if not rows:
+            self.phi = np.zeros((0, self.dim), dtype=np.complex64)
+            self.labels = np.zeros(0, dtype=np.int64)
+            self.counts = np.zeros(0, dtype=np.int64)
+            return 0
+        waves = memory._fetch([int(row[0]) for row in rows])
+        kept = [
+            (wave, label)
+            for wave, (_, label) in zip(waves, rows)
+            if int(wave.size) == self.dim
+        ]
+        if not kept:
+            return 0
+        self.phi = np.stack([_unit(w.astype(np.complex64)) for w, _ in kept])
+        self.labels = np.asarray([int(label) for _, label in kept], dtype=np.int64)
+        self.counts = np.ones(len(kept), dtype=np.int64)
+        return int(len(kept))
+
+    def report(self) -> Dict[str, float]:
+        return {
+            "prototypes": float(len(self)),
+            "prototype_beta": float(self.beta),
+            "prototype_beta_calibrated": 1.0 if self.beta_source == "calibrated" else 0.0,
+            "prototype_beta_star_refused": self.BETA_STAR_REFERENCE,
+        }

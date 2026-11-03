@@ -155,12 +155,14 @@ class DiffractivePlate(nn.Module):
         zeta: float,
         voltage_bound: float,
         seed: int = 0,
+        kerr_interplate: float = 0.0,
     ) -> None:
         super().__init__()
         self.d_slot = int(d_slot)
         self.n_slots = int(n_slots)
         self.pockels_gain = float(pockels_gain)
         self.voltage_bound = float(voltage_bound)
+        self.kerr_interplate = float(kerr_interplate)
         with _isolated_rng(seed):
             self.phase = nn.Parameter(0.15 * torch.randn(self.n_slots, self.d_slot))
         self.voltage = nn.Parameter(torch.zeros(self.n_slots))
@@ -194,7 +196,18 @@ class DiffractivePlate(nn.Module):
                 f"expected ({batch}, {self.n_slots}, {self.d_slot}), got {tuple(psi.shape)}"
             )
         drive = self.drive().reshape(1, self.n_slots, 1)
-        phase = self.phase.unsqueeze(0) + float(direction) * self.pockels_gain * gain.unsqueeze(-1) * drive
+        if self.kerr_interplate > 0.0:
+            # Decision 5: the local optical intensity biases the electro-optic
+            # phase, so the plate stack is non-linear in the wave amplitude and
+            # cannot be folded into a single unitary matrix.
+            intensity = psi.abs().pow(2) * float(self.d_slot)
+            drive_term = drive + self.kerr_interplate * intensity
+        else:
+            drive_term = drive
+        phase = (
+            self.phase.unsqueeze(0)
+            + float(direction) * self.pockels_gain * gain.unsqueeze(-1) * drive_term
+        )
         field = psi * torch.exp(1j * phase)
         transfer = torch.exp(
             -1j * self.zeta.reshape(-1, 1) * math.pi * self.frequencies.pow(2)
@@ -291,11 +304,21 @@ class StiefelSlotPool(nn.Module):
     training rather than being regularised toward it.
     """
 
-    def __init__(self, n_slots: int, d_slot: int, k: int, seed: int = 0) -> None:
+    def __init__(
+        self,
+        n_slots: int,
+        d_slot: int,
+        k: int,
+        seed: int = 0,
+        mode: str = "learned",
+    ) -> None:
         super().__init__()
         self.n_slots = int(n_slots)
         self.d_slot = int(d_slot)
         self.k = int(k)
+        self.mode = str(mode)
+        if self.mode not in {"learned", "fixed"}:
+            raise ValueError("stiefel mode must be 'learned' or 'fixed'")
         generator = torch.Generator().manual_seed(int(seed))
         scale = 1.0 / math.sqrt(float(d_slot))
         self.weight_real = nn.Parameter(
@@ -304,8 +327,24 @@ class StiefelSlotPool(nn.Module):
         self.weight_imag = nn.Parameter(
             scale * torch.randn(self.n_slots, self.k, self.d_slot, generator=generator)
         )
+        # Decision 5: a hardware detector array sits at fixed spatial-spectral
+        # coordinates. A truncated Fourier frame is the canonical orthonormal
+        # choice, and it is frozen: requires_grad is False, so the plates are
+        # the only learnable beam-steering element.
+        index = torch.arange(self.k).reshape(1, self.k, 1)
+        channel = torch.arange(self.d_slot).reshape(1, 1, self.d_slot)
+        slot_phase = torch.arange(self.n_slots).reshape(self.n_slots, 1, 1)
+        angle = -2.0 * math.pi * index * channel / float(self.d_slot)
+        angle = angle + 2.0 * math.pi * slot_phase / float(self.n_slots)
+        frame = torch.polar(torch.ones_like(angle), angle) / math.sqrt(float(self.d_slot))
+        self.register_buffer("fixed_basis", frame.to(torch.complex64), persistent=True)
+        if self.mode == "fixed":
+            self.weight_real.requires_grad_(False)
+            self.weight_imag.requires_grad_(False)
 
     def basis(self) -> torch.Tensor:
+        if self.mode == "fixed":
+            return self.fixed_basis
         weight = torch.complex(self.weight_real, self.weight_imag)
         q, r = torch.linalg.qr(weight.transpose(-1, -2))
         diagonal = torch.diagonal(r, dim1=-2, dim2=-1).real
@@ -338,13 +377,18 @@ class PhotonicCore(nn.Module):
                     zeta=cfg.propagation_zeta,
                     voltage_bound=cfg.voltage_bound,
                     seed=cfg.seed + 100 + index,
+                    kerr_interplate=float(getattr(cfg, "kerr_interplate", 0.0)),
                 )
                 for index in range(int(cfg.photonic_layers))
             ]
         )
         self.heaters = MicroHeaterArray(self.n_slots, cfg.t_max, stats_dim=4, seed=cfg.seed)
         self.pool = StiefelSlotPool(
-            self.n_slots, self.d_slot, self.pool_k, seed=int(cfg.seed) + 41
+            self.n_slots,
+            self.d_slot,
+            self.pool_k,
+            seed=int(cfg.seed) + 41,
+            mode=str(getattr(cfg, "stiefel_mode", "learned")),
         )
         self.mixer = (
             SlotMixer(self.n_slots, seed=int(cfg.seed) + 42)
@@ -639,6 +683,133 @@ class PhotonicCore(nn.Module):
             features=features,
             trilinear=trilinear,
         )
+
+    # ------------------------------------------- prototype free-energy loop
+    def slot_alignment(self, bright: torch.Tensor, phi: torch.Tensor) -> torch.Tensor:
+        """Re<psi_s, phi_m,s> for every slot, shape (batch, n_slots, M)."""
+        slots = bright.reshape(-1, self.n_slots, self.d_slot)
+        phi_slots = phi.reshape(-1, self.n_slots, self.d_slot)
+        return torch.einsum("bsd,msd->bsm", slots.conj(), phi_slots).real
+
+    def alignment(self, bright: torch.Tensor, phi: torch.Tensor) -> torch.Tensor:
+        """Re<psi, phi_m> against every prototype, shape (batch, M).
+
+        Both operands are unit norm, so this is the cosine that Decision 2
+        writes as the prototype-alignment term.
+        """
+        return self.slot_alignment(bright, phi).sum(dim=1)
+
+    def project(self, wave: torch.Tensor) -> torch.Tensor:
+        """P psi = U_s^H (U_s psi_s) for every slot, same shape as input."""
+        slots = wave.reshape(-1, self.n_slots, self.d_slot)
+        basis = self.pool.basis()
+        inner = torch.einsum("bsd,skd->bsk", slots, basis.conj())
+        back = torch.einsum("bsk,skd->bsd", inner, basis)
+        return back.reshape(-1, self.dim)
+
+    def slot_alignment_subspace(
+        self, bright: torch.Tensor, phi: torch.Tensor
+    ) -> torch.Tensor:
+        """Per-slot alignment inside col(U_s^H), shape (batch, n_slots, M).
+
+        Decision 6: the heater feedback is computed on the projected
+        coordinates, so the thermal loop sharpens exactly the numbers the
+        readout can see instead of moving energy the readout ignores.
+        """
+        return self.slot_alignment(self.project(bright), self.project(phi))
+
+    def dark_energy(self, bright: torch.Tensor) -> torch.Tensor:
+        """Energy outside the Stiefel readout subspace, shape (batch,).
+
+            sum_s || psi_s - U_s^H (U_s psi_s) ||^2
+              = sum_s ( ||psi_s||^2 - ||U_s psi_s||^2 )
+
+        At K = 16 of d_slot = 64 the readout can see at most a quarter of
+        each slot, so this is the fraction of the field the readout cannot
+        express. Gaussian sensor noise scatters energy into the other 48
+        dimensions, and this term is what the relaxation loop drives down.
+        """
+        slots = bright.reshape(-1, self.n_slots, self.d_slot)
+        basis = self.pool.basis()
+        inner = torch.einsum("bsd,skd->bsk", slots, basis.conj())
+        captured = inner.abs().pow(2).sum(dim=-1)
+        total = slots.abs().pow(2).sum(dim=-1)
+        return (total - captured).clamp_min(0.0)
+
+    def free_energy(
+        self,
+        bright: torch.Tensor,
+        phi: torch.Tensor,
+        lambda_dark: float = 0.5,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Decision 2 Lyapunov energy, shape (batch,), and the alignments.
+
+            E = (1 - max_m Re<psi, phi_m>) + lambda_dark * sum_s dark_s
+        """
+        align = self.alignment(bright, phi)
+        residual = 1.0 - align.max(dim=-1).values
+        dark = self.dark_energy(bright).sum(dim=-1)
+        return residual + float(lambda_dark) * dark, align
+
+    def relax_prototype(
+        self,
+        psi: torch.Tensor,
+        phi: torch.Tensor,
+        *,
+        beta: float = 0.0,
+        steps: Optional[int] = None,
+        alpha_thermal: Optional[float] = None,
+        eta: Optional[float] = None,
+        lambda_dark: Optional[float] = None,
+        tolerance: float = 0.0,
+    ) -> Tuple[PhotonicState, List[float]]:
+        """Relax toward the clean prototype bank, not toward the context.
+
+        Every pass re-propagates the plates with heater feedback derived
+        from the per-slot prototype residual, applies a phase-only egress
+        correction toward the softmax-weighted prototype at the calibrated
+        inverse temperature, and is accepted only when it lowers the
+        measured Lyapunov energy. The accepted state is therefore never
+        worse in energy than the input pass, by construction.
+        """
+        if phi is None or phi.numel() == 0:
+            raise ValueError("relax_prototype needs a non-empty prototype bank")
+        steps = int(self.cfg.relax_steps if steps is None else steps)
+        alpha = float(self.cfg.alpha_thermal if alpha_thermal is None else alpha_thermal)
+        eta = float(getattr(self.cfg, "prototype_eta", 0.15) if eta is None else eta)
+        lam = float(
+            getattr(self.cfg, "prototype_lambda_dark", 0.5)
+            if lambda_dark is None
+            else lambda_dark
+        )
+        reference = phi.to(torch.complex64)
+        reference = reference / reference.norm(dim=-1, keepdim=True).clamp_min(_EPS)
+
+        state = self.forward(psi, apply_memory=False)
+        energy, align = self.free_energy(state.bright, reference, lam)
+        best = state
+        best_energy = energy.clone()
+        trace = [float(energy.mean().detach())]
+        for _ in range(max(0, steps)):
+            if float(best_energy.max().detach()) <= float(tolerance):
+                break
+            weights = torch.softmax(float(beta) * align, dim=-1).to(torch.complex64)
+            target = (weights @ reference.reshape(reference.shape[0], -1)).reshape(-1, self.dim)
+            target = _unit(target)
+            slot_align = self.slot_alignment_subspace(state.bright, reference).amax(dim=-1)
+            feedback = (alpha * (1.0 - slot_align)).detach()
+            state = self.forward(psi, thermal_feedback=feedback, apply_memory=False)
+            phase = torch.angle(target * state.bright.conj())
+            corrected = _unit(state.bright * torch.exp(1j * eta * phase))
+            candidate = self._replace_bright(state, corrected, target)
+            energy, align = self.free_energy(candidate.bright, reference, lam)
+            trace.append(float(energy.mean().detach()))
+            improved = energy < best_energy
+            merged = torch.where(improved.unsqueeze(-1), candidate.bright, best.bright)
+            best = self._replace_bright(candidate, merged, target)
+            best_energy = torch.where(improved, energy, best_energy)
+            state = candidate
+        return best, trace
 
     def relax_output(
         self,
