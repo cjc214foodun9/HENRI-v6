@@ -1,0 +1,40 @@
+{
+  "task": "vision-pixel-permutation",
+  "steps": 150,
+  "adaptation_batches": 24,
+  "permutation_seed": 99,
+  "original_before_shift": 0.88,
+  "variants": {
+    "no_adaptation": {
+      "shifted": 0.10666666666666667,
+      "original": 0.88,
+      "shifted_gain": 0.0,
+      "retention": 1.0
+    },
+    "fast_weights_only": {
+      "shifted": 0.11333333333333333,
+      "original": 0.8633333333333333,
+      "shifted_gain": 0.006666666666666654,
+      "retention": 0.981060606060606
+    },
+    "finetune_only": {
+      "shifted": 0.6333333333333333,
+      "original": 0.65,
+      "shifted_gain": 0.5266666666666666,
+      "retention": 0.7386363636363636
+    },
+    "replay_mixed": {
+      "shifted": 0.7166666666666667,
+      "original": 0.93,
+      "shifted_gain": 0.61,
+      "retention": 1.0568181818181819
+    },
+    "fast_plus_replay_mixed": {
+      "shifted": 0.7066666666666667,
+      "original": 0.9266666666666666,
+      "shifted_gain": 0.6,
+      "retention": 1.053030303030303
+    }
+  },
+  "evidence": "OBSERVED"
+}

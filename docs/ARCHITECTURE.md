@@ -50,3 +50,37 @@ flowchart TD
 | 1 | action / predicate | 1/4 |
 | 2 | target / object | 1/4 |
 | 3 | context / axiom | 1/4 |
+## Three-zone holarch (v0.9)
+
+The v6 kernel above is the physics core. The holarch is the inference
+system built on it, and it is additive: no v6 module changed.
+
+```text
+Zone A  henri/holarch/zone_a.py   lean swarm, fast weights, DAgger, replay
+Zone B  henri/holarch/zone_b.py   BaTiO3 plates, slot mixer, Stiefel pool
+Zone C  henri/holarch/zone_c.py   engram store, Gram index, pager, decay
+wiring  henri/holarch/pipeline.py encoders -> bind -> C -> B -> veto -> A
+budget  henri/holarch/budget.py   counted params + measured saved tensors
+```
+
+Phase-1 severs the sensor skip (skip_alpha = 0) so the task gradient
+reaches the phase masks and the heater controller through the optical
+path only. The readout is slot-specific Hermitian unbinding on four
+Stiefel bases, and the cross-slot coupler is a Cayley-unitary 4x4
+mixer between plates.
+
+The data path and the measured results are in
+[HOLARCH.md](HOLARCH.md). The v6 evidence policy applies unchanged: a
+pytest pass is code-health evidence, and no holarch number is a
+capability claim.
+
+Hardware mapping, stated as a design intent rather than a measurement:
+
+| Zone | Silicon target | Implemented as |
+|---|---|---|
+| A | ASIC swarm of lean learners | torch experts with rank-r fast weights |
+| B | BaTiO3 photonic crystal, Sagnac loop, microheaters | differentiable digital twin |
+| C | NVMe M.2 module hosting TimescaleDB | real hypertable, SQLite fallback |
+
+Zone B is a simulation. It is not a fabricated device and the document
+says so at every claim.

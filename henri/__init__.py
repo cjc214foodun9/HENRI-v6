@@ -30,4 +30,30 @@ __all__ = [
     "OmniModalEgressRouter",
     "HenriOmegaPipeline",
 ]
-__version__ = "0.7.0"
+__version__ = "0.8.0"
+
+_LAZY_HOLARCH = {
+    "HolarchConfig": "config",
+    "HenriHolarch": "pipeline",
+    "ZoneCMemory": "zone_c",
+    "LeanSwarm": "zone_a",
+    "PhotonicCore": "zone_b",
+}
+
+
+def __getattr__(name: str):
+    """Serve the holarch names lazily.
+
+    The base package is numpy-only. Importing torch for every consumer that
+    only needs WaveState would be a silent cost, so the holarch is resolved
+    on first access.
+    """
+    if name in _LAZY_HOLARCH:
+        import importlib
+
+        module = importlib.import_module("henri.holarch." + _LAZY_HOLARCH[name])
+        return getattr(module, name)
+    raise AttributeError(f"module 'henri' has no attribute {name!r}")
+
+
+__all__ += list(_LAZY_HOLARCH)

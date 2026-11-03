@@ -14,13 +14,22 @@ dependencies = ["numpy>=1.24"]
 # The suite is not runnable from this metadata without all four. Measured:
 # without `sentence-transformers` the backbone silently uses its char-ngram
 # fallback and four tests fail; without fastapi/httpx two modules fail to
-# collect; without pillow two sensor-ingress tests raise.
+# collect; without pillow two sensor-ingress tests raise. The holarch tests
+# need torch and scikit-learn (8x8 digits); without them those modules fail
+# to import rather than skip.
+holarch = [
+    "torch>=2.1",
+    "scikit-learn>=1.3",
+    "psycopg[binary]>=3.1",
+]
 test = [
     "pytest>=7.4",
     "fastapi>=0.110",
     "httpx>=0.27",
     "pillow>=10.0",
     "sentence-transformers>=2.7",
+    "torch>=2.1",
+    "scikit-learn>=1.3",
 ]
 
 [tool.setuptools.packages.find]

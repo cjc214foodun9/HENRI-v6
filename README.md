@@ -12,6 +12,34 @@ read-only reference material. Its audit register supplies the
 `OBSERVED` at the level of code health only. Test results are
 software evidence. They are not model-intelligence scores.
 
+## Holarch: the three-zone pipeline
+
+`henri/holarch/` is the wired system: Zone A lean continuous-learning
+swarm, Zone B BaTiO3 diffractive kernel with Sagnac homodyne readout,
+and Zone C holographic TimescaleDB/NVMe memory. It composes the v6
+primitives without changing them.
+
+```powershell
+python -m henri.holarch selftest     # 7 integration checks
+python -m henri.holarch physics      # Sagnac, Curie-Weiss, heater authority
+python -m henri.holarch memory --n 2000
+python -m henri.holarch budget       # 32 GiB accounting
+python -m henri.holarch train --steps 300 --name holarch_small
+```
+
+Measured on CPU: 93.0 percent validation and 94.3 percent test on 8x8
+digits, 25.3 percent next-character prediction over 96 classes, 73.8
+percent one-step grid-world accuracy and 54.2 percent closed-loop success,
+56.3 percent on held-out relational triples, 0.965 memory recall@1.
+Footprint 0.91 GiB at production width on a 32 GiB budget. The optical
+stage contributes +22.7 points over identity optics. Directive gates D1 to
+D3 pass; D4 is a measured failure. Full numbers, ablations,
+continual-learning tables, and non-claims are in
+[docs/HOLARCH.md](docs/HOLARCH.md).
+
+No GPU was present in this checkout. Every receipt says `device: cpu`;
+no Blackwell timing claim is made.
+
 ## Scope
 
 Built: state space, Clifford binding, Hopfield cleanup, Koopman

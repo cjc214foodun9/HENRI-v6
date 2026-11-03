@@ -41,3 +41,9 @@ data/
 # MBPP 0.55 MiB. Every receipt records the sha256 of the file it read, so a
 # fresh clone can re-stage and verify it reached the same bytes. Digests are
 # recorded in docs/EVIDENCE_REGISTER.md section 12.
+# HENRI holarch evidence (v0.8). receipts/* stays ignored by default; these
+# two prefixes are tracked because docs/HOLARCH.md cites them by hash.
+!receipts/holarch/
+!receipts/holarch/*.json
+!receipts/holarch/*.json.sha256
+!receipts/holarch/README.md
