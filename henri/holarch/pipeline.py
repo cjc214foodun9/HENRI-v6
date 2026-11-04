@@ -29,7 +29,7 @@ from __future__ import annotations
 
 import math
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
@@ -40,6 +40,7 @@ import torch.nn.functional as F
 from henri.holarch.config import TASK_IDS, TASK_NAMES, HolarchConfig
 from henri.holarch.zone_a import LeanSwarm, ReplayBuffer, SwarmOutput
 from henri.holarch.zone_b import PhotonicCore, PhotonicState, _unit, sagnac_delta
+from henri.holarch.veto import TwoConditionVeto, lower_threshold, upper_threshold
 from henri.holarch.zone_c import MemoryRead, PrototypeBank, ZoneCMemory
 
 _EPS = 1e-8
@@ -350,6 +351,11 @@ class HenriHolarch(nn.Module):
         self.relational_basis = RelationalBasis(
             int(cfg.d_slot), int(cfg.relational_k), seed=int(cfg.seed) + 360
         )
+        # Decision B1: a relational-only diagonal unit-phasor mask. The bonus
+        # relational passes cannot rotate the shared plates, so the three role
+        # waves get their own alignment degrees of freedom. Zero at start, so
+        # the first relational step is identical to the coupled path.
+        self.relational_phase = nn.Parameter(torch.zeros(3, int(cfg.d_slot)))
         # Decision 7: M cyclic readout frames of the bound wave. Circular
         # convolution commutes with a cyclic shift, so reading roll(psi, s)
         # is exactly binding with roll(psi_action, s): the M frames give the
@@ -415,6 +421,15 @@ class HenriHolarch(nn.Module):
         for name in TASK_NAMES:
             self.register_buffer(f"epsilon_{name}", torch.tensor(0.35))
             self.register_buffer(f"chance_{name}", torch.tensor(0.0))
+            # Decision A2: the prototype branch is weighted by surprise, so
+            # the trust ramp carries one midpoint and one width per task.
+            # calibrate_gate rewrites them from the clean surprise family.
+            self.register_buffer(
+                f"trust_mid_{name}", torch.tensor(float(cfg.prototype_trust_mid))
+            )
+            self.register_buffer(
+                f"trust_scale_{name}", torch.tensor(float(cfg.prototype_trust_scale))
+            )
         self.memory = memory if memory is not None else ZoneCMemory(
             cfg, backend=backend, path=memory_path, dsn=dsn, table=table
         )
@@ -457,6 +472,10 @@ class HenriHolarch(nn.Module):
         binding, and it is parameter free.
         """
         waves = self.projector["relational"](latent)
+        if self.relational_binding != "trilinear":
+            # Decision B1: relational-only phase alignment, applied before
+            # the bind so it never touches a shared module.
+            waves = waves * torch.exp(1j * self.relational_phase).unsqueeze(0)
         if self.relational_binding == "conv_shift":
             # Decision 7: circular convolution mixes every frequency channel
             # with every other one, where the diagonal product never did.
@@ -579,6 +598,31 @@ class HenriHolarch(nn.Module):
         return 1.0 - align.max(dim=-1).values
 
     @torch.no_grad()
+    def prototype_trust(self, task: str, bright: torch.Tensor) -> torch.Tensor:
+        """Decision A2 trust weight eta(delta_surprise), shape (batch,).
+
+            eta = floor + (1 - floor) * sigmoid((delta - mid) / scale)
+
+        delta is the Gram residual of the PASS-0 wave against the clean
+        bank, so the weight is identical in the relaxed and unrelaxed
+        arms: the loop changes the attractor readout, not its own
+        admission. A familiar wave keeps the floor, a surprising wave
+        approaches one.
+        """
+        bank = self.prototype_waves(task)
+        if int(bank.numel()) == 0:
+            return torch.full(
+                (bright.shape[0],), float(self.cfg.prototype_trust_floor),
+                device=bright.device,
+            )
+        delta = self.surprise(task, bright)
+        mid = float(getattr(self, f"trust_mid_{task}"))
+        scale = max(float(getattr(self, f"trust_scale_{task}")), 1e-3)
+        floor = float(self.cfg.prototype_trust_floor)
+        eta = floor + (1.0 - floor) * torch.sigmoid((delta - mid) / scale)
+        return eta.clamp(floor, 1.0)
+
+    @torch.no_grad()
     def calibrate_gate(
         self,
         task: str,
@@ -601,6 +645,16 @@ class HenriHolarch(nn.Module):
             return {"tau_plasticity": float(self.gate_tau), "n": 0.0, "calibrated": 0.0}
         tau = max(0.0, float(np.quantile(values, float(quantile))) + float(margin))
         self.gate_tau.fill_(tau)
+        # Decision A2: place the trust ramp on the measured clean surprise
+        # family. The midpoint is the median; the width is the robust
+        # standard deviation of the interquartile range, so a tight clean
+        # distribution gives a sharp ramp and a broad one gives a soft ramp.
+        mid = float(np.median(values))
+        spread = float(np.quantile(values, 0.75) - np.quantile(values, 0.25))
+        scale = max(spread / 1.349, 0.02)
+        with torch.no_grad():
+            getattr(self, f"trust_mid_{task}").fill_(mid)
+            getattr(self, f"trust_scale_{task}").fill_(scale)
         return {
             "tau_plasticity": tau,
             "surprise_mean": float(np.mean(values)),
@@ -608,6 +662,8 @@ class HenriHolarch(nn.Module):
             "quantile": float(quantile),
             "n": float(len(values)),
             "calibrated": 1.0,
+            "trust_mid": mid,
+            "trust_scale": scale,
         }
 
     def rule_wave(self, rule_id: int) -> torch.Tensor:
@@ -690,6 +746,7 @@ class HenriHolarch(nn.Module):
         skip_alpha: Optional[float] = None,
         relax: bool = True,
         rule_id=None,
+        isolate_branch: bool = False,
     ) -> HolarchOutput:
         """Run one batch through the holarch.
 
@@ -709,6 +766,12 @@ class HenriHolarch(nn.Module):
             rule_id: optional context rule. When given, the deterministic
                 rule phasor replaces slot 3, so identical pixels under two
                 rules are two different input waves (Decision 4).
+            isolate_branch: Decision B1. Detach the shared post-photonic
+                wave and the shared slot readouts on the relational branch,
+                so a bonus relational pass trains the relational basis, the
+                relational phase mask and the relational head only. The
+                shared Zone B plates, mixer and Stiefel frames receive no
+                gradient from that pass.
         """
         if task not in TASK_IDS:
             raise ValueError(f"unknown task {task!r}")
@@ -794,10 +857,22 @@ class HenriHolarch(nn.Module):
             axiom_out = photonic.bright.detach()
         delta_sagnac = sagnac_delta(photonic.bright, axiom_out)
 
-        # Decision 2: relax toward the clean post-photonic prototypes when a
-        # bank exists; otherwise fall back to the post-photonic axiom pull of
-        # Decision B. The veto residual is always measured against the
-        # context axiom, so Gate D2 calibration is unchanged.
+        # Decision A2: the fine-grained task head reads the UNBLURRED
+        # Pass-0 Stiefel readout g^(0) = Re(U_s psi_out^(0)). The
+        # thermodynamic loop is a denoiser for the attractor branch only:
+        # it must never overwrite the stroke geometry that the head uses,
+        # which is exactly what cost -0.0033 at sigma = 0.25 in Decision 6.
+        #
+        # The loop therefore runs on every row, not only on surprising
+        # ones. Decision 2 masked familiar inputs because relaxation used
+        # to rewrite the head input; with the head anchored on Pass 0 the
+        # only thing a familiar row can change is the prototype branch,
+        # and pulling a wave that already sits on a prototype toward that
+        # prototype is a no-op in the decision (measured p_raw vs p_rel
+        # argmax agreement 99.8 percent at sigma = 0).
+        pass0 = photonic
+        prototype_wave = pass0.bright
+        relaxed_ran = False
         bank = self.prototype_waves(task)
         use_prototypes = (
             str(self.cfg.relax_mode) == "prototype" and int(bank.numel()) > 0
@@ -810,42 +885,52 @@ class HenriHolarch(nn.Module):
             and (use_prototypes or bool((delta_sagnac > tau_residual).any()))
         ):
             if use_prototypes:
-                # Heat only where the wave is unfamiliar. Relaxing a
-                # familiar input would trade within-class detail for
-                # attractor alignment and cost accuracy on clean data,
-                # which is exactly what a denoiser must not do.
-                surprise = self.surprise(task, photonic.bright)
-                mask = surprise > float(self.gate_tau)
-                if bool(mask.any()):
-                    relaxed, _trace = self.zone_b.relax_prototype(
-                        fused,
-                        bank,
-                        beta=float(self.prototypes[task].beta),
-                        lambda_dark=float(self.cfg.prototype_lambda_dark),
-                        eta=float(self.cfg.prototype_eta),
-                    )
-                    merged = torch.where(
-                        mask.unsqueeze(-1), relaxed.bright, photonic.bright
-                    )
-                    photonic = self.zone_b._replace_bright(photonic, merged, axiom_out)
+                relaxed, _trace = self.zone_b.relax_prototype(
+                    fused,
+                    bank,
+                    beta=float(self.prototypes[task].beta),
+                    lambda_dark=float(self.cfg.prototype_lambda_dark),
+                    eta=float(self.cfg.prototype_eta),
+                )
+                # The relaxation sharpens the Hopfield term; the deployed
+                # state keeps the relaxed bright port so the attractor and
+                # dark-energy rows still describe the loop that ran.
+                prototype_wave = relaxed.bright
+                relaxed_ran = True
+                photonic = self.zone_b._replace_bright(pass0, relaxed.bright, axiom_out)
             else:
-                photonic, _trace = self.zone_b.relax_output(
+                relaxed, _trace = self.zone_b.relax_output(
                     fused, axiom_out, tolerance=float(tau_residual)
                 )
+                prototype_wave = relaxed.bright
+                relaxed_ran = True
+                photonic = relaxed
             # The veto statistic stays the RAW pass. The loop is a repair
             # applied after the epistemic check, and calibrate_veto measures
             # the raw residual. Reporting the post-repair residual as the
             # veto input raised the measured false-veto rate from 0.003 to
             # 0.030 in the first run of this revision.
 
+        # Decision B1: on an isolated pass the relational branch reads a
+        # detached copy of the shared Pass-0 wave, so its gradient stops at
+        # the relational parameters and never rotates the shared plates.
+        relational_source = pass0
+        if isolate_branch and task == "relational":
+            relational_source = replace(
+                pass0,
+                bright=pass0.bright.detach(),
+                features=pass0.features.detach(),
+            )
+
         relative = None
         if use_optical_features:
-            raw = self.feature_proj(photonic.features[:, : self.zone_b.raw_width])
+            # Pass-0 anchor: the head never reads the relaxed wave.
+            raw = self.feature_proj(pass0.features[:, : self.zone_b.raw_width])
             if task == "relational":
                 # Decision 3: the head reads the bound wave projected
                 # through its own Stiefel basis, so the composition keeps
                 # all d_slot phases before any compression.
-                relative = self.relational_features(photonic)
+                relative = self.relational_features(relational_source)
                 if training:
                     relative = self.relational_dropout(relative)
                 raw = raw + self.relational_proj(relative)
@@ -868,9 +953,11 @@ class HenriHolarch(nn.Module):
         start, end = self.zone_a.task_slice(task)
         task_logits = swarm.logits[:, start:end]
         if task == "relational" and self.relational_expert is not None:
-            unbound = photonic.features[:, : 3 * int(self.cfg.pool_k)]
+            unbound = relational_source.features[:, : 3 * int(self.cfg.pool_k)]
             bound = (
-                relative if relative is not None else self.relational_features(photonic)
+                relative
+                if relative is not None
+                else self.relational_features(relational_source)
             )
             if training:
                 bound = self.relational_dropout(bound)
@@ -887,15 +974,51 @@ class HenriHolarch(nn.Module):
         # port. The optical ablation must switch them off too, or the
         # "no Zone B features" arm still sees the plates through the bank.
         if bool(self.cfg.prototype_logits) and use_optical_features:
-            proto = self.prototype_logits(task, photonic.bright, task_logits.shape[-1])
-            if proto is not None:
-                task_logits = task_logits + self.proto_alpha * proto
+            # Decision B2: the Pass-0 prototype coupling is ALWAYS on at full
+            # weight. The surprise trust weight gates only the multi-pass
+            # relaxation delta, so a familiar input keeps the full Hopfield
+            # boost and a surprising one may receive the denoised correction.
+            eta = self.prototype_trust(task, pass0.bright).unsqueeze(-1)
+            base_wave = pass0.bright.detach() if isolate_branch else pass0.bright
+            base = self.prototype_logits(
+                task, base_wave, task_logits.shape[-1]
+            )
+            if base is not None:
+                task_logits = task_logits + self.proto_alpha * base
+                if (
+                    relaxed_ran
+                    and use_prototypes
+                    and not isolate_branch
+                    and float(getattr(self.cfg, "proto_relax_gain", 1.0)) > 0.0
+                ):
+                    tuned = self.prototype_logits(
+                        task, prototype_wave, task_logits.shape[-1]
+                    )
+                    if tuned is not None:
+                        task_logits = task_logits + (
+                            float(self.cfg.proto_relax_gain)
+                            * eta
+                            * self.proto_alpha
+                            * (tuned - base)
+                        )
         margin = task_logits.topk(2, dim=-1).values
         margin = (margin[:, 0] - margin[:, 1]) if task_logits.shape[-1] > 1 else margin[:, 0]
 
         chance = self.chance_epsilon(task)
-        chance_veto = has_hits & (s_max_tensor < chance)
-        veto = (delta_sagnac > tau_residual) | chance_veto
+        # Decision A3: one value object owns the union rule, so the
+        # calibrator and the deployed decision cannot drift apart.
+        rule = TwoConditionVeto(
+            tau_residual=float(tau_residual), tau_chance=float(chance)
+        )
+        veto = torch.as_tensor(
+            rule.union(
+                delta_sagnac.detach().cpu().numpy(),
+                s_max_tensor.detach().cpu().numpy(),
+                has_hits.detach().cpu().numpy(),
+            ),
+            device=psi_in.device,
+            dtype=torch.bool,
+        )
         if not use_photonic or not use_memory:
             veto = torch.zeros(batch, dtype=torch.bool)
         return HolarchOutput(
@@ -1003,15 +1126,17 @@ class HenriHolarch(nn.Module):
         batches: Sequence[torch.Tensor],
         sigma: float = 3.0,
         ceiling: float = 0.35,
-        quantile: float = 0.995,
-        margin: float = 0.01,
+        quantile: float = 0.999,
+        margin: float = 0.0,
+        margin_sigma: float = 2.0,
     ) -> Dict[str, float]:
         """Calibrate the residual threshold on in-distribution queries.
 
-        A quantile is used instead of mean + k sigma because the residual
-        distribution is bounded and skewed; the Gaussian form under-covers
-        and produced a measured 23.7 percent false-veto rate. The quantile
-        target is explicit: 99.5 percent of legitimate retrievals pass.
+        Decision A3: the threshold is the Cornish-Fisher 0.997 quantile
+        plus two order-statistic standard errors, not the raw sample
+        quantile. sigma is retained for call compatibility and is unused:
+        a Gaussian mean + k sigma under-covers this bounded, skewed tail
+        (measured 23.7 percent false veto in the retired revision).
         """
         deltas: List[float] = []
         for batch in batches:
@@ -1024,23 +1149,29 @@ class HenriHolarch(nn.Module):
                 deltas.extend(float(v) for v in output.delta_sagnac[mask].cpu())
         if not deltas:
             return {"epsilon": float(self.zone_b.epsilon), "n": 0.0, "calibrated": 0.0}
+        prob = max(1e-4, 1.0 - float(quantile))
+        upper = upper_threshold(
+            deltas,
+            prob,
+            margin_sigma=float(margin_sigma),
+            ceiling=float(ceiling),
+            additive_margin=float(margin),
+        )
+        epsilon = float(upper["threshold"])
         values = torch.tensor(deltas, dtype=torch.float32)
-        mean = float(values.mean())
-        std = float(values.std(unbiased=False))
-        quantile_value = float(torch.quantile(values, float(quantile)))
-        raw = quantile_value + float(margin)
-        epsilon = float(min(raw, float(ceiling)))
         with torch.no_grad():
             self.zone_b.epsilon.fill_(epsilon)
             getattr(self, f"epsilon_{task}").fill_(epsilon)
         return {
             "epsilon": epsilon,
-            "delta_mean": mean,
-            "delta_std": std,
-            "delta_quantile": quantile_value,
+            "delta_mean": float(values.mean()),
+            "delta_std": float(values.std(unbiased=False)),
+            "delta_quantile": float(upper["quantile"]),
             "quantile": float(quantile),
             "n": float(values.numel()),
-            "capped": float(raw > ceiling),
+            "capped": float(upper["capped"]),
+            "sigma_tail": float(upper["sigma_tail"]),
+            "margin_sigma": float(margin_sigma),
             "calibrated": 1.0,
         }
 
@@ -1057,14 +1188,16 @@ class HenriHolarch(nn.Module):
         self,
         task: str,
         batches: Sequence[torch.Tensor],
-        percentile: float = 1.0,
-        margin: float = 0.05,
+        percentile: float = 0.2,
+        margin: float = 0.0,
+        margin_sigma: float = 2.0,
     ) -> Dict[str, float]:
         """Set the OOD threshold from in-distribution raw Gram coherence.
 
-        The threshold is the low percentile of the in-distribution s_max
-        minus a margin. A query below it is outside the stored manifold,
-        which is exactly what the softmax context cannot express.
+        Decision A3: the threshold is the Cornish-Fisher quantile at the
+        requested PERCENTILE minus two order-statistic standard errors.
+        The percentile stays in percent (0.5 is the 0.5th percentile), so
+        the retired call form still means what it said.
         """
         values: List[float] = []
         for batch in batches:
@@ -1074,16 +1207,81 @@ class HenriHolarch(nn.Module):
                 values.extend(float(v) for v in output.s_max[mask].cpu())
         if not values:
             return {"tau_chance": 0.0, "n": 0.0, "calibrated": 0.0}
-        tau = max(0.0, float(np.percentile(values, float(percentile))) - float(margin))
+        prob = min(max(float(percentile) / 100.0, 1e-4), 0.5)
+        lower = lower_threshold(
+            values,
+            prob,
+            margin_sigma=float(margin_sigma),
+            floor=0.0,
+            additive_margin=float(margin),
+        )
+        tau = float(lower["threshold"])
         with torch.no_grad():
             getattr(self, f"chance_{task}").fill_(tau)
         return {
             "tau_chance": tau,
             "s_max_mean": float(np.mean(values)),
-            "s_max_p01": float(np.percentile(values, 1.0)),
+            "s_max_quantile": float(lower["quantile"]),
+            "sigma_tail": float(lower["sigma_tail"]),
+            "margin_sigma": float(margin_sigma),
             "n": float(len(values)),
             "calibrated": 1.0,
         }
+
+    @torch.no_grad()
+    def calibrate_two_condition(
+        self,
+        task: str,
+        batches: Sequence[torch.Tensor],
+        quantile: float = 0.999,
+        chance_percentile: float = 0.2,
+        margin_sigma: float = 2.0,
+        target_false_veto: float = 0.005,
+        ceiling: float = 0.98,
+    ) -> Dict[str, float]:
+        """Calibrate BOTH veto conditions jointly (Decision A3).
+
+        One forward pass per batch yields the paired statistics, so the
+        calibrator can measure the union false-veto rate on the same rows
+        it fitted. The returned report carries that measured rate; the
+        pipeline reads the two thresholds from the per-task buffers, so a
+        test can still override either one directly.
+        """
+        residuals: List[float] = []
+        chances: List[float] = []
+        for batch in batches:
+            output = self.forward(task, batch, training=False, relax=False)
+            mask = output.memory_mask
+            if bool(mask.any()):
+                residuals.extend(float(v) for v in output.delta_sagnac[mask].cpu())
+                chances.extend(float(v) for v in output.s_max[mask].cpu())
+        rule = TwoConditionVeto.calibrate(
+            residuals,
+            chances,
+            residual_prob=max(1e-4, 1.0 - float(quantile)),
+            chance_prob=min(max(float(chance_percentile) / 100.0, 1e-4), 0.5),
+            margin_sigma=float(margin_sigma),
+            target_false_veto=float(target_false_veto),
+            ceiling=float(ceiling),
+        )
+        with torch.no_grad():
+            getattr(self, f"epsilon_{task}").fill_(rule.tau_residual)
+            getattr(self, f"chance_{task}").fill_(rule.tau_chance)
+            self.zone_b.epsilon.fill_(rule.tau_residual)
+        report = rule.report()
+        report.update(
+            {
+                "epsilon": float(rule.tau_residual),
+                "tau_chance": float(rule.tau_chance),
+                "n": float(rule.n_cal),
+                "quantile": float(quantile),
+                "calibrated": 1.0 if rule.n_cal else 0.0,
+                "s_max_mean": float(np.mean(chances)) if chances else 0.0,
+                "delta_mean": float(np.mean(residuals)) if residuals else 0.0,
+                "delta_std": float(np.std(residuals)) if residuals else 0.0,
+            }
+        )
+        return report
 
     # ------------------------------------------------------------- serving
     def predict(self, task: str, x: torch.Tensor, selective: bool = False) -> torch.Tensor:

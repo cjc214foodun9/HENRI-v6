@@ -134,13 +134,38 @@ def cmd_memory(args) -> int:
 
 
 def cmd_budget(args) -> int:
+    import hashlib
+
     from henri.holarch.budget import budget_report
     from henri.holarch.pipeline import HenriHolarch
 
     cfg = HolarchConfig.production(device="cpu") if not args.small else HolarchConfig.small()
     path = args.path or str(Path(tempfile.gettempdir()) / "henri_holarch_budget.sqlite3")
-    model = HenriHolarch(cfg, backend="sqlite", memory_path=path)
+    # Decision B4: probe the live environment instead of assuming it. The
+    # model asks for the TimescaleDB backend; if no DSN answers, Zone C falls
+    # back to SQLite and records the reason in the receipt.
+    model = HenriHolarch(cfg, backend="auto", memory_path=path)
     report = budget_report(model, batch_size=int(args.batch), cfg=cfg)
+    # Decision A5: the hardware column is OBSERVED only when a CUDA device
+    # is actually present. Without one it stays BLOCKED with the probe that
+    # was run, so no CPU number is ever presented as a GPU result.
+    cuda_available = bool(torch.cuda.is_available())
+    storage = {
+        "backend": str(getattr(model.memory, "backend", "unknown")),
+        "backend_reason": str(getattr(model.memory, "backend_reason", "")),
+        "timescale_dsn_env_set": bool(os.environ.get("HENRI_TSDB_DSN")),
+        "evidence": "OBSERVED"
+        if str(getattr(model.memory, "backend", "")) == "timescaledb"
+        else "BLOCKED",
+    }
+    hardware = {
+        "evidence": "OBSERVED" if cuda_available else "BLOCKED",
+        "cuda_available": cuda_available,
+        "device_name": torch.cuda.get_device_name(0) if cuda_available else "",
+        "device_count": int(torch.cuda.device_count()) if cuda_available else 0,
+        "torch": str(torch.__version__),
+        "reason": "" if cuda_available else "no CUDA device is visible to torch in this checkout",
+    }
     payload = {
         "config_digest": cfg.digest(),
         "dim": float(cfg.dim),
@@ -153,10 +178,45 @@ def cmd_budget(args) -> int:
         "method": report["method"],
         "device": report["device"],
         "activation_bytes_training": report["activation_bytes_training"],
+        "profile": "small" if args.small else "production",
+        "hardware": hardware,
+        "storage": storage,
+        "evidence": "DERIVED",
     }
+    out = Path(args.out)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(payload, indent=2, default=float), encoding="utf-8")
+    (out.parent / (out.name + ".sha256")).write_text(
+        hashlib.sha256(out.read_bytes()).hexdigest() + "\n", encoding="utf-8"
+    )
+    payload["receipt"] = str(out)
+    payload["sha256"] = hashlib.sha256(out.read_bytes()).hexdigest()
     _emit(payload, args.json, "VRAM budget")
     model.memory.close()
     return 0 if payload["fits"] else 1
+
+
+def cmd_serve(args) -> int:
+    """Serve the sidecar over REST, MCP stdio, or MCP SSE (Decision A5)."""
+    if args.transport == "rest":
+        from henri.holarch.server import serve_rest
+
+        serve_rest(
+            host=str(args.host),
+            port=int(args.port),
+            backend=str(args.backend),
+            memory_path=args.path,
+        )
+        return 0
+    from henri.holarch import mcp_server
+
+    transport = "stdio" if args.transport == "mcp-stdio" else "sse"
+    return int(
+        mcp_server.main(
+            ["--transport", transport, "--host", str(args.host), "--port", str(args.port)]
+        )
+        or 0
+    )
 
 
 def cmd_train(args) -> int:
@@ -304,7 +364,18 @@ def build_parser() -> argparse.ArgumentParser:
     budget.add_argument("--batch", type=int, default=8)
     budget.add_argument("--small", action="store_true")
     budget.add_argument("--path", default=None)
+    budget.add_argument("--out", default="receipts/holarch/budget.json")
     budget.set_defaults(func=cmd_budget)
+
+    serve = sub.add_parser("serve", parents=[common], help="serve the sidecar over REST or MCP")
+    serve.add_argument(
+        "--transport", default="rest", choices=["rest", "mcp-stdio", "mcp-sse"]
+    )
+    serve.add_argument("--host", default="127.0.0.1")
+    serve.add_argument("--port", type=int, default=8080)
+    serve.add_argument("--backend", default="sqlite", choices=["auto", "sqlite", "timescale"])
+    serve.add_argument("--path", default=None)
+    serve.set_defaults(func=cmd_serve)
 
     train = sub.add_parser("train", parents=[common], help="train and write a receipt")
     train.add_argument("--steps", type=int, default=150)

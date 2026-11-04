@@ -57,14 +57,14 @@
     }
   },
   "code_index": {
-    "files_parsed": 13.0,
-    "lines_parsed": 6639.0,
-    "parse_seconds": 0.06954379999660887,
-    "call_edges": 439.0,
-    "functions": 217.0,
+    "files_parsed": 16.0,
+    "lines_parsed": 8078.0,
+    "parse_seconds": 0.10789780000050087,
+    "call_edges": 538.0,
+    "functions": 263.0,
     "present_coherence_median": 1.0,
-    "absent_coherence_median": 0.10937241524504547,
-    "threshold": 0.5546862076225227,
+    "absent_coherence_median": 0.10999105491801114,
+    "threshold": 0.5549955274590056,
     "recall": 1.0,
     "false_accept": 0.0,
     "file_reads_at_query_time": 0.0

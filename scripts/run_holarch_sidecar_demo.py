@@ -49,11 +49,10 @@ def main() -> int:
     trainer = Trainer(sidecar.model, tasks, TrainConfig(steps_per_task=1, batch_size=32))
     for _ in range(int(args.steps)):
         trainer.step("vision")
-    sidecar.model.calibrate_chance(
-        "vision", [tasks["vision"].sample(32, "val").x for _ in range(4)], percentile=1.0
-    )
-    sidecar.model.calibrate_veto(
-        "vision", [tasks["vision"].sample(32, "val").x for _ in range(4)], ceiling=0.98
+    veto_report = sidecar.model.calibrate_two_condition(
+        "vision",
+        [tasks["vision"].sample(32, "val").x for _ in range(8)],
+        ceiling=0.98,
     )
     sidecar.model.calibrate_prototypes(
         "vision", [tasks["vision"].sample(64, "train") for _ in range(2)]
@@ -107,6 +106,7 @@ def main() -> int:
     payload = {
         "config_digest": cfg.digest(),
         "steps": int(args.steps),
+        "veto_calibration": veto_report,
         "veto": {
             "clean_veto_rate": clean["veto_rate"],
             "ood_veto_rate": noisy["veto_rate"],
@@ -139,6 +139,7 @@ def main() -> int:
         "gate": {
             "ood_veto_at_least_0_95": bool(noisy["veto_rate"] >= 0.95),
             "false_veto_at_most_0_05": bool(clean["veto_rate"] <= 0.05),
+            "false_veto_at_most_0_01": bool(clean["veto_rate"] <= 0.01),
             "code_index_edges_positive": bool(index["edges"] > 0),
             "topology_two_hop_at_least_0_80": bool(solved / max(total, 1) >= 0.80),
             "unreachable_refused": bool(refused["vetoed"]),
@@ -148,6 +149,7 @@ def main() -> int:
     }
     payload["gate"]["passed"] = bool(
         payload["gate"]["ood_veto_at_least_0_95"]
+        and payload["gate"]["false_veto_at_most_0_01"]
         and payload["gate"]["topology_two_hop_at_least_0_80"]
         and payload["gate"]["unreachable_refused"]
         and payload["gate"]["playbook_exact"]

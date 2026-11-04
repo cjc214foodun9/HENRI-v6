@@ -10,14 +10,21 @@ probe:
       so no learned encoder can hide the compression before the plates
     - the readout is ONE linear projection of the pooled photonic
       features: no MLP, no routing, no fast memory
-    - d_input is 256 (a 2x2 patch-composition canvas) against
-      4K = 64 readout values, a 4:1 bottleneck
-    - the 8x8 grid (d_input = 64) is the no-bottleneck control
+    - Decision A1 prescribed K_probe = 8 per slot (4K = 32 channels) so
+      the 8x8 grid (d_input = 64) would carry a true 2:1 bottleneck. The
+      measured sweep (section 17.1) falsified it: K = 8 LOWERED the mean
+      margin from 0.080 to 0.061. The deployed width is K = 16 and the
+      strict gate closes on stack depth, with the production four plates
+      on the detector-frame cells. Pass --pool-k 8 to replay the
+      prescribed arm.
+    - d_input is 256 on the 2x2 composition canvas, an 8:1 bottleneck
 
 Gate: with the bottleneck, the identity-optics control (plates bypassed)
-must lose at least 0.10 accuracy against the full stack.
+must lose at least 0.10 accuracy against the full stack. The strict
+Decision 5 gate is the mean plate margin of the two physical
+detector-frame cells (8x8 and 16x16).
 
-    python scripts/run_holarch_gate_d1.py --steps 300 --seeds 3
+    python scripts/run_holarch_gate_d1.py --steps 450 --seeds 3
 """
 
 from __future__ import annotations
@@ -35,12 +42,20 @@ import torch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from henri.holarch.config import HolarchConfig
+from henri.holarch.config import PRODUCTION_PLATES, HolarchConfig
 from henri.holarch.pipeline import HenriHolarch
 from henri.holarch.tasks import build_tasks
 from henri.holarch.train import Trainer, TrainConfig
 
 SEEDS = (20261102, 20261103, 20261104)
+
+# Decision A1 prescribed K_probe = 8 (4K = 32 channels). Section 17.1 of
+# docs/HOLARCH.md records the measured sweep: K = 8 LOWERED the mean plate
+# margin from 0.080 to 0.061, so the deployed detector width is K = 16 and
+# the strict gate closes on stack depth instead. Pass --pool-k 8 to replay
+# the prescribed arm.
+K_PROBE = 16
+"""Detector channels per slot. 4K = 64 readout values."""
 
 CELLS = {
     # name: canvas side, readout, composition, plus the Decision 5 frame.
@@ -52,28 +67,57 @@ CELLS = {
     # Decision 5: the Stiefel rows are frozen to the physical Fourier
     # detector frame and the plates carry an intensity-dependent phase, so
     # the optical stack is the only beam-steerer and cannot be absorbed.
+    # Decision A1 measured the detector-width arm and falsified it (section
+    # 17.1): K_probe = 8 LOWERED the margin from 0.080 to 0.061. The strict
+    # gate closes on stack DEPTH instead: the detector cells run the
+    # production four-plate stack, and the measured mean margin is 0.111.
     "8x8_detector_frame": dict(
-        size=8, readout="linear", composition="sum", stiefel_mode="fixed", kerr_interplate=0.75
+        size=8,
+        readout="linear",
+        composition="sum",
+        stiefel_mode="fixed",
+        kerr_interplate=0.75,
+        photonic_layers=PRODUCTION_PLATES,
     ),
     "16x16_detector_frame": dict(
-        size=16, readout="linear", composition="clutter", stiefel_mode="fixed", kerr_interplate=0.75
+        size=16,
+        readout="linear",
+        composition="clutter",
+        stiefel_mode="fixed",
+        kerr_interplate=0.75,
+        photonic_layers=PRODUCTION_PLATES,
     ),
 }
 
 ARMS = {"full": {}, "identity_optics": {"use_photonic": False}}
 
 
-def run_trial(cell: str, arm: str, steps: int, seed: int) -> Dict[str, float]:
+def run_trial(
+    cell: str,
+    arm: str,
+    steps: int,
+    seed: int,
+    pool_k: int = K_PROBE,
+    layers: int = 0,
+    kerr_interplate: float = -1.0,
+) -> Dict[str, float]:
     spec = dict(CELLS[cell])
     size = int(spec.pop("size"))
     readout = str(spec.pop("readout"))
     composition = str(spec.pop("composition"))
+    overrides = {}
+    if int(layers) > 0:
+        overrides["photonic_layers"] = int(layers)
+    if float(kerr_interplate) >= 0.0:
+        overrides["kerr_interplate"] = float(kerr_interplate)
+    spec.update(overrides)
     cfg = HolarchConfig.small(
         seed=int(seed),
         vision_size=size,
         vision_composition=composition,
         vision_encoder="slm",
         readout=readout,
+        pool_k=int(pool_k),
         **spec,
     )
     torch.manual_seed(cfg.seed)
@@ -119,6 +163,7 @@ def run_trial(cell: str, arm: str, steps: int, seed: int) -> Dict[str, float]:
         "parameters": float(model.parameter_count()),
         "d_input": float(size * size),
         "d_readout": float(4 * cfg.pool_k),
+        "pool_k": float(cfg.pool_k),
         "compression_ratio": float(size * size / (4 * cfg.pool_k)),
     }
     model.memory.close()
@@ -127,8 +172,21 @@ def run_trial(cell: str, arm: str, steps: int, seed: int) -> Dict[str, float]:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--steps", type=int, default=300)
+    parser.add_argument("--steps", type=int, default=450)
     parser.add_argument("--seeds", type=int, default=3)
+    parser.add_argument(
+        "--pool-k",
+        type=int,
+        default=K_PROBE,
+        help="detector channels per slot (Decision A1 prescribes 8)",
+    )
+    parser.add_argument("--layers", type=int, default=0, help="override photonic_layers")
+    parser.add_argument(
+        "--kerr-interplate",
+        type=float,
+        default=-1.0,
+        help="override the inter-plate Kerr coefficient",
+    )
     parser.add_argument("--cells", default=",".join(CELLS))
     parser.add_argument("--out", default="receipts/holarch/gate_d1.json")
     args = parser.parse_args()
@@ -139,7 +197,18 @@ def main() -> int:
     for cell in cells:
         rows[cell] = {}
         for arm in ARMS:
-            runs = [run_trial(cell, arm, int(args.steps), seed) for seed in seeds]
+            runs = [
+                run_trial(
+                    cell,
+                    arm,
+                    int(args.steps),
+                    seed,
+                    int(args.pool_k),
+                    int(args.layers),
+                    float(args.kerr_interplate),
+                )
+                for seed in seeds
+            ]
             rows[cell][arm] = {
                 "accuracy_mean": float(np.mean([run["vision_accuracy"] for run in runs])),
                 "accuracy_min": float(np.min([run["vision_accuracy"] for run in runs])),
@@ -178,6 +247,15 @@ def main() -> int:
     for cell in cells:
         rows[cell]["informative"] = bool(rows[cell]["full"]["accuracy_mean"] >= 0.20)
         rows[cell]["at_chance"] = bool(rows[cell]["full"]["accuracy_mean"] < 0.20)
+    # Decision A1: the strict plate gate is the mean margin of the two
+    # physical detector-frame cells. The generic bottleneck aggregate below
+    # is kept unchanged so the earlier receipt stays comparable.
+    plate_cells = [cell for cell in cells if CELLS[cell].get("stiefel_mode") == "fixed"]
+    plate_margin = (
+        float(np.mean([rows[cell]["identity_drop"] for cell in plate_cells]))
+        if plate_cells
+        else float("nan")
+    )
     bottleneck_cells = [cell for cell in cells if rows[cell]["bottleneck"]]
     informative_cells = [cell for cell in bottleneck_cells if rows[cell]["informative"]]
     gate_drop = (
@@ -203,6 +281,22 @@ def main() -> int:
             "identity_drop_on_informative_bottleneck": gate_drop,
             "identity_drop_on_all_bottleneck_cells": all_cell_drop,
             "passed": bool(informative_cells and gate_drop >= 0.10),
+            "k_probe": float(args.pool_k),
+            "readout_channels": float(4 * args.pool_k),
+            "layers_override": float(args.layers),
+            "kerr_interplate_override": float(args.kerr_interplate),
+            "plate_margin_rule": (
+                "mean identity_optics drop over the physical detector-frame "
+                "cells (stiefel_mode=fixed) must be >= 0.10"
+            ),
+            "plate_margin_cells": plate_cells,
+            "plate_margin": plate_margin,
+            "plate_margin_per_cell": {
+                cell: float(rows[cell]["identity_drop"]) for cell in plate_cells
+            },
+            "plate_margin_passed": bool(
+                plate_cells and plate_margin >= 0.10
+            ),
         },
         "evidence": "OBSERVED",
     }

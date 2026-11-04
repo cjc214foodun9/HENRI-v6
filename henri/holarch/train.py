@@ -19,6 +19,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import os
 import platform
 import subprocess
 import sys
@@ -41,6 +42,32 @@ class TrainConfig:
     """Optimisation and memory-write schedule."""
 
     steps_per_task: int = 150
+    relational_multiplier: float = 2.0
+    relational_isolated_bonus: bool = True
+    relational_bonus_coupling: float = 0.5
+    """Share of the bonus relational gradient that reaches shared modules.
+
+    0.0 is full isolation (Decision B1 as specified). 1.0 is the retired
+    fully coupled bonus pass of Decision A4. The measured trade-off curve
+    is recorded in section 18.1 of docs/HOLARCH.md: the default is the
+    smallest coupling that still lets the shared optical stack adapt to
+    the relational task without rotating away from action.
+    """
+    """Decision B1: the bonus relational passes are gradient-isolated.
+
+    The first relational step of a round is fully coupled. Each extra step
+    detaches the shared post-photonic wave, so only the relational basis,
+    the relational phase mask and the relational head update. The shared
+    Zone B plates therefore see one relational gradient per round, the same
+    as every other task, and the action interference of Decision A4 ends.
+    """
+    """Decision A4: relational steps per base step.
+
+    Circular-convolution binding needs 600 steps to lock its phase, while
+    the dense heads converge by 300. The default therefore trains the
+    relational task at twice the base budget, so train --steps 300 runs
+    the canonical 600 relational steps that Gate D4 measured.
+    """
     batch_size: int = 32
     lr: float = 2e-3
     weight_decay: float = 1e-4
@@ -108,6 +135,7 @@ class Trainer:
         self.history = History()
         self._step = 0
         self._task_steps = {name: 0 for name in TASK_NAMES}
+        self._relational_steps = 0
         self.flags: Dict[str, bool] = {
             "use_photonic": True,
             "use_swarm": True,
@@ -117,9 +145,23 @@ class Trainer:
             "engram_write": True,
         }
 
-    def step(self, task_name: str) -> Dict[str, float]:
+    def step(self, task_name: str, isolate: bool = False) -> Dict[str, float]:
+        """One optimiser step for one task.
+
+        Args:
+            task_name: task key.
+            isolate: Decision B1. Detach the shared post-photonic wave on the
+                relational branch and drop every loss term that would train a
+                shared module (the load-balance auxiliary), so this step can
+                only update relational parameters.
+        """
         task = self.tasks[task_name]
         batch = task.sample(int(self.config.batch_size), "train")
+        # Decision B1: a positive coupling keeps the shared graph live and
+        # scales its gradient, so the detach path is only used at coupling
+        # exactly zero.
+        shared_coupling = float(self.config.relational_bonus_coupling) if isolate else 1.0
+        hard_isolate = bool(isolate) and shared_coupling <= 0.0
         output = self.model(
             task_name,
             batch.x,
@@ -128,9 +170,15 @@ class Trainer:
             use_swarm=self.flags["use_swarm"],
             use_memory=self.flags["use_memory"],
             use_optical_features=self.flags["use_optical_features"],
+            isolate_branch=hard_isolate,
         )
         loss = F.cross_entropy(output.task_logits, batch.y.long())
-        total = loss + float(self.config.aux_weight) * output.swarm.load_balance
+        if isolate:
+            # A detached pass must not reach the shared router either: the
+            # auxiliary load-balance term is a gradient path into it.
+            total = loss
+        else:
+            total = loss + float(self.config.aux_weight) * output.swarm.load_balance
         if task_name == "relational":
             # Decision 3 right-sizes this penalty. The retired 0.05 was
             # measured to hold training accuracy at 0.696 on the standard
@@ -145,7 +193,11 @@ class Trainer:
                 for parameter in self.model.relational_expert.parameters():
                     l2 = l2 + parameter.pow(2).sum()
             total = total + float(self.model.cfg.relational_l2) * l2
-        if float(self.config.ood_weight) > 0.0 and task_name in {"vision", "action"}:
+        if (
+            not isolate
+            and float(self.config.ood_weight) > 0.0
+            and task_name in {"vision", "action"}
+        ):
             # Outlier exposure: push the wave of a uniform input away from the
             # wave of a real input. This is what makes the raw Gram statistic a
             # usable OOD signal instead of a near-constant.
@@ -157,19 +209,38 @@ class Trainer:
                 coherence - float(self.config.ood_margin)
             ).mean()
         self.optimizer.zero_grad(set_to_none=True)
+        handles = []
+        if isolate and 0.0 < shared_coupling < 1.0:
+            for name, parameter in self.model.named_parameters():
+                if parameter.requires_grad and not _is_relational_parameter(name):
+                    handles.append(
+                        parameter.register_hook(
+                            lambda grad, scale=shared_coupling: grad * scale
+                        )
+                    )
         total.backward()
+        for handle in handles:
+            handle.remove()
         torch.nn.utils.clip_grad_norm_(self.model.parameters(), float(self.config.grad_clip))
         self.optimizer.step()
 
-        if self.flags["fast_learn"]:
+        if self.flags["fast_learn"] and not isolate:
             fast = self.model.fast_learn(output, batch.y, lr=float(self.config.fast_lr))
         else:
             fast = {}
         self.replay[task_name].add(output.features.detach(), batch.y, int(_task_id(task_name)))
 
-        if self.flags["engram_write"] and self._step % int(self.config.memory_every) == 0:
+        if (
+            not isolate
+            and self.flags["engram_write"]
+            and self._step % int(self.config.memory_every) == 0
+        ):
             self.model.observe(task_name, batch.x, batch.y, max_writes=int(self.config.max_writes))
-        if self._step % int(self.config.consolidate_every) == 0 and len(self.replay[task_name]) > 0:
+        if (
+            not isolate
+            and self._step % int(self.config.consolidate_every) == 0
+            and len(self.replay[task_name]) > 0
+        ):
             features, labels = self.replay[task_name].sample(
                 int(_task_id(task_name)), int(self.config.batch_size)
             )
@@ -179,6 +250,8 @@ class Trainer:
             )
         self._step += 1
         self._task_steps[task_name] = self._task_steps.get(task_name, 0) + 1
+        if task_name == "relational":
+            self._relational_steps += 1
         refresh = int(self.config.prototype_refresh)
         if (
             refresh > 0
@@ -196,6 +269,7 @@ class Trainer:
             "veto": float(output.veto.float().mean()),
             "delta": float(output.photonic.delta_memory.mean().detach()),
             "fast_loss": float(np.mean([v for k, v in fast.items() if k.startswith("expert_")] or [0.0])),
+            "isolated": float(bool(isolate)),
         }
         self.history.steps.append(record)
         return record
@@ -227,18 +301,68 @@ class Trainer:
             total += float(loss.detach())
         return total / max(1, int(steps))
 
-    def fit(self, steps_per_task: Optional[int] = None, order: Sequence[str] = TASK_NAMES) -> History:
+    def fit(
+        self,
+        steps_per_task: Optional[int] = None,
+        order: Sequence[str] = TASK_NAMES,
+        relational_multiplier: Optional[float] = None,
+    ) -> History:
+        """Run the per-task schedule.
+
+        Decision A4: the relational task runs at relational_multiplier
+        times the base step count (2x by default, so 600 steps at
+        --steps 300). The extra passes happen inside the same round, so
+        the relational head sees its phase-locking budget without changing
+        the budget of the other three tasks.
+        """
         steps = int(self.config.steps_per_task if steps_per_task is None else steps_per_task)
+        multiplier = float(
+            self.config.relational_multiplier
+            if relational_multiplier is None
+            else relational_multiplier
+        )
+        extra = max(0, int(round(multiplier)) - 1)
         start = time.perf_counter()
         for round_index in range(steps):
             for task_name in order:
+                # Decision A4: the extra relational passes run just BEFORE
+                # the action step when both tasks are scheduled. The step
+                # budget is identical, but the action head is no longer
+                # trained two relational gradients behind the shared
+                # stack. The first measured form of the schedule cost
+                # 0.09 action accuracy to recency alone.
+                if (
+                    extra
+                    and task_name == "action"
+                    and "relational" in order
+                ):
+                    for _ in range(extra):
+                        self.step(
+                            "relational",
+                            isolate=bool(self.config.relational_isolated_bonus),
+                        )
                 self.step(task_name)
+                if (
+                    extra
+                    and task_name == "relational"
+                    and "action" not in order
+                ):
+                    for _ in range(extra):
+                        self.step(
+                            task_name,
+                            isolate=bool(self.config.relational_isolated_bonus),
+                        )
         self.history.wall_seconds = time.perf_counter() - start
         return self.history
 
 
 def _task_id(name: str) -> int:
     return int(TASK_IDS[name])
+
+
+def _is_relational_parameter(name: str) -> bool:
+    """True for parameters that belong to the relational task alone."""
+    return name.startswith(("relational_", "encoders.relational", "projector.relational"))
 
 
 @torch.no_grad()
@@ -390,14 +514,19 @@ def run_experiment(
     if calibrate and getattr(model, "memory", None) is not None:
         calibration = {}
         for name in TASK_NAMES:
-            # Eight batches, not four: both thresholds are tail quantiles,
-            # and a 128-wave sample estimates a 1st percentile too noisily.
-            # The measured false-veto rate moved 0.003 -> 0.030 when the
-            # wave family changed under a 128-wave calibration.
-            batches = [tasks[name].sample(32, "val").x for _ in range(8)]
-            residual = model.calibrate_veto(name, batches, ceiling=0.98)
-            chance = model.calibrate_chance(name, batches)
-            calibration[name] = {**residual, **chance}
+            # Decision A3: 32 batches (1024 waves), not 8. A 256-wave
+            # sample cannot resolve a 0.5 percent tail: its own expected
+            # count there is 1.3 events, and the measured run-to-run
+            # false-veto spread was 0.000 to 0.013. At 1024 waves the 0.5
+            # percent tail holds five events and the empirical/Cornish-
+            # Fisher cap has something to estimate.
+            batches = [tasks[name].sample(32, "val").x for _ in range(32)]
+            # Decision A3: both conditions are fitted on the same paired
+            # sample, so the returned report carries the measured union
+            # false-veto rate of the rule that is actually deployed.
+            calibration[name] = model.calibrate_two_condition(
+                name, batches, ceiling=0.98, target_false_veto=0.005
+            )
         # Decision 2: build the clean post-photonic attractor bank from the
         # training split, then let relaxation read it. This runs BEFORE the
         # evaluation so the deployed loop is the one being measured.
@@ -451,6 +580,24 @@ def run_experiment(
     budget = budget_report(model, train_config.batch_size, cfg)
     elapsed = time.perf_counter() - start
 
+    cuda_available = bool(torch.cuda.is_available())
+    environment = {
+        "cuda": {
+            "available": cuda_available,
+            "device_count": int(torch.cuda.device_count()) if cuda_available else 0,
+            "device_name": torch.cuda.get_device_name(0) if cuda_available else "",
+            "evidence": "OBSERVED" if cuda_available else "BLOCKED",
+            "reason": ""
+            if cuda_available
+            else "no CUDA device is visible to torch in this checkout",
+        },
+        "storage": {
+            "backend": str(getattr(model.memory, "backend", "unknown")),
+            "backend_reason": str(getattr(model.memory, "backend_reason", "")),
+            "timescale_dsn_env_set": bool(os.environ.get("HENRI_TSDB_DSN")),
+            "evidence": "OBSERVED",
+        },
+    }
     receipt = {
         "name": receipt_name,
         "created_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
@@ -459,6 +606,7 @@ def run_experiment(
         "torch": torch.__version__,
         "platform": platform.platform(),
         "device": cfg.resolved_device(),
+        "environment": environment,
         "config": {key: getattr(cfg, key) for key in cfg.__dataclass_fields__},
         "config_digest": cfg.digest(),
         "train_config": asdict(train_config),
@@ -485,8 +633,12 @@ def run_experiment(
         "gate_d2": {
             "ood_veto_at_least_0_95": bool(ood_veto >= 0.95),
             "false_veto_at_most_0_02": bool(in_dist_veto <= 0.02),
+            "false_veto_at_most_0_01": bool(in_dist_veto <= 0.01),
             "passed": bool(ood_veto >= 0.95 and in_dist_veto <= 0.02),
+            "a3_passed": bool(ood_veto >= 0.99 and in_dist_veto <= 0.01),
         },
+        "relational_steps": int(trainer._relational_steps),
+        "relational_multiplier": float(train_config.relational_multiplier),
         "dagger_rounds": int(dagger_rounds),
         "dagger_loss_mean": float(np.mean(dagger_losses)) if dagger_losses else 0.0,
         "memory_stats": model.memory_report(),

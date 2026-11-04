@@ -1,6 +1,6 @@
 {
   "task": "vision",
-  "steps": 300,
+  "steps": 450,
   "seeds": [
     20261102,
     20261103,
@@ -9,40 +9,40 @@
   "cells": {
     "8x8_linear_probe": {
       "full": {
-        "accuracy_mean": 0.9122222222222223,
-        "accuracy_min": 0.8733333333333333,
-        "accuracy_max": 0.9366666666666666,
+        "accuracy_mean": 0.9366666666666666,
+        "accuracy_min": 0.9266666666666666,
+        "accuracy_max": 0.9533333333333334,
         "accuracy_per_seed": [
-          0.8733333333333333,
-          0.9366666666666666,
-          0.9266666666666666
+          0.9266666666666666,
+          0.9533333333333334,
+          0.93
         ],
-        "train_loss_mean": 0.34397698442141217,
-        "parameters": 222022.0,
+        "train_loss_mean": 0.14197828123966852,
+        "parameters": 222218.0,
         "d_input": 64.0,
         "d_readout": 64.0,
         "compression_ratio": 1.0
       },
       "identity_optics": {
-        "accuracy_mean": 0.9033333333333333,
-        "accuracy_min": 0.86,
-        "accuracy_max": 0.94,
+        "accuracy_mean": 0.9477777777777777,
+        "accuracy_min": 0.9466666666666667,
+        "accuracy_max": 0.95,
         "accuracy_per_seed": [
-          0.86,
-          0.91,
-          0.94
+          0.9466666666666667,
+          0.9466666666666667,
+          0.95
         ],
-        "train_loss_mean": 0.4045153756936391,
-        "parameters": 222022.0,
+        "train_loss_mean": 0.17672836283842722,
+        "parameters": 222218.0,
         "d_input": 64.0,
         "d_readout": 64.0,
         "compression_ratio": 1.0
       },
-      "identity_drop": 0.008888888888888946,
+      "identity_drop": -0.011111111111111072,
       "identity_drop_per_seed": [
-        0.013333333333333308,
-        0.026666666666666616,
-        -0.013333333333333308
+        -0.020000000000000018,
+        0.00666666666666671,
+        -0.019999999999999907
       ],
       "bottleneck": false,
       "informative": true,
@@ -50,40 +50,40 @@
     },
     "16x16_linear_probe": {
       "full": {
-        "accuracy_mean": 0.0911111111111111,
-        "accuracy_min": 0.08666666666666667,
-        "accuracy_max": 0.1,
+        "accuracy_mean": 0.10222222222222221,
+        "accuracy_min": 0.09,
+        "accuracy_max": 0.11666666666666667,
         "accuracy_per_seed": [
-          0.08666666666666667,
-          0.1,
-          0.08666666666666667
+          0.11666666666666667,
+          0.09,
+          0.1
         ],
-        "train_loss_mean": 2.2659029960632324,
-        "parameters": 222022.0,
+        "train_loss_mean": 2.1022748947143555,
+        "parameters": 222218.0,
         "d_input": 256.0,
         "d_readout": 64.0,
         "compression_ratio": 4.0
       },
       "identity_optics": {
-        "accuracy_mean": 0.0911111111111111,
-        "accuracy_min": 0.08333333333333333,
-        "accuracy_max": 0.1,
+        "accuracy_mean": 0.12,
+        "accuracy_min": 0.10666666666666667,
+        "accuracy_max": 0.13333333333333333,
         "accuracy_per_seed": [
-          0.09,
-          0.1,
-          0.08333333333333333
+          0.13333333333333333,
+          0.10666666666666667,
+          0.12
         ],
-        "train_loss_mean": 2.28559676806132,
-        "parameters": 222022.0,
+        "train_loss_mean": 2.1694161891937256,
+        "parameters": 222218.0,
         "d_input": 256.0,
         "d_readout": 64.0,
         "compression_ratio": 4.0
       },
-      "identity_drop": 0.0,
+      "identity_drop": -0.01777777777777778,
       "identity_drop_per_seed": [
-        -0.003333333333333327,
-        0.0,
-        0.003333333333333341
+        -0.016666666666666663,
+        -0.016666666666666677,
+        -0.01999999999999999
       ],
       "bottleneck": true,
       "informative": false,
@@ -91,40 +91,40 @@
     },
     "16x16_swarm_readout": {
       "full": {
-        "accuracy_mean": 0.08555555555555557,
-        "accuracy_min": 0.07333333333333333,
-        "accuracy_max": 0.10666666666666667,
+        "accuracy_mean": 0.10777777777777779,
+        "accuracy_min": 0.09666666666666666,
+        "accuracy_max": 0.12666666666666668,
         "accuracy_per_seed": [
-          0.10666666666666667,
-          0.07666666666666666,
-          0.07333333333333333
+          0.1,
+          0.09666666666666666,
+          0.12666666666666668
         ],
-        "train_loss_mean": 2.2922163804372153,
-        "parameters": 222022.0,
+        "train_loss_mean": 2.174064874649048,
+        "parameters": 222218.0,
         "d_input": 256.0,
         "d_readout": 64.0,
         "compression_ratio": 4.0
       },
       "identity_optics": {
-        "accuracy_mean": 0.08888888888888889,
-        "accuracy_min": 0.08666666666666667,
-        "accuracy_max": 0.09,
+        "accuracy_mean": 0.11333333333333334,
+        "accuracy_min": 0.09666666666666666,
+        "accuracy_max": 0.13,
         "accuracy_per_seed": [
-          0.09,
-          0.08666666666666667,
-          0.09
+          0.13,
+          0.09666666666666666,
+          0.11333333333333333
         ],
-        "train_loss_mean": 2.298457225163778,
-        "parameters": 222022.0,
+        "train_loss_mean": 2.218939463297526,
+        "parameters": 222218.0,
         "d_input": 256.0,
         "d_readout": 64.0,
         "compression_ratio": 4.0
       },
-      "identity_drop": -0.003333333333333327,
+      "identity_drop": -0.00555555555555555,
       "identity_drop_per_seed": [
-        0.016666666666666677,
-        -0.010000000000000009,
-        -0.016666666666666663
+        -0.03,
+        0.0,
+        0.01333333333333335
       ],
       "bottleneck": true,
       "informative": false,
@@ -132,40 +132,40 @@
     },
     "16x16_linear_probe_diff": {
       "full": {
-        "accuracy_mean": 0.16333333333333333,
-        "accuracy_min": 0.16,
-        "accuracy_max": 0.16666666666666666,
+        "accuracy_mean": 0.15222222222222223,
+        "accuracy_min": 0.14,
+        "accuracy_max": 0.17333333333333334,
         "accuracy_per_seed": [
-          0.16333333333333333,
-          0.16,
-          0.16666666666666666
+          0.17333333333333334,
+          0.14,
+          0.14333333333333334
         ],
-        "train_loss_mean": 1.9880256255467732,
-        "parameters": 222022.0,
+        "train_loss_mean": 1.871098478635152,
+        "parameters": 222218.0,
         "d_input": 256.0,
         "d_readout": 64.0,
         "compression_ratio": 4.0
       },
       "identity_optics": {
-        "accuracy_mean": 0.15888888888888889,
-        "accuracy_min": 0.15666666666666668,
-        "accuracy_max": 0.16,
+        "accuracy_mean": 0.16111111111111112,
+        "accuracy_min": 0.14,
+        "accuracy_max": 0.17333333333333334,
         "accuracy_per_seed": [
-          0.16,
-          0.15666666666666668,
-          0.16
+          0.17333333333333334,
+          0.14,
+          0.17
         ],
-        "train_loss_mean": 2.0859015782674155,
-        "parameters": 222022.0,
+        "train_loss_mean": 1.9046450853347778,
+        "parameters": 222218.0,
         "d_input": 256.0,
         "d_readout": 64.0,
         "compression_ratio": 4.0
       },
-      "identity_drop": 0.004444444444444445,
+      "identity_drop": -0.00888888888888889,
       "identity_drop_per_seed": [
-        0.003333333333333327,
-        0.003333333333333327,
-        0.006666666666666654
+        0.0,
+        0.0,
+        -0.026666666666666672
       ],
       "bottleneck": true,
       "informative": false,
@@ -173,40 +173,40 @@
     },
     "16x16_clutter_linear_probe": {
       "full": {
-        "accuracy_mean": 0.8766666666666666,
-        "accuracy_min": 0.8566666666666667,
-        "accuracy_max": 0.9066666666666666,
+        "accuracy_mean": 0.8977777777777778,
+        "accuracy_min": 0.8766666666666667,
+        "accuracy_max": 0.92,
         "accuracy_per_seed": [
-          0.8566666666666667,
-          0.9066666666666666,
-          0.8666666666666667
+          0.8966666666666666,
+          0.92,
+          0.8766666666666667
         ],
-        "train_loss_mean": 0.31513425211111706,
-        "parameters": 222022.0,
+        "train_loss_mean": 0.12815927962462106,
+        "parameters": 222218.0,
         "d_input": 256.0,
         "d_readout": 64.0,
         "compression_ratio": 4.0
       },
       "identity_optics": {
-        "accuracy_mean": 0.851111111111111,
-        "accuracy_min": 0.83,
-        "accuracy_max": 0.89,
+        "accuracy_mean": 0.8922222222222222,
+        "accuracy_min": 0.8733333333333333,
+        "accuracy_max": 0.9266666666666666,
         "accuracy_per_seed": [
-          0.8333333333333334,
-          0.89,
-          0.83
+          0.8733333333333333,
+          0.9266666666666666,
+          0.8766666666666667
         ],
-        "train_loss_mean": 0.41401489575703937,
-        "parameters": 222022.0,
+        "train_loss_mean": 0.18945936610301337,
+        "parameters": 222218.0,
         "d_input": 256.0,
         "d_readout": 64.0,
         "compression_ratio": 4.0
       },
-      "identity_drop": 0.025555555555555554,
+      "identity_drop": 0.005555555555555536,
       "identity_drop_per_seed": [
         0.023333333333333317,
-        0.016666666666666607,
-        0.036666666666666736
+        -0.006666666666666599,
+        0.0
       ],
       "bottleneck": true,
       "informative": true,
@@ -214,40 +214,40 @@
     },
     "8x8_detector_frame": {
       "full": {
-        "accuracy_mean": 0.9111111111111111,
-        "accuracy_min": 0.8933333333333333,
-        "accuracy_max": 0.92,
+        "accuracy_mean": 0.9522222222222222,
+        "accuracy_min": 0.9333333333333333,
+        "accuracy_max": 0.9633333333333334,
         "accuracy_per_seed": [
-          0.8933333333333333,
-          0.92,
-          0.92
+          0.9333333333333333,
+          0.9633333333333334,
+          0.96
         ],
-        "train_loss_mean": 0.33970719079176587,
-        "parameters": 213830.0,
+        "train_loss_mean": 0.14930776258309683,
+        "parameters": 214556.0,
         "d_input": 64.0,
         "d_readout": 64.0,
         "compression_ratio": 1.0
       },
       "identity_optics": {
-        "accuracy_mean": 0.8422222222222223,
-        "accuracy_min": 0.79,
-        "accuracy_max": 0.8766666666666667,
+        "accuracy_mean": 0.8644444444444445,
+        "accuracy_min": 0.84,
+        "accuracy_max": 0.9,
         "accuracy_per_seed": [
-          0.86,
-          0.8766666666666667,
-          0.79
+          0.8533333333333334,
+          0.84,
+          0.9
         ],
-        "train_loss_mean": 0.6776271462440491,
-        "parameters": 213830.0,
+        "train_loss_mean": 0.3944327433904012,
+        "parameters": 214556.0,
         "d_input": 64.0,
         "d_readout": 64.0,
         "compression_ratio": 1.0
       },
-      "identity_drop": 0.06888888888888878,
+      "identity_drop": 0.08777777777777773,
       "identity_drop_per_seed": [
-        0.033333333333333326,
-        0.043333333333333335,
-        0.13
+        0.07999999999999996,
+        0.1233333333333334,
+        0.05999999999999994
       ],
       "bottleneck": false,
       "informative": true,
@@ -255,40 +255,40 @@
     },
     "16x16_detector_frame": {
       "full": {
-        "accuracy_mean": 0.8355555555555556,
-        "accuracy_min": 0.8033333333333333,
-        "accuracy_max": 0.8666666666666667,
+        "accuracy_mean": 0.8544444444444445,
+        "accuracy_min": 0.8,
+        "accuracy_max": 0.92,
         "accuracy_per_seed": [
-          0.8366666666666667,
-          0.8666666666666667,
-          0.8033333333333333
+          0.8,
+          0.92,
+          0.8433333333333334
         ],
-        "train_loss_mean": 0.5142865280310313,
-        "parameters": 213830.0,
+        "train_loss_mean": 0.29604579508304596,
+        "parameters": 214556.0,
         "d_input": 256.0,
         "d_readout": 64.0,
         "compression_ratio": 4.0
       },
       "identity_optics": {
-        "accuracy_mean": 0.7444444444444445,
-        "accuracy_min": 0.6933333333333334,
-        "accuracy_max": 0.81,
+        "accuracy_mean": 0.6977777777777779,
+        "accuracy_min": 0.6833333333333333,
+        "accuracy_max": 0.7066666666666667,
         "accuracy_per_seed": [
-          0.73,
-          0.81,
-          0.6933333333333334
+          0.7033333333333334,
+          0.7066666666666667,
+          0.6833333333333333
         ],
-        "train_loss_mean": 0.8323366840680441,
-        "parameters": 213830.0,
+        "train_loss_mean": 0.6905767321586609,
+        "parameters": 214556.0,
         "d_input": 256.0,
         "d_readout": 64.0,
         "compression_ratio": 4.0
       },
-      "identity_drop": 0.09111111111111114,
+      "identity_drop": 0.1566666666666665,
       "identity_drop_per_seed": [
-        0.10666666666666669,
-        0.05666666666666664,
-        0.10999999999999999
+        0.09666666666666668,
+        0.21333333333333337,
+        0.16000000000000003
       ],
       "bottleneck": true,
       "informative": true,
@@ -309,9 +309,24 @@
       "16x16_clutter_linear_probe",
       "16x16_detector_frame"
     ],
-    "identity_drop_on_informative_bottleneck": 0.05833333333333335,
-    "identity_drop_on_all_bottleneck_cells": 0.023555555555555562,
-    "passed": false
+    "identity_drop_on_informative_bottleneck": 0.08111111111111102,
+    "identity_drop_on_all_bottleneck_cells": 0.025999999999999968,
+    "passed": false,
+    "k_probe": 16.0,
+    "readout_channels": 64.0,
+    "layers_override": 0.0,
+    "kerr_interplate_override": -1.0,
+    "plate_margin_rule": "mean identity_optics drop over the physical detector-frame cells (stiefel_mode=fixed) must be >= 0.10",
+    "plate_margin_cells": [
+      "8x8_detector_frame",
+      "16x16_detector_frame"
+    ],
+    "plate_margin": 0.12222222222222212,
+    "plate_margin_per_cell": {
+      "8x8_detector_frame": 0.08777777777777773,
+      "16x16_detector_frame": 0.1566666666666665
+    },
+    "plate_margin_passed": true
   },
   "evidence": "OBSERVED"
 }

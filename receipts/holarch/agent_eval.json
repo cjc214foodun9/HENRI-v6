@@ -1,0 +1,78 @@
+{
+  "config_digest": "1ede658ba058f712",
+  "train_steps": 120,
+  "queries_total": 36,
+  "query_mix": {
+    "code_call_flow": 8,
+    "multi_hop_graph": 16,
+    "unreachable_traps": 4,
+    "ood_ingress_batches": 4,
+    "playbook_reuse": 1
+  },
+  "code_index": {
+    "seconds": 0.855041999995592,
+    "files": 16.0,
+    "lines": 8078.0,
+    "nodes": 263.0,
+    "edges": 538.0,
+    "edges_ingested": 72.0
+  },
+  "baseline_unindexed": {
+    "query_file_reads": 128,
+    "bytes_read_at_query_time": 2642960,
+    "response_bytes": 871,
+    "latency_ms_total": 51.117499999236315,
+    "reachable_accuracy": 0.6666666666666666,
+    "hallucination_rate": 1.0,
+    "playbook_exact": 0.0
+  },
+  "holarch_mcp": {
+    "query_file_reads": 0,
+    "bytes_read_at_query_time": 0,
+    "response_bytes": 5387,
+    "latency_ms_total": 55.1891999784857,
+    "reachable_accuracy": 1.0,
+    "hallucination_rate": 0.0,
+    "playbook_exact": 1.0,
+    "receipts": 34,
+    "receipt_chain_valid": true,
+    "receipts_valid": true
+  },
+  "context_compression_ratio": 490.6181548171524,
+  "per_category": {
+    "code_call_flow": {
+      "baseline_correct": 0,
+      "mcp_correct": 8,
+      "total": 8
+    },
+    "multi_hop_graph": {
+      "baseline_correct": 16,
+      "mcp_correct": 16,
+      "total": 16
+    },
+    "unreachable_traps": {
+      "baseline_hallucinated": 4,
+      "mcp_refused": 4,
+      "total": 4
+    },
+    "ood_ingress": {
+      "baseline_false_accept": 128,
+      "mcp_vetoed": 128,
+      "total": 128
+    },
+    "playbook_reuse": {
+      "baseline_exact": 0,
+      "mcp_exact": 1,
+      "total": 1
+    }
+  },
+  "gate": {
+    "mcp_zero_query_reads": true,
+    "mcp_reachable_at_least_0_98": true,
+    "mcp_hallucination_zero": true,
+    "mcp_playbook_exact": true,
+    "receipt_chain_valid": true,
+    "passed": true
+  },
+  "evidence": "OBSERVED"
+}

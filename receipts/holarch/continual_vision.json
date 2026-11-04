@@ -3,63 +3,65 @@
   "steps": 150,
   "adaptation_batches": 24,
   "permutation_seed": 99,
-  "original_before_shift": 0.91,
+  "original_before_shift": 0.8966666666666666,
   "gate_calibration": {
-    "tau_plasticity": 0.6041423067450516,
-    "surprise_mean": 0.1729573654010892,
-    "surprise_quantile": 0.5941423067450516,
+    "tau_plasticity": 0.6363911223411554,
+    "surprise_mean": 0.17443470796570182,
+    "surprise_quantile": 0.6263911223411553,
     "quantile": 0.995,
     "n": 128.0,
-    "calibrated": 1.0
+    "calibrated": 1.0,
+    "trust_mid": 0.13867506384849548,
+    "trust_scale": 0.09555920262615976
   },
   "variants": {
     "no_adaptation": {
-      "shifted": 0.043333333333333335,
-      "original": 0.91,
+      "shifted": 0.04,
+      "original": 0.8966666666666666,
       "gate_rate": 0.0,
       "shifted_gain": 0.0,
       "retention": 1.0
     },
     "fast_ungated": {
-      "shifted": 0.02666666666666667,
-      "original": 0.8333333333333334,
-      "gate_rate": 0.3723958333333333,
-      "shifted_gain": -0.016666666666666666,
-      "retention": 0.9157509157509157
+      "shifted": 0.02,
+      "original": 0.8833333333333333,
+      "gate_rate": 0.33203125,
+      "shifted_gain": -0.02,
+      "retention": 0.9851301115241636
     },
     "fast_gated": {
-      "shifted": 0.06333333333333334,
-      "original": 0.8633333333333333,
-      "gate_rate": 0.34375,
-      "shifted_gain": 0.020000000000000004,
-      "retention": 0.9487179487179487
+      "shifted": 0.06,
+      "original": 0.88,
+      "gate_rate": 0.2994791666666667,
+      "shifted_gain": 0.019999999999999997,
+      "retention": 0.9814126394052045
     },
     "replay_ungated": {
-      "shifted": 0.5766666666666667,
-      "original": 0.9133333333333333,
-      "gate_rate": 0.9479166666666666,
-      "shifted_gain": 0.5333333333333333,
-      "retention": 1.0036630036630036
+      "shifted": 0.6233333333333333,
+      "original": 0.9266666666666666,
+      "gate_rate": 0.88671875,
+      "shifted_gain": 0.5833333333333333,
+      "retention": 1.033457249070632
     },
     "replay_gated": {
-      "shifted": 0.54,
-      "original": 0.9166666666666666,
-      "gate_rate": 0.9713541666666666,
-      "shifted_gain": 0.4966666666666667,
-      "retention": 1.0073260073260073
+      "shifted": 0.64,
+      "original": 0.9233333333333333,
+      "gate_rate": 0.9661458333333334,
+      "shifted_gain": 0.6,
+      "retention": 1.029739776951673
     }
   },
   "stationary": {
     "fast_ungated": {
-      "before": 0.91,
-      "after": 0.8966666666666666,
-      "drift": -0.01333333333333342,
+      "before": 0.8966666666666666,
+      "after": 0.9,
+      "drift": 0.0033333333333334103,
       "gate_rate": 0.0
     },
     "fast_gated": {
-      "before": 0.91,
-      "after": 0.9066666666666666,
-      "drift": -0.0033333333333334103,
+      "before": 0.8966666666666666,
+      "after": 0.8966666666666666,
+      "drift": 0.0,
       "gate_rate": 0.0
     }
   },
@@ -70,33 +72,33 @@
     ],
     "context": {
       "context_bound": {
-        "rule_0": 0.95,
-        "rule_3": 0.9333333333333333,
-        "combined": 0.9416666666666667
+        "rule_0": 0.9333333333333333,
+        "rule_3": 0.9,
+        "combined": 0.9166666666666667
       },
       "unconditioned": {
-        "rule_0": 0.2733333333333333,
-        "rule_3": 0.6933333333333334,
-        "combined": 0.48333333333333334
+        "rule_0": 0.3,
+        "rule_3": 0.66,
+        "combined": 0.48
       }
     },
     "adaptation": {
       "no_adaptation": {
-        "rule_0": 0.95,
-        "rule_3": 0.9333333333333333,
-        "combined": 0.9416666666666667
+        "rule_0": 0.9333333333333333,
+        "rule_3": 0.9,
+        "combined": 0.9166666666666667
       },
       "fast": {
-        "rule_0": 0.94,
-        "rule_3": 0.9266666666666666,
+        "rule_0": 0.93,
+        "rule_3": 0.89,
         "fast_gate_rate": 1.0,
-        "combined": 0.9333333333333333
+        "combined": 0.91
       },
       "replay": {
         "rule_0": 0.7633333333333333,
-        "rule_3": 0.7,
+        "rule_3": 0.69,
         "fast_gate_rate": 1.0,
-        "combined": 0.7316666666666667
+        "combined": 0.7266666666666666
       }
     },
     "fano_bound": 0.5

@@ -23,6 +23,16 @@ VRAM_BUDGET_GB: float = 32.0
 DEFAULT_DIM: int = 2048
 """Complex wave dimension. Divisible by 4 slots and by 8 Cl(3,0) blocks."""
 
+PRODUCTION_PLATES: int = 4
+"""BaTiO3 Kerr plates in the production stack (Decision B4).
+
+The four-plate cascade is the configuration that closed Gate D1 strict at
++0.111 mean plate margin (+0.082 on 8x8, +0.140 on 16x16 clutter). Three
+plates measured +0.098 and two measured +0.081, so the depth is a measured
+requirement of the strict gate, not a preference. The CI profile keeps two
+plates for speed; every profile that asserts Gate D1 strict pins this value.
+"""
+
 
 def _default_device() -> str:
     """Return 'cuda' when a device is present, else 'cpu'. Never guesses."""
@@ -120,6 +130,13 @@ class HolarchConfig:
             beta * Re<psi, phi_c> to the task logits (Decision 6). The head
             lets the relaxation loop change the DECISION, not only the wave.
         proto_alpha_init: initial scale of the prototype logit block.
+        prototype_trust_floor: eta at zero surprise (Decision A2). The
+            prototype branch keeps at least this weight, so a familiar
+            input still benefits from the attractor readout.
+        prototype_trust_mid: surprise at which eta is halfway between the
+            floor and one. Recalibrated per task from the clean surprise
+            distribution when the gate is calibrated.
+        prototype_trust_scale: logistic width of the trust ramp.
         stiefel_mode: 'learned' keeps the Gate D1 gauge freedom (a free
             Stiefel basis absorbs any unitary optical transform). 'fixed'
             anchors the rows to a canonical Fourier detector frame, so the
@@ -149,7 +166,7 @@ class HolarchConfig:
     dim: int = DEFAULT_DIM
     n_slots: int = 4
 
-    photonic_layers: int = 3
+    photonic_layers: int = PRODUCTION_PLATES
     pool_k: int = 16
     cross_slot_mix: bool = True
     skip_alpha: float = 0.0
@@ -177,6 +194,16 @@ class HolarchConfig:
     relax_training: bool = False
     prototype_logits: bool = True
     proto_alpha_init: float = 0.05
+    proto_relax_gain: float = 1.0
+    """Decision B2 gain on the surprise-gated relaxation logit delta.
+
+    The Pass-0 prototype logit block is always added at alpha. This gain
+    multiplies only (proto(relaxed) - proto(pass0)), so the clean input is
+    untouched when the loop does not move the wave.
+    """
+    prototype_trust_floor: float = 0.35
+    prototype_trust_mid: float = 0.30
+    prototype_trust_scale: float = 0.08
 
     stiefel_mode: str = "learned"
     kerr_interplate: float = 0.0
@@ -291,6 +318,10 @@ class HolarchConfig:
             raise ValueError("kerr_interplate must be >= 0")
         if self.proto_alpha_init < 0.0:
             raise ValueError("proto_alpha_init must be >= 0")
+        if not 0.0 <= self.prototype_trust_floor <= 1.0:
+            raise ValueError("prototype_trust_floor must lie in [0, 1]")
+        if self.prototype_trust_scale <= 0.0:
+            raise ValueError("prototype_trust_scale must be positive")
         if not 0.0 <= self.relational_dropout < 1.0:
             raise ValueError("relational_dropout must lie in [0, 1)")
         if self.relational_l2 < 0.0:
@@ -379,7 +410,7 @@ class HolarchConfig:
     @classmethod
     def production(cls, **overrides) -> "HolarchConfig":
         """Full-size configuration for the 32 GiB Blackwell target."""
-        base = dict(dim=4096, photonic_layers=4, d_feat=256, n_experts=16,
+        base = dict(dim=4096, photonic_layers=PRODUCTION_PLATES, d_feat=256, n_experts=16,
                     expert_hidden=256, fast_rank=64, pool_k=32)
         base.update(overrides)
         return cls(**base)

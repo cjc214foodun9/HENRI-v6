@@ -1,0 +1,120 @@
+{
+  "task": "vision",
+  "steps": 450,
+  "seeds": [
+    20261102,
+    20261103,
+    20261104
+  ],
+  "cells": {
+    "8x8_detector_frame": {
+      "full": {
+        "accuracy_mean": 0.8966666666666666,
+        "accuracy_min": 0.87,
+        "accuracy_max": 0.9233333333333333,
+        "accuracy_per_seed": [
+          0.8966666666666666,
+          0.87,
+          0.9233333333333333
+        ],
+        "train_loss_mean": 0.3010741323232651,
+        "parameters": 207658.0,
+        "d_input": 64.0,
+        "d_readout": 32.0,
+        "compression_ratio": 2.0
+      },
+      "identity_optics": {
+        "accuracy_mean": 0.8444444444444444,
+        "accuracy_min": 0.84,
+        "accuracy_max": 0.85,
+        "accuracy_per_seed": [
+          0.8433333333333334,
+          0.84,
+          0.85
+        ],
+        "train_loss_mean": 0.47315927346547443,
+        "parameters": 207658.0,
+        "d_input": 64.0,
+        "d_readout": 32.0,
+        "compression_ratio": 2.0
+      },
+      "identity_drop": 0.05222222222222217,
+      "identity_drop_per_seed": [
+        0.05333333333333323,
+        0.030000000000000027,
+        0.07333333333333336
+      ],
+      "bottleneck": false,
+      "informative": true,
+      "at_chance": false
+    },
+    "16x16_detector_frame": {
+      "full": {
+        "accuracy_mean": 0.7766666666666667,
+        "accuracy_min": 0.77,
+        "accuracy_max": 0.7866666666666666,
+        "accuracy_per_seed": [
+          0.77,
+          0.7866666666666666,
+          0.7733333333333333
+        ],
+        "train_loss_mean": 0.5794093708197275,
+        "parameters": 207658.0,
+        "d_input": 256.0,
+        "d_readout": 32.0,
+        "compression_ratio": 8.0
+      },
+      "identity_optics": {
+        "accuracy_mean": 0.7066666666666667,
+        "accuracy_min": 0.6833333333333333,
+        "accuracy_max": 0.7233333333333334,
+        "accuracy_per_seed": [
+          0.7133333333333334,
+          0.7233333333333334,
+          0.6833333333333333
+        ],
+        "train_loss_mean": 0.773199737071991,
+        "parameters": 207658.0,
+        "d_input": 256.0,
+        "d_readout": 32.0,
+        "compression_ratio": 8.0
+      },
+      "identity_drop": 0.07000000000000006,
+      "identity_drop_per_seed": [
+        0.05666666666666664,
+        0.06333333333333324,
+        0.08999999999999997
+      ],
+      "bottleneck": true,
+      "informative": true,
+      "at_chance": false
+    }
+  },
+  "gate": {
+    "rule": "identity optics loses >= 0.10 on the informative bottleneck cells",
+    "informative_rule": "full accuracy clears chance (0.10) by 0.10",
+    "bottleneck_cells": [
+      "16x16_detector_frame"
+    ],
+    "informative_bottleneck_cells": [
+      "16x16_detector_frame"
+    ],
+    "identity_drop_on_informative_bottleneck": 0.07000000000000006,
+    "identity_drop_on_all_bottleneck_cells": 0.07000000000000006,
+    "passed": false,
+    "k_probe": 8.0,
+    "readout_channels": 32.0,
+    "plate_margin_rule": "mean identity_optics drop over the physical detector-frame cells (stiefel_mode=fixed) must be >= 0.10",
+    "plate_margin_cells": [
+      "8x8_detector_frame",
+      "16x16_detector_frame"
+    ],
+    "plate_margin": 0.061111111111111116,
+    "plate_margin_per_cell": {
+      "8x8_detector_frame": 0.05222222222222217,
+      "16x16_detector_frame": 0.07000000000000006
+    },
+    "plate_margin_passed": false
+  },
+  "evidence": "OBSERVED"
+}

@@ -1,0 +1,29 @@
+{
+  "config_digest": "a19628846b1ed5f4",
+  "dim": 4096.0,
+  "parameters": 5870172.0,
+  "training_gib": 0.9214741662144661,
+  "inference_gib": 0.8009922429919243,
+  "budget_gib": 32.0,
+  "headroom_gib": 31.078525833785534,
+  "fits": true,
+  "method": "counted params + measured saved tensors + declared reserve",
+  "device": "cpu",
+  "activation_bytes_training": 48253192.0,
+  "profile": "production",
+  "hardware": {
+    "evidence": "BLOCKED",
+    "cuda_available": false,
+    "device_name": "",
+    "device_count": 0,
+    "torch": "2.11.0+cu128",
+    "reason": "no CUDA device is visible to torch in this checkout"
+  },
+  "storage": {
+    "backend": "timescaledb",
+    "backend_reason": "",
+    "timescale_dsn_env_set": false,
+    "evidence": "OBSERVED"
+  },
+  "evidence": "DERIVED"
+}

@@ -99,11 +99,22 @@ class UniversalSubspace(nn.Module):
         sign = torch.where(diagonal >= 0.0, torch.ones_like(diagonal), -torch.ones_like(diagonal))
         return (q * sign.unsqueeze(-2)).transpose(-1, -2).contiguous()
 
-    def forward(self, x: torch.Tensor, task: torch.Tensor) -> torch.Tensor:
+    def modulate(self, x: torch.Tensor, task: torch.Tensor) -> torch.Tensor:
+        """Per-task modulation inside the shared frame, shape (batch, d).
+
+            U_univ^T diag(sigma^(m)) U_univ x
+
+        Decision A4 factors the first layer of every Zone A expert through
+        this term, so the relational coordinates themselves are shared and
+        only the r diagonal gains are per task.
+        """
         basis = self.basis()
         code = x @ basis.transpose(-1, -2)
         gain = self.sigma[task.reshape(-1).long()]
-        return x + (code * gain) @ basis
+        return (code * gain) @ basis
+
+    def forward(self, x: torch.Tensor, task: torch.Tensor) -> torch.Tensor:
+        return x + self.modulate(x, task)
 
 
 class FastWeightExpert(nn.Module):
@@ -134,6 +145,11 @@ class FastWeightExpert(nn.Module):
                     module.weight.uniform_(-bound, bound, generator=generator)
                     module.bias.zero_()
         projection = torch.randn(self.rank, self.d_in, generator=generator) / math.sqrt(self.d_in)
+        # Decision A4: the first layer also reads the shared orthonormal
+        # frame U_univ through a per-task modulation. The gate starts at
+        # zero, so the converged head is the identity until training opens
+        # it, and the factored path costs one scalar per expert.
+        self.first_layer_gain = nn.Parameter(torch.zeros(()))
         self.register_buffer("A", projection)
         self.register_buffer("B", torch.zeros(self.d_out, self.rank))
         self.register_buffer("centroid", torch.zeros(self.d_in))
@@ -143,8 +159,23 @@ class FastWeightExpert(nn.Module):
         code = x @ self.A.t()
         return code @ self.B.t()
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.slow(x) + self.fast_logits(x)
+    def forward(
+        self,
+        x: torch.Tensor,
+        universal: Optional["UniversalSubspace"] = None,
+        task: Optional[torch.Tensor] = None,
+    ) -> torch.Tensor:
+        first = self.slow[0]
+        hidden = first(x)
+        if universal is not None and task is not None:
+            # W1 x + g * W1 (U^T diag(sigma^(m)) U x): the first layer is
+            # factored through the shared Stiefel frame, and g learns how
+            # much of the shared relational basis each modality needs.
+            shared = F.linear(universal.modulate(x, task), first.weight)
+            hidden = hidden + self.first_layer_gain * shared
+        hidden = self.slow[1](hidden)
+        hidden = self.slow[2](hidden)
+        return hidden + self.fast_logits(x)
 
     @torch.no_grad()
     def online_update(
@@ -306,7 +337,9 @@ class LeanSwarm(nn.Module):
                 novelty=features.new_zeros(batch, self.n_experts),
             )
 
-        expert_logits = torch.stack([expert(x) for expert in self.experts], dim=0)
+        expert_logits = torch.stack(
+            [expert(x, universal=self.universal, task=task) for expert in self.experts], dim=0
+        )
         router_logits = self.router(x)
         novelty = torch.stack([expert.novelty(x) for expert in self.experts], dim=-1)
         if training and explore:

@@ -101,9 +101,9 @@ def main() -> int:
     trainer = Trainer(model, tasks, TrainConfig(steps_per_task=1, batch_size=32, lr=2e-3))
     for _ in range(int(args.steps)):
         trainer.step("vision")
-    batches = [tasks["vision"].sample(32, "val").x for _ in range(6)]
-    model.calibrate_chance("vision", batches, percentile=1.0, margin=0.02)
-    model.calibrate_veto("vision", batches, ceiling=0.98)
+    batches = [tasks["vision"].sample(32, "val").x for _ in range(8)]
+    # Decision A3: one joint calibration for both veto conditions.
+    veto_report = model.calibrate_two_condition("vision", batches, ceiling=0.98)
     # Decision 2: clean attractors, built before any noise is applied.
     prototype_stats = model.calibrate_prototypes(
         "vision", [tasks["vision"].sample(64, "train") for _ in range(4)]
@@ -174,6 +174,7 @@ def main() -> int:
         "energy_reduction": -row["energy_delta"],
         "prototypes": prototype_stats,
         "gate_calibration": gate_stats,
+        "veto_calibration": veto_report,
         "gate": {
             "relax_gain_at_sigma_at_least_0_05": bool(row["model_delta"] >= 0.05),
             "relax_gain_positive": bool(row["model_delta"] > 0.0),
@@ -184,6 +185,16 @@ def main() -> int:
             "energy_reduced": bool(row["energy_delta"] < 0.0),
             "dark_energy_reduced": bool(row["dark_delta"] < 0.0),
             "passed": bool(row["model_delta"] >= 0.05),
+            "a2_clean_invariant": bool(
+                abs(rows.get("0.00", {}).get("model_delta", float("nan"))) <= 1e-12
+            ),
+            "a2_all_sigma_positive": bool(
+                all(rows[key]["model_delta"] > 0.0 for key in ("0.25", "0.50", "0.75", "1.00") if key in rows)
+            ),
+            "a2_passed": bool(
+                abs(rows.get("0.00", {}).get("model_delta", float("nan"))) <= 1e-12
+                and all(rows[key]["model_delta"] > 0.0 for key in ("0.25", "0.50", "0.75", "1.00") if key in rows)
+            ),
         },
         "evidence": "OBSERVED",
     }
