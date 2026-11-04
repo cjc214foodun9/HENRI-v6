@@ -511,6 +511,11 @@ class ZoneCMemory:
     ) -> None:
         self.cfg = cfg
         self.dim = int(cfg.dim)
+        # Decision C2: the wave dimension is part of the table identity. A
+        # D = 1024 run and a D = 256 run can share one TimescaleDB service,
+        # and neither can retrieve the other's engrams: coherence across
+        # dimensions is undefined, not merely noisy.
+        table = f"{table}_d{self.dim}"
         self.gram_dims = int(cfg.gram_dims)
         self.cache_capacity = int(cfg.cache_capacity)
         self.seed = int(cfg.seed if seed is None else seed)

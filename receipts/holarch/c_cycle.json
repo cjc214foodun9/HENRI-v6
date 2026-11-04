@@ -1,0 +1,103 @@
+{
+  "cycle": "C1-C5",
+  "directives": {
+    "C1": {
+      "receipt": "holarch_small.json",
+      "present": true,
+      "sha256": "bfd2b50ffb767534cca84d972ba5e35b7a9bef28d9f9e4349bd1e8f5f2fb38dd",
+      "checks": {
+        "ood_at_least_0_999": true,
+        "false_veto_at_most_0_005": false
+      },
+      "passed": false,
+      "measured": {
+        "ood_veto_rate": 1.0,
+        "false_veto_rate": 0.006666666666666667,
+        "tau_residual": 0.643523638671218,
+        "parameters": 223242.0
+      }
+    },
+    "C2": {
+      "receipt": "holarch_production.json",
+      "present": true,
+      "sha256": "4e225d4f07e3e5336473b0de6ae9708f9f417f1e0d43c3c51fec5888ddb6d396",
+      "checks": {
+        "relational_at_least_0_75": false,
+        "action_at_least_0_788": false,
+        "vision_at_least_0_9697": true
+      },
+      "passed": false,
+      "measured": {
+        "relational_accuracy": 0.7464788732394366,
+        "action_accuracy": 0.775,
+        "vision_accuracy": 0.9764309764309764,
+        "dim": 1024.0,
+        "parameters": 995804.0,
+        "action_success": 0.5
+      }
+    },
+    "C3": {
+      "receipt": "budget.json",
+      "present": true,
+      "sha256": "18064e5adef20b42a86a06eabd37d82721b4f2b2c4488cd8012449057c2e1e00",
+      "checks": {
+        "cuda_observed": false
+      },
+      "passed": false,
+      "measured": {
+        "evidence": "BLOCKED",
+        "reason": "no CUDA device is visible to torch in this checkout",
+        "device": "cpu",
+        "training_gib": 0.9225118532776833,
+        "parameters": 5886556.0,
+        "cuda_peak_allocated_gib": 0.0
+      }
+    },
+    "C4": {
+      "receipt": "symbolic.json",
+      "present": true,
+      "sha256": "5cd398745ab1c142e23a6f6edb59efe481eebd56a3b1ea320d09718a54d89f8f",
+      "checks": {
+        "pair_sum_at_least_0_85": true,
+        "pair_diff_at_least_0_85": true
+      },
+      "passed": true,
+      "measured": {
+        "pair_sum": 0.96,
+        "pair_diff": 0.96,
+        "grounding_accuracy": 0.98,
+        "n": 200.0
+      }
+    },
+    "C5": {
+      "receipt": "agent_eval.json",
+      "present": true,
+      "sha256": "82e8479450666087bc569ab4833d5a0335f4cb38e27f467cb38da2f7e6797587",
+      "checks": {
+        "zero_query_reads": true,
+        "reachable_accuracy_1": true,
+        "hallucination_zero": true,
+        "receipt_chain_valid": true,
+        "sidecar_false_veto_at_most_0_01": true
+      },
+      "passed": true,
+      "measured": {
+        "query_file_reads": 0.0,
+        "reachable_accuracy": 1.0,
+        "hallucination_rate": 0.0,
+        "receipts": 34.0,
+        "compression": 502.5189028910304,
+        "sidecar_clean_veto_rate": 0.0,
+        "agent_gate_passed": true
+      }
+    }
+  },
+  "summary": {
+    "passed": 2,
+    "total": 5,
+    "blocked": [
+      "C3"
+    ]
+  },
+  "evidence": "DERIVED"
+}

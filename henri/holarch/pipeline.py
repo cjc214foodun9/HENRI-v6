@@ -356,6 +356,14 @@ class HenriHolarch(nn.Module):
         # waves get their own alignment degrees of freedom. Zero at start, so
         # the first relational step is identical to the coupled path.
         self.relational_phase = nn.Parameter(torch.zeros(3, int(cfg.d_slot)))
+        # Decision C2: one diagonal phase-mask cartridge per task, mounted on
+        # the shared BaTiO3 substrate. The cartridge is selected by the task
+        # that the caller names (the API always knows it); a router-free
+        # deployment selects it by the Pass-0 prototype block argmax. Zero at
+        # start, so every pre-existing receipt remains the identity case.
+        self.task_phase = nn.Parameter(
+            torch.zeros(int(cfg.n_tasks), int(cfg.n_slots), int(cfg.d_slot))
+        )
         # Decision 7: M cyclic readout frames of the bound wave. Circular
         # convolution commutes with a cyclic shift, so reading roll(psi, s)
         # is exactly binding with roll(psi_action, s): the M frames give the
@@ -747,6 +755,7 @@ class HenriHolarch(nn.Module):
         relax: bool = True,
         rule_id=None,
         isolate_branch: bool = False,
+        allow_empty: Optional[bool] = None,
     ) -> HolarchOutput:
         """Run one batch through the holarch.
 
@@ -772,6 +781,11 @@ class HenriHolarch(nn.Module):
                 relational phase mask and the relational head only. The
                 shared Zone B plates, mixer and Stiefel frames receive no
                 gradient from that pass.
+            allow_empty: Decision C1. When False (the inference default) a
+                query that retrieves no Zone C engram is vetoed, because an
+                empty candidate set is s_max = 0 and therefore maximum
+                epistemic uncertainty. Training and the explicit ingestion
+                paths pass True: they are authorised exploratory ingress.
         """
         if task not in TASK_IDS:
             raise ValueError(f"unknown task {task!r}")
@@ -829,6 +843,10 @@ class HenriHolarch(nn.Module):
 
         gate = torch.sigmoid(self.memory_gate)
         fused = _unit(psi_in + gate * context_wave) if use_memory else psi_in
+        # Decision C2: mount the task's diagonal phase cartridge on the
+        # substrate before the plates. Zero cartridge = identity.
+        cartridge = self.task_phase[TASK_IDS[task]].reshape(1, -1)
+        fused = _unit(fused * torch.exp(1j * cartridge.to(fused.dtype)))
         s_max_tensor = torch.tensor(s_max_values, dtype=torch.float32, device=psi_in.device)
 
         axiom = top_axiom if (use_memory and bool(has_hits.any())) else None
@@ -1007,6 +1025,9 @@ class HenriHolarch(nn.Module):
         chance = self.chance_epsilon(task)
         # Decision A3: one value object owns the union rule, so the
         # calibrator and the deployed decision cannot drift apart.
+        # Decision C1: a no-hit query is vetoed unless the caller authorised
+        # empty retrieval (training or an ingestion path).
+        empty_allowed = bool(training) if allow_empty is None else bool(allow_empty)
         rule = TwoConditionVeto(
             tau_residual=float(tau_residual), tau_chance=float(chance)
         )
@@ -1015,6 +1036,7 @@ class HenriHolarch(nn.Module):
                 delta_sagnac.detach().cpu().numpy(),
                 s_max_tensor.detach().cpu().numpy(),
                 has_hits.detach().cpu().numpy(),
+                allow_empty=empty_allowed,
             ),
             device=psi_in.device,
             dtype=torch.bool,
@@ -1126,7 +1148,7 @@ class HenriHolarch(nn.Module):
         batches: Sequence[torch.Tensor],
         sigma: float = 3.0,
         ceiling: float = 0.35,
-        quantile: float = 0.999,
+        quantile: float = 0.996,
         margin: float = 0.0,
         margin_sigma: float = 2.0,
     ) -> Dict[str, float]:
@@ -1233,7 +1255,7 @@ class HenriHolarch(nn.Module):
         self,
         task: str,
         batches: Sequence[torch.Tensor],
-        quantile: float = 0.999,
+        quantile: float = 0.996,
         chance_percentile: float = 0.2,
         margin_sigma: float = 2.0,
         target_false_veto: float = 0.005,

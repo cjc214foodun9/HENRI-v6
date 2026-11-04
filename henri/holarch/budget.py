@@ -59,10 +59,18 @@ def parameter_breakdown(model: nn.Module) -> Dict[str, int]:
     return groups
 
 
+def _module_device(model: nn.Module) -> torch.device:
+    """The device the model actually lives on, not the configured one."""
+    try:
+        return next(model.parameters()).device
+    except StopIteration:  # pragma: no cover - a model with no parameters
+        return torch.device("cpu")
+
+
 def _peak_saved_bytes(model: nn.Module, batch_size: int, cfg: HolarchConfig) -> int:
     """Measure saved-tensor bytes for one real vision batch."""
     counter = _SavedTensorCounter()
-    x = torch.zeros(int(batch_size), 1, 8, 8)
+    x = torch.zeros(int(batch_size), 1, 8, 8, device=_module_device(model))
     model.zero_grad(set_to_none=True)
     with torch.autograd.graph.saved_tensors_hooks(counter.pack, counter.unpack):
         output = model("vision", x, training=True, use_memory=False)
@@ -75,7 +83,7 @@ def _peak_saved_bytes(model: nn.Module, batch_size: int, cfg: HolarchConfig) -> 
 @torch.no_grad()
 def _forward_peak_bytes(model: nn.Module, batch_size: int, cfg: HolarchConfig) -> int:
     """Estimate inference activation bytes: the largest single tensor set."""
-    x = torch.zeros(int(batch_size), 1, 8, 8)
+    x = torch.zeros(int(batch_size), 1, 8, 8, device=_module_device(model))
     output = model("vision", x, training=False, use_memory=False)
     tensors = [
         output.psi_in,
@@ -126,6 +134,14 @@ def budget_report(
     training = bytes_params_fp32 + bytes_grads + bytes_optimizer + saved + resident_index + runtime
     inference = bytes_params_fp32 // 2 + forward + resident_index + runtime
     total_gb = training / GIB
+    cuda_peak = 0.0
+    if torch.cuda.is_available():
+        # Decision C3: when the model really ran on a CUDA device, record the
+        # allocator's own peak instead of only the analytic accounting.
+        try:
+            cuda_peak = float(torch.cuda.max_memory_allocated() / GIB)
+        except Exception:  # pragma: no cover - driver present but no context
+            cuda_peak = 0.0
     return {
         "parameters": float(params),
         "parameter_bytes_fp32": float(bytes_params_fp32),
@@ -143,6 +159,8 @@ def budget_report(
         "batch_size": float(batch_size),
         "method": "counted params + measured saved tensors + declared reserve",
         "device": cfg.resolved_device(),
+        "measured_device": str(_module_device(model)),
+        "cuda_peak_allocated_gib": cuda_peak,
     }
 
 

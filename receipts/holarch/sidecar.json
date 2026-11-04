@@ -2,45 +2,45 @@
   "config_digest": "1ede658ba058f712",
   "steps": 120,
   "veto_calibration": {
-    "tau_residual": 0.3090605415125094,
-    "tau_chance": 0.498137531065612,
+    "tau_residual": 0.39676989118130773,
+    "tau_chance": 0.2580797926275949,
     "n_cal": 256.0,
-    "residual_prob": 0.0010000000000000009,
+    "residual_prob": 0.0040000000000000036,
     "chance_prob": 0.002,
     "margin_sigma": 2.0,
     "residual_shift": 0.0,
-    "residual_sigma_tail": 0.0064632665809864955,
-    "chance_sigma_tail": 0.010201351448099538,
+    "residual_sigma_tail": 0.013107245166459532,
+    "chance_sigma_tail": 0.016624122746497622,
     "target_false_veto": 0.005,
     "calibration_false_veto": 0.0,
     "ceiling": 0.98,
-    "epsilon": 0.3090605415125094,
+    "epsilon": 0.39676989118130773,
     "n": 256.0,
-    "quantile": 0.999,
+    "quantile": 0.996,
     "calibrated": 1.0,
-    "s_max_mean": 0.8291528441477567,
-    "delta_mean": 0.08842251286841929,
-    "delta_std": 0.048181940707818775
+    "s_max_mean": 0.8055452278349549,
+    "delta_mean": 0.10600656224414706,
+    "delta_std": 0.06751350594552702
   },
   "veto": {
     "clean_veto_rate": 0.0,
     "ood_veto_rate": 1.0,
-    "clean_s_max": 0.8236238956451416,
-    "ood_s_max": 0.2844260036945343
+    "clean_s_max": 0.8115514516830444,
+    "ood_s_max": 0.2955969572067261
   },
   "code_index": {
     "files_parsed": 16.0,
-    "lines_parsed": 8078.0,
-    "parse_seconds": 0.09907510000630282,
-    "edges": 538.0,
-    "nodes": 263.0,
-    "edges_ingested": 538.0,
+    "lines_parsed": 8265.0,
+    "parse_seconds": 0.06922069999563973,
+    "edges": 552.0,
+    "nodes": 269.0,
+    "edges_ingested": 552.0,
     "engrams_before": 120.0,
-    "engrams_after": 658.0,
+    "engrams_after": 672.0,
     "parameters_unchanged": 1.0,
     "tau_coherence": 0.9800000000000004,
     "coherence_median": 1.0,
-    "n": 538.0
+    "n": 552.0
   },
   "topology": {
     "edges": 72.0,
@@ -53,12 +53,12 @@
   "adaptation": {
     "shifted": {
       "gate_mean": 1.0,
-      "surprise_mean": 0.6995269060134888,
+      "surprise_mean": 0.7015552520751953,
       "examples": 32.0
     },
     "familiar": {
-      "gate_mean": 0.09375,
-      "surprise_mean": 0.3644995391368866,
+      "gate_mean": 0.03125,
+      "surprise_mean": 0.3717990517616272,
       "examples": 32.0
     }
   },
@@ -66,7 +66,7 @@
     "compiled": {
       "steps": 5.0,
       "version": 1.0,
-      "engram_id": 731.0,
+      "engram_id": 745.0,
       "tier": 3.0
     },
     "recall_coherence": 0.999513787632319,
@@ -82,7 +82,7 @@
     "text": "PLAN refactor [verified]\n  1. READ_INDEX\n  2. LOCATE_SYMBOL\n  3. EDIT_CALLSITE\n  4. RUN_TESTS\n  5. VERIFY_VETO"
   },
   "prototype_recall": {
-    "alignment": 1.243384599685669,
+    "alignment": 1.2378110885620117,
     "labels": [
       3,
       7,
@@ -95,10 +95,10 @@
     ]
   },
   "report": {
-    "engrams": 731.0,
-    "symbols": 338.0,
+    "engrams": 745.0,
+    "symbols": 342.0,
     "playbooks": 1.0,
-    "parameters": 222218.0,
+    "parameters": 223242.0,
     "backend": 0.0
   },
   "gate": {

@@ -10,18 +10,18 @@
     "playbook_reuse": 1
   },
   "code_index": {
-    "seconds": 0.855041999995592,
+    "seconds": 0.5965037000132725,
     "files": 16.0,
-    "lines": 8078.0,
-    "nodes": 263.0,
-    "edges": 538.0,
+    "lines": 8265.0,
+    "nodes": 269.0,
+    "edges": 552.0,
     "edges_ingested": 72.0
   },
   "baseline_unindexed": {
     "query_file_reads": 128,
-    "bytes_read_at_query_time": 2642960,
-    "response_bytes": 871,
-    "latency_ms_total": 51.117499999236315,
+    "bytes_read_at_query_time": 2711592,
+    "response_bytes": 868,
+    "latency_ms_total": 25.612400044337846,
     "reachable_accuracy": 0.6666666666666666,
     "hallucination_rate": 1.0,
     "playbook_exact": 0.0
@@ -29,8 +29,8 @@
   "holarch_mcp": {
     "query_file_reads": 0,
     "bytes_read_at_query_time": 0,
-    "response_bytes": 5387,
-    "latency_ms_total": 55.1891999784857,
+    "response_bytes": 5396,
+    "latency_ms_total": 33.64139999030158,
     "reachable_accuracy": 1.0,
     "hallucination_rate": 0.0,
     "playbook_exact": 1.0,
@@ -38,7 +38,7 @@
     "receipt_chain_valid": true,
     "receipts_valid": true
   },
-  "context_compression_ratio": 490.6181548171524,
+  "context_compression_ratio": 502.5189028910304,
   "per_category": {
     "code_call_flow": {
       "baseline_correct": 0,

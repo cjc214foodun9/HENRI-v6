@@ -29,6 +29,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from henri.holarch.config import HolarchConfig
 from henri.holarch.pipeline import HenriHolarch
 from henri.holarch.symbolic import (
+    CompositeSolver,
     Edge,
     SymbolCodebook,
     SymbolicTopologyTask,
@@ -223,11 +224,112 @@ def run_playbooks(cfg, seed: int, steps: Sequence[str]) -> Dict[str, float]:
     return report
 
 
+def _snap_digits(model, images: torch.Tensor) -> torch.Tensor:
+    """Stage 1: ground an 8x8 patch through the Pass-0 prototype bank."""
+    with torch.no_grad():
+        psi = model.encode("vision", images)
+        bright = model.zone_b(psi).bright
+        bank = model.prototype_waves("vision")
+        if int(bank.numel()):
+            labels = model.prototype_class_vision
+            align = model.zone_b.alignment(bright, bank)
+            return labels[align.argmax(dim=-1)]
+        return model("vision", images, training=False).predicted()
+
+
+def run_composition(cfg, seed: int, steps: int = 300, pairs: int = 200) -> Dict[str, object]:
+    """Decision C4: two-stage neuro-symbolic arithmetic on 16x16 canvases.
+
+    Stage 1 grounds each informative quadrant through the trained Pass-0
+    prototype bank. Stage 2 binds the two digit symbols and the operator
+    into one qFHRR key and reads the exact result from the Zone C atlas.
+    The continuous plates never see the arithmetic rule.
+    """
+    from henri.holarch.tasks import DigitsTask, build_tasks
+    from henri.holarch.train import Trainer, TrainConfig
+
+    model = _memory(cfg, f"composition_{seed}")
+    tasks = build_tasks(cfg, seed=seed)
+    trainer = Trainer(model, tasks, TrainConfig(steps_per_task=1, batch_size=32))
+    for _ in range(int(steps)):
+        trainer.step("vision")
+    model.calibrate_prototypes(
+        "vision", [tasks["vision"].sample(64, "train") for _ in range(4)]
+    )
+    model.eval()
+
+    digits = DigitsTask(seed=seed)
+    images, labels = digits.splits["val"]
+    generator = np.random.default_rng(seed)
+    take = int(min(pairs, len(images)))
+    index = generator.integers(0, len(images), size=(take, 4))
+    canvas = torch.zeros(take, 1, 16, 16)
+    for row in range(take):
+        first, second, third, fourth = index[row]
+        canvas[row, 0, 0:8, 0:8] = torch.from_numpy(images[first])
+        canvas[row, 0, 0:8, 8:16] = torch.from_numpy(images[second])
+        canvas[row, 0, 8:16, 0:8] = torch.from_numpy(images[third])
+        canvas[row, 0, 8:16, 8:16] = torch.from_numpy(images[fourth])
+
+    q0 = canvas[:, :, 0:8, 0:8]
+    q1 = canvas[:, :, 0:8, 8:16]
+    d0 = _snap_digits(model, q0).detach().cpu().numpy()
+    d1 = _snap_digits(model, q1).detach().cpu().numpy()
+    true0 = labels[index[:, 0]]
+    true1 = labels[index[:, 1]]
+    grounding = float(np.mean((d0 == true0).astype(float).tolist() + (d1 == true1).astype(float).tolist()))
+
+    codebook = SymbolCodebook(cfg.dim)
+    solver = CompositeSolver(model.memory, codebook)
+    operations = {
+        "pair_sum": ("add", lambda a, b: (int(a) + int(b)) % 10),
+        "pair_diff": ("sub", lambda a, b: abs(int(a) - int(b))),
+    }
+    rows_by_op = {}
+    for name, (operator, _) in operations.items():
+        rows = [
+            ((f"d{a}", operator, f"d{b}"), f"d{operations[name][1](a, b)}")
+            for a in range(10)
+            for b in range(10)
+        ]
+        rows_by_op[name] = rows
+        solver.ingest(rows)
+
+    calibration = solver.calibrate(rows_by_op["pair_sum"] + rows_by_op["pair_diff"])
+    report: Dict[str, object] = {
+        "grounding_accuracy": grounding,
+        "n": float(take),
+        "tau_coherence": float(calibration["tau_coherence"]),
+        "atlas_coherence_median": float(calibration["coherence_median"]),
+    }
+    for name, (operator, fn) in operations.items():
+        rows = rows_by_op[name]
+        correct = 0
+        refused = 0
+        for row in range(take):
+            result = solver.step((f"d{int(d0[row])}", operator, f"d{int(d1[row])}"))
+            if result["vetoed"] or result["answer"] is None:
+                refused += 1
+                continue
+            truth = fn(int(true0[row]), int(true1[row]))
+            correct += int(result["answer"] == f"d{truth}")
+        report[name] = {
+            "accuracy": correct / max(take, 1),
+            "refused": refused / max(take, 1),
+            "n": float(take),
+            "operator": operator,
+        }
+    model.memory.close()
+    return report
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--seeds", type=int, default=3)
     parser.add_argument("--out", default="receipts/holarch/symbolic.json")
     parser.add_argument("--root", default="henri/holarch")
+    parser.add_argument("--steps", type=int, default=300, help="vision grounding steps")
+    parser.add_argument("--pairs", type=int, default=200)
     args = parser.parse_args()
 
     cfg = HolarchConfig.small()
@@ -251,6 +353,9 @@ def main() -> int:
         seeds[0],
         ("READ_INDEX", "LOCATE_SYMBOL", "EDIT_CALLSITE", "RUN_TESTS", "VERIFY_VETO"),
     )
+    composition = run_composition(
+        cfg, seeds[0], steps=int(args.steps), pairs=int(args.pairs)
+    )
     payload = {
         "task": "symbolic-topology",
         "seeds": seeds,
@@ -258,6 +363,7 @@ def main() -> int:
         "capacity": capacity,
         "code_index": code,
         "playbook": playbooks,
+        "composition": composition,
         "gate": {
             "one_hop_at_least_0_90": bool(merged["1"]["accuracy_mean"] >= 0.90),
             "two_hop_at_least_0_80": bool(merged["2"]["accuracy_mean"] >= 0.80),
@@ -269,6 +375,8 @@ def main() -> int:
             ),
             "code_false_accept_at_most_0_05": bool(code["false_accept"] <= 0.05),
             "playbook_exact_recovery": bool(playbooks["exact_recovery"] >= 0.80),
+            "pair_sum_at_least_0_85": bool(composition["pair_sum"]["accuracy"] >= 0.85),
+            "pair_diff_at_least_0_85": bool(composition["pair_diff"]["accuracy"] >= 0.85),
         },
         "evidence": "OBSERVED",
     }
@@ -276,6 +384,8 @@ def main() -> int:
         payload["gate"]["one_hop_at_least_0_90"]
         and payload["gate"]["unreachable_refused_at_least_0_90"]
         and payload["gate"]["code_false_accept_at_most_0_05"]
+        and payload["gate"]["pair_sum_at_least_0_85"]
+        and payload["gate"]["pair_diff_at_least_0_85"]
     )
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)

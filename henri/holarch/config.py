@@ -408,6 +408,37 @@ class HolarchConfig:
         return cls(**base)
 
     @classmethod
+    def medium(cls, **overrides) -> "HolarchConfig":
+        """Scaled profile for multi-task capacity (Decision C2), D = 1024.
+
+        The four-task relational ceiling of the CI profile is representation
+        crowding at d_slot = 64. This profile quadruples the per-slot wave to
+        256 while keeping the plate count at the measured production depth,
+        so the shared optical substrate has room for four tasks without
+        changing the physics. It is sized to train on a CPU in minutes, not
+        to be the final production width.
+        """
+        base = dict(
+            dim=1024,
+            photonic_layers=PRODUCTION_PLATES,
+            d_latent=64,
+            d_feat=128,
+            pool_k=32,
+            n_experts=8,
+            expert_hidden=128,
+            fast_rank=32,
+            relational_hidden=192,
+            gram_dims=32,
+            chart_capacity=64,
+            cache_capacity=64,
+            context_tokens=8,
+            context_dim=32,
+            device="cpu",
+        )
+        base.update(overrides)
+        return cls(**base)
+
+    @classmethod
     def production(cls, **overrides) -> "HolarchConfig":
         """Full-size configuration for the 32 GiB Blackwell target."""
         base = dict(dim=4096, photonic_layers=PRODUCTION_PLATES, d_feat=256, n_experts=16,

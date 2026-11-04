@@ -14,7 +14,9 @@ bytes in the sidecar `.sha256`.
 | `continual_vision.json` | `python scripts/run_holarch_continual.py --steps 150` |
 | `symbolic.json` | `python scripts/run_holarch_symbolic.py --seeds 3` |
 | `sidecar.json` | `python scripts/run_holarch_sidecar_demo.py --steps 120` |
+| `holarch_production.json` | `python -m henri.holarch train --steps 600 --name holarch_production --fresh --dagger 20` |
 | `agent_eval.json` | `python scripts/run_holarch_agent_eval.py` |
+| `c_cycle.json` | `python scripts/run_holarch_c_cycle.py` (cycle C verification ledger) |
 | `budget.json` | `python -m henri.holarch budget` |
 | `gate_d1_k*.json` | the Decision A1 detector-width sweep; kept as evidence of the arm that failed |
 | `diagnostics/holarch_small_rel1x.json` | the Decision B1 one-times coupling control |

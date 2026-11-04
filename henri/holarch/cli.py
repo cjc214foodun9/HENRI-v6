@@ -139,7 +139,10 @@ def cmd_budget(args) -> int:
     from henri.holarch.budget import budget_report
     from henri.holarch.pipeline import HenriHolarch
 
-    cfg = HolarchConfig.production(device="cpu") if not args.small else HolarchConfig.small()
+    # Decision C3: "auto" resolves to cuda when a device answers, so a GPU
+    # host measures the production profile on the GPU; this host resolves to
+    # cpu and the receipt says BLOCKED for CUDA, which is the truth.
+    cfg = HolarchConfig.production(device="auto") if not args.small else HolarchConfig.small()
     path = args.path or str(Path(tempfile.gettempdir()) / "henri_holarch_budget.sqlite3")
     # Decision B4: probe the live environment instead of assuming it. The
     # model asks for the TimescaleDB backend; if no DSN answers, Zone C falls
@@ -178,6 +181,8 @@ def cmd_budget(args) -> int:
         "method": report["method"],
         "device": report["device"],
         "activation_bytes_training": report["activation_bytes_training"],
+        "measured_device": report.get("measured_device", "cpu"),
+        "cuda_peak_allocated_gib": report.get("cuda_peak_allocated_gib", 0.0),
         "profile": "small" if args.small else "production",
         "hardware": hardware,
         "storage": storage,
@@ -223,11 +228,22 @@ def cmd_train(args) -> int:
     from henri.holarch.tasks import build_tasks
     from henri.holarch.train import TrainConfig, run_experiment
 
-    cfg = (
-        HolarchConfig.small()
-        if (args.small or int(args.dim) == 256)
-        else HolarchConfig(dim=int(args.dim))
-    )
+    # Decision C2: the profile selects the wave dimension. "auto" keeps the
+    # CI profile for ordinary runs, uses an explicit --dim when one is given,
+    # and selects the scaled medium profile for a run named *production*.
+    profile = str(getattr(args, "profile", "auto")).lower()
+    if profile == "small" or args.small:
+        cfg = HolarchConfig.small()
+    elif profile == "medium":
+        cfg = HolarchConfig.medium()
+    elif profile == "production":
+        cfg = HolarchConfig.production(device="cpu")
+    elif int(args.dim) != 256:
+        cfg = HolarchConfig(dim=int(args.dim))
+    elif "production" in str(args.name).lower():
+        cfg = HolarchConfig.medium()
+    else:
+        cfg = HolarchConfig.small()
     tasks = build_tasks(cfg)
     receipt = run_experiment(
         cfg,
@@ -381,6 +397,12 @@ def build_parser() -> argparse.ArgumentParser:
     train.add_argument("--steps", type=int, default=150)
     train.add_argument("--batch", type=int, default=32)
     train.add_argument("--dim", type=int, default=256)
+    train.add_argument(
+        "--profile",
+        default="auto",
+        choices=["auto", "small", "medium", "production"],
+        help="wave profile; auto uses medium for a *production* run name",
+    )
     train.add_argument("--small", action="store_true")
     train.add_argument("--backend", default="auto", choices=["auto", "sqlite", "timescale"])
     train.add_argument("--path", default=None)

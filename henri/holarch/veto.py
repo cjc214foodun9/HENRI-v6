@@ -219,7 +219,7 @@ class TwoConditionVeto:
     tau_residual: float
     tau_chance: float
     n_cal: int = 0
-    residual_prob: float = 0.001
+    residual_prob: float = 0.004
     chance_prob: float = 0.002
     margin_sigma: float = 2.0
     target_false_veto: float = 0.010
@@ -238,17 +238,39 @@ class TwoConditionVeto:
             np.asarray(s_max, dtype=np.float64) < float(self.tau_chance)
         )
 
-    def union(self, delta, s_max, has_hits) -> np.ndarray:
-        """The deployed veto: either condition fires."""
-        return self.residual_condition(delta) | self.chance_condition(s_max, has_hits)
+    def empty_retrieval(self, has_hits, allow_empty: bool = False) -> np.ndarray:
+        """Decision C1: an active query with no retrieved engram is vetoed.
 
-    def per_condition_rates(self, delta, s_max, has_hits) -> Dict[str, float]:
+        An empty candidate set is maximum epistemic uncertainty, not a
+        pass: s_max is identically zero, which is below every calibrated
+        chance threshold. The caller may authorise exploratory ingress
+        (training, or the explicit ingestion endpoints), and then the
+        empty set is tolerated.
+        """
+        hits = np.asarray(has_hits, dtype=bool)
+        if allow_empty:
+            return np.zeros_like(hits)
+        return ~hits
+
+    def union(self, delta, s_max, has_hits, allow_empty: bool = False) -> np.ndarray:
+        """The deployed veto: either condition fires, or retrieval is empty."""
+        return (
+            self.residual_condition(delta)
+            | self.chance_condition(s_max, has_hits)
+            | self.empty_retrieval(has_hits, allow_empty=allow_empty)
+        )
+
+    def per_condition_rates(
+        self, delta, s_max, has_hits, allow_empty: bool = False
+    ) -> Dict[str, float]:
         residual = self.residual_condition(delta)
         chance = self.chance_condition(s_max, has_hits)
+        empty = self.empty_retrieval(has_hits, allow_empty=allow_empty)
         return {
             "residual_rate": float(residual.mean()) if residual.size else 0.0,
             "chance_rate": float(chance.mean()) if chance.size else 0.0,
-            "union_rate": float((residual | chance).mean()) if residual.size else 0.0,
+            "empty_rate": float(empty.mean()) if empty.size else 0.0,
+            "union_rate": float((residual | chance | empty).mean()) if residual.size else 0.0,
         }
 
     def report(self) -> Dict[str, float]:
@@ -279,7 +301,7 @@ class TwoConditionVeto:
         # the residual tail is heavier than the Cornish-Fisher fit, so the
         # deployed targets are halved again until the measured union rate
         # clears 0.010 with margin. The union expectation is now 0.003.
-        residual_prob: float = 0.001,
+        residual_prob: float = 0.004,
         chance_prob: float = 0.002,
         margin_sigma: float = 2.0,
         target_false_veto: float = 0.010,

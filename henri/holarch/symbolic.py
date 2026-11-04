@@ -480,6 +480,73 @@ def index_code(root: str | Path, package: str = "henri") -> CallGraph:
     return graph
 
 
+class CompositeSolver:
+    """Bind several role waves into one key and read a target from Zone C.
+
+    Decision C4. The topology solver keys on (source, operator) because a
+    graph transition has two roles. A composition such as modular addition
+    has three: the two operands and the operator. The key is the ordered
+    product of their phasors, so the atlas stays indexed (one row per
+    composition) and retrieval is exact at any edge count. No continuous
+    weight is trained here: the composition lives in memory, and the
+    perception that fills the operands lives in Zone B.
+    """
+
+    def __init__(self, memory, codebook: SymbolCodebook, tau_coherence: float = 0.0) -> None:
+        self.memory = memory
+        self.codebook = codebook
+        self.tau_coherence = float(tau_coherence)
+        self.entries = 0
+
+    def key(self, parts: Sequence[str]) -> np.ndarray:
+        wave = np.ones(self.codebook.dim, dtype=np.complex64)
+        for part in parts:
+            wave = wave * self.codebook.symbol_wave(str(part))
+        return _unit(wave)
+
+    def ingest(self, rows: Sequence[tuple], tier: int = 1) -> int:
+        written = 0
+        for parts, target in rows:
+            self.memory.write(self.key(parts), label=int(self.codebook.add(str(target))), tier=int(tier))
+            written += 1
+        self.entries += written
+        return written
+
+    def calibrate(self, rows: Sequence[tuple], margin: float = 0.02) -> Dict[str, float]:
+        values: List[float] = []
+        for parts, _ in rows:
+            read = self.memory.query(self.key(parts), k=1)
+            if read.hits:
+                values.append(float(read.hits[0].coherence))
+        if not values:
+            return {"tau_coherence": 0.0, "n": 0.0, "coherence_median": 0.0}
+        tau = max(0.0, float(np.min(values)) - float(margin))
+        self.tau_coherence = tau
+        return {
+            "tau_coherence": tau,
+            "n": float(len(values)),
+            "coherence_median": float(np.median(values)),
+        }
+
+    def step(self, parts: Sequence[str]) -> Dict[str, object]:
+        read = self.memory.query(self.key(parts), k=1)
+        if not read.hits:
+            return {"answer": None, "coherence": 0.0, "vetoed": True, "reason": "empty memory"}
+        hit = read.hits[0]
+        vetoed = float(hit.coherence) < float(self.tau_coherence)
+        answer = (
+            self.codebook.symbols[hit.label]
+            if 0 <= hit.label < len(self.codebook) and not vetoed
+            else None
+        )
+        return {
+            "answer": answer,
+            "coherence": float(hit.coherence),
+            "vetoed": vetoed,
+            "reason": "coherence below tau" if vetoed else "",
+        }
+
+
 class SymbolicDecoder:
     """Deterministic renderer. It emits exact symbols, never prose.
 
