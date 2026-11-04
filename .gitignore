@@ -47,3 +47,6 @@ data/
 !receipts/holarch/*.json
 !receipts/holarch/*.json.sha256
 !receipts/holarch/README.md
+# Scratch databases the benchmark scripts create under receipts/holarch.
+# They are working storage, not evidence, and must never be committed.
+receipts/holarch/_work/

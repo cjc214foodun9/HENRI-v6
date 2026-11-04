@@ -1,0 +1,89 @@
+{
+  "stage": "L1",
+  "vocabulary_size": 2048,
+  "vocabulary_digest": "bc6a47ffad3e891e",
+  "corpus_digest": "aa6493f9e0cd9fec",
+  "corpus_files": 21,
+  "corpus_chars": 637762,
+  "roundtrip_texts": 21,
+  "roundtrip_ok": 21,
+  "roundtrip_rate": 1.0,
+  "roundtrip_failures": [],
+  "projector": {
+    "tokens": 2048.0,
+    "d_sem": 64.0,
+    "d_slot": 256.0,
+    "sigma": 32.0,
+    "margin": 0.44649965899686017,
+    "related_mean": 0.6805987358093262,
+    "random_mean": 0.23409907681246597,
+    "roundtrip_texts": 21.0,
+    "roundtrip_ok": 21.0,
+    "corpus_digest": "aa6493f9e0cd9fec",
+    "vocabulary_digest": "bc6a47ffad3e891e",
+    "role_blend": 0.55,
+    "concept_tokens": 94.0,
+    "concept_coverage": 0.0458984375
+  },
+  "related_pairs": [
+    {
+      "left": "return",
+      "right": "yield",
+      "coherence": 0.7278828620910645
+    },
+    {
+      "left": "int",
+      "right": "float",
+      "coherence": 0.677227258682251
+    },
+    {
+      "left": "verify",
+      "right": "check",
+      "coherence": 0.8608661890029907
+    },
+    {
+      "left": "def",
+      "right": "class",
+      "coherence": 0.6726957559585571
+    },
+    {
+      "left": "import",
+      "right": "from",
+      "coherence": 0.668775737285614
+    },
+    {
+      "left": "if",
+      "right": "while",
+      "coherence": 0.65250164270401
+    },
+    {
+      "left": "list",
+      "right": "dict",
+      "coherence": 0.3966812491416931
+    },
+    {
+      "left": "str",
+      "right": "bytes",
+      "coherence": 0.6454682350158691
+    },
+    {
+      "left": "assert",
+      "right": "raise",
+      "coherence": 0.6538258790969849
+    },
+    {
+      "left": "write",
+      "right": "store",
+      "coherence": 0.8500625491142273
+    }
+  ],
+  "gate": {
+    "roundtrip_lossless": true,
+    "margin_at_least_0_25": true,
+    "margin_at_least_0_35": true,
+    "vocabulary_at_most_2048": true,
+    "byte_fallback_present": true,
+    "passed": true
+  },
+  "evidence": "OBSERVED"
+}

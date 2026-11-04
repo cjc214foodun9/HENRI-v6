@@ -238,6 +238,27 @@ class TopologySolver:
         self.edges: List[Edge] = []
         self.bundle = np.zeros(codebook.dim, dtype=np.complex64)
         self.written = 0
+        # Directive F1: one symbol table per tenant. The default tenant keeps
+        # the shared codebook, so every pre-existing label keeps its meaning.
+        self._ns_symbols: Dict[str, List[str]] = {}
+
+    def _add_symbol(self, namespace: str, name: str) -> int:
+        namespace = str(namespace or "default")
+        if namespace == "default":
+            return int(self.codebook.add(str(name)))
+        table = self._ns_symbols.setdefault(namespace, [])
+        if str(name) not in table:
+            table.append(str(name))
+        return int(table.index(str(name)))
+
+    def _symbol_at(self, namespace: str, index: int) -> Optional[str]:
+        namespace = str(namespace or "default")
+        index = int(index)
+        if namespace == "default":
+            symbols = self.codebook.symbols
+        else:
+            symbols = self._ns_symbols.get(namespace, [])
+        return symbols[index] if 0 <= index < len(symbols) else None
 
     # --------------------------------------------------------------- ingest
     def key_wave(self, source: str, operator: str) -> np.ndarray:
@@ -250,7 +271,7 @@ class TopologySolver:
             * self.codebook.symbol_wave(edge.target)
         )
 
-    def ingest(self, edges: Iterable[Edge], tier: int = 1) -> int:
+    def ingest(self, edges: Iterable[Edge], tier: int = 1, namespace: str = "default") -> int:
         """Write an unseen system into Zone C. No neural weight changes."""
         count = 0
         for edge in edges:
@@ -261,28 +282,31 @@ class TopologySolver:
                 # a task-scoped query cannot retrieve them as task context.
                 self.memory.write(
                     key,
-                    label=SYMBOL_LABEL_OFFSET + int(self.codebook.add(edge.target)),
+                    label=SYMBOL_LABEL_OFFSET + int(self._add_symbol(namespace, edge.target)),
                     tier=int(tier),
+                    namespace=str(namespace),
                 )
             else:
                 self.bundle = _unit(self.bundle + self.transition_wave(edge))
-                self.memory.write(self.transition_wave(edge), label=-1, tier=int(tier))
+                self.memory.write(
+                    self.transition_wave(edge), label=-1, tier=int(tier), namespace=str(namespace)
+                )
             count += 1
         self.written += count
         return count
 
     # ----------------------------------------------------------------- step
-    def step(self, source: str, operator: str) -> Dict[str, object]:
+    def step(self, source: str, operator: str, namespace: str = "default") -> Dict[str, object]:
         """Resolve one transition and snap to an exact symbol."""
         if self.mode == "indexed":
             key = self.key_wave(source, operator)
-            read = self.memory.query(key, k=1)
+            read = self.memory.query(key, k=1, namespace=str(namespace))
             if not read.hits:
                 return {"answer": None, "coherence": 0.0, "vetoed": True, "reason": "empty memory"}
             hit = read.hits[0]
             symbol_index = int(hit.label) - SYMBOL_LABEL_OFFSET
-            valid_symbol = 0 <= symbol_index < len(self.codebook)
-            answer = self.codebook.symbols[symbol_index] if valid_symbol else None
+            answer = self._symbol_at(namespace, symbol_index)
+            valid_symbol = answer is not None
             vetoed = (not valid_symbol) or float(hit.coherence) < float(self.tau_coherence)
             return {
                 "answer": None if vetoed else answer,
@@ -301,13 +325,13 @@ class TopologySolver:
             "reason": "coherence below tau" if vetoed else "",
         }
 
-    def solve(self, source: str, operators: Sequence[str]) -> SolveResult:
+    def solve(self, source: str, operators: Sequence[str], namespace: str = "default") -> SolveResult:
         """Multi-hop navigation. Abstains at the first unverifiable hop."""
         current = str(source)
         path: List[Tuple[str, str]] = []
         coherences: List[float] = []
         for operator in operators:
-            result = self.step(current, operator)
+            result = self.step(current, operator, namespace=str(namespace))
             coherences.append(float(result["coherence"]))
             if result["answer"] is None:
                 return SolveResult(
@@ -318,9 +342,18 @@ class TopologySolver:
         return SolveResult(current, path, coherences, False, "")
 
     # ------------------------------------------------------------ calibration
-    def calibrate(self, edges: Sequence[Edge], quantile: float = 0.995, margin: float = 0.02) -> Dict[str, float]:
+    def calibrate(
+        self,
+        edges: Sequence[Edge],
+        quantile: float = 0.995,
+        margin: float = 0.02,
+        namespace: str = "default",
+    ) -> Dict[str, float]:
         """Set the abstention threshold from reachable transitions only."""
-        values = [float(self.step(edge.source, edge.operator)["coherence"]) for edge in edges]
+        values = [
+            float(self.step(edge.source, edge.operator, namespace=str(namespace))["coherence"])
+            for edge in edges
+        ]
         if not values:
             return {"tau_coherence": 0.0, "n": 0.0}
         tau = float(np.quantile(values, float(quantile))) - float(margin)
@@ -507,6 +540,22 @@ class CompositeSolver:
         self.codebook = codebook
         self.tau_coherence = float(tau_coherence)
         self.entries = 0
+        self._ns_symbols: Dict[str, List[str]] = {}
+
+    def _add_symbol(self, namespace: str, name: str) -> int:
+        namespace = str(namespace or "default")
+        if namespace == "default":
+            return int(self.codebook.add(str(name)))
+        table = self._ns_symbols.setdefault(namespace, [])
+        if str(name) not in table:
+            table.append(str(name))
+        return int(table.index(str(name)))
+
+    def _symbol_at(self, namespace: str, index: int) -> Optional[str]:
+        namespace = str(namespace or "default")
+        index = int(index)
+        symbols = self.codebook.symbols if namespace == "default" else self._ns_symbols.get(namespace, [])
+        return symbols[index] if 0 <= index < len(symbols) else None
 
     def key(self, parts: Sequence[str]) -> np.ndarray:
         wave = np.ones(self.codebook.dim, dtype=np.complex64)
@@ -514,22 +563,25 @@ class CompositeSolver:
             wave = wave * self.codebook.symbol_wave(str(part))
         return _unit(wave)
 
-    def ingest(self, rows: Sequence[tuple], tier: int = 1) -> int:
+    def ingest(self, rows: Sequence[tuple], tier: int = 1, namespace: str = "default") -> int:
         written = 0
         for parts, target in rows:
             self.memory.write(
                 self.key(parts),
-                label=SYMBOL_LABEL_OFFSET + int(self.codebook.add(str(target))),
+                label=SYMBOL_LABEL_OFFSET + int(self._add_symbol(namespace, str(target))),
                 tier=int(tier),
+                namespace=str(namespace),
             )
             written += 1
         self.entries += written
         return written
 
-    def calibrate(self, rows: Sequence[tuple], margin: float = 0.02) -> Dict[str, float]:
+    def calibrate(
+        self, rows: Sequence[tuple], margin: float = 0.02, namespace: str = "default"
+    ) -> Dict[str, float]:
         values: List[float] = []
         for parts, _ in rows:
-            read = self.memory.query(self.key(parts), k=1)
+            read = self.memory.query(self.key(parts), k=1, namespace=str(namespace))
             if read.hits:
                 values.append(float(read.hits[0].coherence))
         if not values:
@@ -542,15 +594,16 @@ class CompositeSolver:
             "coherence_median": float(np.median(values)),
         }
 
-    def step(self, parts: Sequence[str]) -> Dict[str, object]:
-        read = self.memory.query(self.key(parts), k=1)
+    def step(self, parts: Sequence[str], namespace: str = "default") -> Dict[str, object]:
+        read = self.memory.query(self.key(parts), k=1, namespace=str(namespace))
         if not read.hits:
             return {"answer": None, "coherence": 0.0, "vetoed": True, "reason": "empty memory"}
         hit = read.hits[0]
         symbol_index = int(hit.label) - SYMBOL_LABEL_OFFSET
-        valid_symbol = 0 <= symbol_index < len(self.codebook)
+        answer = self._symbol_at(namespace, symbol_index)
+        valid_symbol = answer is not None
         vetoed = (not valid_symbol) or float(hit.coherence) < float(self.tau_coherence)
-        answer = self.codebook.symbols[symbol_index] if valid_symbol and not vetoed else None
+        answer = answer if valid_symbol and not vetoed else None
         return {
             "answer": answer,
             "coherence": float(hit.coherence),
@@ -596,3 +649,303 @@ class SymbolicDecoder:
             lines.append(f"{self.indent}- {anchor}")
             lines.append(f"{self.indent}+ {replacement}")
         return "\n".join(lines)
+
+
+# ---------------------------------------------------------------------------
+# Directive F4 / Stage 2: the code graph indexer with signatures and impact
+# ---------------------------------------------------------------------------
+GRAMMAR_LABEL_OFFSET = 30000
+"""Zone C label block for AST grammar, signature and type-boundary engrams."""
+
+
+@dataclass
+class FunctionSignature:
+    """One callable's declared surface, extracted from the AST."""
+
+    qualname: str
+    name: str
+    args: Tuple[str, ...]
+    arity: int
+    returns: str
+    module: str
+    lineno: int
+
+    def as_dict(self) -> Dict[str, object]:
+        return {
+            "qualname": self.qualname,
+            "name": self.name,
+            "args": list(self.args),
+            "arity": int(self.arity),
+            "returns": self.returns,
+            "module": self.module,
+            "lineno": int(self.lineno),
+        }
+
+
+@dataclass
+class IndexReport:
+    """Everything one index pass measured."""
+
+    files: int = 0
+    lines: int = 0
+    nodes: int = 0
+    edges: int = 0
+    signatures: int = 0
+    transitions: int = 0
+    classes: int = 0
+    seconds: float = 0.0
+    boundary_engrams: int = 0
+    modules: List[str] = field(default_factory=list)
+
+    def as_dict(self) -> Dict[str, float]:
+        return {
+            "files": float(self.files),
+            "lines": float(self.lines),
+            "nodes": float(self.nodes),
+            "edges": float(self.edges),
+            "signatures": float(self.signatures),
+            "transitions": float(self.transitions),
+            "classes": float(self.classes),
+            "seconds": float(self.seconds),
+            "boundary_engrams": float(self.boundary_engrams),
+            "modules": float(len(self.modules)),
+        }
+
+
+class CodeGraphIndexer:
+    """Index a package once: call edges, signatures, and grammar boundaries.
+
+    Directive F1 gives every index a namespace; Directive F4 adds the reverse
+    call query. Stage 2 of the tandem protocol adds the signature and grammar
+    extraction: each function's arity, argument names, return annotation and
+    the parent-child AST transitions the package actually uses are written as
+    Tier-3 boundary engrams in Zone C, so the Sagnac gate has an axiom to
+    compare a proposed statement against.
+
+    The indexer never edits the package and never imports it: it reads source
+    text with ast.parse in one pass.
+    """
+
+    def __init__(
+        self,
+        memory=None,
+        namespace: str = "default",
+        symbol_codebook: Optional[SymbolCodebook] = None,
+        grammar_offset: int = GRAMMAR_LABEL_OFFSET,
+    ) -> None:
+        self.memory = memory
+        self.namespace = str(namespace or "default")
+        self.codebook = symbol_codebook
+        self.grammar_offset = int(grammar_offset)
+        self.graph = CallGraph(root="")
+        self.signatures: Dict[str, FunctionSignature] = {}
+        self.transitions: Dict[Tuple[str, str, str], int] = {}
+        self.reverse: Dict[str, List[str]] = {}
+        self.classes: Dict[str, List[str]] = {}
+        self._nodes: set = set()
+        self.report = IndexReport()
+
+    # ----------------------------------------------------------------- index
+    def index(self, root: str | Path, package: str = "henri") -> IndexReport:
+        started = time.perf_counter()
+        root = Path(root)
+        graph = index_code(root, package=package)
+        self.graph = graph
+        signatures: Dict[str, FunctionSignature] = {}
+        transitions: Dict[Tuple[str, str, str], int] = {}
+        classes: Dict[str, List[str]] = {}
+        modules: List[str] = []
+        for path in sorted(root.rglob("*.py")):
+            if "__pycache__" in path.parts:
+                continue
+            try:
+                text = path.read_text(encoding="utf-8", errors="ignore")
+                tree = ast.parse(text)
+            except (OSError, SyntaxError):
+                continue
+            module = ".".join(path.relative_to(root).with_suffix("").parts)
+            modules.append(module)
+            _collect_transitions(tree, transitions)
+            for node in ast.walk(tree):
+                if isinstance(node, ast.ClassDef):
+                    classes[node.name] = [
+                        child.name
+                        for child in node.body
+                        if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef))
+                    ]
+                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    signature = _signature(node, module)
+                    signatures.setdefault(f"{module}:{node.name}", signature)
+                    signatures.setdefault(node.name, signature)
+        self.signatures = signatures
+        self.transitions = transitions
+        self.classes = classes
+        reverse: Dict[str, List[str]] = {}
+        for edge in graph.edges:
+            # Directive F4: a caller may name the target by its qualified
+            # path, by its bare function name, or by Class.method. Index all
+            # three so the blast-radius query answers whichever the caller
+            # wrote, without a fuzzy match.
+            for alias in _aliases(edge.target):
+                reverse.setdefault(alias, []).append(edge.source)
+        self.reverse = {key: sorted(set(value)) for key, value in reverse.items()}
+        self._nodes = {str(node) for node in graph.nodes}
+        self.report = IndexReport(
+            files=graph.files,
+            lines=graph.lines,
+            nodes=len(graph.nodes),
+            edges=len(graph.edges),
+            signatures=len({id(value) for value in signatures.values()}),
+            transitions=len(transitions),
+            classes=len(classes),
+            seconds=float(time.perf_counter() - started),
+            modules=modules,
+        )
+        if self.memory is not None:
+            self.report.boundary_engrams = self.write_boundary_engrams()
+        return self.report
+
+    # ------------------------------------------------------- boundary engrams
+    def write_boundary_engrams(self, tier: int = 3) -> int:
+        """Persist signatures and grammar transitions as Tier-3 axioms."""
+        if self.memory is None:
+            return 0
+        written = 0
+        seen: set = set()
+        for signature in self.signatures.values():
+            key = signature.qualname
+            if key in seen:
+                continue
+            seen.add(key)
+            wave = self._boundary_wave(
+                f"signature:{signature.qualname}:{','.join(signature.args)}:{signature.returns}"
+            )
+            self.memory.write(
+                wave,
+                label=self.grammar_offset + len(seen) - 1,
+                tier=int(tier),
+                namespace=self.namespace,
+            )
+            written += 1
+        for index, (parent, field_name, child) in enumerate(sorted(self.transitions)):
+            wave = self._boundary_wave(f"grammar:{parent}:{field_name}:{child}")
+            self.memory.write(
+                wave,
+                label=self.grammar_offset + len(seen) + index,
+                tier=int(tier),
+                namespace=self.namespace,
+            )
+            written += 1
+        return written
+
+    def _boundary_wave(self, text: str) -> np.ndarray:
+        """A deterministic unit phasor for one axiom string."""
+        generator = np.random.default_rng(_seed_for(text, 71))
+        dim = int(getattr(self.memory, "dim", 1024))
+        wave = generator.standard_normal(dim) + 1j * generator.standard_normal(dim)
+        return _unit(wave)
+
+    # ---------------------------------------------------------------- impact
+    def impact(self, target: str, hops: int = 1) -> Dict[str, object]:
+        """Every upstream caller reachable within k reverse hops.
+
+        A breaking change to target propagates to the callers that call it,
+        then to the callers of those callers. The traversal is breadth first
+        over the inverted edge set, so the hop count is exact.
+        """
+        hops = max(1, int(hops))
+        frontier = sorted(_aliases(str(target)))
+        seen: List[str] = []
+        visited = set(frontier)
+        depth = 0
+        layers: List[List[str]] = []
+        while frontier and depth < hops:
+            depth += 1
+            current: List[str] = []
+            for node in frontier:
+                for caller in self.reverse.get(node, []):
+                    if caller in visited:
+                        continue
+                    visited.add(caller)
+                    current.append(caller)
+                    seen.append(caller)
+                    for alias in _aliases(caller):
+                        visited.add(alias)
+            layers.append(sorted(set(current)))
+            frontier = sorted(set(current))
+        resolved = any(alias in self.signatures or alias in self._nodes for alias in _aliases(str(target)))
+        return {
+            "target": str(target),
+            "hops": int(hops),
+            "callers": sorted(seen),
+            "layers": layers,
+            "layers_total": len(layers),
+            "resolved": bool(resolved),
+        }
+
+    def signature(self, qualname: str) -> Optional[FunctionSignature]:
+        return self.signatures.get(str(qualname))
+
+    def symbol_names(self) -> set:
+        names = set(self.signatures.keys())
+        for node in self.graph.nodes:
+            names.add(str(node).split(":")[-1])
+        return names
+
+    def as_dict(self) -> Dict[str, object]:
+        return {
+            "report": self.report.as_dict(),
+            "namespace": self.namespace,
+            "signatures": len(self.signatures),
+            "transitions": len(self.transitions),
+            "classes": len(self.classes),
+            "reverse_targets": len(self.reverse),
+        }
+
+
+def _aliases(name: str) -> List[str]:
+    """The three names a symbol can be written as, most specific first."""
+    text = str(name)
+    out = [text]
+    bare = text.split(":")[-1]
+    if bare not in out:
+        out.append(bare)
+    tail = bare.split(".")[-1]
+    if tail not in out:
+        out.append(tail)
+    return out
+
+
+def _signature(node, module: str) -> FunctionSignature:
+    args = list(getattr(node.args, "posonlyargs", [])) + list(node.args.args)
+    names = [str(arg.arg) for arg in args] + [str(arg.arg) for arg in node.args.kwonlyargs]
+    if node.args.vararg is not None:
+        names.append("*" + str(node.args.vararg.arg))
+    if node.args.kwarg is not None:
+        names.append("**" + str(node.args.kwarg.arg))
+    returns = ""
+    if node.returns is not None:
+        try:
+            returns = ast.unparse(node.returns)
+        except Exception:  # pragma: no cover - very old Python
+            returns = ""
+    return FunctionSignature(
+        qualname=f"{module}:{node.name}",
+        name=str(node.name),
+        args=tuple(names),
+        arity=len([name for name in names if not name.startswith("*")]),
+        returns=returns,
+        module=module,
+        lineno=int(getattr(node, "lineno", 0)),
+    )
+
+
+def _collect_transitions(tree, sink: Dict[Tuple[str, str, str], int]) -> None:
+    """Count every (parent type, field, child type) triple the AST uses."""
+    for node in ast.walk(tree):
+        for field_name, value in ast.iter_fields(node):
+            children = value if isinstance(value, list) else [value]
+            for child in children:
+                if isinstance(child, ast.AST):
+                    key = (type(node).__name__, str(field_name), type(child).__name__)
+                    sink[key] = sink.get(key, 0) + 1

@@ -1,0 +1,28 @@
+{
+  "stage": "F3",
+  "transport": "in-process-anyio-memory-object-stream",
+  "stdio_pipe_status": "NOT_REQUIRED_IN_PROCESS",
+  "tools": [
+    "holarch_adapt_rule",
+    "holarch_composite",
+    "holarch_health",
+    "holarch_ingest_code",
+    "holarch_ingest_edges",
+    "holarch_playbook",
+    "holarch_solve",
+    "holarch_synthesize",
+    "holarch_veto"
+  ],
+  "solve_answer": "b",
+  "composite_ingested": 1.0,
+  "receipts_valid": true,
+  "gate": {
+    "handshake_completed": true,
+    "tool_listing_present": true,
+    "holarch_solve_called": true,
+    "holarch_composite_called": true,
+    "receipts_valid": true,
+    "passed": true
+  },
+  "evidence": "OBSERVED"
+}

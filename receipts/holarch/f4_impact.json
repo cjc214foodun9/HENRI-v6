@@ -1,0 +1,63 @@
+{
+  "stage": "F4",
+  "agent_eval": {
+    "queries_total": 52,
+    "reachable_accuracy": 1.0,
+    "hallucination_rate": 0.0,
+    "query_file_reads": 0,
+    "receipts": 52,
+    "receipt_chain_valid": true,
+    "code_index": {
+      "seconds": 1.6805575000180397,
+      "files": 20.0,
+      "lines": 13086.0,
+      "nodes": 403.0,
+      "edges": 873.0,
+      "edges_ingested": 72.0
+    },
+    "impact_queries": 6,
+    "impact_correct": 6,
+    "impact_traps": 2,
+    "impact_traps_refused": 2
+  },
+  "nvidia_driver": {
+    "platform": "Windows-11-10.0.26300-SP0",
+    "torch_version": "2.11.0+cu128",
+    "cuda_compiled_version": "12.8",
+    "torch_cuda_available": false,
+    "torch_device_count": 0,
+    "cuda_visible_devices": "",
+    "cuda_visible_devices_set": false,
+    "cuda_home": "",
+    "cuda_path_set": false,
+    "nvidia_smi_path": "C:\\WINDOWS\\system32\\nvidia-smi.EXE",
+    "nvidia_smi_reachable": true,
+    "nvidia_smi_devices": [],
+    "nvidia_smi_driver_version": "",
+    "nvidia_smi_error": "",
+    "driver_libraries": {
+      "C:\\Windows\\System32\\nvcuda.dll": true,
+      "C:\\Windows\\SysWOW64\\nvcuda.dll": true,
+      "C:\\Program Files\\NVIDIA Corporation\\NVSMI\\nvidia-smi.exe": false
+    },
+    "nvcuda_present": true,
+    "libcuda_present": false,
+    "driver_files_found": 2,
+    "on_windows": true,
+    "root_cause": "nvidia-smi ran but listed no device",
+    "verdict": "BLOCKED",
+    "evidence": "OBSERVED"
+  },
+  "gate": {
+    "queries_52": true,
+    "reachable_accuracy_1_0": true,
+    "hallucination_zero": true,
+    "zero_query_reads": true,
+    "receipt_chain_valid": true,
+    "impact_5_of_6_or_better": true,
+    "impact_traps_refused": true,
+    "driver_fields_recorded": true,
+    "passed": true
+  },
+  "evidence": "OBSERVED"
+}

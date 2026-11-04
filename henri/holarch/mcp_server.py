@@ -71,7 +71,9 @@ def set_service(value: Optional[SidecarService]) -> None:
 
 
 @mcp.tool()
-def holarch_veto(task: str, x: Any, rule_id: Optional[int] = None) -> Dict[str, Any]:
+def holarch_veto(
+    task: str, x: Any, rule_id: Optional[int] = None, namespace: str = "default"
+) -> Dict[str, Any]:
     """Return the veto rate, top-1 Gram coherence, and Sagnac residual.
 
     Args:
@@ -79,34 +81,40 @@ def holarch_veto(task: str, x: Any, rule_id: Optional[int] = None) -> Dict[str, 
         x: nested pixel or observation payload for one or more examples.
         rule_id: optional slot-3 rule context.
     """
-    return service().veto(task, x, rule_id)
+    return service().veto(task, x, rule_id, namespace)
 
 
 @mcp.tool()
-def holarch_ingest_code(root: str, package: str = "henri") -> Dict[str, Any]:
+def holarch_ingest_code(
+    root: str, package: str = "henri", namespace: str = "default"
+) -> Dict[str, Any]:
     """Parse a package once and index its symbols and call edges in Zone C.
 
     Query time performs no file reads. The graph is stored as wave engrams,
     so no model weight changes.
     """
-    return service().ingest_code(root, package)
+    return service().ingest_code(root, package, namespace)
 
 
 @mcp.tool()
-def holarch_ingest_edges(edges: List[Dict[str, str]]) -> Dict[str, Any]:
+def holarch_ingest_edges(
+    edges: List[Dict[str, str]], namespace: str = "default"
+) -> Dict[str, Any]:
     """Store an unseen rule graph. Each edge has source, operator, target."""
-    return service().ingest_edges(edges)
+    return service().ingest_edges(edges, namespace)
 
 
 @mcp.tool()
-def holarch_solve(source: str, operators: Any) -> Dict[str, Any]:
+def holarch_solve(
+    source: str, operators: Any, namespace: str = "default", mode: str = "path"
+) -> Dict[str, Any]:
     """Follow an operator sequence from source, or abstain fail-closed.
 
     operators may be a list or a comma-separated string. An unreachable
     path returns vetoed=true with text starting ABSTAIN and no invented
     symbol.
     """
-    return service().solve(source, operators)
+    return service().solve(source, operators, namespace, mode)
 
 
 @mcp.tool()
@@ -114,13 +122,14 @@ def holarch_playbook(
     name: str,
     steps: Optional[List[str]] = None,
     merge: bool = True,
+    namespace: str = "default",
 ) -> Dict[str, Any]:
     """Compile steps into a versioned playbook, or recall the exact steps.
 
     With steps the call merges them (ACE delta form) and bumps the
     version. Without steps it recalls and decodes the stored plan.
     """
-    return service().playbook(name, steps, merge)
+    return service().playbook(name, steps, merge, namespace)
 
 
 @mcp.tool()
@@ -130,9 +139,10 @@ def holarch_adapt_rule(
     y: List[int],
     rule_id: Optional[int] = None,
     lr: float = 0.2,
+    namespace: str = "default",
 ) -> Dict[str, Any]:
     """One surprise-gated fast-weight write, with the rule in slot 3."""
-    return service().adapt_rule(task, x, y, rule_id, lr)
+    return service().adapt_rule(task, x, y, rule_id, lr, namespace)
 
 
 @mcp.tool()
@@ -144,6 +154,7 @@ def holarch_composite(
     op: Any = None,
     x0: Any = None,
     x1: Any = None,
+    namespace: str = "default",
 ) -> Dict[str, Any]:
     """Register or resolve a multi-arity composite rule (Decision D4).
 
@@ -154,8 +165,24 @@ def holarch_composite(
     abstained=true with result 'ABSTAIN: coherence below tau'.
     """
     return service().composite_call(
-        mode=mode, rules=rules, a=a, b=b, op=op, x0=x0, x1=x1
+        mode=mode, rules=rules, a=a, b=b, op=op, x0=x0, x1=x1, namespace=namespace
     )
+
+
+@mcp.tool()
+def holarch_synthesize(
+    intent: str,
+    kind: str = "code",
+    namespace: str = "default",
+    max_tokens: int = 320,
+) -> Dict[str, Any]:
+    """Emit verified code or grounded text through the wave decoder, or refuse.
+
+    The emitted source must pass ast.parse and compile (code) or the ontology
+    verifier (text). A request that names a symbol the code index does not
+    contain is refused, never invented. Every call returns a SHA-256 receipt.
+    """
+    return service().synthesize(intent, kind, namespace, max_tokens)
 
 
 @mcp.tool()

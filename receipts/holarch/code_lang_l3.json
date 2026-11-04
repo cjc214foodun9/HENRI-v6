@@ -1,0 +1,1218 @@
+{
+  "stage": "L3",
+  "language": {
+    "top1": 0.5228867357166722,
+    "perplexity": 11.744167706601035,
+    "bits_per_char": 1.3797821509934207,
+    "tokens": 2993.0,
+    "base_top1": 0.5228867357166722,
+    "base_perplexity": 11.744167706601035,
+    "beta_star": 0.0,
+    "wave_weight": 0.0,
+    "baseline_char_accuracy": 0.2421875,
+    "baseline_char_perplexity": 17.043866783609086,
+    "baseline_bits_per_char": 4.09118077532641,
+    "bits_per_char_reduction": 0.6627423165178183,
+    "vocabulary_size": 2048,
+    "held_out_tokens": 28459
+  },
+  "synthesis": {
+    "cold": {
+      "total": 24,
+      "passed": 0,
+      "accuracy": 0.0,
+      "rows": [
+        {
+          "id": "core01",
+          "status": "rejected",
+          "verified": false,
+          "executed": false,
+          "reason": "not verified",
+          "plan": "",
+          "coherence": 0.0,
+          "tokens": 320
+        },
+        {
+          "id": "core02",
+          "status": "rejected",
+          "verified": false,
+          "executed": false,
+          "reason": "not verified",
+          "plan": "",
+          "coherence": 0.0,
+          "tokens": 320
+        },
+        {
+          "id": "core03",
+          "status": "rejected",
+          "verified": false,
+          "executed": false,
+          "reason": "not verified",
+          "plan": "",
+          "coherence": 0.0,
+          "tokens": 320
+        },
+        {
+          "id": "core04",
+          "status": "rejected",
+          "verified": false,
+          "executed": false,
+          "reason": "not verified",
+          "plan": "",
+          "coherence": 0.0,
+          "tokens": 320
+        },
+        {
+          "id": "core05",
+          "status": "rejected",
+          "verified": false,
+          "executed": false,
+          "reason": "not verified",
+          "plan": "",
+          "coherence": 0.0,
+          "tokens": 320
+        },
+        {
+          "id": "core06",
+          "status": "rejected",
+          "verified": false,
+          "executed": false,
+          "reason": "not verified",
+          "plan": "",
+          "coherence": 0.0,
+          "tokens": 320
+        },
+        {
+          "id": "core07",
+          "status": "rejected",
+          "verified": false,
+          "executed": false,
+          "reason": "not verified",
+          "plan": "",
+          "coherence": 0.0,
+          "tokens": 320
+        },
+        {
+          "id": "core08",
+          "status": "rejected",
+          "verified": false,
+          "executed": false,
+          "reason": "not verified",
+          "plan": "",
+          "coherence": 0.0,
+          "tokens": 320
+        },
+        {
+          "id": "core09",
+          "status": "rejected",
+          "verified": false,
+          "executed": false,
+          "reason": "not verified",
+          "plan": "",
+          "coherence": 0.0,
+          "tokens": 320
+        },
+        {
+          "id": "core10",
+          "status": "rejected",
+          "verified": false,
+          "executed": false,
+          "reason": "not verified",
+          "plan": "",
+          "coherence": 0.0,
+          "tokens": 320
+        },
+        {
+          "id": "core11",
+          "status": "rejected",
+          "verified": false,
+          "executed": false,
+          "reason": "not verified",
+          "plan": "",
+          "coherence": 0.0,
+          "tokens": 320
+        },
+        {
+          "id": "core12",
+          "status": "rejected",
+          "verified": false,
+          "executed": false,
+          "reason": "not verified",
+          "plan": "",
+          "coherence": 0.0,
+          "tokens": 320
+        },
+        {
+          "id": "shift01",
+          "status": "rejected",
+          "verified": false,
+          "executed": false,
+          "reason": "not verified",
+          "plan": "",
+          "coherence": 0.0,
+          "tokens": 320
+        },
+        {
+          "id": "shift02",
+          "status": "rejected",
+          "verified": false,
+          "executed": false,
+          "reason": "not verified",
+          "plan": "",
+          "coherence": 0.0,
+          "tokens": 320
+        },
+        {
+          "id": "shift03",
+          "status": "rejected",
+          "verified": false,
+          "executed": false,
+          "reason": "not verified",
+          "plan": "",
+          "coherence": 0.0,
+          "tokens": 320
+        },
+        {
+          "id": "shift04",
+          "status": "rejected",
+          "verified": false,
+          "executed": false,
+          "reason": "not verified",
+          "plan": "",
+          "coherence": 0.0,
+          "tokens": 320
+        },
+        {
+          "id": "shift05",
+          "status": "rejected",
+          "verified": false,
+          "executed": false,
+          "reason": "not verified",
+          "plan": "",
+          "coherence": 0.0,
+          "tokens": 320
+        },
+        {
+          "id": "shift06",
+          "status": "rejected",
+          "verified": false,
+          "executed": false,
+          "reason": "not verified",
+          "plan": "",
+          "coherence": 0.0,
+          "tokens": 320
+        },
+        {
+          "id": "shift07",
+          "status": "rejected",
+          "verified": false,
+          "executed": false,
+          "reason": "not verified",
+          "plan": "",
+          "coherence": 0.0,
+          "tokens": 320
+        },
+        {
+          "id": "shift08",
+          "status": "rejected",
+          "verified": false,
+          "executed": false,
+          "reason": "not verified",
+          "plan": "",
+          "coherence": 0.0,
+          "tokens": 320
+        },
+        {
+          "id": "shift09",
+          "status": "rejected",
+          "verified": false,
+          "executed": false,
+          "reason": "not verified",
+          "plan": "",
+          "coherence": 0.0,
+          "tokens": 320
+        },
+        {
+          "id": "shift10",
+          "status": "rejected",
+          "verified": false,
+          "executed": false,
+          "reason": "not verified",
+          "plan": "",
+          "coherence": 0.0,
+          "tokens": 320
+        },
+        {
+          "id": "shift11",
+          "status": "rejected",
+          "verified": false,
+          "executed": false,
+          "reason": "not verified",
+          "plan": "",
+          "coherence": 0.0,
+          "tokens": 320
+        },
+        {
+          "id": "shift12",
+          "status": "rejected",
+          "verified": false,
+          "executed": false,
+          "reason": "not verified",
+          "plan": "",
+          "coherence": 0.0,
+          "tokens": 320
+        }
+      ]
+    },
+    "core_after_feedback": {
+      "total": 12,
+      "passed": 12,
+      "accuracy": 1.0,
+      "rows": [
+        {
+          "id": "core01",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "core01",
+          "coherence": 1.0,
+          "tokens": 32
+        },
+        {
+          "id": "core02",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "core02",
+          "coherence": 0.9999998807907104,
+          "tokens": 32
+        },
+        {
+          "id": "core03",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "core03",
+          "coherence": 1.0,
+          "tokens": 32
+        },
+        {
+          "id": "core04",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "core04",
+          "coherence": 1.0,
+          "tokens": 32
+        },
+        {
+          "id": "core05",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "core05",
+          "coherence": 1.0,
+          "tokens": 68
+        },
+        {
+          "id": "core06",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "core06",
+          "coherence": 1.0,
+          "tokens": 42
+        },
+        {
+          "id": "core07",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "core07",
+          "coherence": 1.0,
+          "tokens": 32
+        },
+        {
+          "id": "core08",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "core08",
+          "coherence": 1.0000001192092896,
+          "tokens": 33
+        },
+        {
+          "id": "core09",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "core09",
+          "coherence": 1.0,
+          "tokens": 74
+        },
+        {
+          "id": "core10",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "core10",
+          "coherence": 1.0,
+          "tokens": 37
+        },
+        {
+          "id": "core11",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "core11",
+          "coherence": 0.9999998807907104,
+          "tokens": 32
+        },
+        {
+          "id": "core12",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "core12",
+          "coherence": 0.9999998807907104,
+          "tokens": 55
+        }
+      ]
+    },
+    "shift_cold": {
+      "total": 12,
+      "passed": 0,
+      "accuracy": 0.0,
+      "rows": [
+        {
+          "id": "shift01",
+          "status": "verified",
+          "verified": true,
+          "executed": false,
+          "reason": "NameError: name 'rotate_wave' is not defined",
+          "plan": "core10",
+          "coherence": 0.3547244966030121,
+          "tokens": 37
+        },
+        {
+          "id": "shift02",
+          "status": "verified",
+          "verified": true,
+          "executed": false,
+          "reason": "NameError: name 'conjugate_wave' is not defined",
+          "plan": "core12",
+          "coherence": 0.688417911529541,
+          "tokens": 55
+        },
+        {
+          "id": "shift03",
+          "status": "verified",
+          "verified": true,
+          "executed": false,
+          "reason": "NameError: name 'normalised_wave' is not defined",
+          "plan": "core09",
+          "coherence": 0.4631865918636322,
+          "tokens": 74
+        },
+        {
+          "id": "shift04",
+          "status": "verified",
+          "verified": true,
+          "executed": false,
+          "reason": "NameError: name 'coherence_pair' is not defined",
+          "plan": "core01",
+          "coherence": 0.6179050207138062,
+          "tokens": 32
+        },
+        {
+          "id": "shift05",
+          "status": "verified",
+          "verified": true,
+          "executed": false,
+          "reason": "NameError: name 'bind_phase' is not defined",
+          "plan": "core01",
+          "coherence": 0.5599972009658813,
+          "tokens": 32
+        },
+        {
+          "id": "shift06",
+          "status": "verified",
+          "verified": true,
+          "executed": false,
+          "reason": "NameError: name 'unbind_phase' is not defined",
+          "plan": "core10",
+          "coherence": 0.520614743232727,
+          "tokens": 37
+        },
+        {
+          "id": "shift07",
+          "status": "verified",
+          "verified": true,
+          "executed": false,
+          "reason": "NameError: name 'batch_mean' is not defined",
+          "plan": "core01",
+          "coherence": 0.6180163621902466,
+          "tokens": 32
+        },
+        {
+          "id": "shift08",
+          "status": "verified",
+          "verified": true,
+          "executed": false,
+          "reason": "NameError: name 'stable_softmax' is not defined",
+          "plan": "core11",
+          "coherence": 0.4279792308807373,
+          "tokens": 32
+        },
+        {
+          "id": "shift09",
+          "status": "verified",
+          "verified": true,
+          "executed": false,
+          "reason": "NameError: name 'top_index' is not defined",
+          "plan": "core08",
+          "coherence": 0.6603347063064575,
+          "tokens": 33
+        },
+        {
+          "id": "shift10",
+          "status": "verified",
+          "verified": true,
+          "executed": false,
+          "reason": "NameError: name 'hashed_name' is not defined",
+          "plan": "core10",
+          "coherence": 0.430277019739151,
+          "tokens": 37
+        },
+        {
+          "id": "shift11",
+          "status": "verified",
+          "verified": true,
+          "executed": false,
+          "reason": "NameError: name 'sequence_length' is not defined",
+          "plan": "core01",
+          "coherence": 0.7472132444381714,
+          "tokens": 32
+        },
+        {
+          "id": "shift12",
+          "status": "verified",
+          "verified": true,
+          "executed": false,
+          "reason": "NameError: name 'json_roundtrip' is not defined",
+          "plan": "core12",
+          "coherence": 0.4638853073120117,
+          "tokens": 55
+        }
+      ]
+    },
+    "shift_after_feedback": {
+      "total": 12,
+      "passed": 12,
+      "accuracy": 1.0,
+      "rows": [
+        {
+          "id": "shift01",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "shift01",
+          "coherence": 1.0000001192092896,
+          "tokens": 46
+        },
+        {
+          "id": "shift02",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "shift02",
+          "coherence": 1.0,
+          "tokens": 33
+        },
+        {
+          "id": "shift03",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "shift03",
+          "coherence": 0.9999999403953552,
+          "tokens": 38
+        },
+        {
+          "id": "shift04",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "shift04",
+          "coherence": 1.0,
+          "tokens": 44
+        },
+        {
+          "id": "shift05",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "shift05",
+          "coherence": 1.0,
+          "tokens": 32
+        },
+        {
+          "id": "shift06",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "shift06",
+          "coherence": 0.9999999403953552,
+          "tokens": 38
+        },
+        {
+          "id": "shift07",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "shift07",
+          "coherence": 0.9999998211860657,
+          "tokens": 38
+        },
+        {
+          "id": "shift08",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "shift08",
+          "coherence": 0.9999998807907104,
+          "tokens": 62
+        },
+        {
+          "id": "shift09",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "shift09",
+          "coherence": 0.9999999403953552,
+          "tokens": 65
+        },
+        {
+          "id": "shift10",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "shift10",
+          "coherence": 0.9999998807907104,
+          "tokens": 52
+        },
+        {
+          "id": "shift11",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "shift11",
+          "coherence": 1.0,
+          "tokens": 32
+        },
+        {
+          "id": "shift12",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "shift12",
+          "coherence": 0.9999999403953552,
+          "tokens": 37
+        }
+      ]
+    },
+    "drift": {
+      "total": 12,
+      "passed": 12,
+      "accuracy": 1.0,
+      "rows": [
+        {
+          "id": "core01",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "core01",
+          "coherence": 1.0,
+          "tokens": 32
+        },
+        {
+          "id": "core02",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "core02",
+          "coherence": 0.9999998807907104,
+          "tokens": 32
+        },
+        {
+          "id": "core03",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "core03",
+          "coherence": 1.0,
+          "tokens": 32
+        },
+        {
+          "id": "core04",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "core04",
+          "coherence": 1.0,
+          "tokens": 32
+        },
+        {
+          "id": "core05",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "core05",
+          "coherence": 1.0,
+          "tokens": 68
+        },
+        {
+          "id": "core06",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "core06",
+          "coherence": 1.0,
+          "tokens": 42
+        },
+        {
+          "id": "core07",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "core07",
+          "coherence": 1.0,
+          "tokens": 32
+        },
+        {
+          "id": "core08",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "core08",
+          "coherence": 1.0000001192092896,
+          "tokens": 33
+        },
+        {
+          "id": "core09",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "core09",
+          "coherence": 1.0,
+          "tokens": 74
+        },
+        {
+          "id": "core10",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "core10",
+          "coherence": 1.0,
+          "tokens": 37
+        },
+        {
+          "id": "core11",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "core11",
+          "coherence": 0.9999998807907104,
+          "tokens": 32
+        },
+        {
+          "id": "core12",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "core12",
+          "coherence": 0.9999998807907104,
+          "tokens": 55
+        }
+      ]
+    },
+    "final": {
+      "total": 24,
+      "passed": 24,
+      "accuracy": 1.0,
+      "rows": [
+        {
+          "id": "core01",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "core01",
+          "coherence": 1.0,
+          "tokens": 32
+        },
+        {
+          "id": "core02",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "core02",
+          "coherence": 0.9999998807907104,
+          "tokens": 32
+        },
+        {
+          "id": "core03",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "core03",
+          "coherence": 1.0,
+          "tokens": 32
+        },
+        {
+          "id": "core04",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "core04",
+          "coherence": 1.0,
+          "tokens": 32
+        },
+        {
+          "id": "core05",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "core05",
+          "coherence": 1.0,
+          "tokens": 68
+        },
+        {
+          "id": "core06",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "core06",
+          "coherence": 1.0,
+          "tokens": 42
+        },
+        {
+          "id": "core07",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "core07",
+          "coherence": 1.0,
+          "tokens": 32
+        },
+        {
+          "id": "core08",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "core08",
+          "coherence": 1.0000001192092896,
+          "tokens": 33
+        },
+        {
+          "id": "core09",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "core09",
+          "coherence": 1.0,
+          "tokens": 74
+        },
+        {
+          "id": "core10",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "core10",
+          "coherence": 1.0,
+          "tokens": 37
+        },
+        {
+          "id": "core11",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "core11",
+          "coherence": 0.9999998807907104,
+          "tokens": 32
+        },
+        {
+          "id": "core12",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "core12",
+          "coherence": 0.9999998807907104,
+          "tokens": 55
+        },
+        {
+          "id": "shift01",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "shift01",
+          "coherence": 1.0000001192092896,
+          "tokens": 46
+        },
+        {
+          "id": "shift02",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "shift02",
+          "coherence": 1.0,
+          "tokens": 33
+        },
+        {
+          "id": "shift03",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "shift03",
+          "coherence": 0.9999999403953552,
+          "tokens": 38
+        },
+        {
+          "id": "shift04",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "shift04",
+          "coherence": 1.0,
+          "tokens": 44
+        },
+        {
+          "id": "shift05",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "shift05",
+          "coherence": 1.0,
+          "tokens": 32
+        },
+        {
+          "id": "shift06",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "shift06",
+          "coherence": 0.9999999403953552,
+          "tokens": 38
+        },
+        {
+          "id": "shift07",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "shift07",
+          "coherence": 0.9999998211860657,
+          "tokens": 38
+        },
+        {
+          "id": "shift08",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "shift08",
+          "coherence": 0.9999998807907104,
+          "tokens": 62
+        },
+        {
+          "id": "shift09",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "shift09",
+          "coherence": 0.9999999403953552,
+          "tokens": 65
+        },
+        {
+          "id": "shift10",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "shift10",
+          "coherence": 0.9999998807907104,
+          "tokens": 52
+        },
+        {
+          "id": "shift11",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "shift11",
+          "coherence": 1.0,
+          "tokens": 32
+        },
+        {
+          "id": "shift12",
+          "status": "verified",
+          "verified": true,
+          "executed": true,
+          "reason": "executed",
+          "plan": "shift12",
+          "coherence": 0.9999999403953552,
+          "tokens": 37
+        }
+      ]
+    },
+    "traps": [
+      {
+        "intent": "Write a function that calls ZoneCMemory.quantum_entangle to fuse two tenants.",
+        "status": "refused",
+        "reason": "symbol 'ZoneCMemory.quantum_entangle' is not in the code index"
+      },
+      {
+        "intent": "Write a function that calls holarch_synthesize_warp to rewrite the corpus.",
+        "status": "refused",
+        "reason": "symbol 'holarch_synthesize_warp' is not in the code index"
+      },
+      {
+        "intent": "Write a function that calls SymbolicSolver.teleport to move a symbol.",
+        "status": "refused",
+        "reason": "symbol 'SymbolicSolver.teleport' is not in the code index"
+      },
+      {
+        "intent": "Write a function that calls OntologyVerifier.hallucinate to invent a number.",
+        "status": "refused",
+        "reason": "symbol 'OntologyVerifier.hallucinate' is not in the code index"
+      }
+    ],
+    "traps_refused": 4,
+    "traps_total": 4
+  },
+  "ontology_answers": {
+    "rows": [
+      {
+        "question": "How many parameters does the medium profile have?",
+        "status": "supported",
+        "answer": "| profile | parameters | training GiB | forward ms | backward ms | fits |\n|---|---|---|---|---|---|\n| small (D=256) | 223,242 | 0.7628 | 6.08 | 7.70 | yes |\n| m",
+        "tokens": 59,
+        "emitted_verified": false
+      },
+      {
+        "question": "What is the closed-loop action success rate of the lookahead policy?",
+        "status": "supported",
+        "answer": "Closed-loop success of the 1-step latent wave lookahead policy.",
+        "tokens": 9,
+        "emitted_verified": false
+      },
+      {
+        "question": "What is the context compression ratio of the sidecar?",
+        "status": "supported",
+        "answer": "K = 16 in the CI profile, 32 in production, 64 in the Blackwell profile.",
+        "tokens": 15,
+        "emitted_verified": false
+      },
+      {
+        "question": "What is the measured false-veto rate of the two-condition veto?",
+        "status": "supported",
+        "answer": "Two-condition epistemic veto with finite-sample tail margins.",
+        "tokens": 7,
+        "emitted_verified": false
+      },
+      {
+        "question": "How many valid receipts does the sidecar chain hold?",
+        "status": "supported",
+        "answer": "| Check | Result |\n|---|---|\n| full holarch suite | 109 tests, exit 0 |\n| service and sidecar tests | exit 0 |\n| agent query-time file reads | 0 (baseline 128) ",
+        "tokens": 64,
+        "emitted_verified": false
+      },
+      {
+        "question": "What is the relational accuracy on the test split?",
+        "status": "supported",
+        "answer": "| measurement | value | bar | verdict |\n|---|---|---|---|\n| vision accuracy (test) | 0.9798 | >= 0.9750 | PASS |\n| relational accuracy (test) | 0.7746 | >= 0.76",
+        "tokens": 84,
+        "emitted_verified": false
+      },
+      {
+        "question": "What is the vision accuracy on the test split?",
+        "status": "supported",
+        "answer": "| measurement | value | bar | verdict |\n|---|---|---|---|\n| vision accuracy (test) | 0.9798 | >= 0.9750 | PASS |\n| relational accuracy (test) | 0.7746 | >= 0.76",
+        "tokens": 84,
+        "emitted_verified": false
+      },
+      {
+        "question": "What is the one-step action accuracy on the test split?",
+        "status": "supported",
+        "answer": "| Task | Metric | Validation | Test | Chance |\n|---|---|---|---|---|\n| Vision | accuracy | 0.963 | 0.973 | 0.100 |\n| Language | next-char accuracy | 0.244 | 0.2",
+        "tokens": 98,
+        "emitted_verified": false
+      },
+      {
+        "question": "How many composite arithmetic rules are resolved?",
+        "status": "supported",
+        "answer": "@CompositeSolver@ in @symbolic.py@ binds several role waves into one qFHRR\nkey and reads the target from the Zone C atlas.",
+        "tokens": 20,
+        "emitted_verified": false
+      },
+      {
+        "question": "What is the mean number of steps to the goal for the lookahead wins?",
+        "status": "supported",
+        "answer": "| measurement | value | bar | verdict |\n|---|---|---|---|\n| vision accuracy (test) | 0.9798 | >= 0.9750 | PASS |\n| relational accuracy (test) | 0.7746 | >= 0.76",
+        "tokens": 84,
+        "emitted_verified": false
+      },
+      {
+        "question": "What is the training footprint of the medium profile in GiB?",
+        "status": "supported",
+        "answer": "| profile | parameters | training GiB | forward ms | backward ms | fits |\n|---|---|---|---|---|---|\n| small (D=256) | 223,242 | 0.7628 | 6.08 | 7.70 | yes |\n| m",
+        "tokens": 59,
+        "emitted_verified": false
+      },
+      {
+        "question": "What is the forward latency of the medium profile in milliseconds?",
+        "status": "supported",
+        "answer": "Median one-step forward and backward latency in milliseconds.",
+        "tokens": 8,
+        "emitted_verified": false
+      },
+      {
+        "question": "How many call edges does the structural index record?",
+        "status": "supported",
+        "answer": "Index a package once: call edges, signatures, and grammar boundaries.",
+        "tokens": 10,
+        "emitted_verified": false
+      },
+      {
+        "question": "What is the Sagnac residual for real data and for random noise?",
+        "status": "supported",
+        "answer": "| Measurement | Value |\n|---|---|\n| OOD rejection on 1024 uniform-noise waves | 1.0000 |\n| false veto on 600 held-out clean waves | 0.0033 (2/600) |\n| clean res",
+        "tokens": 59,
+        "emitted_verified": false
+      },
+      {
+        "question": "How many perceptual truth matches and consistency checks does the sidecar record?",
+        "status": "supported",
+        "answer": "ASS (21.1) |\n| E2 | sidecar mounts the converged checkpoint; 3/3 perceptual truth, 3/3 consistency, composite 1.000, 2/2 traps, 0 query reads, 44 valid receipts",
+        "tokens": 72,
+        "emitted_verified": false
+      }
+    ],
+    "supported": 15,
+    "total": 15,
+    "traps": [
+      {
+        "question": "What is the boiling point of mercury in the holarch?",
+        "status": "refused",
+        "reason": "question term(s) absent from every retrieved passage: ['boiling', 'mercury']"
+      },
+      {
+        "question": "How many qubits does the BaTiO3 plate allocate per photon?",
+        "status": "refused",
+        "reason": "question term(s) absent from every retrieved passage: ['qubits', 'allocate', 'photon']"
+      },
+      {
+        "question": "What is the capital of France in the holarch ledger?",
+        "status": "refused",
+        "reason": "question term(s) absent from every retrieved passage: ['capital', 'france']"
+      },
+      {
+        "question": "How many elephants does the Zone C namespace store?",
+        "status": "refused",
+        "reason": "question term(s) absent from every retrieved passage: ['elephants']"
+      },
+      {
+        "question": "What is the airspeed velocity of an unladen swallow in the photonic stack?",
+        "status": "refused",
+        "reason": "question term(s) absent from every retrieved passage: ['airspeed', 'unladen', 'swallow']"
+      }
+    ],
+    "traps_abstained": 5,
+    "traps_total": 5
+  },
+  "no_regression": {
+    "vision_accuracy": 0.9797979797979798,
+    "relational_accuracy": 0.7746478873239436,
+    "action_accuracy": 0.7875,
+    "closed_loop_action": 0.7083333333333334,
+    "vision_ok": true,
+    "relational_ok": true,
+    "action_ok": true,
+    "closed_loop_ok": true,
+    "passed": true
+  },
+  "plans": {
+    "compiled": 24,
+    "adapted": 24
+  },
+  "gate": {
+    "top1_at_least_0_45": true,
+    "perplexity_reduction_at_least_40pct": true,
+    "synthesis_at_least_0_85": true,
+    "synthesis_tasks_at_least_20": true,
+    "traps_refused_1_0": true,
+    "answers_supported_1_0": true,
+    "answers_trap_abstention_1_0": true,
+    "cold_at_most_0_25": true,
+    "shift_cold_at_most_0_25": true,
+    "adaptation_at_least_0_90": true,
+    "stationary_drift_zero": true,
+    "no_regression_on_medium": true,
+    "passed": true
+  },
+  "evidence": "OBSERVED"
+}

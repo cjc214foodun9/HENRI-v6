@@ -267,8 +267,14 @@ class SidecarService:
         return tensor
 
     # ------------------------------------------------------------- endpoints
-    def veto(self, task: str, x: Any, rule_id: Optional[int] = None) -> Dict[str, Any]:
-        request = {"task": task, "x": x, "rule_id": rule_id}
+    def veto(
+        self,
+        task: str,
+        x: Any,
+        rule_id: Optional[int] = None,
+        namespace: str = "default",
+    ) -> Dict[str, Any]:
+        request = {"task": task, "x": x, "rule_id": rule_id, "namespace": str(namespace)}
         with self.lock:
             tensor = self._as_tensor(task, x)
             if rule_id is None:
@@ -283,31 +289,53 @@ class SidecarService:
                 }
             return self._envelope("/v1/holarch/veto", request, result)
 
-    def ingest_code(self, root: str, package: str = "henri") -> Dict[str, Any]:
-        request = {"root": str(root), "package": str(package)}
+    def ingest_code(
+        self, root: str, package: str = "henri", namespace: str = "default", mode: str = "edges"
+    ) -> Dict[str, Any]:
+        request = {
+            "root": str(root),
+            "package": str(package),
+            "namespace": str(namespace),
+            "mode": str(mode),
+        }
         with self.lock:
-            result = self.sidecar.ingest_code(root, package=package)
+            result = self.sidecar.ingest_code(root, package=package, namespace=str(namespace))
+            result["mode"] = str(mode)
             return self._envelope("/v1/holarch/ingest_code", request, result)
 
-    def ingest_edges(self, edges: Sequence[Dict[str, str]]) -> Dict[str, Any]:
+    def ingest_edges(
+        self, edges: Sequence[Dict[str, str]], namespace: str = "default"
+    ) -> Dict[str, Any]:
         from henri.holarch.symbolic import Edge
 
-        request = {"edges": list(edges)}
+        request = {"edges": list(edges), "namespace": str(namespace)}
         with self.lock:
             parsed = [
                 Edge(str(edge["source"]), str(edge["operator"]), str(edge["target"]))
                 for edge in edges
             ]
-            result = self.sidecar.ingest_edges(parsed)
+            result = self.sidecar.ingest_edges(parsed, namespace=str(namespace))
             return self._envelope("/v1/holarch/ingest_edges", request, result)
 
-    def solve(self, source: str, operators: Any) -> Dict[str, Any]:
+    def solve(
+        self, source: str, operators: Any, namespace: str = "default", mode: str = "path"
+    ) -> Dict[str, Any]:
+        """Resolve a multi-hop path, or a reverse-call blast radius (F4)."""
         if isinstance(operators, str):
             operators = [item for item in operators.replace(",", " ").split() if item]
         operators = list(operators)
-        request = {"source": str(source), "operators": operators}
+        request = {
+            "source": str(source),
+            "operators": operators,
+            "namespace": str(namespace),
+            "mode": str(mode),
+        }
         with self.lock:
-            result = self.sidecar.solve(source, operators)
+            if str(mode) == "impact":
+                hops = int(operators[0]) if operators and str(operators[0]).isdigit() else 1
+                result = self.sidecar.impact(source, hops=hops, namespace=str(namespace))
+                return self._envelope("/v1/holarch/solve", request, result)
+            result = self.sidecar.solve(source, operators, namespace=str(namespace))
             return self._envelope("/v1/holarch/solve", request, result)
 
     def playbook(
@@ -315,14 +343,22 @@ class SidecarService:
         name: str,
         steps: Optional[Sequence[str]] = None,
         merge: bool = True,
+        namespace: str = "default",
     ) -> Dict[str, Any]:
-        request = {"name": str(name), "steps": None if steps is None else list(steps), "merge": bool(merge)}
+        request = {
+            "name": str(name),
+            "steps": None if steps is None else list(steps),
+            "merge": bool(merge),
+            "namespace": str(namespace),
+        }
         with self.lock:
             if steps:
-                result = self.sidecar.compile_playbook(name, list(steps), merge=bool(merge))
+                result = self.sidecar.compile_playbook(
+                    name, list(steps), merge=bool(merge), namespace=str(namespace)
+                )
                 action = "compile"
             else:
-                result = self.sidecar.recall_playbook(name)
+                result = self.sidecar.recall_playbook(name, namespace=str(namespace))
                 action = "recall"
             return self._envelope("/v1/holarch/playbook", {**request, "action": action}, result)
 
@@ -333,8 +369,16 @@ class SidecarService:
         y: Sequence[int],
         rule_id: Optional[int] = None,
         lr: float = 0.2,
+        namespace: str = "default",
     ) -> Dict[str, Any]:
-        request = {"task": task, "x": x, "y": list(y), "rule_id": rule_id, "lr": float(lr)}
+        request = {
+            "task": task,
+            "x": x,
+            "y": list(y),
+            "rule_id": rule_id,
+            "lr": float(lr),
+            "namespace": str(namespace),
+        }
         with self.lock:
             tensor = self._as_tensor(task, x)
             labels = torch.as_tensor(list(y), dtype=torch.long)
@@ -390,6 +434,7 @@ class SidecarService:
         op: Any = None,
         x0: Any = None,
         x1: Any = None,
+        namespace: str = "default",
     ) -> Dict[str, Any]:
         """Register or resolve a composite rule (Decision D4).
 
@@ -406,6 +451,7 @@ class SidecarService:
             "op": op,
             "x0": x0,
             "x1": x1,
+            "namespace": str(namespace),
         }
         with self.lock:
             if str(mode) == "ingest":
@@ -418,8 +464,8 @@ class SidecarService:
                     operator = self._operator(rule["op"])
                     result = self._digit_symbol(rule["result"])
                     rows.append(((operand_a, operator, operand_b), result))
-                written = self.composite.ingest(rows)
-                calibration = self.composite.calibrate(rows)
+                written = self.composite.ingest(rows, namespace=str(namespace))
+                calibration = self.composite.calibrate(rows, namespace=str(namespace))
                 result = {
                     "mode": "ingest",
                     "rules_ingested": float(written),
@@ -440,7 +486,9 @@ class SidecarService:
                 operand_a = self._digit_symbol(a)
                 operand_b = self._digit_symbol(b)
                 operator = self._operator(op)
-            step = self.composite.step((operand_a, operator, operand_b))
+            step = self.composite.step(
+                (operand_a, operator, operand_b), namespace=str(namespace)
+            )
             abstained = bool(step["vetoed"]) or step["answer"] is None
             answer = (
                 "ABSTAIN: coherence below tau" if abstained else str(step["answer"])
@@ -455,6 +503,52 @@ class SidecarService:
                 "key": [operand_a, operator, operand_b],
             }
             return self._envelope("/v1/holarch/composite", request, result)
+
+    # ------------------------------------------------------- synthesize (L3)
+    def synthesize(
+        self,
+        intent: str,
+        kind: str = "code",
+        namespace: str = "default",
+        max_tokens: int = 320,
+    ) -> Dict[str, Any]:
+        """Emit verified code or text, or an explicit refusal.
+
+        The response carries the same SHA-256 receipt as every other
+        endpoint, so a caller can recompute the digest from the body.
+        """
+        request = {
+            "intent": str(intent),
+            "kind": str(kind),
+            "namespace": str(namespace),
+            "max_tokens": int(max_tokens),
+        }
+        with self.lock:
+            result = self.sidecar.synthesize(
+                intent, kind=str(kind), namespace=str(namespace), max_tokens=int(max_tokens)
+            )
+            result = {**result, "status": str(result.get("status", ""))}
+            return self._envelope("/v1/holarch/synthesize", request, result)
+
+    def adapt_synthesis(
+        self,
+        intent: str,
+        corrected_source: str,
+        name: str,
+        kind: str = "code",
+        namespace: str = "default",
+    ) -> Dict[str, Any]:
+        request = {
+            "intent": str(intent),
+            "name": str(name),
+            "kind": str(kind),
+            "namespace": str(namespace),
+        }
+        with self.lock:
+            result = self.sidecar.adapt_synthesis(
+                intent, corrected_source, name, kind=str(kind), namespace=str(namespace)
+            )
+            return self._envelope("/v1/holarch/adapt_rule", request, result)
 
     def health(self) -> Dict[str, Any]:
         with self.lock:
@@ -485,26 +579,33 @@ class VetoRequest(BaseModel):
     task: str = "vision"
     x: Any = Field(..., description="nested pixel or observation payload")
     rule_id: Optional[int] = None
+    namespace: str = "default"
 
 
 class IngestCodeRequest(BaseModel):
     root: str
     package: str = "henri"
+    namespace: str = "default"
+    mode: str = "edges"
 
 
 class IngestEdgesRequest(BaseModel):
     edges: List[Dict[str, str]]
+    namespace: str = "default"
 
 
 class SolveRequest(BaseModel):
     source: str
     operators: Any
+    namespace: str = "default"
+    mode: str = "path"
 
 
 class PlaybookRequest(BaseModel):
     name: str
     steps: Optional[List[str]] = None
     merge: bool = True
+    namespace: str = "default"
 
 
 class AdaptRuleRequest(BaseModel):
@@ -513,6 +614,14 @@ class AdaptRuleRequest(BaseModel):
     y: List[int]
     rule_id: Optional[int] = None
     lr: float = 0.2
+    namespace: str = "default"
+
+
+class SynthesizeRequest(BaseModel):
+    intent: str
+    kind: str = "code"
+    namespace: str = "default"
+    max_tokens: int = 320
 
 
 class CompositeRule(BaseModel):
@@ -530,6 +639,7 @@ class CompositeRequest(BaseModel):
     op: Any = None
     x0: Any = None
     x1: Any = None
+    namespace: str = "default"
 
 
 def build_app(service: Optional[SidecarService] = None):
@@ -554,28 +664,40 @@ def build_app(service: Optional[SidecarService] = None):
 
     @app.post("/v1/holarch/veto")
     def veto(request: VetoRequest):
-        return get_service().veto(request.task, request.x, request.rule_id)
+        return get_service().veto(request.task, request.x, request.rule_id, request.namespace)
 
     @app.post("/v1/holarch/ingest_code")
     def ingest_code(request: IngestCodeRequest):
-        return get_service().ingest_code(request.root, request.package)
+        return get_service().ingest_code(
+            request.root, request.package, request.namespace, request.mode
+        )
 
     @app.post("/v1/holarch/ingest_edges")
     def ingest_edges(request: IngestEdgesRequest):
-        return get_service().ingest_edges(request.edges)
+        return get_service().ingest_edges(request.edges, request.namespace)
 
     @app.post("/v1/holarch/solve")
     def solve(request: SolveRequest):
-        return get_service().solve(request.source, request.operators)
+        return get_service().solve(
+            request.source, request.operators, request.namespace, request.mode
+        )
+
+    @app.post("/v1/holarch/synthesize")
+    def synthesize(request: SynthesizeRequest):
+        return get_service().synthesize(
+            request.intent, request.kind, request.namespace, request.max_tokens
+        )
 
     @app.post("/v1/holarch/playbook")
     def playbook(request: PlaybookRequest):
-        return get_service().playbook(request.name, request.steps, request.merge)
+        return get_service().playbook(
+            request.name, request.steps, request.merge, request.namespace
+        )
 
     @app.post("/v1/holarch/adapt_rule")
     def adapt_rule(request: AdaptRuleRequest):
         return get_service().adapt_rule(
-            request.task, request.x, request.y, request.rule_id, request.lr
+            request.task, request.x, request.y, request.rule_id, request.lr, request.namespace
         )
 
     @app.post("/v1/holarch/composite")
@@ -590,6 +712,7 @@ def build_app(service: Optional[SidecarService] = None):
                 op=request.op,
                 x0=request.x0,
                 x1=request.x1,
+                namespace=request.namespace,
             )
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc))

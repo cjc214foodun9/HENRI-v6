@@ -36,6 +36,7 @@ import torch
 from henri.holarch.config import HolarchConfig, TASK_IDS
 from henri.holarch.pipeline import HenriHolarch
 from henri.holarch.symbolic import (
+    CodeGraphIndexer,
     Edge,
     SolveResult,
     SymbolCodebook,
@@ -74,8 +75,12 @@ class EpistemicSidecar:
         model: Optional[HenriHolarch] = None,
         backend: str = "sqlite",
         memory_path: Optional[str] = None,
+        root: str | Path = ".",
     ) -> None:
         self.cfg = cfg or HolarchConfig.small()
+        self.root = Path(root)
+        self.indexer: Optional[CodeGraphIndexer] = None
+        self._engine = None
         path = memory_path or str(
             Path(tempfile.gettempdir()) / f"henri_sidecar_{int(time.time())}.sqlite3"
         )
@@ -88,46 +93,84 @@ class EpistemicSidecar:
         self.index_report: Dict[str, float] = {}
 
     # ------------------------------------------------------- 1. structural
-    def ingest_edges(self, edges: Iterable[Edge], calibrate: bool = True) -> Dict[str, float]:
-        """Write a novel system into Zone C. No weight is touched."""
+    def ingest_edges(
+        self, edges: Iterable[Edge], calibrate: bool = True, namespace: str = "default"
+    ) -> Dict[str, float]:
+        """Write a novel system into Zone C. No weight is touched.
+
+        Directive F1: the namespace is part of every write and every
+        calibration read, so two tenants cannot share a transition key.
+        """
         edges = list(edges)
         for edge in edges:
             self.codebook.add(edge.source)
             self.codebook.add(edge.target)
         before = float(self.model.memory.stats()["count"])
-        written = self.solver.ingest(edges)
+        written = self.solver.ingest(edges, namespace=str(namespace))
         report = {
             "edges_ingested": float(written),
             "engrams_before": before,
             "engrams_after": float(self.model.memory.stats()["count"]),
             "parameters_unchanged": 1.0,
+            "namespace": str(namespace),
         }
         if calibrate and edges:
-            report.update(self.solver.calibrate(edges))
+            report.update(self.solver.calibrate(edges, namespace=str(namespace)))
         return report
 
-    def ingest_code(self, root: str | Path, package: str = "henri") -> Dict[str, float]:
-        """Read a package once, then answer from memory only."""
-        graph = index_code(root, package)
-        report = self.ingest_edges(graph.edges)
+    def ingest_code(
+        self, root: str | Path, package: str = "henri", namespace: str = "default"
+    ) -> Dict[str, float]:
+        """Read a package once, then answer from memory only.
+
+        Stage 2: the index pass also extracts every signature and every AST
+        parent-child transition and stores them as Tier-3 boundary engrams,
+        so the Sagnac gate has an axiom to compare a proposed statement with.
+        """
+        indexer = CodeGraphIndexer(
+            self.model.memory, namespace=str(namespace), symbol_codebook=self.codebook
+        )
+        report = indexer.index(root, package=package)
+        self.indexer = indexer
+        graph_edges = list(indexer.graph.edges)
+        ingest = self.ingest_edges(graph_edges, namespace=str(namespace))
         self.index_report = {
-            "files_parsed": float(graph.files),
-            "lines_parsed": float(graph.lines),
-            "parse_seconds": float(graph.seconds),
-            "edges": float(len(graph.edges)),
-            "nodes": float(len(graph.nodes)),
+            "files_parsed": float(report.files),
+            "lines_parsed": float(report.lines),
+            "parse_seconds": float(report.seconds),
+            "edges": float(report.edges),
+            "nodes": float(report.nodes),
+            "signatures": float(report.signatures),
+            "grammar_transitions": float(report.transitions),
+            "boundary_engrams": float(report.boundary_engrams),
         }
-        return {**self.index_report, **report}
+        return {**self.index_report, **ingest}
+
+    def impact(self, target: str, hops: int = 1, namespace: str = "default") -> Dict[str, object]:
+        """Reverse-call blast radius for one symbol (Directive F4)."""
+        if self.indexer is None:
+            raise RuntimeError("ingest_code must run before an impact query")
+        result = self.indexer.impact(target, hops=int(hops))
+        result["namespace"] = str(namespace)
+        if not result["resolved"]:
+            result["vetoed"] = True
+            result["callers"] = []
+        else:
+            result["vetoed"] = False
+        return result
 
     # ------------------------------------------------------------- 2. solve
-    def solve(self, source: str, operators: Sequence[str]) -> Dict[str, object]:
-        result: SolveResult = self.solver.solve(source, operators)
+    def solve(
+        self, source: str, operators: Sequence[str], namespace: str = "default"
+    ) -> Dict[str, object]:
+        result: SolveResult = self.solver.solve(source, operators, namespace=str(namespace))
         return {
             "answer": result.answer,
             "vetoed": bool(result.vetoed),
             "coherences": list(result.coherences),
             "text": self.decoder.render_path(result),
             "path": result.path,
+            "namespace": str(namespace),
         }
 
     @torch.no_grad()
@@ -158,6 +201,7 @@ class EpistemicSidecar:
         steps: Sequence[str],
         merge: bool = True,
         tier: int = 3,
+        namespace: str = "default",
     ) -> Dict[str, float]:
         """Compile an execution strategy into a Tier-3 engram.
 
@@ -194,7 +238,10 @@ class EpistemicSidecar:
         from henri.holarch.zone_c import PLAYBOOK_LABEL_OFFSET
 
         record = self.model.memory.write(
-            stored, label=PLAYBOOK_LABEL_OFFSET + int(version), tier=int(tier)
+            stored,
+            label=PLAYBOOK_LABEL_OFFSET + int(version),
+            tier=int(tier),
+            namespace=str(namespace),
         )
         self.playbooks[name] = Playbook(name=name, steps=merged, version=version)
         return {
@@ -204,9 +251,14 @@ class EpistemicSidecar:
             "tier": float(tier),
         }
 
-    def recall_playbook(self, name: str, decode: bool = True) -> Dict[str, object]:
+    def recall_playbook(
+        self, name: str, decode: bool = True, namespace: str = "default"
+    ) -> Dict[str, object]:
         key = self._study_wave(name)
-        read = self.model.memory.query(key, k=1)
+        # "__all__" is the explicit, audited cross-tenant read used only by
+        # diagnostics; every request path passes a real namespace.
+        scope = None if str(namespace) == "__all__" else str(namespace)
+        read = self.model.memory.query(key, k=1, namespace=scope)
         if not read.hits:
             return {"found": 0.0, "steps": [], "text": "ABSTAIN: no playbook"}
         stored = np.asarray(read.top_wave if read.top_wave is not None else read.context)
@@ -274,6 +326,54 @@ class EpistemicSidecar:
             ),
             "examples": float(x.shape[0]),
         }
+
+    # --------------------------------------------------------- 5. synthesis
+    def synthesize(
+        self,
+        intent: str,
+        kind: str = "code",
+        namespace: str = "default",
+        max_tokens: int = 320,
+    ) -> Dict[str, object]:
+        """Multi-token synthesis through the wave decoder (Stage 3).
+
+        The engine is built once per service, because fitting the tokenizer,
+        the projector and the count model is a corpus pass and not a request.
+        """
+        if self._engine is None:
+            from henri.holarch.code_gen import build_synthesis_engine
+
+            symbols = set()
+            if self.indexer is not None:
+                symbols |= self.indexer.symbol_names()
+            engine, stats = build_synthesis_engine(
+                self.root,
+                self.model.memory,
+                namespace=str(namespace),
+                symbol_table=symbols,
+            )
+            self._engine = engine
+            self._engine_stats = stats
+        self._engine.namespace = str(namespace)
+        self._engine.plans.namespace = str(namespace)
+        result = self._engine.synthesize(intent, kind=str(kind), max_tokens=int(max_tokens))
+        result["corpus"] = dict(getattr(self, "_engine_stats", {}))
+        return result
+
+    def adapt_synthesis(
+        self,
+        intent: str,
+        corrected_source: str,
+        name: str,
+        kind: str = "code",
+        namespace: str = "default",
+    ) -> Dict[str, object]:
+        """Compile a verified fix into an ACE playbook for one tenant."""
+        if self._engine is None:
+            self.synthesize("warmup", kind="text", namespace=namespace)
+        self._engine.namespace = str(namespace)
+        self._engine.plans.namespace = str(namespace)
+        return self._engine.adapt(intent, corrected_source, name, kind=str(kind))
 
     # ------------------------------------------------------------- lifecycle
     def report(self) -> Dict[str, float]:

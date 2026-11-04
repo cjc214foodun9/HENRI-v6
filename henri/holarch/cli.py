@@ -223,7 +223,7 @@ def cmd_budget(args) -> int:
     import hashlib
     import platform
 
-    from henri.holarch.budget import budget_report
+    from henri.holarch.budget import budget_report, probe_nvidia_driver_state
     from henri.holarch.pipeline import HenriHolarch
     from henri.holarch.zone_c import ZoneCMemory
 
@@ -304,6 +304,9 @@ def cmd_budget(args) -> int:
         (profile["cuda_peak_allocated_gib"] for profile in profiles.values()),
         default=0.0,
     )
+    # Directive F4: record the exact driver evidence behind the CUDA verdict,
+    # not only the verdict. A reader can see which check failed.
+    hardware["nvidia_driver"] = probe_nvidia_driver_state()
     primary = "production" if "production" in profiles else next(iter(profiles))
     all_fit = bool(all(profile["fits"] for profile in profiles.values()))
     payload = {

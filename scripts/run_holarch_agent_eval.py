@@ -138,6 +138,24 @@ class BaselineAgent:
         self.response_bytes += len(str(current).encode("utf-8"))
         return current
 
+    def impact_answer(self, root: Path, target: str, hops: int) -> List[str]:
+        """The unindexed arm's answer: every def in a file that names the target.
+
+        No reverse edge set exists in this arm, so it over-reports. That is
+        the honest cost of grep-style reasoning, not a straw man.
+        """
+        name = str(target).split(":")[-1].split(".")[-1]
+        found: List[str] = []
+        for path, text in self._scan().items():
+            if name not in text:
+                continue
+            for line in text.splitlines():
+                stripped = line.strip()
+                if stripped.startswith("def ") or stripped.startswith("class "):
+                    token = stripped.split()[1].split("(")[0].strip(":")
+                    found.append(f"{Path(path).stem}:{token}")
+        return sorted(set(found))
+
     def accept_ood(self, count: int) -> int:
         """A baseline with no veto accepts every corrupted input."""
         self.response_bytes += len(b"accept") * int(count)
@@ -145,6 +163,43 @@ class BaselineAgent:
 
 
 # ------------------------------------------------------------ query builder
+def _aliases(name: str) -> List[str]:
+    text = str(name)
+    out = [text]
+    bare = text.split(":")[-1]
+    if bare not in out:
+        out.append(bare)
+    tail = bare.split(".")[-1]
+    if tail not in out:
+        out.append(tail)
+    return out
+
+
+def _impact_truth(edges: Sequence[Edge], target: str, hops: int) -> List[str]:
+    """Independent reverse BFS over the edge list, for the query key."""
+    reverse: Dict[str, List[str]] = {}
+    for edge in edges:
+        for alias in _aliases(edge.target):
+            reverse.setdefault(alias, []).append(edge.source)
+    frontier = sorted(_aliases(target))
+    seen: List[str] = []
+    visited = set(frontier)
+    for _ in range(max(1, int(hops))):
+        current: List[str] = []
+        for node in frontier:
+            for caller in reverse.get(node, []):
+                if caller in visited:
+                    continue
+                visited.add(caller)
+                current.append(caller)
+                seen.append(caller)
+                visited.update(_aliases(caller))
+        frontier = sorted(set(current))
+        if not frontier:
+            break
+    return sorted(set(seen))
+
+
 def build_queries(root: Path) -> Dict[str, List[dict]]:
     """Deterministic query set: 36 queries over four categories."""
     graph = index_code(root, package="henri")
@@ -200,12 +255,41 @@ def build_queries(root: Path) -> Dict[str, List[dict]]:
         {"kind": "composite_trap", "a": "d9", "op": "mul", "b": "d1"},
     ]
 
+    # Directive F4: reverse-call impact queries. The ground truth is computed
+    # here by an independent breadth-first walk over the indexed edges, not by
+    # calling the service that answers the query.
+    impact_queries = []
+    for target, hops in (
+        ("ZoneCMemory.query", 1),
+        ("ZoneCMemory.query", 2),
+        ("ZoneCMemory.write", 2),
+        ("SymbolCodebook.add", 1),
+        ("HolarchConfig.digest", 1),
+        ("index_code", 1),
+    ):
+        truth = _impact_truth(graph.edges, target, hops)
+        if truth:
+            impact_queries.append(
+                {
+                    "kind": "impact",
+                    "target": target,
+                    "hops": int(hops),
+                    "truth": sorted(truth),
+                }
+            )
+    impact_traps = [
+        {"kind": "impact_trap", "target": "no_such_symbol_alpha", "hops": 1},
+        {"kind": "impact_trap", "target": "ZoneCMemory.quantum_entangle", "hops": 3},
+    ]
+
     return {
         "code": code_queries,
         "graph": graph_queries,
         "traps": traps,
         "composite": composite,
         "composite_traps": composite_traps,
+        "impact": impact_queries,
+        "impact_traps": impact_traps,
         "edges": edges,
         "graph_stats": {
             "files": float(graph.files),
@@ -294,6 +378,8 @@ def run_agent_eval(
         "code_call_flow": {"baseline_correct": 0, "mcp_correct": 0, "total": 0},
         "multi_hop_graph": {"baseline_correct": 0, "mcp_correct": 0, "total": 0},
         "unreachable_traps": {"baseline_hallucinated": 0, "mcp_refused": 0, "total": 0},
+        "impact_analysis": {"baseline_correct": 0, "mcp_correct": 0, "total": 0},
+        "impact_traps": {"baseline_hallucinated": 0, "mcp_refused": 0, "total": 0},
         "ood_ingress": {"baseline_false_accept": 0, "mcp_vetoed": 0, "total": 0},
         "playbook_reuse": {"baseline_exact": 0, "mcp_exact": 0, "total": 0},
         "composite_rules": {"baseline_correct": 0, "mcp_correct": 0, "total": 0},
@@ -368,6 +454,41 @@ def run_agent_eval(
         per_category["unreachable_traps"]["total"] += 1
         per_category["unreachable_traps"]["baseline_hallucinated"] += baseline_hallucinated
         per_category["unreachable_traps"]["mcp_refused"] += mcp_refused
+
+    for query in queries["impact"]:
+        truth = list(query["truth"])
+        started = time.perf_counter()
+        baseline_answer = baseline.impact_answer(root, query["target"], int(query["hops"]))
+        baseline.latency_ms += (time.perf_counter() - started) * 1e3
+        started = time.perf_counter()
+        result = service.solve(query["target"], [str(query["hops"])], mode="impact")
+        mcp_latency += (time.perf_counter() - started) * 1e3
+        mcp_response_bytes += len(json.dumps(result["result"]))
+        receipts.append(result["receipt"])
+        mcp_callers = list(result["result"].get("callers", []))
+        baseline_correct = int(sorted(baseline_answer) == sorted(truth))
+        mcp_correct = int(sorted(mcp_callers) == sorted(truth))
+        score["baseline_unindexed"]["reachable_total"] += 1
+        score["holarch_mcp"]["reachable_total"] += 1
+        score["baseline_unindexed"]["reachable_correct"] += baseline_correct
+        score["holarch_mcp"]["reachable_correct"] += mcp_correct
+        per_category["impact_analysis"]["total"] += 1
+        per_category["impact_analysis"]["baseline_correct"] += baseline_correct
+        per_category["impact_analysis"]["mcp_correct"] += mcp_correct
+
+    for query in queries["impact_traps"]:
+        baseline_answer = baseline.impact_answer(root, query["target"], int(query["hops"]))
+        result = service.solve(query["target"], [str(query["hops"])], mode="impact")
+        receipts.append(result["receipt"])
+        mcp_refused = int(bool(result["result"].get("vetoed", False)))
+        baseline_hallucinated = int(bool(baseline_answer))
+        score["baseline_unindexed"]["traps_total"] += 1
+        score["holarch_mcp"]["traps_total"] += 1
+        score["baseline_unindexed"]["hallucinations"] += baseline_hallucinated
+        score["holarch_mcp"]["hallucinations"] += int(not mcp_refused)
+        per_category["impact_traps"]["total"] += 1
+        per_category["impact_traps"]["baseline_hallucinated"] += baseline_hallucinated
+        per_category["impact_traps"]["mcp_refused"] += mcp_refused
 
     for salt in range(4):
         pixels = _pixels(32, 500 + salt)
@@ -553,6 +674,8 @@ def run_agent_eval(
             len(queries["code"])
             + len(queries["graph"])
             + len(queries["traps"])
+            + len(queries["impact"])
+            + len(queries["impact_traps"])
             + 8
             + len(queries["composite"])
             + len(perceptual_queries)
@@ -567,6 +690,8 @@ def run_agent_eval(
             "composite_symbolic": len(queries["composite"]),
             "composite_perceptual": len(perceptual_queries),
             "composite_traps": len(queries["composite_traps"]),
+            "impact_analysis": len(queries["impact"]),
+            "impact_traps": len(queries["impact_traps"]),
         },
         "code_index": {
             "seconds": float(index_seconds),
@@ -638,6 +763,16 @@ def run_agent_eval(
                 composite_stats["mcp_refused"] == composite_stats["traps_total"]
             ),
             "receipt_chain_valid": chain_valid and receipts_valid,
+            "impact_mcp_at_least_0_98": bool(
+                per_category["impact_analysis"]["mcp_correct"]
+                / max(per_category["impact_analysis"]["total"], 1)
+                >= 0.98
+            ),
+            "impact_traps_refused": bool(
+                per_category["impact_traps"]["mcp_refused"]
+                == per_category["impact_traps"]["total"]
+            ),
+            "impact_queries_present": bool(per_category["impact_analysis"]["total"] >= 6),
         },
         "evidence": "OBSERVED",
     }
@@ -649,6 +784,9 @@ def run_agent_eval(
         and payload["gate"]["composite_mcp_at_least_0_90"]
         and payload["gate"]["composite_traps_refused"]
         and payload["gate"]["receipt_chain_valid"]
+        and payload["gate"]["impact_mcp_at_least_0_98"]
+        and payload["gate"]["impact_traps_refused"]
+        and payload["gate"]["impact_queries_present"]
     )
     service.close()
     return payload

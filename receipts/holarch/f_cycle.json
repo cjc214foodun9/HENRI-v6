@@ -1,0 +1,263 @@
+{
+  "cycle": "F1-F4",
+  "protocol": "multi-tenant wave planning sidecar",
+  "git_head": "e80159ff865e0fcacdde0f7482aa4b416b14acbd",
+  "directives": {
+    "F1": {
+      "stage": "F1",
+      "namespace": "tenant_alpha|tenant_beta",
+      "rows": [
+        {
+          "case": "alpha_own_path",
+          "answer": "s02",
+          "vetoed": false
+        },
+        {
+          "case": "beta_own_path",
+          "answer": "z01",
+          "vetoed": false
+        },
+        {
+          "case": "alpha_on_beta_symbol",
+          "answer": null,
+          "vetoed": true
+        },
+        {
+          "case": "beta_on_alpha_symbol",
+          "answer": null,
+          "vetoed": true
+        }
+      ],
+      "cross_tenant_leakage": 0,
+      "leakage_rate": 0.0,
+      "receipts_valid": true,
+      "gate": {
+        "alpha_own_path_1_0": true,
+        "beta_own_path_1_0": true,
+        "alpha_refuses_beta_1_0": true,
+        "beta_refuses_alpha_1_0": true,
+        "leakage_zero": true,
+        "receipts_valid": true,
+        "passed": true
+      },
+      "evidence": "OBSERVED"
+    },
+    "F2": {
+      "stage": "F2",
+      "checkpoint": {
+        "path": "receipts\\holarch\\holarch_medium.pt",
+        "sha256": "59896acefed669ffee19aa2fb59dd22df5f633c6f353c27cef95d7ccd484c3e8",
+        "parameters": 1020380,
+        "dim": 1024
+      },
+      "rotor": {
+        "fit": {
+          "transitions": 197,
+          "coherence": 0.9081373241952229,
+          "actions_covered": 4
+        },
+        "held_out": {
+          "transitions": 210,
+          "coherence": 0.9029180997893924,
+          "coherence_min": 0.7559905052185059
+        },
+        "state": {
+          "dim": 1024,
+          "n_actions": 4,
+          "grid": 16,
+          "fitted": true,
+          "counts": [
+            42,
+            57,
+            57,
+            41
+          ]
+        }
+      },
+      "arms": {
+        "shift_depth1": {
+          "success_rate": 0.7083333333333334,
+          "wins": 34,
+          "episodes": 48,
+          "mean_steps_to_goal": 5.352941176470588,
+          "transition": "shift",
+          "lookahead_depth": 1,
+          "reactive_success_rate": 0.4583333333333333
+        },
+        "rotor_depth1": {
+          "success_rate": 0.7708333333333334,
+          "wins": 37,
+          "episodes": 48,
+          "mean_steps_to_goal": 5.513513513513513,
+          "transition": "rotor",
+          "lookahead_depth": 1,
+          "reactive_success_rate": 0.4583333333333333
+        },
+        "blend_depth1": {
+          "success_rate": 0.75,
+          "wins": 36,
+          "episodes": 48,
+          "mean_steps_to_goal": 5.555555555555555,
+          "transition": "blend",
+          "lookahead_depth": 1,
+          "reactive_success_rate": 0.4583333333333333
+        },
+        "rotor_depth2": {
+          "success_rate": 0.7291666666666666,
+          "wins": 35,
+          "episodes": 48,
+          "mean_steps_to_goal": 5.514285714285714,
+          "transition": "rotor",
+          "lookahead_depth": 2,
+          "reactive_success_rate": 0.4583333333333333
+        },
+        "shift_depth2": {
+          "success_rate": 0.6875,
+          "wins": 33,
+          "episodes": 48,
+          "mean_steps_to_goal": 5.181818181818182,
+          "transition": "shift",
+          "lookahead_depth": 2,
+          "reactive_success_rate": 0.4583333333333333
+        }
+      },
+      "best_arm": {
+        "name": "rotor_depth1",
+        "success_rate": 0.7708333333333334,
+        "mean_steps_to_goal": 5.513513513513513
+      },
+      "improves_over_cycle_e": true,
+      "mean_steps_below_5_29": false,
+      "wall_seconds": 242.20564720002585,
+      "gate": {
+        "held_out_coherence_at_least_0_85": true,
+        "closed_loop_not_degraded": true,
+        "depth2_reported": true,
+        "rotor_reported": true,
+        "passed": true
+      },
+      "evidence": "OBSERVED"
+    },
+    "F3": {
+      "stage": "F3",
+      "transport": "in-process-anyio-memory-object-stream",
+      "stdio_pipe_status": "NOT_REQUIRED_IN_PROCESS",
+      "tools": [
+        "holarch_adapt_rule",
+        "holarch_composite",
+        "holarch_health",
+        "holarch_ingest_code",
+        "holarch_ingest_edges",
+        "holarch_playbook",
+        "holarch_solve",
+        "holarch_synthesize",
+        "holarch_veto"
+      ],
+      "solve_answer": "b",
+      "composite_ingested": 1.0,
+      "receipts_valid": true,
+      "gate": {
+        "handshake_completed": true,
+        "tool_listing_present": true,
+        "holarch_solve_called": true,
+        "holarch_composite_called": true,
+        "receipts_valid": true,
+        "passed": true
+      },
+      "evidence": "OBSERVED"
+    },
+    "F4": {
+      "stage": "F4",
+      "agent_eval": {
+        "queries_total": 52,
+        "reachable_accuracy": 1.0,
+        "hallucination_rate": 0.0,
+        "query_file_reads": 0,
+        "receipts": 52,
+        "receipt_chain_valid": true,
+        "code_index": {
+          "seconds": 1.6805575000180397,
+          "files": 20.0,
+          "lines": 13086.0,
+          "nodes": 403.0,
+          "edges": 873.0,
+          "edges_ingested": 72.0
+        },
+        "impact_queries": 6,
+        "impact_correct": 6,
+        "impact_traps": 2,
+        "impact_traps_refused": 2
+      },
+      "nvidia_driver": {
+        "platform": "Windows-11-10.0.26300-SP0",
+        "torch_version": "2.11.0+cu128",
+        "cuda_compiled_version": "12.8",
+        "torch_cuda_available": false,
+        "torch_device_count": 0,
+        "cuda_visible_devices": "",
+        "cuda_visible_devices_set": false,
+        "cuda_home": "",
+        "cuda_path_set": false,
+        "nvidia_smi_path": "C:\\WINDOWS\\system32\\nvidia-smi.EXE",
+        "nvidia_smi_reachable": true,
+        "nvidia_smi_devices": [],
+        "nvidia_smi_driver_version": "",
+        "nvidia_smi_error": "",
+        "driver_libraries": {
+          "C:\\Windows\\System32\\nvcuda.dll": true,
+          "C:\\Windows\\SysWOW64\\nvcuda.dll": true,
+          "C:\\Program Files\\NVIDIA Corporation\\NVSMI\\nvidia-smi.exe": false
+        },
+        "nvcuda_present": true,
+        "libcuda_present": false,
+        "driver_files_found": 2,
+        "on_windows": true,
+        "root_cause": "nvidia-smi ran but listed no device",
+        "verdict": "BLOCKED",
+        "evidence": "OBSERVED"
+      },
+      "gate": {
+        "queries_52": true,
+        "reachable_accuracy_1_0": true,
+        "hallucination_zero": true,
+        "zero_query_reads": true,
+        "receipt_chain_valid": true,
+        "impact_5_of_6_or_better": true,
+        "impact_traps_refused": true,
+        "driver_fields_recorded": true,
+        "passed": true
+      },
+      "evidence": "OBSERVED"
+    }
+  },
+  "receipts": {
+    "F1": {
+      "path": "receipts\\holarch\\f1_namespaces.json",
+      "sha256": "0e4049dfb377daea07bfd528a800f1c241abc481dcc9ecee12b981f2e702de95"
+    },
+    "F2": {
+      "path": "receipts\\holarch\\f2_rotor.json",
+      "sha256": "4154b487709bc682e200164078ad5415dd25faa416aa57f9d3c8df8183a59834"
+    },
+    "F3": {
+      "path": "receipts\\holarch\\f3_transport.json",
+      "sha256": "66339b2716cf8c2bf43ee09e45fc071b0ad4b7064d0cca3a31e7d6783aeaafb6"
+    },
+    "F4": {
+      "path": "receipts\\holarch\\f4_impact.json",
+      "sha256": "a2f8b8c0941ccefa621f4f55b5334cd92723424cb6396a059f2a2206b7e7ecc1"
+    }
+  },
+  "upstream_receipts": {
+    "holarch_medium.json": "a7142aa8a22a5d7806cf6f0c3cda9d9ced13d19195369a4004e3532bc709c2e3",
+    "agent_eval.json": "3e35a1a566681a58fd70a2609267fd0db79a2d6744ac99953fbd8a7fdb1a5937",
+    "budget.json": "f54f4fd7dd9efc7d9a0186c73ca1327624949afa5a80203d475b228ebcc2096b",
+    "code_lang_eval.json": "133da307e49317675e86fa77436d6b4eabaf8caab11a646f1a56deaa89886f36"
+  },
+  "summary": {
+    "passed": 4,
+    "total": 4
+  },
+  "wall_seconds": 244.11793170002056,
+  "evidence": "DERIVED"
+}

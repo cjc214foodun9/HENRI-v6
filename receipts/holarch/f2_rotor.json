@@ -1,0 +1,96 @@
+{
+  "stage": "F2",
+  "checkpoint": {
+    "path": "receipts\\holarch\\holarch_medium.pt",
+    "sha256": "59896acefed669ffee19aa2fb59dd22df5f633c6f353c27cef95d7ccd484c3e8",
+    "parameters": 1020380,
+    "dim": 1024
+  },
+  "rotor": {
+    "fit": {
+      "transitions": 197,
+      "coherence": 0.9081373241952229,
+      "actions_covered": 4
+    },
+    "held_out": {
+      "transitions": 210,
+      "coherence": 0.9029180997893924,
+      "coherence_min": 0.7559905052185059
+    },
+    "state": {
+      "dim": 1024,
+      "n_actions": 4,
+      "grid": 16,
+      "fitted": true,
+      "counts": [
+        42,
+        57,
+        57,
+        41
+      ]
+    }
+  },
+  "arms": {
+    "shift_depth1": {
+      "success_rate": 0.7083333333333334,
+      "wins": 34,
+      "episodes": 48,
+      "mean_steps_to_goal": 5.352941176470588,
+      "transition": "shift",
+      "lookahead_depth": 1,
+      "reactive_success_rate": 0.4583333333333333
+    },
+    "rotor_depth1": {
+      "success_rate": 0.7708333333333334,
+      "wins": 37,
+      "episodes": 48,
+      "mean_steps_to_goal": 5.513513513513513,
+      "transition": "rotor",
+      "lookahead_depth": 1,
+      "reactive_success_rate": 0.4583333333333333
+    },
+    "blend_depth1": {
+      "success_rate": 0.75,
+      "wins": 36,
+      "episodes": 48,
+      "mean_steps_to_goal": 5.555555555555555,
+      "transition": "blend",
+      "lookahead_depth": 1,
+      "reactive_success_rate": 0.4583333333333333
+    },
+    "rotor_depth2": {
+      "success_rate": 0.7291666666666666,
+      "wins": 35,
+      "episodes": 48,
+      "mean_steps_to_goal": 5.514285714285714,
+      "transition": "rotor",
+      "lookahead_depth": 2,
+      "reactive_success_rate": 0.4583333333333333
+    },
+    "shift_depth2": {
+      "success_rate": 0.6875,
+      "wins": 33,
+      "episodes": 48,
+      "mean_steps_to_goal": 5.181818181818182,
+      "transition": "shift",
+      "lookahead_depth": 2,
+      "reactive_success_rate": 0.4583333333333333
+    }
+  },
+  "best_arm": {
+    "name": "rotor_depth1",
+    "success_rate": 0.7708333333333334,
+    "mean_steps_to_goal": 5.513513513513513
+  },
+  "improves_over_cycle_e": true,
+  "mean_steps_below_5_29": false,
+  "wall_seconds": 242.20564720002585,
+  "gate": {
+    "held_out_coherence_at_least_0_85": true,
+    "closed_loop_not_degraded": true,
+    "depth2_reported": true,
+    "rotor_reported": true,
+    "passed": true
+  },
+  "evidence": "OBSERVED"
+}

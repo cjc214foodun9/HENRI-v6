@@ -1,0 +1,201 @@
+{
+  "stage": "L2",
+  "index": {
+    "passages": 940,
+    "signatures": 893,
+    "vocabulary": 3338,
+    "rare_threshold": 5.930652407711224,
+    "mean_passage_terms": 25.419148936170213,
+    "corpus_digest": "58b06ace39fdbec4",
+    "passage_digests": [
+      "599a81626c69a09d",
+      "a6dbdbf8e563a850",
+      "5bec5f032b80a9ac",
+      "1a0eb82fef7bf09f",
+      "8519a8b662687b7b",
+      "60595e7be244edb6",
+      "bb9c9553edd1d120",
+      "5825647645c03fb4"
+    ]
+  },
+  "true_claims": [
+    {
+      "claim": "The medium profile has 1,020,380 parameters and reaches 0.7083 closed-loop action.",
+      "status": "supported",
+      "reason": "all rare terms and all quantities present in evidence",
+      "passages": [
+        "797d9d643f6ad6f65d44faa599c4dff0f5cf9f4cf7a300f08773400790f351d6",
+        "5bd476ac8a73c9b3e0bc94dce5005040d7feda25518fad43f26ae9d2df8acc10"
+      ]
+    },
+    {
+      "claim": "The four-plate stack measures a mean plate margin of +0.122 for the strict gate.",
+      "status": "supported",
+      "reason": "all rare terms and all quantities present in evidence",
+      "passages": [
+        "f1d8f261d8acd392136148bc9a5ab7937089ed3f10538f4d52cba4e47de7cfa8",
+        "d4c364c4c175ea17508dea0cc1f48469af11295e5d4c102ee1839e7795799a18"
+      ]
+    },
+    {
+      "claim": "The closed-loop lookahead reached 0.7083 on 34 of 48 layouts with 5.29 mean steps to goal.",
+      "status": "supported",
+      "reason": "all rare terms and all quantities present in evidence",
+      "passages": [
+        "476de59dceae515ba1ab4476411d4d76224faf95f92f78ca61b7ba270cceec2b",
+        "5a6f008f0281f4b07dd627fc0b1ec722887d6ce28cdf012431767b01031f806c"
+      ]
+    },
+    {
+      "claim": "Zone C retrieval reaches 1.000 exact recovery across M = 72 multi-hop transitions and M = 200 composite arithmetic rules.",
+      "status": "supported",
+      "reason": "all rare terms and all quantities present in evidence",
+      "passages": [
+        "4dec96fb07b1eae40e7b7872bdb8646693fc3db22075c37963ea3a97d809acd0",
+        "88adbeeda69639fd6d6f9be8d5209438d1767519816ae9a483bcb00d826272e5"
+      ]
+    },
+    {
+      "claim": "The context compression ratio is 455.8x with 0 query-time file reads.",
+      "status": "supported",
+      "reason": "all rare terms and all quantities present in evidence",
+      "passages": [
+        "bd67f2825c3fef6c0a74664e0f42d51833e7911aae854c71a418a7ee2b6087f8",
+        "418bea1e33d3a249914e8139fa47842638d84e07fd15724792eac8a586925414"
+      ]
+    },
+    {
+      "claim": "The medium profile trains in 0.7914 GiB with 8.02 ms forward and 8.68 ms backward.",
+      "status": "supported",
+      "reason": "all rare terms and all quantities present in evidence",
+      "passages": [
+        "5bd476ac8a73c9b3e0bc94dce5005040d7feda25518fad43f26ae9d2df8acc10",
+        "c15e57868a39432822d5de4cf4a59a892f091f1554148b54b6976256619c2e7f"
+      ]
+    },
+    {
+      "claim": "The checkpoint holarch_medium.pt has 1,020,380 parameters and 59896acefed669ffee19aa2fb59dd22df5f633c6f353c27cef95d7ccd484c3e8 as its digest.",
+      "status": "supported",
+      "reason": "all rare terms and all quantities present in evidence",
+      "passages": [
+        "39a89188322061309de1a6036c0c27afa7a8cf581e3f61d7c656269f723d95f0",
+        "c598a7da29a2e476e6668215ef3bbc821a824e9cdb4dc7ce08cf6d34eafa8cfd"
+      ]
+    },
+    {
+      "claim": "The sidecar records 44 valid receipts and 3 of 3 perceptual truth matches.",
+      "status": "supported",
+      "reason": "all rare terms and all quantities present in evidence",
+      "passages": [
+        "d142b95c4476330c0d474a34813cc1eab0642851690c4831ac13653ce2041b2a",
+        "befeae28e4dbc4761a04b8b4851fae0fc866a58c1255a661646bfbf2282b70bb"
+      ]
+    },
+    {
+      "claim": "The relational accuracy (test) is 0.7746 against a 0.7600 bar.",
+      "status": "supported",
+      "reason": "all rare terms and all quantities present in evidence",
+      "passages": [
+        "476de59dceae515ba1ab4476411d4d76224faf95f92f78ca61b7ba270cceec2b",
+        "cfe2ce63474f82c87f903f72bdbe1c6631c79c56ab68eac63cca875f2442b085"
+      ]
+    },
+    {
+      "claim": "The vision accuracy (test) is 0.9798 against a 0.9750 bar.",
+      "status": "supported",
+      "reason": "all rare terms and all quantities present in evidence",
+      "passages": [
+        "476de59dceae515ba1ab4476411d4d76224faf95f92f78ca61b7ba270cceec2b",
+        "e9878cbecc5d9cace931dbc8b23fec567c0e1bdce1db59dc18ad528ac69b233a"
+      ]
+    },
+    {
+      "claim": "The one-step action (test) is 0.7875 against a 0.7800 bar.",
+      "status": "supported",
+      "reason": "all rare terms and all quantities present in evidence",
+      "passages": [
+        "476de59dceae515ba1ab4476411d4d76224faf95f92f78ca61b7ba270cceec2b",
+        "e9878cbecc5d9cace931dbc8b23fec567c0e1bdce1db59dc18ad528ac69b233a"
+      ]
+    },
+    {
+      "claim": "The composite atlas resolves 200 composite arithmetic rules with 1.000 accuracy.",
+      "status": "supported",
+      "reason": "all rare terms and all quantities present in evidence",
+      "passages": [
+        "418bea1e33d3a249914e8139fa47842638d84e07fd15724792eac8a586925414",
+        "2f1520420ac33b6d13686785064aca5d02f5653008a5c3e023e283124c6caee2"
+      ]
+    },
+    {
+      "claim": "The Sagnac residual gap separates real data at 0.5852 from random noise at 0.7852.",
+      "status": "supported",
+      "reason": "all rare terms and all quantities present in evidence",
+      "passages": [
+        "8dd57884f12fb7eb840a9b3c17599f0b0b029c5ddf92669f624b4f4f3aaa163d",
+        "4980cb741270df8f285f83b4e4b56671fe5483e3f86929097848ab9e9337febe"
+      ]
+    },
+    {
+      "claim": "The medium profile trains in 0.7914 GiB and fits the 32 GiB budget.",
+      "status": "supported",
+      "reason": "all rare terms and all quantities present in evidence",
+      "passages": [
+        "5bd476ac8a73c9b3e0bc94dce5005040d7feda25518fad43f26ae9d2df8acc10",
+        "c15e57868a39432822d5de4cf4a59a892f091f1554148b54b6976256619c2e7f"
+      ]
+    }
+  ],
+  "corrupted_claims": [
+    {
+      "claim": "The medium profile has 34 gigabytes of dense covariance.",
+      "status": "unsupported",
+      "reason": "rare term(s) absent from evidence: ['gigabytes', 'covariance']"
+    },
+    {
+      "claim": "The medium profile has 1,020,381 parameters.",
+      "status": "contradicted",
+      "reason": "quantity 1020381 is stated differently in the evidence"
+    },
+    {
+      "claim": "The context compression ratio is 999.9x with 0 query-time file reads.",
+      "status": "contradicted",
+      "reason": "quantity 999.9 is stated differently in the evidence"
+    },
+    {
+      "claim": "Calling ZoneCMemory.query with keyword argument widget returns the stored wave.",
+      "status": "unsupported",
+      "reason": "signature: ZoneCMemory.query does not accept keyword 'widget'; declared parameters are ['self', 'wave', 'k', 'avoid_ids', 'candidate_multiplier', 'task', 'namespace']"
+    },
+    {
+      "claim": "The one-step action (test) is 0.9875 against a 0.7800 bar.",
+      "status": "contradicted",
+      "reason": "quantity 0.9875 is stated differently in the evidence"
+    },
+    {
+      "claim": "The relational accuracy (test) is 0.8846 against a 0.7600 bar.",
+      "status": "contradicted",
+      "reason": "quantity 0.8846 is stated differently in the evidence"
+    },
+    {
+      "claim": "Calling SidecarService.solve with keyword argument teleport returns a path.",
+      "status": "unsupported",
+      "reason": "signature: SidecarService.solve does not accept keyword 'teleport'; declared parameters are ['self', 'source', 'operators', 'namespace', 'mode']"
+    },
+    {
+      "claim": "The vision accuracy (test) is 0.9798 with 77 hidden layers of dense covariance.",
+      "status": "unsupported",
+      "reason": "rare term(s) absent from evidence: ['covariance']"
+    }
+  ],
+  "true_acceptance": 1.0,
+  "trap_rejection": 1.0,
+  "gate": {
+    "true_acceptance_1_0": true,
+    "trap_rejection_1_0": true,
+    "signature_index_present": true,
+    "passages_content_addressed": true,
+    "passed": true
+  },
+  "evidence": "OBSERVED"
+}

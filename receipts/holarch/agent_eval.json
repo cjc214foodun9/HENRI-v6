@@ -34,7 +34,7 @@
       }
     }
   },
-  "queries_total": 44,
+  "queries_total": 52,
   "query_mix": {
     "code_call_flow": 8,
     "multi_hop_graph": 16,
@@ -43,39 +43,41 @@
     "playbook_reuse": 1,
     "composite_symbolic": 3,
     "composite_perceptual": 3,
-    "composite_traps": 2
+    "composite_traps": 2,
+    "impact_analysis": 6,
+    "impact_traps": 2
   },
   "code_index": {
-    "seconds": 0.764933700003894,
-    "files": 17.0,
-    "lines": 9332.0,
-    "nodes": 289.0,
-    "edges": 613.0,
+    "seconds": 1.6805575000180397,
+    "files": 20.0,
+    "lines": 13086.0,
+    "nodes": 403.0,
+    "edges": 873.0,
     "edges_ingested": 72.0
   },
   "baseline_unindexed": {
-    "query_file_reads": 136,
-    "bytes_read_at_query_time": 3060944,
-    "response_bytes": 868,
-    "latency_ms_total": 26.367800019215792,
-    "reachable_accuracy": 0.6666666666666666,
-    "hallucination_rate": 1.0,
+    "query_file_reads": 320,
+    "bytes_read_at_query_time": 8613904,
+    "response_bytes": 870,
+    "latency_ms_total": 50.69869998260401,
+    "reachable_accuracy": 0.5333333333333333,
+    "hallucination_rate": 0.9926470588235294,
     "playbook_exact": 0.0
   },
   "holarch_mcp": {
     "query_file_reads": 0,
     "bytes_read_at_query_time": 0,
-    "response_bytes": 6716,
-    "latency_ms_total": 44.62380007316824,
+    "response_bytes": 10907,
+    "latency_ms_total": 49.71560000558384,
     "reachable_accuracy": 1.0,
     "hallucination_rate": 0.0,
     "playbook_exact": 1.0,
-    "receipts": 44,
-    "receipt_chain_length": 45,
+    "receipts": 52,
+    "receipt_chain_length": 53,
     "receipt_chain_valid": true,
     "receipts_valid": true
   },
-  "context_compression_ratio": 455.7689100655152,
+  "context_compression_ratio": 789.7592371871275,
   "composite": {
     "ingested": 200.0,
     "tau_composite": 0.9799999999999989,
@@ -104,6 +106,16 @@
       "baseline_hallucinated": 4,
       "mcp_refused": 4,
       "total": 4
+    },
+    "impact_analysis": {
+      "baseline_correct": 0,
+      "mcp_correct": 6,
+      "total": 6
+    },
+    "impact_traps": {
+      "baseline_hallucinated": 1,
+      "mcp_refused": 2,
+      "total": 2
     },
     "ood_ingress": {
       "baseline_false_accept": 128,
@@ -134,6 +146,9 @@
     "composite_mcp_at_least_0_90": true,
     "composite_traps_refused": true,
     "receipt_chain_valid": true,
+    "impact_mcp_at_least_0_98": true,
+    "impact_traps_refused": true,
+    "impact_queries_present": true,
     "passed": true
   },
   "evidence": "OBSERVED"

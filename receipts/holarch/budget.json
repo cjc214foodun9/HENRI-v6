@@ -12,8 +12,8 @@
       "activation_bytes_training": 1773416.0,
       "measured_device": "cpu",
       "cuda_peak_allocated_gib": 0.0,
-      "forward_ms": 3.6293000011937693,
-      "backward_ms": 3.308300001663156
+      "forward_ms": 3.266100015025586,
+      "backward_ms": 4.139900003792718
     },
     "medium": {
       "dim": 1024.0,
@@ -27,8 +27,8 @@
       "activation_bytes_training": 10875400.0,
       "measured_device": "cpu",
       "cuda_peak_allocated_gib": 0.0,
-      "forward_ms": 8.020199995371513,
-      "backward_ms": 8.678099999087863
+      "forward_ms": 7.365299999946728,
+      "backward_ms": 7.384099997580051
     },
     "production": {
       "dim": 4096.0,
@@ -42,8 +42,8 @@
       "activation_bytes_training": 49105256.0,
       "measured_device": "cpu",
       "cuda_peak_allocated_gib": 0.0,
-      "forward_ms": 14.920699992217124,
-      "backward_ms": 14.549100000294857
+      "forward_ms": 14.7034999972675,
+      "backward_ms": 16.43400001921691
     }
   },
   "profile": "production",
@@ -71,13 +71,40 @@
     "device_name": "",
     "detected_accelerators": [
       "AMD Radeon(TM) Graphics",
-      "AMD Radeon RX 9070 XT",
-      "NVIDIA GeForce RTX 5070 Ti"
+      "AMD Radeon RX 9070 XT"
     ],
-    "host_has_nvidia_gpu": true,
+    "host_has_nvidia_gpu": false,
     "evidence": "BLOCKED",
     "reason": "no CUDA device is visible to torch; see detected_accelerators",
-    "cuda_peak_allocated_gib": 0.0
+    "cuda_peak_allocated_gib": 0.0,
+    "nvidia_driver": {
+      "platform": "Windows-11-10.0.26300-SP0",
+      "torch_version": "2.11.0+cu128",
+      "cuda_compiled_version": "12.8",
+      "torch_cuda_available": false,
+      "torch_device_count": 0,
+      "cuda_visible_devices": "",
+      "cuda_visible_devices_set": false,
+      "cuda_home": "",
+      "cuda_path_set": false,
+      "nvidia_smi_path": "C:\\WINDOWS\\system32\\nvidia-smi.EXE",
+      "nvidia_smi_reachable": true,
+      "nvidia_smi_devices": [],
+      "nvidia_smi_driver_version": "",
+      "nvidia_smi_error": "",
+      "driver_libraries": {
+        "C:\\Windows\\System32\\nvcuda.dll": true,
+        "C:\\Windows\\SysWOW64\\nvcuda.dll": true,
+        "C:\\Program Files\\NVIDIA Corporation\\NVSMI\\nvidia-smi.exe": false
+      },
+      "nvcuda_present": true,
+      "libcuda_present": false,
+      "driver_files_found": 2,
+      "on_windows": true,
+      "root_cause": "nvidia-smi ran but listed no device",
+      "verdict": "BLOCKED",
+      "evidence": "OBSERVED"
+    }
   },
   "storage": {
     "backend": "timescaledb",

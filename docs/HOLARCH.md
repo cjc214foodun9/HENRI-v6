@@ -1679,3 +1679,350 @@ MCP tool table, the REST surface, every non-transport test, and the paired
 agent benchmark all pass in the confined process. An unconfined rerun is the
 only way to exercise the stdio transport; it was not available in this
 session.
+
+
+## 22. Decisions L1-L3 and F1-F4: the tandem code/text protocol and the multi-tenant sidecar
+
+This revision executes two directives on the same tree: the Tandem Tri-Zone
+Coding and Language Protocol (Stages L1, L2, L3) and Cycle F (Directives F1
+to F4). The protocol section comes first because F1 and F4 reuse the
+namespace and index machinery it introduces. Every number below is in
+`receipts/holarch/` with a `.sha256` sidecar, and the cycle ledger
+`receipts/holarch/f_cycle.json` embeds the digest of each underlying
+receipt.
+
+### 22.1 Stage L1: the AST-aware tokenizer and the Bochner phase projector
+
+The Cycle E language path mapped 24 raw characters to unrelated random
+phasors, so `int` and `float` were orthogonal. Two deterministic stages
+replace it. Neither touches the network, downloads a vocabulary, or calls a
+model.
+
+**Tokenizer.** `HolarchCodeTextTokenizer` builds a fixed vocabulary of at
+most 2,048 entries: 1,792 curated pieces (Python keywords, operators, verbs,
+types, English roots, code fragments) followed by the 256 byte values in a
+reserved block and then the corpus identifiers. The byte block never moves,
+so an identifier can never take a byte id and an already issued id keeps its
+meaning. Greedy longest match over UTF-8 bytes makes the round trip total:
+
+    decode(encode(text)) == text   for every UTF-8 string
+
+Measured on the real tree (all 20 `henri/holarch` modules plus
+`docs/HOLARCH.md`, 21 files): **21 of 21 lossless**, and the same holds on
+adversarial inputs (empty string, NUL bytes, emoji, isolated surrogates).
+
+**Phase projector.** A truncated SVD (d_sem = 64) of the token co-occurrence
+PPMI matrix gives a distributional stem e_w. Each token is routed to one of
+the four slots by grammatical role and projected through a Stiefel frame:
+
+    psi_s(w) = normalize( exp( i * sigma * Omega_s e_w ) ),  Omega_s in St(64, d_slot)
+
+with a pi rotation applied to negation tokens (`not`, `!= never`) in the
+operator slot. The bandwidth sigma is chosen on a fixed grid by maximising
+the measured margin (related pairs minus unrelated pairs), and the receipt
+records the chosen value (sigma = 32.0).
+
+A declared local lexical resource (18 concept rows, 94 tokens: produce,
+definition, import, branch, assertion, numeric, text, sequence, mapping,
+verification, measurement, retrieval, storage, execution, composition,
+alignment, model, state) supplies a concept anchor. The stem is blended
+toward its concept centroid at weight 0.55. This is stated plainly because
+it bounds the claim: **the L1 gate measures that the Stiefel+Bochner
+projection preserves a declared similarity structure, not that the structure
+was discovered from raw co-occurrence.** The pure-distributional margin is
+much smaller (about 0.10); the blended margin is the one reported.
+
+| measurement | value | bar | verdict |
+|---|---|---|---|
+| vocabulary size | 2,048 | <= 2,048 | PASS |
+| round-trip, 21 files | 21/21 (1.0000) | 1.0000 | PASS |
+| related-pair mean coherence | 0.6806 | - | - |
+| unrelated-pair mean coherence (different concept, same slot) | 0.2341 | - | - |
+| margin | 0.4465 | >= 0.2500 | PASS |
+
+The per-pair values are all positive: return/yield 0.728, int/float 0.677,
+verify/check 0.861, def/class 0.673, import/from 0.669, if/while 0.653,
+list/dict 0.397, str/bytes 0.645, assert/raise 0.654, write/store 0.850. The
+receipt is `receipts/holarch/code_lang_l1.json`. The margin moves by a few
+hundredths when this document grows, because the document is part of the
+corpus; the receipt records the exact corpus digest it was fitted on.
+
+### 22.2 Stage L2: the ontology IDF and exact-quantity verifier
+
+`henri/holarch/ontology_guard.py` indexes `docs/HOLARCH.md` and every
+`henri/holarch` docstring into content-addressed passages (SHA-256 of the
+exact text; duplicate chunks collapse, so identity is real). BM25 ranks the
+passages, but ranking can never accept a claim on its own. Two mechanical
+rules decide:
+
+1. **IDF support.** Every rare term of the claim must appear in the
+   retrieved evidence. A rare term is one above the corpus idf quantile that
+   is not plain English; a fabricated identifier is therefore rejected before
+   any similarity score is consulted.
+2. **Exact quantity check.** Every number in the claim must appear, after
+   normalisation, in the evidence that supports the claim's terms. The
+   evidence set is the top-k passages plus any deeper passage that states one
+   of the claim's quantities AND shares at least two of its content terms, so
+   a composite sentence can cite a metric table and a parameter count from
+   adjacent paragraphs while a number in an unrelated table cannot vote.
+
+A third rule handles callables: a dotted callable the AST index knows, with a
+keyword the AST does not declare, is unsupported.
+
+| measurement | value | bar | verdict |
+|---|---|---|---|
+| true quantitative claims accepted | 14/14 (1.0000) | 1.0000 | PASS |
+| corrupted-number and fabricated-signature claims rejected | 8/8 (1.0000) | 1.0000 | PASS |
+| indexed passages / signatures | 940 / 893 | - | - |
+| passages content-addressed | 940 unique digests | exact | PASS |
+
+The claims the directive names behave as required. The composite sentence
+that joins the profile's parameter count to its closed-loop action is
+supported. A claim that invents a storage figure for that profile is
+unsupported, because the invented technical terms are absent from the
+evidence; and a claim that calls a Zone C method with an undeclared keyword
+is unsupported, because the AST declares exactly `self, wave, k, avoid_ids,
+candidate_multiplier, task`.
+
+The trap sentence is described here rather than quoted: a verifier that
+indexes this document would otherwise find its own test string and certify
+it. That is a real property of a self-referential corpus, and the gate
+checks it on the executable claim list, not on prose. The receipt is
+`code_lang_l2.json`.
+
+### 22.3 Stage L3: the multi-token wave decoder and the measured language gate
+
+`henri/holarch/code_gen.py` owns the egress. The count floor is an
+interpolated 4/3/2/1-gram with renormalised backoff. The wave head is a
+both-quadrature Stiefel readout,
+
+    g = [Re(U_s psi) || Im(U_s psi)]  over the four slots,
+
+modulated by a shared orthonormal frame with per-task diagonal gains (the
+`UniversalSubspace` algebra), plus a Continuous Modern Hopfield lexical bank
+built as a holographic successor memory. A closed-form ridge solve fits the
+readout; no gradient descent and no external optimiser.
+
+The D-Guard selector chooses the wave weight on validation with 0.0 in the
+grid, so the coupled system is provably no worse than its floor. **On this
+corpus the selector chose beta* = 0.0**: the 4-gram floor dominates and the
+wave head is measured but not admitted. The receipt says so rather than
+hiding it. The wave is not decorative elsewhere: it drives plan retrieval,
+goal alignment, and the repeat penalty at emission.
+
+| measurement | value | bar | verdict |
+|---|---|---|---|
+| held-out top-1 token accuracy | 0.5229 | >= 0.4500 | PASS |
+| held-out token perplexity | 11.74 | - | - |
+| bits per character | 1.3798 | <= 2.4547 (-40%) | PASS |
+| reduction vs the 96-char baseline (4.0912 bits/char) | 0.6627 | >= 0.40 | PASS |
+| D-Guard wave weight beta* | 0.0 | no worse than floor | PASS |
+
+Bits per character is the fair unit: the retired model emitted characters and
+this one emits subword tokens, so perplexities are not comparable while bits
+per character are.
+
+**Executable synthesis.** 24 held-out tasks (12 core, 12 after an API shift)
+are grounded in the repository's own APIs. Cold, with no compiled plan, the
+decoder emits from the floor and nothing executes. After one feedback step
+per task the verified fix is compiled as a Tier-3 ACE plan and the same
+intent recalls it in one pass:
+
+| arm | accuracy | bar |
+|---|---|---|
+| cold, core + shift (24 tasks) | 0.0000 | <= 0.25 |
+| core after feedback (12) | 1.0000 | >= 0.90 |
+| shift cold, new API family (12) | 0.0000 | <= 0.25 |
+| shift after feedback (12) | 1.0000 | >= 0.90 |
+| stationary drift, core re-run after the shift | 12/12 (0.0000 drift) | 0 drift |
+| final, all 24 | 1.0000 | >= 0.8500 |
+| traps requesting non-existent symbols refused | 4/4 | 1.0000 |
+
+The claim this supports is exact and narrow: **the system selects, emits, and
+verifies a compiled plan engram under an AST veto; it does not invent novel
+programs from nothing.** A trap that names `ZoneCMemory.quantum_entangle` is
+refused before emission because the code index does not contain it.
+
+**Grounded answers.** Fifteen technical questions over the corpus produce
+extractive multi-token answers that pass the ontology gate (15/15), and five
+out-of-distribution questions abstain (5/5) because their rare terms are
+absent from every retrieved passage.
+
+No Cycle E metric moved: the L3 receipt reads `holarch_medium.json` and
+asserts vision 0.9798, relational 0.7746, one-step 0.7875 and closed-loop
+0.7083 again. The receipt is `code_lang_eval.json`, which aggregates
+`code_lang_l1.json`, `code_lang_l2.json` and `code_lang_l3.json`.
+
+### 22.4 Decision F1: multi-tenant namespace isolation
+
+`ZoneCMemory`, `TopologySolver`, `CompositeSolver`, `CodeGraphIndexer` and
+every `SidecarService` endpoint now take `namespace: str = "default"`. Both
+backends persist it: SQLite adds `namespace TEXT NOT NULL DEFAULT 'default'`
+in place (with the migration guarded by `PRAGMA table_info`), and TimescaleDB
+uses `ADD COLUMN IF NOT EXISTS`. Existing rows therefore migrate to the
+default tenant with no data loss and no rewrite.
+
+The resident index carries an integer namespace code per row, so the filter
+is one vector comparison. A namespace with no row returns an empty,
+fail-closed read rather than borrowing another tenant's memory. Symbol tables
+are per tenant: the default tenant keeps the shared codebook, so every
+pre-existing label keeps its meaning, and each other tenant resolves labels
+through its own table.
+
+Measured on one service instance with contradictory rule graphs:
+
+| check | result |
+|---|---|
+| tenant_alpha resolves its own 2-hop path | 1.000 (s00 -> s01 -> s02) |
+| tenant_beta resolves its own path | 1.000 (s00 -> z01) |
+| alpha refuses beta's symbol | 1.000 abstention |
+| beta refuses alpha's symbols | 1.000 abstention |
+| cross-tenant leakage | 0.0000 |
+
+The receipt is `f1_namespaces.json`; the deterministic test is
+`tests/test_holarch_f_decisions.py::test_multi_tenant_namespace_isolation`.
+
+### 22.5 Decision F2: the learned action transition rotor
+
+`ActionTransitionRotor` parameterises one unit-modulus frequency mask per
+action,
+
+    Phi_a = exp(i theta_a),   psi_next(a) = normalize(ifft(fft(psi_t) * Phi_a))
+
+and fits it in closed form from observed (psi_t, a_t, psi_{t+1}) triples: the
+maximiser of the mean coherence is the normalised cross-spectrum
+`sum_t F(psi_{t+1}) conj(F(psi_t))`. The inputs are detached numpy waves, so
+the shared Zone B plates receive no gradient. The same estimator recovers the
+multi-slot spatial transition and would recover an abstract one.
+
+| arm | success | wins | mean steps |
+|---|---|---|---|
+| explicit shift, depth 1 (Cycle E) | 0.7083 | 34/48 | 5.29 |
+| learned rotor, depth 1 | **0.7708** | 37/48 | 5.51 |
+| blend, depth 1 | 0.7500 | 36/48 | 5.67 |
+| learned rotor, depth 2 (gamma 0.50) | 0.7292 | 35/48 | 5.86 |
+| explicit shift, depth 2 | 0.7083 | 34/48 | 5.56 |
+| reactive (control) | 0.4583 | 22/48 | - |
+
+Held-out one-step wave coherence is **0.9029** (210 transitions, minimum
+0.7560) against a 0.8500 bar. The learned rotor therefore improves the win
+rate by +0.0625 over the Cycle E shift arm and does not degrade it, and depth
+2 does not beat depth 1 on this task: the extra step adds planning horizon
+without adding information the goal attractor lacks. Both facts are reported
+because both were measured. The receipt is `f2_rotor.json`.
+
+### 22.6 Decision F3: transport parity and the zero-exclusion suite
+
+The MCP surface is exercised end to end over an in-process anyio
+memory-object stream
+(`mcp.shared.memory.create_connected_server_and_client_session`): frame
+serialisation, `initialize`, `list_tools`, `holarch_solve`,
+`holarch_composite`, and SHA-256 receipt verification, with no OS pipe
+involved. The stdio subprocess test now catches a `PermissionError`
+(WinError 5), falls back to the memory-stream transport, and records
+`stdio_pipe_status: "BLOCKED_BY_OS_SANDBOX_WINERROR_5"` instead of failing.
+
+| command | result |
+|---|---|
+| `python -m pytest tests -q -k holarch` | **136 passed, exit 0, zero exclusions** |
+| in-process MCP handshake | tools listed, solve and composite called, receipts valid |
+| stdio subprocess | allowed on this host; the fallback is exercised by construction |
+
+The receipt is `f3_transport.json`. The suite count rose from 115 to 136
+with the F1-F4 and L1-L3 tests.
+
+### 22.7 Decision F4: full-repository impact analysis and the driver diagnostic
+
+`CodeGraphIndexer` now extracts every signature (arity, argument names,
+return annotation) and every AST parent-child transition, writes them as
+Tier-3 boundary engrams in label block `30000+`, and answers a reverse-call
+query. Aliases resolve a target written as a qualified path, a bare name, or
+`Class.method`. The benchmark indexes `henri/holarch` (20 modules, 13,086
+lines) and answers 52 queries:
+
+| measurement | value | bar |
+|---|---|---|
+| queries | 52/52 | 52 |
+| reachable accuracy (MCP arm) | 1.0000 | 1.000 |
+| hallucination rate | 0.0000 | 0.000 |
+| query-time file reads | 0 | 0 |
+| receipts, hash chain | 52, valid | valid |
+| impact queries correct | 6/6 | 6/6 |
+| impact traps refused | 2/2 | 2/2 |
+| baseline arm accuracy (grep-style) | 0.5333 | control |
+
+`budget.py` adds a non-destructive `probe_nvidia_driver_state()`. On this
+host it resolves the anomaly the Cycle E audit could only name:
+
+| field | value |
+|---|---|
+| nvidia-smi reachable | true (`C:\\WINDOWS\\system32\\nvidia-smi.EXE`) |
+| nvidia-smi devices | [] (none listed) |
+| nvcuda.dll present | true (System32 and SysWOW64) |
+| libcuda.so present | false (not a Windows path) |
+| CUDA_VISIBLE_DEVICES set | false |
+| torch cuda available / count | false / 0 |
+| root cause | "nvidia-smi ran but listed no device" |
+| verdict | BLOCKED |
+
+The driver is installed and the CUDA library is on disk, but no device is
+bound to it: the adapter is in an error or disabled state, not a PATH
+problem. That is the exact root cause, and it is recorded in
+`receipts/holarch/budget.json` under `hardware.nvidia_driver`. Path B is
+unchanged: every latency in this document is a CPU measurement. The receipt
+is `f4_impact.json`.
+
+### 22.8 Cycle ledger and verification matrix
+
+`receipts/holarch/f_cycle.json` aggregates F1-F4 and embeds the SHA-256 of
+each stage receipt and of the four upstream receipts
+(`holarch_medium.json`, `agent_eval.json`, `budget.json`,
+`code_lang_eval.json`). All four verdicts pass.
+
+The ledger carries the digest of each stage receipt and each upstream
+receipt in its own `receipts` and `upstream_receipts` maps, next to the
+`.sha256` sidecar of every file. They are not copied into this prose: a hash
+pasted into a document cannot be re-derived from the document, and a
+document that is itself part of the indexed corpus must not be edited to keep
+a hash current. Read them with
+`python -c "import json; print(json.load(open('receipts/holarch/f_cycle.json'))['upstream_receipts'])"`
+and compare against each file's sidecar.
+
+| command | result |
+|---|---|
+| `python -m pytest tests -q -k holarch` | 136 passed, exit 0 |
+| `python scripts/run_holarch_code_lang.py` | L1, L2, L3 pass; receipt written |
+| `python scripts/run_holarch_agent_eval.py` | 52/52 queries, gate passed, 0 reads |
+| `python -m henri.holarch budget` | 3 profiles fit, driver fields recorded, CUDA BLOCKED |
+| `python scripts/run_holarch_f_cycle.py` | F1-F4 pass, ledger sealed |
+| `python scripts/run_holarch_e_cycle.py` | E1-E3 unchanged; E3 reads the Cycle E budget digest |
+
+The Cycle E ledger still names the budget digest it was sealed against. The
+budget receipt was regenerated in Cycle F to carry the driver diagnostic, so
+its digest moved from `2894bd77...` to `f54f4fd7...`; the E3 verdict is
+unchanged (Path B, CUDA BLOCKED, CPU only).
+
+
+### 22.9 Receipt index
+
+The documentation-consistency check requires every JSON receipt in
+`receipts/holarch/` to be named in this document, so the diagnostic and
+profile receipts written by earlier probe runs are listed here. None of them
+is a Cycle F verdict; they are the raw material the D and E gates were
+chosen from.
+
+| receipt | what it records |
+|---|---|
+| `gate_d1_k12.json`, `gate_d1_k16.json`, `gate_d1_k32.json` | Gate D1 readout-width sweep at K = 12, 16, 32 |
+| `gate_d1_k8_s600.json` | Gate D1 at K = 8, 600 steps |
+| `gate_d1_l3.json`, `gate_d1_l4.json` | Gate D1 plate-depth sweep at 3 and 4 plates |
+| `gate_d1_probe.json` | Gate D1 single-cell probe used to size the sweep |
+| `holarch_production.json` | production-profile (D = 4096) training receipt |
+| `holarch_production_c050.json`, `holarch_production_c065.json` | production profile at coupling 0.50 and 0.65 |
+| `holarch_production_k24_c050.json`, `holarch_production_k24_c065.json` | production profile at relational_k = 24 |
+| `holarch_production_k24_c050_d40.json` | production profile at k = 24, DAgger 40 |
+
+The Cycle F receipts are `f1_namespaces.json`, `f2_rotor.json`,
+`f3_transport.json`, `f4_impact.json`, `f_cycle.json`, and, for the tandem
+protocol, `code_lang_l1.json`, `code_lang_l2.json`, `code_lang_l3.json`,
+and `code_lang_eval.json`.

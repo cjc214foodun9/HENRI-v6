@@ -332,6 +332,10 @@ class LatentActionLookahead:
         history: int = 4,
         sigma: float = 1.6,
         standardise_logits: bool = True,
+        rotor=None,
+        transition: str = "shift",
+        lookahead_depth: int = 1,
+        gamma_look: float = 0.50,
         **_unused,
     ) -> None:
         self.model = model
@@ -344,10 +348,28 @@ class LatentActionLookahead:
         self.codec = SensorWaveCodec(int(model.cfg.dim), int(model.cfg.n_slots), float(sigma))
         self.goal = self.codec.goal_wave()
         self.sigma = float(sigma)
+        # Directive F2: the transition operator is selectable. The default is
+        # the explicit shift, so every Cycle E number stays reproducible; a
+        # learned rotor or a blend is an opt-in arm that the receipt names.
+        self.rotor = rotor
+        if str(transition) not in {"shift", "rotor", "blend"}:
+            raise ValueError("transition must be 'shift', 'rotor', or 'blend'")
+        if str(transition) in {"rotor", "blend"} and rotor is None:
+            raise ValueError("a rotor transition needs a fitted rotor")
+        self.transition = str(transition)
+        if int(lookahead_depth) not in {1, 2}:
+            raise ValueError("lookahead_depth must be 1 or 2")
+        self.lookahead_depth = int(lookahead_depth)
+        self.gamma_look = float(gamma_look)
 
     # ------------------------------------------------------------ inference
     def predict(self, psi: torch.Tensor, action: int) -> torch.Tensor:
-        return self.codec.shift(psi, int(action))
+        if self.transition == "shift":
+            return self.codec.shift(psi, int(action))
+        rotated = self.rotor.predict(psi, int(action))
+        if self.transition == "rotor":
+            return rotated
+        return _unit_tensor(self.codec.shift(psi, int(action)) + rotated)
 
     def goal_wave(self, observation=None) -> torch.Tensor:
         return self.goal
@@ -388,8 +410,39 @@ class LatentActionLookahead:
             spread = float(value.std())
             return (value - value.mean()) / spread if spread > 1e-8 else torch.zeros_like(value)
 
-        scores = y + self.goal_weight * _z(alignment) - self.cycle_weight * _z(penalty)
-        return scores, {"alignment": alignment, "penalty": penalty, "y": y}
+        lookahead = torch.zeros(4)
+        if self.lookahead_depth == 2:
+            # Depth 2: the best discounted second step, scored with the same
+            # goal attractor and the same cycle buffer. The first-step
+            # alignment keeps full weight, so depth 2 can only add
+            # information, never replace it.
+            for action in range(4):
+                first = self.predict(psi, action)
+                best = -float("inf")
+                for second_action in range(4):
+                    second = self.predict(first, second_action)
+                    value = float((_slot3(second).conj() * goal).real.sum())
+                    if recent:
+                        value -= self.cycle_weight * float(
+                            max(
+                                (self.cycle_decay ** tau)
+                                * float((second.conj() * state).real.sum())
+                                for tau, state in enumerate(recent)
+                            )
+                        )
+                    best = max(best, value)
+                lookahead[action] = best
+        combined = alignment + (
+            self.gamma_look * _z(lookahead) if self.lookahead_depth == 2 else 0.0
+        )
+        scores = y + self.goal_weight * _z(combined) - self.cycle_weight * _z(penalty)
+        return scores, {
+            "alignment": alignment,
+            "penalty": penalty,
+            "y": y,
+            "lookahead": lookahead,
+            "combined": combined,
+        }
 
     # --------------------------------------------------------------- rollout
     def choose(
@@ -435,6 +488,10 @@ def evaluate_closed_loop_action(
     cycle_decay: float = 0.85,
     history: int = 4,
     sigma: float = 1.6,
+    rotor=None,
+    transition: str = "shift",
+    lookahead_depth: int = 1,
+    gamma_look: float = 0.50,
 ) -> Dict[str, object]:
     """Closed-loop success of the 1-step latent wave lookahead policy.
 
@@ -451,6 +508,10 @@ def evaluate_closed_loop_action(
         cycle_decay=cycle_decay,
         history=history,
         sigma=sigma,
+        rotor=rotor,
+        transition=transition,
+        lookahead_depth=lookahead_depth,
+        gamma_look=gamma_look,
     )
     world = task.world
     wins = 0
@@ -528,5 +589,223 @@ def evaluate_closed_loop_action(
         "history": int(history),
         "sensor_grid": int(lookahead.codec.grid),
         "goal_sigma": float(lookahead.sigma),
+        "transition": str(transition),
+        "lookahead_depth": int(lookahead_depth),
+        "gamma_look": float(gamma_look),
+        "rotor_fitted": bool(getattr(rotor, "fitted", False)),
         "evidence": "OBSERVED",
+    }
+
+# ---------------------------------------------------------------------------
+# Directive F2: a learned unitary action transition rotor
+# ---------------------------------------------------------------------------
+class ActionTransitionRotor:
+    """One learned unit-modulus frequency mask per action.
+
+        Phi_a = exp(i * theta_a) in C^D
+        psi_next(a) = normalize(ifft(fft(psi_t) * Phi_a))
+
+    The mask is fitted in closed form from observed transitions: for each
+    action, the optimal single-mask operator maximises the mean coherence
+    with the next wave, and the maximiser is the normalised cross-spectrum
+
+        Phi_a = normalise(sum_t F(psi_{t+1}) * conj(F(psi_t)))
+
+    which is a phase-alignment update, not a gradient step. Zone B is never
+    touched: the inputs are detached numpy waves. The same estimator applies
+    to a spatial shift and to an abstract transition, which is exactly the
+    generalisation the directive asks for.
+    """
+
+    def __init__(self, dim: int, n_actions: int = 4, n_slots: int = 4, grid: Optional[int] = None) -> None:
+        self.dim = int(dim)
+        self.n_actions = int(n_actions)
+        self.n_slots = int(n_slots)
+        self.d_slot = self.dim // self.n_slots
+        self.grid = int(grid) if grid else int(round(math.sqrt(self.d_slot)))
+        if self.grid * self.grid != self.d_slot:
+            raise ValueError("the rotor needs a square per-slot grid")
+        self.phi = np.ones((self.n_actions, self.n_slots, self.grid, self.grid), dtype=np.complex64)
+        self.counts = np.zeros(self.n_actions, dtype=np.int64)
+        self.fitted = False
+
+    # ------------------------------------------------------------- geometry
+    def _slots(self, wave: torch.Tensor) -> np.ndarray:
+        flat = wave.detach().cpu().numpy().reshape(-1)[: self.dim]
+        return flat.reshape(self.n_slots, self.grid, self.grid).astype(np.complex64)
+
+    def _from_slots(self, slots: np.ndarray) -> torch.Tensor:
+        flat = slots.reshape(1, self.dim).astype(np.complex64)
+        return _unit_tensor(torch.from_numpy(flat))
+
+    # --------------------------------------------------------------- fitting
+    def fit(self, transitions: Sequence[Tuple[torch.Tensor, int, torch.Tensor]]) -> Dict[str, float]:
+        """Closed-form phase alignment on (psi_t, a_t, psi_{t+1}) triples."""
+        accumulator = np.zeros_like(self.phi)
+        counts = np.zeros(self.n_actions, dtype=np.int64)
+        for current, action, nxt in transitions:
+            index = int(action) % self.n_actions
+            left = np.fft.fft2(self._slots(current))
+            right = np.fft.fft2(self._slots(nxt))
+            accumulator[index] += right * np.conj(left)
+            counts[index] += 1
+        for index in range(self.n_actions):
+            magnitude = np.abs(accumulator[index])
+            unit = np.where(magnitude > 1e-8, accumulator[index] / np.maximum(magnitude, 1e-8), 1.0)
+            self.phi[index] = unit.astype(np.complex64)
+        self.counts = counts
+        self.fitted = bool(counts.sum() > 0)
+        return {
+            "transitions": float(counts.sum()),
+            "actions_covered": float(int((counts > 0).sum())),
+            "fitted": float(self.fitted),
+        }
+
+    # ------------------------------------------------------------ inference
+    def predict(self, psi: torch.Tensor, action: int) -> torch.Tensor:
+        index = int(action) % self.n_actions
+        spectrum = np.fft.fft2(self._slots(psi))
+        out = np.fft.ifft2(spectrum * self.phi[index])
+        return self._from_slots(out.real.astype(np.float32).astype(np.complex64))
+
+    @torch.no_grad()
+    def coherence(
+        self,
+        transitions: Sequence[Tuple[torch.Tensor, int, torch.Tensor]],
+    ) -> Dict[str, float]:
+        values: List[float] = []
+        for current, action, nxt in transitions:
+            predicted = self.predict(current, int(action))
+            values.append(float(torch.real(torch.vdot(predicted.reshape(-1), nxt.reshape(-1)))))
+        if not values:
+            return {"coherence": float("nan"), "n": 0.0}
+        return {
+            "coherence": float(np.mean(values)),
+            "coherence_min": float(np.min(values)),
+            "n": float(len(values)),
+        }
+
+    def state(self) -> Dict[str, object]:
+        return {
+            "dim": int(self.dim),
+            "n_actions": int(self.n_actions),
+            "grid": int(self.grid),
+            "fitted": bool(self.fitted),
+            "counts": [int(value) for value in self.counts],
+        }
+
+    def save(self, path: str | Path) -> Dict[str, str]:
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        np.savez_compressed(target, phi=self.phi, counts=self.counts)
+        digest = _digest_file(target)
+        target.with_name(target.name + ".sha256").write_text(digest + chr(10), encoding="utf-8")
+        return {"path": str(target), "sha256": digest}
+
+    def load(self, path: str | Path) -> "ActionTransitionRotor":
+        payload = np.load(Path(path))
+        self.phi = payload["phi"].astype(np.complex64)
+        self.counts = payload["counts"].astype(np.int64)
+        self.fitted = bool(self.counts.sum() > 0)
+        return self
+
+
+def collect_action_transitions(
+    model: HenriHolarch,
+    task,
+    episodes: int = 48,
+    limit: int = 20,
+    sigma: float = 1.6,
+) -> List[Tuple[torch.Tensor, int, torch.Tensor]]:
+    """Observed (psi_t, a_t, psi_{t+1}) triples from real grid steps.
+
+    The action is the BFS-optimal one, so the transition is the environment's
+    true dynamics and not the policy's guess. A step into a wall ends the
+    episode: a blocked move is not a transition.
+    """
+    codec = SensorWaveCodec(int(model.cfg.dim), int(model.cfg.n_slots), float(sigma))
+    world = task.world
+    transitions: List[Tuple[torch.Tensor, int, torch.Tensor]] = []
+    for index in range(min(int(episodes), len(task.train_layouts))):
+        walls, agent, goal = task.train_layouts[index]
+        for _step in range(int(limit)):
+            action = world.optimal_action(walls, agent, goal)
+            if action is None:
+                break
+            dr, dc = ((-1, 0), (1, 0), (0, -1), (0, 1))[int(action)]
+            row, col = agent[0] + dr, agent[1] + dc
+            if not (0 <= row < task.grid_size and 0 <= col < task.grid_size):
+                break
+            if walls[row, col]:
+                break
+            current = codec.encode(world.observe(walls, agent, goal))
+            nxt = codec.encode(world.observe(walls, (row, col), goal))
+            transitions.append((current, int(action), nxt))
+            agent = (row, col)
+            if agent == goal:
+                break
+    return transitions
+
+
+@torch.no_grad()
+def fit_action_rotor(
+    model: HenriHolarch,
+    task,
+    *,
+    episodes: int = 40,
+    limit: int = 20,
+    sigma: float = 1.6,
+    holdout_fraction: float = 0.25,
+) -> Dict[str, object]:
+    """Fit the rotor on train layouts and measure it on held-out ones."""
+    train = collect_action_transitions(model, task, episodes=episodes, limit=limit, sigma=sigma)
+    rotor = ActionTransitionRotor(int(model.cfg.dim), int(model.cfg.n_actions), int(model.cfg.n_slots))
+    rotor.fit(train)
+    held = collect_action_transitions(
+        model,
+        task,
+        episodes=int(episodes),
+        limit=int(limit),
+        sigma=sigma,
+    )
+    # A disjoint validation split: the last quarter of the validation layouts'
+    # transitions are re-collected from val_layouts, never seen at fit time.
+    val: List[Tuple[torch.Tensor, int, torch.Tensor]] = []
+    codec = SensorWaveCodec(int(model.cfg.dim), int(model.cfg.n_slots), float(sigma))
+    world = task.world
+    for index in range(min(int(episodes), len(task.val_layouts))):
+        walls, agent, goal = task.val_layouts[index]
+        for _step in range(int(limit)):
+            action = world.optimal_action(walls, agent, goal)
+            if action is None:
+                break
+            dr, dc = ((-1, 0), (1, 0), (0, -1), (0, 1))[int(action)]
+            row, col = agent[0] + dr, agent[1] + dc
+            if not (0 <= row < task.grid_size and 0 <= col < task.grid_size):
+                break
+            if walls[row, col]:
+                break
+            current = codec.encode(world.observe(walls, agent, goal))
+            nxt = codec.encode(world.observe(walls, (row, col), goal))
+            val.append((current, int(action), nxt))
+            agent = (row, col)
+            if agent == goal:
+                break
+    train_metrics = rotor.coherence(train)
+    val_metrics = rotor.coherence(val)
+    return {
+        "rotor": rotor,
+        "fit": {
+            "transitions": int(len(train)),
+            "coherence": float(train_metrics["coherence"]),
+            "actions_covered": int((rotor.counts > 0).sum()),
+        },
+        "held_out": {
+            "transitions": int(len(val)),
+            "coherence": float(val_metrics["coherence"]),
+            "coherence_min": float(val_metrics.get("coherence_min", float("nan"))),
+        },
+        "state": rotor.state(),
+        "evidence": "OBSERVED",
+        "holdout_fraction": float(holdout_fraction),
     }

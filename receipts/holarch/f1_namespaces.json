@@ -1,0 +1,39 @@
+{
+  "stage": "F1",
+  "namespace": "tenant_alpha|tenant_beta",
+  "rows": [
+    {
+      "case": "alpha_own_path",
+      "answer": "s02",
+      "vetoed": false
+    },
+    {
+      "case": "beta_own_path",
+      "answer": "z01",
+      "vetoed": false
+    },
+    {
+      "case": "alpha_on_beta_symbol",
+      "answer": null,
+      "vetoed": true
+    },
+    {
+      "case": "beta_on_alpha_symbol",
+      "answer": null,
+      "vetoed": true
+    }
+  ],
+  "cross_tenant_leakage": 0,
+  "leakage_rate": 0.0,
+  "receipts_valid": true,
+  "gate": {
+    "alpha_own_path_1_0": true,
+    "beta_own_path_1_0": true,
+    "alpha_refuses_beta_1_0": true,
+    "beta_refuses_alpha_1_0": true,
+    "leakage_zero": true,
+    "receipts_valid": true,
+    "passed": true
+  },
+  "evidence": "OBSERVED"
+}

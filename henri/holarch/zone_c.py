@@ -137,6 +137,7 @@ class Engram:
     info_gain: float
     tier: int
     weight: float
+    namespace: str = "default"
 
 
 class EngramStore(Protocol):
@@ -196,12 +197,26 @@ class SQLiteEngramStore:
                 lyapunov REAL NOT NULL,
                 info_gain REAL NOT NULL,
                 tier INTEGER NOT NULL,
-                weight REAL NOT NULL
+                weight REAL NOT NULL,
+                namespace TEXT NOT NULL DEFAULT 'default'
             )
             """
         )
+        # Directive F1: a table written by an earlier cycle has no namespace
+        # column. Add it in place with a default, so every existing row
+        # migrates to the default tenant and no data is lost.
+        columns = {
+            row[1] for row in self._conn.execute("PRAGMA table_info(engram)").fetchall()
+        }
+        if "namespace" not in columns:
+            self._conn.execute(
+                "ALTER TABLE engram ADD COLUMN namespace TEXT NOT NULL DEFAULT 'default'"
+            )
         self._conn.execute(
             "CREATE INDEX IF NOT EXISTS idx_engram_dim ON engram(dim, engram_id)"
+        )
+        self._conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_engram_namespace ON engram(dim, namespace, engram_id)"
         )
         self._conn.commit()
 
@@ -222,6 +237,7 @@ class SQLiteEngramStore:
             float(engram.info_gain),
             int(engram.tier),
             float(engram.weight),
+            str(engram.namespace),
         )
 
     def append(self, engram: Engram) -> None:
@@ -234,7 +250,7 @@ class SQLiteEngramStore:
         rows = [self._row(e, dim) for e in engrams]
         with self._lock:
             self._conn.executemany(
-                "INSERT OR REPLACE INTO engram VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)", rows
+                "INSERT OR REPLACE INTO engram VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)", rows
             )
             self._conn.commit()
 
@@ -246,7 +262,7 @@ class SQLiteEngramStore:
         with self._lock:
             rows = self._conn.execute(
                 f"SELECT engram_id, recorded_at, label, slot_0, slot_1, slot_2, slot_3, "
-                f"gram, lyapunov, info_gain, tier, weight FROM engram "
+                f"gram, lyapunov, info_gain, tier, weight, namespace FROM engram "
                 f"WHERE engram_id IN ({marks})",
                 ids,
             ).fetchall()
@@ -265,19 +281,30 @@ class SQLiteEngramStore:
                     info_gain=float(row[9]),
                     tier=int(row[10]),
                     weight=float(row[11]),
+                    namespace=str(row[12]),
                 )
             )
         by_id = {e.engram_id: e for e in out}
         return [by_id[i] for i in ids if i in by_id]
 
-    def metadata(self, dim: int) -> List[Tuple[int, float, int, bytes, int, float]]:
+    def metadata(self, dim: int, namespace: Optional[str] = None) -> List[Tuple]:
         with self._lock:
-            rows = self._conn.execute(
-                "SELECT engram_id, recorded_at, label, gram, tier, weight "
-                "FROM engram WHERE dim = ? ORDER BY engram_id",
-                (int(dim),),
-            ).fetchall()
-        return [(int(r[0]), float(r[1]), int(r[2]), bytes(r[3]), int(r[4]), float(r[5])) for r in rows]
+            if namespace is None:
+                rows = self._conn.execute(
+                    "SELECT engram_id, recorded_at, label, gram, tier, weight, namespace "
+                    "FROM engram WHERE dim = ? ORDER BY engram_id",
+                    (int(dim),),
+                ).fetchall()
+            else:
+                rows = self._conn.execute(
+                    "SELECT engram_id, recorded_at, label, gram, tier, weight, namespace "
+                    "FROM engram WHERE dim = ? AND namespace = ? ORDER BY engram_id",
+                    (int(dim), str(namespace)),
+                ).fetchall()
+        return [
+            (int(r[0]), float(r[1]), int(r[2]), bytes(r[3]), int(r[4]), float(r[5]), str(r[6]))
+            for r in rows
+        ]
 
     def replace_wave(self, engram_id: int, wave: np.ndarray, gram: np.ndarray) -> None:
         slots = np.asarray(wave, dtype=np.complex64).reshape(4, -1)
@@ -370,9 +397,20 @@ class TimescaleEngramStore:
                     info_gain REAL NOT NULL,
                     tier SMALLINT NOT NULL,
                     weight REAL NOT NULL,
+                    namespace TEXT NOT NULL DEFAULT 'default',
                     PRIMARY KEY (engram_id, recorded_at)
                 )
                 """
+            )
+            # Directive F1: an existing hypertable keeps its rows. The column
+            # is added with the default tenant, so nothing is rewritten.
+            cur.execute(
+                f"ALTER TABLE {self.table} ADD COLUMN IF NOT EXISTS "
+                "namespace TEXT NOT NULL DEFAULT 'default'"
+            )
+            cur.execute(
+                f"CREATE INDEX IF NOT EXISTS idx_{self.table}_namespace "
+                f"ON {self.table}(dim, namespace, engram_id)"
             )
             cur.execute(
                 f"SELECT create_hypertable('{self.table}','recorded_at',"
@@ -399,6 +437,7 @@ class TimescaleEngramStore:
             float(engram.info_gain),
             int(engram.tier),
             float(engram.weight),
+            str(engram.namespace),
         )
 
     def append(self, engram: Engram) -> None:
@@ -411,7 +450,7 @@ class TimescaleEngramStore:
         with self._lock, self._conn.cursor() as cur:
             cur.executemany(
                 f"INSERT INTO {self.table} VALUES "
-                "(%s, to_timestamp(%s), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
+                "(%s, to_timestamp(%s), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
                 "ON CONFLICT DO NOTHING",
                 [self._params(e, dim) for e in engrams],
             )
@@ -423,7 +462,7 @@ class TimescaleEngramStore:
         with self._lock, self._conn.cursor() as cur:
             cur.execute(
                 f"SELECT engram_id, recorded_at, label, slot_0, slot_1, slot_2, slot_3, "
-                f"gram, lyapunov, info_gain, tier, weight FROM {self.table} "
+                f"gram, lyapunov, info_gain, tier, weight, namespace FROM {self.table} "
                 "WHERE engram_id = ANY(%s)",
                 (ids,),
             )
@@ -442,21 +481,31 @@ class TimescaleEngramStore:
                     info_gain=float(row[9]),
                     tier=int(row[10]),
                     weight=float(row[11]),
+                    namespace=str(row[12]),
                 )
             )
         by_id = {e.engram_id: e for e in out}
         return [by_id[i] for i in ids if i in by_id]
 
-    def metadata(self, dim: int) -> List[Tuple[int, float, int, bytes, int, float]]:
+    def metadata(self, dim: int, namespace: Optional[str] = None) -> List[Tuple]:
         with self._lock, self._conn.cursor() as cur:
-            cur.execute(
-                f"SELECT engram_id, EXTRACT(EPOCH FROM recorded_at), label, gram, tier, weight "
-                f"FROM {self.table} WHERE dim = %s ORDER BY engram_id",
-                (int(dim),),
-            )
+            if namespace is None:
+                cur.execute(
+                    f"SELECT engram_id, EXTRACT(EPOCH FROM recorded_at), label, gram, "
+                    f"tier, weight, namespace FROM {self.table} WHERE dim = %s "
+                    "ORDER BY engram_id",
+                    (int(dim),),
+                )
+            else:
+                cur.execute(
+                    f"SELECT engram_id, EXTRACT(EPOCH FROM recorded_at), label, gram, "
+                    f"tier, weight, namespace FROM {self.table} WHERE dim = %s "
+                    "AND namespace = %s ORDER BY engram_id",
+                    (int(dim), str(namespace)),
+                )
             rows = cur.fetchall()
         return [
-            (int(r[0]), float(r[1]), int(r[2]), bytes(r[3]), int(r[4]), float(r[5]))
+            (int(r[0]), float(r[1]), int(r[2]), bytes(r[3]), int(r[4]), float(r[5]), str(r[6]))
             for r in rows
         ]
 
@@ -590,6 +639,10 @@ class ZoneCMemory:
         ).astype(np.float32)
 
         self._lock = threading.RLock()
+        # Directive F1: a namespace registry, and an int code per row so the
+        # filter is one vector comparison and not a per-row string compare.
+        self.namespaces: List[str] = ["default"]
+        self._ns_index: Dict[str, int] = {"default": 0}
         self._cache: "OrderedDict[int, np.ndarray]" = OrderedDict()
         self._cache_hits = 0
         self._cache_misses = 0
@@ -607,6 +660,18 @@ class ZoneCMemory:
         self._load()
 
     # ------------------------------------------------------------- index io
+    def _ns_code(self, namespace: str) -> int:
+        """Stable integer code for a namespace, assigned on first sight."""
+        name = str(namespace or "default")
+        code = self._ns_index.get(name)
+        if code is None:
+            if len(self.namespaces) >= 32000:
+                raise ValueError("namespace registry is full")
+            code = len(self.namespaces)
+            self._ns_index[name] = code
+            self.namespaces.append(name)
+        return int(code)
+
     def _ensure(self, needed: int) -> None:
         """Grow the resident index. O(N) reallocation, amortised doubling."""
         if needed <= self._capacity:
@@ -619,6 +684,7 @@ class ZoneCMemory:
             "_tier": np.zeros(capacity, dtype=np.int16),
             "_weight": np.ones(capacity, dtype=np.float32),
             "_labels": np.full(capacity, -1, dtype=np.int64),
+            "_ns": np.zeros(capacity, dtype=np.int16),
         }
         size = self._size
         for name, array in grown.items():
@@ -633,7 +699,9 @@ class ZoneCMemory:
         highest = max((int(row[0]) for row in rows), default=0)
         self._size = 0
         self._ensure(max(64, len(rows)))
-        for engram_id, ts, label, gram_blob, tier, weight in rows:
+        for row in rows:
+            engram_id, ts, label, gram_blob, tier, weight = row[:6]
+            namespace = str(row[6]) if len(row) > 6 else "default"
             gram = _decode_gram(gram_blob)
             if gram.size != self.gram_dims:
                 # A table can hold rows from another configuration. Such a row
@@ -646,6 +714,7 @@ class ZoneCMemory:
             self._grams[index] = gram
             self._tier[index] = int(tier)
             self._weight[index] = float(weight)
+            self._ns[index] = self._ns_code(namespace)
             self._size += 1
         self._next_id = highest + 1
         for engram_id in self._ids[: self._size]:
@@ -659,8 +728,15 @@ class ZoneCMemory:
         info_gain: float = 0.0,
         tier: int = 1,
         ts: Optional[float] = None,
+        namespace: str = "default",
     ) -> Engram:
-        """Persist one engram. Returns the stored record."""
+        """Persist one engram. Returns the stored record.
+
+        Directive F1: the namespace is part of the row, so two tenants can
+        hold contradictory engrams under the same numeric label without
+        either one being able to retrieve the other.
+        """
+        namespace = str(namespace or "default")
         wave = _unit(wave)
         gram = (self.projection @ wave).astype(np.complex64)
         stamp = float(time.time() if ts is None else ts)
@@ -679,6 +755,7 @@ class ZoneCMemory:
                 info_gain=float(info_gain),
                 tier=int(tier),
                 weight=1.0,
+                namespace=namespace,
             )
             self.store.append(record)
             self._ids[index] = engram_id
@@ -687,6 +764,7 @@ class ZoneCMemory:
             self._grams[index] = gram
             self._tier[index] = int(tier)
             self._weight[index] = 1.0
+            self._ns[index] = self._ns_code(namespace)
             self._size += 1
             # Holographic superposition: a running boundary wave, normalised.
             self.boundary = _unit(self.boundary + wave)
@@ -738,6 +816,7 @@ class ZoneCMemory:
         avoid_ids: Sequence[int] = (),
         candidate_multiplier: int = 6,
         task: Optional[str] = None,
+        namespace: Optional[str] = "default",
     ) -> MemoryRead:
         """Retrieve the k best engrams and fuse them into one context wave.
 
@@ -745,6 +824,11 @@ class ZoneCMemory:
         in that task's disjoint label block are candidates. A task-scoped
         query with no candidate in its block returns an empty read, which the
         C1 rule turns into a veto for inference.
+
+        Directive F1: when namespace is given (the default is "default", not
+        None), only that tenant's rows are candidates. A namespace with no
+        row therefore reads as an empty, fail-closed result rather than
+        borrowing another tenant's memory.
         """
         start = time.perf_counter()
         query_wave = _unit(wave)
@@ -763,6 +847,18 @@ class ZoneCMemory:
                 norms * (float(np.linalg.norm(query_gram)) + _EPS), _EPS
             )
             scores = np.nan_to_num(scores, nan=-1.0, posinf=-1.0, neginf=-1.0)
+            if namespace is not None:
+                code = self._ns_index.get(str(namespace))
+                allowed_ns = (
+                    np.zeros(size, dtype=bool)
+                    if code is None
+                    else (self._ns[:size] == int(code))
+                )
+                if not bool(allowed_ns.any()):
+                    self._last_query = query_wave
+                    return MemoryRead([], np.zeros(self.dim, dtype=np.complex64), 0.0,
+                                      (time.perf_counter() - start) * 1e3, 0, True, 0.0, None)
+                scores = np.where(allowed_ns, scores, -np.inf)
             if task is not None:
                 lo, hi = task_label_block(task)
                 allowed = (labels >= lo) & (labels < hi)
@@ -868,10 +964,14 @@ class ZoneCMemory:
 
     # --------------------------------------------------------------- context
     def context_tensor(
-        self, wave: np.ndarray, k: int = 8, task: Optional[str] = None
+        self,
+        wave: np.ndarray,
+        k: int = 8,
+        task: Optional[str] = None,
+        namespace: Optional[str] = "default",
     ) -> Tuple[np.ndarray, MemoryRead]:
         """Fixed (context_tokens, context_dim) tensor at every store size."""
-        read = self.query(wave, k=k, task=task)
+        read = self.query(wave, k=k, task=task, namespace=namespace)
         tokens = int(self.cfg.context_tokens)
         if read.hits:
             chunks = read.context.reshape(tokens, self.cfg.chunk)
@@ -882,13 +982,13 @@ class ZoneCMemory:
             prefix = np.zeros((tokens, int(self.cfg.context_dim)), dtype=np.float32)
         return prefix.astype(np.float32), read
 
-    def axiomatic_engrams(self) -> List[Tuple[int, int]]:
+    def axiomatic_engrams(self, namespace: Optional[str] = None) -> List[Tuple[int, int]]:
         """(engram_id, label) for every axiomatic (tier-3) row.
 
         Tier-3 rows are the clean prototype bank of Decision 2. They are
         never pruned, so the attractor bank survives compaction and decay.
         """
-        rows = self.store.metadata(self.dim)
+        rows = self.store.metadata(self.dim, namespace=namespace)
         return [(int(row[0]), int(row[2])) for row in rows if int(row[4]) >= TIER_AXIOMATIC]
 
     # ------------------------------------------------------------- lifecycle

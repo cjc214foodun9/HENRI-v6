@@ -176,3 +176,111 @@ def assert_fits(report: Dict[str, float]) -> Dict[str, float]:
             f"the {report['budget_gib']:.1f} GiB budget"
         )
     return report
+
+
+# ---------------------------------------------------------------------------
+# Directive F4: CUDA driver visibility diagnostic
+# ---------------------------------------------------------------------------
+def probe_nvidia_driver_state() -> Dict[str, object]:
+    """Explain why a registry-detected NVIDIA adapter is not visible to torch.
+
+    Non-destructive: it reads the driver API surface and the environment. It
+    does not load a kernel, does not reset a device, and does not write to
+    the driver. Every field is evidence, and the verdict is a reading of that
+    evidence, not a guess.
+    """
+    import os
+    import platform
+    import shutil
+    import subprocess
+    from pathlib import Path as _Path
+
+    report: Dict[str, object] = {
+        "platform": platform.platform(),
+        "torch_version": str(torch.__version__),
+        "cuda_compiled_version": str(torch.version.cuda),
+        "torch_cuda_available": bool(torch.cuda.is_available()),
+        "torch_device_count": int(torch.cuda.device_count()) if torch.cuda.is_available() else 0,
+        "cuda_visible_devices": os.environ.get("CUDA_VISIBLE_DEVICES", ""),
+        "cuda_visible_devices_set": "CUDA_VISIBLE_DEVICES" in os.environ,
+        "cuda_home": os.environ.get("CUDA_HOME", ""),
+        "cuda_path_set": "CUDA_PATH" in os.environ,
+    }
+
+    smi = shutil.which("nvidia-smi")
+    report["nvidia_smi_path"] = str(smi or "")
+    report["nvidia_smi_reachable"] = bool(smi)
+    devices: List[str] = []
+    driver_version = ""
+    smi_error = ""
+    if smi:
+        try:
+            result = subprocess.run(
+                [str(smi), "-L"], capture_output=True, text=True, timeout=8
+            )
+            if result.returncode == 0:
+                devices = [line.strip() for line in result.stdout.splitlines() if line.strip()]
+            else:
+                smi_error = (result.stderr or "").strip()[:240]
+        except Exception as error:  # pragma: no cover - host dependent
+            smi_error = f"{type(error).__name__}: {error}"
+        try:
+            result = subprocess.run(
+                [str(smi), "--query-gpu=driver_version", "--format=csv,noheader"],
+                capture_output=True,
+                text=True,
+                timeout=8,
+            )
+            if result.returncode == 0:
+                driver_version = result.stdout.strip().splitlines()[0] if result.stdout.strip() else ""
+        except Exception as error:  # pragma: no cover - host dependent
+            smi_error = smi_error or f"{type(error).__name__}: {error}"
+    report["nvidia_smi_devices"] = devices
+    report["nvidia_smi_driver_version"] = driver_version
+    report["nvidia_smi_error"] = smi_error
+
+    candidates = [
+        r"C:\Windows\System32\nvcuda.dll",
+        r"C:\Windows\SysWOW64\nvcuda.dll",
+        r"C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe",
+    ]
+    on_windows = platform.system().lower().startswith("win")
+    if not on_windows:
+        candidates = [
+            "/usr/lib/x86_64-linux-gnu/libcuda.so.1",
+            "/usr/lib64/libcuda.so.1",
+            "/usr/local/cuda/lib64/libcuda.so",
+            "/usr/bin/nvidia-smi",
+        ]
+    present = {path: bool(_Path(path).exists()) for path in candidates}
+    report["driver_libraries"] = present
+    report["nvcuda_present"] = any(
+        present.get(path, False) for path in candidates if "nvcuda" in path.lower()
+    )
+    report["libcuda_present"] = any(
+        present.get(path, False) for path in candidates if "libcuda" in path.lower()
+    )
+    report["driver_files_found"] = int(sum(1 for value in present.values() if value))
+    report["on_windows"] = bool(on_windows)
+
+    reasons: List[str] = []
+    if not report["nvidia_smi_reachable"]:
+        reasons.append("nvidia-smi is not on PATH")
+    elif not devices:
+        reasons.append("nvidia-smi ran but listed no device")
+    if on_windows and not report["nvcuda_present"]:
+        reasons.append("nvcuda.dll was not found in System32 or SysWOW64")
+    if (not on_windows) and not report["libcuda_present"]:
+        reasons.append("libcuda.so was not found in the standard loader paths")
+    if report["cuda_visible_devices_set"] and not report["cuda_visible_devices"].strip():
+        reasons.append("CUDA_VISIBLE_DEVICES is set to an empty value")
+    if not torch.cuda.is_available() and not reasons:
+        reasons.append(
+            "the driver is present but torch reports no device: the process likely "
+            "cannot reach the driver API (session 0 isolation, sandbox device access, "
+            "or a disabled adapter in Device Manager)"
+        )
+    report["root_cause"] = "; ".join(reasons) if reasons else "CUDA device present and visible"
+    report["verdict"] = "VISIBLE" if torch.cuda.is_available() else "BLOCKED"
+    report["evidence"] = "OBSERVED"
+    return report
