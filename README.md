@@ -47,6 +47,29 @@ tables, and non-claims are in [docs/HOLARCH.md](docs/HOLARCH.md).
 No GPU was present in this checkout. Every receipt says `device: cpu`;
 no Blackwell timing claim is made.
 
+## Harness CLI: the eight tools
+
+`henri/cli.py` and `henri/__main__.py` expose the interface the DeepSeek
+Harness plugin calls. Every command prints one JSON document
+`{ok, exitCode, summary, result}`, and `exitCode: 1` means a gate failed.
+
+```powershell
+python -m henri doctor --json
+python -m henri ste100 --file docs/HOLARCH.md --mode descriptive --json
+python -m henri jev --json
+python -m henri holon --problem "close gate D4" --profile quick --json
+python -m henri gates --profile quick --json
+python -m henri ledger leaderboard --json
+python -m henri zone-check --path henri/cli.py --zone 2 --json
+python -m henri vast --json
+```
+
+`holon` runs the six-holon scientific graph (FRAME, MEASURE, FALSIFY,
+ATTRIBUTE, RECORD, GATE). It stops at the first failure, proves the integrity
+checker can reject a corrupted receipt, and appends to the immutable
+hash-chained ontology at `data/holarch/ontology.jsonl`. See
+[docs/HARNESS_CLI.md](docs/HARNESS_CLI.md).
+
 ## Scope
 
 Built: state space, Clifford binding, Hopfield cleanup, Koopman
