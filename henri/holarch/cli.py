@@ -133,57 +133,173 @@ def cmd_memory(args) -> int:
     return 0 if ok else 1
 
 
+def _detect_accelerators() -> List[str]:
+    """Decision D3: name the silicon, not only the torch device count."""
+    import subprocess
+
+    found: List[str] = []
+    try:
+        result = subprocess.run(
+            ["nvidia-smi", "-L"], capture_output=True, text=True, timeout=6
+        )
+        if result.returncode == 0:
+            found.extend(line.strip() for line in result.stdout.splitlines() if line.strip())
+    except Exception:
+        pass
+    if not found:
+        try:
+            result = subprocess.run(
+                [
+                    "powershell",
+                    "-NoProfile",
+                    "-Command",
+                    "(Get-CimInstance Win32_VideoController).Name",
+                ],
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+            if result.returncode == 0:
+                found.extend(
+                    line.strip() for line in result.stdout.splitlines() if line.strip()
+                )
+        except Exception:
+            pass
+    return found
+
+
+def _step_latency(model, batch: int) -> Tuple[float, float]:
+    """Median one-step forward and backward latency in milliseconds."""
+    device = next(model.parameters()).device
+    x = torch.zeros(int(batch), 1, 8, 8, device=device)
+    model.train()
+    forward_ms: List[float] = []
+    backward_ms: List[float] = []
+
+    def one_step():
+        return model("vision", x, training=True, use_memory=False).task_logits.sum()
+
+    for _ in range(2):
+        loss = one_step()
+        loss.backward()
+        model.zero_grad(set_to_none=True)
+    for _ in range(3):
+        start = time.perf_counter()
+        loss = one_step()
+        forward_ms.append((time.perf_counter() - start) * 1e3)
+        start = time.perf_counter()
+        loss.backward()
+        backward_ms.append((time.perf_counter() - start) * 1e3)
+        model.zero_grad(set_to_none=True)
+    return float(np.median(forward_ms)), float(np.median(backward_ms))
+
+
 def cmd_budget(args) -> int:
     import hashlib
+    import platform
 
     from henri.holarch.budget import budget_report
     from henri.holarch.pipeline import HenriHolarch
+    from henri.holarch.zone_c import ZoneCMemory
 
-    # Decision C3: "auto" resolves to cuda when a device answers, so a GPU
-    # host measures the production profile on the GPU; this host resolves to
-    # cpu and the receipt says BLOCKED for CUDA, which is the truth.
-    cfg = HolarchConfig.production(device="auto") if not args.small else HolarchConfig.small()
-    path = args.path or str(Path(tempfile.gettempdir()) / "henri_holarch_budget.sqlite3")
-    # Decision B4: probe the live environment instead of assuming it. The
-    # model asks for the TimescaleDB backend; if no DSN answers, Zone C falls
-    # back to SQLite and records the reason in the receipt.
-    model = HenriHolarch(cfg, backend="auto", memory_path=path)
-    report = budget_report(model, batch_size=int(args.batch), cfg=cfg)
-    # Decision A5: the hardware column is OBSERVED only when a CUDA device
-    # is actually present. Without one it stays BLOCKED with the probe that
-    # was run, so no CPU number is ever presented as a GPU result.
-    cuda_available = bool(torch.cuda.is_available())
+    # Decision D3: measure all three profiles on the host that is running,
+    # and record which silicon the host actually has. The CUDA verdict stays
+    # BLOCKED unless a device answers; a CPU number is never called a GPU one.
+    builders = {
+        "small": HolarchConfig.small,
+        "medium": HolarchConfig.medium,
+        "production": lambda: HolarchConfig.production(device="auto"),
+    }
+    if args.small:
+        builders = {"small": builders["small"]}
+
+    profiles = {}
+    for name, builder in builders.items():
+        cfg = builder()
+        path = args.path or str(
+            Path(tempfile.gettempdir()) / f"henri_budget_{name}.sqlite3"
+        )
+        if Path(path).exists() and args.path is None:
+            Path(path).unlink()
+        model = HenriHolarch(cfg, backend="sqlite", memory_path=path)
+        device = cfg.resolved_device()
+        if device == "cuda":
+            model.to(device)
+        report = budget_report(model, batch_size=int(args.batch), cfg=cfg)
+        forward_ms, backward_ms = _step_latency(model, int(args.batch))
+        profiles[name] = {
+            "dim": float(cfg.dim),
+            "d_slot": float(cfg.d_slot),
+            "photonic_layers": float(cfg.photonic_layers),
+            "parameters": float(report["parameters"]),
+            "training_gib": float(report["training_gib"]),
+            "inference_gib": float(report["inference_gib"]),
+            "headroom_gib": float(report["headroom_gib"]),
+            "fits": bool(report["fits"]),
+            "activation_bytes_training": float(report["activation_bytes_training"]),
+            "measured_device": str(report.get("measured_device", "cpu")),
+            "cuda_peak_allocated_gib": float(report.get("cuda_peak_allocated_gib", 0.0)),
+            "forward_ms": forward_ms,
+            "backward_ms": backward_ms,
+        }
+        model.memory.close()
+
+    probe = ZoneCMemory(HolarchConfig.small(), backend="auto")
     storage = {
-        "backend": str(getattr(model.memory, "backend", "unknown")),
-        "backend_reason": str(getattr(model.memory, "backend_reason", "")),
+        "backend": str(probe.backend),
+        "backend_reason": str(probe.backend_reason),
         "timescale_dsn_env_set": bool(os.environ.get("HENRI_TSDB_DSN")),
-        "evidence": "OBSERVED"
-        if str(getattr(model.memory, "backend", "")) == "timescaledb"
-        else "BLOCKED",
+        "evidence": "OBSERVED" if str(probe.backend) == "timescaledb" else "BLOCKED",
     }
+    probe.close()
+
+    cuda_available = bool(torch.cuda.is_available())
+    accelerators = _detect_accelerators()
     hardware = {
-        "evidence": "OBSERVED" if cuda_available else "BLOCKED",
+        "host_platform": platform.platform(),
+        "hostname": platform.node(),
+        "torch_version": str(torch.__version__),
+        "cuda_compiled_version": str(torch.version.cuda),
         "cuda_available": cuda_available,
-        "device_name": torch.cuda.get_device_name(0) if cuda_available else "",
         "device_count": int(torch.cuda.device_count()) if cuda_available else 0,
-        "torch": str(torch.__version__),
-        "reason": "" if cuda_available else "no CUDA device is visible to torch in this checkout",
+        "device_name": torch.cuda.get_device_name(0) if cuda_available else "",
+        "detected_accelerators": accelerators,
+        "host_has_nvidia_gpu": bool(cuda_available)
+        or any(
+            token in accelerator.lower()
+            for accelerator in accelerators
+            for token in ("nvidia", "geforce", "rtx", "quadro", "tesla")
+        ),
+        "evidence": "OBSERVED" if cuda_available else "BLOCKED",
+        "reason": ""
+        if cuda_available
+        else "no CUDA device is visible to torch; see detected_accelerators",
     }
+    hardware["cuda_peak_allocated_gib"] = max(
+        (profile["cuda_peak_allocated_gib"] for profile in profiles.values()),
+        default=0.0,
+    )
+    primary = "production" if "production" in profiles else next(iter(profiles))
+    all_fit = bool(all(profile["fits"] for profile in profiles.values()))
     payload = {
-        "config_digest": cfg.digest(),
-        "dim": float(cfg.dim),
-        "parameters": report["parameters"],
-        "training_gib": report["training_gib"],
-        "inference_gib": report["inference_gib"],
+        "profiles": profiles,
+        "profile": primary,
+        "config_digest": HolarchConfig.production().digest()
+        if primary == "production"
+        else (HolarchConfig.medium().digest() if primary == "medium" else HolarchConfig.small().digest()),
+        "dim": profiles[primary]["dim"],
+        "parameters": profiles[primary]["parameters"],
+        "training_gib": profiles[primary]["training_gib"],
+        "inference_gib": profiles[primary]["inference_gib"],
         "budget_gib": VRAM_BUDGET_GB,
-        "headroom_gib": report["headroom_gib"],
-        "fits": bool(report["fits"]),
-        "method": report["method"],
-        "device": report["device"],
-        "activation_bytes_training": report["activation_bytes_training"],
-        "measured_device": report.get("measured_device", "cpu"),
-        "cuda_peak_allocated_gib": report.get("cuda_peak_allocated_gib", 0.0),
-        "profile": "small" if args.small else "production",
+        "headroom_gib": profiles[primary]["headroom_gib"],
+        "fits": profiles[primary]["fits"],
+        "all_profiles_fit": all_fit,
+        "method": "counted params + measured saved tensors + declared reserve",
+        "device": profiles[primary]["measured_device"],
+        "measured_device": profiles[primary]["measured_device"],
+        "cuda_peak_allocated_gib": hardware["cuda_peak_allocated_gib"],
+        "activation_bytes_training": profiles[primary]["activation_bytes_training"],
         "hardware": hardware,
         "storage": storage,
         "evidence": "DERIVED",
@@ -197,8 +313,7 @@ def cmd_budget(args) -> int:
     payload["receipt"] = str(out)
     payload["sha256"] = hashlib.sha256(out.read_bytes()).hexdigest()
     _emit(payload, args.json, "VRAM budget")
-    model.memory.close()
-    return 0 if payload["fits"] else 1
+    return 0 if all_fit else 1
 
 
 def cmd_serve(args) -> int:
@@ -258,6 +373,7 @@ def cmd_train(args) -> int:
             batch_size=int(args.batch),
             ood_weight=float(args.ood_weight),
             ood_margin=float(args.ood_margin),
+            relational_bonus_coupling=float(getattr(args, "coupling", 0.5)),
         ),
         calibrate=True,
         reset_memory=bool(args.fresh),
@@ -412,6 +528,12 @@ def build_parser() -> argparse.ArgumentParser:
     train.add_argument("--dagger", type=int, default=8, help="on-policy action correction rounds")
     train.add_argument("--ood-weight", type=float, default=3.0, help="outlier-exposure weight")
     train.add_argument("--ood-margin", type=float, default=0.0, help="outlier-exposure coherence margin")
+    train.add_argument(
+        "--coupling",
+        type=float,
+        default=0.5,
+        help="bonus relational gradient coupling (Decision D2 sweeps 0.5 and 0.65)",
+    )
     train.set_defaults(func=cmd_train)
 
     selftest = sub.add_parser("selftest", parents=[common], help="run the fast integration checks")

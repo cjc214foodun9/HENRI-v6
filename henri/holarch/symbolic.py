@@ -35,6 +35,8 @@ from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 import numpy as np
 import torch
 
+from henri.holarch.zone_c import SYMBOL_LABEL_OFFSET
+
 _EPS = 1e-12
 
 
@@ -255,7 +257,13 @@ class TopologySolver:
             self.edges.append(edge)
             if self.mode == "indexed":
                 key = self.key_wave(edge.source, edge.operator)
-                self.memory.write(key, label=int(self.codebook.add(edge.target)), tier=int(tier))
+                # Decision D1: symbolic engrams live above the task blocks, so
+                # a task-scoped query cannot retrieve them as task context.
+                self.memory.write(
+                    key,
+                    label=SYMBOL_LABEL_OFFSET + int(self.codebook.add(edge.target)),
+                    tier=int(tier),
+                )
             else:
                 self.bundle = _unit(self.bundle + self.transition_wave(edge))
                 self.memory.write(self.transition_wave(edge), label=-1, tier=int(tier))
@@ -272,8 +280,10 @@ class TopologySolver:
             if not read.hits:
                 return {"answer": None, "coherence": 0.0, "vetoed": True, "reason": "empty memory"}
             hit = read.hits[0]
-            answer = self.codebook.symbols[hit.label] if 0 <= hit.label < len(self.codebook) else None
-            vetoed = float(hit.coherence) < float(self.tau_coherence)
+            symbol_index = int(hit.label) - SYMBOL_LABEL_OFFSET
+            valid_symbol = 0 <= symbol_index < len(self.codebook)
+            answer = self.codebook.symbols[symbol_index] if valid_symbol else None
+            vetoed = (not valid_symbol) or float(hit.coherence) < float(self.tau_coherence)
             return {
                 "answer": None if vetoed else answer,
                 "coherence": float(hit.coherence),
@@ -507,7 +517,11 @@ class CompositeSolver:
     def ingest(self, rows: Sequence[tuple], tier: int = 1) -> int:
         written = 0
         for parts, target in rows:
-            self.memory.write(self.key(parts), label=int(self.codebook.add(str(target))), tier=int(tier))
+            self.memory.write(
+                self.key(parts),
+                label=SYMBOL_LABEL_OFFSET + int(self.codebook.add(str(target))),
+                tier=int(tier),
+            )
             written += 1
         self.entries += written
         return written
@@ -533,12 +547,10 @@ class CompositeSolver:
         if not read.hits:
             return {"answer": None, "coherence": 0.0, "vetoed": True, "reason": "empty memory"}
         hit = read.hits[0]
-        vetoed = float(hit.coherence) < float(self.tau_coherence)
-        answer = (
-            self.codebook.symbols[hit.label]
-            if 0 <= hit.label < len(self.codebook) and not vetoed
-            else None
-        )
+        symbol_index = int(hit.label) - SYMBOL_LABEL_OFFSET
+        valid_symbol = 0 <= symbol_index < len(self.codebook)
+        vetoed = (not valid_symbol) or float(hit.coherence) < float(self.tau_coherence)
+        answer = self.codebook.symbols[symbol_index] if valid_symbol and not vetoed else None
         return {
             "answer": answer,
             "coherence": float(hit.coherence),

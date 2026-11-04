@@ -428,6 +428,7 @@ class HolarchConfig:
             expert_hidden=128,
             fast_rank=32,
             relational_hidden=192,
+            relational_k=24,
             gram_dims=32,
             chart_capacity=64,
             cache_capacity=64,

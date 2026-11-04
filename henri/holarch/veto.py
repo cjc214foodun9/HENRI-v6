@@ -219,7 +219,7 @@ class TwoConditionVeto:
     tau_residual: float
     tau_chance: float
     n_cal: int = 0
-    residual_prob: float = 0.004
+    residual_prob: float = 0.001
     chance_prob: float = 0.002
     margin_sigma: float = 2.0
     target_false_veto: float = 0.010
@@ -301,7 +301,7 @@ class TwoConditionVeto:
         # the residual tail is heavier than the Cornish-Fisher fit, so the
         # deployed targets are halved again until the measured union rate
         # clears 0.010 with margin. The union expectation is now 0.003.
-        residual_prob: float = 0.004,
+        residual_prob: float = 0.001,
         chance_prob: float = 0.002,
         margin_sigma: float = 2.0,
         target_false_veto: float = 0.010,

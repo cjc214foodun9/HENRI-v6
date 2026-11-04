@@ -2,21 +2,21 @@
   "config_digest": "1ede658ba058f712",
   "steps": 120,
   "veto_calibration": {
-    "tau_residual": 0.39676989118130773,
+    "tau_residual": 0.42474142177616575,
     "tau_chance": 0.2580797926275949,
     "n_cal": 256.0,
-    "residual_prob": 0.0040000000000000036,
+    "residual_prob": 0.0010000000000000009,
     "chance_prob": 0.002,
     "margin_sigma": 2.0,
     "residual_shift": 0.0,
-    "residual_sigma_tail": 0.013107245166459532,
+    "residual_sigma_tail": 0.005836456255530839,
     "chance_sigma_tail": 0.016624122746497622,
     "target_false_veto": 0.005,
     "calibration_false_veto": 0.0,
     "ceiling": 0.98,
-    "epsilon": 0.39676989118130773,
+    "epsilon": 0.42474142177616575,
     "n": 256.0,
-    "quantile": 0.996,
+    "quantile": 0.999,
     "calibrated": 1.0,
     "s_max_mean": 0.8055452278349549,
     "delta_mean": 0.10600656224414706,
@@ -30,17 +30,17 @@
   },
   "code_index": {
     "files_parsed": 16.0,
-    "lines_parsed": 8265.0,
-    "parse_seconds": 0.06922069999563973,
-    "edges": 552.0,
-    "nodes": 269.0,
-    "edges_ingested": 552.0,
+    "lines_parsed": 8711.0,
+    "parse_seconds": 0.06370610000158194,
+    "edges": 586.0,
+    "nodes": 277.0,
+    "edges_ingested": 586.0,
     "engrams_before": 120.0,
-    "engrams_after": 672.0,
+    "engrams_after": 706.0,
     "parameters_unchanged": 1.0,
     "tau_coherence": 0.9800000000000004,
     "coherence_median": 1.0,
-    "n": 552.0
+    "n": 586.0
   },
   "topology": {
     "edges": 72.0,
@@ -52,13 +52,13 @@
   },
   "adaptation": {
     "shifted": {
-      "gate_mean": 1.0,
-      "surprise_mean": 0.7015552520751953,
+      "gate_mean": 0.90625,
+      "surprise_mean": 0.6085615158081055,
       "examples": 32.0
     },
     "familiar": {
-      "gate_mean": 0.03125,
-      "surprise_mean": 0.3717990517616272,
+      "gate_mean": 0.0,
+      "surprise_mean": 0.3425374925136566,
       "examples": 32.0
     }
   },
@@ -66,7 +66,7 @@
     "compiled": {
       "steps": 5.0,
       "version": 1.0,
-      "engram_id": 745.0,
+      "engram_id": 779.0,
       "tier": 3.0
     },
     "recall_coherence": 0.999513787632319,
@@ -95,8 +95,8 @@
     ]
   },
   "report": {
-    "engrams": 745.0,
-    "symbols": 342.0,
+    "engrams": 779.0,
+    "symbols": 355.0,
     "playbooks": 1.0,
     "parameters": 223242.0,
     "backend": 0.0

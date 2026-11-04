@@ -14,7 +14,9 @@ bytes in the sidecar `.sha256`.
 | `continual_vision.json` | `python scripts/run_holarch_continual.py --steps 150` |
 | `symbolic.json` | `python scripts/run_holarch_symbolic.py --seeds 3` |
 | `sidecar.json` | `python scripts/run_holarch_sidecar_demo.py --steps 120` |
-| `holarch_production.json` | `python -m henri.holarch train --steps 600 --name holarch_production --fresh --dagger 20` |
+| `holarch_production.json` | `python -m henri.holarch train --steps 600 --profile medium --name holarch_production --fresh --dagger 40 --coupling 0.5` |
+| `holarch_production_k24_c0*.json` | the Decision D2 coupling and DAgger sweep |
+| `d_cycle.json` | `python scripts/run_holarch_d_cycle.py` (cycle D verification ledger) |
 | `agent_eval.json` | `python scripts/run_holarch_agent_eval.py` |
 | `c_cycle.json` | `python scripts/run_holarch_c_cycle.py` (cycle C verification ledger) |
 | `budget.json` | `python -m henri.holarch budget` |

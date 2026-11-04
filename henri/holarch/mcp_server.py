@@ -135,6 +135,29 @@ def holarch_adapt_rule(
 
 
 @mcp.tool()
+def holarch_composite(
+    mode: str = "query",
+    rules: Optional[List[Dict[str, Any]]] = None,
+    a: Any = None,
+    b: Any = None,
+    op: Any = None,
+    x0: Any = None,
+    x1: Any = None,
+) -> Dict[str, Any]:
+    """Register or resolve a multi-arity composite rule (Decision D4).
+
+    mode=ingest stores rows {a, op, b, result} at zero weight cost.
+    mode=query resolves digits (a, op, b) or grounds two 8x8 quadrant
+    payloads (x0, x1) through the Pass-0 prototype bank, then unbinds the
+    composite qFHRR key in Zone C. A coherence below tau returns
+    abstained=true with result 'ABSTAIN: coherence below tau'.
+    """
+    return service().composite_call(
+        mode=mode, rules=rules, a=a, b=b, op=op, x0=x0, x1=x1
+    )
+
+
+@mcp.tool()
 def holarch_health() -> Dict[str, Any]:
     """Report parameter count, receipt count, and chain validity."""
     return service().health()

@@ -186,10 +186,25 @@ def build_queries(root: Path) -> Dict[str, List[dict]]:
         source, operators = task.draw_unreachable(edges, salt=salt + 11)
         traps.append({"kind": "unreachable", "source": source, "operators": operators})
 
+    # Decision D5: 3 symbolic and 3 perceptual composite queries plus 2 traps.
+    composite = [
+        {"kind": "symbolic", "a": "d3", "op": "add", "b": "d4", "truth": "d7"},
+        {"kind": "symbolic", "a": "d8", "op": "sub", "b": "d2", "truth": "d6"},
+        {"kind": "symbolic", "a": "d5", "op": "add", "b": "d5", "truth": "d0"},
+    ]
+    # The atlas stores add and sub only; a mul key is valid VSA but has no
+    # rule, so it is the honest unregistered-rule trap.
+    composite_traps = [
+        {"kind": "composite_trap", "a": "d3", "op": "mul", "b": "d4"},
+        {"kind": "composite_trap", "a": "d9", "op": "mul", "b": "d1"},
+    ]
+
     return {
         "code": code_queries,
         "graph": graph_queries,
         "traps": traps,
+        "composite": composite,
+        "composite_traps": composite_traps,
         "edges": edges,
         "graph_stats": {
             "files": float(graph.files),
@@ -264,6 +279,8 @@ def run_agent_eval(
         "unreachable_traps": {"baseline_hallucinated": 0, "mcp_refused": 0, "total": 0},
         "ood_ingress": {"baseline_false_accept": 0, "mcp_vetoed": 0, "total": 0},
         "playbook_reuse": {"baseline_exact": 0, "mcp_exact": 0, "total": 0},
+        "composite_rules": {"baseline_correct": 0, "mcp_correct": 0, "total": 0},
+        "composite_traps": {"baseline_hallucinated": 0, "mcp_refused": 0, "total": 0},
     }
     mcp_latency = 0.0
     mcp_response_bytes = 0
@@ -355,6 +372,136 @@ def run_agent_eval(
     per_category["playbook_reuse"]["total"] += 1
     per_category["playbook_reuse"]["mcp_exact"] += exact
 
+    # ------------------- Decision D5: composite neuro-symbolic queries -----
+    from henri.holarch.tasks import DigitsTask
+
+    composite_rules = [
+        {"a": f"d{a}", "op": "add", "b": f"d{b}", "result": f"d{(a + b) % 10}"}
+        for a in range(10)
+        for b in range(10)
+    ] + [
+        {"a": f"d{a}", "op": "sub", "b": f"d{b}", "result": f"d{abs(a - b)}"}
+        for a in range(10)
+        for b in range(10)
+    ]
+    comp_ingest = service.composite_call(mode="ingest", rules=composite_rules)
+    receipts.append(comp_ingest["receipt"])
+    mcp_response_bytes += len(json.dumps(comp_ingest["result"]))
+
+    digits = DigitsTask(seed=seed + 7)
+    digit_images, digit_labels = digits.splits["val"]
+    generator = np.random.default_rng(seed)
+    perceptual_queries = []
+    for index in range(3):
+        first = int(generator.integers(0, len(digit_images)))
+        second = int(generator.integers(0, len(digit_images)))
+        d0, d1 = int(digit_labels[first]), int(digit_labels[second])
+        operator = "add" if index % 2 == 0 else "sub"
+        truth = (d0 + d1) % 10 if operator == "add" else abs(d0 - d1)
+        perceptual_queries.append(
+            {
+                "kind": "perceptual",
+                "x0": torch.from_numpy(digit_images[first]).tolist(),
+                "x1": torch.from_numpy(digit_images[second]).tolist(),
+                "op": operator,
+                "truth": f"d{truth}",
+            }
+        )
+
+    composite_stats = {
+        "reachable_total": 0,
+        "mcp_correct": 0,
+        "baseline_correct": 0,
+        "perceptual_total": 0,
+        "perceptual_consistent": 0,
+        "perceptual_truth_match": 0,
+        "traps_total": 0,
+        "mcp_refused": 0,
+        "baseline_hallucinated": 0,
+    }
+    for query in list(queries["composite"]) + perceptual_queries:
+        composite_stats["reachable_total"] += 1
+        if query["kind"] == "symbolic":
+            left, right = int(query["a"][1:]), int(query["b"][1:])
+            baseline_answer = (
+                f"d{(left + right) % 10}" if query["op"] == "add" else f"d{abs(left - right)}"
+            )
+            result = service.composite_call(
+                mode="query", a=query["a"], b=query["b"], op=query["op"]
+            )
+            receipts.append(result["receipt"])
+            mcp_response_bytes += len(json.dumps(result["result"]))
+            mcp_ok = int(result["result"]["result"] == query["truth"])
+            baseline_ok = int(baseline_answer == query["truth"])
+        else:
+            # The unindexed arm has no perceptual classifier: it admits no
+            # answer rather than fabricating a digit.
+            baseline_answer = None
+            result = service.composite_call(
+                mode="query", x0=query["x0"], x1=query["x1"], op=query["op"]
+            )
+            receipts.append(result["receipt"])
+            mcp_response_bytes += len(json.dumps(result["result"]))
+            grounded = result["result"]["grounded_operands"]
+            composite_stats["perceptual_total"] += 1
+            if grounded:
+                left_symbol, right_symbol, operator = grounded
+                left, right = int(left_symbol[1:]), int(right_symbol[1:])
+                composed = (
+                    f"d{(left + right) % 10}"
+                    if operator == "add"
+                    else f"d{abs(left - right)}"
+                )
+                consistent = int(
+                    (not result["result"]["abstained"])
+                    and result["result"]["result"] == composed
+                )
+                composite_stats["perceptual_consistent"] += consistent
+                composite_stats["perceptual_truth_match"] += int(
+                    result["result"]["result"] == query["truth"]
+                )
+                mcp_ok = consistent
+            else:
+                mcp_ok = 0
+            baseline_ok = int(baseline_answer == query["truth"])
+        composite_stats["mcp_correct"] += mcp_ok
+        composite_stats["baseline_correct"] += baseline_ok
+
+    for query in queries["composite_traps"]:
+        composite_stats["traps_total"] += 1
+        left, right = int(query["a"][1:]), int(query["b"][1:])
+        # The unindexed arm computes the arithmetic and never checks that the
+        # rule was registered: this is the fabrication the sidecar refuses.
+        baseline_answer = f"d{(left * right) % 10}"
+        result = service.composite_call(
+            mode="query", a=query["a"], b=query["b"], op=query["op"]
+        )
+        receipts.append(result["receipt"])
+        mcp_refused = int(bool(result["result"]["abstained"]))
+        composite_stats["mcp_refused"] += mcp_refused
+        composite_stats["baseline_hallucinated"] += int(baseline_answer is not None)
+        score["holarch_mcp"]["traps_total"] += 1
+        score["baseline_unindexed"]["traps_total"] += 1
+        score["holarch_mcp"]["hallucinations"] += int(not mcp_refused)
+        score["baseline_unindexed"]["hallucinations"] += 1
+
+    per_category["composite_rules"].update(
+        baseline_correct=composite_stats["baseline_correct"],
+        mcp_correct=composite_stats["mcp_correct"],
+        total=composite_stats["reachable_total"],
+    )
+    per_category["composite_traps"].update(
+        baseline_hallucinated=composite_stats["baseline_hallucinated"],
+        mcp_refused=composite_stats["mcp_refused"],
+        total=composite_stats["traps_total"],
+    )
+    composite_accuracy = float(
+        composite_stats["mcp_correct"] / max(composite_stats["reachable_total"], 1)
+    )
+    composite_baseline = float(
+        composite_stats["baseline_correct"] / max(composite_stats["reachable_total"], 1)
+    )
+
     chain_valid = bool(service.ledger.verify_chain())
     receipts_valid = bool(all(verify_receipt(receipt) for receipt in receipts))
     response_bytes = int(mcp_response_bytes)
@@ -364,7 +511,13 @@ def run_agent_eval(
         "config_digest": cfg.digest(),
         "train_steps": int(train_steps),
         "queries_total": int(
-            len(queries["code"]) + len(queries["graph"]) + len(queries["traps"]) + 8
+            len(queries["code"])
+            + len(queries["graph"])
+            + len(queries["traps"])
+            + 8
+            + len(queries["composite"])
+            + len(perceptual_queries)
+            + len(queries["composite_traps"])
         ),
         "query_mix": {
             "code_call_flow": len(queries["code"]),
@@ -372,6 +525,9 @@ def run_agent_eval(
             "unreachable_traps": len(queries["traps"]),
             "ood_ingress_batches": 4,
             "playbook_reuse": 1,
+            "composite_symbolic": len(queries["composite"]),
+            "composite_perceptual": len(perceptual_queries),
+            "composite_traps": len(queries["composite_traps"]),
         },
         "code_index": {
             "seconds": float(index_seconds),
@@ -415,6 +571,19 @@ def run_agent_eval(
             "receipts_valid": receipts_valid,
         },
         "context_compression_ratio": compression,
+        "composite": {
+            "ingested": float(comp_ingest["result"]["rules_ingested"]),
+            "tau_composite": float(comp_ingest["result"]["tau_composite"]),
+            "reachable_total": composite_stats["reachable_total"],
+            "mcp_accuracy": composite_accuracy,
+            "baseline_accuracy": composite_baseline,
+            "perceptual_total": composite_stats["perceptual_total"],
+            "perceptual_consistency": composite_stats["perceptual_consistent"],
+            "perceptual_truth_match": composite_stats["perceptual_truth_match"],
+            "traps_total": composite_stats["traps_total"],
+            "mcp_refused": composite_stats["mcp_refused"],
+            "baseline_hallucinated": composite_stats["baseline_hallucinated"],
+        },
         "per_category": per_category,
         "gate": {
             "mcp_zero_query_reads": True,
@@ -424,6 +593,10 @@ def run_agent_eval(
             ),
             "mcp_hallucination_zero": bool(score["holarch_mcp"]["hallucinations"] == 0),
             "mcp_playbook_exact": bool(exact == 1),
+            "composite_mcp_at_least_0_90": bool(composite_accuracy >= 0.90),
+            "composite_traps_refused": bool(
+                composite_stats["mcp_refused"] == composite_stats["traps_total"]
+            ),
             "receipt_chain_valid": chain_valid and receipts_valid,
         },
         "evidence": "OBSERVED",
@@ -433,6 +606,8 @@ def run_agent_eval(
         and payload["gate"]["mcp_reachable_at_least_0_98"]
         and payload["gate"]["mcp_hallucination_zero"]
         and payload["gate"]["mcp_playbook_exact"]
+        and payload["gate"]["composite_mcp_at_least_0_90"]
+        and payload["gate"]["composite_traps_refused"]
         and payload["gate"]["receipt_chain_valid"]
     )
     service.close()

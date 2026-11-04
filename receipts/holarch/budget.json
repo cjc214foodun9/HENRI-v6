@@ -1,4 +1,52 @@
 {
+  "profiles": {
+    "small": {
+      "dim": 256.0,
+      "d_slot": 64.0,
+      "photonic_layers": 2.0,
+      "parameters": 223242.0,
+      "training_gib": 0.7628212049603462,
+      "inference_gib": 0.7583289928734303,
+      "headroom_gib": 31.237178795039654,
+      "fits": true,
+      "activation_bytes_training": 1773416.0,
+      "measured_device": "cpu",
+      "cuda_peak_allocated_gib": 0.0,
+      "forward_ms": 6.078200007323176,
+      "backward_ms": 7.695600012084469
+    },
+    "medium": {
+      "dim": 1024.0,
+      "d_slot": 256.0,
+      "photonic_layers": 4.0,
+      "parameters": 1020380.0,
+      "training_gib": 0.7914466336369514,
+      "inference_gib": 0.7682733461260796,
+      "headroom_gib": 31.20855336636305,
+      "fits": true,
+      "activation_bytes_training": 10875400.0,
+      "measured_device": "cpu",
+      "cuda_peak_allocated_gib": 0.0,
+      "forward_ms": 10.747099993750453,
+      "backward_ms": 12.329699995461851
+    },
+    "production": {
+      "dim": 4096.0,
+      "d_slot": 1024.0,
+      "photonic_layers": 4.0,
+      "parameters": 5886556.0,
+      "training_gib": 0.9225118532776833,
+      "inference_gib": 0.8010227605700493,
+      "headroom_gib": 31.077488146722317,
+      "fits": true,
+      "activation_bytes_training": 49105256.0,
+      "measured_device": "cpu",
+      "cuda_peak_allocated_gib": 0.0,
+      "forward_ms": 28.37030000227969,
+      "backward_ms": 23.74740000232123
+    }
+  },
+  "profile": "production",
   "config_digest": "104cd0d8c75f8709",
   "dim": 4096.0,
   "parameters": 5886556.0,
@@ -7,19 +55,28 @@
   "budget_gib": 32.0,
   "headroom_gib": 31.077488146722317,
   "fits": true,
+  "all_profiles_fit": true,
   "method": "counted params + measured saved tensors + declared reserve",
   "device": "cpu",
-  "activation_bytes_training": 49105256.0,
   "measured_device": "cpu",
   "cuda_peak_allocated_gib": 0.0,
-  "profile": "production",
+  "activation_bytes_training": 49105256.0,
   "hardware": {
-    "evidence": "BLOCKED",
+    "host_platform": "Windows-11-10.0.26300-SP0",
+    "hostname": "RICO",
+    "torch_version": "2.11.0+cu128",
+    "cuda_compiled_version": "12.8",
     "cuda_available": false,
-    "device_name": "",
     "device_count": 0,
-    "torch": "2.11.0+cu128",
-    "reason": "no CUDA device is visible to torch in this checkout"
+    "device_name": "",
+    "detected_accelerators": [
+      "AMD Radeon(TM) Graphics",
+      "AMD Radeon RX 9070 XT"
+    ],
+    "host_has_nvidia_gpu": false,
+    "evidence": "BLOCKED",
+    "reason": "no CUDA device is visible to torch; see detected_accelerators",
+    "cuda_peak_allocated_gib": 0.0
   },
   "storage": {
     "backend": "timescaledb",

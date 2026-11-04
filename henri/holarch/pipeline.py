@@ -551,10 +551,17 @@ class HenriHolarch(nn.Module):
     def store_prototypes(self, task: Optional[str] = None) -> Dict[str, float]:
         """Persist the bank as axiomatic (tier-3) Zone C engrams."""
         total = 0.0
+        from henri.holarch.zone_c import global_label
+
         for name in ([task] if task else list(TASK_NAMES)):
             bank = self.prototypes[name]
             if len(bank) and getattr(self, "memory", None) is not None:
-                total += float(bank.write_to_memory(self.memory))
+                total += float(
+                    bank.write_to_memory(
+                        self.memory,
+                        offset=global_label(name, 0),
+                    )
+                )
         return {"prototype_engrams_written": total}
 
     def prototype_logits(
@@ -587,8 +594,14 @@ class HenriHolarch(nn.Module):
     @torch.no_grad()
     def load_prototypes(self, task: str) -> int:
         """Reload one task's bank from the axiomatic Zone C engrams."""
+        from henri.holarch.zone_c import global_label, task_label_block
+
         bank = self.prototypes[task]
-        count = bank.load_from_memory(self.memory)
+        count = bank.load_from_memory(
+            self.memory,
+            offset=global_label(task, 0),
+            block=task_label_block(task),
+        )
         self.set_prototypes(task)
         return count
 
@@ -822,7 +835,9 @@ class HenriHolarch(nn.Module):
             axiom_rows: List[torch.Tensor] = []
             prefix_rows: List[np.ndarray] = []
             for index, row in enumerate(psi_in.detach().cpu().numpy()):
-                prefix_np, row_read = self.memory.context_tensor(row, k=memory_k)
+                prefix_np, row_read = self.memory.context_tensor(
+                    row, k=memory_k, task=task
+                )
                 prefix_rows.append(prefix_np.reshape(-1))
                 reads.append(row_read)
                 if row_read.hits:
@@ -1075,10 +1090,19 @@ class HenriHolarch(nn.Module):
         """Write detached input waves to Zone C. Returns the write count."""
         if getattr(self, "memory", None) is None:
             return 0
+        from henri.holarch.zone_c import global_label
+
         waves = self.encode(task, x).detach().cpu().numpy()
         written = 0
         for index in range(min(int(max_writes), waves.shape[0])):
-            self.memory.write(waves[index], label=int(labels[index]), tier=int(tier))
+            # Decision D1: a task engram stores its global (block-offset)
+            # label, so a task-scoped query can restrict candidates to its
+            # own block without a schema change.
+            self.memory.write(
+                waves[index],
+                label=global_label(task, int(labels[index])),
+                tier=int(tier),
+            )
             written += 1
         return written
 
@@ -1148,7 +1172,7 @@ class HenriHolarch(nn.Module):
         batches: Sequence[torch.Tensor],
         sigma: float = 3.0,
         ceiling: float = 0.35,
-        quantile: float = 0.996,
+        quantile: float = 0.999,
         margin: float = 0.0,
         margin_sigma: float = 2.0,
     ) -> Dict[str, float]:
@@ -1255,7 +1279,7 @@ class HenriHolarch(nn.Module):
         self,
         task: str,
         batches: Sequence[torch.Tensor],
-        quantile: float = 0.996,
+        quantile: float = 0.999,
         chance_percentile: float = 0.2,
         margin_sigma: float = 2.0,
         target_false_veto: float = 0.005,

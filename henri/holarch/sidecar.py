@@ -191,7 +191,11 @@ class EpistemicSidecar:
         # removed. Nothing is generated: the steps are unit phasors.
         payload = 1.0 + 0.5 * wave.astype(np.complex64)
         stored = _unit(key * payload)
-        record = self.model.memory.write(stored, label=version, tier=int(tier))
+        from henri.holarch.zone_c import PLAYBOOK_LABEL_OFFSET
+
+        record = self.model.memory.write(
+            stored, label=PLAYBOOK_LABEL_OFFSET + int(version), tier=int(tier)
+        )
         self.playbooks[name] = Playbook(name=name, steps=merged, version=version)
         return {
             "steps": float(len(merged)),

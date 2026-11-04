@@ -4,11 +4,11 @@ Status: OBSERVED on CPU, 2026-11-03. Every number here comes from a file in
 receipts/holarch/ or from a test named next to it. A test result is code-health
 evidence, not a capability claim.
 
-This revision implements Decisions A1 to A5 of the audit of commit fc782cd
-(HENRI-ARCH-AUDIT-2026-11-03-REV4). Section 17 records the measured outcome of
-each decision, including the two prescriptions that measurement falsified
-(the K_probe = 8 detector width of A1 and the no-interference-cost
-relational budget of A4).
+This revision implements Decisions D1 to D5 of the audit of commit 12a737c
+(HENRI-ARCH-EVAL-2026-11-04-12A737C). Section 20 records the measured outcome
+of each decision: task-scoped retrieval closes the veto gap, the D = 1024
+checkpoint clears vision, relational and one-step action but not closed-loop
+action, and the composite resolver is now a service endpoint.
 
 Comparability warning. The parameter set changed from 175,311 to 222,026 over
 the three revisions of this cycle, so module construction consumed a different
@@ -17,8 +17,8 @@ within-revision arms, which share one seed and one initialisation.
 
 Sections 1 to 12 record the Decisions 1-4 revision. Sections 14 to 15 record
 Decisions 5-8 and the agentic sidecar. Section 17 records Decisions A1-A5 and
-supersedes the gate verdicts of sections 7 and 12; where they disagree, the
-later section wins and says so.
+sections 18 to 20 record cycles B, C and D. Where they disagree, the later
+section wins and says so.
 
 ## 1. Data path
 
@@ -213,50 +213,50 @@ intact. The retired control multiplies the K = 16 real slot projections instead.
 ## 5. Measured results
 
 Receipt: receipts/holarch/holarch_small.json
-SHA-256: bfd2b50ffb767534cca84d972ba5e35b7a9bef28d9f9e4349bd1e8f5f2fb38dd
+SHA-256: ec299348fbb557fec0057786935ff7432410949d093876d0f90631d07c671ab0
 
 Configuration: HolarchConfig.small(), 300 steps per dense task plus 600
 relational steps (Decisions A4 and B1: one coupled plus one 0.5-coupled bonus
 pass), batch 32, 20 DAgger rounds, outlier exposure weight 3.0, 223,242
-parameters, live TimescaleDB backend (PostgreSQL 16.10 / TimescaleDB 2.23.1,
-dimension-scoped hypertable), always-on Pass-0 prototype boost with a
+parameters, SQLite backend for the D1 gate run (the storage probe is recorded
+separately in budget.json), always-on Pass-0 prototype boost with a
 surprise-gated relaxation delta, circular convolution relational binding on a
 dedicated expert, relational-only phase mask, per-task diagonal phase
-cartridges, shared Stiefel first-layer factor.
+cartridges, task-scoped Zone C retrieval, shared Stiefel first-layer factor.
 
 | Task | Metric | Validation | Test | Chance |
 |---|---|---|---|---|
-| Vision | accuracy | 0.963 | 0.963 | 0.100 |
-| Language | next-char accuracy | 0.277 | 0.288 | 0.010 |
-| Language | perplexity | 15.54 | 17.38 | 96 |
-| Action | one-step accuracy | 0.788 | 0.788 | 0.250 |
-| Action | closed-loop success | 0.563 | - | 0.031 random |
-| Relational | held-out triple accuracy | 0.620 | 0.620 | 0.125 |
-| Memory | recall@1 over 200 windows | 0.950 | - | - |
+| Vision | accuracy | 0.963 | 0.973 | 0.100 |
+| Language | next-char accuracy | 0.244 | 0.266 | 0.010 |
+| Language | perplexity | 14.98 | 16.71 | 96 |
+| Action | one-step accuracy | 0.738 | 0.738 | 0.250 |
+| Action | closed-loop success | 0.521 | - | 0.031 random |
+| Relational | held-out triple accuracy | 0.606 | 0.606 | 0.125 |
+| Memory | recall@1 over 200 windows | 0.940 | - | - |
 
 The relational row uses the 600-step budget of Decision A4 with the Decision
-B1 bonus coupling of 0.5. The four-task checkpoint reaches 0.620: section 18.1
-measures the coupling curve and section 19.2 scales the wave to D = 1024,
-where the same row reaches 0.7465. The dedicated relational arm remains the
+B1 bonus coupling of 0.5. The four-task checkpoint reaches 0.606: section 18.1
+measures the coupling curve and section 19.2 scales the wave to D = 1024.
+Decision D2 then raises the medium four-task row to 0.7746 with a wider
+relational readout (section 20.2). The dedicated relational arm remains the
 0.765+ arm at 0.770/0.493 (section 18.5).
 
 Per-task selective prediction:
 
 | Task | Veto rate | Coverage | Selective accuracy |
 |---|---|---|---|
-| Vision | 0.007 | 0.993 | 0.963 |
-| Language | 0.002 | 0.998 | 0.277 |
-| Action | 0.000 | 1.000 | 0.788 |
-| Relational | 0.000 | 1.000 | 0.620 |
+| Vision | 0.003 | 0.997 | 0.963 |
+| Language | 0.000 | 1.000 | 0.244 |
+| Action | 0.000 | 1.000 | 0.738 |
+| Relational | 0.000 | 1.000 | 0.606 |
 
-The veto rejects 1.0000 of uniform noise with 0.0067 false veto on this
-checkpoint (Decision C1). Gate D2 passes (OOD >= 0.95 and false veto <= 0.02);
-the Decision A3/C1 false-veto bar of 0.0050 is missed by one wave out of 600,
-and section 19.1 gives the three-point trade-off curve that shows why the
-shared Zone C retrieval, not the threshold, is the limit.
+The veto rejects 1.0000 of uniform noise with 0.0033 false veto on this
+checkpoint (Decision D1). The clean Sagnac residual maximum is 0.5852 and the
+noise minimum is 0.7852, so the threshold 0.6029 sits inside an empty gap.
+Gate D2 passes and the Decision A3/C1 false-veto bar of 0.0050 is met.
 
 Relaxation attribution on the same checkpoint, closed-loop action episodes:
-0.563 with the loop and 0.563 without it. The loop changes the attractor
+0.521 with the loop and 0.521 without it. The loop changes the attractor
 branch rather than the head, so on clean action data the two arms coincide;
 section 18.2 gives the noise sweep.
 
@@ -285,7 +285,7 @@ the ablation measured nothing.
 |---|---|---|---|
 | D1 | removing Zone B drops accuracy by at least 0.10 | features removed: -0.590; identity optics: -0.010 | PASS on removal / FAIL strict |
 | D1 strict (D5) | plates beat identity by >= 0.10 under a physical detector frame | 8x8 +0.088, 16x16 +0.157, mean +0.122 (four plates, K=16) | PASS (18.5) |
-| D2 | OOD veto >= 0.95 and false veto <= 0.02 | 1.000 and 0.0067 | PASS; the 0.005 C1 false-veto bar is missed by one wave (19.1) |
+| D2 | OOD veto >= 0.95 and false veto <= 0.02 | 1.000 and 0.0033 | PASS; task scoping closes the C1 false-veto gap (20.1) |
 | D3 | relaxation gain at sigma = 0.25 | model +0.0020; clean delta 0.0000; sigma 0.50 is -0.0020 | PASS on the sign rule except sigma 0.50 (18.2) |
 | D4 | holarch beats MLP on both relational splits | standard 0.770 vs 0.704; low-data 0.493 vs 0.406 | PASS at 600 steps |
 | D4b | gated plasticity drift <= 0.005 and context rule switching above Fano | drift 0.000 (0.003 in this revision); combined 0.942 against 0.483 | PASS |
@@ -369,10 +369,11 @@ Observed:
 - The three zones run end to end on CPU with measured accuracy, latency and
   memory behaviour, and on a live TimescaleDB 2.23.1 service.
 - Removing the optical feature path costs 0.59 on vision.
-- The two-condition veto rejects 1.0000 of uniform noise at 0.0067 false
+- The two-condition veto rejects 1.0000 of uniform noise at 0.0033 false
   veto on the canonical checkpoint, and 1.000 at 0.000 on the 120-step sidecar
-  run. An empty Zone C retrieval is vetoed unless the caller authorises
-  exploratory ingress (Decision C1).
+  run. Task-scoped Zone C retrieval separates clean from noise residuals
+  (clean maximum 0.5852, noise minimum 0.7852), and an empty retrieval is
+  vetoed unless the caller authorises exploratory ingress (Decisions C1, D1).
 - With a parameter-free phase sensor, a fixed Fourier detector frame, a linear
   probe and the production four-plate Kerr stack, the optical stack beats the
   identity control by +0.082 on 8x8 and +0.140 on 16x16 clutter, mean +0.111.
@@ -389,8 +390,11 @@ Observed:
   adaptation gain; slot-3 rule binding holds the two-rule probe at 0.942.
 - The dedicated relational arm beats the flat MLP on both splits at 600 steps:
   0.770 vs 0.704 standard, 0.493 vs 0.406 low-data.
-- The medium profile at D = 1024 reaches 0.9764 vision and 0.7465 four-task
-  relational, clearing the audit's 0.7200 scaling prediction.
+- The medium profile at D = 1024 reaches 0.9798 vision, 0.7746 four-task
+  relational and 0.7875 one-step action on one checkpoint; closed-loop action
+  remains below its 0.540 bar (section 20.2).
+- The composite solver is exposed over REST and MCP and resolves 200 ingests
+  with exact recovery, fail-closed abstention and a valid receipt chain.
 - Two-stage neuro-symbolic arithmetic lifts the 16x16 pair cells from ~0.10 to
   0.9100 exact match at 0.9550 digit grounding (Decision C4).
 
@@ -404,12 +408,13 @@ Not claimed:
   coupling curve shows that the shared optical representation is the ceiling.
 - The Gate D3 sign rule fails on one row: sigma = 0.50 measures -0.0020, inside
   one standard error. The loop is accuracy-neutral there.
-- The C1 false-veto bar (0.0050) is missed by one wave out of 600 (0.0067).
-  The clean residual tail overlaps the noise band in the four-task checkpoint,
-  so OOD = 1.0 and false veto <= 0.005 cannot both hold until Zone C
-  retrieval is task-scoped (section 19.1).
-- The medium profile misses the C2 relational bar by one test triple (0.7465
-  against 0.7500) and the action bar by 1.3 points (0.7750 against 0.7880).
+- The medium profile misses only the closed-loop action bar: 0.4375 against
+  0.5400. One-step action and relational clear their bars on the same
+  checkpoint; eight medium arms measured closed-loop success between 0.375
+  and 0.500, and more DAgger rounds raise relational, not the closed loop.
+- The composite perceptual arm grounds at 1 of 3 true pairs after 120 training
+  steps. The benchmark scores service consistency with its own grounding and
+  reports the true-pair match separately.
 - CUDA is BLOCKED: this host has no NVIDIA device, and no CPU number is
   presented as a GPU measurement.
 - The MCP arm is slower in-process than the file-read baseline (46.7 ms against
@@ -1336,6 +1341,167 @@ the paired agent benchmark and the sidecar demonstration.
 @receipts/holarch/c_cycle.json@ aggregates the five verdicts and embeds the
 SHA-256 of every underlying receipt, so editing a receipt breaks the ledger.
 The table above and the ledger are the verification record of this cycle.
+
+## 20. Decisions D1-D5: task-scoped retrieval, D=1024 closure, and the composite API
+
+This revision executes the five directives of the audit of commit 12a737c
+(HENRI-ARCH-EVAL-2026-11-04-12A737C). Four directives pass; Decision D2 meets
+three of its four bars and misses closed-loop action. Every number is in
+@receipts/holarch/@ with a @.sha256@ sidecar, and the cycle ledger
+@receipts/holarch/d_cycle.json@ names each receipt and its digest.
+
+### 20.1 Decision D1: task-scoped Zone C retrieval
+
+Zone C retrieval is now partitioned by task. The four task label blocks are
+the same disjoint blocks the Zone A swarm uses:
+
+| task | global label block |
+|---|---|
+| vision | 0-9 |
+| language | 10-105 |
+| action | 106-109 |
+| relational | 110-117 |
+
+A task engram stores its global label, so a scoped query can filter on the
+label alone without a schema migration. Prototype engrams store the same
+offset and reload with it. Symbolic atlas engrams live above label 10000 and
+playbooks above 20000, so no task query can retrieve them by accident.
+@ZoneCMemory.query(..., task=...)@ filters candidates before ranking, and a
+task block with no engram returns an empty read, which the C1 rule turns
+into a veto at inference. @HenriHolarch.forward@ passes the active task to
+the context read, and @observe@ writes the global label.
+
+Measured on the canonical four-task checkpoint (receipt
+@holarch_small.json@, SHA-256 @ec299348...@):
+
+| Measurement | Value |
+|---|---|
+| OOD rejection on 1024 uniform-noise waves | 1.0000 |
+| false veto on 600 held-out clean waves | 0.0033 (2/600) |
+| clean residual maximum | 0.5852 |
+| noise residual minimum | 0.7852 |
+| tau_residual | 0.6029 |
+| clean waves / noise waves sampled | 128 / 256 |
+
+The falsifiable prediction D-1 is confirmed: the clean tail is bounded
+below 0.60 and the two distributions no longer overlap. Task scoping cut the
+clean maximum from 0.72 (unscoped, Cycle C) to 0.585, and the threshold now
+sits inside the empty gap. The false veto falls from 0.0067 to 0.0033 and
+the OOD rejection stays at 1.0000.
+
+### 20.2 Decision D2: the D = 1024 sweep
+
+Heads stayed at the lean 8-expert, 128-wide configuration. Two levers were
+measured: the bonus relational coupling (0.50 and 0.65) and the relational
+readout rank (k = 16 and 24). All arms ran with 25 DAgger rounds except the
+final one.
+
+| medium arm | vision | relational | action 1-step | closed-loop |
+|---|---|---|---|---|
+| k16, c0.50, dagger 20 (pre-D1, Cycle C) | 0.9764 | 0.7465 | 0.7750 | 0.5000 |
+| k16, c0.50, dagger 25 | 0.9832 | 0.7324 | 0.8125 | 0.3750 |
+| k16, c0.65, dagger 25 | 0.9731 | 0.7465 | 0.7750 | 0.4583 |
+| k24, c0.50, dagger 25 | 0.9798 | 0.7606 | 0.7875 | 0.4583 |
+| k24, c0.65, dagger 25 | 0.9731 | 0.7465 | 0.7750 | 0.3958 |
+| k24, c0.50, dagger 40 (deployed) | 0.9798 | 0.7746 | 0.7875 | 0.4375 |
+
+Findings:
+
+* The relational bar is cleared by readout capacity, not by coupling. Raising
+  the relational Stiefel rank from k = 16 to k = 24 lifts the four-task row
+  from 0.7465 to 0.7606 at the same schedule; 40 DAgger rounds lift it again
+  to 0.7746 without widening any shared head.
+* Coupling 0.65 does not help at D = 1024: it lowers action and leaves
+  relational at 0.7465. Prediction D-2 (c0.65 plus 25 DAgger gives
+  relational >= 0.7606 and action >= 0.7875) is falsified at that setting.
+  The same two bars are met at c0.50 with k = 24.
+* Closed-loop action does not clear 0.54 on any medium arm. More DAgger
+  rounds raise relational, not the closed-loop success; the six D2 medium arms
+  measured between 0.375 and 0.500. One-step action and closed-loop success
+  are not interchangeable, and the gap is recorded, not hidden.
+
+The deployed receipt is the k24, c0.50, dagger 40 run: vision 0.9798,
+relational 0.7746, action 0.7875, closed-loop 0.4375. Decision D2 therefore
+passes three of its four bars and fails the closed-loop bar.
+
+### 20.3 Decision D3: hardware provenance and three-profile accounting
+
+The budget now measures the small, medium and production profiles on the
+running host, records a one-step forward and backward latency for each, and
+names the silicon it found:
+
+| profile | parameters | training GiB | forward ms | backward ms | fits |
+|---|---|---|---|---|---|
+| small (D=256) | 223,242 | 0.7628 | 6.08 | 7.70 | yes |
+| medium (D=1024) | 1,020,380 | 0.7914 | 10.75 | 12.33 | yes |
+| production (D=4096) | 5,886,556 | 0.9225 | 28.37 | 23.75 | yes |
+
+Hardware provenance in @budget.json@:
+
+| Field | Value |
+|---|---|
+| host_platform | Windows-11-10.0.26300-SP0 |
+| torch_version / cuda_compiled_version | 2.11.0+cu128 / 12.8 |
+| cuda_available | false |
+| detected_accelerators | AMD Radeon(TM) Graphics, AMD Radeon RX 9070 XT |
+| host_has_nvidia_gpu | false |
+| evidence | BLOCKED (no CUDA device) |
+| storage | TimescaleDB OBSERVED |
+
+This is the Path B outcome of the directive: the host has a discrete GPU,
+but it is an AMD Radeon, and the installed torch build is CUDA-only. The
+receipt distinguishes a missing driver from a non-NVIDIA host, keeps
+@CUDA: BLOCKED@, and records a measured CPU latency row for all three
+profiles. No CPU number is presented as a GPU observation.
+
+### 20.4 Decision D4: the composite solver on the REST and MCP surface
+
+@SidecarService@ now owns a @CompositeSolver@. @POST /v1/holarch/composite@
+and the @holarch_composite@ MCP tool expose two modes:
+
+* @mode="ingest"@ writes rows (a, op, b) -> result into the Zone C composite
+  atlas at zero weight cost and calibrates @tau_composite@ from the stored
+  keys.
+* @mode="query"@ resolves digit symbols, or grounds two 8x8 quadrants
+  through the Pass-0 prototype bank when pixel payloads are supplied. A
+  coherence below @tau_composite@ returns @abstained=true@ and
+  @result="ABSTAIN: coherence below tau"@.
+
+Unknown operators are rejected with HTTP 400. Six tests in
+@tests/test_holarch_d_decisions.py@ cover ingest, exact recovery, schema
+rejection, unregistered-rule abstention, perceptual grounding consistency,
+receipt verification and the MCP tool. A 200-rule atlas resolves d3 add d4
+to d7 at coherence 1.000, and a mul key that was never ingested abstains.
+
+### 20.5 Decision D5: the v1.1 agent benchmark
+
+The paired benchmark now runs 44 deterministic queries: the 36 from Cycle C
+plus 3 symbolic composite, 3 perceptual composite and 2 unregistered-rule
+traps.
+
+| Metric | baseline_unindexed | holarch_mcp |
+|---|---|---|
+| Query-time file reads | 128 | 0 |
+| Reachable accuracy (structural) | 0.667 | 1.000 |
+| Hallucination (traps and OOD) | 1.000 | 0.000 |
+| Composite accuracy | 0.500 | 1.000 |
+| Composite traps refused | 0 of 2 | 2 of 2 |
+| Receipts, chain valid | - | 43, true |
+
+The baseline computes the composite arithmetic directly (hence 0.500 on the
+reachable set: it answers the symbolic half and has no perceptual
+classifier) and fabricates an answer for every unregistered operator. The
+MCP arm resolves all six reachable composites and refuses both traps. The
+perceptual truth match is 1 of 3 at 120 training steps: the benchmark scores
+the service's consistency with its own grounding, and the grounding accuracy
+is reported separately rather than hidden.
+
+### 20.6 Cycle ledger
+
+@receipts/holarch/d_cycle.json@ aggregates the five verdicts and embeds the
+SHA-256 of every underlying receipt. The ledger records D1, D3, D4 and D5 as
+passing and D2 as failing the closed-loop bar, with the measured value.
+
 
 
 

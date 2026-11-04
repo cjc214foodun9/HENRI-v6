@@ -1,0 +1,139 @@
+{
+  "cycle": "D1-D5",
+  "directives": {
+    "D1": {
+      "receipt": "holarch_small.json",
+      "present": true,
+      "sha256": "ec299348fbb557fec0057786935ff7432410949d093876d0f90631d07c671ab0",
+      "checks": {
+        "ood_at_least_0_999": true,
+        "false_veto_at_most_0_005": true,
+        "clean_below_noise": true
+      },
+      "passed": true,
+      "measured": {
+        "ood_veto_rate": 1.0,
+        "false_veto_rate": 0.0033333333333333335,
+        "clean_residual_max": 0.5851518511772156,
+        "noise_residual_min": 0.7852197885513306,
+        "tau_residual": 0.6029481291770935,
+        "parameters": 223242.0
+      }
+    },
+    "D2": {
+      "receipt": "holarch_production.json",
+      "present": true,
+      "sha256": "1663649a7515c8ef612d93462c3524259edd1ee92639b07ab5dd478f6030cae6",
+      "checks": {
+        "vision_at_least_0_97": true,
+        "relational_at_least_0_75": true,
+        "action_at_least_0_7875": true,
+        "closed_loop_at_least_0_54": false
+      },
+      "passed": false,
+      "measured": {
+        "vision_accuracy": 0.9797979797979798,
+        "relational_accuracy": 0.7746478873239436,
+        "action_accuracy": 0.7875,
+        "action_success": 0.4375,
+        "dim": 1024.0,
+        "coupling": 0.5,
+        "dagger_rounds": 40.0,
+        "parameters": 1020380.0
+      }
+    },
+    "D3": {
+      "receipt": "budget.json",
+      "present": true,
+      "sha256": "65992727f9ae97a4352ebccd1a8897a9cc1209b6960e22fa209e081b127ab05e",
+      "checks": {
+        "three_profiles": true,
+        "all_profiles_fit": true,
+        "provenance_complete": true
+      },
+      "passed": true,
+      "measured": {
+        "cuda_available": false,
+        "host_has_nvidia_gpu": false,
+        "detected_accelerators": [
+          "AMD Radeon(TM) Graphics",
+          "AMD Radeon RX 9070 XT"
+        ],
+        "profiles": {
+          "small": {
+            "parameters": 223242.0,
+            "training_gib": 0.7628212049603462,
+            "fits": true,
+            "forward_ms": 6.078200007323176,
+            "backward_ms": 7.695600012084469
+          },
+          "medium": {
+            "parameters": 1020380.0,
+            "training_gib": 0.7914466336369514,
+            "fits": true,
+            "forward_ms": 10.747099993750453,
+            "backward_ms": 12.329699995461851
+          },
+          "production": {
+            "parameters": 5886556.0,
+            "training_gib": 0.9225118532776833,
+            "fits": true,
+            "forward_ms": 28.37030000227969,
+            "backward_ms": 23.74740000232123
+          }
+        }
+      }
+    },
+    "D4": {
+      "receipt": "agent_eval.json",
+      "present": true,
+      "sha256": "437bf2ddf5005326717d523cfb5c6dc36db2f898982dd271c482ec4d7176c6e6",
+      "checks": {
+        "composite_mcp_at_least_0_90": true,
+        "composite_traps_refused": true,
+        "symbolic_pair_at_least_0_85": true
+      },
+      "passed": true,
+      "measured": {
+        "composite_mcp_accuracy": 1.0,
+        "composite_baseline_accuracy": 0.5,
+        "ingested": 200.0,
+        "tau_composite": 0.9799999999999993,
+        "traps_total": 2,
+        "mcp_refused": 2,
+        "perceptual_consistency": 3,
+        "perceptual_total": 3,
+        "pair_sum": 0.955,
+        "pair_diff": 0.96
+      }
+    },
+    "D5": {
+      "receipt": "agent_eval.json",
+      "present": true,
+      "sha256": "437bf2ddf5005326717d523cfb5c6dc36db2f898982dd271c482ec4d7176c6e6",
+      "checks": {
+        "forty_four_queries": true,
+        "zero_query_reads": true,
+        "reachable_accuracy_1": true,
+        "hallucination_zero": true,
+        "receipt_chain_valid": true,
+        "agent_gate_passed": true
+      },
+      "passed": true,
+      "measured": {
+        "queries_total": 44,
+        "query_file_reads": 0.0,
+        "reachable_accuracy": 1.0,
+        "hallucination_rate": 0.0,
+        "receipts": 43.0,
+        "compression": 434.21924482338613
+      }
+    }
+  },
+  "summary": {
+    "passed": 4,
+    "total": 5,
+    "blocked": []
+  },
+  "evidence": "DERIVED"
+}

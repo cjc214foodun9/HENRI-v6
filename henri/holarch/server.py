@@ -43,6 +43,7 @@ import torch
 
 from henri.holarch.config import HolarchConfig
 from henri.holarch.sidecar import EpistemicSidecar
+from henri.holarch.symbolic import CompositeSolver
 
 GENESIS = "0" * 64
 
@@ -199,6 +200,9 @@ class SidecarService:
         self.ledger = ReceiptLedger()
         self.lock = threading.RLock()
         self.config_digest = str(self.cfg.digest())
+        # Decision D4: the composite atlas is attached to the service, so a
+        # REST or MCP caller can register and resolve multi-arity rules.
+        self.composite = CompositeSolver(self.sidecar.model.memory, self.sidecar.codebook)
 
     # ------------------------------------------------------------- plumbing
     def _envelope(self, endpoint: str, request: Any, result: Any) -> Dict[str, Any]:
@@ -220,6 +224,8 @@ class SidecarService:
                 tensor = tensor.reshape(1, -1)
             if tensor.dim() == 2 and tensor.shape[-1] == size * size:
                 tensor = tensor.reshape(-1, 1, size, size)
+            elif tensor.dim() == 2 and tuple(tensor.shape) == (size, size):
+                tensor = tensor.reshape(1, 1, size, size)
             elif tensor.dim() == 3 and tuple(tensor.shape[-2:]) == (size, size):
                 tensor = tensor.unsqueeze(1)
         elif tensor.dim() == 1:
@@ -303,6 +309,119 @@ class SidecarService:
             )
             return self._envelope("/v1/holarch/adapt_rule", request, result)
 
+
+    # ---------------------------------------------------- composite (D4)
+    @staticmethod
+    def _digit_symbol(value: Any) -> str:
+        text = str(value).strip()
+        if not text:
+            raise ValueError("empty digit operand")
+        if text.lower().startswith("d"):
+            text = text[1:]
+        if not text.isdigit() or not 0 <= int(text) <= 9:
+            raise ValueError(f"digit operand must be d0..d9, got {value!r}")
+        return f"d{int(text)}"
+
+    @staticmethod
+    def _operator(value: Any) -> str:
+        text = str(value).strip().lower()
+        aliases = {"+": "add", "add": "add", "sum": "add", "plus": "add",
+                   "-": "sub", "sub": "sub", "diff": "sub", "minus": "sub",
+                   "*": "mul", "mul": "mul", "times": "mul"}
+        if text not in aliases:
+            raise ValueError(f"operator must be add or sub, got {value!r}")
+        return aliases[text]
+
+    def _ground_operand(self, payload: Any) -> str:
+        """Stage 1: ground one 8x8 quadrant through the Pass-0 prototype bank."""
+        tensor = self._as_tensor("vision", payload)
+        with torch.no_grad():
+            psi = self.sidecar.model.encode("vision", tensor)
+            bright = self.sidecar.model.zone_b(psi).bright
+            bank = self.sidecar.model.prototype_waves("vision")
+            if int(bank.numel()):
+                labels = getattr(self.sidecar.model, "prototype_class_vision")
+                align = self.sidecar.model.zone_b.alignment(bright, bank)
+                index = int(align.argmax(dim=-1)[0])
+                return f"d{int(labels[index])}"
+            predicted = self.sidecar.model("vision", tensor, training=False).predicted()
+            return f"d{int(predicted[0])}"
+
+    def composite_call(
+        self,
+        mode: str = "query",
+        rules: Optional[Sequence[Dict[str, Any]]] = None,
+        a: Any = None,
+        b: Any = None,
+        op: Any = None,
+        x0: Any = None,
+        x1: Any = None,
+    ) -> Dict[str, Any]:
+        """Register or resolve a composite rule (Decision D4).
+
+        mode="ingest" stores (a, op, b) -> result rows at zero weight cost.
+        mode="query" accepts digit symbols or two 8x8 quadrant payloads.
+        A coherence below the calibrated threshold returns an explicit
+        ABSTAIN string, never a guess.
+        """
+        request = {
+            "mode": str(mode),
+            "rules": rules,
+            "a": a,
+            "b": b,
+            "op": op,
+            "x0": x0,
+            "x1": x1,
+        }
+        with self.lock:
+            if str(mode) == "ingest":
+                if not rules:
+                    raise ValueError("ingest needs at least one rule")
+                rows = []
+                for rule in rules:
+                    operand_a = self._digit_symbol(rule["a"])
+                    operand_b = self._digit_symbol(rule["b"])
+                    operator = self._operator(rule["op"])
+                    result = self._digit_symbol(rule["result"])
+                    rows.append(((operand_a, operator, operand_b), result))
+                written = self.composite.ingest(rows)
+                calibration = self.composite.calibrate(rows)
+                result = {
+                    "mode": "ingest",
+                    "rules_ingested": float(written),
+                    "atlas_entries": float(self.composite.entries),
+                    "tau_composite": float(calibration["tau_coherence"]),
+                }
+                return self._envelope("/v1/holarch/composite", request, result)
+
+            grounded = None
+            if x0 is not None or x1 is not None:
+                if x0 is None or x1 is None:
+                    raise ValueError("perceptual query needs both x0 and x1")
+                operand_a = self._ground_operand(x0)
+                operand_b = self._ground_operand(x1)
+                operator = self._operator(op)
+                grounded = [operand_a, operand_b, operator]
+            else:
+                operand_a = self._digit_symbol(a)
+                operand_b = self._digit_symbol(b)
+                operator = self._operator(op)
+            step = self.composite.step((operand_a, operator, operand_b))
+            abstained = bool(step["vetoed"]) or step["answer"] is None
+            answer = (
+                "ABSTAIN: coherence below tau" if abstained else str(step["answer"])
+            )
+            result = {
+                "mode": "query",
+                "result": answer,
+                "abstained": abstained,
+                "coherence": float(step["coherence"]),
+                "tau_composite": float(self.composite.tau_coherence),
+                "grounded_operands": grounded,
+                "key": [operand_a, operator, operand_b],
+            }
+            return self._envelope("/v1/holarch/composite", request, result)
+
     def health(self) -> Dict[str, Any]:
         with self.lock:
             result = {
@@ -361,9 +480,26 @@ class AdaptRuleRequest(BaseModel):
     lr: float = 0.2
 
 
+class CompositeRule(BaseModel):
+    a: Any
+    op: Any
+    b: Any
+    result: Any
+
+
+class CompositeRequest(BaseModel):
+    mode: str = Field("query", description="ingest or query")
+    rules: Optional[List[CompositeRule]] = None
+    a: Any = None
+    b: Any = None
+    op: Any = None
+    x0: Any = None
+    x1: Any = None
+
+
 def build_app(service: Optional[SidecarService] = None):
     """Build the FastAPI app. Imported lazily so the core stays light."""
-    from fastapi import FastAPI
+    from fastapi import FastAPI, HTTPException
 
     app = FastAPI(
         title="HENRI holarch epistemic sidecar",
@@ -406,6 +542,22 @@ def build_app(service: Optional[SidecarService] = None):
         return get_service().adapt_rule(
             request.task, request.x, request.y, request.rule_id, request.lr
         )
+
+    @app.post("/v1/holarch/composite")
+    def composite(request: CompositeRequest):
+        rules = None if request.rules is None else [rule.model_dump() for rule in request.rules]
+        try:
+            return get_service().composite_call(
+                mode=request.mode,
+                rules=rules,
+                a=request.a,
+                b=request.b,
+                op=request.op,
+                x0=request.x0,
+                x1=request.x1,
+            )
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
 
     @app.get("/v1/holarch/receipt")
     def receipts(limit: int = 16):

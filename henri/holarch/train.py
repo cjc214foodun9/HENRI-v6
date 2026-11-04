@@ -437,12 +437,15 @@ def memory_recall(
     waves = model.encode(task.name, batch.x).numpy()
     hits = 0
     used = 0
+    from henri.holarch.zone_c import global_label
+
+    offset = global_label(task.name, 0)
     for index, wave in enumerate(waves):
-        _, read = model.memory.context_tensor(wave, k=1)
+        _, read = model.memory.context_tensor(wave, k=1, task=task.name)
         if not read.hits:
             continue
         used += 1
-        if int(read.hits[0].label) == int(batch.y[index]):
+        if int(read.hits[0].label) - offset == int(batch.y[index]):
             hits += 1
     return {"recall_at_1": hits / max(used, 1), "n": float(used)}
 
@@ -566,12 +569,34 @@ def run_experiment(
     # Directive 2 gate: uniform pixel noise against the vision veto.
     generator = torch.Generator().manual_seed(int(cfg.seed) + 99)
     ood_rates = []
+    noise_residuals = []
     for _ in range(8):
         noise = torch.rand(32, 1, 8, 8, generator=generator)
         with torch.no_grad():
             ood = model("vision", noise, training=False)
         ood_rates.append(float(ood.veto.float().mean()))
+        noise_residuals.extend(float(v) for v in ood.delta_sagnac.cpu())
     ood_veto = float(np.mean(ood_rates))
+    # Decision D1 diagnostics: the clean and noise residual ranges that the
+    # veto separates, so the receipt records the margin instead of only the
+    # final rate.
+    clean_residuals = []
+    with torch.no_grad():
+        for _ in range(4):
+            clean_batch = tasks["vision"].sample(32, "val")
+            clean = model("vision", clean_batch.x, training=False, relax=False)
+            mask = clean.memory_mask
+            if bool(mask.any()):
+                clean_residuals.extend(float(v) for v in clean.delta_sagnac[mask].cpu())
+    veto_diagnostics = {
+        "clean_residual_max": float(np.max(clean_residuals)) if clean_residuals else 0.0,
+        "clean_residual_mean": float(np.mean(clean_residuals)) if clean_residuals else 0.0,
+        "noise_residual_min": float(np.min(noise_residuals)) if noise_residuals else 0.0,
+        "noise_residual_mean": float(np.mean(noise_residuals)) if noise_residuals else 0.0,
+        "tau_residual": float(model.veto_epsilon("vision")),
+        "clean_waves": float(len(clean_residuals)),
+        "noise_waves": float(len(noise_residuals)),
+    }
     in_dist_veto = float(metrics.get("vision_veto_rate", float("nan")))
     # Persist the attractor bank as axiomatic Zone C engrams after the
     # recall and success metrics, so the memory numbers stay comparable to
@@ -630,6 +655,7 @@ def run_experiment(
         "action_success_no_relax": success_no_relax,
         "ood_veto_rate": ood_veto,
         "in_distribution_veto_rate": in_dist_veto,
+        "veto_diagnostics": veto_diagnostics,
         "gate_d2": {
             "ood_veto_at_least_0_95": bool(ood_veto >= 0.95),
             "false_veto_at_most_0_02": bool(in_dist_veto <= 0.02),

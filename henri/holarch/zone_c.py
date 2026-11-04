@@ -68,6 +68,41 @@ DEFAULT_TABLE = "zone_c_engram_timeseries"
 _EPS = 1e-12
 TIER_AXIOMATIC = 3
 
+# Decision D1: disjoint task label blocks. The four task label blocks are the
+# same blocks the Zone A swarm uses, so a stored label identifies its task
+# without a schema change. Engrams that are not task engrams (symbolic atlas,
+# playbooks) are stored above SYMBOL_LABEL_OFFSET.
+TASK_LABEL_BLOCKS: Dict[str, Tuple[int, int]] = {
+    "vision": (0, 10),
+    "language": (10, 106),
+    "action": (106, 110),
+    "relational": (110, 118),
+}
+SYMBOL_LABEL_OFFSET = 10000
+PLAYBOOK_LABEL_OFFSET = 20000
+
+
+def task_label_block(task: str) -> Tuple[int, int]:
+    """Half-open global label block for one task."""
+    if task not in TASK_LABEL_BLOCKS:
+        raise ValueError(f"unknown task {task!r}")
+    return TASK_LABEL_BLOCKS[task]
+
+
+def global_label(task: str, local: int) -> int:
+    """Map a local class label into the task's disjoint global block."""
+    start, end = task_label_block(task)
+    value = int(local)
+    if not 0 <= value < (end - start):
+        raise ValueError(f"label {local} does not fit task {task!r}")
+    return start + value
+
+
+def local_label(task: str, label: int) -> int:
+    """Inverse of global_label."""
+    start, _ = task_label_block(task)
+    return int(label) - start
+
 
 def _unit(wave: np.ndarray) -> np.ndarray:
     arr = np.asarray(wave, dtype=np.complex64).reshape(-1)
@@ -702,8 +737,15 @@ class ZoneCMemory:
         k: int = 8,
         avoid_ids: Sequence[int] = (),
         candidate_multiplier: int = 6,
+        task: Optional[str] = None,
     ) -> MemoryRead:
-        """Retrieve the k best engrams and fuse them into one context wave."""
+        """Retrieve the k best engrams and fuse them into one context wave.
+
+        Decision D1: when task is given, only engrams whose stored label lies
+        in that task's disjoint label block are candidates. A task-scoped
+        query with no candidate in its block returns an empty read, which the
+        C1 rule turns into a veto for inference.
+        """
         start = time.perf_counter()
         query_wave = _unit(wave)
         query_gram = (self.projection @ query_wave).astype(np.complex64)
@@ -715,17 +757,39 @@ class ZoneCMemory:
                                   (time.perf_counter() - start) * 1e3, 0, True, 0.0, None)
             grams = self._grams[:size]
             ids = self._ids[:size]
+            labels = self._labels[:size]
             norms = np.linalg.norm(grams, axis=1)
             scores = np.real(grams @ np.conj(query_gram)) / np.maximum(
                 norms * (float(np.linalg.norm(query_gram)) + _EPS), _EPS
             )
             scores = np.nan_to_num(scores, nan=-1.0, posinf=-1.0, neginf=-1.0)
-            s_max = float(scores.max()) if size else 0.0
+            if task is not None:
+                lo, hi = task_label_block(task)
+                allowed = (labels >= lo) & (labels < hi)
+                if not bool(allowed.any()):
+                    self._last_query = query_wave
+                    return MemoryRead([], np.zeros(self.dim, dtype=np.complex64), 0.0,
+                                      (time.perf_counter() - start) * 1e3, 0, True, 0.0, None)
+                scores = np.where(allowed, scores, -np.inf)
             if avoid_ids:
                 blocked = np.isin(ids, np.asarray(list(avoid_ids), dtype=np.int64))
                 scores = np.where(blocked, -np.inf, scores)
-            pool = int(min(size, max(int(k) * int(candidate_multiplier), 32)))
-            candidates = np.argpartition(-scores, pool - 1)[:pool]
+            if not bool(np.isfinite(scores).any()):
+                self._last_query = query_wave
+                return MemoryRead([], np.zeros(self.dim, dtype=np.complex64), 0.0,
+                                  (time.perf_counter() - start) * 1e3, 0, True, 0.0, None)
+            s_max = float(scores.max())
+            finite = np.flatnonzero(np.isfinite(scores))
+            if finite.size == 0:
+                self._last_query = query_wave
+                return MemoryRead([], np.zeros(self.dim, dtype=np.complex64), 0.0,
+                                  (time.perf_counter() - start) * 1e3, 0, True, 0.0, None)
+            pool = int(min(finite.size, max(int(k) * int(candidate_multiplier), 32)))
+            # Decision D1: rank only the candidates that survived the task
+            # and avoid filters. Ranking the full index and truncating later
+            # would re-admit a filtered engram by its raw coherence.
+            local = np.argpartition(-scores[finite], pool - 1)[:pool]
+            candidates = finite[local]
             # Constraint C11: never rank a tie plateau with a bare argmax.
             # Sort by (score descending, engram id ascending), which is a
             # total order even when scores are exactly equal.
@@ -803,9 +867,11 @@ class ZoneCMemory:
         return int(matches[0]) if matches.size else 0
 
     # --------------------------------------------------------------- context
-    def context_tensor(self, wave: np.ndarray, k: int = 8) -> Tuple[np.ndarray, MemoryRead]:
+    def context_tensor(
+        self, wave: np.ndarray, k: int = 8, task: Optional[str] = None
+    ) -> Tuple[np.ndarray, MemoryRead]:
         """Fixed (context_tokens, context_dim) tensor at every store size."""
-        read = self.query(wave, k=k)
+        read = self.query(wave, k=k, task=task)
         tokens = int(self.cfg.context_tokens)
         if read.hits:
             chunks = read.context.reshape(tokens, self.cfg.chunk)
@@ -1094,17 +1160,33 @@ class PrototypeBank:
         }
 
     # -------------------------------------------------------------- zone c io
-    def write_to_memory(self, memory: "ZoneCMemory", tier: int = TIER_AXIOMATIC) -> int:
+    def write_to_memory(
+        self,
+        memory: "ZoneCMemory",
+        tier: int = TIER_AXIOMATIC,
+        offset: int = 0,
+    ) -> int:
         """Persist every prototype as an axiomatic Zone C engram."""
         written = 0
         for wave, label in zip(self.phi, self.labels):
-            memory.write(wave, label=int(label), tier=int(tier))
+            memory.write(wave, label=int(label) + int(offset), tier=int(tier))
             written += 1
         return written
 
-    def load_from_memory(self, memory: "ZoneCMemory") -> int:
-        """Reload the bank from the axiomatic engrams already in Zone C."""
+    def load_from_memory(
+        self,
+        memory: "ZoneCMemory",
+        offset: int = 0,
+        block: Optional[Tuple[int, int]] = None,
+    ) -> int:
+        """Reload the bank from the axiomatic engrams already in Zone C.
+
+        Decision D1: block restricts the reload to one task's global label
+        range, and offset converts a global label back to its local class id.
+        """
         rows = memory.axiomatic_engrams()
+        if block is not None:
+            rows = [row for row in rows if int(block[0]) <= int(row[1]) < int(block[1])]
         if not rows:
             self.phi = np.zeros((0, self.dim), dtype=np.complex64)
             self.labels = np.zeros(0, dtype=np.int64)
@@ -1112,7 +1194,7 @@ class PrototypeBank:
             return 0
         waves = memory._fetch([int(row[0]) for row in rows])
         kept = [
-            (wave, label)
+            (wave, int(label) - int(offset))
             for wave, (_, label) in zip(waves, rows)
             if int(wave.size) == self.dim
         ]
