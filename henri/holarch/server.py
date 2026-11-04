@@ -42,6 +42,7 @@ import numpy as np
 import torch
 
 from henri.holarch.config import HolarchConfig
+from henri.holarch.model import find_checkpoint, load_checkpoint
 from henri.holarch.sidecar import EpistemicSidecar
 from henri.holarch.symbolic import CompositeSolver
 
@@ -192,11 +193,44 @@ class SidecarService:
         backend: str = "sqlite",
         memory_path: Optional[str] = None,
         sidecar: Optional[EpistemicSidecar] = None,
+        checkpoint: Optional[str] = None,
+        autoload: bool = True,
     ) -> None:
+        # Directive E2: mount the converged checkpoint and its calibrated
+        # prototype bank by default. A fresh bootstrap is the explicit
+        # fallback, never the silent one: health() reports which weights
+        # the service is answering with and their SHA-256.
+        self.checkpoint_info: Dict[str, Any] = {"mounted": False}
+        path = None
+        if sidecar is None and (autoload or checkpoint):
+            path = find_checkpoint(cfg, explicit=checkpoint)
+        if path is not None:
+            payload = torch.load(path, map_location="cpu", weights_only=True)
+            if cfg is None:
+                cfg = HolarchConfig(**payload["config"])
+            elif int(payload.get("config", {}).get("dim", -1)) != int(cfg.dim):
+                if checkpoint:
+                    raise ValueError(
+                        f"checkpoint {path} has dim "
+                        f"{payload.get('config', {}).get('dim')} but cfg.dim is {cfg.dim}"
+                    )
+                path = None
         self.cfg = cfg or HolarchConfig.small()
         self.sidecar = sidecar or EpistemicSidecar(
             cfg=self.cfg, backend=backend, memory_path=memory_path
         )
+        if path is not None:
+            _, metadata = load_checkpoint(path, model=self.sidecar.model)
+            self.checkpoint_info = {
+                "mounted": True,
+                "path": str(path),
+                "sha256": str(metadata.get("sha256", "")),
+                "name": str(metadata.get("name", "")),
+                "parameters": int(metadata.get("parameters", 0)),
+                "config_digest": str(metadata.get("config_digest", "")),
+                "created_utc": str(metadata.get("created_utc", "")),
+                "prototypes": metadata.get("prototypes", {}),
+            }
         self.ledger = ReceiptLedger()
         self.lock = threading.RLock()
         self.config_digest = str(self.cfg.digest())
@@ -431,6 +465,7 @@ class SidecarService:
                 "receipts": float(self.ledger.count),
                 "chain_head": self.ledger.head(),
                 "chain_valid": bool(self.ledger.verify_chain()),
+                "checkpoint": dict(self.checkpoint_info),
             }
             return self._envelope("/v1/holarch/health", {}, result)
 

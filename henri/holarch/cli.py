@@ -165,7 +165,32 @@ def _detect_accelerators() -> List[str]:
                 )
         except Exception:
             pass
-    return found
+    if not found:
+        # A confined execution can deny CIM/WMI while the display class
+        # registry remains readable. The driver description names the
+        # adapter, which is the provenance this receipt needs.
+        try:
+            result = subprocess.run(
+                [
+                    "powershell",
+                    "-NoProfile",
+                    "-Command",
+                    "Get-ItemProperty 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Class\\{4d36e968-e325-11ce-bfc1-08002be10318}\\*' "
+                    "-ErrorAction SilentlyContinue | Select-Object -ExpandProperty DriverDesc",
+                ],
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+            # PowerShell can return 1 while still printing the adapter
+            # rows (a missing sibling property), so the rows are the
+            # evidence, not the exit code alone.
+            found.extend(
+                line.strip() for line in result.stdout.splitlines() if line.strip()
+            )
+        except Exception:
+            pass
+    return list(dict.fromkeys(found))
 
 
 def _step_latency(model, batch: int) -> Tuple[float, float]:

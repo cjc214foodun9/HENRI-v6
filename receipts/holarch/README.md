@@ -16,6 +16,9 @@ bytes in the sidecar `.sha256`.
 | `sidecar.json` | `python scripts/run_holarch_sidecar_demo.py --steps 120` |
 | `holarch_production.json` | `python -m henri.holarch train --steps 600 --profile medium --name holarch_production --fresh --dagger 40 --coupling 0.5` |
 | `holarch_production_k24_c0*.json` | the Decision D2 coupling and DAgger sweep |
+| `holarch_medium.json` | `python -m henri.holarch train --steps 600 --profile medium --dagger 40 --coupling 0.5 --name holarch_medium --fresh --backend sqlite` (Cycle E1) |
+| `holarch_medium.pt` | the converged E1 checkpoint, written beside the receipt and mounted by the sidecar |
+| `e_cycle.json` | `python scripts/run_holarch_e_cycle.py` (cycle E verification ledger) |
 | `d_cycle.json` | `python scripts/run_holarch_d_cycle.py` (cycle D verification ledger) |
 | `agent_eval.json` | `python scripts/run_holarch_agent_eval.py` |
 | `c_cycle.json` | `python scripts/run_holarch_c_cycle.py` (cycle C verification ledger) |
@@ -28,9 +31,11 @@ GPU timing exists, and no row may be presented as a Blackwell result. The
 budget receipt records the CUDA probe as `BLOCKED` with the probe that was
 run.
 
-The decision gates are recorded in `docs/HOLARCH.md` sections 7, 12, 14 and
-17. A gate that did not pass is written as a failure with the measured
-number. This revision closes Gate D1 strict (+0.111 mean plate margin),
+The decision gates are recorded in `docs/HOLARCH.md` sections 7, 12, 14,
+17 and 21. A gate that did not pass is written as a failure with the measured
+number. Cycle E adds `e_cycle.json`: E1 passes at closed-loop 0.7083,
+E2 passes with the mounted medium checkpoint and 44 valid receipts, and E3
+records Path B with CUDA BLOCKED. This revision closes Gate D1 strict (+0.111 mean plate margin),
 Gate D2 (OOD 1.000, false veto 0.0067), Gate D3 on the Decision A2 sign rule
 (positive at every sigma from 0.25 to 1.00) and Gate D4 (0.779 vs 0.704 and
 0.488 vs 0.406). Gate D4b is unchanged from the previous receipt. The

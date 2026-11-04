@@ -33,6 +33,7 @@ import torch
 import torch.nn.functional as F
 
 from henri.holarch.config import HolarchConfig, TASK_IDS, TASK_NAMES
+from henri.holarch.model import evaluate_closed_loop_action, save_checkpoint
 from henri.holarch.pipeline import HenriHolarch, HolarchOutput
 from henri.holarch.zone_a import ReplayBuffer
 
@@ -557,7 +558,14 @@ def run_experiment(
     metrics = evaluate(model, tasks, "val", limit=int(limits.get("val", 600)))
     test_metrics = evaluate(model, tasks, "test", limit=int(limits.get("test", 600)))
     recall = memory_recall(model, tasks["vision"], split="val", limit=200)
-    success = action_success(model, tasks["action"], episodes=48)
+    # Cycle E E1: the deployed closed-loop policy is the 1-step latent wave
+    # lookahead. The reactive arm is measured on the same 48 layouts and
+    # recorded beside it, so the delta is attributable.
+    reactive_success = action_success(model, tasks["action"], episodes=48)
+    lookahead_eval = evaluate_closed_loop_action(
+        model, tasks["action"], episodes=48, limit=20
+    )
+    success = float(lookahead_eval["success_rate"])
     success_unmasked = tasks["action"].policy_success(
         lambda observation: model.act(observation, mask_illegal=False), episodes=48
     )
@@ -602,6 +610,18 @@ def run_experiment(
     # recall and success metrics, so the memory numbers stay comparable to
     # the previous revision and the store is still the home of the bank.
     prototype_writes = model.store_prototypes() if hasattr(model, "store_prototypes") else {}
+    # Cycle E: the converged weights and the calibrated prototype bank are
+    # written beside the receipt, so the sidecar can mount exactly the model
+    # this receipt measured instead of bootstrapping a new one.
+    checkpoint = save_checkpoint(
+        model,
+        Path(output_dir) / f"{receipt_name}.pt",
+        cfg=cfg,
+        name=receipt_name,
+        train_config=asdict(train_config),
+        metrics={**metrics, **test_metrics, "action_success": success},
+        seed=int(cfg.seed if seed is None else seed),
+    )
     budget = budget_report(model, train_config.batch_size, cfg)
     elapsed = time.perf_counter() - start
 
@@ -640,6 +660,7 @@ def run_experiment(
         "calibration": calibration,
         "prototypes": prototypes,
         "prototype_writes": prototype_writes,
+        "checkpoint": checkpoint,
         "proto_alpha": float(model.proto_alpha.detach()),
         "relax_mode": str(cfg.relax_mode),
         "relational_binding": str(cfg.relational_binding),
@@ -651,6 +672,8 @@ def run_experiment(
         "test": test_metrics,
         "memory": recall,
         "action_success": success,
+        "action_success_reactive": reactive_success,
+        "closed_loop_lookahead": lookahead_eval,
         "action_success_unmasked": success_unmasked,
         "action_success_no_relax": success_no_relax,
         "ood_veto_rate": ood_veto,

@@ -37,7 +37,6 @@ from typing import Any, Dict, List, Optional
 
 from mcp.server.fastmcp import FastMCP
 
-from henri.holarch.config import HolarchConfig
 from henri.holarch.server import SidecarService
 
 mcp = FastMCP(
@@ -58,8 +57,10 @@ def service() -> SidecarService:
     if _SERVICE is None:
         backend = os.environ.get("HENRI_SIDECAR_BACKEND", "sqlite")
         path = os.environ.get("HENRI_SIDECAR_PATH") or None
-        cfg = HolarchConfig.small()
-        _SERVICE = SidecarService(cfg=cfg, backend=backend, memory_path=path)
+        # Directive E2: a service built without a pinned profile mounts the
+        # converged checkpoint that matches the host, rather than forcing a
+        # fresh 120-step small bootstrap.
+        _SERVICE = SidecarService(backend=backend, memory_path=path)
     return _SERVICE
 
 

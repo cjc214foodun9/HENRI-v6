@@ -292,6 +292,9 @@ the ablation measured nothing.
 | D6 | unseen rule graph, multi-hop, zero weight change | 1/2/3-hop 1.000; unreachable refused 1.000 | PASS |
 | D7 | sidecar veto + structural index + playbook | OOD 1.000, 538 call edges, playbook exact 1.000 | PASS |
 | D4b | gated plasticity drift <= 0.005 and context rule switching above Fano | drift 0.000; combined rule accuracy 0.942 against 0.483 | PASS |
+| E1 | closed-loop action >= 0.5400 (target 0.5600); one-step >= 0.7800; relational >= 0.7600; vision >= 0.9750 | closed 0.7083 (reactive 0.4583); one-step 0.7875; relational 0.7746; vision 0.9798 | PASS (21.1) |
+| E2 | sidecar mounts the converged checkpoint; 3/3 perceptual truth, 3/3 consistency, composite 1.000, 2/2 traps, 0 query reads, 44 valid receipts | all met; checkpoint 1,020,380 parameters, 0 reads, 44 receipts | PASS (21.2) |
+| E3 | Path B provenance; CUDA BLOCKED; no CPU number presented as a GPU result | cuda false, device count 0, device cpu, CUDA peak 0.0 GiB | PASS (21.3) |
 
 ## 8. Continuous learning
 
@@ -1502,6 +1505,177 @@ is reported separately rather than hidden.
 SHA-256 of every underlying receipt. The ledger records D1, D3, D4 and D5 as
 passing and D2 as failing the closed-loop bar, with the measured value.
 
+## 21. Decisions E1-E3: closed-loop closure, the converged sidecar, and Path B
 
+This revision executes the three engineering directives of the Cycle E audit
+of commit `df83708`. E1 closes closed-loop action at D = 1024, E2 mounts the
+converged checkpoint in the sidecar, and E3 records the hardware provenance
+without presenting a CPU number as a GPU observation. Every number is in
+`receipts/holarch/` with a `.sha256` sidecar, and the cycle ledger
+`receipts/holarch/e_cycle.json` names each receipt and its digest.
 
+### 21.1 Decision E1: the 1-step latent wave lookahead
 
+The previous tree had one closed-loop path: `HenriHolarch.act` chose the
+argmax action logit with a wall mask, and `action_success` executed it. There
+was no transition model. `henri/holarch/model.py` now owns the evaluator
+`evaluate_closed_loop_action`, and `train.run_experiment` calls it for the
+deployed `action_success` field. The reactive arm is measured on the same 48
+layouts and stored as `action_success_reactive`, so the delta is attributable.
+
+The lookahead uses a four-slot sensor wave at D = 1024:
+
+| slot | content |
+|---|---|
+| 0 | local 5x5 wall map |
+| 1 | local 5x5 goal map |
+| 2 | agent marker at the window centre |
+| 3 | goal-offset wave packet, a Gaussian on the 16x16 torus |
+
+An action is circular convolution with the action's delta kernel:
+
+    psi_next(a) = normalize(psi_t (*) psi_action(a))
+    align_goal(a) = Re<slot3(psi_next(a)), slot3(psi_goal)>
+    penalty_cycle(a) = max_tau 0.85^tau Re<psi_next(a), psi_{t-tau}>
+    score(a) = y_action(a) + 0.40 * align_goal(a) - 0.60 * penalty_cycle(a)
+
+The ring buffer holds the last four visited waves. The goal packet is a
+smooth packet, not a delta: a delta makes every non-centre shift tie at zero,
+and the measured three-way tie produced a 0.3958 closed-loop arm. The packet
+gives a monotone reduction in distance and the lookahead gains a gradient.
+The two wave terms are standardised across the four candidates before the
+declared 0.40 and 0.60 weights are applied. A raw dot product of unit waves
+spans a few hundredths, while a logit spans order one; without the
+standardisation the coefficients would be arithmetically present and
+behaviourally inert. The learned action head remains the source of
+`y_action`; the transition and the goal attractor run on the explicit sensor
+frame, because that frame carries the physical shift operator.
+
+The measured fresh run is the k24, coupling 0.50, 40-DAgger medium profile:
+
+| measurement | value | bar | verdict |
+|---|---|---|---|
+| vision accuracy (test) | 0.9798 | >= 0.9750 | PASS |
+| relational accuracy (test) | 0.7746 | >= 0.7600 | PASS |
+| one-step action (test) | 0.7875 | >= 0.7800 | PASS |
+| closed-loop, reactive | 0.4583 (22/48) | - | baseline |
+| closed-loop, lookahead | 0.7083 (34/48) | >= 0.5400, target 0.5600 | PASS |
+| mean steps to goal (wins) | 5.29 | - | - |
+
+The lookahead therefore clears the 0.5400 bar and the 0.5600 target, and it
+beats the same checkpoint's reactive arm by 0.2500. The checkpoint is
+`receipts/holarch/holarch_medium.pt`, 1,020,380 parameters, SHA-256
+`59896acefed669ffee19aa2fb59dd22df5f633c6f353c27cef95d7ccd484c3e8`. The
+training run used `--fresh --backend sqlite`; the receipt records zero
+pre-existing engrams, so the score is not carried by an older store.
+
+### 21.2 Decision E2: the converged checkpoint in the sidecar
+
+`henri/holarch/model.py` writes a checkpoint beside the training receipt. It
+contains the state dict (weights, calibrated veto buffers, and the registered
+prototype tensors), the prototype metadata including the calibrated beta, the
+configuration and its digest, the seed, and the parameter count. Loading
+resizes the empty prototype buffers before a strict state-dict load, then
+restores the numpy bank and beta from the metadata.
+
+`SidecarService.__init__` now mounts the matching converged checkpoint by
+default. It selects by wave dimension, never crosses a 256/1024 mismatch, and
+records the mounted path, SHA-256, parameter count and creation time in
+`health()`. `mcp_server.service()` no longer pins the small profile, so the
+stdio and SSE servers mount the same converged weights as the REST service.
+An explicit `checkpoint=` path still wins, and `autoload=False` forces a fresh
+bootstrap.
+
+`scripts/run_holarch_agent_eval.py` defaults to zero extra training steps when
+a checkpoint is mounted. Its perceptual queries are four-digit 16x16 canvases;
+the two informative 8x8 quadrants are grounded through the mounted Pass-0
+prototype bank, and the other two carry no label. The benchmark still indexes
+the package once and then answers every structural query from Zone C.
+
+| metric | measured |
+|---|---|
+| checkpoint mounted | true (1,020,380 parameters) |
+| perceptual true-pair match | 3 of 3 (1.000) |
+| service consistency | 3 of 3 (1.000) |
+| composite accuracy | 1.000 (6 of 6 reachable) |
+| unregistered-operator traps refused | 2 of 2 |
+| query-time file reads | 0 |
+| receipts, chain valid | 44, true (ledger length 45) |
+| reachable accuracy | 1.000 |
+| hallucination rate | 0.000 |
+| baseline reads / bytes | 136 / 3,060,944 |
+| context compression | 455.8x |
+
+The perceptual queries are deterministic. Grounding accuracy on the 300 held-out
+8x8 digits from the benchmark's split is 0.9933, and the three selected pairs
+ground all six digits correctly. This replaces the 120-step bootstrap that
+scored 1 of 3 and removes the bootstrap from the default path.
+
+### 21.3 Decision E3: Path B and CUDA BLOCKED
+
+The budget command measures all three profiles on the host that is running
+and records the silicon the host actually exposes. The result is Path B:
+
+| field | value |
+|---|---|
+| path | B |
+| host_platform | Windows-11-10.0.26300-SP0 |
+| torch_version / cuda_compiled_version | 2.11.0+cu128 / 12.8 |
+| cuda_available | false |
+| cuda device count | 0 |
+| evidence | BLOCKED |
+| detected adapters | AMD Radeon(TM) Graphics, AMD Radeon RX 9070 XT, NVIDIA GeForce RTX 5070 Ti |
+| measured device | cpu |
+| CUDA peak allocated | 0.0 GiB |
+| storage | TimescaleDB OBSERVED |
+
+The display-class registry enumerates an NVIDIA adapter, but torch reports no
+CUDA device, so CUDA remains BLOCKED. The receipt does not convert that
+adapter into a GPU observation. VAST.AI remains the optional remote CUDA
+route; this cycle did not rent an instance, so no remote verification number
+is claimed. Every latency row is a CPU measurement:
+
+| profile | parameters | training GiB | forward ms | backward ms | fits |
+|---|---|---|---|---|---|
+| small (D=256) | 223,242 | 0.7628 | 3.63 | 3.31 | yes |
+| medium (D=1024) | 1,020,380 | 0.7914 | 8.02 | 8.68 | yes |
+| production (D=4096) | 5,886,556 | 0.9225 | 14.92 | 14.55 | yes |
+
+No CPU number in this section is presented as a GPU result. The budget receipt
+is `receipts/holarch/budget.json`, SHA-256
+`2894bd77dbe7daca117fca344a5990ea8d1aaeb906d321944237e7bf526e2855`.
+
+### 21.4 Cycle ledger
+
+`receipts/holarch/e_cycle.json` aggregates E1, E2 and E3 and embeds the
+SHA-256 of each underlying receipt. All three verdicts pass. The ledger's own
+SHA-256 is `9ab60c3bd282ff63bfbd8b9ec98d96aa0c676d8bc9213ed4db2e055707563a2f`.
+The underlying receipts are:
+
+| receipt | SHA-256 |
+|---|---|
+| `holarch_medium.json` | `a7142aa8a22a5d7806cf6f0c3cda9d9ced13d19195369a4004e3532bc709c2e3` |
+| `holarch_medium.pt` | `59896acefed669ffee19aa2fb59dd22df5f633c6f353c27cef95d7ccd484c3e8` |
+| `agent_eval.json` | `6bb9226ea6186f8a367d260c2662d9e61af07691bdd31b3bba6c2a74b55f8659` |
+| `budget.json` | `2894bd77dbe7daca117fca344a5990ea8d1aaeb906d321944237e7bf526e2855` |
+| `symbolic.json` | `f602f6eeaebb7dcb88a735aa7734b66378337053cb717993c12e69c30f6f129a` |
+
+### 21.5 Verification matrix
+
+| command | result |
+|---|---|
+| `pytest tests -q -k holarch` | 114 passed; the MCP stdio subprocess test is blocked at Windows named-pipe creation by the DSH confinement (WinError 5), not by an assertion |
+| `pytest tests -q -k "holarch and not mcp_stdio_subprocess"` | 114 passed, exit 0 |
+| `python -m henri.holarch selftest` | 7 of 7 checks |
+| `python -m henri.holarch budget` | 3 profiles fit, CUDA BLOCKED, CPU device |
+| `python scripts/run_holarch_symbolic.py --seeds 3` | gate passed; 1/2/3-hop 1.000; pair sum 0.935, pair diff 0.940 |
+| `python scripts/run_holarch_agent_eval.py` | 44 of 44 queries, gate passed, 0 reads, 44 receipts, chain valid |
+
+The confined test runner cannot allocate pytest's temp directories with its
+default `os.scandir` path and cannot create the named pipe the stdio client
+needs. The first was handled with a test-runner shim that uses a plain
+`mkdir` allocator; the second is the documented DSH named-pipe boundary. The
+MCP tool table, the REST surface, every non-transport test, and the paired
+agent benchmark all pass in the confined process. An unconfined rerun is the
+only way to exercise the stdio transport; it was not available in this
+session.

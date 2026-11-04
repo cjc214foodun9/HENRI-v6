@@ -1,6 +1,39 @@
 {
-  "config_digest": "1ede658ba058f712",
-  "train_steps": 120,
+  "config_digest": "ef06b94f9326e40a",
+  "config_dim": 1024,
+  "train_steps": 0,
+  "checkpoint": {
+    "mounted": true,
+    "path": "receipts\\holarch\\holarch_medium.pt",
+    "sha256": "59896acefed669ffee19aa2fb59dd22df5f633c6f353c27cef95d7ccd484c3e8",
+    "parameters": 1020380,
+    "prototypes": {
+      "vision": {
+        "prototypes": 10.0,
+        "prototype_beta": 4.396588278841839,
+        "prototype_beta_calibrated": 1.0,
+        "prototype_beta_star_refused": 26.1
+      },
+      "language": {
+        "prototypes": 45.0,
+        "prototype_beta": 24.26012382958556,
+        "prototype_beta_calibrated": 1.0,
+        "prototype_beta_star_refused": 26.1
+      },
+      "action": {
+        "prototypes": 4.0,
+        "prototype_beta": 9.139434227985282,
+        "prototype_beta_calibrated": 1.0,
+        "prototype_beta_star_refused": 26.1
+      },
+      "relational": {
+        "prototypes": 8.0,
+        "prototype_beta": 24.26645751815495,
+        "prototype_beta_calibrated": 1.0,
+        "prototype_beta_star_refused": 26.1
+      }
+    }
+  },
   "queries_total": 44,
   "query_mix": {
     "code_call_flow": 8,
@@ -13,18 +46,18 @@
     "composite_traps": 2
   },
   "code_index": {
-    "seconds": 0.7780433000007179,
-    "files": 16.0,
-    "lines": 8711.0,
-    "nodes": 277.0,
-    "edges": 586.0,
+    "seconds": 0.764933700003894,
+    "files": 17.0,
+    "lines": 9332.0,
+    "nodes": 289.0,
+    "edges": 613.0,
     "edges_ingested": 72.0
   },
   "baseline_unindexed": {
-    "query_file_reads": 128,
-    "bytes_read_at_query_time": 2851952,
+    "query_file_reads": 136,
+    "bytes_read_at_query_time": 3060944,
     "response_bytes": 868,
-    "latency_ms_total": 30.223599969758652,
+    "latency_ms_total": 26.367800019215792,
     "reachable_accuracy": 0.6666666666666666,
     "hallucination_rate": 1.0,
     "playbook_exact": 0.0
@@ -32,25 +65,26 @@
   "holarch_mcp": {
     "query_file_reads": 0,
     "bytes_read_at_query_time": 0,
-    "response_bytes": 6568,
-    "latency_ms_total": 42.8515000094194,
+    "response_bytes": 6716,
+    "latency_ms_total": 44.62380007316824,
     "reachable_accuracy": 1.0,
     "hallucination_rate": 0.0,
     "playbook_exact": 1.0,
-    "receipts": 43,
+    "receipts": 44,
+    "receipt_chain_length": 45,
     "receipt_chain_valid": true,
     "receipts_valid": true
   },
-  "context_compression_ratio": 434.21924482338613,
+  "context_compression_ratio": 455.7689100655152,
   "composite": {
     "ingested": 200.0,
-    "tau_composite": 0.9799999999999993,
+    "tau_composite": 0.9799999999999989,
     "reachable_total": 6,
     "mcp_accuracy": 1.0,
     "baseline_accuracy": 0.5,
     "perceptual_total": 3,
     "perceptual_consistency": 3,
-    "perceptual_truth_match": 1,
+    "perceptual_truth_match": 3,
     "traps_total": 2,
     "mcp_refused": 2,
     "baseline_hallucinated": 2

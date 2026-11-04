@@ -12,8 +12,8 @@
       "activation_bytes_training": 1773416.0,
       "measured_device": "cpu",
       "cuda_peak_allocated_gib": 0.0,
-      "forward_ms": 6.078200007323176,
-      "backward_ms": 7.695600012084469
+      "forward_ms": 3.6293000011937693,
+      "backward_ms": 3.308300001663156
     },
     "medium": {
       "dim": 1024.0,
@@ -27,8 +27,8 @@
       "activation_bytes_training": 10875400.0,
       "measured_device": "cpu",
       "cuda_peak_allocated_gib": 0.0,
-      "forward_ms": 10.747099993750453,
-      "backward_ms": 12.329699995461851
+      "forward_ms": 8.020199995371513,
+      "backward_ms": 8.678099999087863
     },
     "production": {
       "dim": 4096.0,
@@ -42,8 +42,8 @@
       "activation_bytes_training": 49105256.0,
       "measured_device": "cpu",
       "cuda_peak_allocated_gib": 0.0,
-      "forward_ms": 28.37030000227969,
-      "backward_ms": 23.74740000232123
+      "forward_ms": 14.920699992217124,
+      "backward_ms": 14.549100000294857
     }
   },
   "profile": "production",
@@ -71,9 +71,10 @@
     "device_name": "",
     "detected_accelerators": [
       "AMD Radeon(TM) Graphics",
-      "AMD Radeon RX 9070 XT"
+      "AMD Radeon RX 9070 XT",
+      "NVIDIA GeForce RTX 5070 Ti"
     ],
-    "host_has_nvidia_gpu": false,
+    "host_has_nvidia_gpu": true,
     "evidence": "BLOCKED",
     "reason": "no CUDA device is visible to torch; see detected_accelerators",
     "cuda_peak_allocated_gib": 0.0

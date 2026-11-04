@@ -57,14 +57,14 @@
     }
   },
   "code_index": {
-    "files_parsed": 16.0,
-    "lines_parsed": 8710.0,
-    "parse_seconds": 0.09229340001184028,
-    "call_edges": 586.0,
-    "functions": 277.0,
+    "files_parsed": 17.0,
+    "lines_parsed": 9331.0,
+    "parse_seconds": 0.08577660001174081,
+    "call_edges": 614.0,
+    "functions": 289.0,
     "present_coherence_median": 1.0,
-    "absent_coherence_median": 0.11038972900986023,
-    "threshold": 0.5551948645049302,
+    "absent_coherence_median": 0.10883664605160712,
+    "threshold": 0.5544183230258035,
     "recall": 1.0,
     "false_accept": 0.0,
     "file_reads_at_query_time": 0.0
@@ -77,18 +77,18 @@
     "exact_recovery": 1.0
   },
   "composition": {
-    "grounding_accuracy": 0.9775,
+    "grounding_accuracy": 0.9675,
     "n": 200.0,
     "tau_coherence": 0.9799999999999993,
     "atlas_coherence_median": 1.0,
     "pair_sum": {
-      "accuracy": 0.955,
+      "accuracy": 0.935,
       "refused": 0.0,
       "n": 200.0,
       "operator": "add"
     },
     "pair_diff": {
-      "accuracy": 0.96,
+      "accuracy": 0.94,
       "refused": 0.0,
       "n": 200.0,
       "operator": "sub"

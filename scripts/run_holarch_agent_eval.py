@@ -38,6 +38,7 @@ import torch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from henri.holarch.config import HolarchConfig
+from henri.holarch.model import find_checkpoint
 from henri.holarch.server import SidecarService, verify_receipt
 from henri.holarch.symbolic import Edge, SymbolicTopologyTask, index_code
 from henri.holarch.tasks import build_tasks
@@ -225,29 +226,45 @@ def _pixels(batch: int, seed: int) -> List[List[List[float]]]:
 
 def run_agent_eval(
     root: Path = CODE_ROOT,
-    train_steps: int = 120,
+    train_steps: int = 0,
     workdir: Optional[Path] = None,
     seed: int = 20261103,
 ) -> Dict[str, object]:
-    """Run both arms on one query set and return the measured payload."""
-    cfg = HolarchConfig.small(seed=int(seed), fast_gate=True)
+    """Run both arms on one query set and return the measured payload.
+
+    Directive E2: when a converged checkpoint is present, the service
+    mounts it and the benchmark does not bootstrap 120 fresh steps. A
+    caller that asks for extra steps still gets them, on top of the
+    converged weights, which is the continual-learning case rather than
+    the default.
+    """
+    checkpoint = find_checkpoint(None)
+    if checkpoint is not None:
+        payload = torch.load(checkpoint, map_location="cpu", weights_only=True)
+        cfg = HolarchConfig(**payload["config"])
+    else:
+        cfg = HolarchConfig.small(seed=int(seed), fast_gate=True)
+        if int(train_steps) == 0:
+            train_steps = 120
     torch.manual_seed(cfg.seed)
-    tasks = build_tasks(cfg)
+    tasks = build_tasks(cfg, seed=int(seed))
     memory_path = Path(workdir or tempfile.gettempdir()) / f"henri_agent_eval_{int(time.time())}.sqlite3"
     if memory_path.exists():
         memory_path.unlink()
     service = SidecarService(cfg=cfg, backend="sqlite", memory_path=str(memory_path))
+    mounted = bool(service.checkpoint_info.get("mounted", False))
     trainer = Trainer(service.sidecar.model, tasks, TrainConfig(steps_per_task=1, batch_size=32))
-    for _ in range(int(train_steps)):
-        trainer.step("vision")
-    batches = [tasks["vision"].sample(32, "val").x for _ in range(8)]
-    service.sidecar.model.calibrate_two_condition("vision", batches, ceiling=0.98)
-    service.sidecar.model.calibrate_prototypes(
-        "vision", [tasks["vision"].sample(64, "train") for _ in range(2)]
-    )
-    service.sidecar.model.calibrate_gate(
-        "vision", [tasks["vision"].sample(32, "val").x for _ in range(4)]
-    )
+    if int(train_steps) > 0:
+        for _ in range(int(train_steps)):
+            trainer.step("vision")
+        batches = [tasks["vision"].sample(32, "val").x for _ in range(8)]
+        service.sidecar.model.calibrate_two_condition("vision", batches, ceiling=0.98)
+        service.sidecar.model.calibrate_prototypes(
+            "vision", [tasks["vision"].sample(64, "train") for _ in range(4)]
+        )
+        service.sidecar.model.calibrate_gate(
+            "vision", [tasks["vision"].sample(32, "val").x for _ in range(4)]
+        )
     service.sidecar.model.eval()
 
     queries = build_queries(root)
@@ -285,6 +302,12 @@ def run_agent_eval(
     mcp_latency = 0.0
     mcp_response_bytes = 0
     receipts: List[dict] = []
+
+    # The ingest receipt is part of the chain: 44 receipts for 44 query
+    # slots, every one verifiable, rather than 43 responses plus an
+    # uncommitted index call.
+    if code_index.get("receipt"):
+        receipts.append(code_index["receipt"])
 
     for query in queries["code"]:
         truth = query["truth"]
@@ -393,16 +416,24 @@ def run_agent_eval(
     generator = np.random.default_rng(seed)
     perceptual_queries = []
     for index in range(3):
-        first = int(generator.integers(0, len(digit_images)))
-        second = int(generator.integers(0, len(digit_images)))
-        d0, d1 = int(digit_labels[first]), int(digit_labels[second])
+        # Directive E2: the perceptual query is a real 16x16 four-digit
+        # canvas. The two informative quadrants are grounded through the
+        # converged Pass-0 prototype bank; the two distractor quadrants
+        # carry no label and are not queried.
+        picks = generator.integers(0, len(digit_images), size=4)
+        canvas = np.zeros((16, 16), dtype=np.float32)
+        for slot, pick in enumerate(picks):
+            row = (slot // 2) * 8
+            column = (slot % 2) * 8
+            canvas[row : row + 8, column : column + 8] = digit_images[int(pick)]
+        d0, d1 = int(digit_labels[int(picks[0])]), int(digit_labels[int(picks[1])])
         operator = "add" if index % 2 == 0 else "sub"
         truth = (d0 + d1) % 10 if operator == "add" else abs(d0 - d1)
         perceptual_queries.append(
             {
                 "kind": "perceptual",
-                "x0": torch.from_numpy(digit_images[first]).tolist(),
-                "x1": torch.from_numpy(digit_images[second]).tolist(),
+                "x0": canvas[0:8, 0:8].reshape(-1).tolist(),
+                "x1": canvas[0:8, 8:16].reshape(-1).tolist(),
                 "op": operator,
                 "truth": f"d{truth}",
             }
@@ -509,7 +540,15 @@ def run_agent_eval(
 
     payload = {
         "config_digest": cfg.digest(),
+        "config_dim": int(cfg.dim),
         "train_steps": int(train_steps),
+        "checkpoint": {
+            "mounted": mounted,
+            "path": str(service.checkpoint_info.get("path", "")),
+            "sha256": str(service.checkpoint_info.get("sha256", "")),
+            "parameters": int(service.checkpoint_info.get("parameters", 0)),
+            "prototypes": service.checkpoint_info.get("prototypes", {}),
+        },
         "queries_total": int(
             len(queries["code"])
             + len(queries["graph"])
@@ -567,6 +606,7 @@ def run_agent_eval(
             ),
             "playbook_exact": float(score["holarch_mcp"]["playbook_exact"]),
             "receipts": int(len(receipts)),
+            "receipt_chain_length": int(service.ledger.count),
             "receipt_chain_valid": chain_valid,
             "receipts_valid": receipts_valid,
         },
@@ -617,7 +657,12 @@ def run_agent_eval(
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", default=str(CODE_ROOT))
-    parser.add_argument("--steps", type=int, default=120)
+    parser.add_argument(
+        "--steps",
+        type=int,
+        default=0,
+        help="extra vision steps on top of the mounted checkpoint (0 = converged weights only)",
+    )
     parser.add_argument("--out", default="receipts/holarch/agent_eval.json")
     args = parser.parse_args()
 

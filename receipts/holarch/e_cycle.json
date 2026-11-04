@@ -1,0 +1,143 @@
+{
+  "cycle": "E1-E3",
+  "directives": {
+    "E1": {
+      "receipt": "holarch_medium.json",
+      "present": true,
+      "sha256": "a7142aa8a22a5d7806cf6f0c3cda9d9ced13d19195369a4004e3532bc709c2e3",
+      "checks": {
+        "closed_loop_at_least_0_54": true,
+        "closed_loop_target_0_56": true,
+        "one_step_at_least_0_78": true,
+        "relational_at_least_0_76": true,
+        "vision_at_least_0_975": true,
+        "lookahead_beats_reactive": true
+      },
+      "passed": true,
+      "measured": {
+        "vision_accuracy": 0.9797979797979798,
+        "relational_accuracy": 0.7746478873239436,
+        "one_step_accuracy": 0.7875,
+        "closed_loop_success": 0.7083333333333334,
+        "closed_loop_target": 0.56,
+        "reactive_success": 0.4583333333333333,
+        "lookahead": {
+          "success_rate": 0.7083333333333334,
+          "wins": 34,
+          "episodes": 48,
+          "reactive_success_rate": 0.4583333333333333,
+          "reactive_wins": 22,
+          "one_step_accuracy": 0.8125,
+          "one_step_n": 80,
+          "mean_steps_to_goal": 5.294117647058823,
+          "goal_weight": 0.4,
+          "cycle_weight": 0.6,
+          "history": 4,
+          "sensor_grid": 16,
+          "goal_sigma": 1.6,
+          "evidence": "OBSERVED"
+        },
+        "dim": 1024.0,
+        "parameters": 1020380.0,
+        "dagger_rounds": 40.0,
+        "coupling": 0.5,
+        "checkpoint_sha256": "59896acefed669ffee19aa2fb59dd22df5f633c6f353c27cef95d7ccd484c3e8"
+      }
+    },
+    "E2": {
+      "receipt": "agent_eval.json",
+      "present": true,
+      "sha256": "6bb9226ea6186f8a367d260c2662d9e61af07691bdd31b3bba6c2a74b55f8659",
+      "checks": {
+        "checkpoint_mounted": true,
+        "perceptual_truth_3_of_3": true,
+        "service_consistency_3_of_3": true,
+        "composite_accuracy_1_0": true,
+        "traps_refused_2_of_2": true,
+        "zero_query_reads": true,
+        "receipt_chain_valid": true,
+        "receipts_at_least_44": true,
+        "queries_44": true
+      },
+      "passed": true,
+      "measured": {
+        "queries_total": 44,
+        "checkpoint": {
+          "mounted": true,
+          "path": "receipts\\holarch\\holarch_medium.pt",
+          "sha256": "59896acefed669ffee19aa2fb59dd22df5f633c6f353c27cef95d7ccd484c3e8",
+          "parameters": 1020380
+        },
+        "perceptual_truth_match": 3,
+        "perceptual_total": 3,
+        "perceptual_consistency": 3,
+        "composite_accuracy": 1.0,
+        "traps_total": 2,
+        "traps_refused": 2,
+        "query_file_reads": 0.0,
+        "receipts": 44,
+        "receipt_chain_valid": true
+      }
+    },
+    "E3": {
+      "receipt": "budget.json",
+      "present": true,
+      "sha256": "2894bd77dbe7daca117fca344a5990ea8d1aaeb906d321944237e7bf526e2855",
+      "checks": {
+        "cuda_blocked": true,
+        "cuda_evidence_blocked": true,
+        "adapters_enumerated": true,
+        "amd_host_named": true,
+        "three_profiles_measured": true,
+        "all_profiles_fit": true,
+        "no_gpu_number_claimed": true
+      },
+      "passed": true,
+      "measured": {
+        "path": "B",
+        "path_meaning": "local AMD host; CUDA build cannot see a device; CPU measurements only",
+        "cuda_available": false,
+        "cuda_device_count": 0,
+        "host_has_nvidia_gpu": true,
+        "cuda_evidence": "BLOCKED",
+        "torch_version": "2.11.0+cu128",
+        "cuda_compiled_version": "12.8",
+        "detected_accelerators": [
+          "AMD Radeon(TM) Graphics",
+          "AMD Radeon RX 9070 XT",
+          "NVIDIA GeForce RTX 5070 Ti"
+        ],
+        "device": "cpu",
+        "profiles": {
+          "small": {
+            "parameters": 223242.0,
+            "training_gib": 0.7628212049603462,
+            "forward_ms": 3.6293000011937693,
+            "backward_ms": 3.308300001663156,
+            "fits": true
+          },
+          "medium": {
+            "parameters": 1020380.0,
+            "training_gib": 0.7914466336369514,
+            "forward_ms": 8.020199995371513,
+            "backward_ms": 8.678099999087863,
+            "fits": true
+          },
+          "production": {
+            "parameters": 5886556.0,
+            "training_gib": 0.9225118532776833,
+            "forward_ms": 14.920699992217124,
+            "backward_ms": 14.549100000294857,
+            "fits": true
+          }
+        }
+      }
+    }
+  },
+  "summary": {
+    "passed": 3,
+    "total": 3,
+    "blocked": []
+  },
+  "evidence": "DERIVED"
+}
