@@ -3225,12 +3225,12 @@ passage-by-term BM25 matrix. The per-passage loop is retained as
 | passages | 848 |
 | terms | 3,109 |
 | top-4 parity with the reference loop | 10/10 claims |
-| matrix p50 / p95 | 0.212 ms / 0.318 ms |
-| Python loop p50 / p95 | 1.206 ms / 1.836 ms |
-| speedup p50 / p95 | 5.69x / 5.78x |
+| matrix p50 / p95 | 0.171 ms / 0.227 ms |
+| Python loop p50 / p95 | 1.104 ms / 1.236 ms |
+| speedup p50 / p95 | 6.44x / 5.45x |
 | concurrent reads, 16 threads x 8 | 128/128, 0 errors |
 | receipt chain under concurrency | valid |
-| service read p50 / p95 | 729.0 ms / 2,265.0 ms |
+| service read p50 / p95 | 748.7 ms / 2,269.8 ms |
 | export/import bundle records | 3 (ledger, tier-2 map, one plan) |
 
 **Receipt:** `k4_rebase_and_concurrency.json`.
@@ -3296,7 +3296,7 @@ probes.
    bodies with scoped names and several arguments.
 8. **The BM25 speedup is per-call, on this host.** `np.matmul` releases the
    GIL, but the torch-backed zone A/C read paths dominate end-to-end service
-   latency (729.0 ms p50 at 16 concurrent threads). The 5.69x is the ranking
+   latency (748.7 ms p50 at 16 concurrent threads). The 6.44x is the ranking
    kernel on the docstring corpus, not the API.
 9. **Concurrency is not throughput scaling.** 128 requests completed with zero
    errors and one valid chain; the p95 latency under 16-way contention is

@@ -827,10 +827,10 @@
     ]
   },
   "corpus": {
-    "corpus_digest": "66be351b98ef08fa",
+    "corpus_digest": "8e244d718d4ab686",
     "vocabulary_size": 2048,
     "vocabulary_digest": "d5a64f73b97c6aab",
-    "tokens": 490918,
+    "tokens": 491093,
     "files": 24,
     "vocab_locked": true,
     "vocab_ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
@@ -854,6 +854,6 @@
     "photonic_generation_active": true,
     "passed": true
   },
-  "wall_seconds": 21.11637899998459,
+  "wall_seconds": 21.202856600022642,
   "evidence": "OBSERVED"
 }
