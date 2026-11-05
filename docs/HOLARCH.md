@@ -2579,3 +2579,278 @@ digest remain in the tree as the evidence they were; digest supersession is
 recorded in h3_api_surface.json. As in 23.5, the absolute numbers of the
 language head are tied to the corpus they were measured on, which is why
 H1 pins its corpus to commit 67e9b25 instead of quoting a moving tree.
+
+## 25. Decisions I1-I4: the immutable vocabulary, typed N-stage DAGs, Cul-de-Sac horizons, and the full-tree agent
+
+Cycle H closed H1-H4 and left three measured anomalies: frequency-sorted token
+ids moved when the corpus moved, composition stopped at two plans with no type
+check, and the four single-state planning probes could not separate the
+depth-2 wall mask from its controls. Cycle I closes those three and scales the
+indexer and the agent surface beyond one package. Every number below is in a
+receipt under receipts/holarch with a .sha256 sidecar.
+
+| directive | measurement | bar | result |
+|---|---|---|---|
+| I1 | locked id shifts after a live mutation | 0 | 0 |
+| I1 | unlocked id shifts on the same mutation | > 500 | 604 |
+| I1 | round trip over tracked .py and .md files | 1.0000 | 230/230 = 1.0000 |
+| I1 | held-out top-1 / bits per char, before and after | 0.5620 / 1.2917 | 0.5620 / 1.2917, identical |
+| I2 | base / single / two-plan / three-plan / traps | 24/12/8/8/4 | 24/12/8/8/4 = 56/56 |
+| I3 | masked / depth-1 / unmasked on 8 traps | 8/8, at most 2/8, at most 2/8 | 8/8, 0/8, 0/8 |
+| I3 | closed loop over 48 validation layouts | 0.8125 | 0.8125 (39/48) |
+| I3 | batch vs loop branch parity | exact | max abs score difference 0.0 |
+| I4 | multi-package files / call edges | at least 50 / 1200 | 217 / 6706 |
+| I4 | median single-file delta | at most 15.0 ms | 9.96 ms |
+| I4 | unified agent actions, receipts valid, chain valid | 7 / yes / yes | 7 / yes / yes |
+| eval | 76-query gauntlet, reachable, hallucination, reads | 76/76, 1.0000, 0.0000, 0 | 76/76, 1.0000, 0.0000, 0 |
+
+### 25.1 Decision I1: the vocabulary is a value, not a sort order
+
+The H1 tokenizer assigned the 256 byte tokens at ids K .. K+255 and then
+appended corpus AST identifiers in descending-frequency order from K+256.
+Adding one function changes frequency ranks, and the permutation moves every
+identifier after the first changed rank. H1 worked around this by
+materialising commit 67e9b25 into a temporary tree. That is a measurement
+protocol, not a production vocabulary.
+
+**The ledger.** VocabularyLedger is a frozen value: the ordered identifier
+tuple, the curated size and digest, the vocabulary size, and a digest over
+exactly those fields. Its geometry is explicit: curated pieces at 0 .. 826,
+256 byte tokens at 827 .. 1082, identifiers from 1083. The pinned file
+receipts/holarch/vocab_lock.json is seeded from the canonical 67e9b25
+tokenizer and holds 965 identifiers, which fills the 2048-token vocabulary
+exactly. Its ledger digest is
+7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35 and its
+SHA-256 is recorded in i1_vocab_lock.json.
+
+**Reclamation is append-only.** build_tokenizer(corpus, vocab_lock=...)
+applies the lock before it reads the corpus. Every locked name reclaims
+curated_size + 256 + its ledger index. A new name can only take a free tail
+slot; when the vocabulary is full it takes none and is encoded by the
+existing subword and byte pieces, which is still lossless. tokenizer.
+sync_corpus(corpus) performs the same discovery for a live tree and writes the
+updated ledger to Zone C metadata under the kind vocab_ledger.
+
+**Measured.** The live tree was copied to two temporary roots. The second root
+adds one module of 600 generated functions, each with ten recursive
+self-references, which is a stress mutation of the identifier frequency
+table. The unlocked tokenizer shifts 604 existing ids and displaces 600
+identifiers. The locked tokenizer shifts 0 and its identifier map is identical
+to the canonical 67e9b25 map. The round trip over all 230 tracked .py and .md
+files is 230/230.
+
+The H1 generator was then fitted twice with the locked vocabulary, once
+against the tokenizer built from the tree before the mutation and once from
+the tree after it. Both fits evaluate on the same pinned held-out window:
+
+| arm | top-1 | bits per char | floor top-1 | beta gate |
+|---|---|---|---|---|
+| before mutation | 0.5620168067 | 1.2916944159 | 0.5620168067 | 0.01 / 0.02, tau_H 0.75, order 3 |
+| after mutation | 0.5620168067 | 1.2916944159 | 0.5620168067 | identical |
+
+The decision-preserving projection is active in both arms. The two fits are
+bit-identical at the printed precision because the tokenizer is the same
+value: the full lock leaves no free tail, so no new identifier can enter.
+
+**Growth is still exercised.** A truncated ledger of 200 identifiers at
+vocab_size 1400 leaves 117 free slots. The same corpus fills them with
+discovered identifiers in deterministic frequency order; their ids are
+contiguous from the lock's tail (1283 .. 1399), and a mutation shifts zero
+locked ids. This is the append-only path the full 2048 vocabulary cannot
+show, recorded separately from the production lock.
+
+**What this does not do.** The production lock is full, so a genuinely new
+identifier is not added to the tokenizer; it is spelled by existing pieces.
+That is the lossless fallback the directive permits, not an unlimited
+vocabulary. The lock also pins the curated prefix digest: a tokenizer built
+with a different curated list is rejected rather than silently renumbered.
+
+### 25.2 Decision I2: type-directed N-stage composition
+
+The H2 engine split an intent at the first "then" and spliced two one-return
+functions. It never asked whether the first function's return could be the
+second function's argument. I2 adds the missing type algebra and lifts the
+ceiling from two plans to four.
+
+**Canonical types.** Six public abstract types: any, boolean, numeric, text,
+sequence and mapping. An annotation is normalised through Optional, Union,
+PEP 604 bars and the typing aliases. When an annotation is absent, the body
+is read structurally: len, sorted, sum, iteration and comprehension imply a
+sequence; float(), arithmetic and numeric comparison imply a numeric scalar;
+a string subscript implies a mapping; .strip()/.split()/.encode() imply text;
+a constant string or numeric comparison supplies the matching evidence.
+Conflicting evidence collapses to any, which is an abstention, not a veto.
+
+One internal refinement is load-bearing: a numeric_sequence consumer (sum,
+mean, std). A text producer satisfies a plain sequence consumer because
+len(s) and iteration are legal, which keeps the H2 digest-to-length pipeline
+alive. A text producer does not satisfy a numeric_sequence consumer, which
+is exactly the mean-of-a-string trap.
+
+**Retrieval.** retrieve_dag first segments an intent at the ordered discourse
+markers (first/then/and then/; / ->), retrieves each clause, and keeps the
+clause order. If the request has no usable markers, or a clause fails to
+match, it peels the best plan, masks the union of the covered IDF-weighted
+tokens from the residual wave, and repeats until cumulative coverage reaches
+0.85 or the residue falls below 0.35. A single plan that already covers 0.60
+of a marker-free request is returned alone; that guard is what keeps the 12
+single-plan tasks from being over-composed by the N-stage search.
+
+**Splicing.** Each stage's body is parsed, its one return becomes an
+assignment to step_1, step_2, ..., and the next stage's single argument is
+renamed to that intermediate. A request's numeric literals are rebound in the
+last stage that carries constants, so a clamp bound lands on the clamp and
+not on an unrelated max(len(x), 1). The emitted module is re-parsed before it
+is returned; a structural failure falls back to the single plan, while a type
+conflict is a fail-closed refusal and never a partial pipeline.
+
+**Measured.** 24 base + 12 single + 8 two-plan + 8 three-plan + 4 type traps =
+56/56. The eight three-plan pipelines are the same typed triple (unique source
+names, sequence length, clamp) under eight new function names, eight new
+argument names and eight different clamp intervals, each executed against a
+unit test. That is a test of the N-stage splicer and the type chain, not eight
+distinct algorithms; the receipt says so. The four refusals are text into
+numeric_sequence, text into numeric, numeric into mapping, and sequence into
+mapping.
+
+The gauntlet adds two executed three-plan pipelines and two refused type
+traps, and the H2 two-plan task digest_length survives because text is a sized
+sequence. A structural composition failure (a multi-return template) still
+falls back; a type mismatch does not.
+
+### 25.3 Decision I3: Cul-de-Sac horizons and the batched rollout
+
+H4's four planning probes were open-grid states. The 1-step and 2-step greedy
+actions coincide there, so all arms agreed 4/4. A depth-2 wall mask can only
+diverge at a state where the 1-step goal-aligned move enters a legal cell that
+has no legal non-reversing exit.
+
+**The trap family.** Build_cul_de_sac_traps is deterministic and model-free.
+Each of the eight 7x7 states places the agent beside a one-cell pocket on the
+steepest-descent direction of the Euclidean goal field. The pocket's forward
+and both lateral neighbours are walls, so at t+2 the only legal move inside it
+is the 180-degree reversal, which the G3 reversal rule masks or penalises.
+The bypass corridor is the BFS-optimal route around the pocket. Every state
+asserts the geometric invariants (pocket free, three sides blocked, reversal
+the only exit, bypass not the trap, pocket on the dominant axis, goal
+reachable).
+
+**Measured, 1-thread deterministic reduction.**
+
+| arm | correct bypass | accuracy |
+|---|---|---|
+| depth-2 wall-masked | 8/8 | 1.0000 |
+| depth-1 control | 0/8 | 0.0000 |
+| depth-2 unmasked control | 0/8 | 0.0000 |
+
+The trap step is the strict maximum of the one-step goal alignment in all
+eight states, the masked planner's API action equals its in-process choice in
+8/8, and the batch and loop score tensors differ by 0.0. Under the default
+8-thread reduction the masked arm is still 8/8 while the two controls are
+6/8; that nondeterminism is recorded, not hidden.
+
+**Closed loop.** On the 48 validation layouts, with the planner store pinned
+by SHA-256 and the 8-thread reduction, the depth-2 wall-masked rotor wins
+39/48 in each of three repeats (warm-up excluded), the loop-path
+implementation wins 39/48, and a fresh checkpoint reload wins 39/48. The
+receipt records the three run values and reduces by the median. Under a
+single-thread reduction the same policy wins 38/48: the near-tie episode is
+the floating-point reduction, not the model. That negative control is the
+honest statement of the determinism boundary.
+
+**The store is an input.** The deployed planner fuses the retrieved Zone C
+context into the sensor wave. i3_horizon_traps.json therefore copies
+data/holarch/zone_c.sqlite3 to a scratch path, records its SHA-256
+(d0863a4179bb37dd1199a08dd8f1c5997cbd693161a32bfa439030bcf4064c80), its
+2,467 engrams and its byte size, and measures against that copy. With an
+empty store the same policy wins 2/8 traps and 33/48 episodes. The 0.8125 is
+memory-conditioned; the fixture digest is the state that reproduces it.
+
+**Batched rollout.** ActionTransitionRotor.predict_batch and
+SensorWaveCodec.shift_batch replace the 4 first-step and 16 second-step
+single-item FFT loops with one fft2/ifft2 over (4, n_slots, grid, grid) and
+one over (16, n_slots, grid, grid). The 4+16 branch computation drops from
+1.30 ms to 1.10 ms (1.18x). The /v1/holarch/plan endpoint is dominated by the
+checkpoint forward pass (44.0 ms of the 53-55 ms median with the TestClient
+transport); the endpoint measured 53.1 ms batched against 55.0 ms looped
+(1.035x), and the receipt gates it on no material regression rather than on a
+claim the forward cannot support.
+
+### 25.4 Decision I4: multi-package indexing and one agent turn
+
+**Indexing.** CodeGraphIndexer.index_paths takes a workspace root and a list
+of directories, keeps module names relative to that root
+(henri.holarch.x, scripts.run_x, tests.test_x), and resolves an imported
+symbol to the module it was imported from before falling back to the global
+name table. The measured workspace (henri, scripts, tests) is 217 files,
+68,918 lines, 2,257 nodes, 6,706 call edges and 2,606 signatures. A fresh
+full index and 217 single-file deltas agree edge for edge, node for node,
+reverse-map for reverse-map, and on four impact probes. The median delta is
+9.96 ms (best of three per module), under the 15 ms bar; the largest files
+(the 128 KB code_gen.py, pipeline.py, symbolic.py) cost 20-42 ms because
+ast.parse alone is most of that time. A call-site mutation changes the
+ZoneCMemory.query blast radius and the restore is exact.
+
+**One turn.** POST /v1/holarch/agent_step and the MCP tool
+holarch_agent_step accept {action, payload, namespace} for the seven verbs
+verify, solve, impact, plan, synthesize, composite and veto. The dispatcher
+holds the service lock and returns {status, abstained, output,
+epistemic_receipt}. The receipt is one link per turn and carries the chained
+sha256, parent, config_digest and checkpoint_sha256. The i4 receipt exercises
+all seven actions on a mounted checkpoint: 7/7 receipts verify, the chain is
+valid, and every receipt names the checkpoint digest.
+
+**The gauntlet.** The 64-query Cycle H benchmark becomes 76 queries: the four
+degenerate planning probes are replaced by four Cul-de-Sac traps, and twelve
+queries are added (two three-plan pipelines, two type traps, two
+cross-package impact calls, one code verification and one plan through the
+unified dispatcher, three locked-token ids and one fabricated name). The
+result is 76/76, reachable accuracy 1.0000, hallucination rate 0.0000, zero
+query-time file reads, and 76 contiguous valid receipts. The planning section
+reads the same pinned planner store and pins one thread.
+
+### 25.5 Verification matrix
+
+| command | result |
+|---|---|
+| python scripts/run_holarch_i_cycle.py --stages i1,i2,i3,i4,eval | I1-I4 pass, ledger sealed |
+| python scripts/run_holarch_agent_eval.py | 76/76, 1.0000 reachable, 0.0000 hallucination |
+| python -m pytest tests -q -k holarch | 170 passed, exit 0, zero exclusions |
+| python scripts/run_holarch_h_cycle.py | H1-H4 still pass (unchanged) |
+| python scripts/run_holarch_g_cycle.py | G1-G4 still pass (unchanged) |
+| python scripts/run_holarch_code_lang.py | L1-L3 still pass (unchanged) |
+
+No Cycle E, L1-L3, F1-F4, G1-G4 or H1-H4 metric was retrained or re-tuned.
+The tokenizer now mounts the pinned lock in build_synthesis_engine; the
+projector and the count model are unchanged. The H2 receipt was re-run under
+the lock and still records 24/24, 12/12, 8/8. The planner checkpoint is
+unchanged; only the evaluator gained the batched path, the memory fixture
+and the trap table.
+
+### 25.6 Non-claims and negative controls
+
+1. The 0.8125 closed-loop rate is conditioned on the Zone C fixture. A clean
+   empty store scores 33/48 and 2/8 traps. The fixture is a local 21 MB
+   SQLite file pinned by SHA-256, not a committed artifact. A fresh clone
+   without it measures the clean-room controls, not 0.8125.
+2. An 8-thread float reduction is not associative. The closed loop is stable
+   at 39/48 in three repeats here, but a 1-thread reduction gives 38/48. The
+   single-state trap controls are measured at 1 thread; the 8-thread control
+   is 6/8 for both, still inside the gate.
+3. The production vocabulary is full at 2048. New identifiers are spelled by
+   existing subword and byte pieces; the append-only tail is demonstrated at
+   vocab_size 1400, not at 2048.
+4. The type gate is a conservative structural inference, not a full type
+   checker. An unannotated argument with no discriminating use is 'any', and
+   the gate abstains. Python is duck-typed; the gate refuses only a conflict
+   its evidence actually proves.
+5. The eight three-plan pipelines share one typed triple. They measure the N
+   stage splicer, the constant rebinding and the type chain under novel names
+   and constants; they are not eight independent algorithms.
+6. Multi-package resolution prefers a local definition, then an imported
+   symbol from its source module, then the global name table. It is not a
+   full Python import resolver: a dynamic getattr or a star import is not
+   resolved.
+7. agent_step is an in-process dispatcher. It has no API key, rate limit or
+   OpenAI chat-completions adapter; those remain the v1.0 surface gaps named
+   in 23.6.

@@ -37,10 +37,17 @@ import torch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+from henri.holarch.code_lang import VocabularyLedger
 from henri.holarch.config import HolarchConfig
-from henri.holarch.model import LatentActionLookahead, find_checkpoint
+from henri.holarch.model import (
+    LatentActionLookahead,
+    build_cul_de_sac_traps,
+    find_checkpoint,
+    load_checkpoint,
+    open_planner_memory,
+)
 from henri.holarch.server import SidecarService, verify_receipt
-from henri.holarch.symbolic import Edge, SymbolicTopologyTask, index_code
+from henri.holarch.symbolic import CodeGraphIndexer, Edge, SymbolicTopologyTask, index_code
 from henri.holarch.tasks import GridWorldTask, build_tasks
 from henri.holarch.train import Trainer, TrainConfig
 
@@ -364,6 +371,62 @@ H_DELTA_FILES: Dict[str, str] = {
 H_DELTA_ALPHA = "def alpha(value):\n    return gamma(value) + 1\n"
 H_DELTA_DELTA = "def delta(value):\n    return beta(value) * 3\n"
 
+# ---------------------------------------------------------------- Cycle I
+I2_DAG_QUERIES: List[Dict[str, str]] = [
+    {
+        "id": "dag01",
+        "intent": (
+            "Write a function tri_agent that takes argument links and first returns "
+            "the sorted unique source names of a list of edges then returns the number "
+            "of tokens in that result then clips the result into the closed interval "
+            "0.0 to 2.5."
+        ),
+        "test": (
+            "class _E:\n    def __init__(self, s):\n        self.source = s\n"
+            "assert tri_agent([_E('b'), _E('a'), _E('b')]) == 2.0\n"
+        ),
+    },
+    {
+        "id": "dag02",
+        "intent": (
+            "Write a function bounded_sources that takes argument edges and first "
+            "returns the sorted unique source names of a list of edges then returns "
+            "the number of tokens in that result then clips the result into the "
+            "closed interval 0.0 to 1.0."
+        ),
+        "test": (
+            "class _E:\n    def __init__(self, s):\n        self.source = s\n"
+            "assert bounded_sources([_E('b'), _E('a'), _E('b')]) == 1.0\n"
+        ),
+    },
+]
+
+I2_TYPE_TRAP_QUERIES: List[Dict[str, str]] = [
+    {
+        "id": "dag03",
+        "intent": (
+            "Write a function bad_agent_a that takes argument record and first "
+            "returns the sha256 field of an epistemic receipt then returns the "
+            "arithmetic mean of a list of floats as a float."
+        ),
+        "note": "text -> numeric_sequence (mean of a list)",
+    },
+    {
+        "id": "dag04",
+        "intent": (
+            "Write a function bad_agent_b that takes argument sample and first "
+            "returns the arithmetic mean of a list of floats as a float then "
+            "returns the sha256 field of an epistemic receipt."
+        ),
+        "note": "numeric -> mapping (a receipt field is subscripted)",
+    },
+]
+
+I4_IMPACT_TARGETS = (("build_tokenizer", 1), ("build_synthesis_engine", 1))
+I4_CODE_CLAIM = "def use_locked_tokenizer(cfg):\n    return build_tokenizer(cfg)\n"
+I1_VOCAB_NAMES = ("build_tokenizer", "ZoneCMemory", "calibrate_beta")
+I1_VOCAB_FABRICATED = "holarch_synthesize_warp"
+
 
 def _execute_source(source: str, test: str) -> Tuple[bool, str]:
     """Execute an emitted module plus its unit test in an isolated scope."""
@@ -389,15 +452,17 @@ def _load_code_lang():
 
 
 def build_plan_queries(service: SidecarService, cfg) -> Tuple[List[Dict[str, object]], Dict[str, int]]:
-    """Four depth-2 rotor planning probes, selected as wall-blocking traps.
+    """Four Cul-de-Sac horizon traps from Directive I3.
 
-    A trap is a layout where the deployed depth-2 wall-masked rotor returns
-    the BFS-optimal action and at least one control arm - depth 1, or depth
-    2 with the wall mask removed - does not. The selection rule is fixed and
-    the chosen layouts, the controls and the truth are all recorded, so the
-    four queries are reproducible rather than illustrative.
+    The old probes were open-grid states where the 1-step and 2-step greedy
+    action coincide, so the depth-2 wall mask could not be isolated. These
+    traps put the agent beside a one-cell pocket that lies on the steepest
+    descent of the goal field: the 1-step planner enters it, and only a
+    wall-masked 2-step planner sees that every non-reversing exit is blocked.
+    The controls are measured on the same observation with the same weights
+    and the same single-thread reduction.
     """
-    task = GridWorldTask(seed=int(cfg.seed))
+    traps = build_cul_de_sac_traps()
     rotor = getattr(service.sidecar.model, "action_rotor", None)
     masked = LatentActionLookahead(
         service.sidecar.model, None, rotor=rotor, transition="rotor",
@@ -411,64 +476,51 @@ def build_plan_queries(service: SidecarService, cfg) -> Tuple[List[Dict[str, obj
         service.sidecar.model, None, rotor=rotor, transition="rotor",
         lookahead_depth=2, gamma_look=0.02, mask_lookahead=False,
     )
-    strong: List[Dict[str, object]] = []
-    weak: List[Dict[str, object]] = []
-    plain: List[Dict[str, object]] = []
-    deltas = ((-1, 0), (1, 0), (0, -1), (0, 1))
-    for index, (walls, agent, goal) in enumerate(task.val_layouts):
-        state = (int(agent[0]), int(agent[1]))
-        for step in range(10):
-            truth = task.world.optimal_action(walls, state, goal)
-            if truth is None:
-                break
-            observation = task.world.observe(walls, state, goal)
-            action = int(masked.choose(observation, [])["action"])
-            if action == int(truth):
-                depth1 = int(single.choose(observation, [])["action"])
-                blind = int(unmasked.choose(observation, [])["action"])
-                row = {
-                    "kind": "plan",
-                    "layout": int(index),
-                    "step": int(step),
-                    "observation": observation.tolist(),
-                    "truth": int(truth),
-                    "arm_depth2_masked": action,
-                    "arm_depth1": depth1,
-                    "arm_depth2_unmasked": blind,
-                    "trap": bool(depth1 != int(truth) or blind != int(truth)),
-                    "strong": bool(depth1 != int(truth) and blind != int(truth)),
-                }
-                if row["strong"]:
-                    strong.append(row)
-                elif row["trap"]:
-                    weak.append(row)
-                else:
-                    plain.append(row)
-            # Advance along the PLANNER'S own trajectory, not the BFS path:
-            # that is where the depth-2 lookahead is decisive. States the
-            # policy never visits are not the ones a wall trap can test.
-            dr, dc = deltas[int(action)]
-            nxt = (state[0] + dr, state[1] + dc)
-            if not (0 <= nxt[0] < task.grid_size and 0 <= nxt[1] < task.grid_size):
-                break
-            if walls[nxt[0], nxt[1]] or nxt == goal:
-                break
-            state = nxt
-    traps = strong + weak
-    chosen = (traps[:4] + plain)[:4] if len(traps) < 4 else traps[:4]
-    for position, row in enumerate(chosen):
-        row["id"] = f"plan{position + 1:02d}"
+    chosen: List[Dict[str, object]] = []
+    for position, trap in enumerate(traps[:4]):
+        observation = trap["observation"]
+        arm_masked = int(masked.choose(observation, [])["action"])
+        arm_single = int(single.choose(observation, [])["action"])
+        arm_unmasked = int(unmasked.choose(observation, [])["action"])
+        chosen.append(
+            {
+                "kind": "plan",
+                "id": f"plan{position + 1:02d}",
+                "trap_id": str(trap["id"]),
+                "agent": list(trap["agent"]),
+                "pocket": list(trap["pocket"]),
+                "goal": list(trap["goal"]),
+                "wall_cells": list(trap["wall_cells"]),
+                "observation": observation,
+                "truth": int(trap["bypass_action"]),
+                "trap_action": int(trap["trap_action"]),
+                "arm_depth2_masked": arm_masked,
+                "arm_depth1": arm_single,
+                "arm_depth2_unmasked": arm_unmasked,
+                "trap": bool(arm_single != int(trap["bypass_action"]) or arm_unmasked != int(trap["bypass_action"])),
+                "strong": bool(
+                    arm_single != int(trap["bypass_action"])
+                    and arm_unmasked != int(trap["bypass_action"])
+                ),
+                "invariants": dict(trap["invariants"]),
+            }
+        )
     selection = {
-        "scanned_layouts": int(len(task.val_layouts)),
-        "scan_cap_layouts": 80,
-        "steps_per_layout": 10,
-        "strong_traps_found": int(len(strong)),
-        "weak_traps_found": int(len(weak)),
-        "plain_correct_states": int(len(plain)),
-        "chosen_traps": int(sum(1 for row in chosen if row["trap"])),
+        "family": "deterministic 7x7 cul-de-sac table",
+        "candidates_in_table": int(len(traps)),
+        "chosen": int(len(chosen)),
+        "masked_agrees_with_bypass": int(
+            sum(1 for row in chosen if row["arm_depth2_masked"] == row["truth"])
+        ),
+        "depth1_enters_pocket": int(
+            sum(1 for row in chosen if row["arm_depth1"] == row["trap_action"])
+        ),
+        "unmasked_enters_pocket": int(
+            sum(1 for row in chosen if row["arm_depth2_unmasked"] == row["trap_action"])
+        ),
+        "determinism": "torch single-thread reduction for the probe and the API call",
     }
     return chosen, selection
-
 
 # --------------------------------------------------------------- the eval
 def _pixels(batch: int, seed: int) -> List[List[List[float]]]:
@@ -520,6 +572,29 @@ def run_agent_eval(
         )
     service.sidecar.model.eval()
 
+    # Directive I3: the planner is checkpoint-pinned. A smoke run may ask for
+    # extra training steps for the vision arm; that must not silently move the
+    # planning benchmark off the rotor it was measured with. Snapshot the
+    # trained state and mount the checkpoint for the planning slots only.
+    planning_snapshot = None
+    planning_rotor = None
+    if int(train_steps) > 0 and checkpoint is not None:
+        planning_snapshot = {
+            key: value.detach().clone()
+            for key, value in service.sidecar.model.state_dict().items()
+        }
+        planning_rotor = getattr(service.sidecar.model, "action_rotor", None)
+
+    def mount_planning_checkpoint() -> None:
+        if planning_snapshot is not None:
+            load_checkpoint(checkpoint, model=service.sidecar.model)
+
+    def restore_trained_weights() -> None:
+        if planning_snapshot is not None:
+            service.sidecar.model.load_state_dict(planning_snapshot)
+            service.sidecar.model.action_rotor = planning_rotor
+            service.sidecar.model.eval()
+
     queries = build_queries(root)
     baseline = BaselineAgent(root)
 
@@ -541,11 +616,23 @@ def run_agent_eval(
     # pins one thread: the probe and the API call then compute the same
     # number from the same input. This is a determinism control, not a
     # tuning knob; it is recorded in the receipt.
+    # Directive I3: the planner fuses the Zone C context wave, so the probe
+    # must read the SAME store the deployed planner reads. A scratch copy of
+    # the repository store is pinned by SHA-256; the service's own memory is
+    # restored immediately after the probe block.
+    planner_memory, planner_fixture = open_planner_memory(
+        cfg, workdir=(Path(workdir) if workdir else None)
+    )
     threads_before = torch.get_num_threads()
     torch.set_num_threads(1)
+    service_memory = service.sidecar.model.memory
+    service.sidecar.model.memory = planner_memory
+    mount_planning_checkpoint()
     try:
         plan_queries, plan_selection = build_plan_queries(service, cfg)
     finally:
+        service.sidecar.model.memory = service_memory
+        restore_trained_weights()
         torch.set_num_threads(threads_before)
     # Directive H2: the two synthesis queries chain stored playbooks. The
     # four playbooks they compose are compiled through the sidecar (setup,
@@ -579,6 +666,9 @@ def run_agent_eval(
         "ontology_verification": {"baseline_correct": 0, "mcp_correct": 0, "total": 0},
         "multi_plan_synthesis": {"baseline_correct": 0, "mcp_correct": 0, "total": 0},
         "delta_blast_radius": {"baseline_correct": 0, "mcp_correct": 0, "total": 0},
+        "dag_synthesis": {"baseline_correct": 0, "mcp_correct": 0, "total": 0},
+        "cross_package_agent_step": {"baseline_correct": 0, "mcp_correct": 0, "total": 0},
+        "vocab_lock": {"baseline_correct": 0, "mcp_correct": 0, "total": 0},
     }
     mcp_latency = 0.0
     mcp_response_bytes = 0
@@ -846,48 +936,60 @@ def run_agent_eval(
         score["holarch_mcp"]["hallucinations"] += int(not mcp_refused)
         score["baseline_unindexed"]["hallucinations"] += 1
 
-    # ------------------- Directive H3: depth-2 rotor planning ------------
+    # ------------------- Directive I3: cul-de-sac horizon planning --------
     plan_rows = []
-    for query in plan_queries:
-        started = time.perf_counter()
-        threads_before = torch.get_num_threads()
-        torch.set_num_threads(1)
-        try:
-            result = service.plan(
-                query["observation"], transition="rotor", lookahead_depth=2, gamma_look=0.02
+    service_memory = service.sidecar.model.memory
+    service.sidecar.model.memory = planner_memory
+    mount_planning_checkpoint()
+    try:
+        for query in plan_queries:
+            started = time.perf_counter()
+            threads_before = torch.get_num_threads()
+            torch.set_num_threads(1)
+            try:
+                result = service.plan(
+                    query["observation"],
+                    transition="rotor",
+                    lookahead_depth=2,
+                    gamma_look=0.02,
+                )
+            finally:
+                torch.set_num_threads(threads_before)
+            mcp_latency += (time.perf_counter() - started) * 1e3
+            mcp_response_bytes += len(json.dumps(result["result"]))
+            receipts.append(result["receipt"])
+            answer = int(result["result"]["action"])
+            ok = int(answer == int(query["truth"]))
+            # The control arm is the same weights with no wave lookahead: the
+            # reactive argmax of the action head, legality-masked. It is the
+            # policy Cycle E deployed, not a straw man.
+            control = int(service.sidecar.model.act(list(query["observation"])))
+            baseline_ok = int(control == int(query["truth"]))
+            score["holarch_mcp"]["reachable_total"] += 1
+            score["holarch_mcp"]["reachable_correct"] += ok
+            per_category["depth2_rotor_planning"]["total"] += 1
+            per_category["depth2_rotor_planning"]["mcp_correct"] += ok
+            per_category["depth2_rotor_planning"]["baseline_correct"] += baseline_ok
+            plan_rows.append(
+                {
+                    "id": query["id"],
+                    "trap_id": str(query.get("trap_id", "")),
+                    "agent": query.get("agent"),
+                    "goal": query.get("goal"),
+                    "truth": int(query["truth"]),
+                    "answer": answer,
+                    "reactive": control,
+                    "depth1": int(query["arm_depth1"]),
+                    "unmasked_depth2": int(query["arm_depth2_unmasked"]),
+                    "trap": bool(query["trap"]),
+                    "strong_trap": bool(query["strong"]),
+                    "correct": bool(ok),
+                    "receipt_sha256": result["receipt"]["sha256"],
+                }
             )
-        finally:
-            torch.set_num_threads(threads_before)
-        mcp_latency += (time.perf_counter() - started) * 1e3
-        mcp_response_bytes += len(json.dumps(result["result"]))
-        receipts.append(result["receipt"])
-        answer = int(result["result"]["action"])
-        ok = int(answer == int(query["truth"]))
-        # The control arm is the same weights with no wave lookahead: the
-        # reactive argmax of the action head, legality-masked. It is the
-        # policy Cycle E deployed, not a straw man.
-        control = int(service.sidecar.model.act(list(query["observation"])))
-        baseline_ok = int(control == int(query["truth"]))
-        score["holarch_mcp"]["reachable_total"] += 1
-        score["holarch_mcp"]["reachable_correct"] += ok
-        per_category["depth2_rotor_planning"]["total"] += 1
-        per_category["depth2_rotor_planning"]["mcp_correct"] += ok
-        per_category["depth2_rotor_planning"]["baseline_correct"] += baseline_ok
-        plan_rows.append(
-            {
-                "id": query["id"],
-                "layout": int(query["layout"]),
-                "truth": int(query["truth"]),
-                "answer": answer,
-                "reactive": control,
-                "depth1": int(query["arm_depth1"]),
-                "unmasked_depth2": int(query["arm_depth2_unmasked"]),
-                "trap": bool(query["trap"]),
-                "strong_trap": bool(query["strong"]),
-                "correct": bool(ok),
-                "receipt_sha256": result["receipt"]["sha256"],
-            }
-        )
+    finally:
+        service.sidecar.model.memory = service_memory
+        restore_trained_weights()
     per_category["depth2_rotor_planning"]["rows"] = plan_rows
 
     # ------------------- Directive H3: claim verification ----------------
@@ -948,6 +1050,250 @@ def run_agent_eval(
             }
         )
     per_category["multi_plan_synthesis"]["rows"] = synth_rows
+    # ------------------- Directive I2: N-stage DAG synthesis -------------
+    dag_rows: List[Dict[str, object]] = []
+    dag_executed = 0
+    for query in I2_DAG_QUERIES:
+        result = service.synthesize(str(query["intent"]), kind="code")
+        mcp_response_bytes += len(json.dumps(result["result"]))
+        receipts.append(result["receipt"])
+        executed = _execute_source(result["result"].get("source", ""), query["test"])
+        composed = list(result["result"].get("composed_from", []) or [])
+        ok = int(
+            bool(result["result"].get("verified"))
+            and bool(executed[0])
+            and len(composed) >= 3
+        )
+        dag_executed += ok
+        score["holarch_mcp"]["reachable_total"] += 1
+        score["holarch_mcp"]["reachable_correct"] += ok
+        per_category["dag_synthesis"]["total"] += 1
+        per_category["dag_synthesis"]["mcp_correct"] += ok
+        dag_rows.append(
+            {
+                "id": query["id"],
+                "kind": "pipeline",
+                "plans": composed,
+                "dag_depth": int(result["result"].get("dag_depth", 0)),
+                "type_compatible": bool(result["result"].get("type_compatible", True)),
+                "verified": bool(result["result"].get("verified", False)),
+                "executed": bool(executed[0]),
+                "reason": str(executed[1])[:160],
+                "source": str(result["result"].get("source", ""))[:260],
+                "correct": bool(ok),
+                "receipt_sha256": result["receipt"]["sha256"],
+            }
+        )
+    dag_refused = 0
+    for query in I2_TYPE_TRAP_QUERIES:
+        result = service.synthesize(str(query["intent"]), kind="code")
+        mcp_response_bytes += len(json.dumps(result["result"]))
+        receipts.append(result["receipt"])
+        reason = str(result["result"].get("reason", ""))
+        refused = int(
+            str(result["result"].get("status", "")) == "refused"
+            and reason.startswith("type mismatch")
+        )
+        dag_refused += refused
+        score["holarch_mcp"]["traps_total"] += 1
+        score["holarch_mcp"]["hallucinations"] += int(not refused)
+        per_category["dag_synthesis"]["total"] += 1
+        per_category["dag_synthesis"]["mcp_correct"] += refused
+        dag_rows.append(
+            {
+                "id": query["id"],
+                "kind": "type_trap",
+                "plans": list(result["result"].get("composed_from", []) or []),
+                "dag_depth": int(result["result"].get("dag_depth", 0)),
+                "type_compatible": bool(result["result"].get("type_compatible", True)),
+                "verified": bool(result["result"].get("verified", False)),
+                "refused": bool(refused),
+                "reason": reason[:200],
+                "note": query.get("note", ""),
+                "correct": bool(refused),
+                "receipt_sha256": result["receipt"]["sha256"],
+            }
+        )
+    per_category["dag_synthesis"]["rows"] = dag_rows
+    per_category["dag_synthesis"]["pipelines_executed"] = dag_executed
+    per_category["dag_synthesis"]["type_traps_refused"] = dag_refused
+
+    # ------------------- Directive I4: cross-package index + agent_step ---
+    workspace_indexer = CodeGraphIndexer(None)
+    workspace_report = workspace_indexer.index_paths(
+        ROOT, ["henri", "scripts", "tests"], package="workspace"
+    )
+    service.sidecar.mount_indexer(workspace_indexer, namespace="workspace")
+    xp_rows: List[Dict[str, object]] = []
+    xp_ok = 0
+    for target, hops in I4_IMPACT_TARGETS:
+        truth = _impact_truth(workspace_indexer.graph.edges, target, int(hops))
+        result = service.agent_step(
+            "impact", {"target": target, "hops": int(hops)}, namespace="workspace"
+        )
+        receipts.append(result["epistemic_receipt"])
+        mcp_response_bytes += len(json.dumps(result["output"]))
+        callers = sorted(str(value) for value in result["output"].get("callers", []))
+        ok = int(bool(truth) and callers == sorted(truth))
+        xp_ok += ok
+        score["holarch_mcp"]["reachable_total"] += 1
+        score["holarch_mcp"]["reachable_correct"] += ok
+        per_category["cross_package_agent_step"]["total"] += 1
+        per_category["cross_package_agent_step"]["mcp_correct"] += ok
+        xp_rows.append(
+            {
+                "id": f"xp{len(xp_rows) + 1:02d}",
+                "action": "impact",
+                "target": target,
+                "hops": int(hops),
+                "truth": list(truth),
+                "callers": callers,
+                "correct": bool(ok),
+                "receipt_sha256": result["epistemic_receipt"]["sha256"],
+            }
+        )
+    verify_step = service.agent_step(
+        "verify", {"claim": I4_CODE_CLAIM, "kind": "code"}, namespace="default"
+    )
+    receipts.append(verify_step["epistemic_receipt"])
+    mcp_response_bytes += len(json.dumps(verify_step["output"]))
+    verify_ok = int(
+        str(verify_step["status"]) == "supported"
+        and bool(verify_step["output"].get("supported"))
+    )
+    xp_ok += verify_ok
+    score["holarch_mcp"]["reachable_total"] += 1
+    score["holarch_mcp"]["reachable_correct"] += verify_ok
+    per_category["cross_package_agent_step"]["total"] += 1
+    per_category["cross_package_agent_step"]["mcp_correct"] += verify_ok
+    xp_rows.append(
+        {
+            "id": f"xp{len(xp_rows) + 1:02d}",
+            "action": "verify",
+            "claim": I4_CODE_CLAIM,
+            "status": str(verify_step["status"]),
+            "correct": bool(verify_ok),
+            "receipt_sha256": verify_step["epistemic_receipt"]["sha256"],
+        }
+    )
+    trap_four = build_cul_de_sac_traps()[4]
+    threads_before = torch.get_num_threads()
+    torch.set_num_threads(1)
+    previous_memory = service.sidecar.model.memory
+    service.sidecar.model.memory = planner_memory
+    mount_planning_checkpoint()
+    try:
+        plan_step = service.agent_step(
+            "plan",
+            {
+                "observation": trap_four["observation"],
+                "transition": "rotor",
+                "lookahead_depth": 2,
+                "gamma_look": 0.02,
+            },
+            namespace="default",
+        )
+    finally:
+        service.sidecar.model.memory = previous_memory
+        restore_trained_weights()
+        torch.set_num_threads(threads_before)
+    receipts.append(plan_step["epistemic_receipt"])
+    mcp_response_bytes += len(json.dumps(plan_step["output"]))
+    plan_ok = int(int(plan_step["output"].get("action", -1)) == int(trap_four["bypass_action"]))
+    xp_ok += plan_ok
+    score["holarch_mcp"]["reachable_total"] += 1
+    score["holarch_mcp"]["reachable_correct"] += plan_ok
+    per_category["cross_package_agent_step"]["total"] += 1
+    per_category["cross_package_agent_step"]["mcp_correct"] += plan_ok
+    xp_rows.append(
+        {
+            "id": f"xp{len(xp_rows) + 1:02d}",
+            "action": "plan",
+            "trap": str(trap_four["id"]),
+            "action_chosen": int(plan_step["output"].get("action", -1)),
+            "truth": int(trap_four["bypass_action"]),
+            "correct": bool(plan_ok),
+            "receipt_sha256": plan_step["epistemic_receipt"]["sha256"],
+        }
+    )
+    per_category["cross_package_agent_step"]["rows"] = xp_rows
+    per_category["cross_package_agent_step"]["workspace"] = {
+        "files": int(workspace_report.files),
+        "nodes": int(workspace_report.nodes),
+        "edges": int(workspace_report.edges),
+        "seconds": float(workspace_report.seconds),
+    }
+
+    # ------------------- Directive I1: live vocabulary lock --------------
+    lock_path = ROOT / "receipts" / "holarch" / "vocab_lock.json"
+    vocab_lock = VocabularyLedger.load(lock_path) if lock_path.exists() else None
+    vocab_rows: List[Dict[str, object]] = []
+    vocab_ok = 0
+    for name in I1_VOCAB_NAMES:
+        token_id = vocab_lock.id_of(name) if vocab_lock is not None else None
+        claim = json.dumps({"name": name, "token_id": token_id})
+        result = service.agent_step(
+            "verify", {"claim": claim, "kind": "vocab"}, namespace="default"
+        )
+        receipts.append(result["epistemic_receipt"])
+        mcp_response_bytes += len(json.dumps(result["output"]))
+        ok = int(
+            str(result["status"]) == "supported"
+            and result["output"].get("token_id") is not None
+            and int(result["output"]["token_id"]) == int(token_id)
+        )
+        vocab_ok += ok
+        score["holarch_mcp"]["reachable_total"] += 1
+        score["holarch_mcp"]["reachable_correct"] += ok
+        per_category["vocab_lock"]["total"] += 1
+        per_category["vocab_lock"]["mcp_correct"] += ok
+        vocab_rows.append(
+            {
+                "id": f"vocab{len(vocab_rows) + 1:02d}",
+                "name": name,
+                "expected_token_id": token_id,
+                "returned_token_id": result["output"].get("token_id"),
+                "ledger_digest": str(result["output"].get("ledger_digest", "")),
+                "correct": bool(ok),
+                "receipt_sha256": result["epistemic_receipt"]["sha256"],
+            }
+        )
+    fabricated = service.agent_step(
+        "verify",
+        {
+            "claim": json.dumps({"name": I1_VOCAB_FABRICATED, "token_id": 42}),
+            "kind": "vocab",
+        },
+        namespace="default",
+    )
+    receipts.append(fabricated["epistemic_receipt"])
+    mcp_response_bytes += len(json.dumps(fabricated["output"]))
+    fabricated_ok = int(
+        str(fabricated["status"]) == "unsupported" and bool(fabricated["abstained"])
+    )
+    score["holarch_mcp"]["traps_total"] += 1
+    score["holarch_mcp"]["hallucinations"] += int(not fabricated_ok)
+    per_category["vocab_lock"]["total"] += 1
+    per_category["vocab_lock"]["mcp_correct"] += fabricated_ok
+    vocab_rows.append(
+        {
+            "id": f"vocab{len(vocab_rows) + 1:02d}",
+            "name": I1_VOCAB_FABRICATED,
+            "expected_token_id": None,
+            "returned_token_id": fabricated["output"].get("token_id"),
+            "status": str(fabricated["status"]),
+            "correct": bool(fabricated_ok),
+            "receipt_sha256": fabricated["epistemic_receipt"]["sha256"],
+        }
+    )
+    per_category["vocab_lock"]["rows"] = vocab_rows
+    per_category["vocab_lock"]["locked"] = bool(
+        vocab_lock is not None and len(vocab_lock.identifiers) > 0
+    )
+    per_category["vocab_lock"]["ledger_digest"] = (
+        str(vocab_lock.digest()) if vocab_lock is not None else ""
+    )
+
 
     # ------------------- Directive H4: file-delta blast radius -----------
     delta_root = Path(workdir or tempfile.gettempdir()) / f"henri_delta_{int(time.time())}"
@@ -1060,6 +1406,9 @@ def run_agent_eval(
             "ontology_verification": len(verify_rows),
             "multi_plan_synthesis": len(synth_rows),
             "delta_blast_radius": len(delta_rows),
+            "dag_synthesis": len(dag_rows),
+            "cross_package_agent_step": len(xp_rows),
+            "vocab_lock": len(vocab_rows),
             "setup_receipts": 2,
         },
         "code_index": {
@@ -1114,6 +1463,8 @@ def run_agent_eval(
         },
         "planning": {
             "selection": plan_selection,
+            "memory_fixture": dict(planner_fixture),
+            "checkpoint_pinned_across_training": bool(planning_snapshot is not None),
             "determinism": "torch single-thread reduction for the probe and the API call",
             "queries": len(plan_rows),
             "correct": int(sum(1 for row in plan_rows if row["correct"])),
@@ -1123,6 +1474,7 @@ def run_agent_eval(
                 sum(1 for row in plan_rows if row["unmasked_depth2"] == row["truth"])
             ),
             "strong_traps": int(sum(1 for row in plan_rows if row["strong_trap"])),
+            "trap_queries": int(len(plan_rows)),
             "rows": plan_rows,
         },
         "verification": {
@@ -1147,6 +1499,27 @@ def run_agent_eval(
             "correct": int(sum(1 for row in delta_rows if row["correct"])),
             "max_ms": float(max((row["delta_ms"] for row in delta_rows), default=0.0)),
             "rows": delta_rows,
+        },
+        "dag_synthesis": {
+            "queries": len(dag_rows),
+            "pipelines": len(I2_DAG_QUERIES),
+            "executed": int(dag_executed),
+            "type_traps": len(I2_TYPE_TRAP_QUERIES),
+            "refused": int(dag_refused),
+            "rows": dag_rows,
+        },
+        "cross_package_agent_step": {
+            "queries": len(xp_rows),
+            "correct": int(xp_ok),
+            "workspace": per_category["cross_package_agent_step"].get("workspace", {}),
+            "rows": xp_rows,
+        },
+        "vocab_lock": {
+            "queries": len(vocab_rows),
+            "correct": int(vocab_ok + fabricated_ok),
+            "locked": bool(vocab_lock is not None),
+            "ledger_digest": str(vocab_lock.digest()) if vocab_lock is not None else "",
+            "rows": vocab_rows,
         },
         "context_compression_ratio": compression,
         "composite": {
@@ -1186,9 +1559,9 @@ def run_agent_eval(
                 == per_category["impact_traps"]["total"]
             ),
             "impact_queries_present": bool(per_category["impact_analysis"]["total"] >= 6),
-            "queries_64": bool(len(receipts) == 64),
-            "receipt_chain_64": bool(
-                len(receipts) == 64
+            "queries_76": bool(len(receipts) == 76),
+            "receipt_chain_76": bool(
+                len(receipts) == 76
                 and all(verify_receipt(receipt) for receipt in receipts)
                 and all(
                     receipts[index]["parent"] == receipts[index - 1]["sha256"]
@@ -1196,6 +1569,13 @@ def run_agent_eval(
                 )
                 and chain_valid
             ),
+            "planning_controls_separated": bool(
+                sum(1 for row in plan_rows if row["depth1"] == row["truth"]) <= 1
+                and sum(1 for row in plan_rows if row["unmasked_depth2"] == row["truth"]) <= 1
+            ),
+            "dag_three_plan_and_traps": bool(dag_executed == 2 and dag_refused == 2),
+            "agent_step_cross_package": bool(xp_ok == 4),
+            "vocab_lock_verified": bool(vocab_ok == 3 and fabricated_ok == 1),
             "planning_mcp_perfect": bool(
                 per_category["depth2_rotor_planning"]["mcp_correct"]
                 == per_category["depth2_rotor_planning"]["total"]
@@ -1230,13 +1610,21 @@ def run_agent_eval(
         and payload["gate"]["impact_mcp_at_least_0_98"]
         and payload["gate"]["impact_traps_refused"]
         and payload["gate"]["impact_queries_present"]
-        and payload["gate"]["queries_64"]
-        and payload["gate"]["receipt_chain_64"]
+        and payload["gate"]["queries_76"]
+        and payload["gate"]["receipt_chain_76"]
+        and payload["gate"]["planning_controls_separated"]
+        and payload["gate"]["dag_three_plan_and_traps"]
+        and payload["gate"]["agent_step_cross_package"]
+        and payload["gate"]["vocab_lock_verified"]
         and payload["gate"]["planning_mcp_perfect"]
         and payload["gate"]["verification_mcp_perfect"]
         and payload["gate"]["synthesis_multiplan_verified"]
         and payload["gate"]["delta_blast_radius_perfect"]
     )
+    try:
+        planner_memory.close()
+    except Exception:
+        pass
     service.close()
     return payload
 

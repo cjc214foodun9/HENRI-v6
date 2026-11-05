@@ -1,0 +1,412 @@
+{
+  "stage": "I3",
+  "checkpoint": {
+    "path": "receipts\\holarch\\holarch_medium.pt",
+    "sha256": "fe905fd0a41789678c3edbdef63e9926e362416bb90f6ed0ca773c0b1f61737e",
+    "parameters": 1020380
+  },
+  "memory_fixture": {
+    "source": "data\\holarch\\zone_c.sqlite3",
+    "path": "C:\\Users\\chan\\Desktop\\HENRI v6\\receipts\\holarch\\_work\\i3_planner_17164.sqlite3",
+    "sha256": "d0863a4179bb37dd1199a08dd8f1c5997cbd693161a32bfa439030bcf4064c80",
+    "bytes": 21590016,
+    "engrams": 2467,
+    "empty": false
+  },
+  "reload_fixture": {
+    "source": "data\\holarch\\zone_c.sqlite3",
+    "path": "C:\\Users\\chan\\Desktop\\HENRI v6\\receipts\\holarch\\_work\\i3_reload_17164.sqlite3",
+    "sha256": "d0863a4179bb37dd1199a08dd8f1c5997cbd693161a32bfa439030bcf4064c80",
+    "bytes": 21590016,
+    "engrams": 2467,
+    "empty": false
+  },
+  "traps": [
+    {
+      "id": "trap01",
+      "agent": [
+        1,
+        1
+      ],
+      "pocket": [
+        1,
+        2
+      ],
+      "goal": [
+        5,
+        6
+      ],
+      "trap_action": 3,
+      "bypass_action": 1,
+      "masked_action": 1,
+      "depth1_action": 3,
+      "unmasked_action": 3,
+      "api_action": 1,
+      "alignment": [
+        0.004712819121778011,
+        0.02226743847131729,
+        0.00389992818236351,
+        0.027085427194833755
+      ],
+      "trap_alignment_is_max": true,
+      "legal_non_reversal_at_t2": [],
+      "cul_de_sac_isolated": true,
+      "score_parity_max_abs": 0.0,
+      "correct": true,
+      "receipt_valid": true,
+      "invariants": {
+        "pocket_legal": true,
+        "three_non_reversing_sides_blocked": true,
+        "only_reversal_open_at_t2": true,
+        "bypass_is_not_the_trap": true,
+        "pocket_on_dominant_goal_axis": true,
+        "goal_reachable": true
+      }
+    },
+    {
+      "id": "trap02",
+      "agent": [
+        1,
+        3
+      ],
+      "pocket": [
+        2,
+        3
+      ],
+      "goal": [
+        5,
+        2
+      ],
+      "trap_action": 1,
+      "bypass_action": 2,
+      "masked_action": 2,
+      "depth1_action": 1,
+      "unmasked_action": 1,
+      "api_action": 2,
+      "alignment": [
+        0.05445075035095215,
+        0.25721609592437744,
+        0.1440173089504242,
+        0.0975089818239212
+      ],
+      "trap_alignment_is_max": true,
+      "legal_non_reversal_at_t2": [],
+      "cul_de_sac_isolated": true,
+      "score_parity_max_abs": 0.0,
+      "correct": true,
+      "receipt_valid": true,
+      "invariants": {
+        "pocket_legal": true,
+        "three_non_reversing_sides_blocked": true,
+        "only_reversal_open_at_t2": true,
+        "bypass_is_not_the_trap": true,
+        "pocket_on_dominant_goal_axis": true,
+        "goal_reachable": true
+      }
+    },
+    {
+      "id": "trap03",
+      "agent": [
+        1,
+        4
+      ],
+      "pocket": [
+        2,
+        4
+      ],
+      "goal": [
+        4,
+        2
+      ],
+      "trap_action": 1,
+      "bypass_action": 2,
+      "masked_action": 2,
+      "depth1_action": 1,
+      "unmasked_action": 1,
+      "api_action": 2,
+      "alignment": [
+        0.09759028255939484,
+        0.31349843740463257,
+        0.2586483061313629,
+        0.11867638677358627
+      ],
+      "trap_alignment_is_max": true,
+      "legal_non_reversal_at_t2": [],
+      "cul_de_sac_isolated": true,
+      "score_parity_max_abs": 0.0,
+      "correct": true,
+      "receipt_valid": true,
+      "invariants": {
+        "pocket_legal": true,
+        "three_non_reversing_sides_blocked": true,
+        "only_reversal_open_at_t2": true,
+        "bypass_is_not_the_trap": true,
+        "pocket_on_dominant_goal_axis": true,
+        "goal_reachable": true
+      }
+    },
+    {
+      "id": "trap04",
+      "agent": [
+        2,
+        1
+      ],
+      "pocket": [
+        2,
+        2
+      ],
+      "goal": [
+        4,
+        5
+      ],
+      "trap_action": 3,
+      "bypass_action": 1,
+      "masked_action": 1,
+      "depth1_action": 3,
+      "unmasked_action": 3,
+      "api_action": 1,
+      "alignment": [
+        0.059836454689502716,
+        0.13042978942394257,
+        0.04071115329861641,
+        0.1926637589931488
+      ],
+      "trap_alignment_is_max": true,
+      "legal_non_reversal_at_t2": [],
+      "cul_de_sac_isolated": true,
+      "score_parity_max_abs": 0.0,
+      "correct": true,
+      "receipt_valid": true,
+      "invariants": {
+        "pocket_legal": true,
+        "three_non_reversing_sides_blocked": true,
+        "only_reversal_open_at_t2": true,
+        "bypass_is_not_the_trap": true,
+        "pocket_on_dominant_goal_axis": true,
+        "goal_reachable": true
+      }
+    },
+    {
+      "id": "trap05",
+      "agent": [
+        3,
+        1
+      ],
+      "pocket": [
+        3,
+        2
+      ],
+      "goal": [
+        2,
+        4
+      ],
+      "trap_action": 3,
+      "bypass_action": 0,
+      "masked_action": 0,
+      "depth1_action": 3,
+      "unmasked_action": 3,
+      "api_action": 0,
+      "alignment": [
+        0.28525057435035706,
+        0.19363439083099365,
+        0.13102373480796814,
+        0.4213056266307831
+      ],
+      "trap_alignment_is_max": true,
+      "legal_non_reversal_at_t2": [],
+      "cul_de_sac_isolated": true,
+      "score_parity_max_abs": 0.0,
+      "correct": true,
+      "receipt_valid": true,
+      "invariants": {
+        "pocket_legal": true,
+        "three_non_reversing_sides_blocked": true,
+        "only_reversal_open_at_t2": true,
+        "bypass_is_not_the_trap": true,
+        "pocket_on_dominant_goal_axis": true,
+        "goal_reachable": true
+      }
+    },
+    {
+      "id": "trap06",
+      "agent": [
+        4,
+        1
+      ],
+      "pocket": [
+        3,
+        1
+      ],
+      "goal": [
+        1,
+        3
+      ],
+      "trap_action": 0,
+      "bypass_action": 3,
+      "masked_action": 3,
+      "depth1_action": 0,
+      "unmasked_action": 0,
+      "api_action": 3,
+      "alignment": [
+        0.3144550621509552,
+        0.09846766293048859,
+        0.1186266839504242,
+        0.2586654722690582
+      ],
+      "trap_alignment_is_max": true,
+      "legal_non_reversal_at_t2": [],
+      "cul_de_sac_isolated": true,
+      "score_parity_max_abs": 0.0,
+      "correct": true,
+      "receipt_valid": true,
+      "invariants": {
+        "pocket_legal": true,
+        "three_non_reversing_sides_blocked": true,
+        "only_reversal_open_at_t2": true,
+        "bypass_is_not_the_trap": true,
+        "pocket_on_dominant_goal_axis": true,
+        "goal_reachable": true
+      }
+    },
+    {
+      "id": "trap07",
+      "agent": [
+        5,
+        2
+      ],
+      "pocket": [
+        4,
+        2
+      ],
+      "goal": [
+        1,
+        5
+      ],
+      "trap_action": 0,
+      "bypass_action": 3,
+      "masked_action": 3,
+      "depth1_action": 0,
+      "unmasked_action": 0,
+      "api_action": 3,
+      "alignment": [
+        0.11837801337242126,
+        0.025270268321037292,
+        0.030277835205197334,
+        0.09737005084753036
+      ],
+      "trap_alignment_is_max": true,
+      "legal_non_reversal_at_t2": [],
+      "cul_de_sac_isolated": true,
+      "score_parity_max_abs": 0.0,
+      "correct": true,
+      "receipt_valid": true,
+      "invariants": {
+        "pocket_legal": true,
+        "three_non_reversing_sides_blocked": true,
+        "only_reversal_open_at_t2": true,
+        "bypass_is_not_the_trap": true,
+        "pocket_on_dominant_goal_axis": true,
+        "goal_reachable": true
+      }
+    },
+    {
+      "id": "trap08",
+      "agent": [
+        5,
+        3
+      ],
+      "pocket": [
+        5,
+        2
+      ],
+      "goal": [
+        3,
+        0
+      ],
+      "trap_action": 2,
+      "bypass_action": 0,
+      "masked_action": 0,
+      "depth1_action": 2,
+      "unmasked_action": 2,
+      "api_action": 0,
+      "alignment": [
+        0.2586978077888489,
+        0.11914268881082535,
+        0.3143012523651123,
+        0.09792064130306244
+      ],
+      "trap_alignment_is_max": true,
+      "legal_non_reversal_at_t2": [],
+      "cul_de_sac_isolated": true,
+      "score_parity_max_abs": 0.0,
+      "correct": true,
+      "receipt_valid": true,
+      "invariants": {
+        "pocket_legal": true,
+        "three_non_reversing_sides_blocked": true,
+        "only_reversal_open_at_t2": true,
+        "bypass_is_not_the_trap": true,
+        "pocket_on_dominant_goal_axis": true,
+        "goal_reachable": true
+      }
+    }
+  ],
+  "controls": {
+    "masked_correct": 8,
+    "depth1_correct": 0,
+    "unmasked_correct": 0,
+    "depth2_wall_masked_accuracy": 1.0,
+    "depth1_control_accuracy": 0.0,
+    "depth2_unmasked_control_accuracy": 0.0
+  },
+  "closed_loop": {
+    "success_rate": 0.8125,
+    "wins": 39,
+    "episodes": 48,
+    "runs": [
+      39,
+      39,
+      39
+    ],
+    "reduction": "median of three 48-episode runs",
+    "warmup_wins": 4,
+    "reactive_success_rate": 0.4583333333333333,
+    "loop_path_success_rate": 0.8125,
+    "reload_success_rate": 0.8125,
+    "reload_wins": 39,
+    "reload_rotor_fitted": true,
+    "threads": 8,
+    "use_memory": true
+  },
+  "parity": {
+    "score_parity_max_abs": 0.0,
+    "api_matches_choose": 8,
+    "api_traps": 8
+  },
+  "latency_ms": {
+    "rollout_batched_median": 1.1031500180251896,
+    "rollout_loop_median": 1.2987000081920996,
+    "rollout_speedup": 1.1772650926634394,
+    "plan_api_batched_median": 53.14500001259148,
+    "plan_api_loop_median": 55.02929999784101,
+    "plan_api_speedup": 1.0354558281080644,
+    "model_forward_median": 43.991800004732795,
+    "note": "The endpoint is dominated by the checkpoint forward pass; the batching improvement is measured on the 4+16 branch rollout, and the endpoint comparison is a no-material-regression check."
+  },
+  "gate": {
+    "depth2_wall_masked_8_of_8": true,
+    "depth1_control_at_most_2_of_8": true,
+    "depth2_unmasked_control_at_most_2_of_8": true,
+    "closed_loop_0_8125": true,
+    "closed_loop_median_stable": true,
+    "replay_bit_identical": true,
+    "batch_loop_parity": true,
+    "plan_api_matches_choose": true,
+    "rollout_faster_batched": true,
+    "plan_api_no_material_regression": true,
+    "all_trap_invariants": true,
+    "passed": true
+  },
+  "wall_seconds": 254.12931590000517,
+  "evidence": "OBSERVED"
+}

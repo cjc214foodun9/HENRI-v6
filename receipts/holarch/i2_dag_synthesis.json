@@ -1,0 +1,838 @@
+{
+  "stage": "I2",
+  "corpus": {
+    "corpus_digest": "ce445993440a4c9f",
+    "vocabulary_size": 2048,
+    "vocabulary_digest": "d5a64f73b97c6aab",
+    "tokens": 387260,
+    "files": 21,
+    "vocab_locked": true,
+    "vocab_ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
+    "vocab_lock_path": "C:\\Users\\chan\\Desktop\\HENRI v6\\receipts\\holarch\\vocab_lock.json"
+  },
+  "plans_compiled": 24,
+  "base_tasks": {
+    "total": 24,
+    "passed": 24,
+    "rows": [
+      {
+        "task_id": "core01",
+        "status": "verified",
+        "plan": "core01",
+        "composed_from": [],
+        "dag_depth": 1,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def engram_count(memory):\n    return int(memory.stats()['count'])\n"
+      },
+      {
+        "task_id": "core02",
+        "status": "verified",
+        "plan": "core02",
+        "composed_from": [],
+        "dag_depth": 1,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def wave_dimension(cfg):\n    return int(cfg.dim)\n"
+      },
+      {
+        "task_id": "core03",
+        "status": "verified",
+        "plan": "core03",
+        "composed_from": [],
+        "dag_depth": 1,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def slot_width(cfg):\n    return int(cfg.d_slot)\n"
+      },
+      {
+        "task_id": "core04",
+        "status": "verified",
+        "plan": "core04",
+        "composed_from": [],
+        "dag_depth": 1,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def receipt_digest(receipt):\n    return str(receipt['sha256'])\n"
+      },
+      {
+        "task_id": "core05",
+        "status": "verified",
+        "plan": "core05",
+        "composed_from": [],
+        "dag_depth": 1,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def canonical_digest(payload):\n    import hashlib\n    import json\n    blob = json.dumps(payload, sort_keys=True).encode('utf-8')\n    return hashlib.sha256(blob).hexdigest()\n"
+      },
+      {
+        "task_id": "core06",
+        "status": "verified",
+        "plan": "core06",
+        "composed_from": [],
+        "dag_depth": 1,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def wave_energy(wave):\n    import numpy as np\n    return float(np.sum(np.abs(wave) ** 2))\n"
+      },
+      {
+        "task_id": "core07",
+        "status": "verified",
+        "plan": "core07",
+        "composed_from": [],
+        "dag_depth": 1,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def graph_node_count(graph):\n    return int(len(graph.nodes))\n"
+      },
+      {
+        "task_id": "core08",
+        "status": "verified",
+        "plan": "core08",
+        "composed_from": [],
+        "dag_depth": 1,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def caller_names(edges):\n    return sorted({edge.source for edge in edges})\n"
+      },
+      {
+        "task_id": "core09",
+        "status": "verified",
+        "plan": "core09",
+        "composed_from": [],
+        "dag_depth": 1,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def task_number(name):\n    table = {'vision': 0, 'language': 1, 'action': 2, 'relational': 3}\n    return int(table[name])\n"
+      },
+      {
+        "task_id": "core10",
+        "status": "verified",
+        "plan": "core10",
+        "composed_from": [],
+        "dag_depth": 1,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def mean_of(values):\n    return float(sum(values) / max(len(values), 1))\n"
+      },
+      {
+        "task_id": "core11",
+        "status": "verified",
+        "plan": "core11",
+        "composed_from": [],
+        "dag_depth": 1,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def clamp_unit(value):\n    return max(0.0, min(1.0, float(value)))\n"
+      },
+      {
+        "task_id": "core12",
+        "status": "verified",
+        "plan": "core12",
+        "composed_from": [],
+        "dag_depth": 1,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def directory_listing(path):\n    from pathlib import Path\n    return sorted((item.name for item in Path(path).iterdir()))\n"
+      },
+      {
+        "task_id": "shift01",
+        "status": "verified",
+        "plan": "shift01",
+        "composed_from": [],
+        "dag_depth": 1,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def rotate_wave(wave, angle):\n    import numpy as np\n    return wave * np.exp(1j * angle)\n"
+      },
+      {
+        "task_id": "shift02",
+        "status": "verified",
+        "plan": "shift02",
+        "composed_from": [],
+        "dag_depth": 1,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def conjugate_wave(wave):\n    import numpy as np\n    return np.conj(wave)\n"
+      },
+      {
+        "task_id": "shift03",
+        "status": "verified",
+        "plan": "shift03",
+        "composed_from": [],
+        "dag_depth": 1,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def normalised_wave(wave):\n    import numpy as np\n    return wave / np.linalg.norm(wave)\n"
+      },
+      {
+        "task_id": "shift04",
+        "status": "verified",
+        "plan": "shift04",
+        "composed_from": [],
+        "dag_depth": 1,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def coherence_pair(left, right):\n    import numpy as np\n    return float(np.real(np.vdot(left, right)))\n"
+      },
+      {
+        "task_id": "shift05",
+        "status": "verified",
+        "plan": "shift05",
+        "composed_from": [],
+        "dag_depth": 1,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def bind_phase(left, right):\n    return left * right\n"
+      },
+      {
+        "task_id": "shift06",
+        "status": "verified",
+        "plan": "shift06",
+        "composed_from": [],
+        "dag_depth": 1,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def unbind_phase(left, right):\n    import numpy as np\n    return left * np.conj(right)\n"
+      },
+      {
+        "task_id": "shift07",
+        "status": "verified",
+        "plan": "shift07",
+        "composed_from": [],
+        "dag_depth": 1,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def batch_mean(values):\n    import numpy as np\n    return np.mean(values, axis=0)\n"
+      },
+      {
+        "task_id": "shift08",
+        "status": "verified",
+        "plan": "shift08",
+        "composed_from": [],
+        "dag_depth": 1,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def stable_softmax(logits):\n    import numpy as np\n    shifted = logits - np.max(logits)\n    weights = np.exp(shifted)\n    return weights / np.sum(weights)\n"
+      },
+      {
+        "task_id": "shift09",
+        "status": "verified",
+        "plan": "shift09",
+        "composed_from": [],
+        "dag_depth": 1,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def top_index(values):\n    best = 0\n    for index in range(1, len(values)):\n        if values[index] > values[best]:\n            best = index\n    return int(best)\n"
+      },
+      {
+        "task_id": "shift10",
+        "status": "verified",
+        "plan": "shift10",
+        "composed_from": [],
+        "dag_depth": 1,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def hashed_name(name):\n    import hashlib\n    return hashlib.sha256(str(name).encode('utf-8')).hexdigest()[:16]\n"
+      },
+      {
+        "task_id": "shift11",
+        "status": "verified",
+        "plan": "shift11",
+        "composed_from": [],
+        "dag_depth": 1,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def sequence_length(tokens):\n    return int(len(tokens))\n"
+      },
+      {
+        "task_id": "shift12",
+        "status": "verified",
+        "plan": "shift12",
+        "composed_from": [],
+        "dag_depth": 1,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def json_roundtrip(payload):\n    import json\n    return json.loads(json.dumps(payload))\n"
+      }
+    ]
+  },
+  "single_plan_compositional": {
+    "total": 12,
+    "passed": 12,
+    "rows": [
+      {
+        "task_id": "comp01",
+        "status": "verified",
+        "plan": "core01",
+        "composed_from": [],
+        "dag_depth": 1,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def tally_engrams(store):\n    return int(store.stats()['count'])\n"
+      },
+      {
+        "task_id": "comp02",
+        "status": "verified",
+        "plan": "core02",
+        "composed_from": [],
+        "dag_depth": 1,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def latent_width(config):\n    return int(config.dim)\n"
+      },
+      {
+        "task_id": "comp03",
+        "status": "verified",
+        "plan": "core03",
+        "composed_from": [],
+        "dag_depth": 1,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def per_slot_width(settings):\n    return int(settings.d_slot)\n"
+      },
+      {
+        "task_id": "comp04",
+        "status": "verified",
+        "plan": "core04",
+        "composed_from": [],
+        "dag_depth": 1,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def digest_of(record):\n    return str(record['sha256'])\n"
+      },
+      {
+        "task_id": "comp05",
+        "status": "verified",
+        "plan": "core05",
+        "composed_from": [],
+        "dag_depth": 1,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def sorted_digest(body):\n    import hashlib\n    import json\n    blob = json.dumps(body, sort_keys=True).encode('utf-8')\n    return hashlib.sha256(blob).hexdigest()\n"
+      },
+      {
+        "task_id": "comp06",
+        "status": "verified",
+        "plan": "core06",
+        "composed_from": [],
+        "dag_depth": 1,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def energy_of(signal):\n    import numpy as np\n    return float(np.sum(np.abs(signal) ** 2))\n"
+      },
+      {
+        "task_id": "comp07",
+        "status": "verified",
+        "plan": "core07",
+        "composed_from": [],
+        "dag_depth": 1,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def node_total(chart):\n    return int(len(chart.nodes))\n"
+      },
+      {
+        "task_id": "comp08",
+        "status": "verified",
+        "plan": "core08",
+        "composed_from": [],
+        "dag_depth": 1,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def sources_of(links):\n    return sorted({edge.source for edge in links})\n"
+      },
+      {
+        "task_id": "comp09",
+        "status": "verified",
+        "plan": "core09",
+        "composed_from": [],
+        "dag_depth": 1,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def index_of_task(title):\n    table = {'vision': 4, 'language': 5, 'action': 6, 'relational': 7}\n    return int(table[title])\n"
+      },
+      {
+        "task_id": "comp10",
+        "status": "verified",
+        "plan": "core10",
+        "composed_from": [],
+        "dag_depth": 1,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def average_of(sample):\n    return float(sum(sample) / max(len(sample), 1))\n"
+      },
+      {
+        "task_id": "comp11",
+        "status": "verified",
+        "plan": "core11",
+        "composed_from": [],
+        "dag_depth": 1,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def clamp_high(level):\n    return max(0.0, min(2.5, float(level)))\n"
+      },
+      {
+        "task_id": "comp12",
+        "status": "verified",
+        "plan": "core12",
+        "composed_from": [],
+        "dag_depth": 1,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def files_in(folder):\n    from pathlib import Path\n    return sorted((item.name for item in Path(folder).iterdir()))\n"
+      }
+    ]
+  },
+  "two_plan_pipelines": {
+    "total": 8,
+    "passed": 8,
+    "rows": [
+      {
+        "task_id": "multi01",
+        "status": "verified",
+        "plan": "core08+shift11",
+        "composed_from": [
+          "core08",
+          "shift11"
+        ],
+        "dag_depth": 2,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def distinct_caller_count(links):\n    step_1 = sorted({edge.source for edge in links})\n    return int(len(step_1))\n"
+      },
+      {
+        "task_id": "multi02",
+        "status": "verified",
+        "plan": "shift11+core11",
+        "composed_from": [
+          "shift11",
+          "core11"
+        ],
+        "dag_depth": 2,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def bounded_length(tokens):\n    step_1 = int(len(tokens))\n    return max(0.0, min(2.5, float(step_1)))\n"
+      },
+      {
+        "task_id": "multi03",
+        "status": "verified",
+        "plan": "core10+core11",
+        "composed_from": [
+          "core10",
+          "core11"
+        ],
+        "dag_depth": 2,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def bounded_mean(sample):\n    step_1 = float(sum(sample) / max(len(sample), 1))\n    return max(0.0, min(2.5, float(step_1)))\n"
+      },
+      {
+        "task_id": "multi04",
+        "status": "verified",
+        "plan": "core02+core11",
+        "composed_from": [
+          "core02",
+          "core11"
+        ],
+        "dag_depth": 2,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def bounded_dimension(config):\n    step_1 = int(config.dim)\n    return max(0.0, min(2.5, float(step_1)))\n"
+      },
+      {
+        "task_id": "multi05",
+        "status": "verified",
+        "plan": "core03+core11",
+        "composed_from": [
+          "core03",
+          "core11"
+        ],
+        "dag_depth": 2,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def bounded_slot(settings):\n    step_1 = int(settings.d_slot)\n    return max(0.0, min(2.5, float(step_1)))\n"
+      },
+      {
+        "task_id": "multi06",
+        "status": "verified",
+        "plan": "core04+shift11",
+        "composed_from": [
+          "core04",
+          "shift11"
+        ],
+        "dag_depth": 2,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def digest_length(record):\n    step_1 = str(record['sha256'])\n    return int(len(step_1))\n"
+      },
+      {
+        "task_id": "multi07",
+        "status": "verified",
+        "plan": "core07+core11",
+        "composed_from": [
+          "core07",
+          "core11"
+        ],
+        "dag_depth": 2,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def bounded_node_count(chart):\n    step_1 = int(len(chart.nodes))\n    return max(0.0, min(2.5, float(step_1)))\n"
+      },
+      {
+        "task_id": "multi08",
+        "status": "verified",
+        "plan": "core01+core11",
+        "composed_from": [
+          "core01",
+          "core11"
+        ],
+        "dag_depth": 2,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def bounded_engram_count(store):\n    step_1 = int(store.stats()['count'])\n    return max(0.0, min(2.5, float(step_1)))\n"
+      }
+    ]
+  },
+  "three_plan_pipelines": {
+    "total": 8,
+    "passed": 8,
+    "accuracy": 1.0,
+    "rows": [
+      {
+        "spec_id": "tri01",
+        "status": "verified",
+        "plan": "core08+shift11+core11",
+        "composed_from": [
+          "core08",
+          "shift11",
+          "core11"
+        ],
+        "dag_depth": 3,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def tri_alpha(links):\n    step_1 = sorted({edge.source for edge in links})\n    step_2 = int(len(step_1))\n    return max(0.0, min(2.5, float(step_2)))\n",
+        "bounds": [
+          0.0,
+          2.5
+        ],
+        "expected": 2.5
+      },
+      {
+        "spec_id": "tri02",
+        "status": "verified",
+        "plan": "core08+shift11+core11",
+        "composed_from": [
+          "core08",
+          "shift11",
+          "core11"
+        ],
+        "dag_depth": 3,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def tri_beta(edges):\n    step_1 = sorted({edge.source for edge in edges})\n    step_2 = int(len(step_1))\n    return max(0.0, min(1.0, float(step_2)))\n",
+        "bounds": [
+          0.0,
+          1.0
+        ],
+        "expected": 1.0
+      },
+      {
+        "spec_id": "tri03",
+        "status": "verified",
+        "plan": "core08+shift11+core11",
+        "composed_from": [
+          "core08",
+          "shift11",
+          "core11"
+        ],
+        "dag_depth": 3,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def tri_gamma(pairs):\n    step_1 = sorted({edge.source for edge in pairs})\n    step_2 = int(len(step_1))\n    return max(1.0, min(4.0, float(step_2)))\n",
+        "bounds": [
+          1.0,
+          4.0
+        ],
+        "expected": 3.0
+      },
+      {
+        "spec_id": "tri04",
+        "status": "verified",
+        "plan": "core08+shift11+core11",
+        "composed_from": [
+          "core08",
+          "shift11",
+          "core11"
+        ],
+        "dag_depth": 3,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def tri_delta(records):\n    step_1 = sorted({edge.source for edge in records})\n    step_2 = int(len(step_1))\n    return max(0.0, min(2.0, float(step_2)))\n",
+        "bounds": [
+          0.0,
+          2.0
+        ],
+        "expected": 2.0
+      },
+      {
+        "spec_id": "tri05",
+        "status": "verified",
+        "plan": "core08+shift11+core11",
+        "composed_from": [
+          "core08",
+          "shift11",
+          "core11"
+        ],
+        "dag_depth": 3,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def tri_epsilon(rows):\n    step_1 = sorted({edge.source for edge in rows})\n    step_2 = int(len(step_1))\n    return max(1.0, min(2.0, float(step_2)))\n",
+        "bounds": [
+          1.0,
+          2.0
+        ],
+        "expected": 2.0
+      },
+      {
+        "spec_id": "tri06",
+        "status": "verified",
+        "plan": "core08+shift11+core11",
+        "composed_from": [
+          "core08",
+          "shift11",
+          "core11"
+        ],
+        "dag_depth": 3,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def tri_zeta(items):\n    step_1 = sorted({edge.source for edge in items})\n    step_2 = int(len(step_1))\n    return max(0.5, min(3.5, float(step_2)))\n",
+        "bounds": [
+          0.5,
+          3.5
+        ],
+        "expected": 3.0
+      },
+      {
+        "spec_id": "tri07",
+        "status": "verified",
+        "plan": "core08+shift11+core11",
+        "composed_from": [
+          "core08",
+          "shift11",
+          "core11"
+        ],
+        "dag_depth": 3,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def tri_eta(graph_edges):\n    step_1 = sorted({edge.source for edge in graph_edges})\n    step_2 = int(len(step_1))\n    return max(0.0, min(0.5, float(step_2)))\n",
+        "bounds": [
+          0.0,
+          0.5
+        ],
+        "expected": 0.5
+      },
+      {
+        "spec_id": "tri08",
+        "status": "verified",
+        "plan": "core08+shift11+core11",
+        "composed_from": [
+          "core08",
+          "shift11",
+          "core11"
+        ],
+        "dag_depth": 3,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def tri_theta(edge_list):\n    step_1 = sorted({edge.source for edge in edge_list})\n    step_2 = int(len(step_1))\n    return max(2.0, min(5.0, float(step_2)))\n",
+        "bounds": [
+          2.0,
+          5.0
+        ],
+        "expected": 3.0
+      }
+    ]
+  },
+  "type_mismatch_traps": {
+    "total": 4,
+    "refused": 4,
+    "rows": [
+      {
+        "id": "itrap01",
+        "status": "refused",
+        "refused": true,
+        "plan": "core04+core10",
+        "composed_from": [
+          "core04",
+          "core10"
+        ],
+        "reason": "type mismatch: core04.returns ['text'] cannot bind core10.values ['numeric_sequence']",
+        "type_compatible": false
+      },
+      {
+        "id": "itrap02",
+        "status": "refused",
+        "refused": true,
+        "plan": "core04+core11",
+        "composed_from": [
+          "core04",
+          "core11"
+        ],
+        "reason": "type mismatch: core04.returns ['text'] cannot bind core11.value ['numeric']",
+        "type_compatible": false
+      },
+      {
+        "id": "itrap03",
+        "status": "refused",
+        "refused": true,
+        "plan": "core10+core04",
+        "composed_from": [
+          "core10",
+          "core04"
+        ],
+        "reason": "type mismatch: core10.returns ['numeric'] cannot bind core04.receipt ['mapping']",
+        "type_compatible": false
+      },
+      {
+        "id": "itrap04",
+        "status": "refused",
+        "refused": true,
+        "plan": "core08+core04",
+        "composed_from": [
+          "core08",
+          "core04"
+        ],
+        "reason": "type mismatch: core08.returns ['sequence'] cannot bind core04.receipt ['mapping']",
+        "type_compatible": false
+      }
+    ]
+  },
+  "total_synthesis_benchmark": {
+    "total": 56,
+    "passed": 56,
+    "accuracy": 1.0
+  },
+  "emission": {
+    "exact": 52,
+    "fallbacks": 0,
+    "composed": 16,
+    "dag_composed": 8,
+    "type_refused": 4
+  },
+  "gate": {
+    "base_24_of_24": true,
+    "single_plan_12_of_12": true,
+    "two_plan_8_of_8": true,
+    "three_plan_at_least_7_of_8": true,
+    "three_plan_8_of_8": true,
+    "type_mismatch_4_of_4": true,
+    "total_56_of_56": true,
+    "plans_compiled_24": true,
+    "passed": true
+  },
+  "wall_seconds": 9.187549900001613,
+  "evidence": "OBSERVED"
+}

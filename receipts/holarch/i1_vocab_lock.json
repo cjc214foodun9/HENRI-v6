@@ -1,0 +1,102 @@
+{
+  "stage": "I1",
+  "corpus": {
+    "source": "git_revision",
+    "revision": "67e9b25",
+    "digest": "921fd07a85daf51e",
+    "texts": 21,
+    "live_before_files": 21,
+    "live_after_files": 22
+  },
+  "vocabulary_lock": {
+    "path": "receipts\\holarch\\vocab_lock.json",
+    "sha256": "982653ecb74011f82c9134bda6e1f3c19cc3f46b19139f656cc52463a47c20ae",
+    "ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
+    "identifiers": 965,
+    "identifier_base": 1083,
+    "curated_size": 827,
+    "vocab_size": 2048,
+    "capacity": 965,
+    "full": true,
+    "matches_canonical_67e9b25": true,
+    "canonical_vocabulary_digest": "d5a64f73b97c6aab",
+    "locked_vocabulary_digest": "d5a64f73b97c6aab"
+  },
+  "mutation": {
+    "module": "henri/holarch/live_mutation_probe.py",
+    "functions": 600,
+    "self_references_per_function": 10,
+    "unlocked_existing_id_shifts": 604,
+    "unlocked_identifiers_displaced": 600,
+    "locked_existing_id_shifts": 0,
+    "locked_identifier_map_identical": true,
+    "locked_vocabulary_identical_to_canonical": true
+  },
+  "roundtrip": {
+    "texts": 230,
+    "ok": 230,
+    "lossless_rate": 1.0,
+    "failures": [],
+    "languages": [
+      ".py",
+      ".md"
+    ]
+  },
+  "growth": {
+    "vocab_size": 1400,
+    "locked_identifiers": 200,
+    "size_before": 1400,
+    "size_after": 1400,
+    "appended_after_lock": 117,
+    "appended_ids_contiguous": true,
+    "locked_id_shifts": 0,
+    "locked_tail_preserved": true,
+    "free_tail": 117
+  },
+  "h1": {
+    "before": {
+      "top1": 0.562016806722689,
+      "bits_per_char": 1.2916944159315715,
+      "floor_top1": 0.562016806722689,
+      "beta_gate": {
+        "beta_low": 0.01,
+        "beta_high": 0.02,
+        "tau_h": 0.75,
+        "tau_order": 3.0
+      },
+      "decision_preserving_projection": true,
+      "vocabulary_digest": "d5a64f73b97c6aab"
+    },
+    "after": {
+      "top1": 0.562016806722689,
+      "bits_per_char": 1.2916944159315715,
+      "floor_top1": 0.562016806722689,
+      "beta_gate": {
+        "beta_low": 0.01,
+        "beta_high": 0.02,
+        "tau_h": 0.75,
+        "tau_order": 3.0
+      },
+      "decision_preserving_projection": true,
+      "vocabulary_digest": "d5a64f73b97c6aab"
+    },
+    "base_top1": 0.562016806722689,
+    "base_bits_per_char": 1.2916944159315715,
+    "identical": true
+  },
+  "gate": {
+    "existing_id_shifts_after_mutation_zero": true,
+    "roundtrip_lossless_1_0": true,
+    "top1_held_out_at_least_base": true,
+    "bits_per_char_at_most_base": true,
+    "decision_preserving_projection": true,
+    "before_after_identical": true,
+    "unlocked_drift_exceeds_500": true,
+    "locked_vocabulary_identical": true,
+    "append_only_growth_verified": true,
+    "lock_matches_canonical": true,
+    "passed": true
+  },
+  "wall_seconds": 258.0878349999839,
+  "evidence": "OBSERVED"
+}

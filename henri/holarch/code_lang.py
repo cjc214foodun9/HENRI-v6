@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import ast
 import hashlib
+import json
 import math
 from collections import Counter
 from dataclasses import dataclass, field
@@ -213,6 +214,144 @@ class TokenizerSpec:
         return hashlib.sha256(blob).hexdigest()[:16]
 
 
+VOCAB_LEDGER_VERSION = 1
+"""Schema version of the persisted vocabulary lock."""
+
+VOCAB_LEDGER_KIND = "vocab_ledger"
+"""The Zone C metadata kind the lock is written under."""
+
+
+@dataclass(frozen=True)
+class VocabularyLedger:
+    """An immutable, append-only record of the identifier half of a vocabulary.
+
+    Directive I1. The tokenizer's curated pieces and byte block are already
+    position-stable; the identifiers are what used to be re-sorted by
+    frequency on every build. The ledger fixes that order. An identifier in
+    identifiers[i] always receives id curated_size + 256 + i, so a receipt,
+    an n-gram table, or a fast-weight row that names a token id keeps its
+    meaning when the live tree grows.
+
+    The ledger is a value object: save() writes canonical JSON, load()
+    validates the schema, and digest() covers exactly the bytes the file
+    holds (minus the digest field itself).
+    """
+
+    identifiers: Tuple[str, ...] = ()
+    vocab_size: int = 2048
+    curated_size: int = 0
+    curated_digest: str = ""
+    source: str = ""
+    version: int = VOCAB_LEDGER_VERSION
+
+    # ------------------------------------------------------------- geometry
+    @property
+    def byte_base(self) -> int:
+        return int(self.curated_size)
+
+    @property
+    def identifier_base(self) -> int:
+        """The id the first locked identifier receives."""
+        return int(self.curated_size) + N_BYTE_TOKENS
+
+    @property
+    def capacity(self) -> int:
+        """How many identifier slots the declared vocabulary has."""
+        return max(0, int(self.vocab_size) - int(self.curated_size) - N_BYTE_TOKENS)
+
+    def id_of(self, name: str) -> Optional[int]:
+        """The pinned id of one identifier, or None when it is not locked."""
+        try:
+            index = self.identifiers.index(str(name))
+        except ValueError:
+            return None
+        return self.identifier_base + index
+
+    def truncated(self, count: int, vocab_size: Optional[int] = None) -> "VocabularyLedger":
+        """A prefix copy, for a smaller-vocabulary growth experiment."""
+        names = tuple(self.identifiers[: max(0, int(count))])
+        return VocabularyLedger(
+            identifiers=names,
+            vocab_size=int(vocab_size or self.vocab_size),
+            curated_size=int(self.curated_size),
+            curated_digest=str(self.curated_digest),
+            source=str(self.source),
+            version=int(self.version),
+        )
+
+    # ------------------------------------------------------------- payload
+    def as_payload(self) -> Dict[str, object]:
+        return {
+            "version": int(self.version),
+            "vocab_size": int(self.vocab_size),
+            "curated_size": int(self.curated_size),
+            "curated_digest": str(self.curated_digest),
+            "source": str(self.source),
+            "identifier_count": len(self.identifiers),
+            "identifier_digest": hashlib.sha256(
+                "\n".join(self.identifiers).encode("utf-8", errors="surrogatepass")
+            ).hexdigest(),
+            "digest": self.digest(),
+            "identifiers": list(self.identifiers),
+        }
+
+    def digest(self) -> str:
+        body = {
+            "version": int(self.version),
+            "vocab_size": int(self.vocab_size),
+            "curated_size": int(self.curated_size),
+            "curated_digest": str(self.curated_digest),
+            "source": str(self.source),
+            "identifiers": list(self.identifiers),
+        }
+        blob = json.dumps(body, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+        return hashlib.sha256(blob.encode("utf-8", errors="surrogatepass")).hexdigest()
+
+    @classmethod
+    def from_payload(cls, payload: Dict[str, object]) -> "VocabularyLedger":
+        names = payload.get("identifiers") or []
+        if not isinstance(names, (list, tuple)):
+            raise ValueError("vocab ledger identifiers must be a list")
+        return cls(
+            identifiers=tuple(str(name) for name in names),
+            vocab_size=int(payload.get("vocab_size", 2048)),
+            curated_size=int(payload.get("curated_size", 0)),
+            curated_digest=str(payload.get("curated_digest", "")),
+            source=str(payload.get("source", "")),
+            version=int(payload.get("version", VOCAB_LEDGER_VERSION)),
+        )
+
+    # ----------------------------------------------------------- persistence
+    def save(self, path: str | Path) -> Dict[str, object]:
+        """Write the lock as canonical JSON and return its file digest."""
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        payload = self.as_payload()
+        target.write_text(
+            json.dumps(payload, indent=2, sort_keys=True, ensure_ascii=False) + chr(10),
+            encoding="utf-8",
+        )
+        file_digest = hashlib.sha256(target.read_bytes()).hexdigest()
+        return {
+            "path": str(target),
+            "sha256": file_digest,
+            "digest": self.digest(),
+            "identifiers": len(self.identifiers),
+        }
+
+    @classmethod
+    def load(cls, path: str | Path) -> "VocabularyLedger":
+        payload = json.loads(Path(path).read_text(encoding="utf-8"))
+        ledger = cls.from_payload(payload)
+        recorded = str(payload.get("digest", "") or "")
+        if recorded and recorded != ledger.digest():
+            raise ValueError(
+                f"vocabulary lock {path} fails its own digest check "
+                f"({recorded} != {ledger.digest()})"
+            )
+        return ledger
+
+
 class HolarchCodeTextTokenizer:
     """A deterministic, lossless subword tokenizer with a byte backstop.
 
@@ -233,6 +372,7 @@ class HolarchCodeTextTokenizer:
         vocab_size: int = 2048,
         seed: int = 0,
         extra_identifiers: Sequence[str] = (),
+        vocab_lock: Optional[VocabularyLedger] = None,
     ) -> None:
         if int(vocab_size) > 2048:
             raise ValueError("vocab_size must be <= 2048")
@@ -261,6 +401,14 @@ class HolarchCodeTextTokenizer:
         self.spec = TokenizerSpec(pieces=tuple(self._curated))
         self._trie = self._build_trie()
         self._cache: Dict[str, Tuple[int, ...]] = {}
+        # Directive I1: the lock is applied first, in its recorded order, so
+        # every identifier it names reclaims its exact integer id. Only then
+        # may a caller add extra names, which append after the locked tail.
+        self.ledger_source = str(getattr(vocab_lock, "source", "") or "")
+        self.locked = bool(vocab_lock is not None)
+        self.ledger: VocabularyLedger = self._make_ledger()
+        if vocab_lock is not None:
+            self.apply_ledger(vocab_lock)
         if extra_identifiers:
             self.add_identifiers(extra_identifiers)
 
@@ -281,6 +429,73 @@ class HolarchCodeTextTokenizer:
         for bucket in buckets.values():
             bucket.sort(key=lambda pair: (-len(pair[0]), pair[1]))
         return buckets
+
+    def _make_ledger(self, source: Optional[str] = None) -> VocabularyLedger:
+        """Snapshot the identifier order this tokenizer currently holds."""
+        return VocabularyLedger(
+            identifiers=tuple(self._identifiers),
+            vocab_size=int(self.vocab_size),
+            curated_size=len(self._curated),
+            curated_digest=TokenizerSpec(pieces=tuple(self._curated)).digest(),
+            source=str(self.ledger_source if source is None else source),
+        )
+
+    @property
+    def identifiers(self) -> Tuple[str, ...]:
+        """The identifier half of the vocabulary, in pinned id order."""
+        return tuple(self._identifiers)
+
+    def apply_ledger(self, ledger: VocabularyLedger) -> int:
+        """Append a locked identifier order, preserving every pinned id.
+
+        The ledger's order is the id order. An identifier that is already in
+        the vocabulary is skipped (its id cannot move); a new one is appended
+        only when a free tail slot exists, which is what makes the lock
+        append-only rather than a replacement.
+        """
+        if int(ledger.curated_size) and int(ledger.curated_size) != len(self._curated):
+            raise ValueError(
+                "vocabulary lock was built with a different curated prefix "
+                f"({ledger.curated_size} != {len(self._curated)})"
+            )
+        self.ledger_source = str(ledger.source or self.ledger_source)
+        self.locked = True
+        added = self.add_identifiers(ledger.identifiers)
+        self.ledger = self._make_ledger()
+        return added
+
+    def sync_corpus(
+        self,
+        corpus: "CodeTextCorpus",
+        memory=None,
+        namespace: str = "default",
+        source: Optional[str] = None,
+        save_path: Optional[str | Path] = None,
+    ) -> Dict[str, object]:
+        """Discover a corpus without disturbing a single existing token id.
+
+        Directive I1. New identifiers append to the free tail in the
+        corpus's deterministic frequency order; when the vocabulary is full
+        they are simply not added, and the byte fallback still encodes them
+        losslessly. The resulting ledger is written to Zone C metadata and,
+        optionally, to a pinned JSON file.
+        """
+        before = len(self._texts)
+        added = self.add_identifiers(corpus.python_identifiers())
+        self.ledger = self._make_ledger(source=source)
+        if memory is not None and hasattr(memory, "put_meta"):
+            memory.put_meta(str(namespace), VOCAB_LEDGER_KIND, "vocab_ledger", self.ledger.as_payload())
+        saved = self.ledger.save(save_path) if save_path is not None else {}
+        return {
+            "added": int(added),
+            "size_before": int(before),
+            "size_after": int(len(self._texts)),
+            "vocab_size": int(self.vocab_size),
+            "full": bool(len(self._texts) >= int(self.vocab_size)),
+            "identifiers": len(self._identifiers),
+            "ledger_digest": self.ledger.digest(),
+            "saved": saved,
+        }
 
     def add_identifiers(self, names: Iterable[str]) -> int:
         """Grow the vocabulary with corpus identifiers, up to the cap.
@@ -307,6 +522,7 @@ class HolarchCodeTextTokenizer:
         if added:
             self.spec = TokenizerSpec(pieces=tuple(self._curated + self._identifiers))
             self._cache.clear()
+        self.ledger = self._make_ledger()
         return added
 
     # ------------------------------------------------------------- encoding
@@ -970,10 +1186,25 @@ def build_tokenizer(
     corpus: CodeTextCorpus,
     vocab_size: int = 2048,
     seed: int = 0,
+    vocab_lock: Optional[VocabularyLedger] = None,
+    discover: bool = True,
 ) -> HolarchCodeTextTokenizer:
-    """A vocabulary covering the curated list and this corpus's identifiers."""
-    tokenizer = HolarchCodeTextTokenizer(vocab_size=vocab_size, seed=seed)
-    tokenizer.add_identifiers(corpus.python_identifiers())
+    """A vocabulary covering the curated list and this corpus's identifiers.
+
+    Directive I1. With a vocabulary lock the identifier ids are reclaimed
+    from the lock before the corpus is read, so a live-tree edit can only
+    append to the free tail; without one the historical frequency order is
+    produced unchanged, which is what keeps every Cycle A-H receipt
+    replayable.
+    """
+    tokenizer = HolarchCodeTextTokenizer(
+        vocab_size=vocab_size, seed=seed, vocab_lock=vocab_lock
+    )
+    if discover:
+        tokenizer.add_identifiers(corpus.python_identifiers())
+    tokenizer.ledger = tokenizer._make_ledger(
+        source=str(getattr(vocab_lock, "source", "") or "")
+    )
     return tokenizer
 
 

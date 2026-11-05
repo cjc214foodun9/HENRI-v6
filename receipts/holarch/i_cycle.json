@@ -1,0 +1,1857 @@
+{
+  "cycle": "I1-I4",
+  "git_head": "df9fedd28b63528f3744e9d88895d4f00c10dfb5",
+  "directives": {
+    "I1": {
+      "stage": "I1",
+      "corpus": {
+        "source": "git_revision",
+        "revision": "67e9b25",
+        "digest": "921fd07a85daf51e",
+        "texts": 21,
+        "live_before_files": 21,
+        "live_after_files": 22
+      },
+      "vocabulary_lock": {
+        "path": "receipts\\holarch\\vocab_lock.json",
+        "sha256": "982653ecb74011f82c9134bda6e1f3c19cc3f46b19139f656cc52463a47c20ae",
+        "ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
+        "identifiers": 965,
+        "identifier_base": 1083,
+        "curated_size": 827,
+        "vocab_size": 2048,
+        "capacity": 965,
+        "full": true,
+        "matches_canonical_67e9b25": true,
+        "canonical_vocabulary_digest": "d5a64f73b97c6aab",
+        "locked_vocabulary_digest": "d5a64f73b97c6aab"
+      },
+      "mutation": {
+        "module": "henri/holarch/live_mutation_probe.py",
+        "functions": 600,
+        "self_references_per_function": 10,
+        "unlocked_existing_id_shifts": 604,
+        "unlocked_identifiers_displaced": 600,
+        "locked_existing_id_shifts": 0,
+        "locked_identifier_map_identical": true,
+        "locked_vocabulary_identical_to_canonical": true
+      },
+      "roundtrip": {
+        "texts": 230,
+        "ok": 230,
+        "lossless_rate": 1.0,
+        "failures": [],
+        "languages": [
+          ".py",
+          ".md"
+        ]
+      },
+      "growth": {
+        "vocab_size": 1400,
+        "locked_identifiers": 200,
+        "size_before": 1400,
+        "size_after": 1400,
+        "appended_after_lock": 117,
+        "appended_ids_contiguous": true,
+        "locked_id_shifts": 0,
+        "locked_tail_preserved": true,
+        "free_tail": 117
+      },
+      "h1": {
+        "before": {
+          "top1": 0.562016806722689,
+          "bits_per_char": 1.2916944159315715,
+          "floor_top1": 0.562016806722689,
+          "beta_gate": {
+            "beta_low": 0.01,
+            "beta_high": 0.02,
+            "tau_h": 0.75,
+            "tau_order": 3.0
+          },
+          "decision_preserving_projection": true,
+          "vocabulary_digest": "d5a64f73b97c6aab"
+        },
+        "after": {
+          "top1": 0.562016806722689,
+          "bits_per_char": 1.2916944159315715,
+          "floor_top1": 0.562016806722689,
+          "beta_gate": {
+            "beta_low": 0.01,
+            "beta_high": 0.02,
+            "tau_h": 0.75,
+            "tau_order": 3.0
+          },
+          "decision_preserving_projection": true,
+          "vocabulary_digest": "d5a64f73b97c6aab"
+        },
+        "base_top1": 0.562016806722689,
+        "base_bits_per_char": 1.2916944159315715,
+        "identical": true
+      },
+      "gate": {
+        "existing_id_shifts_after_mutation_zero": true,
+        "roundtrip_lossless_1_0": true,
+        "top1_held_out_at_least_base": true,
+        "bits_per_char_at_most_base": true,
+        "decision_preserving_projection": true,
+        "before_after_identical": true,
+        "unlocked_drift_exceeds_500": true,
+        "locked_vocabulary_identical": true,
+        "append_only_growth_verified": true,
+        "lock_matches_canonical": true,
+        "passed": true
+      },
+      "wall_seconds": 258.0878349999839,
+      "evidence": "OBSERVED"
+    },
+    "I2": {
+      "stage": "I2",
+      "corpus": {
+        "corpus_digest": "ce445993440a4c9f",
+        "vocabulary_size": 2048,
+        "vocabulary_digest": "d5a64f73b97c6aab",
+        "tokens": 387260,
+        "files": 21,
+        "vocab_locked": true,
+        "vocab_ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
+        "vocab_lock_path": "C:\\Users\\chan\\Desktop\\HENRI v6\\receipts\\holarch\\vocab_lock.json"
+      },
+      "plans_compiled": 24,
+      "base_tasks": {
+        "total": 24,
+        "passed": 24,
+        "rows": [
+          {
+            "task_id": "core01",
+            "status": "verified",
+            "plan": "core01",
+            "composed_from": [],
+            "dag_depth": 1,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def engram_count(memory):\n    return int(memory.stats()['count'])\n"
+          },
+          {
+            "task_id": "core02",
+            "status": "verified",
+            "plan": "core02",
+            "composed_from": [],
+            "dag_depth": 1,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def wave_dimension(cfg):\n    return int(cfg.dim)\n"
+          },
+          {
+            "task_id": "core03",
+            "status": "verified",
+            "plan": "core03",
+            "composed_from": [],
+            "dag_depth": 1,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def slot_width(cfg):\n    return int(cfg.d_slot)\n"
+          },
+          {
+            "task_id": "core04",
+            "status": "verified",
+            "plan": "core04",
+            "composed_from": [],
+            "dag_depth": 1,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def receipt_digest(receipt):\n    return str(receipt['sha256'])\n"
+          },
+          {
+            "task_id": "core05",
+            "status": "verified",
+            "plan": "core05",
+            "composed_from": [],
+            "dag_depth": 1,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def canonical_digest(payload):\n    import hashlib\n    import json\n    blob = json.dumps(payload, sort_keys=True).encode('utf-8')\n    return hashlib.sha256(blob).hexdigest()\n"
+          },
+          {
+            "task_id": "core06",
+            "status": "verified",
+            "plan": "core06",
+            "composed_from": [],
+            "dag_depth": 1,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def wave_energy(wave):\n    import numpy as np\n    return float(np.sum(np.abs(wave) ** 2))\n"
+          },
+          {
+            "task_id": "core07",
+            "status": "verified",
+            "plan": "core07",
+            "composed_from": [],
+            "dag_depth": 1,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def graph_node_count(graph):\n    return int(len(graph.nodes))\n"
+          },
+          {
+            "task_id": "core08",
+            "status": "verified",
+            "plan": "core08",
+            "composed_from": [],
+            "dag_depth": 1,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def caller_names(edges):\n    return sorted({edge.source for edge in edges})\n"
+          },
+          {
+            "task_id": "core09",
+            "status": "verified",
+            "plan": "core09",
+            "composed_from": [],
+            "dag_depth": 1,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def task_number(name):\n    table = {'vision': 0, 'language': 1, 'action': 2, 'relational': 3}\n    return int(table[name])\n"
+          },
+          {
+            "task_id": "core10",
+            "status": "verified",
+            "plan": "core10",
+            "composed_from": [],
+            "dag_depth": 1,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def mean_of(values):\n    return float(sum(values) / max(len(values), 1))\n"
+          },
+          {
+            "task_id": "core11",
+            "status": "verified",
+            "plan": "core11",
+            "composed_from": [],
+            "dag_depth": 1,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def clamp_unit(value):\n    return max(0.0, min(1.0, float(value)))\n"
+          },
+          {
+            "task_id": "core12",
+            "status": "verified",
+            "plan": "core12",
+            "composed_from": [],
+            "dag_depth": 1,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def directory_listing(path):\n    from pathlib import Path\n    return sorted((item.name for item in Path(path).iterdir()))\n"
+          },
+          {
+            "task_id": "shift01",
+            "status": "verified",
+            "plan": "shift01",
+            "composed_from": [],
+            "dag_depth": 1,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def rotate_wave(wave, angle):\n    import numpy as np\n    return wave * np.exp(1j * angle)\n"
+          },
+          {
+            "task_id": "shift02",
+            "status": "verified",
+            "plan": "shift02",
+            "composed_from": [],
+            "dag_depth": 1,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def conjugate_wave(wave):\n    import numpy as np\n    return np.conj(wave)\n"
+          },
+          {
+            "task_id": "shift03",
+            "status": "verified",
+            "plan": "shift03",
+            "composed_from": [],
+            "dag_depth": 1,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def normalised_wave(wave):\n    import numpy as np\n    return wave / np.linalg.norm(wave)\n"
+          },
+          {
+            "task_id": "shift04",
+            "status": "verified",
+            "plan": "shift04",
+            "composed_from": [],
+            "dag_depth": 1,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def coherence_pair(left, right):\n    import numpy as np\n    return float(np.real(np.vdot(left, right)))\n"
+          },
+          {
+            "task_id": "shift05",
+            "status": "verified",
+            "plan": "shift05",
+            "composed_from": [],
+            "dag_depth": 1,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def bind_phase(left, right):\n    return left * right\n"
+          },
+          {
+            "task_id": "shift06",
+            "status": "verified",
+            "plan": "shift06",
+            "composed_from": [],
+            "dag_depth": 1,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def unbind_phase(left, right):\n    import numpy as np\n    return left * np.conj(right)\n"
+          },
+          {
+            "task_id": "shift07",
+            "status": "verified",
+            "plan": "shift07",
+            "composed_from": [],
+            "dag_depth": 1,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def batch_mean(values):\n    import numpy as np\n    return np.mean(values, axis=0)\n"
+          },
+          {
+            "task_id": "shift08",
+            "status": "verified",
+            "plan": "shift08",
+            "composed_from": [],
+            "dag_depth": 1,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def stable_softmax(logits):\n    import numpy as np\n    shifted = logits - np.max(logits)\n    weights = np.exp(shifted)\n    return weights / np.sum(weights)\n"
+          },
+          {
+            "task_id": "shift09",
+            "status": "verified",
+            "plan": "shift09",
+            "composed_from": [],
+            "dag_depth": 1,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def top_index(values):\n    best = 0\n    for index in range(1, len(values)):\n        if values[index] > values[best]:\n            best = index\n    return int(best)\n"
+          },
+          {
+            "task_id": "shift10",
+            "status": "verified",
+            "plan": "shift10",
+            "composed_from": [],
+            "dag_depth": 1,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def hashed_name(name):\n    import hashlib\n    return hashlib.sha256(str(name).encode('utf-8')).hexdigest()[:16]\n"
+          },
+          {
+            "task_id": "shift11",
+            "status": "verified",
+            "plan": "shift11",
+            "composed_from": [],
+            "dag_depth": 1,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def sequence_length(tokens):\n    return int(len(tokens))\n"
+          },
+          {
+            "task_id": "shift12",
+            "status": "verified",
+            "plan": "shift12",
+            "composed_from": [],
+            "dag_depth": 1,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def json_roundtrip(payload):\n    import json\n    return json.loads(json.dumps(payload))\n"
+          }
+        ]
+      },
+      "single_plan_compositional": {
+        "total": 12,
+        "passed": 12,
+        "rows": [
+          {
+            "task_id": "comp01",
+            "status": "verified",
+            "plan": "core01",
+            "composed_from": [],
+            "dag_depth": 1,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def tally_engrams(store):\n    return int(store.stats()['count'])\n"
+          },
+          {
+            "task_id": "comp02",
+            "status": "verified",
+            "plan": "core02",
+            "composed_from": [],
+            "dag_depth": 1,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def latent_width(config):\n    return int(config.dim)\n"
+          },
+          {
+            "task_id": "comp03",
+            "status": "verified",
+            "plan": "core03",
+            "composed_from": [],
+            "dag_depth": 1,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def per_slot_width(settings):\n    return int(settings.d_slot)\n"
+          },
+          {
+            "task_id": "comp04",
+            "status": "verified",
+            "plan": "core04",
+            "composed_from": [],
+            "dag_depth": 1,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def digest_of(record):\n    return str(record['sha256'])\n"
+          },
+          {
+            "task_id": "comp05",
+            "status": "verified",
+            "plan": "core05",
+            "composed_from": [],
+            "dag_depth": 1,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def sorted_digest(body):\n    import hashlib\n    import json\n    blob = json.dumps(body, sort_keys=True).encode('utf-8')\n    return hashlib.sha256(blob).hexdigest()\n"
+          },
+          {
+            "task_id": "comp06",
+            "status": "verified",
+            "plan": "core06",
+            "composed_from": [],
+            "dag_depth": 1,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def energy_of(signal):\n    import numpy as np\n    return float(np.sum(np.abs(signal) ** 2))\n"
+          },
+          {
+            "task_id": "comp07",
+            "status": "verified",
+            "plan": "core07",
+            "composed_from": [],
+            "dag_depth": 1,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def node_total(chart):\n    return int(len(chart.nodes))\n"
+          },
+          {
+            "task_id": "comp08",
+            "status": "verified",
+            "plan": "core08",
+            "composed_from": [],
+            "dag_depth": 1,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def sources_of(links):\n    return sorted({edge.source for edge in links})\n"
+          },
+          {
+            "task_id": "comp09",
+            "status": "verified",
+            "plan": "core09",
+            "composed_from": [],
+            "dag_depth": 1,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def index_of_task(title):\n    table = {'vision': 4, 'language': 5, 'action': 6, 'relational': 7}\n    return int(table[title])\n"
+          },
+          {
+            "task_id": "comp10",
+            "status": "verified",
+            "plan": "core10",
+            "composed_from": [],
+            "dag_depth": 1,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def average_of(sample):\n    return float(sum(sample) / max(len(sample), 1))\n"
+          },
+          {
+            "task_id": "comp11",
+            "status": "verified",
+            "plan": "core11",
+            "composed_from": [],
+            "dag_depth": 1,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def clamp_high(level):\n    return max(0.0, min(2.5, float(level)))\n"
+          },
+          {
+            "task_id": "comp12",
+            "status": "verified",
+            "plan": "core12",
+            "composed_from": [],
+            "dag_depth": 1,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def files_in(folder):\n    from pathlib import Path\n    return sorted((item.name for item in Path(folder).iterdir()))\n"
+          }
+        ]
+      },
+      "two_plan_pipelines": {
+        "total": 8,
+        "passed": 8,
+        "rows": [
+          {
+            "task_id": "multi01",
+            "status": "verified",
+            "plan": "core08+shift11",
+            "composed_from": [
+              "core08",
+              "shift11"
+            ],
+            "dag_depth": 2,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def distinct_caller_count(links):\n    step_1 = sorted({edge.source for edge in links})\n    return int(len(step_1))\n"
+          },
+          {
+            "task_id": "multi02",
+            "status": "verified",
+            "plan": "shift11+core11",
+            "composed_from": [
+              "shift11",
+              "core11"
+            ],
+            "dag_depth": 2,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def bounded_length(tokens):\n    step_1 = int(len(tokens))\n    return max(0.0, min(2.5, float(step_1)))\n"
+          },
+          {
+            "task_id": "multi03",
+            "status": "verified",
+            "plan": "core10+core11",
+            "composed_from": [
+              "core10",
+              "core11"
+            ],
+            "dag_depth": 2,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def bounded_mean(sample):\n    step_1 = float(sum(sample) / max(len(sample), 1))\n    return max(0.0, min(2.5, float(step_1)))\n"
+          },
+          {
+            "task_id": "multi04",
+            "status": "verified",
+            "plan": "core02+core11",
+            "composed_from": [
+              "core02",
+              "core11"
+            ],
+            "dag_depth": 2,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def bounded_dimension(config):\n    step_1 = int(config.dim)\n    return max(0.0, min(2.5, float(step_1)))\n"
+          },
+          {
+            "task_id": "multi05",
+            "status": "verified",
+            "plan": "core03+core11",
+            "composed_from": [
+              "core03",
+              "core11"
+            ],
+            "dag_depth": 2,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def bounded_slot(settings):\n    step_1 = int(settings.d_slot)\n    return max(0.0, min(2.5, float(step_1)))\n"
+          },
+          {
+            "task_id": "multi06",
+            "status": "verified",
+            "plan": "core04+shift11",
+            "composed_from": [
+              "core04",
+              "shift11"
+            ],
+            "dag_depth": 2,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def digest_length(record):\n    step_1 = str(record['sha256'])\n    return int(len(step_1))\n"
+          },
+          {
+            "task_id": "multi07",
+            "status": "verified",
+            "plan": "core07+core11",
+            "composed_from": [
+              "core07",
+              "core11"
+            ],
+            "dag_depth": 2,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def bounded_node_count(chart):\n    step_1 = int(len(chart.nodes))\n    return max(0.0, min(2.5, float(step_1)))\n"
+          },
+          {
+            "task_id": "multi08",
+            "status": "verified",
+            "plan": "core01+core11",
+            "composed_from": [
+              "core01",
+              "core11"
+            ],
+            "dag_depth": 2,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def bounded_engram_count(store):\n    step_1 = int(store.stats()['count'])\n    return max(0.0, min(2.5, float(step_1)))\n"
+          }
+        ]
+      },
+      "three_plan_pipelines": {
+        "total": 8,
+        "passed": 8,
+        "accuracy": 1.0,
+        "rows": [
+          {
+            "spec_id": "tri01",
+            "status": "verified",
+            "plan": "core08+shift11+core11",
+            "composed_from": [
+              "core08",
+              "shift11",
+              "core11"
+            ],
+            "dag_depth": 3,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def tri_alpha(links):\n    step_1 = sorted({edge.source for edge in links})\n    step_2 = int(len(step_1))\n    return max(0.0, min(2.5, float(step_2)))\n",
+            "bounds": [
+              0.0,
+              2.5
+            ],
+            "expected": 2.5
+          },
+          {
+            "spec_id": "tri02",
+            "status": "verified",
+            "plan": "core08+shift11+core11",
+            "composed_from": [
+              "core08",
+              "shift11",
+              "core11"
+            ],
+            "dag_depth": 3,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def tri_beta(edges):\n    step_1 = sorted({edge.source for edge in edges})\n    step_2 = int(len(step_1))\n    return max(0.0, min(1.0, float(step_2)))\n",
+            "bounds": [
+              0.0,
+              1.0
+            ],
+            "expected": 1.0
+          },
+          {
+            "spec_id": "tri03",
+            "status": "verified",
+            "plan": "core08+shift11+core11",
+            "composed_from": [
+              "core08",
+              "shift11",
+              "core11"
+            ],
+            "dag_depth": 3,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def tri_gamma(pairs):\n    step_1 = sorted({edge.source for edge in pairs})\n    step_2 = int(len(step_1))\n    return max(1.0, min(4.0, float(step_2)))\n",
+            "bounds": [
+              1.0,
+              4.0
+            ],
+            "expected": 3.0
+          },
+          {
+            "spec_id": "tri04",
+            "status": "verified",
+            "plan": "core08+shift11+core11",
+            "composed_from": [
+              "core08",
+              "shift11",
+              "core11"
+            ],
+            "dag_depth": 3,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def tri_delta(records):\n    step_1 = sorted({edge.source for edge in records})\n    step_2 = int(len(step_1))\n    return max(0.0, min(2.0, float(step_2)))\n",
+            "bounds": [
+              0.0,
+              2.0
+            ],
+            "expected": 2.0
+          },
+          {
+            "spec_id": "tri05",
+            "status": "verified",
+            "plan": "core08+shift11+core11",
+            "composed_from": [
+              "core08",
+              "shift11",
+              "core11"
+            ],
+            "dag_depth": 3,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def tri_epsilon(rows):\n    step_1 = sorted({edge.source for edge in rows})\n    step_2 = int(len(step_1))\n    return max(1.0, min(2.0, float(step_2)))\n",
+            "bounds": [
+              1.0,
+              2.0
+            ],
+            "expected": 2.0
+          },
+          {
+            "spec_id": "tri06",
+            "status": "verified",
+            "plan": "core08+shift11+core11",
+            "composed_from": [
+              "core08",
+              "shift11",
+              "core11"
+            ],
+            "dag_depth": 3,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def tri_zeta(items):\n    step_1 = sorted({edge.source for edge in items})\n    step_2 = int(len(step_1))\n    return max(0.5, min(3.5, float(step_2)))\n",
+            "bounds": [
+              0.5,
+              3.5
+            ],
+            "expected": 3.0
+          },
+          {
+            "spec_id": "tri07",
+            "status": "verified",
+            "plan": "core08+shift11+core11",
+            "composed_from": [
+              "core08",
+              "shift11",
+              "core11"
+            ],
+            "dag_depth": 3,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def tri_eta(graph_edges):\n    step_1 = sorted({edge.source for edge in graph_edges})\n    step_2 = int(len(step_1))\n    return max(0.0, min(0.5, float(step_2)))\n",
+            "bounds": [
+              0.0,
+              0.5
+            ],
+            "expected": 0.5
+          },
+          {
+            "spec_id": "tri08",
+            "status": "verified",
+            "plan": "core08+shift11+core11",
+            "composed_from": [
+              "core08",
+              "shift11",
+              "core11"
+            ],
+            "dag_depth": 3,
+            "type_compatible": true,
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "source": "def tri_theta(edge_list):\n    step_1 = sorted({edge.source for edge in edge_list})\n    step_2 = int(len(step_1))\n    return max(2.0, min(5.0, float(step_2)))\n",
+            "bounds": [
+              2.0,
+              5.0
+            ],
+            "expected": 3.0
+          }
+        ]
+      },
+      "type_mismatch_traps": {
+        "total": 4,
+        "refused": 4,
+        "rows": [
+          {
+            "id": "itrap01",
+            "status": "refused",
+            "refused": true,
+            "plan": "core04+core10",
+            "composed_from": [
+              "core04",
+              "core10"
+            ],
+            "reason": "type mismatch: core04.returns ['text'] cannot bind core10.values ['numeric_sequence']",
+            "type_compatible": false
+          },
+          {
+            "id": "itrap02",
+            "status": "refused",
+            "refused": true,
+            "plan": "core04+core11",
+            "composed_from": [
+              "core04",
+              "core11"
+            ],
+            "reason": "type mismatch: core04.returns ['text'] cannot bind core11.value ['numeric']",
+            "type_compatible": false
+          },
+          {
+            "id": "itrap03",
+            "status": "refused",
+            "refused": true,
+            "plan": "core10+core04",
+            "composed_from": [
+              "core10",
+              "core04"
+            ],
+            "reason": "type mismatch: core10.returns ['numeric'] cannot bind core04.receipt ['mapping']",
+            "type_compatible": false
+          },
+          {
+            "id": "itrap04",
+            "status": "refused",
+            "refused": true,
+            "plan": "core08+core04",
+            "composed_from": [
+              "core08",
+              "core04"
+            ],
+            "reason": "type mismatch: core08.returns ['sequence'] cannot bind core04.receipt ['mapping']",
+            "type_compatible": false
+          }
+        ]
+      },
+      "total_synthesis_benchmark": {
+        "total": 56,
+        "passed": 56,
+        "accuracy": 1.0
+      },
+      "emission": {
+        "exact": 52,
+        "fallbacks": 0,
+        "composed": 16,
+        "dag_composed": 8,
+        "type_refused": 4
+      },
+      "gate": {
+        "base_24_of_24": true,
+        "single_plan_12_of_12": true,
+        "two_plan_8_of_8": true,
+        "three_plan_at_least_7_of_8": true,
+        "three_plan_8_of_8": true,
+        "type_mismatch_4_of_4": true,
+        "total_56_of_56": true,
+        "plans_compiled_24": true,
+        "passed": true
+      },
+      "wall_seconds": 9.187549900001613,
+      "evidence": "OBSERVED"
+    },
+    "I3": {
+      "stage": "I3",
+      "checkpoint": {
+        "path": "receipts\\holarch\\holarch_medium.pt",
+        "sha256": "fe905fd0a41789678c3edbdef63e9926e362416bb90f6ed0ca773c0b1f61737e",
+        "parameters": 1020380
+      },
+      "memory_fixture": {
+        "source": "data\\holarch\\zone_c.sqlite3",
+        "path": "C:\\Users\\chan\\Desktop\\HENRI v6\\receipts\\holarch\\_work\\i3_planner_17164.sqlite3",
+        "sha256": "d0863a4179bb37dd1199a08dd8f1c5997cbd693161a32bfa439030bcf4064c80",
+        "bytes": 21590016,
+        "engrams": 2467,
+        "empty": false
+      },
+      "reload_fixture": {
+        "source": "data\\holarch\\zone_c.sqlite3",
+        "path": "C:\\Users\\chan\\Desktop\\HENRI v6\\receipts\\holarch\\_work\\i3_reload_17164.sqlite3",
+        "sha256": "d0863a4179bb37dd1199a08dd8f1c5997cbd693161a32bfa439030bcf4064c80",
+        "bytes": 21590016,
+        "engrams": 2467,
+        "empty": false
+      },
+      "traps": [
+        {
+          "id": "trap01",
+          "agent": [
+            1,
+            1
+          ],
+          "pocket": [
+            1,
+            2
+          ],
+          "goal": [
+            5,
+            6
+          ],
+          "trap_action": 3,
+          "bypass_action": 1,
+          "masked_action": 1,
+          "depth1_action": 3,
+          "unmasked_action": 3,
+          "api_action": 1,
+          "alignment": [
+            0.004712819121778011,
+            0.02226743847131729,
+            0.00389992818236351,
+            0.027085427194833755
+          ],
+          "trap_alignment_is_max": true,
+          "legal_non_reversal_at_t2": [],
+          "cul_de_sac_isolated": true,
+          "score_parity_max_abs": 0.0,
+          "correct": true,
+          "receipt_valid": true,
+          "invariants": {
+            "pocket_legal": true,
+            "three_non_reversing_sides_blocked": true,
+            "only_reversal_open_at_t2": true,
+            "bypass_is_not_the_trap": true,
+            "pocket_on_dominant_goal_axis": true,
+            "goal_reachable": true
+          }
+        },
+        {
+          "id": "trap02",
+          "agent": [
+            1,
+            3
+          ],
+          "pocket": [
+            2,
+            3
+          ],
+          "goal": [
+            5,
+            2
+          ],
+          "trap_action": 1,
+          "bypass_action": 2,
+          "masked_action": 2,
+          "depth1_action": 1,
+          "unmasked_action": 1,
+          "api_action": 2,
+          "alignment": [
+            0.05445075035095215,
+            0.25721609592437744,
+            0.1440173089504242,
+            0.0975089818239212
+          ],
+          "trap_alignment_is_max": true,
+          "legal_non_reversal_at_t2": [],
+          "cul_de_sac_isolated": true,
+          "score_parity_max_abs": 0.0,
+          "correct": true,
+          "receipt_valid": true,
+          "invariants": {
+            "pocket_legal": true,
+            "three_non_reversing_sides_blocked": true,
+            "only_reversal_open_at_t2": true,
+            "bypass_is_not_the_trap": true,
+            "pocket_on_dominant_goal_axis": true,
+            "goal_reachable": true
+          }
+        },
+        {
+          "id": "trap03",
+          "agent": [
+            1,
+            4
+          ],
+          "pocket": [
+            2,
+            4
+          ],
+          "goal": [
+            4,
+            2
+          ],
+          "trap_action": 1,
+          "bypass_action": 2,
+          "masked_action": 2,
+          "depth1_action": 1,
+          "unmasked_action": 1,
+          "api_action": 2,
+          "alignment": [
+            0.09759028255939484,
+            0.31349843740463257,
+            0.2586483061313629,
+            0.11867638677358627
+          ],
+          "trap_alignment_is_max": true,
+          "legal_non_reversal_at_t2": [],
+          "cul_de_sac_isolated": true,
+          "score_parity_max_abs": 0.0,
+          "correct": true,
+          "receipt_valid": true,
+          "invariants": {
+            "pocket_legal": true,
+            "three_non_reversing_sides_blocked": true,
+            "only_reversal_open_at_t2": true,
+            "bypass_is_not_the_trap": true,
+            "pocket_on_dominant_goal_axis": true,
+            "goal_reachable": true
+          }
+        },
+        {
+          "id": "trap04",
+          "agent": [
+            2,
+            1
+          ],
+          "pocket": [
+            2,
+            2
+          ],
+          "goal": [
+            4,
+            5
+          ],
+          "trap_action": 3,
+          "bypass_action": 1,
+          "masked_action": 1,
+          "depth1_action": 3,
+          "unmasked_action": 3,
+          "api_action": 1,
+          "alignment": [
+            0.059836454689502716,
+            0.13042978942394257,
+            0.04071115329861641,
+            0.1926637589931488
+          ],
+          "trap_alignment_is_max": true,
+          "legal_non_reversal_at_t2": [],
+          "cul_de_sac_isolated": true,
+          "score_parity_max_abs": 0.0,
+          "correct": true,
+          "receipt_valid": true,
+          "invariants": {
+            "pocket_legal": true,
+            "three_non_reversing_sides_blocked": true,
+            "only_reversal_open_at_t2": true,
+            "bypass_is_not_the_trap": true,
+            "pocket_on_dominant_goal_axis": true,
+            "goal_reachable": true
+          }
+        },
+        {
+          "id": "trap05",
+          "agent": [
+            3,
+            1
+          ],
+          "pocket": [
+            3,
+            2
+          ],
+          "goal": [
+            2,
+            4
+          ],
+          "trap_action": 3,
+          "bypass_action": 0,
+          "masked_action": 0,
+          "depth1_action": 3,
+          "unmasked_action": 3,
+          "api_action": 0,
+          "alignment": [
+            0.28525057435035706,
+            0.19363439083099365,
+            0.13102373480796814,
+            0.4213056266307831
+          ],
+          "trap_alignment_is_max": true,
+          "legal_non_reversal_at_t2": [],
+          "cul_de_sac_isolated": true,
+          "score_parity_max_abs": 0.0,
+          "correct": true,
+          "receipt_valid": true,
+          "invariants": {
+            "pocket_legal": true,
+            "three_non_reversing_sides_blocked": true,
+            "only_reversal_open_at_t2": true,
+            "bypass_is_not_the_trap": true,
+            "pocket_on_dominant_goal_axis": true,
+            "goal_reachable": true
+          }
+        },
+        {
+          "id": "trap06",
+          "agent": [
+            4,
+            1
+          ],
+          "pocket": [
+            3,
+            1
+          ],
+          "goal": [
+            1,
+            3
+          ],
+          "trap_action": 0,
+          "bypass_action": 3,
+          "masked_action": 3,
+          "depth1_action": 0,
+          "unmasked_action": 0,
+          "api_action": 3,
+          "alignment": [
+            0.3144550621509552,
+            0.09846766293048859,
+            0.1186266839504242,
+            0.2586654722690582
+          ],
+          "trap_alignment_is_max": true,
+          "legal_non_reversal_at_t2": [],
+          "cul_de_sac_isolated": true,
+          "score_parity_max_abs": 0.0,
+          "correct": true,
+          "receipt_valid": true,
+          "invariants": {
+            "pocket_legal": true,
+            "three_non_reversing_sides_blocked": true,
+            "only_reversal_open_at_t2": true,
+            "bypass_is_not_the_trap": true,
+            "pocket_on_dominant_goal_axis": true,
+            "goal_reachable": true
+          }
+        },
+        {
+          "id": "trap07",
+          "agent": [
+            5,
+            2
+          ],
+          "pocket": [
+            4,
+            2
+          ],
+          "goal": [
+            1,
+            5
+          ],
+          "trap_action": 0,
+          "bypass_action": 3,
+          "masked_action": 3,
+          "depth1_action": 0,
+          "unmasked_action": 0,
+          "api_action": 3,
+          "alignment": [
+            0.11837801337242126,
+            0.025270268321037292,
+            0.030277835205197334,
+            0.09737005084753036
+          ],
+          "trap_alignment_is_max": true,
+          "legal_non_reversal_at_t2": [],
+          "cul_de_sac_isolated": true,
+          "score_parity_max_abs": 0.0,
+          "correct": true,
+          "receipt_valid": true,
+          "invariants": {
+            "pocket_legal": true,
+            "three_non_reversing_sides_blocked": true,
+            "only_reversal_open_at_t2": true,
+            "bypass_is_not_the_trap": true,
+            "pocket_on_dominant_goal_axis": true,
+            "goal_reachable": true
+          }
+        },
+        {
+          "id": "trap08",
+          "agent": [
+            5,
+            3
+          ],
+          "pocket": [
+            5,
+            2
+          ],
+          "goal": [
+            3,
+            0
+          ],
+          "trap_action": 2,
+          "bypass_action": 0,
+          "masked_action": 0,
+          "depth1_action": 2,
+          "unmasked_action": 2,
+          "api_action": 0,
+          "alignment": [
+            0.2586978077888489,
+            0.11914268881082535,
+            0.3143012523651123,
+            0.09792064130306244
+          ],
+          "trap_alignment_is_max": true,
+          "legal_non_reversal_at_t2": [],
+          "cul_de_sac_isolated": true,
+          "score_parity_max_abs": 0.0,
+          "correct": true,
+          "receipt_valid": true,
+          "invariants": {
+            "pocket_legal": true,
+            "three_non_reversing_sides_blocked": true,
+            "only_reversal_open_at_t2": true,
+            "bypass_is_not_the_trap": true,
+            "pocket_on_dominant_goal_axis": true,
+            "goal_reachable": true
+          }
+        }
+      ],
+      "controls": {
+        "masked_correct": 8,
+        "depth1_correct": 0,
+        "unmasked_correct": 0,
+        "depth2_wall_masked_accuracy": 1.0,
+        "depth1_control_accuracy": 0.0,
+        "depth2_unmasked_control_accuracy": 0.0
+      },
+      "closed_loop": {
+        "success_rate": 0.8125,
+        "wins": 39,
+        "episodes": 48,
+        "runs": [
+          39,
+          39,
+          39
+        ],
+        "reduction": "median of three 48-episode runs",
+        "warmup_wins": 4,
+        "reactive_success_rate": 0.4583333333333333,
+        "loop_path_success_rate": 0.8125,
+        "reload_success_rate": 0.8125,
+        "reload_wins": 39,
+        "reload_rotor_fitted": true,
+        "threads": 8,
+        "use_memory": true
+      },
+      "parity": {
+        "score_parity_max_abs": 0.0,
+        "api_matches_choose": 8,
+        "api_traps": 8
+      },
+      "latency_ms": {
+        "rollout_batched_median": 1.1031500180251896,
+        "rollout_loop_median": 1.2987000081920996,
+        "rollout_speedup": 1.1772650926634394,
+        "plan_api_batched_median": 53.14500001259148,
+        "plan_api_loop_median": 55.02929999784101,
+        "plan_api_speedup": 1.0354558281080644,
+        "model_forward_median": 43.991800004732795,
+        "note": "The endpoint is dominated by the checkpoint forward pass; the batching improvement is measured on the 4+16 branch rollout, and the endpoint comparison is a no-material-regression check."
+      },
+      "gate": {
+        "depth2_wall_masked_8_of_8": true,
+        "depth1_control_at_most_2_of_8": true,
+        "depth2_unmasked_control_at_most_2_of_8": true,
+        "closed_loop_0_8125": true,
+        "closed_loop_median_stable": true,
+        "replay_bit_identical": true,
+        "batch_loop_parity": true,
+        "plan_api_matches_choose": true,
+        "rollout_faster_batched": true,
+        "plan_api_no_material_regression": true,
+        "all_trap_invariants": true,
+        "passed": true
+      },
+      "wall_seconds": 254.12931590000517,
+      "evidence": "OBSERVED"
+    },
+    "I4": {
+      "stage": "I4",
+      "workspace": {
+        "root": "C:\\Users\\chan\\Desktop\\HENRI v6",
+        "directories": [
+          "henri",
+          "scripts",
+          "tests"
+        ],
+        "files": 217,
+        "lines": 68918,
+        "nodes": 2257,
+        "edges": 6706,
+        "signatures": 2606,
+        "full_index_ms": 855.977500003064
+      },
+      "delta": {
+        "files": 217,
+        "median_ms": 9.955799992894754,
+        "mean_ms": 10.996876035823405,
+        "p90_ms": 13.419199985219167,
+        "max_ms": 43.62909999326803,
+        "rows_sample": [
+          {
+            "module": "henri.holarch.code_gen",
+            "bytes": 130033,
+            "delta_ms": 43.62909999326803
+          },
+          {
+            "module": "scripts.run_holarch_agent_eval",
+            "bytes": 73233,
+            "delta_ms": 27.49860001495108
+          },
+          {
+            "module": "henri.holarch.zone_c",
+            "bytes": 60492,
+            "delta_ms": 26.192299992544577
+          },
+          {
+            "module": "henri.holarch.symbolic",
+            "bytes": 57644,
+            "delta_ms": 25.527699996018782
+          },
+          {
+            "module": "henri.holarch.model",
+            "bytes": 55076,
+            "delta_ms": 23.93990001291968
+          },
+          {
+            "module": "henri.holarch.pipeline",
+            "bytes": 61492,
+            "delta_ms": 23.72060000197962
+          },
+          {
+            "module": "scripts.run_holarch_i_cycle",
+            "bytes": 50444,
+            "delta_ms": 21.83729998068884
+          },
+          {
+            "module": "henri.holarch.code_lang",
+            "bytes": 54033,
+            "delta_ms": 21.19859997765161
+          }
+        ],
+        "repetitions": 3,
+        "reduction": "best of three per module"
+      },
+      "parity": {
+        "edges": true,
+        "nodes": true,
+        "reverse": true,
+        "impact": true,
+        "probes": [
+          "build_tokenizer",
+          "ZoneCMemory.query",
+          "build_synthesis_engine",
+          "index_code"
+        ],
+        "exact": true
+      },
+      "mutation": {
+        "module": "henri.holarch.sidecar",
+        "delta_ms": 15.842199994949624,
+        "before": [
+          "henri.api:rank_options",
+          "henri.api_server:reason_rank",
+          "henri.axiom_seed:query_pair",
+          "henri.holarch.cli:cmd_memory",
+          "henri.holarch.cli:cmd_selftest",
+          "henri.holarch.pipeline:forward",
+          "henri.holarch.server:playbook",
+          "henri.holarch.sidecar:recall_playbook",
+          "henri.holarch.symbolic:calibrate",
+          "henri.holarch.symbolic:solve",
+          "henri.holarch.symbolic:step",
+          "henri.holarch.train:memory_recall",
+          "henri.holarch.zone_c:context_tensor",
+          "henri.holarch.zone_c:prefetch",
+          "henri.holographic_ledger:jit_page",
+          "henri.koopman_router:recall",
+          "henri.koopman_router:score_components",
+          "henri.omega_pipeline:step",
+          "henri.symbiotic_cavity:step",
+          "scripts.ingest_deductive_cartridges",
+          "scripts.ingest_deductive_cartridges:main",
+          "scripts.probe_phase10_reason1:rotation_rate",
+          "scripts.probe_phase6_action2",
+          "scripts.probe_phase6_action2:main",
+          "scripts.probe_phase8_koop1:components_for",
+          "scripts.run_holarch_agent_eval:build_queries",
+          "scripts.run_holarch_agent_eval:run_agent_eval",
+          "scripts.run_holarch_i_cycle:_agent_step_round",
+          "scripts.run_holarch_i_cycle:stage_i4",
+          "scripts.run_holarch_sidecar_demo",
+          "scripts.run_holarch_sidecar_demo:main",
+          "scripts.run_holarch_symbolic:main",
+          "scripts.run_holarch_symbolic:run_code_index",
+          "scripts.run_holarch_symbolic:run_playbooks",
+          "scripts.run_holarch_symbolic:run_topology",
+          "scripts.verify_axiom_seed",
+          "scripts.verify_axiom_seed:main",
+          "scripts.verify_omega_release:gate_omega_4",
+          "scripts.verify_omega_release:main",
+          "scripts.verify_symbiotic_release:gate_zone_c",
+          "scripts.verify_timescale_ledger",
+          "scripts.verify_timescale_ledger:phase_verify",
+          "tests.test_holarch_d5_d8:test_topology_solver_answers_and_abstains",
+          "tests.test_holarch_d_decisions:test_empty_task_block_is_an_empty_read",
+          "tests.test_holarch_d_decisions:test_task_scoped_retrieval_returns_only_the_task_block",
+          "tests.test_holarch_f_decisions:test_store_level_namespace_filter",
+          "tests.test_holarch_memory:test_context_shape_is_invariant_in_store_size",
+          "tests.test_holarch_memory:test_retrieval_recall_and_scores",
+          "tests.test_holarch_memory:test_sqlite_roundtrip_survives_reopen",
+          "tests.test_holarch_memory:test_timescaledb_roundtrip_when_reachable",
+          "tests.test_holarch_pipeline:test_memory_observe_and_read_back",
+          "tests.test_phase10_reason_channels:test_r1_zero_weight_matches_the_prior_api",
+          "tests.test_phase10_reason_channels:test_r2_api_rotation_invariance",
+          "tests.test_phase11_tiebreak:test_colliding_options_tie_exactly",
+          "tests.test_phase11_tiebreak:test_rotation_is_invariant_at_every_channel_weight",
+          "tests.test_phase11_tiebreak:test_rotation_is_invariant_with_duplicate_stripped_text",
+          "tests.test_phase11_tiebreak:test_tie_break_key_uses_original_text_not_stripped",
+          "tests.test_phase5_cartridge:test_api_rotation_invariance",
+          "tests.test_phase5_cartridge:test_cartridge_exact_recall_and_router",
+          "tests.test_phase6:test_lru_evicts_and_bounds",
+          "tests.test_phase8_koopman_router:test_cartridge_recall_round_trip"
+        ],
+        "after": [
+          "henri.api:rank_options",
+          "henri.api_server:reason_rank",
+          "henri.axiom_seed:query_pair",
+          "henri.holarch.cli:cmd_memory",
+          "henri.holarch.cli:cmd_selftest",
+          "henri.holarch.pipeline:forward",
+          "henri.holarch.symbolic:calibrate",
+          "henri.holarch.symbolic:solve",
+          "henri.holarch.symbolic:step",
+          "henri.holarch.train:memory_recall",
+          "henri.holarch.zone_c:context_tensor",
+          "henri.holarch.zone_c:prefetch",
+          "henri.holographic_ledger:jit_page",
+          "henri.koopman_router:recall",
+          "henri.koopman_router:score_components",
+          "henri.omega_pipeline:step",
+          "henri.symbiotic_cavity:step",
+          "scripts.ingest_deductive_cartridges",
+          "scripts.ingest_deductive_cartridges:main",
+          "scripts.probe_phase10_reason1:rotation_rate",
+          "scripts.probe_phase6_action2",
+          "scripts.probe_phase6_action2:main",
+          "scripts.probe_phase8_koop1:components_for",
+          "scripts.run_holarch_agent_eval:build_queries",
+          "scripts.run_holarch_agent_eval:run_agent_eval",
+          "scripts.run_holarch_i_cycle:_agent_step_round",
+          "scripts.run_holarch_i_cycle:stage_i4",
+          "scripts.run_holarch_sidecar_demo",
+          "scripts.run_holarch_sidecar_demo:main",
+          "scripts.run_holarch_symbolic:main",
+          "scripts.run_holarch_symbolic:run_code_index",
+          "scripts.run_holarch_symbolic:run_topology",
+          "scripts.verify_axiom_seed",
+          "scripts.verify_axiom_seed:main",
+          "scripts.verify_omega_release:gate_omega_4",
+          "scripts.verify_omega_release:main",
+          "scripts.verify_symbiotic_release:gate_zone_c",
+          "scripts.verify_timescale_ledger",
+          "scripts.verify_timescale_ledger:phase_verify",
+          "tests.test_holarch_d5_d8:test_topology_solver_answers_and_abstains",
+          "tests.test_holarch_d_decisions:test_empty_task_block_is_an_empty_read",
+          "tests.test_holarch_d_decisions:test_task_scoped_retrieval_returns_only_the_task_block",
+          "tests.test_holarch_f_decisions:test_store_level_namespace_filter",
+          "tests.test_holarch_memory:test_context_shape_is_invariant_in_store_size",
+          "tests.test_holarch_memory:test_retrieval_recall_and_scores",
+          "tests.test_holarch_memory:test_sqlite_roundtrip_survives_reopen",
+          "tests.test_holarch_memory:test_timescaledb_roundtrip_when_reachable",
+          "tests.test_holarch_pipeline:test_memory_observe_and_read_back",
+          "tests.test_phase10_reason_channels:test_r1_zero_weight_matches_the_prior_api",
+          "tests.test_phase10_reason_channels:test_r2_api_rotation_invariance",
+          "tests.test_phase11_tiebreak:test_colliding_options_tie_exactly",
+          "tests.test_phase11_tiebreak:test_rotation_is_invariant_at_every_channel_weight",
+          "tests.test_phase11_tiebreak:test_rotation_is_invariant_with_duplicate_stripped_text",
+          "tests.test_phase11_tiebreak:test_tie_break_key_uses_original_text_not_stripped",
+          "tests.test_phase5_cartridge:test_api_rotation_invariance",
+          "tests.test_phase5_cartridge:test_cartridge_exact_recall_and_router",
+          "tests.test_phase6:test_lru_evicts_and_bounds",
+          "tests.test_phase8_koopman_router:test_cartridge_recall_round_trip"
+        ],
+        "restored": [
+          "henri.api:rank_options",
+          "henri.api_server:reason_rank",
+          "henri.axiom_seed:query_pair",
+          "henri.holarch.cli:cmd_memory",
+          "henri.holarch.cli:cmd_selftest",
+          "henri.holarch.pipeline:forward",
+          "henri.holarch.server:playbook",
+          "henri.holarch.sidecar:recall_playbook",
+          "henri.holarch.symbolic:calibrate",
+          "henri.holarch.symbolic:solve",
+          "henri.holarch.symbolic:step",
+          "henri.holarch.train:memory_recall",
+          "henri.holarch.zone_c:context_tensor",
+          "henri.holarch.zone_c:prefetch",
+          "henri.holographic_ledger:jit_page",
+          "henri.koopman_router:recall",
+          "henri.koopman_router:score_components",
+          "henri.omega_pipeline:step",
+          "henri.symbiotic_cavity:step",
+          "scripts.ingest_deductive_cartridges",
+          "scripts.ingest_deductive_cartridges:main",
+          "scripts.probe_phase10_reason1:rotation_rate",
+          "scripts.probe_phase6_action2",
+          "scripts.probe_phase6_action2:main",
+          "scripts.probe_phase8_koop1:components_for",
+          "scripts.run_holarch_agent_eval:build_queries",
+          "scripts.run_holarch_agent_eval:run_agent_eval",
+          "scripts.run_holarch_i_cycle:_agent_step_round",
+          "scripts.run_holarch_i_cycle:stage_i4",
+          "scripts.run_holarch_sidecar_demo",
+          "scripts.run_holarch_sidecar_demo:main",
+          "scripts.run_holarch_symbolic:main",
+          "scripts.run_holarch_symbolic:run_code_index",
+          "scripts.run_holarch_symbolic:run_playbooks",
+          "scripts.run_holarch_symbolic:run_topology",
+          "scripts.verify_axiom_seed",
+          "scripts.verify_axiom_seed:main",
+          "scripts.verify_omega_release:gate_omega_4",
+          "scripts.verify_omega_release:main",
+          "scripts.verify_symbiotic_release:gate_zone_c",
+          "scripts.verify_timescale_ledger",
+          "scripts.verify_timescale_ledger:phase_verify",
+          "tests.test_holarch_d5_d8:test_topology_solver_answers_and_abstains",
+          "tests.test_holarch_d_decisions:test_empty_task_block_is_an_empty_read",
+          "tests.test_holarch_d_decisions:test_task_scoped_retrieval_returns_only_the_task_block",
+          "tests.test_holarch_f_decisions:test_store_level_namespace_filter",
+          "tests.test_holarch_memory:test_context_shape_is_invariant_in_store_size",
+          "tests.test_holarch_memory:test_retrieval_recall_and_scores",
+          "tests.test_holarch_memory:test_sqlite_roundtrip_survives_reopen",
+          "tests.test_holarch_memory:test_timescaledb_roundtrip_when_reachable",
+          "tests.test_holarch_pipeline:test_memory_observe_and_read_back",
+          "tests.test_phase10_reason_channels:test_r1_zero_weight_matches_the_prior_api",
+          "tests.test_phase10_reason_channels:test_r2_api_rotation_invariance",
+          "tests.test_phase11_tiebreak:test_colliding_options_tie_exactly",
+          "tests.test_phase11_tiebreak:test_rotation_is_invariant_at_every_channel_weight",
+          "tests.test_phase11_tiebreak:test_rotation_is_invariant_with_duplicate_stripped_text",
+          "tests.test_phase11_tiebreak:test_tie_break_key_uses_original_text_not_stripped",
+          "tests.test_phase5_cartridge:test_api_rotation_invariance",
+          "tests.test_phase5_cartridge:test_cartridge_exact_recall_and_router",
+          "tests.test_phase6:test_lru_evicts_and_bounds",
+          "tests.test_phase8_koopman_router:test_cartridge_recall_round_trip"
+        ],
+        "changed": true,
+        "restore_exact": true
+      },
+      "agent_step": {
+        "actions": 7,
+        "receipts_valid": true,
+        "checkpoint_sha_present": true,
+        "chain_valid": true,
+        "receipt_count": 10,
+        "rows": [
+          {
+            "action": "veto",
+            "status": "ok",
+            "abstained": false,
+            "receipt_valid": true,
+            "chain_sha256": "83942d8b414a6c2dfbf762e6abd2d06cc62210e134cab86b151e526267279e99",
+            "parent": "d338863b95da1a7e6784d5a9a120f196b0a471a32096d5fd1aa76d02e4bd7a64",
+            "config_digest": "ef06b94f9326e40a",
+            "checkpoint_sha256": "fe905fd0a41789678c3edbdef63e9926e362416bb90f6ed0ca773c0b1f61737e",
+            "output_keys": [
+              "confidence",
+              "delta_sagnac",
+              "s_max",
+              "veto_rate"
+            ]
+          },
+          {
+            "action": "verify",
+            "status": "supported",
+            "abstained": false,
+            "receipt_valid": true,
+            "chain_sha256": "f5db081bf76c07d5a636904535b1e77902466cce826b972195e74684c7542d26",
+            "parent": "83942d8b414a6c2dfbf762e6abd2d06cc62210e134cab86b151e526267279e99",
+            "config_digest": "ef06b94f9326e40a",
+            "checkpoint_sha256": "fe905fd0a41789678c3edbdef63e9926e362416bb90f6ed0ca773c0b1f61737e",
+            "output_keys": [
+              "claim",
+              "confidence",
+              "corpus_digest",
+              "evidence_chars",
+              "found_numbers",
+              "kind",
+              "missing_numbers",
+              "missing_terms",
+              "namespace",
+              "passages",
+              "reason",
+              "signature_rule",
+              "status",
+              "supported"
+            ]
+          },
+          {
+            "action": "solve",
+            "status": "answered",
+            "abstained": false,
+            "receipt_valid": true,
+            "chain_sha256": "8f234f3e6c314c3d0ef4ca092987e6fd7e7c9b71c57fd16691b3d989d0b8f25f",
+            "parent": "f5db081bf76c07d5a636904535b1e77902466cce826b972195e74684c7542d26",
+            "config_digest": "ef06b94f9326e40a",
+            "checkpoint_sha256": "fe905fd0a41789678c3edbdef63e9926e362416bb90f6ed0ca773c0b1f61737e",
+            "output_keys": [
+              "answer",
+              "coherences",
+              "namespace",
+              "path",
+              "text",
+              "vetoed"
+            ]
+          },
+          {
+            "action": "impact",
+            "status": "ok",
+            "abstained": false,
+            "receipt_valid": true,
+            "chain_sha256": "0441a328192cd337a35b8f70f3e8b29fca18480239044235d4e5815439395db1",
+            "parent": "8f234f3e6c314c3d0ef4ca092987e6fd7e7c9b71c57fd16691b3d989d0b8f25f",
+            "config_digest": "ef06b94f9326e40a",
+            "checkpoint_sha256": "fe905fd0a41789678c3edbdef63e9926e362416bb90f6ed0ca773c0b1f61737e",
+            "output_keys": [
+              "callers",
+              "hops",
+              "layers",
+              "layers_total",
+              "namespace",
+              "resolved",
+              "target",
+              "vetoed"
+            ]
+          },
+          {
+            "action": "plan",
+            "status": "ok",
+            "abstained": false,
+            "receipt_valid": true,
+            "chain_sha256": "2a6c6851a6928524a1057c6335174551f0856b35b6848685521f8214af528621",
+            "parent": "0441a328192cd337a35b8f70f3e8b29fca18480239044235d4e5815439395db1",
+            "config_digest": "ef06b94f9326e40a",
+            "checkpoint_sha256": "fe905fd0a41789678c3edbdef63e9926e362416bb90f6ed0ca773c0b1f61737e",
+            "output_keys": [
+              "action",
+              "action_name",
+              "alignment",
+              "batch_rollout",
+              "gamma_look",
+              "history_waves",
+              "legal_mask",
+              "lookahead",
+              "lookahead_depth",
+              "namespace",
+              "penalty",
+              "scores",
+              "transition"
+            ]
+          },
+          {
+            "action": "synthesize",
+            "status": "verified",
+            "abstained": false,
+            "receipt_valid": true,
+            "chain_sha256": "497e8485cdd051a970876019550bc2b9b025ecdd55f28aa8314de6f5d404f1b0",
+            "parent": "2a6c6851a6928524a1057c6335174551f0856b35b6848685521f8214af528621",
+            "config_digest": "ef06b94f9326e40a",
+            "checkpoint_sha256": "fe905fd0a41789678c3edbdef63e9926e362416bb90f6ed0ca773c0b1f61737e",
+            "output_keys": [
+              "adapted",
+              "bound_slots",
+              "coherence",
+              "cold_stub",
+              "composed",
+              "composed_from",
+              "corpus",
+              "dag_depth",
+              "emitted_tokens",
+              "plan",
+              "reason",
+              "source",
+              "status",
+              "type_chain",
+              "type_compatible",
+              "verified",
+              "vetoed_tokens"
+            ]
+          },
+          {
+            "action": "composite",
+            "status": "ok",
+            "abstained": false,
+            "receipt_valid": true,
+            "chain_sha256": "b6bfae1a482deaeae866cf1102db2a3dfde6dc82f4ee05e7e3efaec1255d9f31",
+            "parent": "497e8485cdd051a970876019550bc2b9b025ecdd55f28aa8314de6f5d404f1b0",
+            "config_digest": "ef06b94f9326e40a",
+            "checkpoint_sha256": "fe905fd0a41789678c3edbdef63e9926e362416bb90f6ed0ca773c0b1f61737e",
+            "output_keys": [
+              "abstained",
+              "coherence",
+              "grounded_operands",
+              "key",
+              "mode",
+              "result",
+              "tau_composite"
+            ]
+          }
+        ],
+        "planner_fixture": {
+          "source": "data\\holarch\\zone_c.sqlite3",
+          "path": "C:\\Users\\chan\\Desktop\\HENRI v6\\receipts\\holarch\\_work\\i4_planner_17164.sqlite3",
+          "sha256": "d0863a4179bb37dd1199a08dd8f1c5997cbd693161a32bfa439030bcf4064c80",
+          "bytes": 21590016,
+          "engrams": 2467,
+          "empty": false
+        }
+      },
+      "gate": {
+        "files_at_least_50": true,
+        "edges_at_least_1200": true,
+        "median_delta_at_most_15ms": true,
+        "delta_parity_exact": true,
+        "mutation_changes_blast_radius": true,
+        "restore_is_exact": true,
+        "seven_agent_actions": true,
+        "agent_receipts_valid": true,
+        "agent_checkpoint_sha_present": true,
+        "agent_chain_valid": true,
+        "passed": true
+      },
+      "wall_seconds": 19.191624400002183,
+      "evidence": "OBSERVED"
+    }
+  },
+  "receipts": {
+    "I1": {
+      "path": "receipts\\holarch\\i1_vocab_lock.json",
+      "sha256": "5372c7f4a71f9fc56c32822a5cda0ef209e31d2c31d16e12795c99353d45c26c"
+    },
+    "I2": {
+      "path": "receipts\\holarch\\i2_dag_synthesis.json",
+      "sha256": "802cf4b089caf91957ea7ec4b26c04b0d43795f3855e24b180e754a85e06882e"
+    },
+    "I3": {
+      "path": "receipts\\holarch\\i3_horizon_traps.json",
+      "sha256": "1c3a0539a0d77d6e3cdb4c6777fc583e85ecba0ffa2c049de2973da02b5f9ef5"
+    },
+    "I4": {
+      "path": "receipts\\holarch\\i4_agent_scale.json",
+      "sha256": "5e25c0510fd1712a2a684d563c8d8924c3109be97184d76f77f2a969a5988f2f"
+    },
+    "agent_eval": {
+      "path": "receipts\\holarch\\agent_eval.json",
+      "sha256": "d6c5106305d7741e21db94fcaf1321375e207f25b14f8bf04b5a741514d268aa"
+    }
+  },
+  "vocabulary_lock": {
+    "path": "receipts\\holarch\\vocab_lock.json",
+    "sha256": "982653ecb74011f82c9134bda6e1f3c19cc3f46b19139f656cc52463a47c20ae"
+  },
+  "upstream_receipts": {
+    "h_cycle.json": "4d85c1f76dd66de941994a4a630c21ef97b6f1367bc5455fb494909eea05b0f3",
+    "g_cycle.json": "382a912a176f15d8f03e84e0332dacb8e9084cee833cb38fc9499691ea7ad439",
+    "h1_entropy_gated_lm.json": "a210403d40d74997ef3902a2f341be4899c71f19a1c8b76d5d261fa7b7e0c9a3",
+    "h2_multiplan_synth.json": "cc3317eb4f3b70f96d62e725d7afa922e220c47a5cc330f9850a0e40499272ab",
+    "h3_api_surface.json": "a47b4869b0ca9c256fd5bc9b7adca18ca33f34238afe194467d229896766751a",
+    "h4_delta_index.json": "ca83800d25b4820cc3953042d988b05a512cacbedff998640f671c2f9196f9e5"
+  },
+  "summary": {
+    "passed": 4,
+    "total": 4,
+    "agent_eval_passed": true
+  },
+  "wall_seconds": 12.605139899998903,
+  "evidence": "DERIVED"
+}

@@ -102,6 +102,10 @@ class EpistemicSidecar:
         self.cfg = cfg or HolarchConfig.small()
         self.root = Path(root)
         self.indexer: Optional[CodeGraphIndexer] = None
+        # Directive I4: one index per tenant. The single-package sidecar had
+        # one slot, so mounting a second package silently replaced the first;
+        # impact and code verification now select by namespace.
+        self._indexers: Dict[str, CodeGraphIndexer] = {}
         self._engine = None
         path = memory_path or str(
             Path(tempfile.gettempdir()) / f"henri_sidecar_{int(time.time())}.sqlite3"
@@ -163,13 +167,16 @@ class EpistemicSidecar:
         if str(mode) == "delta":
             if file_path is None:
                 raise ValueError("mode='delta' needs a file_path")
-            if self.indexer is None:
-                self.indexer = CodeGraphIndexer.from_memory(self.model.memory, str(namespace))
-            if self.indexer is None:
-                self.indexer = CodeGraphIndexer(
+            indexer = self._indexers.get(str(namespace))
+            if indexer is None:
+                indexer = CodeGraphIndexer.from_memory(self.model.memory, str(namespace))
+            if indexer is None:
+                indexer = CodeGraphIndexer(
                     self.model.memory, namespace=str(namespace), symbol_codebook=self.codebook
                 )
-            report = self.indexer.update_file(root, file_path, source_text=source_text)
+            report = indexer.update_file(root, file_path, source_text=source_text)
+            self.indexer = indexer
+            self._indexers[str(namespace)] = indexer
             self._absorb_index_report(report)
             self.index_report["delta"] = 1.0
             self.index_report["delta_seconds"] = float(report.seconds)
@@ -180,10 +187,28 @@ class EpistemicSidecar:
         )
         report = indexer.index(root, package=package)
         self.indexer = indexer
+        self._indexers[str(namespace)] = indexer
         graph_edges = list(indexer.graph.edges)
         ingest = self.ingest_edges(graph_edges, namespace=str(namespace))
         self._absorb_index_report(report)
         return {**self.index_report, **ingest}
+
+    def mount_indexer(self, indexer, namespace: str = "default") -> Dict[str, object]:
+        """Attach an already-built index to one tenant (I4).
+
+        The multi-package benchmark builds a 200+ file workspace index once
+        and mounts it; mounting is not an ingest, so it writes no engram and
+        moves no receipt.
+        """
+        self._indexers[str(namespace)] = indexer
+        if self.indexer is None:
+            self.indexer = indexer
+        return {
+            "namespace": str(namespace),
+            "files": int(getattr(indexer.report, "files", 0)),
+            "edges": int(getattr(indexer.report, "edges", 0)),
+            "nodes": int(getattr(indexer.report, "nodes", 0)),
+        }
 
     def _absorb_index_report(self, report) -> None:
         self.index_report = {
@@ -204,11 +229,12 @@ class EpistemicSidecar:
         is restored from the Zone C metadata the previous process wrote, so a
         restart answers without a re-parse.
         """
-        if self.indexer is None:
-            self.indexer = CodeGraphIndexer.from_memory(self.model.memory, str(namespace))
-        if self.indexer is None:
-            raise RuntimeError("no code index in memory for this namespace")
-        result = self.indexer.impact(target, hops=int(hops))
+        indexer = self._indexers.get(str(namespace)) or self.indexer
+        if indexer is None:
+            indexer = CodeGraphIndexer.from_memory(self.model.memory, str(namespace))
+        if indexer is None:
+            raise ValueError("no code index in memory for this namespace")
+        result = indexer.impact(target, hops=int(hops))
         result["namespace"] = str(namespace)
         if not result["resolved"]:
             result["vetoed"] = True
@@ -398,14 +424,24 @@ class EpistemicSidecar:
         The engine is built once per service, because fitting the tokenizer,
         the projector and the count model is a corpus pass and not a request.
         """
+        engine = self._ensure_engine(namespace)
+        engine.namespace = str(namespace)
+        self._engine.plans.namespace = str(namespace)
+        result = self._engine.synthesize(intent, kind=str(kind), max_tokens=int(max_tokens))
+        result["corpus"] = dict(getattr(self, "_engine_stats", {}))
+        return result
+
+    def _ensure_engine(self, namespace: str = "default"):
+        """Build the synthesis stack once, using this tenant's code index."""
         if self._engine is None:
             from henri.holarch.code_gen import build_synthesis_engine
 
             symbols = set()
             signatures = {}
-            if self.indexer is not None:
-                symbols |= self.indexer.symbol_names()
-                signatures = dict(self.indexer.signatures)
+            indexer = self._indexers.get(str(namespace)) or self.indexer
+            if indexer is not None:
+                symbols |= indexer.symbol_names()
+                signatures = dict(indexer.signatures)
             engine, stats = build_synthesis_engine(
                 self.root,
                 self.model.memory,
@@ -415,11 +451,65 @@ class EpistemicSidecar:
             )
             self._engine = engine
             self._engine_stats = stats
-        self._engine.namespace = str(namespace)
-        self._engine.plans.namespace = str(namespace)
-        result = self._engine.synthesize(intent, kind=str(kind), max_tokens=int(max_tokens))
-        result["corpus"] = dict(getattr(self, "_engine_stats", {}))
-        return result
+        return self._engine
+
+    def _verify_vocabulary_claim(self, text: str, namespace: str = "default") -> Dict[str, object]:
+        """Verify one locked token id against the deployed vocabulary (I1).
+
+        The claim is a JSON object {"name": str, "token_id": int}. The answer
+        is supported only when the engine's tokenizer is lock-backed, the
+        name maps to exactly that id, and decoding the id returns the name.
+        A fabricated name or a shifted id is refused, not approximated.
+        """
+        import json as _json
+
+        try:
+            payload = _json.loads(str(text))
+        except Exception:
+            return {
+                "status": "unsupported",
+                "supported": False,
+                "reason": "a vocab claim must be a JSON object with name and token_id",
+                "kind": "vocab",
+                "claim": str(text),
+                "namespace": str(namespace),
+            }
+        name = str(payload.get("name", "") or "")
+        expected = payload.get("token_id")
+        engine = self._ensure_engine(namespace)
+        tokenizer = engine.tokenizer
+        ledger = getattr(tokenizer, "ledger", None)
+        actual = tokenizer.stoi.get(name)
+        locked = bool(getattr(tokenizer, "locked", False))
+        decoded = tokenizer.token_text(int(actual)) if actual is not None else ""
+        supported = bool(
+            locked
+            and name
+            and actual is not None
+            and expected is not None
+            and int(actual) == int(expected)
+            and decoded == name
+        )
+        reason = (
+            f"{name} keeps locked id {int(actual)}"
+            if supported
+            else (
+                f"locked vocabulary mismatch for {name!r}: expected {expected}, "
+                f"actual {actual}, locked={locked}"
+            )
+        )
+        return {
+            "status": "supported" if supported else "unsupported",
+            "supported": bool(supported),
+            "reason": reason,
+            "kind": "vocab",
+            "claim": str(text),
+            "namespace": str(namespace),
+            "token_id": int(actual) if actual is not None else None,
+            "locked": locked,
+            "ledger_digest": str(getattr(ledger, "digest", lambda: "")()) if ledger is not None else "",
+            "vocabulary_size": int(len(tokenizer)),
+        }
 
     def adapt_synthesis(
         self,
@@ -454,6 +544,7 @@ class EpistemicSidecar:
         lookahead_depth: int = 2,
         gamma_look: float = 0.02,
         namespace: str = "default",
+        batch_rollout: bool = True,
     ) -> Dict[str, object]:
         """Run the wall-masked depth-2 rotor lookahead on one observation.
 
@@ -471,6 +562,7 @@ class EpistemicSidecar:
             transition=str(transition),
             lookahead_depth=int(lookahead_depth),
             gamma_look=float(gamma_look),
+            batch_rollout=bool(batch_rollout),
         )
         recent: List[torch.Tensor] = []
         for wave in list(history_waves or [])[-int(lookahead.history) :]:
@@ -494,6 +586,7 @@ class EpistemicSidecar:
             "lookahead_depth": int(lookahead_depth),
             "gamma_look": float(gamma_look),
             "history_waves": int(len(recent)),
+            "batch_rollout": bool(batch_rollout),
             "namespace": str(namespace),
         }
 
@@ -512,6 +605,8 @@ class EpistemicSidecar:
         signature is refused rather than accepted.
         """
         text = str(claim).strip()
+        if str(kind) == "vocab":
+            return self._verify_vocabulary_claim(text, namespace=str(namespace))
         if str(kind) == "text":
             verifier = self._ontology()
             verdict = verifier.verify_claim(text, top_k=int(top_k))
@@ -557,10 +652,11 @@ class EpistemicSidecar:
         from henri.holarch.code_gen import ASTGate
 
         symbols = set()
-        if self.indexer is None:
-            self.indexer = CodeGraphIndexer.from_memory(self.model.memory, str(namespace))
-        if self.indexer is not None:
-            symbols |= self.indexer.symbol_names()
+        indexer = self._indexers.get(str(namespace)) or self.indexer
+        if indexer is None:
+            indexer = CodeGraphIndexer.from_memory(self.model.memory, str(namespace))
+        if indexer is not None:
+            symbols |= indexer.symbol_names()
         gate = ASTGate(symbols)
         for node in ast.walk(tree):
             if isinstance(node, ast.Call):

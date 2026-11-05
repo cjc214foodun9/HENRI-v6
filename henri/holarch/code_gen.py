@@ -32,10 +32,12 @@ a least-squares solve, and the wave terms are numpy.
 from __future__ import annotations
 
 import ast
+import copy
 import hashlib
 import math
 import re
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 
 import numpy as np
@@ -45,6 +47,7 @@ from henri.holarch.code_lang import (
     BochnerPhaseProjector,
     CodeTextCorpus,
     HolarchCodeTextTokenizer,
+    VocabularyLedger,
     build_tokenizer,
 )
 from henri.holarch.ontology_guard import build_verifier
@@ -1395,49 +1398,563 @@ def _rebind_constants(expression: ast.AST, numbers: Sequence[float]) -> None:
             node.value = float(value)
 
 
-def _compose_plans(p1: Plan, p2: Plan, request: Dict[str, object]) -> Optional[str]:
-    """f(g(x)) as a real AST: bind p1's result into p2's single argument.
+# ---------------------------------------------------------------------------
+# Directive I2: canonical abstract types, signature inference, type veto
+# ---------------------------------------------------------------------------
+TYPE_ANY = "any"
+TYPE_BOOLEAN = "boolean"
+TYPE_NUMERIC = "numeric"
+TYPE_TEXT = "text"
+TYPE_SEQUENCE = "sequence"
+TYPE_MAPPING = "mapping"
+TYPE_NUMERIC_SEQUENCE = "numeric_sequence"
+"""A consumer that needs an ordered collection of numbers (sum/mean/std).
 
-    Directive H2. The two playbooks are parsed, the first plan's arguments
-    are renamed to the request's argument names, its return expression is
-    assigned to an intermediate, and the second plan's expression consumes
-    that intermediate. The second plan's own constants are rebound from the
-    request's numeric literals, so a composition can carry a new bound
-    (clamp at 2.5) as well as new names. Nothing is string-concatenated:
-    the result is emitted by ast.unparse and then re-parsed by ASTGate.
+It is an internal refinement of 'sequence', not a seventh public return
+type: a text producer satisfies a plain sequence consumer (len, iteration)
+but not a numeric-sequence consumer (sum, mean), which is exactly the
+distinction the I2 traps turn on.
+"""
+
+ABSTRACT_TYPES = (
+    TYPE_ANY,
+    TYPE_BOOLEAN,
+    TYPE_NUMERIC,
+    TYPE_TEXT,
+    TYPE_SEQUENCE,
+    TYPE_MAPPING,
+)
+"""The six canonical abstract types of the signature gate."""
+
+_TYPE_NAMES = {
+    # numeric
+    "int": TYPE_NUMERIC, "float": TYPE_NUMERIC, "complex": TYPE_NUMERIC,
+    "number": TYPE_NUMERIC, "decimal": TYPE_NUMERIC, "Fraction": TYPE_NUMERIC,
+    "floating": TYPE_NUMERIC, "integer": TYPE_NUMERIC, "real": TYPE_NUMERIC,
+    # boolean
+    "bool": TYPE_BOOLEAN, "boolean": TYPE_BOOLEAN,
+    # text
+    "str": TYPE_TEXT, "string": TYPE_TEXT, "bytes": TYPE_TEXT,
+    "bytearray": TYPE_TEXT, "Text": TYPE_TEXT,
+    # sequence
+    "list": TYPE_SEQUENCE, "tuple": TYPE_SEQUENCE, "Sequence": TYPE_SEQUENCE,
+    "Iterable": TYPE_SEQUENCE, "Iterator": TYPE_SEQUENCE,
+    "Generator": TYPE_SEQUENCE, "deque": TYPE_SEQUENCE,
+    "ndarray": TYPE_SEQUENCE, "array": TYPE_SEQUENCE,
+    # mapping (the directive groups set with mapping)
+    "dict": TYPE_MAPPING, "Dict": TYPE_MAPPING, "Mapping": TYPE_MAPPING,
+    "MutableMapping": TYPE_MAPPING, "DefaultDict": TYPE_MAPPING,
+    "OrderedDict": TYPE_MAPPING, "Counter": TYPE_MAPPING,
+    "set": TYPE_MAPPING, "frozenset": TYPE_MAPPING, "Set": TYPE_MAPPING,
+}
+
+# "sum" is deliberately absent: it CONSUMES a sequence and produces a
+# numeric, so it is evidence that its argument is a sequence, not a scalar.
+_NUMERIC_FUNCTIONS = {"int", "float", "complex", "round", "abs", "ord"}
+_TEXT_FUNCTIONS = {"str", "repr", "format", "hex", "oct", "bin", "chr", "ascii"}
+_SEQUENCE_FUNCTIONS = {
+    "sorted", "list", "tuple", "set", "frozenset", "enumerate", "range",
+    "zip", "map", "filter", "reversed", "iter",
+}
+_SEQUENCE_AGGREGATES = {
+    "len", "sorted", "iter", "list", "tuple", "set", "frozenset",
+    "enumerate", "reversed", "any", "all", "min", "max",
+}
+_NUMERIC_SEQUENCE_AGGREGATES = {"sum", "mean", "median", "std", "variance"}
+_TEXT_METHODS = {
+    "strip", "lstrip", "rstrip", "lower", "upper", "split", "rsplit",
+    "splitlines", "replace", "startswith", "endswith", "encode", "decode",
+    "format", "join", "find", "rfind", "count", "casefold", "title",
+    "capitalize", "zfill", "partition", "rpartition",
+}
+_MAPPING_METHODS = {"get", "keys", "items", "values", "setdefault", "update", "pop"}
+_SEQUENCE_METHODS = {"append", "extend", "insert", "sort", "reverse", "index"}
+
+
+def _canonical_type_name(text: str) -> str:
+    """Normalise one annotation or class name to a canonical abstract type."""
+    raw = str(text).strip().strip("'\"")
+    if not raw:
+        return TYPE_ANY
+    raw = raw.replace("typing.", "").replace("collections.abc.", "")
+    raw = raw.replace("builtins.", "")
+    raw = raw.split("[")[0]
+    tail = raw.rsplit(".", 1)[-1]
+    if tail in _TYPE_NAMES:
+        return _TYPE_NAMES[tail]
+    lowered = tail.lower()
+    if lowered in {"int", "float", "complex", "number", "decimal", "fraction"}:
+        return TYPE_NUMERIC
+    if lowered in {"bool", "boolean"}:
+        return TYPE_BOOLEAN
+    if lowered in {"str", "string", "bytes", "bytearray", "text"}:
+        return TYPE_TEXT
+    if lowered in {"list", "tuple", "sequence", "iterable", "iterator", "generator", "deque", "ndarray", "array"}:
+        return TYPE_SEQUENCE
+    if lowered in {"dict", "mapping", "mutabledict", "defaultdict", "ordereddict", "counter", "set", "frozenset"}:
+        return TYPE_MAPPING
+    return TYPE_ANY
+
+
+def _annotation_types(node) -> frozenset:
+    """The canonical type set an annotation declares (empty when absent)."""
+    if node is None:
+        return frozenset()
+    if isinstance(node, ast.Constant) and isinstance(node.value, str):
+        return frozenset({_canonical_type_name(node.value)})
+    if isinstance(node, ast.Name):
+        return frozenset({_canonical_type_name(node.id)})
+    if isinstance(node, ast.Attribute):
+        return frozenset({_canonical_type_name(node.attr)})
+    if isinstance(node, ast.Tuple):
+        out = set()
+        for item in node.elts:
+            out |= set(_annotation_types(item))
+        return frozenset(out or {TYPE_ANY})
+    if isinstance(node, ast.BinOp) and isinstance(node.op, ast.BitOr):
+        return _annotation_types(node.left) | _annotation_types(node.right)
+    if isinstance(node, ast.Subscript):
+        base = ast.unparse(node.value).strip().lower()
+        if base in {"optional"}:
+            return _annotation_types(node.slice) or frozenset({TYPE_ANY})
+        if base in {"union"}:
+            inner = node.slice
+            items = list(inner.elts) if isinstance(inner, ast.Tuple) else [inner]
+            out = set()
+            for item in items:
+                out |= set(_annotation_types(item))
+            return frozenset(out or {TYPE_ANY})
+        return frozenset({_canonical_type_name(ast.unparse(node.value))})
+    return frozenset({TYPE_ANY})
+
+
+def _argument_types(definition, argument: str) -> frozenset:
+    """Infer what one argument must support from how the body uses it.
+
+    This is deliberately conservative. The evidence rules are structural
+    (len/sorted/for/comprehension imply a sequence, a string subscript
+    implies a mapping, float()/arithmetic imply a numeric scalar, a string
+    method implies text). Conflicting evidence collapses to 'any', which
+    lets the gate abstain instead of vetoing a legal pipeline.
     """
-    left = _single_expression(p1.source)
-    right = _single_expression(p2.source)
-    if left is None or right is None:
+    name = str(argument)
+    evidence: set = set()
+
+    def is_name(node) -> bool:
+        return isinstance(node, ast.Name) and node.id == name
+
+    for node in ast.walk(definition):
+        if isinstance(node, ast.comprehension) and is_name(node.iter):
+            evidence.add(TYPE_SEQUENCE)
+        elif isinstance(node, ast.For) and is_name(node.iter):
+            evidence.add(TYPE_SEQUENCE)
+        elif isinstance(node, ast.Call):
+            func = node.func
+            fname = func.id if isinstance(func, ast.Name) else (
+                func.attr if isinstance(func, ast.Attribute) else ""
+            )
+            if fname in _SEQUENCE_AGGREGATES and any(is_name(arg) for arg in node.args):
+                evidence.add(TYPE_SEQUENCE)
+            if fname in _NUMERIC_SEQUENCE_AGGREGATES and any(is_name(arg) for arg in node.args):
+                evidence.add(TYPE_NUMERIC_SEQUENCE)
+            if fname in _NUMERIC_FUNCTIONS and any(is_name(arg) for arg in node.args):
+                evidence.add(TYPE_NUMERIC)
+            if fname == "bool" and any(is_name(arg) for arg in node.args):
+                evidence.add(TYPE_BOOLEAN)
+            if fname == "range" and any(is_name(arg) for arg in node.args):
+                evidence.add(TYPE_NUMERIC)
+        elif isinstance(node, ast.Attribute) and is_name(node.value):
+            if node.attr in _TEXT_METHODS:
+                evidence.add(TYPE_TEXT)
+            elif node.attr in _MAPPING_METHODS:
+                evidence.add(TYPE_MAPPING)
+            elif node.attr in _SEQUENCE_METHODS:
+                evidence.add(TYPE_SEQUENCE)
+        elif isinstance(node, ast.Subscript) and is_name(node.value):
+            if isinstance(node.slice, ast.Constant) and isinstance(node.slice.value, str):
+                evidence.add(TYPE_MAPPING)
+            elif isinstance(node.slice, (ast.Constant, ast.Slice)) and not (
+                isinstance(node.slice, ast.Constant) and isinstance(node.slice.value, str)
+            ):
+                evidence.add(TYPE_SEQUENCE)
+        elif isinstance(node, ast.BinOp):
+            left, right = node.left, node.right
+            involves = is_name(left) or is_name(right)
+            if involves:
+                other = right if is_name(left) else left
+                if isinstance(node.op, ast.Add) and isinstance(other, ast.Constant) and isinstance(other.value, str):
+                    evidence.add(TYPE_TEXT)
+                elif isinstance(node.op, (ast.Sub, ast.Mult, ast.Div, ast.FloorDiv, ast.Mod, ast.Pow, ast.MatMult)):
+                    evidence.add(TYPE_NUMERIC)
+                elif isinstance(node.op, ast.Add):
+                    evidence.add(TYPE_NUMERIC)
+        elif isinstance(node, ast.Compare):
+            operands = [node.left] + list(node.comparators)
+            if any(is_name(item) for item in operands):
+                if any(isinstance(item, ast.Constant) and isinstance(item.value, str) for item in operands):
+                    evidence.add(TYPE_TEXT)
+                elif any(isinstance(item, ast.Constant) and isinstance(item.value, (int, float)) for item in operands):
+                    evidence.add(TYPE_NUMERIC)
+        elif isinstance(node, ast.UnaryOp) and is_name(node.operand):
+            if isinstance(node.op, ast.USub):
+                evidence.add(TYPE_NUMERIC)
+            elif isinstance(node.op, ast.Not):
+                evidence.add(TYPE_BOOLEAN)
+    if not evidence:
+        return frozenset({TYPE_ANY})
+    # A numeric-sequence consumer is strictly stronger than a plain
+    # sequence consumer, so it wins when both were observed.
+    if TYPE_NUMERIC_SEQUENCE in evidence:
+        return frozenset({TYPE_NUMERIC_SEQUENCE})
+    if len(evidence) == 1:
+        return frozenset(evidence)
+    return frozenset({TYPE_ANY})
+
+
+def _expression_types(node) -> frozenset:
+    """The canonical return types one expression can produce."""
+    if node is None:
+        return frozenset({TYPE_ANY})
+    if isinstance(node, ast.Constant):
+        value = node.value
+        if isinstance(value, bool):
+            return frozenset({TYPE_BOOLEAN})
+        if isinstance(value, (int, float, complex)):
+            return frozenset({TYPE_NUMERIC})
+        if isinstance(value, (str, bytes)):
+            return frozenset({TYPE_TEXT})
+        return frozenset({TYPE_ANY})
+    if isinstance(node, (ast.JoinedStr,)):
+        return frozenset({TYPE_TEXT})
+    if isinstance(node, (ast.List, ast.Tuple, ast.Set, ast.ListComp, ast.SetComp, ast.GeneratorExp)):
+        return frozenset({TYPE_SEQUENCE})
+    if isinstance(node, (ast.Dict, ast.DictComp)):
+        return frozenset({TYPE_MAPPING})
+    if isinstance(node, ast.IfExp):
+        return _expression_types(node.body) | _expression_types(node.orelse)
+    if isinstance(node, ast.BoolOp):
+        return frozenset({TYPE_BOOLEAN})
+    if isinstance(node, ast.Compare):
+        return frozenset({TYPE_BOOLEAN})
+    if isinstance(node, ast.UnaryOp):
+        if isinstance(node.op, ast.Not):
+            return frozenset({TYPE_BOOLEAN})
+        if isinstance(node.op, (ast.USub, ast.UAdd)):
+            return frozenset({TYPE_NUMERIC})
+    if isinstance(node, ast.BinOp):
+        if isinstance(node.op, ast.Add):
+            left = _expression_types(node.left)
+            right = _expression_types(node.right)
+            if TYPE_TEXT in left or TYPE_TEXT in right:
+                return frozenset({TYPE_TEXT})
+            if TYPE_SEQUENCE in left or TYPE_SEQUENCE in right:
+                return frozenset({TYPE_SEQUENCE})
+            return frozenset({TYPE_NUMERIC})
+        if isinstance(node.op, (ast.Sub, ast.Mult, ast.Div, ast.FloorDiv, ast.Mod, ast.Pow, ast.MatMult)):
+            return frozenset({TYPE_NUMERIC})
+    if isinstance(node, ast.Call):
+        func = node.func
+        if isinstance(func, ast.Name):
+            fname = func.id
+            if fname in _NUMERIC_FUNCTIONS:
+                return frozenset({TYPE_NUMERIC})
+            if fname in _TEXT_FUNCTIONS:
+                return frozenset({TYPE_TEXT})
+            if fname in _SEQUENCE_FUNCTIONS:
+                return frozenset({TYPE_SEQUENCE})
+            if fname == "dict":
+                return frozenset({TYPE_MAPPING})
+            if fname == "bool":
+                return frozenset({TYPE_BOOLEAN})
+            if fname in {"max", "min"}:
+                inner = set()
+                for arg in node.args:
+                    inner |= set(_expression_types(arg))
+                if inner and inner <= {TYPE_NUMERIC}:
+                    return frozenset({TYPE_NUMERIC})
+                return frozenset({TYPE_ANY})
+            return frozenset({TYPE_ANY})
+        if isinstance(func, ast.Attribute):
+            attr = func.attr
+            if attr in {"hexdigest", "encode", "decode", "strip", "lower", "upper", "replace", "join", "format"}:
+                return frozenset({TYPE_TEXT})
+            if attr in {"keys", "items", "values"}:
+                return frozenset({TYPE_SEQUENCE})
+            if attr in {"get", "pop", "setdefault"}:
+                return frozenset({TYPE_ANY})
+            if attr in {"array", "stack", "asarray", "tolist", "reshape", "sorted"}:
+                return frozenset({TYPE_SEQUENCE})
+            if attr in {"sum", "mean", "norm", "argmax", "argmin", "std", "real", "abs", "vdot", "dot"}:
+                return frozenset({TYPE_NUMERIC})
+            return frozenset({TYPE_ANY})
+    return frozenset({TYPE_ANY})
+
+
+def _return_types(definition) -> frozenset:
+    """The canonical type set a function can return."""
+    annotated = _annotation_types(getattr(definition, "returns", None))
+    if annotated:
+        return annotated
+    collected = set()
+    for node in ast.walk(definition):
+        if isinstance(node, ast.Return) and node.value is not None:
+            collected |= set(_expression_types(node.value))
+    if not collected:
+        return frozenset({TYPE_ANY})
+    return frozenset(collected)
+
+
+def _abstract_signature(source: str) -> Dict[str, object]:
+    """The declared/inferred surface of one function, in canonical types."""
+    try:
+        tree = ast.parse(str(source))
+    except SyntaxError:
+        return {}
+    definition = next(
+        (node for node in tree.body if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))),
+        None,
+    )
+    if definition is None:
+        return {}
+    positional = list(getattr(definition.args, "posonlyargs", [])) + list(definition.args.args)
+    signature_args: List[Dict[str, object]] = []
+    for argument in positional:
+        if str(argument.arg) in {"self", "cls"}:
+            continue
+        declared = _annotation_types(argument.annotation)
+        inferred = declared or _argument_types(definition, str(argument.arg))
+        signature_args.append({"name": str(argument.arg), "type": sorted(inferred)})
+    return {
+        "name": str(definition.name),
+        "args": signature_args,
+        "arity": len(signature_args),
+        "returns": sorted(_return_types(definition)),
+    }
+
+
+class TypeCompatibilityGate:
+    """Plan k may bind plan k+1 only when its return fits arg 0.
+
+    Directive I2. The gate reads the canonical abstract types extracted from
+    the AST annotation when one exists, and from the body's structural use
+    when it does not. 'any' is the abstention type: an unannotated parameter
+    that the body never constrains accepts any producer, so a legal pipeline
+    is not vetoed for missing type hints. A real conflict - a text or
+    mapping return bound to a parameter the body uses as a numeric scalar or
+    a sequence - is refused before any source is emitted.
+    """
+
+    def __init__(self, signatures: Optional[Dict[str, object]] = None) -> None:
+        self.signatures = dict(signatures or {})
+        self._cache: Dict[str, Dict[str, object]] = {}
+
+    def signature(self, plan: "Plan") -> Dict[str, object]:
+        key = str(getattr(plan, "digest", "") or id(plan))
+        cached = self._cache.get(key)
+        if cached is not None:
+            return cached
+        stored = (getattr(plan, "slots", {}) or {}).get("types")
+        info = dict(stored) if isinstance(stored, dict) and stored.get("args") is not None else _abstract_signature(plan.source)
+        self._cache[key] = info
+        return info
+
+    @staticmethod
+    def _compatible(produced: frozenset, required: frozenset) -> bool:
+        if not produced or not required:
+            return True
+        if TYPE_ANY in produced or TYPE_ANY in required:
+            return True
+        if TYPE_NUMERIC_SEQUENCE in required:
+            # sum/mean need numbers: text and mappings are refused, a plain
+            # sequence is accepted because its element type is unannotated.
+            if TYPE_TEXT in produced or TYPE_MAPPING in produced:
+                return False
+            return TYPE_SEQUENCE in produced or TYPE_NUMERIC_SEQUENCE in produced
+        if TYPE_SEQUENCE in required and TYPE_TEXT in produced:
+            # A string is a sized character sequence: len(s) and iteration
+            # are legal, which is why the H2 digest-length pipeline survives.
+            return True
+        return bool(produced & required)
+
+    def check(self, left: "Plan", right: "Plan") -> Dict[str, object]:
+        left_signature = self.signature(left)
+        right_signature = self.signature(right)
+        produced = frozenset(left_signature.get("returns") or [TYPE_ANY])
+        arguments = list(right_signature.get("args") or [])
+        row = {
+            "from": str(left.name),
+            "to": str(right.name),
+            "returns": sorted(produced),
+            "arg": str(arguments[0].get("name", "")) if arguments else "",
+            "requires": list(arguments[0].get("type") or [TYPE_ANY]) if arguments else [TYPE_ANY],
+        }
+        if not arguments:
+            return {
+                "ok": True,
+                "reason": "no positional argument to bind",
+                "row": row,
+                "left": left_signature,
+                "right": right_signature,
+            }
+        required = frozenset(arguments[0].get("type") or [TYPE_ANY])
+        ok = self._compatible(produced, required)
+        reason = "compatible" if ok else (
+            f"type mismatch: {left.name}.returns {sorted(produced)} cannot bind "
+            f"{right.name}.{arguments[0].get('name', 'arg0')} {sorted(required)}"
+        )
+        return {"ok": bool(ok), "reason": reason, "row": row, "left": left_signature, "right": right_signature}
+
+    def check_chain(self, plans: Sequence["Plan"]) -> Dict[str, object]:
+        rows: List[Dict[str, object]] = []
+        for left, right in zip(plans, plans[1:]):
+            verdict = self.check(left, right)
+            rows.append(verdict["row"])
+            if not verdict["ok"]:
+                return {
+                    "ok": False,
+                    "reason": str(verdict["reason"]),
+                    "rows": rows,
+                    "types": [dict(v) for v in [verdict]],
+                }
+        return {"ok": True, "reason": "every stage is type compatible", "rows": rows}
+
+
+def _function_definition(source: str):
+    try:
+        tree = ast.parse(str(source))
+    except SyntaxError:
         return None
-    left_args, left_expr = left
-    right_args, right_expr = right
-    if len(right_args) != 1:
+    return next(
+        (node for node in tree.body if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))),
+        None,
+    )
+
+
+def _composable_body(definition) -> Optional[List[ast.stmt]]:
+    """The statements of a function whose body ends in exactly one return."""
+    if definition is None:
         return None
+    body = [
+        statement
+        for statement in definition.body
+        if not (isinstance(statement, ast.Expr) and isinstance(statement.value, ast.Constant))
+    ]
+    if not body:
+        return None
+    if not isinstance(body[-1], ast.Return) or body[-1].value is None:
+        return None
+    if any(isinstance(statement, ast.Return) for statement in body[:-1]):
+        return None
+    return body
+
+
+def _rename_names(node, rename: Dict[str, str]) -> None:
+    for child in ast.walk(node):
+        if isinstance(child, ast.Name) and child.id in rename:
+            child.id = rename[child.id]
+
+
+def _numeric_constants(statements: Sequence[ast.stmt]) -> List[ast.Constant]:
+    nodes: List[ast.Constant] = []
+    for statement in statements:
+        for node in ast.walk(statement):
+            if (
+                isinstance(node, ast.Constant)
+                and isinstance(node.value, (int, float))
+                and not isinstance(node.value, bool)
+            ):
+                nodes.append(node)
+    nodes.sort(key=lambda node: (int(getattr(node, "lineno", 0)), int(getattr(node, "col_offset", 0))))
+    return nodes
+
+
+def _rebind_stage_constants(statements: Sequence[ast.stmt], numbers: Sequence[float]) -> int:
+    nodes = _numeric_constants(statements)
+    if len(nodes) != len(numbers):
+        return 0
+    for node, value in zip(nodes, numbers):
+        if isinstance(node.value, int) and float(value).is_integer():
+            node.value = int(value)
+        else:
+            node.value = float(value)
+    return len(nodes)
+
+
+def _compose_plans_many(plans: Sequence["Plan"], request: Dict[str, object]) -> Optional[str]:
+    """Splice N verified single-return functions into one sequential pipeline.
+
+    Directive I2. Each stage's return becomes the next stage's argument, in
+    order: step_1 = stage_1(...); step_2 = stage_2(step_1); ...; return
+    stage_N(step_{N-1}). The request's numeric literals are rebound inside
+    the stage that carries numeric constants, so a new clamp bound lands on
+    the clamp and nowhere else. The result is emitted by ast.unparse and
+    re-parsed by the caller's ASTGate; nothing is string-concatenated.
+    """
+    if not plans:
+        return None
+    definitions = []
+    staged: List[List[ast.stmt]] = []
+    for plan in plans:
+        definition = _function_definition(plan.source)
+        body = _composable_body(definition)
+        if definition is None or body is None:
+            return None
+        definitions.append(definition)
+        staged.append(copy.deepcopy(body))
+    first_args = [a.arg for a in definitions[0].args.args if a.arg not in {"self", "cls"}]
+    if not first_args:
+        return None
+    for definition in definitions[1:]:
+        later = [a for a in definition.args.args if a.arg not in {"self", "cls"}]
+        if len(later) != 1:
+            return None
     requested = [str(name) for name in (request.get("args") or []) if str(name).isidentifier()]
-    if requested and len(requested) > len(left_args):
+    if requested and len(requested) > len(first_args):
         return None
-    rename: Dict[str, str] = {}
-    for old, new in zip(left_args, requested):
-        if new != old:
-            rename[old] = new
+    rename = {old: new for old, new in zip(first_args, requested) if new != old}
     if rename:
-        for node in ast.walk(left_expr):
-            if isinstance(node, ast.Name) and node.id in rename:
-                node.id = rename[node.id]
+        for statement in staged[0]:
+            _rename_names(statement, rename)
+    for index in range(1, len(definitions)):
+        old_arg = [a for a in definitions[index].args.args if a.arg not in {"self", "cls"}][0].arg
+        _rename_names_all(staged[index], {old_arg: f"step_{index}"})
     numbers = [float(value) for value in (request.get("numbers") or [])]
     if numbers:
-        _rebind_constants(right_expr, numbers)
-    staged = f"{right_args[0]}_out" if right_args[0].isidentifier() else "staged_out"
-    for node in ast.walk(right_expr):
-        if isinstance(node, ast.Name) and node.id == right_args[0]:
-            node.id = staged
-    name = str(request.get("func") or f"{p1.name}_{p2.name}")
+        counts = [len(_numeric_constants(statements)) for statements in staged]
+        carriers = [index for index, count in enumerate(counts) if count > 0]
+        # The request's literals describe the operation that carries a bound
+        # (a clamp), which is the LAST stage in every pipeline the protocol
+        # composes. Prefer it; fall back to the single carrier; distribute
+        # only when the totals line up exactly.
+        if counts[-1] == len(numbers):
+            _rebind_stage_constants(staged[-1], numbers)
+        elif len(carriers) == 1 and counts[carriers[0]] == len(numbers):
+            _rebind_stage_constants(staged[carriers[0]], numbers)
+        elif sum(counts) == len(numbers):
+            cursor = 0
+            for index, count in enumerate(counts):
+                if count:
+                    _rebind_stage_constants(staged[index], numbers[cursor : cursor + count])
+                    cursor += count
+    body: List[ast.stmt] = []
+    for index, statements in enumerate(staged):
+        if index < len(staged) - 1:
+            last = statements[-1]
+            body.extend(statements[:-1])
+            body.append(
+                ast.Assign(
+                    targets=[ast.Name(id=f"step_{index + 1}", ctx=ast.Store())],
+                    value=last.value,
+                )
+            )
+        else:
+            body.extend(statements)
+    name = str(request.get("func") or "_".join(plan.name for plan in plans))
     if not name.isidentifier():
-        name = f"{p1.name}_{p2.name}"
+        name = "_".join(plan.name for plan in plans)
     arguments = ast.arguments(
         posonlyargs=[],
-        args=[ast.arg(arg=rename.get(old, old)) for old in left_args],
+        args=[ast.arg(arg=rename.get(old, old)) for old in first_args],
         vararg=None,
         kwonlyargs=[],
         kw_defaults=[],
@@ -1450,20 +1967,29 @@ def _compose_plans(p1: Plan, p2: Plan, request: Dict[str, object]) -> Optional[s
     definition = ast.FunctionDef(
         name=name,
         args=arguments,
-        body=[
-            ast.Assign(
-                targets=[ast.Name(id=staged, ctx=ast.Store())],
-                value=left_expr,
-            ),
-            ast.Return(value=right_expr),
-        ],
+        body=body,
         decorator_list=[],
         returns=None,
         **keywords,
     )
     module = ast.Module(body=[definition], type_ignores=[])
     ast.fix_missing_locations(module)
-    return ast.unparse(module) + chr(10)
+    try:
+        source = ast.unparse(module) + chr(10)
+        ast.parse(source)
+    except SyntaxError:
+        return None
+    return source
+
+
+def _rename_names_all(statements: Sequence[ast.stmt], rename: Dict[str, str]) -> None:
+    for statement in statements:
+        _rename_names(statement, rename)
+
+
+def _compose_plans(p1: Plan, p2: Plan, request: Dict[str, object]) -> Optional[str]:
+    """Two-stage compatibility wrapper around the N-stage splicer."""
+    return _compose_plans_many([p1, p2], request)
 
 
 @dataclass
@@ -1611,6 +2137,12 @@ class PlanStore:
         record = self.memory.write(
             wave, label=int(label), tier=int(tier), namespace=self.namespace
         )
+        slots: Dict[str, object] = _source_slots(str(source)) if str(kind) == "code" else {}
+        if str(kind) == "code":
+            # Directive I2: the canonical signature travels with the plan, so
+            # the type gate reads a compiled decision rather than re-parsing
+            # a source on every retrieval.
+            slots["types"] = _abstract_signature(str(source))
         plan = Plan(
             name=str(name),
             intent=str(intent),
@@ -1619,7 +2151,7 @@ class PlanStore:
             version=version,
             engram_id=int(getattr(record, "engram_id", -1)),
             digest=hashlib.sha256(str(source).encode("utf-8")).hexdigest(),
-            slots=_source_slots(str(source)) if str(kind) == "code" else {},
+            slots=slots,
         )
         if str(name) not in self.plans:
             self._observe_intent(str(intent))
@@ -1784,6 +2316,138 @@ class PlanStore:
             return [first]
         return [first, best]
 
+    # --------------------------------------------------- N-stage DAG (I2)
+    _STAGE_CUE = re.compile(
+        r"(?:\s*(?:;|->|\u2192)\s*|\s+(?:and\s+then|then|after\s+that|afterwards|next|finally|subsequently)\s+)",
+        re.IGNORECASE,
+    )
+    _STAGE_PREFIX = re.compile(
+        r"(?i)^(?:first(?:ly)?|start\s+by|to\s+begin|begin\s+by)\s*[,:]?\s*"
+    )
+
+    def coverage_many(self, intent: str, plans: Sequence[Plan]) -> float:
+        """Fraction of the intent's IDF mass explained by the union of plans."""
+        tokens = self._intent_tokens(intent)
+        if not tokens:
+            return 0.0
+        covered: set = set()
+        for plan in plans:
+            covered.update(self._intent_tokens(plan.intent))
+        total = 0.0
+        hit = 0.0
+        for token in tokens:
+            weight = float(self.token_weight[token]) if 0 <= token < self.token_weight.size else 1.0
+            total += weight
+            if token in covered:
+                hit += weight
+        return float(hit / total) if total > 0.0 else 0.0
+
+    def residual_key_many(
+        self, intent: str, plans: Sequence[Plan]
+    ) -> Tuple[Optional[np.ndarray], List[int]]:
+        """The intent wave left after every plan's tokens are masked out."""
+        tokens = self._intent_tokens(intent)
+        covered: set = set()
+        for plan in plans:
+            covered.update(self._intent_tokens(plan.intent))
+        total = np.zeros(self.projector.dim, dtype=np.complex64)
+        leftover: List[int] = []
+        for token in tokens:
+            if token in covered:
+                continue
+            weight = float(self.token_weight[token]) if 0 <= token < self.token_weight.size else 1.0
+            total = total + weight * self.projector.slot_wave(int(token), self.tokenizer)
+            leftover.append(int(token))
+        norm = float(np.linalg.norm(total))
+        if norm <= _EPS:
+            return None, leftover
+        return (total / norm).astype(np.complex64), leftover
+
+    @classmethod
+    def split_stages(cls, intent: str, max_stages: int = 4) -> List[str]:
+        """Ordered clauses of a compound intent, split at discourse markers.
+
+        Directive I2. The markers are the ones the protocol names: an
+        explicit 'first ... then ... then ...', 'and then', a semicolon, or
+        an arrow. A request without a marker is returned as one clause.
+        """
+        text = str(intent).strip()
+        parts = [part.strip() for part in cls._STAGE_CUE.split(text)]
+        cleaned: List[str] = []
+        for index, part in enumerate(parts):
+            if index == 0:
+                part = cls._STAGE_PREFIX.sub("", part).strip()
+            part = part.strip(" \t,;.")
+            if part:
+                cleaned.append(part)
+        return cleaned[: max(1, int(max_stages))]
+
+    def retrieve_dag(
+        self,
+        intent: str,
+        max_plans: int = 4,
+        arity: Optional[int] = None,
+        tau_cov: float = 0.85,
+        tau_res: float = 0.35,
+    ) -> List[Tuple[Plan, float]]:
+        """The ordered N-stage plan chain a compound intent needs (I2).
+
+        Two search strategies, in order. First, discourse segmentation: when
+        the request names its stages ('first ... then ...'), each clause is
+        matched against the store and the clause order is the pipeline
+        order. When the request has no usable markers, or a clause fails to
+        match, the search peels the best plan, masks its IDF-weighted tokens
+        from the residual intent wave, and repeats until the cumulative
+        coverage reaches tau_cov or the residue falls below tau_res.
+        """
+        if not self.plans or int(max_plans) < 1:
+            return []
+        limit = max(1, int(max_plans))
+        segments = self.split_stages(intent, limit)
+        if len(segments) >= 2:
+            chain: List[Tuple[Plan, float]] = []
+            used: set = set()
+            for position, segment in enumerate(segments[:limit]):
+                hit = self.retrieve_for(segment, arity=arity if position == 0 else None)
+                if hit is None or hit[0].name in used:
+                    chain = []
+                    break
+                chain.append((hit[0], float(hit[1])))
+                used.add(hit[0].name)
+            if chain and self.coverage_many(intent, [plan for plan, _ in chain]) >= 0.45:
+                return chain
+        head, tail = self.split_sequence(intent)
+        first = self.retrieve_for(head if tail else intent, arity=arity)
+        if first is None:
+            return []
+        chain = [first]
+        used = {first[0].name}
+        covered = self.coverage(intent, first[0])
+        # A single plan that already explains most of the request is the
+        # answer. Peeling starts only for a genuinely compound residual, so
+        # one-plan intents cannot be over-composed by the N-stage search.
+        if covered >= 0.60 and not tail:
+            return chain
+        while len(chain) < limit and covered < float(tau_cov):
+            residue, leftover = self.residual_key_many(intent, [plan for plan, _ in chain])
+            if residue is None or not leftover:
+                break
+            best: Optional[Tuple[Plan, float]] = None
+            for other in self.plans.values():
+                if other.name in used:
+                    continue
+                value = float(np.real(np.vdot(residue, self.key(other.intent))))
+                if best is None or value > best[1] or (
+                    value == best[1] and other.name < best[0].name
+                ):
+                    best = (other, value)
+            if best is None or best[1] < float(tau_res):
+                break
+            chain.append(best)
+            used.add(best[0].name)
+            covered = self.coverage_many(intent, [plan for plan, _ in chain])
+        return chain
+
     def retrieve_for(self, intent: str, arity: Optional[int] = None) -> Optional[Tuple[Plan, float]]:
         """Retrieve with a role-slot compatibility filter (Directive G2).
 
@@ -1853,7 +2517,11 @@ class SynthesisEngine:
         # matches, a known signature is the difference between a verified
         # stub and ungrounded tokens.
         self.signatures: Dict[str, object] = dict(signatures or {})
+        # Directive I2: one gate, reading the compiled canonical signatures.
+        self.type_gate = TypeCompatibilityGate(self.signatures)
         self.composed = 0
+        self.dag_composed = 0
+        self.type_refused = 0
         self.cold_stubs = 0
         self.plans = PlanStore(
             memory,
@@ -1930,19 +2598,41 @@ class SynthesisEngine:
         used = ""
         source = ""
         output: Dict[str, object] = {"tokens": [], "text": "", "vetoed": 0}
+        type_verdict: Dict[str, object] = {}
         if kind == "code" and self.plans.plans:
-            chain = self.plans.retrieve_chain(intent, max_plans=2, arity=arity)
+            chain = self.plans.retrieve_dag(intent, max_plans=4, arity=arity)
         else:
             chain = []
         if len(chain) >= 2:
-            # Directive H2: the primary plan explains less than the coverage
-            # floor of the intent, and the residue matched a second plan.
-            candidate = _compose_plans(chain[0][0], chain[1][0], request)
+            # Directive I2: the chain is type-checked BEFORE any source is
+            # emitted. A mismatch is a fail-closed refusal, not a fallback
+            # to a single plan: returning half the requested pipeline would
+            # be a silent partial answer.
+            chain_plans = [plan for plan, _score in chain]
+            type_verdict = self.type_gate.check_chain(chain_plans)
+            if not bool(type_verdict.get("ok", False)):
+                self.refused += 1
+                self.type_refused += 1
+                return {
+                    "status": "refused",
+                    "reason": str(type_verdict.get("reason", "type mismatch")),
+                    "source": "",
+                    "verified": False,
+                    "plan": "+".join(plan.name for plan in chain_plans),
+                    "coherence": 0.0,
+                    "composed": False,
+                    "composed_from": [plan.name for plan in chain_plans],
+                    "dag_depth": len(chain_plans),
+                    "type_chain": list(type_verdict.get("rows", [])),
+                    "type_compatible": False,
+                    "cold_stub": False,
+                }
+            candidate = _compose_plans_many(chain_plans, request)
             if candidate is not None:
                 adapted = candidate
                 coherence = float(chain[0][1])
-                used = f"{chain[0][0].name}+{chain[1][0].name}"
-                composed_names = [chain[0][0].name, chain[1][0].name]
+                used = "+".join(plan.name for plan in chain_plans)
+                composed_names = [plan.name for plan in chain_plans]
         if adapted is None and hit is not None:
             plan, coherence = hit
             # Directive G2: rebind the template to this request BEFORE
@@ -1976,6 +2666,8 @@ class SynthesisEngine:
                 self.emission_fallbacks += 1
             if composed_names:
                 self.composed += 1
+                if len(composed_names) >= 3:
+                    self.dag_composed += 1
         elif kind == "code" and self.signatures:
             # Directive H2 cold start: no playbook matched, but the code
             # index declares this callable's surface, so a verified stub is
@@ -2031,6 +2723,9 @@ class SynthesisEngine:
             else False,
             "composed": bool(composed_names),
             "composed_from": list(composed_names),
+            "dag_depth": len(composed_names) if composed_names else 1,
+            "type_compatible": bool(type_verdict.get("ok", True)) if type_verdict else True,
+            "type_chain": list(type_verdict.get("rows", [])) if type_verdict else [],
             "cold_stub": bool(cold_used),
             "emitted_tokens": len(output.get("tokens", [])),
             "vetoed_tokens": int(output.get("vetoed", 0)),
@@ -2240,6 +2935,19 @@ def answer_question(
     return output
 
 
+def discover_vocabulary_lock(root: str | Path) -> Tuple[Optional[VocabularyLedger], str]:
+    """Find the pinned vocabulary lock above a package directory (I1)."""
+    base = Path(root).resolve()
+    for candidate in [base, *list(base.parents)[:5]]:
+        path = candidate / "receipts" / "holarch" / "vocab_lock.json"
+        if path.exists():
+            try:
+                return VocabularyLedger.load(path), str(path)
+            except Exception:
+                return None, ""
+    return None, ""
+
+
 def build_synthesis_engine(
     root: str | Path,
     memory,
@@ -2247,14 +2955,23 @@ def build_synthesis_engine(
     symbol_table: Optional[Iterable[str]] = None,
     max_fit_tokens: int = 60000,
     signatures: Optional[Dict[str, object]] = None,
+    vocab_lock: Optional[VocabularyLedger] = None,
 ) -> Tuple["SynthesisEngine", Dict[str, object]]:
     """Build the full ingress+egress stack over a corpus, once.
 
     This is the factory the sidecar uses, so the REST endpoint, the MCP tool
     and the benchmark cannot construct three subtly different generators.
+    Directive I1: the factory mounts the pinned vocabulary lock when one is
+    found above the package root, so a live-tree edit can only append.
     """
     corpus = CodeTextCorpus.holarch(root)
-    tokenizer = build_tokenizer(corpus)
+    lock_path = ""
+    if vocab_lock is None:
+        vocab_lock, lock_path = discover_vocabulary_lock(root)
+    elif isinstance(vocab_lock, (str, Path)):
+        lock_path = str(vocab_lock)
+        vocab_lock = VocabularyLedger.load(vocab_lock)
+    tokenizer = build_tokenizer(corpus, vocab_lock=vocab_lock)
     projector = BochnerPhaseProjector(dim=int(getattr(memory, "dim", 1024)), d_sem=64)
     projector.fit(corpus, tokenizer)
     ids: List[int] = []
@@ -2278,6 +2995,12 @@ def build_synthesis_engine(
     return engine, {
         "corpus_digest": corpus.digest,
         "vocabulary_size": int(len(tokenizer)),
+        "vocabulary_digest": str(tokenizer.spec.digest()),
         "tokens": int(len(ids)),
         "files": int(len(corpus)),
+        "vocab_locked": bool(getattr(tokenizer, "locked", False)),
+        "vocab_ledger_digest": str(getattr(tokenizer.ledger, "digest", lambda: "")())
+        if getattr(tokenizer, "ledger", None) is not None
+        else "",
+        "vocab_lock_path": str(lock_path),
     }

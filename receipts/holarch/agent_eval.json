@@ -34,8 +34,8 @@
       }
     }
   },
-  "queries_total": 64,
-  "query_slots": 64,
+  "queries_total": 76,
+  "query_slots": 76,
   "query_mix": {
     "code_call_flow": 8,
     "multi_hop_graph": 16,
@@ -51,21 +51,24 @@
     "ontology_verification": 4,
     "multi_plan_synthesis": 2,
     "delta_blast_radius": 2,
+    "dag_synthesis": 4,
+    "cross_package_agent_step": 4,
+    "vocab_lock": 4,
     "setup_receipts": 2
   },
   "code_index": {
-    "seconds": 1.9090458000137005,
+    "seconds": 2.171858499990776,
     "files": 20.0,
-    "lines": 15402.0,
-    "nodes": 459.0,
-    "edges": 997.0,
+    "lines": 16990.0,
+    "nodes": 501.0,
+    "edges": 1113.0,
     "edges_ingested": 72.0
   },
   "baseline_unindexed": {
     "query_file_reads": 320,
-    "bytes_read_at_query_time": 10252480,
+    "bytes_read_at_query_time": 11376416,
     "response_bytes": 864,
-    "latency_ms_total": 63.12550010625273,
+    "latency_ms_total": 58.809100184589624,
     "reachable_accuracy": 0.5333333333333333,
     "hallucination_rate": 0.9926470588235294,
     "playbook_exact": 0.0
@@ -73,87 +76,129 @@
   "holarch_mcp": {
     "query_file_reads": 0,
     "bytes_read_at_query_time": 0,
-    "response_bytes": 18194,
-    "latency_ms_total": 259.9842000345234,
+    "response_bytes": 27606,
+    "latency_ms_total": 224.63880002032965,
     "reachable_accuracy": 1.0,
     "hallucination_rate": 0.0,
     "playbook_exact": 1.0,
-    "receipts": 64,
-    "query_receipts": 64,
-    "receipt_chain_length": 64,
+    "receipts": 76,
+    "query_receipts": 76,
+    "receipt_chain_length": 76,
     "receipt_chain_valid": true,
     "receipts_valid": true,
     "query_chain_contiguous": true
   },
   "planning": {
     "selection": {
-      "scanned_layouts": 80,
-      "scan_cap_layouts": 80,
-      "steps_per_layout": 10,
-      "strong_traps_found": 0,
-      "weak_traps_found": 0,
-      "plain_correct_states": 358,
-      "chosen_traps": 0
+      "family": "deterministic 7x7 cul-de-sac table",
+      "candidates_in_table": 8,
+      "chosen": 4,
+      "masked_agrees_with_bypass": 4,
+      "depth1_enters_pocket": 4,
+      "unmasked_enters_pocket": 4,
+      "determinism": "torch single-thread reduction for the probe and the API call"
     },
+    "memory_fixture": {
+      "source": "data\\holarch\\zone_c.sqlite3",
+      "path": "C:\\Users\\chan\\AppData\\Local\\Temp\\henri_planner_memory_12876.sqlite3",
+      "sha256": "d0863a4179bb37dd1199a08dd8f1c5997cbd693161a32bfa439030bcf4064c80",
+      "bytes": 21590016,
+      "engrams": 2467,
+      "empty": false
+    },
+    "checkpoint_pinned_across_training": false,
     "determinism": "torch single-thread reduction for the probe and the API call",
     "queries": 4,
     "correct": 4,
-    "reactive_control_correct": 4,
-    "depth1_control_correct": 4,
-    "unmasked_control_correct": 4,
-    "strong_traps": 0,
+    "reactive_control_correct": 3,
+    "depth1_control_correct": 0,
+    "unmasked_control_correct": 0,
+    "strong_traps": 4,
+    "trap_queries": 4,
     "rows": [
       {
         "id": "plan01",
-        "layout": 0,
+        "trap_id": "trap01",
+        "agent": [
+          1,
+          1
+        ],
+        "goal": [
+          5,
+          6
+        ],
         "truth": 1,
         "answer": 1,
-        "reactive": 1,
-        "depth1": 1,
-        "unmasked_depth2": 1,
-        "trap": false,
-        "strong_trap": false,
+        "reactive": 3,
+        "depth1": 3,
+        "unmasked_depth2": 3,
+        "trap": true,
+        "strong_trap": true,
         "correct": true,
-        "receipt_sha256": "5ae3907970e2413ef924715ef376b33e117f6ad84798fe887a4e6c897204aaa3"
+        "receipt_sha256": "0a9a98e28b465a0a6987b3b2b2f46b90f04845771de9dc38fed4e8ecaa4a6ada"
       },
       {
         "id": "plan02",
-        "layout": 0,
-        "truth": 1,
-        "answer": 1,
-        "reactive": 1,
+        "trap_id": "trap02",
+        "agent": [
+          1,
+          3
+        ],
+        "goal": [
+          5,
+          2
+        ],
+        "truth": 2,
+        "answer": 2,
+        "reactive": 2,
         "depth1": 1,
         "unmasked_depth2": 1,
-        "trap": false,
-        "strong_trap": false,
+        "trap": true,
+        "strong_trap": true,
         "correct": true,
-        "receipt_sha256": "b01a5f1676e1b35afee846aeafb162aa82b50b9bee9cfb581c145f2fd7c707e8"
+        "receipt_sha256": "f5b7962935f9d93f2788a7e6fce1b4d6059c62c9f86d4c82d19a359a52d5a10a"
       },
       {
         "id": "plan03",
-        "layout": 0,
-        "truth": 0,
-        "answer": 0,
-        "reactive": 0,
-        "depth1": 0,
-        "unmasked_depth2": 0,
-        "trap": false,
-        "strong_trap": false,
+        "trap_id": "trap03",
+        "agent": [
+          1,
+          4
+        ],
+        "goal": [
+          4,
+          2
+        ],
+        "truth": 2,
+        "answer": 2,
+        "reactive": 2,
+        "depth1": 1,
+        "unmasked_depth2": 1,
+        "trap": true,
+        "strong_trap": true,
         "correct": true,
-        "receipt_sha256": "12e0303c3bd88f8a4ffb4c3cd0443b87fe8b6fbb779a66b13c27926096eb84cd"
+        "receipt_sha256": "1253adf87bed82f514d7ffb43e2f65f3845dad5886b69d2c57626ded6600cd6a"
       },
       {
         "id": "plan04",
-        "layout": 0,
-        "truth": 0,
-        "answer": 0,
-        "reactive": 0,
-        "depth1": 0,
-        "unmasked_depth2": 0,
-        "trap": false,
-        "strong_trap": false,
+        "trap_id": "trap04",
+        "agent": [
+          2,
+          1
+        ],
+        "goal": [
+          4,
+          5
+        ],
+        "truth": 1,
+        "answer": 1,
+        "reactive": 1,
+        "depth1": 3,
+        "unmasked_depth2": 3,
+        "trap": true,
+        "strong_trap": true,
         "correct": true,
-        "receipt_sha256": "607479bbdb7150d29be9d080817fad00078521129b350a6894dd9c9efd17f77d"
+        "receipt_sha256": "233c7b627a65e30b7ceada1f31862fc6cc501cc71aa2154728c232483cbec3e7"
       }
     ]
   },
@@ -171,7 +216,7 @@
         "status": "supported",
         "reason": "all rare terms and all quantities present in evidence",
         "correct": true,
-        "receipt_sha256": "4a6a6058d3d1825fdbd596e39b15aac798e11d55703095878f04ef2314bc8106"
+        "receipt_sha256": "dfa7fe3e7466fea084512f7b5f47525415500288012fc627f6b5370e2cd98566"
       },
       {
         "id": "verify02",
@@ -181,7 +226,7 @@
         "status": "supported",
         "reason": "all rare terms and all quantities present in evidence",
         "correct": true,
-        "receipt_sha256": "10b87c92e5d3a06d9406600f8893496d9302825d8b1a7861b21966f02f84ee76"
+        "receipt_sha256": "fce2071bbd4620468d79107b92a3a191e4ec8cd286efdc6023927e69df84e3c2"
       },
       {
         "id": "verify03",
@@ -191,7 +236,7 @@
         "status": "contradicted",
         "reason": "quantity 1020381 is stated differently in the evidence",
         "correct": true,
-        "receipt_sha256": "5760612b5c45a3f94a0b6ad095b932f78ab10d703f987f0d7ae532eb4bdde095"
+        "receipt_sha256": "5b2aad5841802e440ebb4024e43f72a29225fe4e17df0457593f826a802822c2"
       },
       {
         "id": "verify04",
@@ -201,7 +246,7 @@
         "status": "unsupported",
         "reason": "signature: ZoneCMemory.query does not accept keyword 'widget'; declared parameters are ['self', 'wave', 'k', 'avoid_ids', 'candidate_multiplier', 'task', 'names",
         "correct": true,
-        "receipt_sha256": "ffbd980279f991a5215a92353f9b8ff879fb183015d470bb3d39855f47241056"
+        "receipt_sha256": "ec26a4dfa1d45a82840f30bdfc44ede7e190b3c858a7bc1271722d487c4f8d91"
       }
     ]
   },
@@ -217,9 +262,9 @@
         "verified": true,
         "executed": true,
         "reason": "",
-        "source": "def distinct_caller_count(links):\n    tokens_out = sorted({edge.source for edge in links})\n    return int(len(tokens_out))\n",
+        "source": "def distinct_caller_count(links):\n    step_1 = sorted({edge.source for edge in links})\n    return int(len(step_1))\n",
         "correct": true,
-        "receipt_sha256": "4e6ad76d71a8238191d3cc6442266a0bd3348f38789d0329e79e3eb31c5212c9"
+        "receipt_sha256": "1628c9f74cb2751854630a8271a77f1b26d777ecbb3bd805196017a05ca4c60e"
       },
       {
         "id": "synth02",
@@ -228,16 +273,16 @@
         "verified": true,
         "executed": true,
         "reason": "",
-        "source": "def bounded_mean(sample):\n    value_out = float(sum(sample) / max(len(sample), 1))\n    return max(0.0, min(2.5, float(value_out)))\n",
+        "source": "def bounded_mean(sample):\n    step_1 = float(sum(sample) / max(len(sample), 1))\n    return max(0.0, min(2.5, float(step_1)))\n",
         "correct": true,
-        "receipt_sha256": "afe93ed7c31038ff25d95034fce9b40ec00c33453a44dfd0fa7db3177cbb4b23"
+        "receipt_sha256": "4d95ca7a63e7e9af1881d1b7a644fde160a3053a10127e99ad666cd7814a6e73"
       }
     ]
   },
   "delta": {
     "queries": 2,
     "correct": 2,
-    "max_ms": 0.222400005441159,
+    "max_ms": 0.28569999267347157,
     "rows": [
       {
         "id": "delta01",
@@ -245,9 +290,9 @@
         "target": "beta",
         "truth": [],
         "callers": [],
-        "delta_ms": 0.222400005441159,
+        "delta_ms": 0.28569999267347157,
         "correct": true,
-        "receipt_sha256": "08e9a074f29ce4e683bcec104bde23126b89c52d9b127ff6fa6d3405d2bce5d4"
+        "receipt_sha256": "13757636a760f6041f98252d7cfad683a5f535ba2f4bc26f3595e62873fcdda0"
       },
       {
         "id": "delta02",
@@ -259,13 +304,217 @@
         "callers": [
           "delta:delta"
         ],
-        "delta_ms": 0.17529999604448676,
+        "delta_ms": 0.2564000023994595,
         "correct": true,
-        "receipt_sha256": "9ad37130890d0796d7b3e987926ddb8a661010bce956e641f763fb895ae42956"
+        "receipt_sha256": "51948a025a9d376078bcd4999c0b811fcd54ea237f58eeac0fd617eb8822c984"
       }
     ]
   },
-  "context_compression_ratio": 563.5088490711223,
+  "dag_synthesis": {
+    "queries": 4,
+    "pipelines": 2,
+    "executed": 2,
+    "type_traps": 2,
+    "refused": 2,
+    "rows": [
+      {
+        "id": "dag01",
+        "kind": "pipeline",
+        "plans": [
+          "core08",
+          "shift11",
+          "core11"
+        ],
+        "dag_depth": 3,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "",
+        "source": "def tri_agent(links):\n    step_1 = sorted({edge.source for edge in links})\n    step_2 = int(len(step_1))\n    return max(0.0, min(2.5, float(step_2)))\n",
+        "correct": true,
+        "receipt_sha256": "4655a7a5f1385c46e6971cd487a8ed2f5abbae5ad6484d0b433a40e8605d6f59"
+      },
+      {
+        "id": "dag02",
+        "kind": "pipeline",
+        "plans": [
+          "core08",
+          "shift11",
+          "core11"
+        ],
+        "dag_depth": 3,
+        "type_compatible": true,
+        "verified": true,
+        "executed": true,
+        "reason": "",
+        "source": "def bounded_sources(edges):\n    step_1 = sorted({edge.source for edge in edges})\n    step_2 = int(len(step_1))\n    return max(0.0, min(1.0, float(step_2)))\n",
+        "correct": true,
+        "receipt_sha256": "fee3ad863120412bd09a34374032a15d00e6bfb2f44b26d17b32fcc3f6c4d5c1"
+      },
+      {
+        "id": "dag03",
+        "kind": "type_trap",
+        "plans": [
+          "core04",
+          "core10"
+        ],
+        "dag_depth": 2,
+        "type_compatible": false,
+        "verified": false,
+        "refused": true,
+        "reason": "type mismatch: core04.returns ['text'] cannot bind core10.values ['numeric_sequence']",
+        "note": "text -> numeric_sequence (mean of a list)",
+        "correct": true,
+        "receipt_sha256": "98e63b7a589b13cdbdf9d41896b8157af3d55fcb7e4617ae90be16a020c2a3eb"
+      },
+      {
+        "id": "dag04",
+        "kind": "type_trap",
+        "plans": [
+          "core10",
+          "core04"
+        ],
+        "dag_depth": 2,
+        "type_compatible": false,
+        "verified": false,
+        "refused": true,
+        "reason": "type mismatch: core10.returns ['numeric'] cannot bind core04.receipt ['mapping']",
+        "note": "numeric -> mapping (a receipt field is subscripted)",
+        "correct": true,
+        "receipt_sha256": "45a19264de1ff480948a3cce31f05ac2a6fce3683850283c7f32914962ba901a"
+      }
+    ]
+  },
+  "cross_package_agent_step": {
+    "queries": 4,
+    "correct": 4,
+    "workspace": {
+      "files": 217,
+      "nodes": 2258,
+      "edges": 6709,
+      "seconds": 0.870391100004781
+    },
+    "rows": [
+      {
+        "id": "xp01",
+        "action": "impact",
+        "target": "build_tokenizer",
+        "hops": 1,
+        "truth": [
+          "henri.holarch.code_gen:build_synthesis_engine",
+          "henri.holarch.code_lang:fit",
+          "scripts.run_holarch_code_lang:stage_l1",
+          "scripts.run_holarch_code_lang:stage_l3",
+          "scripts.run_holarch_g_cycle:main",
+          "scripts.run_holarch_h_cycle:stage_h1",
+          "scripts.run_holarch_i_cycle:stage_i1",
+          "tests.test_holarch_code_lang:tokenizer",
+          "tests.test_holarch_g_decisions:tokenizer",
+          "tests.test_holarch_h_decisions:tokenizer",
+          "tests.test_holarch_i_decisions:test_vocabulary_ledger_save_load_and_tamper",
+          "tests.test_holarch_i_decisions:test_vocabulary_lock_pins_ids_and_appends"
+        ],
+        "callers": [
+          "henri.holarch.code_gen:build_synthesis_engine",
+          "henri.holarch.code_lang:fit",
+          "scripts.run_holarch_code_lang:stage_l1",
+          "scripts.run_holarch_code_lang:stage_l3",
+          "scripts.run_holarch_g_cycle:main",
+          "scripts.run_holarch_h_cycle:stage_h1",
+          "scripts.run_holarch_i_cycle:stage_i1",
+          "tests.test_holarch_code_lang:tokenizer",
+          "tests.test_holarch_g_decisions:tokenizer",
+          "tests.test_holarch_h_decisions:tokenizer",
+          "tests.test_holarch_i_decisions:test_vocabulary_ledger_save_load_and_tamper",
+          "tests.test_holarch_i_decisions:test_vocabulary_lock_pins_ids_and_appends"
+        ],
+        "correct": true,
+        "receipt_sha256": "49a75af705471691a7b6bc0da5c4573a67a4fc19820a886804c2fb5c87b15d5f"
+      },
+      {
+        "id": "xp02",
+        "action": "impact",
+        "target": "build_synthesis_engine",
+        "hops": 1,
+        "truth": [
+          "henri.holarch.sidecar:_ensure_engine",
+          "scripts.run_holarch_g_cycle:stage_g2",
+          "scripts.run_holarch_h_cycle:stage_h2",
+          "scripts.run_holarch_i_cycle:stage_i2"
+        ],
+        "callers": [
+          "henri.holarch.sidecar:_ensure_engine",
+          "scripts.run_holarch_g_cycle:stage_g2",
+          "scripts.run_holarch_h_cycle:stage_h2",
+          "scripts.run_holarch_i_cycle:stage_i2"
+        ],
+        "correct": true,
+        "receipt_sha256": "876bce0e9a9cb44b78facae7d432affafc6dc8c334097080cc3f6e5b3e2f0645"
+      },
+      {
+        "id": "xp03",
+        "action": "verify",
+        "claim": "def use_locked_tokenizer(cfg):\n    return build_tokenizer(cfg)\n",
+        "status": "supported",
+        "correct": true,
+        "receipt_sha256": "007fa5a4fcbf026c697aeccc13068a39fa4690e6eed45f41e50d577679a1f077"
+      },
+      {
+        "id": "xp04",
+        "action": "plan",
+        "trap": "trap05",
+        "action_chosen": 0,
+        "truth": 0,
+        "correct": true,
+        "receipt_sha256": "e5abd478ef7e9da105ad5b7ff7a464f40bbc9fc1dfb1ce7f8922397a51069ed4"
+      }
+    ]
+  },
+  "vocab_lock": {
+    "queries": 4,
+    "correct": 4,
+    "locked": true,
+    "ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
+    "rows": [
+      {
+        "id": "vocab01",
+        "name": "build_tokenizer",
+        "expected_token_id": 1765,
+        "returned_token_id": 1765,
+        "ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
+        "correct": true,
+        "receipt_sha256": "9303a0181ba4f4aa363075a18c3a825c576adf275e2da2fc4ec8e9e084e8c79b"
+      },
+      {
+        "id": "vocab02",
+        "name": "ZoneCMemory",
+        "expected_token_id": 1373,
+        "returned_token_id": 1373,
+        "ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
+        "correct": true,
+        "receipt_sha256": "f2916877b03566390aa71e3e5d54215286474a4ba370bca52caf7daaa5ac97f5"
+      },
+      {
+        "id": "vocab03",
+        "name": "calibrate_beta",
+        "expected_token_id": 1674,
+        "returned_token_id": 1674,
+        "ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
+        "correct": true,
+        "receipt_sha256": "26b7234be0116310d82e3f61929c795ed31af54e7479ebcdf707575bac911367"
+      },
+      {
+        "id": "vocab04",
+        "name": "holarch_synthesize_warp",
+        "expected_token_id": null,
+        "returned_token_id": null,
+        "status": "unsupported",
+        "correct": true,
+        "receipt_sha256": "1dee69ceb73187a236cb857504872028a40818af92d97bcb506d31a77637aa36"
+      }
+    ]
+  },
+  "context_compression_ratio": 412.0993986814461,
   "composite": {
     "ingested": 200.0,
     "tau_composite": 0.9799999999999989,
@@ -326,61 +575,93 @@
       "total": 2
     },
     "depth2_rotor_planning": {
-      "baseline_correct": 4,
+      "baseline_correct": 3,
       "mcp_correct": 4,
       "total": 4,
       "rows": [
         {
           "id": "plan01",
-          "layout": 0,
+          "trap_id": "trap01",
+          "agent": [
+            1,
+            1
+          ],
+          "goal": [
+            5,
+            6
+          ],
           "truth": 1,
           "answer": 1,
-          "reactive": 1,
-          "depth1": 1,
-          "unmasked_depth2": 1,
-          "trap": false,
-          "strong_trap": false,
+          "reactive": 3,
+          "depth1": 3,
+          "unmasked_depth2": 3,
+          "trap": true,
+          "strong_trap": true,
           "correct": true,
-          "receipt_sha256": "5ae3907970e2413ef924715ef376b33e117f6ad84798fe887a4e6c897204aaa3"
+          "receipt_sha256": "0a9a98e28b465a0a6987b3b2b2f46b90f04845771de9dc38fed4e8ecaa4a6ada"
         },
         {
           "id": "plan02",
-          "layout": 0,
-          "truth": 1,
-          "answer": 1,
-          "reactive": 1,
+          "trap_id": "trap02",
+          "agent": [
+            1,
+            3
+          ],
+          "goal": [
+            5,
+            2
+          ],
+          "truth": 2,
+          "answer": 2,
+          "reactive": 2,
           "depth1": 1,
           "unmasked_depth2": 1,
-          "trap": false,
-          "strong_trap": false,
+          "trap": true,
+          "strong_trap": true,
           "correct": true,
-          "receipt_sha256": "b01a5f1676e1b35afee846aeafb162aa82b50b9bee9cfb581c145f2fd7c707e8"
+          "receipt_sha256": "f5b7962935f9d93f2788a7e6fce1b4d6059c62c9f86d4c82d19a359a52d5a10a"
         },
         {
           "id": "plan03",
-          "layout": 0,
-          "truth": 0,
-          "answer": 0,
-          "reactive": 0,
-          "depth1": 0,
-          "unmasked_depth2": 0,
-          "trap": false,
-          "strong_trap": false,
+          "trap_id": "trap03",
+          "agent": [
+            1,
+            4
+          ],
+          "goal": [
+            4,
+            2
+          ],
+          "truth": 2,
+          "answer": 2,
+          "reactive": 2,
+          "depth1": 1,
+          "unmasked_depth2": 1,
+          "trap": true,
+          "strong_trap": true,
           "correct": true,
-          "receipt_sha256": "12e0303c3bd88f8a4ffb4c3cd0443b87fe8b6fbb779a66b13c27926096eb84cd"
+          "receipt_sha256": "1253adf87bed82f514d7ffb43e2f65f3845dad5886b69d2c57626ded6600cd6a"
         },
         {
           "id": "plan04",
-          "layout": 0,
-          "truth": 0,
-          "answer": 0,
-          "reactive": 0,
-          "depth1": 0,
-          "unmasked_depth2": 0,
-          "trap": false,
-          "strong_trap": false,
+          "trap_id": "trap04",
+          "agent": [
+            2,
+            1
+          ],
+          "goal": [
+            4,
+            5
+          ],
+          "truth": 1,
+          "answer": 1,
+          "reactive": 1,
+          "depth1": 3,
+          "unmasked_depth2": 3,
+          "trap": true,
+          "strong_trap": true,
           "correct": true,
-          "receipt_sha256": "607479bbdb7150d29be9d080817fad00078521129b350a6894dd9c9efd17f77d"
+          "receipt_sha256": "233c7b627a65e30b7ceada1f31862fc6cc501cc71aa2154728c232483cbec3e7"
         }
       ]
     },
@@ -397,7 +678,7 @@
           "status": "supported",
           "reason": "all rare terms and all quantities present in evidence",
           "correct": true,
-          "receipt_sha256": "4a6a6058d3d1825fdbd596e39b15aac798e11d55703095878f04ef2314bc8106"
+          "receipt_sha256": "dfa7fe3e7466fea084512f7b5f47525415500288012fc627f6b5370e2cd98566"
         },
         {
           "id": "verify02",
@@ -407,7 +688,7 @@
           "status": "supported",
           "reason": "all rare terms and all quantities present in evidence",
           "correct": true,
-          "receipt_sha256": "10b87c92e5d3a06d9406600f8893496d9302825d8b1a7861b21966f02f84ee76"
+          "receipt_sha256": "fce2071bbd4620468d79107b92a3a191e4ec8cd286efdc6023927e69df84e3c2"
         },
         {
           "id": "verify03",
@@ -417,7 +698,7 @@
           "status": "contradicted",
           "reason": "quantity 1020381 is stated differently in the evidence",
           "correct": true,
-          "receipt_sha256": "5760612b5c45a3f94a0b6ad095b932f78ab10d703f987f0d7ae532eb4bdde095"
+          "receipt_sha256": "5b2aad5841802e440ebb4024e43f72a29225fe4e17df0457593f826a802822c2"
         },
         {
           "id": "verify04",
@@ -427,7 +708,7 @@
           "status": "unsupported",
           "reason": "signature: ZoneCMemory.query does not accept keyword 'widget'; declared parameters are ['self', 'wave', 'k', 'avoid_ids', 'candidate_multiplier', 'task', 'names",
           "correct": true,
-          "receipt_sha256": "ffbd980279f991a5215a92353f9b8ff879fb183015d470bb3d39855f47241056"
+          "receipt_sha256": "ec26a4dfa1d45a82840f30bdfc44ede7e190b3c858a7bc1271722d487c4f8d91"
         }
       ]
     },
@@ -443,9 +724,9 @@
           "verified": true,
           "executed": true,
           "reason": "",
-          "source": "def distinct_caller_count(links):\n    tokens_out = sorted({edge.source for edge in links})\n    return int(len(tokens_out))\n",
+          "source": "def distinct_caller_count(links):\n    step_1 = sorted({edge.source for edge in links})\n    return int(len(step_1))\n",
           "correct": true,
-          "receipt_sha256": "4e6ad76d71a8238191d3cc6442266a0bd3348f38789d0329e79e3eb31c5212c9"
+          "receipt_sha256": "1628c9f74cb2751854630a8271a77f1b26d777ecbb3bd805196017a05ca4c60e"
         },
         {
           "id": "synth02",
@@ -454,9 +735,9 @@
           "verified": true,
           "executed": true,
           "reason": "",
-          "source": "def bounded_mean(sample):\n    value_out = float(sum(sample) / max(len(sample), 1))\n    return max(0.0, min(2.5, float(value_out)))\n",
+          "source": "def bounded_mean(sample):\n    step_1 = float(sum(sample) / max(len(sample), 1))\n    return max(0.0, min(2.5, float(step_1)))\n",
           "correct": true,
-          "receipt_sha256": "afe93ed7c31038ff25d95034fce9b40ec00c33453a44dfd0fa7db3177cbb4b23"
+          "receipt_sha256": "4d95ca7a63e7e9af1881d1b7a644fde160a3053a10127e99ad666cd7814a6e73"
         }
       ]
     },
@@ -471,9 +752,9 @@
           "target": "beta",
           "truth": [],
           "callers": [],
-          "delta_ms": 0.222400005441159,
+          "delta_ms": 0.28569999267347157,
           "correct": true,
-          "receipt_sha256": "08e9a074f29ce4e683bcec104bde23126b89c52d9b127ff6fa6d3405d2bce5d4"
+          "receipt_sha256": "13757636a760f6041f98252d7cfad683a5f535ba2f4bc26f3595e62873fcdda0"
         },
         {
           "id": "delta02",
@@ -485,11 +766,217 @@
           "callers": [
             "delta:delta"
           ],
-          "delta_ms": 0.17529999604448676,
+          "delta_ms": 0.2564000023994595,
           "correct": true,
-          "receipt_sha256": "9ad37130890d0796d7b3e987926ddb8a661010bce956e641f763fb895ae42956"
+          "receipt_sha256": "51948a025a9d376078bcd4999c0b811fcd54ea237f58eeac0fd617eb8822c984"
         }
       ]
+    },
+    "dag_synthesis": {
+      "baseline_correct": 0,
+      "mcp_correct": 4,
+      "total": 4,
+      "rows": [
+        {
+          "id": "dag01",
+          "kind": "pipeline",
+          "plans": [
+            "core08",
+            "shift11",
+            "core11"
+          ],
+          "dag_depth": 3,
+          "type_compatible": true,
+          "verified": true,
+          "executed": true,
+          "reason": "",
+          "source": "def tri_agent(links):\n    step_1 = sorted({edge.source for edge in links})\n    step_2 = int(len(step_1))\n    return max(0.0, min(2.5, float(step_2)))\n",
+          "correct": true,
+          "receipt_sha256": "4655a7a5f1385c46e6971cd487a8ed2f5abbae5ad6484d0b433a40e8605d6f59"
+        },
+        {
+          "id": "dag02",
+          "kind": "pipeline",
+          "plans": [
+            "core08",
+            "shift11",
+            "core11"
+          ],
+          "dag_depth": 3,
+          "type_compatible": true,
+          "verified": true,
+          "executed": true,
+          "reason": "",
+          "source": "def bounded_sources(edges):\n    step_1 = sorted({edge.source for edge in edges})\n    step_2 = int(len(step_1))\n    return max(0.0, min(1.0, float(step_2)))\n",
+          "correct": true,
+          "receipt_sha256": "fee3ad863120412bd09a34374032a15d00e6bfb2f44b26d17b32fcc3f6c4d5c1"
+        },
+        {
+          "id": "dag03",
+          "kind": "type_trap",
+          "plans": [
+            "core04",
+            "core10"
+          ],
+          "dag_depth": 2,
+          "type_compatible": false,
+          "verified": false,
+          "refused": true,
+          "reason": "type mismatch: core04.returns ['text'] cannot bind core10.values ['numeric_sequence']",
+          "note": "text -> numeric_sequence (mean of a list)",
+          "correct": true,
+          "receipt_sha256": "98e63b7a589b13cdbdf9d41896b8157af3d55fcb7e4617ae90be16a020c2a3eb"
+        },
+        {
+          "id": "dag04",
+          "kind": "type_trap",
+          "plans": [
+            "core10",
+            "core04"
+          ],
+          "dag_depth": 2,
+          "type_compatible": false,
+          "verified": false,
+          "refused": true,
+          "reason": "type mismatch: core10.returns ['numeric'] cannot bind core04.receipt ['mapping']",
+          "note": "numeric -> mapping (a receipt field is subscripted)",
+          "correct": true,
+          "receipt_sha256": "45a19264de1ff480948a3cce31f05ac2a6fce3683850283c7f32914962ba901a"
+        }
+      ],
+      "pipelines_executed": 2,
+      "type_traps_refused": 2
+    },
+    "cross_package_agent_step": {
+      "baseline_correct": 0,
+      "mcp_correct": 4,
+      "total": 4,
+      "rows": [
+        {
+          "id": "xp01",
+          "action": "impact",
+          "target": "build_tokenizer",
+          "hops": 1,
+          "truth": [
+            "henri.holarch.code_gen:build_synthesis_engine",
+            "henri.holarch.code_lang:fit",
+            "scripts.run_holarch_code_lang:stage_l1",
+            "scripts.run_holarch_code_lang:stage_l3",
+            "scripts.run_holarch_g_cycle:main",
+            "scripts.run_holarch_h_cycle:stage_h1",
+            "scripts.run_holarch_i_cycle:stage_i1",
+            "tests.test_holarch_code_lang:tokenizer",
+            "tests.test_holarch_g_decisions:tokenizer",
+            "tests.test_holarch_h_decisions:tokenizer",
+            "tests.test_holarch_i_decisions:test_vocabulary_ledger_save_load_and_tamper",
+            "tests.test_holarch_i_decisions:test_vocabulary_lock_pins_ids_and_appends"
+          ],
+          "callers": [
+            "henri.holarch.code_gen:build_synthesis_engine",
+            "henri.holarch.code_lang:fit",
+            "scripts.run_holarch_code_lang:stage_l1",
+            "scripts.run_holarch_code_lang:stage_l3",
+            "scripts.run_holarch_g_cycle:main",
+            "scripts.run_holarch_h_cycle:stage_h1",
+            "scripts.run_holarch_i_cycle:stage_i1",
+            "tests.test_holarch_code_lang:tokenizer",
+            "tests.test_holarch_g_decisions:tokenizer",
+            "tests.test_holarch_h_decisions:tokenizer",
+            "tests.test_holarch_i_decisions:test_vocabulary_ledger_save_load_and_tamper",
+            "tests.test_holarch_i_decisions:test_vocabulary_lock_pins_ids_and_appends"
+          ],
+          "correct": true,
+          "receipt_sha256": "49a75af705471691a7b6bc0da5c4573a67a4fc19820a886804c2fb5c87b15d5f"
+        },
+        {
+          "id": "xp02",
+          "action": "impact",
+          "target": "build_synthesis_engine",
+          "hops": 1,
+          "truth": [
+            "henri.holarch.sidecar:_ensure_engine",
+            "scripts.run_holarch_g_cycle:stage_g2",
+            "scripts.run_holarch_h_cycle:stage_h2",
+            "scripts.run_holarch_i_cycle:stage_i2"
+          ],
+          "callers": [
+            "henri.holarch.sidecar:_ensure_engine",
+            "scripts.run_holarch_g_cycle:stage_g2",
+            "scripts.run_holarch_h_cycle:stage_h2",
+            "scripts.run_holarch_i_cycle:stage_i2"
+          ],
+          "correct": true,
+          "receipt_sha256": "876bce0e9a9cb44b78facae7d432affafc6dc8c334097080cc3f6e5b3e2f0645"
+        },
+        {
+          "id": "xp03",
+          "action": "verify",
+          "claim": "def use_locked_tokenizer(cfg):\n    return build_tokenizer(cfg)\n",
+          "status": "supported",
+          "correct": true,
+          "receipt_sha256": "007fa5a4fcbf026c697aeccc13068a39fa4690e6eed45f41e50d577679a1f077"
+        },
+        {
+          "id": "xp04",
+          "action": "plan",
+          "trap": "trap05",
+          "action_chosen": 0,
+          "truth": 0,
+          "correct": true,
+          "receipt_sha256": "e5abd478ef7e9da105ad5b7ff7a464f40bbc9fc1dfb1ce7f8922397a51069ed4"
+        }
+      ],
+      "workspace": {
+        "files": 217,
+        "nodes": 2258,
+        "edges": 6709,
+        "seconds": 0.870391100004781
+      }
+    },
+    "vocab_lock": {
+      "baseline_correct": 0,
+      "mcp_correct": 4,
+      "total": 4,
+      "rows": [
+        {
+          "id": "vocab01",
+          "name": "build_tokenizer",
+          "expected_token_id": 1765,
+          "returned_token_id": 1765,
+          "ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
+          "correct": true,
+          "receipt_sha256": "9303a0181ba4f4aa363075a18c3a825c576adf275e2da2fc4ec8e9e084e8c79b"
+        },
+        {
+          "id": "vocab02",
+          "name": "ZoneCMemory",
+          "expected_token_id": 1373,
+          "returned_token_id": 1373,
+          "ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
+          "correct": true,
+          "receipt_sha256": "f2916877b03566390aa71e3e5d54215286474a4ba370bca52caf7daaa5ac97f5"
+        },
+        {
+          "id": "vocab03",
+          "name": "calibrate_beta",
+          "expected_token_id": 1674,
+          "returned_token_id": 1674,
+          "ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
+          "correct": true,
+          "receipt_sha256": "26b7234be0116310d82e3f61929c795ed31af54e7479ebcdf707575bac911367"
+        },
+        {
+          "id": "vocab04",
+          "name": "holarch_synthesize_warp",
+          "expected_token_id": null,
+          "returned_token_id": null,
+          "status": "unsupported",
+          "correct": true,
+          "receipt_sha256": "1dee69ceb73187a236cb857504872028a40818af92d97bcb506d31a77637aa36"
+        }
+      ],
+      "locked": true,
+      "ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35"
     }
   },
   "gate": {
@@ -503,8 +990,12 @@
     "impact_mcp_at_least_0_98": true,
     "impact_traps_refused": true,
     "impact_queries_present": true,
-    "queries_64": true,
-    "receipt_chain_64": true,
+    "queries_76": true,
+    "receipt_chain_76": true,
+    "planning_controls_separated": true,
+    "dag_three_plan_and_traps": true,
+    "agent_step_cross_package": true,
+    "vocab_lock_verified": true,
     "planning_mcp_perfect": true,
     "verification_mcp_perfect": true,
     "synthesis_multiplan_verified": true,

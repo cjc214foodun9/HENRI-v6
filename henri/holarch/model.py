@@ -24,6 +24,9 @@ from __future__ import annotations
 
 import hashlib
 import math
+import os
+import shutil
+import tempfile
 import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple
@@ -156,6 +159,59 @@ def save_checkpoint(
 
 
 @torch.no_grad()
+def open_planner_memory(
+    cfg,
+    source: Optional[str | Path] = None,
+    workdir: Optional[str | Path] = None,
+    prefix: str = "henri_planner_memory",
+) -> Tuple[object, Dict[str, object]]:
+    """Open the Zone C store the wave planner reads, from a scratch copy.
+
+    The deployed planner fuses the retrieved Zone C context into the sensor
+    wave (use_memory=True), so the 48-episode rate and the single-state
+    horizon probes are conditioned on the store's engrams. Copying the
+    repository store to a scratch path makes the measurement read-only and
+    reproducible, and the returned info block pins the fixture by SHA-256 and
+    engram count so a receipt can name the exact state it measured.
+
+    Directive I3: the fixture is an explicit input, not a hidden global. When
+    the store is absent the function returns an empty scratch store and says
+    so; the caller then measures the clean-room control rather than silently
+    claiming the deployed number.
+    """
+    from henri.holarch.zone_c import ZoneCMemory
+
+    candidate = Path(
+        source
+        or os.environ.get("HENRI_PLANNER_MEMORY", "")
+        or Path("data") / "holarch" / "zone_c.sqlite3"
+    )
+    directory = Path(workdir or tempfile.gettempdir())
+    directory.mkdir(parents=True, exist_ok=True)
+    target = directory / f"{prefix}_{os.getpid()}.sqlite3"
+    if not candidate.exists():
+        memory = ZoneCMemory(cfg, backend="sqlite", path=str(target))
+        return memory, {
+            "source": "",
+            "path": str(target),
+            "sha256": "",
+            "bytes": 0,
+            "engrams": int(memory.stats().get("count", 0)),
+            "empty": True,
+        }
+    shutil.copy2(candidate, target)
+    memory = ZoneCMemory(cfg, backend="sqlite", path=str(target))
+    digest = hashlib.sha256(Path(candidate).read_bytes()).hexdigest()
+    return memory, {
+        "source": str(candidate),
+        "path": str(target),
+        "sha256": digest,
+        "bytes": int(Path(candidate).stat().st_size),
+        "engrams": int(memory.stats().get("count", 0)),
+        "empty": False,
+    }
+
+
 def load_checkpoint(
     path: str | Path,
     model: Optional[HenriHolarch] = None,
@@ -332,6 +388,24 @@ class SensorWaveCodec:
         out = torch.fft.ifft2(torch.fft.fft2(slots) * kernel.unsqueeze(0))
         return _unit_tensor(out.reshape(1, self.dim).real.to(torch.float32).to(torch.complex64))
 
+    def shift_batch(self, psi: torch.Tensor, actions: Sequence[int]) -> torch.Tensor:
+        """Batched circular convolution for several actions at once (I3).
+
+        The same kernel bank, one fft2 over (n_slots, grid, grid) and one
+        ifft2 over (len(actions), n_slots, grid, grid). Mathematically this
+        is exactly the loop of shift() calls; it exists because the depth-2
+        lookahead needs 4 first steps and 16 second steps per decision.
+        """
+        actions = [int(action) for action in actions]
+        batch = psi.reshape(-1, self.dim)
+        count = int(batch.shape[0])
+        slots = batch.reshape(count, self.n_slots, self.grid, self.grid).to(torch.complex64)
+        spectrum = torch.fft.fft2(slots)
+        kernels = torch.stack([self._kernel(action) for action in actions]).to(slots.device)
+        out = torch.fft.ifft2(spectrum * kernels.unsqueeze(1))
+        flat = out.real.reshape(int(out.shape[0]), self.dim).to(torch.float32).to(torch.complex64)
+        return _unit_tensor(flat)
+
     def encode(self, observation) -> torch.Tensor:
         values = np.asarray(observation, dtype=np.float32)
         view = values[:75].reshape(5, 5, 3)
@@ -402,6 +476,7 @@ class LatentActionLookahead:
         lookahead_depth: int = 1,
         gamma_look: float = 0.02,
         mask_lookahead: bool = True,
+        batch_rollout: bool = True,
         **_unused,
     ) -> None:
         self.model = model
@@ -431,6 +506,10 @@ class LatentActionLookahead:
         # exists so a benchmark can MEASURE the unmasked arm that Cycle F
         # shipped, instead of asserting that the mask matters.
         self.mask_lookahead = bool(mask_lookahead)
+        # Directive I3: the 4 + 16 branch rollout runs as two batched FFTs.
+        # The loop path stays available so the receipt can measure parity
+        # between the two implementations instead of assuming it.
+        self.batch_rollout = bool(batch_rollout)
         # Measured, not declared: on the validation layouts a weight of 0.50
         # lets the optimistic second step override the first-step policy
         # (35/48 wins), while 0.02 lets it break ties without overriding
@@ -485,6 +564,46 @@ class LatentActionLookahead:
             return rotated
         return _unit_tensor(self.codec.shift(psi, int(action)) + rotated)
 
+    def predict_batch(self, psi: torch.Tensor, actions: Sequence[int]) -> torch.Tensor:
+        """Batched one-step transition for several actions at once."""
+        actions = [int(action) for action in actions]
+        if self.transition == "shift":
+            return self.codec.shift_batch(psi, actions)
+        rotated = self.rotor.predict_batch(psi, actions)
+        if self.transition == "rotor":
+            return rotated
+        return _unit_tensor(self.codec.shift_batch(psi, actions) + rotated)
+
+    def wall_mask_batch(self, waves: torch.Tensor) -> np.ndarray:
+        """Wall legality for each row of a (A, dim) wave batch."""
+        grid = int(self.codec.grid)
+        centre = int(self.codec.centre)
+        array = waves.detach().cpu().numpy().reshape(-1, int(self.codec.dim))
+        count = int(array.shape[0])
+        slots = array.reshape(count, int(self.codec.n_slots), grid, grid)
+        occupancy = slots[:, 0].real
+        peak = np.max(np.abs(occupancy), axis=(1, 2))
+        threshold = 0.5 * peak
+        blocked = np.zeros((count, 4), dtype=bool)
+        for action, (dr, dc) in enumerate(((-1, 0), (1, 0), (0, -1), (0, 1))):
+            row = min(max(centre + dr, 0), grid - 1)
+            col = min(max(centre + dc, 0), grid - 1)
+            blocked[:, action] = (peak > 0.0) & (occupancy[:, row, col] > threshold)
+        return blocked
+
+    def goal_distance_batch(self, waves: torch.Tensor) -> np.ndarray:
+        """Chebyshev goal distance for each row of a (A, dim) wave batch."""
+        grid = int(self.codec.grid)
+        centre = int(self.codec.centre)
+        array = waves.detach().cpu().numpy().reshape(-1, int(self.codec.dim))
+        count = int(array.shape[0])
+        slots = array.reshape(count, int(self.codec.n_slots), grid, grid)
+        packets = slots[:, 3].real
+        flat = packets.reshape(count, grid * grid)
+        indices = np.argmax(flat, axis=1)
+        rows, cols = np.unravel_index(indices, (grid, grid))
+        return np.maximum(np.abs(rows.astype(int) - centre), np.abs(cols.astype(int) - centre))
+
     def goal_wave(self, observation=None) -> torch.Tensor:
         return self.goal
 
@@ -534,44 +653,13 @@ class LatentActionLookahead:
             # a boundary is physically illegal and must not be scored. Without
             # this mask the rollout rewards phantom tunnelling and depth 2
             # loses to depth 1 (measured 0.7292 against 0.7708 in Cycle F).
-            for action in range(4):
-                first = self.predict(psi, action)
-                blocked = (
-                    self.wall_mask(first)
-                    if self.mask_lookahead
-                    else np.zeros(4, dtype=bool)
-                )
-                legal = [index for index in range(4) if not bool(blocked[index])]
-                opposite = (1, 0, 3, 2)[int(action)]
-                # A 180-degree reversal spends two steps to return to the
-                # previous wave; it is allowed only when it is the only move.
-                if len(legal) > 1 and opposite in legal:
-                    legal.remove(opposite)
-                if not legal:
-                    legal = [index for index in range(4) if not bool(blocked[index])]
-                if not legal:
-                    lookahead[action] = float((_slot3(first).conj() * goal).real.sum())
-                    continue
-                best = -float("inf")
-                for second_action in legal:
-                    second = self.predict(first, second_action)
-                    value = float((_slot3(second).conj() * goal).real.sum())
-                    # A second step that lands ON the goal is a terminal win,
-                    # not merely a good alignment. Rewarding the exact event
-                    # is what stops the greedy max from preferring a path that
-                    # passes near the goal over one that reaches it.
-                    if self.goal_distance(second) == 0:
-                        value += self.win_bonus
-                    if recent:
-                        value -= self.cycle_weight * float(
-                            max(
-                                (self.cycle_decay ** tau)
-                                * float((second.conj() * state).real.sum())
-                                for tau, state in enumerate(recent)
-                            )
-                        )
-                    best = max(best, value)
-                lookahead[action] = best
+            # Directive I3: the deployed path is two batched FFTs; the loop
+            # path remains selectable so parity can be measured, not assumed.
+            lookahead = (
+                self._depth_two_batched(psi, goal, recent)
+                if self.batch_rollout
+                else self._depth_two_loop(psi, goal, recent)
+            )
         combined = alignment + (
             self.gamma_look * _z(lookahead) if self.lookahead_depth == 2 else 0.0
         )
@@ -584,15 +672,103 @@ class LatentActionLookahead:
             "combined": combined,
         }
 
+    # ------------------------------------------------------ depth-2 rollout
+    def _depth_two_loop(
+        self, psi: torch.Tensor, goal: torch.Tensor, recent: Sequence[torch.Tensor]
+    ) -> torch.Tensor:
+        """Reference implementation: one predict() per branch."""
+        lookahead = torch.zeros(4)
+        for action in range(4):
+            first = self.predict(psi, action)
+            blocked = (
+                self.wall_mask(first)
+                if self.mask_lookahead
+                else np.zeros(4, dtype=bool)
+            )
+            legal = [index for index in range(4) if not bool(blocked[index])]
+            opposite = (1, 0, 3, 2)[int(action)]
+            if len(legal) > 1 and opposite in legal:
+                legal.remove(opposite)
+            if not legal:
+                legal = [index for index in range(4) if not bool(blocked[index])]
+            if not legal:
+                lookahead[action] = float((_slot3(first).conj() * goal).real.sum())
+                continue
+            best = -float("inf")
+            for second_action in legal:
+                second = self.predict(first, second_action)
+                value = float((_slot3(second).conj() * goal).real.sum())
+                if self.goal_distance(second) == 0:
+                    value += self.win_bonus
+                if recent:
+                    value -= self.cycle_weight * float(
+                        max(
+                            (self.cycle_decay ** tau)
+                            * float((second.conj() * state).real.sum())
+                            for tau, state in enumerate(recent)
+                        )
+                    )
+                best = max(best, value)
+            lookahead[action] = best
+        return lookahead
+
+    def _depth_two_batched(
+        self, psi: torch.Tensor, goal: torch.Tensor, recent: Sequence[torch.Tensor]
+    ) -> torch.Tensor:
+        """Batched 4 + 16 branch rollout (I3).
+
+        One predict_batch over the four first steps and one over the sixteen
+        second steps replace twenty single-item FFTs. The per-action maximum
+        over the legal set, the reversal rule, the terminal-win bonus and the
+        cycle penalty are applied afterwards on the (4, 4) value table, so
+        the arithmetic is the loop's arithmetic, not an approximation.
+        """
+        first = self.predict_batch(psi, [0, 1, 2, 3])
+        align_first = (_slot3(first).conj() * goal).real.sum(dim=-1)
+        actions = [second for _first in range(4) for second in range(4)]
+        base = first.repeat_interleave(4, dim=0)
+        second = self.predict_batch(base, actions)
+        values = (_slot3(second).conj() * goal).real.sum(dim=-1).clone()
+        distance = torch.from_numpy(self.goal_distance_batch(second).astype(np.int64))
+        values = values + (distance == 0).to(values.dtype) * float(self.win_bonus)
+        if recent:
+            penalty = None
+            for tau, state in enumerate(recent):
+                term = (second.conj() * state).real.sum(dim=-1) * (self.cycle_decay ** tau)
+                penalty = term if penalty is None else torch.maximum(penalty, term)
+            if penalty is not None:
+                values = values - self.cycle_weight * penalty
+        blocked = (
+            self.wall_mask_batch(first)
+            if self.mask_lookahead
+            else np.zeros((4, 4), dtype=bool)
+        )
+        lookahead = torch.zeros(4)
+        for action in range(4):
+            legal = [index for index in range(4) if not bool(blocked[action, index])]
+            opposite = (1, 0, 3, 2)[int(action)]
+            if len(legal) > 1 and opposite in legal:
+                legal.remove(opposite)
+            if not legal:
+                legal = [index for index in range(4) if not bool(blocked[action, index])]
+            if not legal:
+                lookahead[action] = align_first[action]
+                continue
+            row = values[action * 4 : action * 4 + 4]
+            lookahead[action] = row[torch.as_tensor(legal, dtype=torch.long)].max()
+        return lookahead
+
     # --------------------------------------------------------------- rollout
+    @torch.no_grad()
     def choose(
         self,
         observation,
         recent: Sequence[torch.Tensor],
         mask_illegal: bool = True,
+        use_memory: bool = True,
     ) -> Dict[str, object]:
         tensor = torch.as_tensor(np.asarray(observation, dtype=np.float32)).reshape(1, -1)
-        output = self.model("action", tensor, training=False, use_memory=True)
+        output = self.model("action", tensor, training=False, use_memory=bool(use_memory))
         logits = output.task_logits[0].detach().clone().to(torch.float32)
         view = tensor[0, :75].reshape(5, 5, 3).numpy()
         legal = np.ones(4, dtype=bool)
@@ -635,6 +811,8 @@ def evaluate_closed_loop_action(
     lookahead_depth: int = 1,
     gamma_look: float = 0.02,
     mask_lookahead: bool = True,
+    batch_rollout: bool = True,
+    use_memory: bool = True,
 ) -> Dict[str, object]:
     """Closed-loop success of the 1-step latent wave lookahead policy.
 
@@ -656,6 +834,7 @@ def evaluate_closed_loop_action(
         lookahead_depth=lookahead_depth,
         gamma_look=gamma_look,
         mask_lookahead=mask_lookahead,
+        batch_rollout=batch_rollout,
     )
     world = task.world
     wins = 0
@@ -691,7 +870,7 @@ def evaluate_closed_loop_action(
         recent: List[torch.Tensor] = []
         for _step in range(int(limit)):
             observation = world.observe(walls, agent, goal)
-            choice = lookahead.choose(observation, recent)
+            choice = lookahead.choose(observation, recent, use_memory=bool(use_memory))
             action = int(choice["action"])
             chosen_actions.append(action)
             dr, dc = ((-1, 0), (1, 0), (0, -1), (0, 1))[action]
@@ -737,6 +916,8 @@ def evaluate_closed_loop_action(
         "lookahead_depth": int(lookahead_depth),
         "gamma_look": float(gamma_look),
         "mask_lookahead": bool(mask_lookahead),
+        "batch_rollout": bool(batch_rollout),
+        "use_memory": bool(use_memory),
         "rotor_fitted": bool(getattr(rotor, "fitted", False)),
         "evidence": "OBSERVED",
     }
@@ -812,6 +993,28 @@ class ActionTransitionRotor:
         spectrum = np.fft.fft2(self._slots(psi))
         out = np.fft.ifft2(spectrum * self.phi[index])
         return self._from_slots(out.real.astype(np.float32).astype(np.complex64))
+
+    def predict_batch(self, psi: torch.Tensor, actions: Sequence[int]) -> torch.Tensor:
+        """Batched rotor rollout: one fft2, one masked ifft2 (I3).
+
+        actions[i] selects phi[actions[i]] for row i. The arithmetic is the
+        same per-row product/ifft2 as predict(); the batch dimension removes
+        the Python loop that dominated the 16-branch depth-2 rollout.
+        """
+        indices = [int(action) % self.n_actions for action in actions]
+        batch = psi.detach().cpu().numpy().reshape(-1, self.dim)[:, : self.dim]
+        count = int(batch.shape[0])
+        slots = batch.reshape(count, self.n_slots, self.grid, self.grid).astype(np.complex64)
+        if count == 1 and len(indices) > 1:
+            slots = np.repeat(slots, len(indices), axis=0)
+            count = len(indices)
+        elif count != len(indices):
+            raise ValueError("predict_batch needs one wave per action, or one wave")
+        spectrum = np.fft.fft2(slots)
+        phi = self.phi[indices]
+        out = np.fft.ifft2(spectrum * phi)
+        flat = out.real.reshape(count, self.dim).astype(np.float32).astype(np.complex64)
+        return _unit_tensor(torch.from_numpy(flat))
 
     @torch.no_grad()
     def coherence(
@@ -954,3 +1157,102 @@ def fit_action_rotor(
         "evidence": "OBSERVED",
         "holdout_fraction": float(holdout_fraction),
     }
+
+
+# ---------------------------------------------------------------------------
+# Directive I3: deterministic Cul-de-Sac horizon traps
+# ---------------------------------------------------------------------------
+CUL_DE_SAC_TABLE = (
+    # (agent_row, agent_col, pocket_row, pocket_col, goal_row, goal_col)
+    # Eight states selected from the deterministic 7x7 family whose pocket is
+    # a one-cell dead end on the discrete steepest-descent direction of the
+    # Euclidean goal field. The selection rule and the full candidate count
+    # are recorded in receipts/holarch/i3_horizon_traps.json.
+    (1, 1, 1, 2, 5, 6),
+    (1, 3, 2, 3, 5, 2),
+    (1, 4, 2, 4, 4, 2),
+    (2, 1, 2, 2, 4, 5),
+    (3, 1, 3, 2, 2, 4),
+    (4, 1, 3, 1, 1, 3),
+    (5, 2, 4, 2, 1, 5),
+    (5, 3, 5, 2, 3, 0),
+)
+"""The eight Cul-de-Sac traps: agent, pocket and goal coordinates."""
+
+TRAP_DELTAS = ((-1, 0), (1, 0), (0, -1), (0, 1))
+
+
+def build_cul_de_sac_traps(size: int = 7, world=None) -> List[Dict[str, object]]:
+    """Construct the eight deterministic Cul-de-Sac horizon traps (I3).
+
+    Each state is a 7x7 grid with one free pocket cell adjacent to the agent
+    and directly on the steepest-descent direction of the Euclidean goal
+    field. The pocket's forward and both lateral neighbours are walls, so at
+    t+2 the only legal move from inside the pocket is the 180-degree
+    reversal. The bypass corridor is the BFS-optimal route around the pocket.
+
+    The function is deterministic and model-free: it builds geometry and the
+    79-value observation only. The arm behaviour (masked vs depth-1 vs
+    unmasked) is measured by the caller, because it is a property of the
+    fitted checkpoint, not of the layout.
+    """
+    if world is None:
+        from henri.holarch.tasks import _Grid
+
+        world = _Grid(size=int(size), seed=0)
+    traps: List[Dict[str, object]] = []
+    for index, (ar, ac, pr, pc, gr, gc) in enumerate(CUL_DE_SAC_TABLE):
+        agent = (int(ar), int(ac))
+        pocket = (int(pr), int(pc))
+        goal = (int(gr), int(gc))
+        d_row = int(np.sign(pr - ar))
+        d_col = int(np.sign(pc - ac))
+        if (d_row, d_col) not in TRAP_DELTAS:
+            raise ValueError(f"trap {index}: the pocket is not adjacent to the agent")
+        trap_action = TRAP_DELTAS.index((d_row, d_col))
+        walls = np.zeros((int(size), int(size)), dtype=bool)
+        blocked_cells = [
+            (pocket[0] + d_row, pocket[1] + d_col),
+            (pocket[0] + d_col, pocket[1] + d_row),
+            (pocket[0] - d_col, pocket[1] - d_row),
+        ]
+        for row, col in blocked_cells:
+            if not (0 <= row < int(size) and 0 <= col < int(size)):
+                raise ValueError(f"trap {index}: a pocket wall leaves the grid")
+            walls[row, col] = True
+        if walls[agent] or walls[pocket] or walls[goal]:
+            raise ValueError(f"trap {index}: a wall occupies the agent, pocket or goal")
+        path = world._bfs(walls, agent, goal)
+        if path is None:
+            raise ValueError(f"trap {index}: the goal is unreachable")
+        bypass_action = int(path[0])
+        dx = abs(goal[0] - agent[0])
+        dy = abs(goal[1] - agent[1])
+        dominant = (dx >= dy) if d_row else (dy >= dx)
+        traps.append(
+            {
+                "id": f"trap{index + 1:02d}",
+                "grid": int(size),
+                "agent": agent,
+                "pocket": pocket,
+                "goal": goal,
+                "trap_action": int(trap_action),
+                "bypass_action": int(bypass_action),
+                "walls": walls,
+                "wall_cells": [list(cell) for cell in blocked_cells],
+                "observation": world.observe(walls, agent, goal).tolist(),
+                "path_length": int(len(path)),
+                "invariants": {
+                    "pocket_legal": bool(not walls[pocket]),
+                    "three_non_reversing_sides_blocked": bool(all(walls[cell] for cell in blocked_cells)),
+                    "only_reversal_open_at_t2": bool(
+                        sum(1 for cell in blocked_cells if walls[cell]) == 3
+                    ),
+                    "bypass_is_not_the_trap": bool(bypass_action != trap_action),
+                    "pocket_on_dominant_goal_axis": bool(dominant),
+                    "goal_reachable": bool(path is not None),
+                },
+            }
+        )
+    return traps
+

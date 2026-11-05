@@ -202,13 +202,18 @@ def _measure_windows(generator: WaveCodeTextGenerator, windows: Dict[str, List[i
     return rows
 
 
-def stage_h1(source: str = "git") -> Dict[str, object]:
+def stage_h1(
+    source: str = "git",
+    vocab_lock=None,
+    tokenizer=None,
+) -> Dict[str, object]:
     started = time.perf_counter()
     if source == "git":
         corpus, provenance = frozen_corpus(G_REVISION)
     else:
         corpus, provenance = CodeTextCorpus.holarch(ROOT), {"source": "live_tree", "revision": ""}
-    tokenizer = build_tokenizer(corpus)
+    if tokenizer is None:
+        tokenizer = build_tokenizer(corpus, vocab_lock=vocab_lock)
     projector = BochnerPhaseProjector(dim=1024, d_sem=64)
     projector.fit(corpus, tokenizer)
     ids: List[int] = []
@@ -258,6 +263,11 @@ def stage_h1(source: str = "git") -> Dict[str, object]:
             "texts": int(len(corpus)),
             "tokens": int(len(ids)),
             "vocabulary": int(len(tokenizer)),
+            "vocabulary_digest": str(tokenizer.spec.digest()),
+            "vocab_ledger_digest": str(getattr(tokenizer, "ledger", None).digest())
+            if getattr(tokenizer, "ledger", None) is not None
+            else "",
+            "vocab_locked": bool(getattr(tokenizer, "locked", False)),
             "note": (
                 "The H1 corpus is pinned to the Cycle G commit so the floor is "
                 "the exact number the G1 receipt recorded. The tokenizer is "

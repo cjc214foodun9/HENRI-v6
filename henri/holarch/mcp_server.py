@@ -228,6 +228,23 @@ def holarch_synthesize(
 
 
 @mcp.tool()
+def holarch_agent_step(
+    action: str,
+    payload: Optional[Dict[str, Any]] = None,
+    namespace: str = "default",
+) -> Dict[str, Any]:
+    """One unified agent turn: verify, solve, impact, plan, synthesize,
+    composite or veto, dispatched under the service lock.
+
+    The response is uniform ({status, abstained, output, epistemic_receipt}),
+    so an MCP client can bind every verb as the same tool shape. Each call
+    emits exactly one SHA-256 receipt, chained to the previous one, and the
+    receipt records the mounted checkpoint digest.
+    """
+    return service().agent_step(action, payload or {}, namespace)
+
+
+@mcp.tool()
 def holarch_health() -> Dict[str, Any]:
     """Report parameter count, receipt count, and chain validity."""
     return service().health()

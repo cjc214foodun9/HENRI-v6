@@ -327,6 +327,7 @@ class SidecarService:
         lookahead_depth: int = 2,
         gamma_look: float = 0.02,
         namespace: str = "default",
+        batch_rollout: bool = True,
     ) -> Dict[str, Any]:
         """Depth-2 wall-masked rotor planning over the mounted checkpoint."""
         request = {
@@ -335,6 +336,7 @@ class SidecarService:
             "transition": str(transition),
             "lookahead_depth": int(lookahead_depth),
             "gamma_look": float(gamma_look),
+            "batch_rollout": bool(batch_rollout),
             "namespace": str(namespace),
         }
         with self.lock:
@@ -345,6 +347,7 @@ class SidecarService:
                 lookahead_depth=int(lookahead_depth),
                 gamma_look=float(gamma_look),
                 namespace=str(namespace),
+                batch_rollout=bool(batch_rollout),
             )
             return self._envelope("/v1/holarch/plan", request, result)
 
@@ -500,6 +503,7 @@ class SidecarService:
         x0: Any = None,
         x1: Any = None,
         namespace: str = "default",
+        _issue_receipt: bool = True,
     ) -> Dict[str, Any]:
         """Register or resolve a composite rule (Decision D4).
 
@@ -537,6 +541,8 @@ class SidecarService:
                     "atlas_entries": float(self.composite.entries),
                     "tau_composite": float(calibration["tau_coherence"]),
                 }
+                if not _issue_receipt:
+                    return {"ok": True, "endpoint": "/v1/holarch/composite", "result": _clean(result)}
                 return self._envelope("/v1/holarch/composite", request, result)
 
             grounded = None
@@ -567,6 +573,8 @@ class SidecarService:
                 "grounded_operands": grounded,
                 "key": [operand_a, operator, operand_b],
             }
+            if not _issue_receipt:
+                return {"ok": True, "endpoint": "/v1/holarch/composite", "result": _clean(result)}
             return self._envelope("/v1/holarch/composite", request, result)
 
     # ------------------------------------------------------- synthesize (L3)
@@ -614,6 +622,122 @@ class SidecarService:
                 intent, corrected_source, name, kind=str(kind), namespace=str(namespace)
             )
             return self._envelope("/v1/holarch/adapt_rule", request, result)
+
+    # ------------------------------------------------- agent turn (I4)
+    def agent_step(
+        self,
+        action: str,
+        payload: Optional[Dict[str, Any]] = None,
+        namespace: str = "default",
+    ) -> Dict[str, Any]:
+        """One unified agent turn, dispatched under the service lock (I4).
+
+        The seven actions are the sidecar's public verbs. The response is
+        uniform - status, abstained, output, epistemic_receipt - and carries
+        exactly ONE receipt per turn, so an external harness can treat every
+        action as the same tool call and still get a contiguous hash chain.
+        """
+        action = str(action or "").strip().lower()
+        body = dict(payload or {})
+        request = {"action": action, "payload": _clean(body), "namespace": str(namespace)}
+        with self.lock:
+            if action == "verify":
+                output = self.sidecar.verify_claim(
+                    str(body.get("claim", "")),
+                    kind=str(body.get("kind", "text")),
+                    top_k=int(body.get("top_k", 4)),
+                    namespace=str(namespace),
+                )
+                status = str(output.get("status", ""))
+                abstained = not bool(output.get("supported", False))
+            elif action == "solve":
+                if str(body.get("mode", "path")) == "impact":
+                    output = self.sidecar.impact(
+                        str(body.get("target") or body.get("source", "")),
+                        hops=int(body.get("hops", 1)),
+                        namespace=str(namespace),
+                    )
+                else:
+                    output = self.sidecar.solve(
+                        str(body.get("source", "")),
+                        body.get("operators") or [],
+                        namespace=str(namespace),
+                    )
+                abstained = bool(output.get("vetoed", False))
+                status = "abstained" if abstained else "answered"
+            elif action == "impact":
+                output = self.sidecar.impact(
+                    str(body.get("target") or body.get("source", "")),
+                    hops=int(body.get("hops", 1)),
+                    namespace=str(namespace),
+                )
+                abstained = not bool(output.get("resolved", True))
+                status = "abstained" if abstained else "ok"
+            elif action == "plan":
+                output = self.sidecar.plan(
+                    body.get("observation"),
+                    history_waves=body.get("history_waves"),
+                    transition=str(body.get("transition", "rotor")),
+                    lookahead_depth=int(body.get("lookahead_depth", 2)),
+                    gamma_look=float(body.get("gamma_look", 0.02)),
+                    namespace=str(namespace),
+                )
+                abstained = False
+                status = "ok"
+            elif action == "synthesize":
+                output = self.sidecar.synthesize(
+                    str(body.get("intent", "")),
+                    kind=str(body.get("kind", "code")),
+                    namespace=str(namespace),
+                    max_tokens=int(body.get("max_tokens", 320)),
+                )
+                status = str(output.get("status", ""))
+                abstained = status == "refused"
+            elif action == "composite":
+                inner = self.composite_call(
+                    mode=str(body.get("mode", "query")),
+                    rules=body.get("rules"),
+                    a=body.get("a"),
+                    b=body.get("b"),
+                    op=body.get("op"),
+                    x0=body.get("x0"),
+                    x1=body.get("x1"),
+                    namespace=str(namespace),
+                    _issue_receipt=False,
+                )
+                output = dict(inner["result"])
+                abstained = bool(output.get("abstained", False))
+                status = "abstained" if abstained else "ok"
+            elif action == "veto":
+                task = str(body.get("task", "vision"))
+                tensor = self._as_tensor(task, body.get("x"))
+                output = self.sidecar.veto_check(task, tensor)
+                abstained = False
+                status = "ok"
+            else:
+                raise ValueError(
+                    "action must be one of verify, solve, impact, plan, "
+                    "synthesize, composite, veto"
+                )
+            result = {
+                "status": status,
+                "abstained": bool(abstained),
+                "output": _clean(output),
+            }
+            receipt = self.ledger.issue(
+                "/v1/holarch/agent_step", request, result, config_digest=self.config_digest
+            )
+            receipt["checkpoint_sha256"] = str(
+                self.checkpoint_info.get("sha256", "") or ""
+            )
+            return {
+                "ok": True,
+                "endpoint": "/v1/holarch/agent_step",
+                "status": status,
+                "abstained": bool(abstained),
+                "output": _clean(output),
+                "epistemic_receipt": receipt,
+            }
 
     def health(self) -> Dict[str, Any]:
         with self.lock:
@@ -703,6 +827,7 @@ class PlanRequest(BaseModel):
     transition: str = "rotor"
     lookahead_depth: int = 2
     gamma_look: float = 0.02
+    batch_rollout: bool = True
     namespace: str = "default"
 
 
@@ -718,6 +843,12 @@ class CompositeRule(BaseModel):
     op: Any
     b: Any
     result: Any
+
+
+class AgentStepRequest(BaseModel):
+    action: str = Field(..., description="verify|solve|impact|plan|synthesize|composite|veto")
+    payload: Dict[str, Any] = Field(default_factory=dict)
+    namespace: str = "default"
 
 
 class CompositeRequest(BaseModel):
@@ -779,6 +910,7 @@ def build_app(service: Optional[SidecarService] = None):
                 request.lookahead_depth,
                 request.gamma_look,
                 request.namespace,
+                request.batch_rollout,
             )
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc))
@@ -830,6 +962,15 @@ def build_app(service: Optional[SidecarService] = None):
                 x0=request.x0,
                 x1=request.x1,
                 namespace=request.namespace,
+            )
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+
+    @app.post("/v1/holarch/agent_step")
+    def agent_step(request: AgentStepRequest):
+        try:
+            return get_service().agent_step(
+                request.action, request.payload, request.namespace
             )
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc))

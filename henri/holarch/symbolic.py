@@ -820,6 +820,19 @@ class CodeGraphIndexer:
         transitions: Dict[Tuple[str, str, str], int] = {}
         signatures: List[FunctionSignature] = []
         classes: Dict[str, List[str]] = {}
+        # Directive I4: the import table makes a cross-package call resolve to
+        # the module it was imported from, not to the first same-named symbol
+        # in the workspace. It is a preference, never an override: a local
+        # definition still wins, and an unimported name still falls back to
+        # the global table, so the single-package graph is unchanged.
+        imports: Dict[str, str] = {}
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                for alias in node.names:
+                    imports[alias.asname or alias.name.split(".")[0]] = alias.name
+            elif isinstance(node, ast.ImportFrom) and node.module and not int(node.level or 0):
+                for alias in node.names:
+                    imports[alias.asname or alias.name] = f"{node.module}:{alias.name}"
 
         def record(node) -> None:
             # Grammar transitions: the same (parent, field, child) triples
@@ -863,6 +876,7 @@ class CodeGraphIndexer:
             "transitions": transitions,
             "signatures": signatures,
             "classes": classes,
+            "imports": imports,
             "lines": int(text.count(chr(10))) + 1,
         }
 
@@ -872,8 +886,18 @@ class CodeGraphIndexer:
         """Resolve one module's calls against the current definition tables."""
         edges: List[Edge] = []
         seen: set = set()
+        imports = dict(self._modules[module].get("imports", {}) or {})
         for caller, callee in self._modules[module]["calls"]:
-            target = local_defs.get(callee) or definitions.get(callee)
+            target = local_defs.get(callee)
+            if not target:
+                imported = imports.get(callee, "")
+                if ":" in imported:
+                    source_module, symbol = imported.split(":", 1)
+                    candidate = definitions.get(symbol)
+                    if candidate and candidate.startswith(f"{source_module}:"):
+                        target = candidate
+            if not target:
+                target = definitions.get(callee)
             if not target or target == caller:
                 continue
             key = (caller, target)
@@ -1006,6 +1030,60 @@ class CodeGraphIndexer:
             self.report.boundary_engrams = self.write_boundary_engrams()
             self.persist()
         return self.report
+
+    def index_paths(
+        self,
+        root: str | Path,
+        directories: Sequence[str | Path],
+        package: str = "workspace",
+    ) -> IndexReport:
+        """Index several packages/directories under one workspace root (I4).
+
+        Module names stay relative to the workspace root (henri.holarch.x,
+        scripts.run_x, tests.test_x), so a cross-package edge is a real
+        qualname and a single-file delta can address any of them with the
+        same update_file path the single-package index uses.
+        """
+        started = time.perf_counter()
+        root = Path(root)
+        self.root = str(root)
+        self.package = str(package)
+        self._modules = {}
+        paths: set = set()
+        for directory in directories:
+            label = str(directory)
+            base = root if label in {"", "."} else root / label
+            if not base.exists():
+                continue
+            for path in sorted(base.rglob("*.py")):
+                if "__pycache__" in path.parts:
+                    continue
+                paths.add(path)
+        for path in sorted(paths):
+            try:
+                text = path.read_text(encoding="utf-8", errors="ignore")
+                tree = ast.parse(text)
+            except (OSError, SyntaxError):
+                continue
+            module = ".".join(path.relative_to(root).with_suffix("").parts)
+            self._modules[module] = self._ingest_module(module, text, tree)
+        self._module_defs = {}
+        self._module_edges = {}
+        self._rebuild()
+        self.report = self._report(time.perf_counter() - started)
+        if self.memory is not None:
+            self.report.boundary_engrams = self.write_boundary_engrams()
+            self.persist()
+        return self.report
+
+    def index_delta(
+        self,
+        root: str | Path,
+        file_path: str | Path,
+        source_text: Optional[str] = None,
+    ) -> IndexReport:
+        """Explicit delta entry point (I4). Same code path as update_file."""
+        return self.update_file(root, file_path, source_text=source_text)
 
     def update_file(
         self,
