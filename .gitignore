@@ -58,3 +58,6 @@ receipts/holarch/_work/
 # Harness telemetry (doctor / tool_call / zone_check events). It is a console
 # trace, not a measured receipt: nothing in this repo cites it.
 /bench/results/
+
+# Vendored checkouts: reference code, not part of this repository
+vendor/

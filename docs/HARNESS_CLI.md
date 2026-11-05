@@ -13,9 +13,13 @@ terminal with the same flags.
 
 @RND AGENT/@ is the junctioned research harness at
 @C:\Users\chan\Desktop\HENRI v6\RND AGENT@. The DSH profile links the plugin
-from @harness/plugins/henri-holon@ inside it. This revision repoints the
-plugin's @repoRoot@ to the HENRI v6 checkout, so the plugin drives the code
-that is under active development.
+from @harness/plugins/henri-holon@ inside it.
+
+The plugin drives the three-zone monorepo at @RND AGENT@, because that checkout
+holds @zone_1_theory@, @zone_2_kernels@ and @zone_3_api@ beside the harness.
+This document covers the evidence gate in the kernel checkout. The control
+plane commands are in @RND AGENT/docs/JEV_OPENROUTER.md@ and
+@RND AGENT/docs/IMPLEMENTATION_MAP.md@.
 
 ## 2. The eight commands
 
@@ -111,7 +115,7 @@ The patch file sets one key:
     - id: henri-holon
       name: '@henri/dsh-henri-holon'
       config:
-        repoRoot: 'C:\Users\chan\Desktop\HENRI v6'
+        repoRoot: 'C:\Users\chan\Desktop\HENRI v6\RND AGENT'
 ~~~
 
 The adapter runs @python -m henri <command> --json@ with @cwd@ set to
