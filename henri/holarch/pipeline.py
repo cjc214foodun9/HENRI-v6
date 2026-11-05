@@ -1407,6 +1407,221 @@ class HenriHolarch(nn.Module):
         info["count_after"] = int(memory.stats().get("count", 0))
         return info
 
+    # ------------------------------------------------------- VLA generation
+    @torch.no_grad()
+    def generate_vla_episode(
+        self,
+        vision_canvas,
+        intent_prompt: str = "",
+        *,
+        task=None,
+        layout=None,
+        engine=None,
+        namespace: str = "default",
+        test_source: Optional[str] = None,
+        max_steps: int = 20,
+        seed: int = 0,
+    ) -> Dict[str, object]:
+        """One closed-loop Vision -> Symbolic -> Action -> Code VLA episode.
+
+        Every stage reads and writes the same three-zone loop: the visual
+        ingress crosses Zone C and Zone B, the planner uses the rotor
+        lookahead over the post-photonic wave, and the synthesizer emits a
+        verified function whose bound is the grounded visual quantity. Each
+        emitted token is chained to the previous one by SHA-256, so the trace
+        is one contiguous epistemic receipt chain.
+        """
+        import hashlib
+        import json
+
+        from henri.holarch.vla import action_token, relational_token, vision_token
+
+        trace: List[Dict[str, object]] = []
+        receipts: List[Dict[str, object]] = []
+        tokens: List[str] = []
+        token_ids: List[int] = []
+
+        def emit(stage: str, token: str, token_id: int, payload: Dict[str, object]) -> None:
+            parent = str(receipts[-1]["sha256"]) if receipts else "genesis"
+            body = {
+                "index": len(receipts),
+                "stage": str(stage),
+                "token": str(token),
+                "payload_sha256": hashlib.sha256(
+                    json.dumps(payload, sort_keys=True, default=str).encode("utf-8")
+                ).hexdigest(),
+                "parent": parent,
+            }
+            body["sha256"] = hashlib.sha256(
+                json.dumps(body, sort_keys=True).encode("utf-8")
+            ).hexdigest()
+            receipts.append(body)
+            tokens.append(str(token))
+            token_ids.append(int(token_id))
+            trace.append(
+                {
+                    "step": len(trace),
+                    "stage": str(stage),
+                    "token": str(token),
+                    "payload": payload,
+                    "receipt": body,
+                }
+            )
+
+        # ---------------------------------------------------------- vision
+        canvas = torch.as_tensor(np.asarray(vision_canvas, dtype=np.float32))
+        if canvas.dim() == 2:
+            canvas = canvas.reshape(1, 1, *canvas.shape)
+        elif canvas.dim() == 3:
+            canvas = canvas.unsqueeze(0)
+        if tuple(canvas.shape[-2:]) == (16, 16):
+            canvas = F.avg_pool2d(canvas, 2)
+        sensor = canvas.reshape(1, -1) if self.vision_slm is not None else canvas
+        vision_out = self("vision", sensor, training=False, allow_empty=True)
+        digit = int(vision_out.predicted()[0])
+        confidence = float(vision_out.probs[0, digit])
+        vision = {
+            "digit": digit,
+            "confidence": confidence,
+            "canvas": [int(canvas.shape[-2]), int(canvas.shape[-1])],
+            "grounded": bool(int(digit) >= 0),
+        }
+        emit("vision", f"vision:digit={digit}", vision_token(digit), vision)
+
+        # ------------------------------------------------- symbolic / relational
+        bound = float(digit + 1.0)
+        rule = "bound_from_digit"
+        relational = {
+            "rule": rule,
+            "bound": bound,
+            "expression": f"clamp(., 0.0, {bound:.1f})",
+        }
+        emit(
+            "relational",
+            f"relational:{rule}={bound:.1f}",
+            relational_token(int(digit)),
+            relational,
+        )
+
+        # -------------------------------------------------------------- action
+        planning: Dict[str, object] = {"requested": bool(task is not None and layout is not None)}
+        plan_ok = True
+        if task is not None and layout is not None:
+            from henri.holarch.model import LatentActionLookahead
+
+            walls, agent, goal = layout
+            lookahead = LatentActionLookahead(
+                self, task, rotor=getattr(self, "action_rotor", None),
+                transition="rotor", lookahead_depth=2, gamma_look=0.02,
+            )
+            recent: List[torch.Tensor] = []
+            actions: List[int] = []
+            reached = False
+            for _step in range(int(max_steps)):
+                observation = task.world.observe(walls, agent, goal)
+                choice = lookahead.choose(observation, recent, use_memory=True)
+                action = int(choice["action"])
+                actions.append(action)
+                dr, dc = ((-1, 0), (1, 0), (0, -1), (0, 1))[action]
+                row, col = int(agent[0]) + dr, int(agent[1]) + dc
+                if not (0 <= row < int(task.grid_size) and 0 <= col < int(task.grid_size)):
+                    plan_ok = False
+                    break
+                if bool(walls[row, col]):
+                    plan_ok = False
+                    break
+                agent = (row, col)
+                recent.insert(0, choice["psi"])
+                del recent[lookahead.history :]
+                if agent == goal:
+                    reached = True
+                    break
+            planning.update(
+                {
+                    "actions": actions,
+                    "steps": len(actions),
+                    "reached_goal": bool(reached),
+                    "legal": bool(plan_ok),
+                    "start": list(layout[1]),
+                    "goal": list(layout[2]),
+                }
+            )
+            for action in actions:
+                emit(
+                    "action",
+                    f"action:{('up', 'down', 'left', 'right')[action]}",
+                    action_token(action),
+                    {"action": int(action)},
+                )
+            plan_ok = bool(plan_ok and len(actions) > 0)
+
+        # ---------------------------------------------------------------- code
+        code: Dict[str, object] = {"requested": bool(engine is not None and intent_prompt)}
+        code_ok = True
+        if engine is not None and intent_prompt:
+            prompt = str(intent_prompt).replace("{bound}", f"{bound:.1f}")
+            synthesis = engine.synthesize(prompt)
+            code.update(
+                {
+                    "status": str(synthesis.get("status", "")),
+                    "verified": bool(synthesis.get("verified", False)),
+                    "plan": str(synthesis.get("plan", "")),
+                    "source_chars": len(str(synthesis.get("source", ""))),
+                }
+            )
+            execution = {"ok": False, "reason": "not executed"}
+            if bool(synthesis.get("verified", False)) and test_source:
+                execution = engine.execute(
+                    str(synthesis.get("source", "")),
+                    str(test_source).replace("{bound}", f"{bound:.1f}"),
+                )
+            code["executed"] = bool(execution.get("ok", False))
+            code["execution_reason"] = str(execution.get("reason", ""))
+            code_ok = bool(code["verified"] and code["executed"])
+            text = str(synthesis.get("source", ""))[:64]
+            code_token = 4608 + (int(hashlib.sha256(text.encode("utf-8")).hexdigest()[:6], 16) % 256)
+            emit(
+                "code",
+                f"code:{str(synthesis.get('plan', 'refused'))[:48]}",
+                code_token,
+                {
+                    "status": code["status"],
+                    "verified": code["verified"],
+                    "executed": code["executed"],
+                    "bound": bound,
+                },
+            )
+
+        chain_valid = bool(
+            receipts
+            and receipts[0]["parent"] == "genesis"
+            and all(
+                receipts[index]["parent"] == receipts[index - 1]["sha256"]
+                for index in range(1, len(receipts))
+            )
+        )
+        success = bool(
+            vision["grounded"]
+            and plan_ok
+            and code_ok
+            and chain_valid
+        )
+        return {
+            "success": bool(success),
+            "namespace": str(namespace),
+            "tokens": tokens,
+            "token_ids": token_ids,
+            "trace": trace,
+            "receipts": receipts,
+            "receipt_chain_valid": bool(chain_valid),
+            "vision": vision,
+            "relational": relational,
+            "planning": planning,
+            "code": code,
+            "bound": float(bound),
+            "evidence": "OBSERVED",
+        }
+
     def memory_report(self) -> Dict[str, float]:
         if getattr(self, "memory", None) is None:
             return {"count": 0.0}

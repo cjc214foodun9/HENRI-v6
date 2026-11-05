@@ -7,6 +7,8 @@ metrics that could not be reproduced across processes.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import numpy as np
 import pytest
 
@@ -18,6 +20,31 @@ from henri.state import WaveState
 
 DIM = 512
 """CI dimension. Small enough for seconds, same structure as production."""
+
+
+def pytest_configure(config):
+    """Keep pytest's temporary root inside the workspace (Directive K4).
+
+    On the Windows DSH sandbox the system temp directory is created with
+    mode 0o700 and cannot be enumerated by the test process, so pytest's
+    default basetemp can fail before a single test runs. The fallback is a
+    workspace-local directory: it is a real directory with the workspace's
+    own ACL, it is ignored by git, and pytest's normal basetemp handling
+    still owns it. The workaround is logged once so a receipt never claims
+    the default path was used.
+    """
+    if getattr(config.option, "basetemp", None):
+        return
+    candidate = Path.cwd() / ".pytest_tmp"
+    try:
+        candidate.mkdir(parents=True, exist_ok=True)
+        probe = candidate / ".write_probe"
+        probe.write_text("ok", encoding="utf-8")
+        probe.unlink()
+        config.option.basetemp = str(candidate.resolve())
+        config._dsh_basetemp_note = str(candidate.resolve())
+    except (PermissionError, OSError) as error:
+        config._dsh_basetemp_note = f"workspace basetemp unavailable: {error}"
 
 
 def pytest_addoption(parser):

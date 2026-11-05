@@ -41,11 +41,18 @@ def checkpoint_config() -> HolarchConfig:
 def test_checkpoint_carries_a_bounded_seed_cartridge():
     payload = torch.load(CHECKPOINT, map_location="cpu", weights_only=True)
     block = payload.get("seed_engrams")
-    assert block and block.get("format") == "henri-seed-engrams-v1"
-    assert 0 < int(block["count"]) <= 512
-    assert int(block["bytes"]) < 2_500_000
-    assert tuple(block["real"].shape) == (int(block["count"]), int(block["dim"]))
-    assert block["real"].dtype == torch.float16
+    assert block and block.get("format") == "henri-seed-engrams-v2"
+    assert 0 < int(block["count"]) <= 1536
+    assert int(block["count"]) >= 700
+    assert int(block["bytes"]) <= 2_621_440
+    assert int(block["dim"]) == 1024
+    assert block["payload"].dtype == torch.uint8
+    assert "int16-phase" in str(block["dtype"])
+    labels = block["labels"].detach().cpu().numpy().astype(int).tolist()
+    assert sum(1 for value in labels if 106 <= value < 110) == 604
+    assert sum(1 for value in labels if 0 <= value < 10) >= 64
+    assert sum(1 for value in labels if 110 <= value < 118) >= 32
+    assert sum(1 for value in labels if 10 <= value < 106) >= 32
 
 
 def test_mount_hydrates_an_empty_store_exactly_once(tmp_path):
@@ -68,7 +75,7 @@ def test_mount_hydrates_an_empty_store_exactly_once(tmp_path):
 def test_seed_payload_refuses_an_oversized_cartridge():
     cfg = HolarchConfig.small()
     wave = np.ones(int(cfg.dim), dtype=np.complex64) / np.sqrt(float(cfg.dim))
-    rows = [{"label": 0, "tier": 1, "wave": wave} for _ in range(513)]
+    rows = [{"label": 0, "tier": 1, "wave": wave} for _ in range(1537)]
     with pytest.raises(ValueError):
         seed_engram_payload(rows)
 

@@ -1,0 +1,92 @@
+{
+  "cycle": "K",
+  "head": "1fa6aaebad1c83e489f27cf741fc3db2e80be7e8",
+  "stages": {
+    "k1": {
+      "receipt": "receipts\\holarch\\k1_full_cartridge.json",
+      "sha256": "5e7dfee368834850ad54bd2fcada99e4213fbc5581134441da6b073493d3947d",
+      "passed": true,
+      "gate": {
+        "clean_room_zero_rows": true,
+        "cartridge_under_2_5_mib": true,
+        "cartridge_multitask": true,
+        "hydrated_matches_block": true,
+        "closed_loop_38_at_eight_threads": true,
+        "closed_loop_38_at_one_thread": true,
+        "cleanroom_equals_reference_store": true,
+        "thread_episode_parity_48_of_48": true,
+        "traps_8_of_8": true,
+        "one_step_action_at_least_0_78": true,
+        "vision_test_at_least_0_975": true,
+        "relational_test_at_least_0_76": true,
+        "empty_store_veto_zero": true,
+        "passed": true
+      },
+      "wall_seconds": 184.14001279999502
+    },
+    "k2": {
+      "receipt": "receipts\\holarch\\k2_boundary_discovery.json",
+      "sha256": "a3a8a87f58bffbede73277e4177e0e56c729d904f12d5c1daf6ac79137766890",
+      "passed": true,
+      "gate": {
+        "spatial_4_of_4": true,
+        "symbolic_4_of_4": true,
+        "total_8_of_8": true,
+        "control_0_of_8": true,
+        "control_repeats_forbidden_8_of_8": true,
+        "zero_weight_updates": true,
+        "passed": true
+      },
+      "wall_seconds": 1.7045226000191178
+    },
+    "k3": {
+      "receipt": "receipts\\holarch\\k3_unified_vla_and_dag.json",
+      "sha256": "18dfe1543769282fba0904f556834e0c1bdfa9628b293114cdf26c39d2c178a8",
+      "passed": true,
+      "gate": {
+        "synthesis_72_of_72": true,
+        "multi_6_of_6": true,
+        "symbol_arity_traps_6_of_6": true,
+        "stationary_drift_zero": true,
+        "vla_12_of_12": true,
+        "vla_zero_hallucination": true,
+        "vla_receipt_chain": true,
+        "vla_four_modalities": true,
+        "photonic_generation_active": true,
+        "passed": true
+      },
+      "wall_seconds": 21.11637899998459
+    },
+    "k4": {
+      "receipt": "receipts\\holarch\\k4_rebase_and_concurrency.json",
+      "sha256": "37bb8730ec8aa8fc5d851d468e931284d7fc696a7bcfa139eac5aed69f766688",
+      "passed": true,
+      "gate": {
+        "rebase_zero_tier1_shifts": true,
+        "rebase_lossless_100pct": true,
+        "rebase_id_map_exact": true,
+        "bm25_top4_parity": true,
+        "bm25_faster_p50": true,
+        "bm25_faster_p95": true,
+        "concurrency_128_zero_errors": true,
+        "concurrency_receipt_chain": true,
+        "bundle_copied": true,
+        "passed": true
+      },
+      "wall_seconds": 8.914074100001017
+    },
+    "eval": {
+      "receipt": "receipts\\holarch\\k_eval.json",
+      "sha256": "3d55276486d4bf96f949684936fd365eae2259878d35025ecb79993cdab0da1e",
+      "passed": true,
+      "gate": {
+        "queries_100": true,
+        "gates_passed": true,
+        "exit_zero": true,
+        "passed": true
+      },
+      "wall_seconds": 117.50107559998287
+    }
+  },
+  "passed": true
+}

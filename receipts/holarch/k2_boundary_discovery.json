@@ -1,0 +1,616 @@
+{
+  "stage": "K2",
+  "clean_room": {
+    "pre_mount_rows": 0,
+    "post_mount_rows": 845
+  },
+  "probes": {
+    "total": 8,
+    "spatial": 4,
+    "symbolic": 4,
+    "steered_correct": 8,
+    "control_correct": 0,
+    "control_repeated_forbidden": 8,
+    "skipped": [
+      "trap01",
+      "trap02",
+      "trap04"
+    ]
+  },
+  "axioms": {
+    "registered": 24,
+    "law": 8,
+    "attractor": 8,
+    "repulsor": 8
+  },
+  "spatial": [
+    {
+      "id": "trap03",
+      "kind": "spatial",
+      "expected": 2,
+      "forbidden": 1,
+      "steered": {
+        "action": 2,
+        "expected": 2,
+        "forbidden": 1,
+        "correct": true,
+        "repeated_forbidden": false,
+        "scores": {
+          "up": 0.7775596380233765,
+          "down": 0.8415526151657104,
+          "left": 2.000000238418579,
+          "right": 0.59880131483078
+        },
+        "blocked": [
+          false,
+          false,
+          false,
+          false
+        ],
+        "trace": {
+          "probes": 8,
+          "steps": 2,
+          "temperature_bias": 0.85,
+          "probe_energies": [
+            31.629356384277344,
+            31.038772583007812,
+            1.7071236371994019,
+            36.23088455200195,
+            43.08197784423828,
+            43.430023193359375,
+            57.79676818847656,
+            40.29728317260742
+          ],
+          "best_energy": [
+            1.7071236371994019
+          ],
+          "energy_trace": [
+            1.7071236371994019,
+            1.7071236371994019,
+            1.7071236371994019
+          ],
+          "law_max_delta": [
+            1.1920928955078125e-07
+          ],
+          "law_satisfied": [
+            true
+          ],
+          "attractors": 1,
+          "repulsors": 1,
+          "laws": 1
+        }
+      },
+      "control": {
+        "action": 1,
+        "expected": 2,
+        "forbidden": 1,
+        "correct": false,
+        "repeated_forbidden": true,
+        "scores": {
+          "up": 0.6499706506729126,
+          "down": 0.6985422372817993,
+          "left": 0.6833661794662476,
+          "right": 0.6244995594024658
+        },
+        "blocked": [
+          false,
+          false,
+          false,
+          false
+        ],
+        "trace": {}
+      },
+      "steered_correct": true,
+      "control_correct": false,
+      "control_repeated_forbidden": true
+    },
+    {
+      "id": "trap05",
+      "kind": "spatial",
+      "expected": 0,
+      "forbidden": 2,
+      "steered": {
+        "action": 0,
+        "expected": 0,
+        "forbidden": 2,
+        "correct": true,
+        "repeated_forbidden": false,
+        "scores": {
+          "up": 2.0000011920928955,
+          "left": 0.7378682494163513,
+          "right": 0.7919068336486816
+        },
+        "blocked": [
+          false,
+          true,
+          false,
+          false
+        ],
+        "trace": {
+          "probes": 8,
+          "steps": 2,
+          "temperature_bias": 0.85,
+          "probe_energies": [
+            1.6294660568237305,
+            37.329368591308594,
+            33.515865325927734,
+            31.24928092956543,
+            58.2537727355957,
+            41.981998443603516,
+            44.01703643798828,
+            44.60546112060547
+          ],
+          "best_energy": [
+            1.6294660568237305
+          ],
+          "energy_trace": [
+            1.6294660568237305,
+            1.6294660568237305,
+            1.6294660568237305
+          ],
+          "law_max_delta": [
+            2.384185791015625e-07
+          ],
+          "law_satisfied": [
+            true
+          ],
+          "attractors": 1,
+          "repulsors": 1,
+          "laws": 1
+        }
+      },
+      "control": {
+        "action": 2,
+        "expected": 0,
+        "forbidden": 2,
+        "correct": false,
+        "repeated_forbidden": true,
+        "scores": {
+          "up": 0.6096152067184448,
+          "left": 0.7573505640029907,
+          "right": 0.6913524866104126
+        },
+        "blocked": [
+          false,
+          true,
+          false,
+          false
+        ],
+        "trace": {}
+      },
+      "steered_correct": true,
+      "control_correct": false,
+      "control_repeated_forbidden": true
+    },
+    {
+      "id": "trap06",
+      "kind": "spatial",
+      "expected": 3,
+      "forbidden": 2,
+      "steered": {
+        "action": 3,
+        "expected": 3,
+        "forbidden": 2,
+        "correct": true,
+        "repeated_forbidden": false,
+        "scores": {
+          "up": 0.7620439529418945,
+          "down": 0.7396736145019531,
+          "left": 0.5887755155563354,
+          "right": 2.0
+        },
+        "blocked": [
+          false,
+          false,
+          false,
+          false
+        ],
+        "trace": {
+          "probes": 8,
+          "steps": 2,
+          "temperature_bias": 0.85,
+          "probe_energies": [
+            31.996828079223633,
+            32.63901901245117,
+            37.21070098876953,
+            1.448671817779541,
+            44.85649490356445,
+            44.340633392333984,
+            42.2822151184082,
+            58.83347702026367
+          ],
+          "best_energy": [
+            1.448671817779541
+          ],
+          "energy_trace": [
+            1.448671817779541,
+            1.448671817779541,
+            1.448671817779541
+          ],
+          "law_max_delta": [
+            6.556510925292969e-07
+          ],
+          "law_satisfied": [
+            true
+          ],
+          "attractors": 1,
+          "repulsors": 1,
+          "laws": 1
+        }
+      },
+      "control": {
+        "action": 2,
+        "expected": 3,
+        "forbidden": 2,
+        "correct": false,
+        "repeated_forbidden": true,
+        "scores": {
+          "up": 0.4982854425907135,
+          "down": 0.6073375940322876,
+          "left": 0.6443741321563721,
+          "right": 0.6262636184692383
+        },
+        "blocked": [
+          false,
+          false,
+          false,
+          false
+        ],
+        "trace": {}
+      },
+      "steered_correct": true,
+      "control_correct": false,
+      "control_repeated_forbidden": true
+    },
+    {
+      "id": "trap07",
+      "kind": "spatial",
+      "expected": 3,
+      "forbidden": 2,
+      "steered": {
+        "action": 3,
+        "expected": 3,
+        "forbidden": 2,
+        "correct": true,
+        "repeated_forbidden": false,
+        "scores": {
+          "up": 0.63697350025177,
+          "down": 0.6819661855697632,
+          "left": 0.4957916736602783,
+          "right": 2.0000007152557373
+        },
+        "blocked": [
+          false,
+          false,
+          false,
+          false
+        ],
+        "trace": {
+          "probes": 8,
+          "steps": 2,
+          "temperature_bias": 0.85,
+          "probe_energies": [
+            35.11324691772461,
+            34.08866500854492,
+            39.59687805175781,
+            1.4731756448745728,
+            45.673118591308594,
+            45.99607849121094,
+            43.950008392333984,
+            60.95669174194336
+          ],
+          "best_energy": [
+            1.4731756448745728
+          ],
+          "energy_trace": [
+            1.4731756448745728,
+            1.4731756448745728,
+            1.4731756448745728
+          ],
+          "law_max_delta": [
+            0.0
+          ],
+          "law_satisfied": [
+            true
+          ],
+          "attractors": 1,
+          "repulsors": 1,
+          "laws": 1
+        }
+      },
+      "control": {
+        "action": 2,
+        "expected": 3,
+        "forbidden": 2,
+        "correct": false,
+        "repeated_forbidden": true,
+        "scores": {
+          "up": 0.4540140628814697,
+          "down": 0.5407140851020813,
+          "left": 0.5455735325813293,
+          "right": 0.5215682983398438
+        },
+        "blocked": [
+          false,
+          false,
+          false,
+          false
+        ],
+        "trace": {}
+      },
+      "steered_correct": true,
+      "control_correct": false,
+      "control_repeated_forbidden": true
+    }
+  ],
+  "symbolic": [
+    {
+      "id": "sym01",
+      "kind": "symbolic",
+      "intent": "splits text into identifier tokens",
+      "expected": "caller_names",
+      "forbidden": "split_identifiers",
+      "control_valid": false,
+      "steered": {
+        "chosen": "caller_names",
+        "forbidden": "split_identifiers",
+        "correct": true,
+        "repeated_forbidden": false,
+        "valid": true,
+        "composed": true,
+        "executed": true,
+        "actual": 2,
+        "reference": 2,
+        "error": "",
+        "source_chars": 134,
+        "scores": {
+          "split_identifiers": 1.000000238418579,
+          "caller_names": 0.9898707270622253
+        },
+        "trace": {
+          "probes": 2,
+          "steps": 2,
+          "temperature_bias": 0.85,
+          "probe_energies": [
+            5.601866722106934,
+            5.601866722106934
+          ],
+          "best_energy": [
+            1.0843756198883057
+          ],
+          "energy_trace": [
+            5.601866722106934,
+            1.0863304138183594,
+            1.0843756198883057
+          ],
+          "law_max_delta": [
+            1.4966498613357544
+          ],
+          "law_satisfied": [
+            true
+          ],
+          "attractors": 1,
+          "repulsors": 1,
+          "laws": 1
+        }
+      },
+      "control": {
+        "chosen": "split_identifiers",
+        "correct": false,
+        "repeated_forbidden": true,
+        "valid": false,
+        "scores": {
+          "split_identifiers": 1.000000238418579,
+          "caller_names": 0.9898707270622253
+        }
+      },
+      "steered_correct": true,
+      "control_correct": false,
+      "control_repeated_forbidden": true
+    },
+    {
+      "id": "sym02",
+      "kind": "symbolic",
+      "intent": "counts the distinct items of a sequence",
+      "expected": "sequence_length",
+      "forbidden": "unique_count",
+      "control_valid": false,
+      "steered": {
+        "chosen": "sequence_length",
+        "forbidden": "unique_count",
+        "correct": true,
+        "repeated_forbidden": false,
+        "valid": true,
+        "composed": true,
+        "executed": true,
+        "actual": 4,
+        "reference": 4,
+        "error": "",
+        "source_chars": 41,
+        "scores": {
+          "unique_count": 1.0000001192092896,
+          "sequence_length": 0.9978582859039307
+        },
+        "trace": {
+          "probes": 2,
+          "steps": 2,
+          "temperature_bias": 0.85,
+          "probe_energies": [
+            5.989250659942627,
+            5.989250659942627
+          ],
+          "best_energy": [
+            1.0850110054016113
+          ],
+          "energy_trace": [
+            5.989250659942627,
+            1.0850110054016113,
+            1.0850110054016113
+          ],
+          "law_max_delta": [
+            1.276496171951294
+          ],
+          "law_satisfied": [
+            true
+          ],
+          "attractors": 1,
+          "repulsors": 1,
+          "laws": 1
+        }
+      },
+      "control": {
+        "chosen": "unique_count",
+        "correct": false,
+        "repeated_forbidden": true,
+        "valid": false,
+        "scores": {
+          "unique_count": 1.0000001192092896,
+          "sequence_length": 0.9978582859039307
+        }
+      },
+      "steered_correct": true,
+      "control_correct": false,
+      "control_repeated_forbidden": true
+    },
+    {
+      "id": "sym03",
+      "kind": "symbolic",
+      "intent": "returns the maximum of a numeric sequence",
+      "expected": "mean_of",
+      "forbidden": "max_or_zero",
+      "control_valid": false,
+      "steered": {
+        "chosen": "mean_of",
+        "forbidden": "max_or_zero",
+        "correct": true,
+        "repeated_forbidden": false,
+        "valid": true,
+        "composed": true,
+        "executed": true,
+        "actual": 4.0,
+        "reference": 4.0,
+        "error": "",
+        "source_chars": 70,
+        "scores": {
+          "max_or_zero": 0.9995371699333191,
+          "mean_of": 0.9980936646461487
+        },
+        "trace": {
+          "probes": 2,
+          "steps": 2,
+          "temperature_bias": 0.85,
+          "probe_energies": [
+            5.9200439453125,
+            5.9200439453125
+          ],
+          "best_energy": [
+            1.0797091722488403
+          ],
+          "energy_trace": [
+            5.9200439453125,
+            1.0797091722488403,
+            1.0797091722488403
+          ],
+          "law_max_delta": [
+            1.2773144245147705
+          ],
+          "law_satisfied": [
+            true
+          ],
+          "attractors": 1,
+          "repulsors": 1,
+          "laws": 1
+        }
+      },
+      "control": {
+        "chosen": "max_or_zero",
+        "correct": false,
+        "repeated_forbidden": true,
+        "valid": false,
+        "scores": {
+          "max_or_zero": 0.9995371699333191,
+          "mean_of": 0.9980936646461487
+        }
+      },
+      "steered_correct": true,
+      "control_correct": false,
+      "control_repeated_forbidden": true
+    },
+    {
+      "id": "sym04",
+      "kind": "symbolic",
+      "intent": "normalizes a numeric sequence",
+      "expected": "abs_values",
+      "forbidden": "normalize_scores",
+      "control_valid": false,
+      "steered": {
+        "chosen": "abs_values",
+        "forbidden": "normalize_scores",
+        "correct": true,
+        "repeated_forbidden": false,
+        "valid": true,
+        "composed": true,
+        "executed": true,
+        "actual": 7.0,
+        "reference": 7.0,
+        "error": "",
+        "source_chars": 203,
+        "scores": {
+          "normalize_scores": 0.9997538924217224,
+          "abs_values": 0.9943921566009521
+        },
+        "trace": {
+          "probes": 2,
+          "steps": 2,
+          "temperature_bias": 0.85,
+          "probe_energies": [
+            5.868052959442139,
+            5.868052959442139
+          ],
+          "best_energy": [
+            1.07976496219635
+          ],
+          "energy_trace": [
+            5.868052959442139,
+            1.0939664840698242,
+            1.07976496219635
+          ],
+          "law_max_delta": [
+            1.4997267723083496
+          ],
+          "law_satisfied": [
+            true
+          ],
+          "attractors": 1,
+          "repulsors": 1,
+          "laws": 1
+        }
+      },
+      "control": {
+        "chosen": "normalize_scores",
+        "correct": false,
+        "repeated_forbidden": true,
+        "valid": false,
+        "scores": {
+          "normalize_scores": 0.9997538924217224,
+          "abs_values": 0.9943921566009521
+        }
+      },
+      "steered_correct": true,
+      "control_correct": false,
+      "control_repeated_forbidden": true
+    }
+  ],
+  "weight_updates": 0,
+  "gate": {
+    "spatial_4_of_4": true,
+    "symbolic_4_of_4": true,
+    "total_8_of_8": true,
+    "control_0_of_8": true,
+    "control_repeats_forbidden_8_of_8": true,
+    "zero_weight_updates": true,
+    "passed": true
+  },
+  "wall_seconds": 1.7045226000191178,
+  "evidence": "OBSERVED"
+}

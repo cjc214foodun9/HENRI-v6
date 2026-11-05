@@ -5,7 +5,7 @@
   "checkpoint": {
     "mounted": true,
     "path": "receipts\\holarch\\holarch_medium.pt",
-    "sha256": "a2a392e66ff7c253e3ae258bdd003083c677ac0e512adfd00364039d6b79189b",
+    "sha256": "f06642dcaf37dd6553dc311f8a7d506628c9998f57bfaabbe6e34ffd7659d9bd",
     "parameters": 1020380,
     "prototypes": {
       "vision": {
@@ -34,11 +34,11 @@
       }
     }
   },
-  "queries_total": 88,
-  "query_slots": 88,
-  "queries": 88,
-  "total_queries": 88,
-  "probe_slots": 12,
+  "queries_total": 100,
+  "query_slots": 100,
+  "queries": 100,
+  "total_queries": 100,
+  "probe_slots": 24,
   "ledger_receipts": 76,
   "query_mix": {
     "code_call_flow": 8,
@@ -62,21 +62,25 @@
     "j2_elastic_vocab": 2,
     "j3_diverse_dag": 4,
     "j4_openai_adapter": 2,
+    "k1_multitask": 4,
+    "k2_boundary_axioms": 2,
+    "k3_vla_dag": 2,
+    "k4_rebase_concurrency": 4,
     "setup_receipts": 2
   },
   "code_index": {
-    "seconds": 2.2529970000032336,
-    "files": 21.0,
-    "lines": 19583.0,
-    "nodes": 549.0,
-    "edges": 1255.0,
+    "seconds": 2.590588099992601,
+    "files": 23.0,
+    "lines": 21691.0,
+    "nodes": 587.0,
+    "edges": 1369.0,
     "edges_ingested": 72.0
   },
   "baseline_unindexed": {
-    "query_file_reads": 336,
-    "bytes_read_at_query_time": 12990640,
+    "query_file_reads": 368,
+    "bytes_read_at_query_time": 14352848,
     "response_bytes": 864,
-    "latency_ms_total": 65.42700008139946,
+    "latency_ms_total": 70.90289998450316,
     "reachable_accuracy": 0.5333333333333333,
     "hallucination_rate": 0.9926470588235294,
     "playbook_exact": 0.0
@@ -84,14 +88,14 @@
   "holarch_mcp": {
     "query_file_reads": 0,
     "bytes_read_at_query_time": 0,
-    "response_bytes": 28175,
-    "latency_ms_total": 295.676100126002,
+    "response_bytes": 28829,
+    "latency_ms_total": 303.24610002571717,
     "reachable_accuracy": 1.0,
     "hallucination_rate": 0.0,
     "playbook_exact": 1.0,
     "receipts": 76,
     "query_receipts": 76,
-    "receipt_chain_length": 80,
+    "receipt_chain_length": 209,
     "receipt_chain_valid": true,
     "receipts_valid": true,
     "query_chain_contiguous": true
@@ -108,7 +112,7 @@
     },
     "memory_fixture": {
       "source": "data\\holarch\\zone_c.sqlite3",
-      "path": "C:\\Users\\chan\\AppData\\Local\\Temp\\dsh-7QmnYX\\henri_planner_memory_8232.sqlite3",
+      "path": "C:\\Users\\chan\\AppData\\Local\\Temp\\henri_planner_memory_29652.sqlite3",
       "sha256": "d0863a4179bb37dd1199a08dd8f1c5997cbd693161a32bfa439030bcf4064c80",
       "bytes": 21590016,
       "engrams": 2467,
@@ -143,7 +147,7 @@
         "trap": true,
         "strong_trap": true,
         "correct": true,
-        "receipt_sha256": "20ee55c02d972bf2f568a2bba836a10a0b158e89ff9f54935f7569e1c27b4c19"
+        "receipt_sha256": "6734717aee28f7941fd822cc33e7363c876b4869187e4f4f06a5fcbef8c87f94"
       },
       {
         "id": "plan02",
@@ -164,7 +168,7 @@
         "trap": true,
         "strong_trap": true,
         "correct": true,
-        "receipt_sha256": "76a9666dccaee44033ff5ccd31a33d8d407ae4af0e5cc11ac3695a49ae009365"
+        "receipt_sha256": "5f9f471fd537facddc885ce1e528af29cabfa354f66921f55c1154c0b485a6d2"
       },
       {
         "id": "plan03",
@@ -185,7 +189,7 @@
         "trap": true,
         "strong_trap": true,
         "correct": true,
-        "receipt_sha256": "3a0f5b2b24e5b014377e59c5659a8c5c3cd7155bdacfb5772343567409913f75"
+        "receipt_sha256": "7ee83ee54ee4263a499ccbc69db0999006660727e09f963f9a1c74296e1be0df"
       },
       {
         "id": "plan04",
@@ -206,7 +210,7 @@
         "trap": true,
         "strong_trap": true,
         "correct": true,
-        "receipt_sha256": "a816cf0f5886f920865a527c66fcdab13a904a07cb7a6bd252fd58a4b9fd8c4f"
+        "receipt_sha256": "256d3ac9180b84a496a6660a6d187cb7ec2998636582344118882f7d3b8ea4ec"
       }
     ]
   },
@@ -224,7 +228,7 @@
         "status": "supported",
         "reason": "all rare terms and all quantities present in evidence",
         "correct": true,
-        "receipt_sha256": "f22cd0b7f10b25d20a7a40562168f21b41477e8efec47c33a30bbea9f53cbe99"
+        "receipt_sha256": "e1ea7750cd104a069425066bf08c81afb4b887d9e52f00c79ca0cc440ec65b23"
       },
       {
         "id": "verify02",
@@ -234,7 +238,7 @@
         "status": "supported",
         "reason": "all rare terms and all quantities present in evidence",
         "correct": true,
-        "receipt_sha256": "5ce2dfbb0e3cf0413c7f5fc48b6ede475c4dded5523891ab1d235fe1d7b9ce88"
+        "receipt_sha256": "8ed56dcfc5a4a86b85ec1e4120d9e5bdfeeb6ea8a1b127006e9d187874debc3b"
       },
       {
         "id": "verify03",
@@ -244,7 +248,7 @@
         "status": "contradicted",
         "reason": "quantity 1020381 is stated differently in the evidence",
         "correct": true,
-        "receipt_sha256": "5ffdf50a48d707cfb593262ab2dbab5153481baf085ead0c705c13d1825efc34"
+        "receipt_sha256": "22e59b1ead1b832d0c10e0a2548af877c6b8fec52e2b7a3407ffeb156baef983"
       },
       {
         "id": "verify04",
@@ -254,7 +258,7 @@
         "status": "unsupported",
         "reason": "signature: ZoneCMemory.query does not accept keyword 'widget'; declared parameters are ['self', 'wave', 'k', 'avoid_ids', 'candidate_multiplier', 'task', 'names",
         "correct": true,
-        "receipt_sha256": "3dddf860a2e40fd38d9e85a6c8e3aa01df2f30c4404473191091de580affb36b"
+        "receipt_sha256": "05528a191ce4d2c8bce1b08ef87b03a5be6ba39ca8e0cf1041383fb3dd21df43"
       }
     ]
   },
@@ -270,9 +274,9 @@
         "verified": true,
         "executed": true,
         "reason": "",
-        "source": "def distinct_caller_count(links):\n    step_1 = sorted({edge.source for edge in links})\n    return int(len(step_1))\n",
+        "source": "def distinct_caller_count(links):\n    step_1 = sorted({_s0_edge.source for _s0_edge in links})\n    return int(len(step_1))\n",
         "correct": true,
-        "receipt_sha256": "86c2d75e235a117001f36b3712aafed252321ff19ae9400123845cb80ff83b0a"
+        "receipt_sha256": "68b129cdcf3cda2a80b467b614052b4d01706e821be6075d9d748918b0b5bb80"
       },
       {
         "id": "synth02",
@@ -283,14 +287,14 @@
         "reason": "",
         "source": "def bounded_mean(sample):\n    step_1 = float(sum(sample) / max(len(sample), 1))\n    return max(0.0, min(2.5, float(step_1)))\n",
         "correct": true,
-        "receipt_sha256": "6a47f681278244cb3857d5f1c68b6c23b5464c18b5a5950ce37cfc75162119da"
+        "receipt_sha256": "0dfd3a2d8af8bec79b3c670341fb4c9da938c9d429639b9ddcf69c4afbe559d4"
       }
     ]
   },
   "delta": {
     "queries": 2,
     "correct": 2,
-    "max_ms": 0.2893000200856477,
+    "max_ms": 0.2418000076431781,
     "rows": [
       {
         "id": "delta01",
@@ -298,9 +302,9 @@
         "target": "beta",
         "truth": [],
         "callers": [],
-        "delta_ms": 0.2893000200856477,
+        "delta_ms": 0.2418000076431781,
         "correct": true,
-        "receipt_sha256": "1c32522c94831833a93a12576dcc79ca598cbdb0952d6617d194edb53a9e4a87"
+        "receipt_sha256": "64a49896b05e175144441f876b99bfb7f437bda095d7c9fc2eb2fa4e448c31a4"
       },
       {
         "id": "delta02",
@@ -312,9 +316,9 @@
         "callers": [
           "delta:delta"
         ],
-        "delta_ms": 0.1996000064536929,
+        "delta_ms": 0.1795999996829778,
         "correct": true,
-        "receipt_sha256": "746b9074a24051efebb21f184f95ca6a321c0b798a94d957943857b020a47096"
+        "receipt_sha256": "d642d84fa7ab8dc1e2ca94cbd8a12190d350b034b502778fbcc544a45a596aa6"
       }
     ]
   },
@@ -338,9 +342,9 @@
         "verified": true,
         "executed": true,
         "reason": "",
-        "source": "def tri_agent(links):\n    step_1 = sorted({edge.source for edge in links})\n    step_2 = int(len(step_1))\n    return max(0.0, min(2.5, float(step_2)))\n",
+        "source": "def tri_agent(links):\n    step_1 = sorted({_s0_edge.source for _s0_edge in links})\n    step_2 = int(len(step_1))\n    return max(0.0, min(2.5, float(step_2)))\n",
         "correct": true,
-        "receipt_sha256": "e95ea85111006acd40a1dea74a52251c3adc27096156f0e44ef1bc78da4a4087"
+        "receipt_sha256": "6ae95c73c3523e6eb6572253f853a0b04d164b306edcebd76fd84e94f6412db9"
       },
       {
         "id": "dag02",
@@ -355,9 +359,9 @@
         "verified": true,
         "executed": true,
         "reason": "",
-        "source": "def bounded_sources(edges):\n    step_1 = sorted({edge.source for edge in edges})\n    step_2 = int(len(step_1))\n    return max(0.0, min(1.0, float(step_2)))\n",
+        "source": "def bounded_sources(edges):\n    step_1 = sorted({_s0_edge.source for _s0_edge in edges})\n    step_2 = int(len(step_1))\n    return max(0.0, min(1.0, float(step_2)))\n",
         "correct": true,
-        "receipt_sha256": "6acaa504f832b7f87efed3b30fc42a63c717a87e7692fa2afeced1b19c240434"
+        "receipt_sha256": "10f96cabe1bde543ffcd69355305e86fa335d59168ca8b00f7c903400828b989"
       },
       {
         "id": "dag03",
@@ -373,7 +377,7 @@
         "reason": "type mismatch: core04.returns ['text'] cannot bind core10.values ['numeric_sequence']",
         "note": "text -> numeric_sequence (mean of a list)",
         "correct": true,
-        "receipt_sha256": "52c2e3252704dc8e1d9af84209f5f3a79fb661cc07e4bec21d4d65119dc647ac"
+        "receipt_sha256": "8424374ee9d8ccb8a2f10c482d4789aa64a3cc362fabce6471214e8b1845e387"
       },
       {
         "id": "dag04",
@@ -389,7 +393,7 @@
         "reason": "type mismatch: core10.returns ['numeric'] cannot bind core04.receipt ['mapping']",
         "note": "numeric -> mapping (a receipt field is subscripted)",
         "correct": true,
-        "receipt_sha256": "e46026f44357079010a7e8f169342453ae123f6c1ec0ac70a238cc8ce322a2a7"
+        "receipt_sha256": "1d97148b93b5e2da97d785f7b051115e5213cb3f35f23d801646c8778a1cecee"
       }
     ]
   },
@@ -397,10 +401,10 @@
     "queries": 4,
     "correct": 4,
     "workspace": {
-      "files": 224,
-      "nodes": 2387,
-      "edges": 7190,
-      "seconds": 0.9108708999992814
+      "files": 228,
+      "nodes": 2474,
+      "edges": 7535,
+      "seconds": 0.9853712000185624
     },
     "rows": [
       {
@@ -437,7 +441,7 @@
           "tests.test_holarch_i_decisions:test_vocabulary_lock_pins_ids_and_appends"
         ],
         "correct": true,
-        "receipt_sha256": "1049cd94c88952221e416cebeb2170cbe9be14e692bf4c6ddedeea8505044a13"
+        "receipt_sha256": "244bd21f3e95acef67f79ba56998aa69d8caf1076efdf8c183e62e7f301409cd"
       },
       {
         "id": "xp02",
@@ -448,16 +452,18 @@
           "henri.holarch.sidecar:_ensure_engine",
           "scripts.run_holarch_g_cycle:stage_g2",
           "scripts.run_holarch_h_cycle:stage_h2",
-          "scripts.run_holarch_i_cycle:stage_i2"
+          "scripts.run_holarch_i_cycle:stage_i2",
+          "scripts.run_holarch_k_cycle:stage_k3"
         ],
         "callers": [
           "henri.holarch.sidecar:_ensure_engine",
           "scripts.run_holarch_g_cycle:stage_g2",
           "scripts.run_holarch_h_cycle:stage_h2",
-          "scripts.run_holarch_i_cycle:stage_i2"
+          "scripts.run_holarch_i_cycle:stage_i2",
+          "scripts.run_holarch_k_cycle:stage_k3"
         ],
         "correct": true,
-        "receipt_sha256": "f59e34f3bbe4a0a5912390142f3130a0d8de8774dedbe4761c2211abb7b04471"
+        "receipt_sha256": "33a295bd79fc6281f059d225cccd4d9b4666d2cbe205f763359a9c85259fe3a3"
       },
       {
         "id": "xp03",
@@ -465,7 +471,7 @@
         "claim": "def use_locked_tokenizer(cfg):\n    return build_tokenizer(cfg)\n",
         "status": "supported",
         "correct": true,
-        "receipt_sha256": "656d0efc9ab9a5c42d263a9ffaa9c4af762fc77dae0e557551ef7eb9c94e62a0"
+        "receipt_sha256": "57e4236370958f4781af49671aeaeadb3c32c66501c33b7395e40a7424b5a757"
       },
       {
         "id": "xp04",
@@ -474,7 +480,7 @@
         "action_chosen": 0,
         "truth": 0,
         "correct": true,
-        "receipt_sha256": "8f3620bd6c95e195526dc472b8c3cc43bc836d21815c8780394b98c9a5de3ec0"
+        "receipt_sha256": "03e3312fd8e0dbba969bf0728efd9eeff2e923f0a227493c2cb25c2471df6445"
       }
     ]
   },
@@ -491,7 +497,7 @@
         "returned_token_id": 1765,
         "ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
         "correct": true,
-        "receipt_sha256": "2a5a74a54e9ee6b54aad99d82aceb0657a06e7b4ceed53fcaeeb1e1a2bac8574"
+        "receipt_sha256": "acdcbba3a1bab398972f013303424e871b9ef05d444ff1ec1e7bb598dfb81b9b"
       },
       {
         "id": "vocab02",
@@ -500,7 +506,7 @@
         "returned_token_id": 1373,
         "ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
         "correct": true,
-        "receipt_sha256": "a246ca603fbadf5de4abd4cc124e5c31a820d7cbd6206f0550f2cfac0e4d9b11"
+        "receipt_sha256": "c3bbcf44366b6edb91d5746113ed4db4deb56db24f48d1ce1997d1447506093b"
       },
       {
         "id": "vocab03",
@@ -509,7 +515,7 @@
         "returned_token_id": 1674,
         "ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
         "correct": true,
-        "receipt_sha256": "c5f35c7514b93267a9be5bfb24994ebf2159ac0c9be2167c3f7d24c4ad89fb0b"
+        "receipt_sha256": "a66894e2c0b08c8a1a77152cce29b9a46d8b86d4ffc1283e9d02f58762a082a0"
       },
       {
         "id": "vocab04",
@@ -518,11 +524,11 @@
         "returned_token_id": null,
         "status": "unsupported",
         "correct": true,
-        "receipt_sha256": "c3687b3f672913dc098dc0ea09c91ae1fa4373f1a867ce845cb05c01923cd75a"
+        "receipt_sha256": "ed36d2fefcd41582c579371edc9b0baca3b109940b6261b3d92b9a8a7ef0e6d1"
       }
     ]
   },
-  "context_compression_ratio": 461.0697426796806,
+  "context_compression_ratio": 497.8614589475875,
   "composite": {
     "ingested": 200.0,
     "tau_composite": 0.9799999999999989,
@@ -606,7 +612,7 @@
           "trap": true,
           "strong_trap": true,
           "correct": true,
-          "receipt_sha256": "20ee55c02d972bf2f568a2bba836a10a0b158e89ff9f54935f7569e1c27b4c19"
+          "receipt_sha256": "6734717aee28f7941fd822cc33e7363c876b4869187e4f4f06a5fcbef8c87f94"
         },
         {
           "id": "plan02",
@@ -627,7 +633,7 @@
           "trap": true,
           "strong_trap": true,
           "correct": true,
-          "receipt_sha256": "76a9666dccaee44033ff5ccd31a33d8d407ae4af0e5cc11ac3695a49ae009365"
+          "receipt_sha256": "5f9f471fd537facddc885ce1e528af29cabfa354f66921f55c1154c0b485a6d2"
         },
         {
           "id": "plan03",
@@ -648,7 +654,7 @@
           "trap": true,
           "strong_trap": true,
           "correct": true,
-          "receipt_sha256": "3a0f5b2b24e5b014377e59c5659a8c5c3cd7155bdacfb5772343567409913f75"
+          "receipt_sha256": "7ee83ee54ee4263a499ccbc69db0999006660727e09f963f9a1c74296e1be0df"
         },
         {
           "id": "plan04",
@@ -669,7 +675,7 @@
           "trap": true,
           "strong_trap": true,
           "correct": true,
-          "receipt_sha256": "a816cf0f5886f920865a527c66fcdab13a904a07cb7a6bd252fd58a4b9fd8c4f"
+          "receipt_sha256": "256d3ac9180b84a496a6660a6d187cb7ec2998636582344118882f7d3b8ea4ec"
         }
       ]
     },
@@ -686,7 +692,7 @@
           "status": "supported",
           "reason": "all rare terms and all quantities present in evidence",
           "correct": true,
-          "receipt_sha256": "f22cd0b7f10b25d20a7a40562168f21b41477e8efec47c33a30bbea9f53cbe99"
+          "receipt_sha256": "e1ea7750cd104a069425066bf08c81afb4b887d9e52f00c79ca0cc440ec65b23"
         },
         {
           "id": "verify02",
@@ -696,7 +702,7 @@
           "status": "supported",
           "reason": "all rare terms and all quantities present in evidence",
           "correct": true,
-          "receipt_sha256": "5ce2dfbb0e3cf0413c7f5fc48b6ede475c4dded5523891ab1d235fe1d7b9ce88"
+          "receipt_sha256": "8ed56dcfc5a4a86b85ec1e4120d9e5bdfeeb6ea8a1b127006e9d187874debc3b"
         },
         {
           "id": "verify03",
@@ -706,7 +712,7 @@
           "status": "contradicted",
           "reason": "quantity 1020381 is stated differently in the evidence",
           "correct": true,
-          "receipt_sha256": "5ffdf50a48d707cfb593262ab2dbab5153481baf085ead0c705c13d1825efc34"
+          "receipt_sha256": "22e59b1ead1b832d0c10e0a2548af877c6b8fec52e2b7a3407ffeb156baef983"
         },
         {
           "id": "verify04",
@@ -716,7 +722,7 @@
           "status": "unsupported",
           "reason": "signature: ZoneCMemory.query does not accept keyword 'widget'; declared parameters are ['self', 'wave', 'k', 'avoid_ids', 'candidate_multiplier', 'task', 'names",
           "correct": true,
-          "receipt_sha256": "3dddf860a2e40fd38d9e85a6c8e3aa01df2f30c4404473191091de580affb36b"
+          "receipt_sha256": "05528a191ce4d2c8bce1b08ef87b03a5be6ba39ca8e0cf1041383fb3dd21df43"
         }
       ]
     },
@@ -732,9 +738,9 @@
           "verified": true,
           "executed": true,
           "reason": "",
-          "source": "def distinct_caller_count(links):\n    step_1 = sorted({edge.source for edge in links})\n    return int(len(step_1))\n",
+          "source": "def distinct_caller_count(links):\n    step_1 = sorted({_s0_edge.source for _s0_edge in links})\n    return int(len(step_1))\n",
           "correct": true,
-          "receipt_sha256": "86c2d75e235a117001f36b3712aafed252321ff19ae9400123845cb80ff83b0a"
+          "receipt_sha256": "68b129cdcf3cda2a80b467b614052b4d01706e821be6075d9d748918b0b5bb80"
         },
         {
           "id": "synth02",
@@ -745,7 +751,7 @@
           "reason": "",
           "source": "def bounded_mean(sample):\n    step_1 = float(sum(sample) / max(len(sample), 1))\n    return max(0.0, min(2.5, float(step_1)))\n",
           "correct": true,
-          "receipt_sha256": "6a47f681278244cb3857d5f1c68b6c23b5464c18b5a5950ce37cfc75162119da"
+          "receipt_sha256": "0dfd3a2d8af8bec79b3c670341fb4c9da938c9d429639b9ddcf69c4afbe559d4"
         }
       ]
     },
@@ -760,9 +766,9 @@
           "target": "beta",
           "truth": [],
           "callers": [],
-          "delta_ms": 0.2893000200856477,
+          "delta_ms": 0.2418000076431781,
           "correct": true,
-          "receipt_sha256": "1c32522c94831833a93a12576dcc79ca598cbdb0952d6617d194edb53a9e4a87"
+          "receipt_sha256": "64a49896b05e175144441f876b99bfb7f437bda095d7c9fc2eb2fa4e448c31a4"
         },
         {
           "id": "delta02",
@@ -774,9 +780,9 @@
           "callers": [
             "delta:delta"
           ],
-          "delta_ms": 0.1996000064536929,
+          "delta_ms": 0.1795999996829778,
           "correct": true,
-          "receipt_sha256": "746b9074a24051efebb21f184f95ca6a321c0b798a94d957943857b020a47096"
+          "receipt_sha256": "d642d84fa7ab8dc1e2ca94cbd8a12190d350b034b502778fbcc544a45a596aa6"
         }
       ]
     },
@@ -798,9 +804,9 @@
           "verified": true,
           "executed": true,
           "reason": "",
-          "source": "def tri_agent(links):\n    step_1 = sorted({edge.source for edge in links})\n    step_2 = int(len(step_1))\n    return max(0.0, min(2.5, float(step_2)))\n",
+          "source": "def tri_agent(links):\n    step_1 = sorted({_s0_edge.source for _s0_edge in links})\n    step_2 = int(len(step_1))\n    return max(0.0, min(2.5, float(step_2)))\n",
           "correct": true,
-          "receipt_sha256": "e95ea85111006acd40a1dea74a52251c3adc27096156f0e44ef1bc78da4a4087"
+          "receipt_sha256": "6ae95c73c3523e6eb6572253f853a0b04d164b306edcebd76fd84e94f6412db9"
         },
         {
           "id": "dag02",
@@ -815,9 +821,9 @@
           "verified": true,
           "executed": true,
           "reason": "",
-          "source": "def bounded_sources(edges):\n    step_1 = sorted({edge.source for edge in edges})\n    step_2 = int(len(step_1))\n    return max(0.0, min(1.0, float(step_2)))\n",
+          "source": "def bounded_sources(edges):\n    step_1 = sorted({_s0_edge.source for _s0_edge in edges})\n    step_2 = int(len(step_1))\n    return max(0.0, min(1.0, float(step_2)))\n",
           "correct": true,
-          "receipt_sha256": "6acaa504f832b7f87efed3b30fc42a63c717a87e7692fa2afeced1b19c240434"
+          "receipt_sha256": "10f96cabe1bde543ffcd69355305e86fa335d59168ca8b00f7c903400828b989"
         },
         {
           "id": "dag03",
@@ -833,7 +839,7 @@
           "reason": "type mismatch: core04.returns ['text'] cannot bind core10.values ['numeric_sequence']",
           "note": "text -> numeric_sequence (mean of a list)",
           "correct": true,
-          "receipt_sha256": "52c2e3252704dc8e1d9af84209f5f3a79fb661cc07e4bec21d4d65119dc647ac"
+          "receipt_sha256": "8424374ee9d8ccb8a2f10c482d4789aa64a3cc362fabce6471214e8b1845e387"
         },
         {
           "id": "dag04",
@@ -849,7 +855,7 @@
           "reason": "type mismatch: core10.returns ['numeric'] cannot bind core04.receipt ['mapping']",
           "note": "numeric -> mapping (a receipt field is subscripted)",
           "correct": true,
-          "receipt_sha256": "e46026f44357079010a7e8f169342453ae123f6c1ec0ac70a238cc8ce322a2a7"
+          "receipt_sha256": "1d97148b93b5e2da97d785f7b051115e5213cb3f35f23d801646c8778a1cecee"
         }
       ],
       "pipelines_executed": 2,
@@ -894,7 +900,7 @@
             "tests.test_holarch_i_decisions:test_vocabulary_lock_pins_ids_and_appends"
           ],
           "correct": true,
-          "receipt_sha256": "1049cd94c88952221e416cebeb2170cbe9be14e692bf4c6ddedeea8505044a13"
+          "receipt_sha256": "244bd21f3e95acef67f79ba56998aa69d8caf1076efdf8c183e62e7f301409cd"
         },
         {
           "id": "xp02",
@@ -905,16 +911,18 @@
             "henri.holarch.sidecar:_ensure_engine",
             "scripts.run_holarch_g_cycle:stage_g2",
             "scripts.run_holarch_h_cycle:stage_h2",
-            "scripts.run_holarch_i_cycle:stage_i2"
+            "scripts.run_holarch_i_cycle:stage_i2",
+            "scripts.run_holarch_k_cycle:stage_k3"
           ],
           "callers": [
             "henri.holarch.sidecar:_ensure_engine",
             "scripts.run_holarch_g_cycle:stage_g2",
             "scripts.run_holarch_h_cycle:stage_h2",
-            "scripts.run_holarch_i_cycle:stage_i2"
+            "scripts.run_holarch_i_cycle:stage_i2",
+            "scripts.run_holarch_k_cycle:stage_k3"
           ],
           "correct": true,
-          "receipt_sha256": "f59e34f3bbe4a0a5912390142f3130a0d8de8774dedbe4761c2211abb7b04471"
+          "receipt_sha256": "33a295bd79fc6281f059d225cccd4d9b4666d2cbe205f763359a9c85259fe3a3"
         },
         {
           "id": "xp03",
@@ -922,7 +930,7 @@
           "claim": "def use_locked_tokenizer(cfg):\n    return build_tokenizer(cfg)\n",
           "status": "supported",
           "correct": true,
-          "receipt_sha256": "656d0efc9ab9a5c42d263a9ffaa9c4af762fc77dae0e557551ef7eb9c94e62a0"
+          "receipt_sha256": "57e4236370958f4781af49671aeaeadb3c32c66501c33b7395e40a7424b5a757"
         },
         {
           "id": "xp04",
@@ -931,14 +939,14 @@
           "action_chosen": 0,
           "truth": 0,
           "correct": true,
-          "receipt_sha256": "8f3620bd6c95e195526dc472b8c3cc43bc836d21815c8780394b98c9a5de3ec0"
+          "receipt_sha256": "03e3312fd8e0dbba969bf0728efd9eeff2e923f0a227493c2cb25c2471df6445"
         }
       ],
       "workspace": {
-        "files": 224,
-        "nodes": 2387,
-        "edges": 7190,
-        "seconds": 0.9108708999992814
+        "files": 228,
+        "nodes": 2474,
+        "edges": 7535,
+        "seconds": 0.9853712000185624
       }
     },
     "vocab_lock": {
@@ -953,7 +961,7 @@
           "returned_token_id": 1765,
           "ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
           "correct": true,
-          "receipt_sha256": "2a5a74a54e9ee6b54aad99d82aceb0657a06e7b4ceed53fcaeeb1e1a2bac8574"
+          "receipt_sha256": "acdcbba3a1bab398972f013303424e871b9ef05d444ff1ec1e7bb598dfb81b9b"
         },
         {
           "id": "vocab02",
@@ -962,7 +970,7 @@
           "returned_token_id": 1373,
           "ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
           "correct": true,
-          "receipt_sha256": "a246ca603fbadf5de4abd4cc124e5c31a820d7cbd6206f0550f2cfac0e4d9b11"
+          "receipt_sha256": "c3bbcf44366b6edb91d5746113ed4db4deb56db24f48d1ce1997d1447506093b"
         },
         {
           "id": "vocab03",
@@ -971,7 +979,7 @@
           "returned_token_id": 1674,
           "ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
           "correct": true,
-          "receipt_sha256": "c5f35c7514b93267a9be5bfb24994ebf2159ac0c9be2167c3f7d24c4ad89fb0b"
+          "receipt_sha256": "a66894e2c0b08c8a1a77152cce29b9a46d8b86d4ffc1283e9d02f58762a082a0"
         },
         {
           "id": "vocab04",
@@ -980,7 +988,7 @@
           "returned_token_id": null,
           "status": "unsupported",
           "correct": true,
-          "receipt_sha256": "c3687b3f672913dc098dc0ea09c91ae1fa4373f1a867ce845cb05c01923cd75a"
+          "receipt_sha256": "ed36d2fefcd41582c579371edc9b0baca3b109940b6261b3d92b9a8a7ef0e6d1"
         }
       ],
       "locked": true,
@@ -1038,7 +1046,7 @@
           "category": "j1_cleanroom",
           "expected": "48-episode clean-room wins >= 1; first 8 episodes identical at 1 vs 8 threads",
           "measured": {
-            "wins": 37,
+            "wins": 38,
             "episodes": 48,
             "wins_thread8": 4,
             "parity_episodes": 8,
@@ -1095,18 +1103,18 @@
           "expected": "checkpoint carries seed_engrams (count > 0) and pre_mount_rows == 0",
           "measured": {
             "cartridge_present": true,
-            "seed_count": 512,
-            "seed_bytes": 2105344,
-            "seed_dtype": "float16-quadrature",
+            "seed_count": 845,
+            "seed_bytes": 2512125,
+            "seed_dtype": "int16-phase-uint8-amplitude-zlib9",
             "pre_mount_rows": 0,
-            "hydrated": 512,
-            "post_mount_rows": 512,
+            "hydrated": 845,
+            "post_mount_rows": 845,
             "load_hydration": {
-              "available": 512,
+              "available": 845,
               "written": 0,
               "skipped": true,
               "namespace": "default",
-              "existing": 512
+              "existing": 845
             }
           },
           "correct": true,
@@ -1115,12 +1123,12 @@
         {
           "name": "j1_store_rows_equal_seed_count",
           "category": "j1_cleanroom",
-          "expected": "clean-room store rows == seed block count (512) and hydrated == count",
+          "expected": "clean-room store rows == seed block count and hydrated == count",
           "measured": {
-            "store_rows": 512,
-            "seed_count": 512,
-            "hydrated": 512,
-            "seed_limit": 512
+            "store_rows": 845,
+            "seed_count": 845,
+            "hydrated": 845,
+            "seed_limit": 1536
           },
           "correct": true,
           "evidence": "row count read from the clean-room Zone C store after the mount"
@@ -1194,7 +1202,7 @@
             "matched": true,
             "expected": 2.0,
             "actual": 2.0,
-            "source_sha256": "0dacaf739f2bb18b8b78457cd3edbd37ad6e0931f60b5c6fcd7f0ba9a1b02b57"
+            "source_sha256": "ccfe1c63fcb06d387d581a2b369436bd1d491d98369183b39f9a3a3b67ed9749"
           },
           "correct": true,
           "evidence": "run_diverse_dag_battery three-stage row"
@@ -1218,7 +1226,7 @@
             "matched": true,
             "expected": false,
             "actual": false,
-            "source_sha256": "2ddc8a2b4d444cfac52182df30ee3f12f11e69391e90382240c4a377bd127ab3"
+            "source_sha256": "a1f30e87ccc77becd71964fa8aa998b8ebc46585ed0815e2eed28a0bf4a542aa"
           },
           "correct": true,
           "evidence": "run_diverse_dag_battery three-stage row"
@@ -1242,7 +1250,7 @@
             "matched": true,
             "expected": "z",
             "actual": "z",
-            "source_sha256": "96607f64f40f612d0e5bc91554b1c1c33cc0fb3b4f81379c7d82d914469f2368"
+            "source_sha256": "0584a69430a2043dbd0caefe42a403eb71be80a56710ca7c1c9029913c639298"
           },
           "correct": true,
           "evidence": "run_diverse_dag_battery three-stage row"
@@ -1289,8 +1297,8 @@
             "status": "supported",
             "receipt_valid": true,
             "agent_receipt_valid": true,
-            "receipt_sha256": "58011c55326ba2d0426767bceb2e21ed165f5d696d169e206397fb29d189f02f",
-            "agent_receipt_sha256": "728ff5fc798c6f5d487b7dc7e7f8cd97fdda6c47c4003543efc7c51e5e29a120",
+            "receipt_sha256": "176e4c57122ca7314e0a390ba26b98cda8909784ac2bd0fb47824d5356f6f57b",
+            "agent_receipt_sha256": "793b460cd02055fbabee25c550d09e9d03f465d16dcc79ca745d49d571547cbf",
             "error": ""
           },
           "correct": true,
@@ -1310,19 +1318,211 @@
             "matches_reference": true,
             "receipt_valid": true,
             "agent_receipt_valid": true,
-            "receipt_sha256": "ee9506c05e8fc54e709783d006d9a0d3fb42fa7afa0453185be90154d89af41e",
-            "agent_receipt_sha256": "fcd3d0d5cf566da7062ea8d019719c3bb66627e06e2530606c438eaaa4ab1d8e",
+            "receipt_sha256": "51484eeac0bf168ff5ba9bbbcbd6ff1d24dada182e7597fb9a61797baa93692a",
+            "agent_receipt_sha256": "86aeb108a618c4246cd563c2fd91397504ac7d5fe0c7674678cefce6100b4b46",
             "error": ""
           },
           "correct": true,
           "evidence": "planner mounted on the clean-room store at 1 thread"
         }
       ]
+    },
+    "k1_multitask": {
+      "baseline_correct": 0,
+      "mcp_correct": 4,
+      "total": 4,
+      "rows": [
+        {
+          "name": "k1_vision_cleanroom",
+          "category": "k1_multitask",
+          "expected": "clean-room vision test accuracy >= 0.975 with a hydrated multi-task cartridge",
+          "measured": {
+            "vision_accuracy": 0.9764309764309764,
+            "vision_veto_rate": 0.05723905723905724,
+            "seed_count": 845,
+            "pre_mount_rows": 0
+          },
+          "correct": true,
+          "evidence": "evaluate(clean_model, tasks, 'test') on the hydrated cartridge"
+        },
+        {
+          "name": "k1_relational_cleanroom",
+          "category": "k1_multitask",
+          "expected": "clean-room relational test accuracy >= 0.7600 on the hydrated cartridge",
+          "measured": {
+            "relational_accuracy": 0.7746478873239436,
+            "relational_veto_rate": 0.09859154929577464
+          },
+          "correct": true,
+          "evidence": "evaluate(clean_model, tasks, 'test') on the hydrated cartridge"
+        },
+        {
+          "name": "k1_empty_store_veto_zero",
+          "category": "k1_multitask",
+          "expected": "no vision or relational query is vetoed by an empty retrieval",
+          "measured": {
+            "empty_veto": {
+              "vision": 0,
+              "relational": 0
+            },
+            "total": 0
+          },
+          "correct": true,
+          "evidence": "per-sample veto AND NOT memory_mask over the validation splits"
+        },
+        {
+          "name": "k1_cartridge_multitask_budget",
+          "category": "k1_multitask",
+          "expected": "cartridge holds 604 action + >=64 vision + >=32 relational + >=32 language under 2.5 MiB",
+          "measured": {
+            "rows_by_task": {
+              "vision": 106,
+              "language": 63,
+              "action": 604,
+              "relational": 72
+            },
+            "seed_count": 845,
+            "seed_bytes": 2512125,
+            "dtype": "int16-phase-uint8-amplitude-zlib9"
+          },
+          "correct": true,
+          "evidence": "label histogram of the mounted seed block"
+        }
+      ]
+    },
+    "k2_boundary_axioms": {
+      "baseline_correct": 0,
+      "mcp_correct": 2,
+      "total": 2,
+      "rows": [
+        {
+          "name": "k2_spatial_discovery",
+          "category": "k2_boundary_axioms",
+          "expected": "4/4 spatial blocked-path probes discovered with law/repulsor steering",
+          "measured": {
+            "spatial": 4,
+            "correct": 4,
+            "control_repeated_forbidden": 4,
+            "axioms": {
+              "registered": 24,
+              "law": 8,
+              "attractor": 8,
+              "repulsor": 8
+            }
+          },
+          "correct": true,
+          "evidence": "Zone B relax_discovery under Zone C LAW/ATTRACTOR/REPULSOR axioms"
+        },
+        {
+          "name": "k2_symbolic_discovery",
+          "category": "k2_boundary_axioms",
+          "expected": "4/4 symbolic operator probes discovered with a tenant LAW",
+          "measured": {
+            "symbolic": 4,
+            "correct": 4,
+            "weight_updates": 0
+          },
+          "correct": true,
+          "evidence": "Zone B relax_discovery over type-compatible operator candidates"
+        }
+      ]
+    },
+    "k3_vla_dag": {
+      "baseline_correct": 0,
+      "mcp_correct": 2,
+      "total": 2,
+      "rows": [
+        {
+          "name": "k3_multistatement_dag",
+          "category": "k3_vla_dag",
+          "expected": "three multi-statement stages splice and execute; the answer matches the reference",
+          "measured": {
+            "ok": true,
+            "actual": 14.0,
+            "expected": 14.0,
+            "error": "",
+            "source_chars": 425
+          },
+          "correct": true,
+          "evidence": "AST alpha-renaming + terminal-return splicing, then execution"
+        },
+        {
+          "name": "k3_alpha_rename_no_collision",
+          "category": "k3_vla_dag",
+          "expected": "stage locals are alpha-renamed to _s{i}_* so loop accumulators cannot collide",
+          "measured": {
+            "ok": true,
+            "stage_prefixes": 16,
+            "source_chars": 420
+          },
+          "correct": true,
+          "evidence": "scoped AST NodeTransformer rename"
+        }
+      ]
+    },
+    "k4_rebase_concurrency": {
+      "baseline_correct": 0,
+      "mcp_correct": 4,
+      "total": 4,
+      "rows": [
+        {
+          "name": "k4_cross_tenant_rebase",
+          "category": "k4_rebase_concurrency",
+          "expected": "two 300-identifier tenants rebase with 0 Tier-1 shifts and lossless translation",
+          "measured": {
+            "tier1_shifts": 0,
+            "union": 1565,
+            "lossless": 20,
+            "total": 20,
+            "added_from_b": 300
+          },
+          "correct": true,
+          "evidence": "rebase_tenant_vocabulary + id_map translation, decode equality"
+        },
+        {
+          "name": "k4_vectorised_bm25",
+          "category": "k4_rebase_concurrency",
+          "expected": "NumPy-matmul BM25 returns the same top-4 passages as the reference loop",
+          "measured": {
+            "top4_parity": 4,
+            "claims": 4,
+            "passages": 1414,
+            "vocabulary": 4467
+          },
+          "correct": true,
+          "evidence": "matrix-vector product vs the retained per-passage loop"
+        },
+        {
+          "name": "k4_concurrent_reads_128",
+          "category": "k4_rebase_concurrency",
+          "expected": "128 concurrent reads across 16 threads complete with zero errors and one receipt chain",
+          "measured": {
+            "requests": 128,
+            "ok": 128,
+            "errors": [],
+            "chain_valid": true
+          },
+          "correct": true,
+          "evidence": "16 threads x 8 mixed verify/plan/veto/solve requests"
+        },
+        {
+          "name": "k4_tenant_bundle",
+          "category": "k4_rebase_concurrency",
+          "expected": "export_import_bundle copies the tenant ledger and plan library to a new namespace",
+          "measured": {
+            "written": 24,
+            "plans": 24,
+            "tier2": 0
+          },
+          "correct": true,
+          "evidence": "Zone C metadata copy, one envelope receipt"
+        }
+      ]
     }
   },
   "probes": {
-    "queries": 12,
-    "correct": 12,
+    "queries": 24,
+    "correct": 24,
     "categories": [
       {
         "category": "j1_cleanroom",
@@ -1393,7 +1593,7 @@
         "category": "j1_cleanroom",
         "expected": "48-episode clean-room wins >= 1; first 8 episodes identical at 1 vs 8 threads",
         "measured": {
-          "wins": 37,
+          "wins": 38,
           "episodes": 48,
           "wins_thread8": 4,
           "parity_episodes": 8,
@@ -1450,18 +1650,18 @@
         "expected": "checkpoint carries seed_engrams (count > 0) and pre_mount_rows == 0",
         "measured": {
           "cartridge_present": true,
-          "seed_count": 512,
-          "seed_bytes": 2105344,
-          "seed_dtype": "float16-quadrature",
+          "seed_count": 845,
+          "seed_bytes": 2512125,
+          "seed_dtype": "int16-phase-uint8-amplitude-zlib9",
           "pre_mount_rows": 0,
-          "hydrated": 512,
-          "post_mount_rows": 512,
+          "hydrated": 845,
+          "post_mount_rows": 845,
           "load_hydration": {
-            "available": 512,
+            "available": 845,
             "written": 0,
             "skipped": true,
             "namespace": "default",
-            "existing": 512
+            "existing": 845
           }
         },
         "correct": true,
@@ -1470,12 +1670,12 @@
       {
         "name": "j1_store_rows_equal_seed_count",
         "category": "j1_cleanroom",
-        "expected": "clean-room store rows == seed block count (512) and hydrated == count",
+        "expected": "clean-room store rows == seed block count and hydrated == count",
         "measured": {
-          "store_rows": 512,
-          "seed_count": 512,
-          "hydrated": 512,
-          "seed_limit": 512
+          "store_rows": 845,
+          "seed_count": 845,
+          "hydrated": 845,
+          "seed_limit": 1536
         },
         "correct": true,
         "evidence": "row count read from the clean-room Zone C store after the mount"
@@ -1535,7 +1735,7 @@
           "matched": true,
           "expected": 2.0,
           "actual": 2.0,
-          "source_sha256": "0dacaf739f2bb18b8b78457cd3edbd37ad6e0931f60b5c6fcd7f0ba9a1b02b57"
+          "source_sha256": "ccfe1c63fcb06d387d581a2b369436bd1d491d98369183b39f9a3a3b67ed9749"
         },
         "correct": true,
         "evidence": "run_diverse_dag_battery three-stage row"
@@ -1559,7 +1759,7 @@
           "matched": true,
           "expected": false,
           "actual": false,
-          "source_sha256": "2ddc8a2b4d444cfac52182df30ee3f12f11e69391e90382240c4a377bd127ab3"
+          "source_sha256": "a1f30e87ccc77becd71964fa8aa998b8ebc46585ed0815e2eed28a0bf4a542aa"
         },
         "correct": true,
         "evidence": "run_diverse_dag_battery three-stage row"
@@ -1583,7 +1783,7 @@
           "matched": true,
           "expected": "z",
           "actual": "z",
-          "source_sha256": "96607f64f40f612d0e5bc91554b1c1c33cc0fb3b4f81379c7d82d914469f2368"
+          "source_sha256": "0584a69430a2043dbd0caefe42a403eb71be80a56710ca7c1c9029913c639298"
         },
         "correct": true,
         "evidence": "run_diverse_dag_battery three-stage row"
@@ -1623,8 +1823,8 @@
           "status": "supported",
           "receipt_valid": true,
           "agent_receipt_valid": true,
-          "receipt_sha256": "58011c55326ba2d0426767bceb2e21ed165f5d696d169e206397fb29d189f02f",
-          "agent_receipt_sha256": "728ff5fc798c6f5d487b7dc7e7f8cd97fdda6c47c4003543efc7c51e5e29a120",
+          "receipt_sha256": "176e4c57122ca7314e0a390ba26b98cda8909784ac2bd0fb47824d5356f6f57b",
+          "agent_receipt_sha256": "793b460cd02055fbabee25c550d09e9d03f465d16dcc79ca745d49d571547cbf",
           "error": ""
         },
         "correct": true,
@@ -1644,12 +1844,176 @@
           "matches_reference": true,
           "receipt_valid": true,
           "agent_receipt_valid": true,
-          "receipt_sha256": "ee9506c05e8fc54e709783d006d9a0d3fb42fa7afa0453185be90154d89af41e",
-          "agent_receipt_sha256": "fcd3d0d5cf566da7062ea8d019719c3bb66627e06e2530606c438eaaa4ab1d8e",
+          "receipt_sha256": "51484eeac0bf168ff5ba9bbbcbd6ff1d24dada182e7597fb9a61797baa93692a",
+          "agent_receipt_sha256": "86aeb108a618c4246cd563c2fd91397504ac7d5fe0c7674678cefce6100b4b46",
           "error": ""
         },
         "correct": true,
         "evidence": "planner mounted on the clean-room store at 1 thread"
+      },
+      {
+        "name": "k1_vision_cleanroom",
+        "category": "k1_multitask",
+        "expected": "clean-room vision test accuracy >= 0.975 with a hydrated multi-task cartridge",
+        "measured": {
+          "vision_accuracy": 0.9764309764309764,
+          "vision_veto_rate": 0.05723905723905724,
+          "seed_count": 845,
+          "pre_mount_rows": 0
+        },
+        "correct": true,
+        "evidence": "evaluate(clean_model, tasks, 'test') on the hydrated cartridge"
+      },
+      {
+        "name": "k1_relational_cleanroom",
+        "category": "k1_multitask",
+        "expected": "clean-room relational test accuracy >= 0.7600 on the hydrated cartridge",
+        "measured": {
+          "relational_accuracy": 0.7746478873239436,
+          "relational_veto_rate": 0.09859154929577464
+        },
+        "correct": true,
+        "evidence": "evaluate(clean_model, tasks, 'test') on the hydrated cartridge"
+      },
+      {
+        "name": "k1_empty_store_veto_zero",
+        "category": "k1_multitask",
+        "expected": "no vision or relational query is vetoed by an empty retrieval",
+        "measured": {
+          "empty_veto": {
+            "vision": 0,
+            "relational": 0
+          },
+          "total": 0
+        },
+        "correct": true,
+        "evidence": "per-sample veto AND NOT memory_mask over the validation splits"
+      },
+      {
+        "name": "k1_cartridge_multitask_budget",
+        "category": "k1_multitask",
+        "expected": "cartridge holds 604 action + >=64 vision + >=32 relational + >=32 language under 2.5 MiB",
+        "measured": {
+          "rows_by_task": {
+            "vision": 106,
+            "language": 63,
+            "action": 604,
+            "relational": 72
+          },
+          "seed_count": 845,
+          "seed_bytes": 2512125,
+          "dtype": "int16-phase-uint8-amplitude-zlib9"
+        },
+        "correct": true,
+        "evidence": "label histogram of the mounted seed block"
+      },
+      {
+        "name": "k2_spatial_discovery",
+        "category": "k2_boundary_axioms",
+        "expected": "4/4 spatial blocked-path probes discovered with law/repulsor steering",
+        "measured": {
+          "spatial": 4,
+          "correct": 4,
+          "control_repeated_forbidden": 4,
+          "axioms": {
+            "registered": 24,
+            "law": 8,
+            "attractor": 8,
+            "repulsor": 8
+          }
+        },
+        "correct": true,
+        "evidence": "Zone B relax_discovery under Zone C LAW/ATTRACTOR/REPULSOR axioms"
+      },
+      {
+        "name": "k2_symbolic_discovery",
+        "category": "k2_boundary_axioms",
+        "expected": "4/4 symbolic operator probes discovered with a tenant LAW",
+        "measured": {
+          "symbolic": 4,
+          "correct": 4,
+          "weight_updates": 0
+        },
+        "correct": true,
+        "evidence": "Zone B relax_discovery over type-compatible operator candidates"
+      },
+      {
+        "name": "k3_multistatement_dag",
+        "category": "k3_vla_dag",
+        "expected": "three multi-statement stages splice and execute; the answer matches the reference",
+        "measured": {
+          "ok": true,
+          "actual": 14.0,
+          "expected": 14.0,
+          "error": "",
+          "source_chars": 425
+        },
+        "correct": true,
+        "evidence": "AST alpha-renaming + terminal-return splicing, then execution"
+      },
+      {
+        "name": "k3_alpha_rename_no_collision",
+        "category": "k3_vla_dag",
+        "expected": "stage locals are alpha-renamed to _s{i}_* so loop accumulators cannot collide",
+        "measured": {
+          "ok": true,
+          "stage_prefixes": 16,
+          "source_chars": 420
+        },
+        "correct": true,
+        "evidence": "scoped AST NodeTransformer rename"
+      },
+      {
+        "name": "k4_cross_tenant_rebase",
+        "category": "k4_rebase_concurrency",
+        "expected": "two 300-identifier tenants rebase with 0 Tier-1 shifts and lossless translation",
+        "measured": {
+          "tier1_shifts": 0,
+          "union": 1565,
+          "lossless": 20,
+          "total": 20,
+          "added_from_b": 300
+        },
+        "correct": true,
+        "evidence": "rebase_tenant_vocabulary + id_map translation, decode equality"
+      },
+      {
+        "name": "k4_vectorised_bm25",
+        "category": "k4_rebase_concurrency",
+        "expected": "NumPy-matmul BM25 returns the same top-4 passages as the reference loop",
+        "measured": {
+          "top4_parity": 4,
+          "claims": 4,
+          "passages": 1414,
+          "vocabulary": 4467
+        },
+        "correct": true,
+        "evidence": "matrix-vector product vs the retained per-passage loop"
+      },
+      {
+        "name": "k4_concurrent_reads_128",
+        "category": "k4_rebase_concurrency",
+        "expected": "128 concurrent reads across 16 threads complete with zero errors and one receipt chain",
+        "measured": {
+          "requests": 128,
+          "ok": 128,
+          "errors": [],
+          "chain_valid": true
+        },
+        "correct": true,
+        "evidence": "16 threads x 8 mixed verify/plan/veto/solve requests"
+      },
+      {
+        "name": "k4_tenant_bundle",
+        "category": "k4_rebase_concurrency",
+        "expected": "export_import_bundle copies the tenant ledger and plan library to a new namespace",
+        "measured": {
+          "written": 24,
+          "plans": 24,
+          "tier2": 0
+        },
+        "correct": true,
+        "evidence": "Zone C metadata copy, one envelope receipt"
       }
     ]
   },
@@ -1686,8 +2050,20 @@
     "j3_new_type_conflict_refused": true,
     "j4_chat_verify": true,
     "j4_chat_plan": true,
-    "queries_88": true,
-    "probes_12_present": true,
+    "k1_vision_cleanroom": true,
+    "k1_relational_cleanroom": true,
+    "k1_empty_store_veto_zero": true,
+    "k1_cartridge_multitask_budget": true,
+    "k2_spatial_discovery": true,
+    "k2_symbolic_discovery": true,
+    "k3_multistatement_dag": true,
+    "k3_alpha_rename_no_collision": true,
+    "k4_cross_tenant_rebase": true,
+    "k4_vectorised_bm25": true,
+    "k4_concurrent_reads_128": true,
+    "k4_tenant_bundle": true,
+    "queries_100": true,
+    "probes_24_present": true,
     "passed": true
   },
   "evidence": "OBSERVED"

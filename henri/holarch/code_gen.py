@@ -41,6 +41,7 @@ from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 
 import numpy as np
+import torch
 
 from henri.holarch.code_lang import (
     SLOT_RULE,
@@ -625,6 +626,15 @@ class WaveCodeTextGenerator:
         self.fast_gain = 0.75
         self._fast_active = False
         self.fast_updates = 0
+        # Directive K3: when a HenriHolarch is mounted, the context wave is
+        # propagated through the four BaTiO3 plates and the post-photonic
+        # wave is read by the Hopfield lexical bank. Unmounted, the generator
+        # is bit-identical to Cycle J.
+        self.holarch = None
+        self.photonic_gain = 0.25
+        self.photonic_contexts = 0
+        self.photonic_cache_hits = 0
+        self._photonic_cache: Dict[Tuple[int, ...], np.ndarray] = {}
 
     # ---------------------------------------------------------------- fit
     def fit(
@@ -640,6 +650,47 @@ class WaveCodeTextGenerator:
         self.count_lm.fit(train)
         self.lexical.build(train[: int(max_fit_tokens)])
         return self
+
+    # ------------------------------------------------------- photonic route
+    def mount_holarch(self, model, gain: float = 0.25) -> "WaveCodeTextGenerator":
+        """Attach a HenriHolarch so every context wave crosses Zone B."""
+        self.holarch = model
+        self.photonic_gain = float(gain)
+        self._photonic_cache.clear()
+        return self
+
+    def photonic_scores(self, context: Sequence[int]) -> Optional[np.ndarray]:
+        """Hopfield alignment of the post-photonic context wave with the lexical bank.
+
+        The context wave enters Zone B (four BaTiO3 plates plus the unitary
+        slot mixer), and the bright-port wave is read against every token wave
+        of the Hopfield lexical bank. The score is standardised so its scale
+        cannot swamp the count floor. A missing model, a missing bank or a
+        degenerate spread returns None, which leaves the blend unchanged.
+        """
+        if self.holarch is None or not context:
+            return None
+        if int(getattr(self.lexical, "waves", np.zeros((0, 0))).shape[0]) == 0:
+            return None
+        key = tuple(int(token) for token in context[-self.WAVE_CONTEXT :])
+        cached = self._photonic_cache.get(key)
+        if cached is not None:
+            self.photonic_cache_hits += 1
+            return cached
+        wave = self.projector.sequence_wave(list(key), self.tokenizer)
+        psi = torch.from_numpy(np.asarray(wave, dtype=np.complex64)).reshape(1, -1)
+        with torch.no_grad():
+            state = self.holarch.zone_b(psi)
+            bright = state.bright[0].detach().cpu().numpy().astype(np.complex64)
+        raw = np.real(self.lexical.waves[: self.vocab_size] @ np.conj(bright)).astype(np.float32)
+        spread = float(np.std(raw))
+        if not np.isfinite(spread) or spread <= 1e-9:
+            return None
+        score = ((raw - float(np.mean(raw))) / spread).astype(np.float32)
+        if len(self._photonic_cache) < 8192:
+            self._photonic_cache[key] = score
+        self.photonic_contexts += 1
+        return score
 
     # -------------------------------------------------------------- logits
     def wave_scores(self, context: Sequence[int]) -> Optional[np.ndarray]:
@@ -779,6 +830,9 @@ class WaveCodeTextGenerator:
                 logits[floor_mode] = float(np.max(logits)) + 1e-4
         if fast is not None:
             logits = logits + self.fast_gain * fast
+        photonic = self.photonic_scores(context)
+        if photonic is not None:
+            logits = logits + self.photonic_gain * photonic
         return logits.astype(np.float64)
 
     def calibrate_beta(
@@ -1847,8 +1901,12 @@ def _composable_body(definition) -> Optional[List[ast.stmt]]:
         return None
     if not isinstance(body[-1], ast.Return) or body[-1].value is None:
         return None
-    if any(isinstance(statement, ast.Return) for statement in body[:-1]):
-        return None
+    # An early return (including one nested inside a branch) cannot be
+    # spliced: the terminal return is rewritten to step_i, and any other
+    # return would exit the composed function before the later stages run.
+    for statement in body[:-1]:
+        if any(isinstance(node, ast.Return) for node in ast.walk(statement)):
+            return None
     return body
 
 
@@ -1884,15 +1942,83 @@ def _rebind_stage_constants(statements: Sequence[ast.stmt], numbers: Sequence[fl
     return len(nodes)
 
 
-def _compose_plans_many(plans: Sequence["Plan"], request: Dict[str, object]) -> Optional[str]:
-    """Splice N verified single-return functions into one sequential pipeline.
+class _StageBinder(ast.NodeVisitor):
+    """Names a stage body binds in its own scope.
 
-    Directive I2. Each stage's return becomes the next stage's argument, in
-    order: step_1 = stage_1(...); step_2 = stage_2(step_1); ...; return
-    stage_N(step_{N-1}). The request's numeric literals are rebound inside
-    the stage that carries numeric constants, so a new clamp bound lands on
-    the clamp and nowhere else. The result is emitted by ast.unparse and
-    re-parsed by the caller's ASTGate; nothing is string-concatenated.
+    Nested function definitions and lambdas introduce their own scope, so
+    their bodies are not descended into. A name bound by an import statement
+    is not a local of the stage and is left alone.
+    """
+
+    def __init__(self) -> None:
+        self.names: set = set()
+
+    def visit_FunctionDef(self, node) -> None:  # noqa: N802 - ast visitor name
+        return
+
+    def visit_AsyncFunctionDef(self, node) -> None:  # noqa: N802
+        return
+
+    def visit_Lambda(self, node) -> None:  # noqa: N802
+        return
+
+    def visit_Import(self, node) -> None:  # noqa: N802
+        return
+
+    def visit_ImportFrom(self, node) -> None:  # noqa: N802
+        return
+
+    def visit_Name(self, node) -> None:  # noqa: N802
+        if isinstance(node.ctx, (ast.Store, ast.Del)):
+            self.names.add(str(node.id))
+
+    def visit_ExceptHandler(self, node) -> None:  # noqa: N802
+        if node.name:
+            self.names.add(str(node.name))
+        self.generic_visit(node)
+
+
+class _StageRenamer(ast.NodeTransformer):
+    """Rename every reference to a bound local exactly once."""
+
+    def __init__(self, rename: Dict[str, str]) -> None:
+        self.rename = dict(rename)
+
+    def visit_Name(self, node):  # noqa: N802
+        if node.id in self.rename:
+            node.id = self.rename[node.id]
+        return node
+
+    def visit_arg(self, node):  # noqa: N802
+        if node.arg in self.rename:
+            node.arg = self.rename[node.arg]
+        return node
+
+    def visit_FunctionDef(self, node):  # noqa: N802
+        # A nested definition owns its scope; only its binding name is part
+        # of this stage, and the binder already refused to descend into it.
+        return node
+
+
+def _stage_locals(definition, body: Sequence[ast.stmt]) -> List[str]:
+    binder = _StageBinder()
+    for statement in body:
+        binder.visit(statement)
+    params = [a.arg for a in definition.args.args if a.arg not in {"self", "cls"}]
+    return list(dict.fromkeys(params + sorted(binder.names)))
+
+
+def _compose_plans_many(plans: Sequence["Plan"], request: Dict[str, object]) -> Optional[str]:
+    """Splice N verified functions into one sequential pipeline.
+
+    Directive K2. Each stage may carry a multi-statement body (loops,
+    branches, accumulators, local helpers) as long as it ends in exactly one
+    return. Stage locals are alpha-renamed to _s{i}_{name} so a loop index or
+    accumulator in stage 1 can never collide with one in stage 2 or 3. The
+    terminal return of stage i < N becomes step_i; the last stage keeps its
+    return. The entry stage may declare several arguments; the request names
+    them, and a later stage binds an extra parameter by name from that public
+    set (or from request['bindings']).
     """
     if not plans:
         return None
@@ -1905,23 +2031,48 @@ def _compose_plans_many(plans: Sequence["Plan"], request: Dict[str, object]) -> 
             return None
         definitions.append(definition)
         staged.append(copy.deepcopy(body))
-    first_args = [a.arg for a in definitions[0].args.args if a.arg not in {"self", "cls"}]
-    if not first_args:
+    first_params = [a.arg for a in definitions[0].args.args if a.arg not in {"self", "cls"}]
+    if not first_params:
         return None
-    for definition in definitions[1:]:
-        later = [a for a in definition.args.args if a.arg not in {"self", "cls"}]
-        if len(later) != 1:
-            return None
     requested = [str(name) for name in (request.get("args") or []) if str(name).isidentifier()]
-    if requested and len(requested) > len(first_args):
-        return None
-    rename = {old: new for old, new in zip(first_args, requested) if new != old}
-    if rename:
-        for statement in staged[0]:
-            _rename_names(statement, rename)
-    for index in range(1, len(definitions)):
-        old_arg = [a for a in definitions[index].args.args if a.arg not in {"self", "cls"}][0].arg
-        _rename_names_all(staged[index], {old_arg: f"step_{index}"})
+    public = [
+        requested[index] if index < len(requested) else name
+        for index, name in enumerate(first_params)
+    ]
+    extra = [name for name in requested[len(first_params) :] if name not in public]
+    bindings: Dict[str, str] = {name: name for name in list(public) + list(extra)}
+    for key, value in dict(request.get("bindings") or {}).items():
+        if str(key).isidentifier() and str(value).isidentifier():
+            bindings[str(key)] = str(value)
+
+    for index, (definition, statements) in enumerate(zip(definitions, staged)):
+        params = [a.arg for a in definition.args.args if a.arg not in {"self", "cls"}]
+        locals_ = _stage_locals(definition, statements)
+        rename: Dict[str, str] = {}
+        if index == 0:
+            for position, name in enumerate(params):
+                rename[name] = public[position]
+            protected = set(public)
+            for name in locals_:
+                if name in params or name in protected:
+                    continue
+                rename[name] = f"_s0_{name}"
+        else:
+            for position, name in enumerate(params):
+                if position == 0:
+                    rename[name] = f"step_{index}"
+                    continue
+                target = bindings.get(name)
+                if target is None:
+                    return None
+                rename[name] = target
+            for name in locals_:
+                if name in params:
+                    continue
+                rename[name] = f"_s{index}_{name}"
+        renamer = _StageRenamer(rename)
+        for statement in statements:
+            renamer.visit(statement)
     numbers = [float(value) for value in (request.get("numbers") or [])]
     if numbers:
         counts = [len(_numeric_constants(statements)) for statements in staged]
@@ -1958,7 +2109,7 @@ def _compose_plans_many(plans: Sequence["Plan"], request: Dict[str, object]) -> 
         name = "_".join(plan.name for plan in plans)
     arguments = ast.arguments(
         posonlyargs=[],
-        args=[ast.arg(arg=rename.get(old, old)) for old in first_args],
+        args=[ast.arg(arg=arg) for arg in list(public) + list(extra)],
         vararg=None,
         kwonlyargs=[],
         kw_defaults=[],
@@ -4029,7 +4180,200 @@ def _j3_case_row(
 # ---------------------------------------------------------------------------
 # Directive J3: the public, fixture-free battery
 # ---------------------------------------------------------------------------
-def run_diverse_dag_battery(engine=None, seed: int = 0) -> Dict[str, object]:
+_K2_MULTI_STAGES: Dict[str, str] = {
+    "filter_above": (
+        "def filter_above(items: list, threshold: float) -> list:\n"
+        "    kept = []\n"
+        "    for item in items:\n"
+        "        if item > threshold:\n"
+        "            kept.append(item)\n"
+        "    return kept\n"
+    ),
+    "scale_values": (
+        "def scale_values(values: list, factor: float) -> list:\n"
+        "    scaled = []\n"
+        "    for value in values:\n"
+        "        scaled.append(value * factor)\n"
+        "    return scaled\n"
+    ),
+    "total": (
+        "def total(values: list) -> float:\n"
+        "    accumulator = 0.0\n"
+        "    for value in values:\n"
+        "        accumulator += value\n"
+        "    return accumulator\n"
+    ),
+    "pair_counts": (
+        "def pair_counts(items: list) -> dict:\n"
+        "    counts = {}\n"
+        "    for item in items:\n"
+        "        counts[item] = counts.get(item, 0) + 1\n"
+        "    return counts\n"
+    ),
+    "select_keys": (
+        "def select_keys(index: dict, minimum: float) -> list:\n"
+        "    selected = []\n"
+        "    for key, count in index.items():\n"
+        "        if count >= minimum:\n"
+        "            selected.append(key)\n"
+        "    return selected\n"
+    ),
+    "window_means": (
+        "def window_means(values: list, width: float) -> list:\n"
+        "    means = []\n"
+        "    size = int(width)\n"
+        "    for start in range(0, len(values) - size + 1):\n"
+        "        means.append(sum(values[start:start + size]) / size)\n"
+        "    return means\n"
+    ),
+    "count_matches": (
+        "def count_matches(items: list, threshold: float) -> int:\n"
+        "    matched = 0\n"
+        "    for item in items:\n"
+        "        if item > threshold:\n"
+        "            matched += 1\n"
+        "    return matched\n"
+    ),
+}
+"""Directive K2: multi-statement stage playbooks used by the extended battery."""
+
+_K2_MULTI_TASKS: List[Dict[str, object]] = [
+    {
+        "id": "multi01",
+        "stages": ("filter_above", "scale_values", "total"),
+        "args": ["items", "threshold", "factor"],
+        "values": ([1.0, 2.0, 3.0, 4.0], 2.0, 3.0),
+        "reference": lambda items, threshold, factor: sum(
+            value * factor for value in items if value > threshold
+        ),
+    },
+    {
+        "id": "multi02",
+        "stages": ("pair_counts", "select_keys", "join_csv"),
+        "args": ["items", "minimum"],
+        "values": (["a", "b", "a"], 2.0),
+        "reference": lambda items, minimum: ",".join(
+            key for key, count in {item: items.count(item) for item in items}.items()
+            if count >= minimum
+        ),
+    },
+    {
+        "id": "multi03",
+        "stages": ("filter_above", "count_matches", "clamp_unit"),
+        "args": ["items", "threshold"],
+        "values": ([1.0, 2.0, 3.0, 4.0], 2.0),
+        "reference": lambda items, threshold: min(
+            1.0, float(sum(1 for value in items if value > threshold and value > threshold))
+        ),
+    },
+    {
+        "id": "multi04",
+        "stages": ("window_means", "max_or_zero", "clamp_unit"),
+        "args": ["values", "width"],
+        "values": ([1.0, 2.0, 3.0, 4.0], 2.0),
+        "reference": lambda values, width: min(
+            1.0,
+            max(
+                [
+                    sum(values[start : start + int(width)]) / int(width)
+                    for start in range(0, len(values) - int(width) + 1)
+                ]
+                or [0.0]
+            ),
+        ),
+    },
+    {
+        "id": "multi05",
+        "stages": ("pair_counts", "invert_index", "sorted_keys"),
+        "args": ["items"],
+        "values": (["a", "b", "a"],),
+        "reference": lambda items: sorted(
+            set({item: items.count(item) for item in items}.values())
+        ),
+    },
+    {
+        "id": "multi06",
+        "stages": ("filter_above", "scale_values", "count_matches"),
+        "args": ["items", "threshold", "factor"],
+        "values": ([1.0, 2.0, 3.0, 4.0], 2.0, 2.0),
+        "reference": lambda items, threshold, factor: sum(
+            1 for value in items if value > threshold and value * factor > threshold
+        ),
+    },
+]
+"""Six multi-statement, multi-argument three-stage pipelines (Directive K2)."""
+
+_K2_TRAP_SOURCES: List[Dict[str, object]] = [
+    {
+        "id": "trap_arity",
+        "stages": ("filter_above", "scale_values"),
+        "args": ["items", "threshold"],
+        "kind": "arity",
+        "reason": "the secondary parameter factor has no binding",
+    },
+    {
+        "id": "trap_no_return",
+        "source": "def broken(items: list) -> list:\n    items\n",
+        "args": ["items"],
+        "kind": "symbol",
+        "reason": "the stage has no terminal return",
+    },
+    {
+        "id": "trap_early_return",
+        "source": (
+            "def early(items: list) -> list:\n"
+            "    if items:\n"
+            "        return items\n"
+            "    return []\n"
+        ),
+        "args": ["items"],
+        "kind": "symbol",
+        "reason": "the stage returns before its terminal statement",
+    },
+    {
+        "id": "trap_empty_body",
+        "source": "def empty(items: list) -> list:\n    pass\n",
+        "args": ["items"],
+        "kind": "symbol",
+        "reason": "the stage body is empty",
+    },
+    {
+        "id": "trap_unknown_callee",
+        "source": "def ghost(items: list) -> list:\n    return mystery_helper(items)\n",
+        "args": ["items"],
+        "kind": "symbol",
+        "reason": "mystery_helper is absent from the symbol table",
+    },
+    {
+        "id": "trap_type_chain",
+        "stages": ("caller_names", "invert_index"),
+        "args": ["items"],
+        "kind": "type",
+        "reason": "a sequence cannot feed a mapping consumer",
+    },
+]
+
+
+def _symbol_vetoes(source: str, known: Iterable[str]) -> List[str]:
+    """Call names in the emitted source that the symbol table does not own."""
+    import builtins
+
+    allowed = set(str(name) for name in known)
+    builtin_names = set(dir(builtins))
+    try:
+        tree = ast.parse(str(source))
+    except SyntaxError:
+        return ["<unparseable>"]
+    missing: List[str] = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
+            name = str(node.func.id)
+            if name not in allowed and name not in builtin_names:
+                missing.append(name)
+    return sorted(set(missing))
+
+
+def run_diverse_dag_battery(engine=None, seed: int = 0, extended: bool = False) -> Dict[str, object]:
     """Measure the J3 playbook library end to end, with no external fixture.
 
     24 base single-function tasks, 12 novel single-plan bindings, 8 two-stage
@@ -4164,15 +4508,95 @@ def run_diverse_dag_battery(engine=None, seed: int = 0) -> Dict[str, object]:
             }
         )
 
+    multi_rows: List[Dict[str, object]] = []
+    traps2_rows: List[Dict[str, object]] = []
+    if extended:
+        for index, spec in enumerate(_K2_MULTI_TASKS, start=1):
+            stages = [str(stage) for stage in spec["stages"]]  # type: ignore[index]
+            func = f"k2m{salt}_{index:02d}"
+            plans = [
+                _compiled_plan(stage, f"k2 {stage}", _K2_MULTI_STAGES[stage])
+                if stage in _K2_MULTI_STAGES
+                else _playbook_plan(stage)
+                for stage in stages
+            ]
+            verdict = compose_plan_dag(
+                plans,
+                {"func": func, "args": list(spec["args"]), "numbers": []},
+                gate=gate,
+            )
+            expected = spec["reference"](*spec["values"])  # type: ignore[operator]
+            row, run = _j3_case_row(verdict, func, spec["values"], expected, "multi")  # type: ignore[arg-type]
+            row.update(
+                {
+                    "id": spec["id"],
+                    "stages": list(stages),
+                    "multi_statement": True,
+                    "multi_argument": bool(len(list(spec["args"])) > 1),
+                }
+            )
+            if bool(row["matched"]) and bool(run["executed"]):
+                again = _j3_execute(str(verdict.get("source") or ""), func, spec["values"])  # type: ignore[arg-type]
+                if bool(again["executed"]):
+                    drift = max(drift, _j3_answer_delta(run["actual"], again["actual"]))
+            multi_rows.append(row)
+
+        known = set(PLAYBOOK_LIBRARY) | set(_K2_MULTI_STAGES) | {
+            "range", "sum", "len", "sorted", "list", "dict", "set", "min", "max",
+            "abs", "round", "enumerate", "zip", "str", "int", "float", "bool",
+            "tuple", "frozenset", "any", "all", "reversed", "map", "filter",
+        }
+        for spec in _K2_TRAP_SOURCES:
+            if "stages" in spec:
+                plans = []
+                for stage in spec["stages"]:  # type: ignore[index]
+                    name = str(stage)
+                    if name in _K2_MULTI_STAGES:
+                        plans.append(_compiled_plan(name, f"k2 {name}", _K2_MULTI_STAGES[name]))
+                    else:
+                        plans.append(_playbook_plan(name))
+            else:
+                plans = [_compiled_plan("trap_stage", "trap", str(spec["source"]))]
+            verdict = compose_plan_dag(
+                plans,
+                {"func": f"k2t_{spec['id']}", "args": list(spec["args"]), "numbers": []},
+                gate=gate,
+            )
+            source = str(verdict.get("source") or "")
+            veto = _symbol_vetoes(source, known) if source else []
+            refused = bool(
+                (not verdict.get("ok", False) and source == "")
+                or (source and veto)
+            )
+            traps2_rows.append(
+                {
+                    "id": spec["id"],
+                    "kind": spec["kind"],
+                    "reason": spec["reason"],
+                    "refused": bool(refused),
+                    "source_empty": source == "",
+                    "symbol_vetoes": veto,
+                    "reason_measured": str(verdict.get("reason") or "")[:200],
+                }
+            )
+
     base_passed = sum(1 for row in base_rows if row["matched"])
     single_passed = sum(1 for row in single_rows if row["matched"])
     two_passed = sum(1 for row in two_rows if row["matched"])
     three_passed = sum(1 for row in three_rows if row["matched"])
     traps_refused = sum(1 for row in trap_rows if row["refused"])
-    total_passed = base_passed + single_passed + two_passed + three_passed + traps_refused
-    total_tasks = len(base_rows) + len(single_rows) + len(two_rows) + len(three_rows) + len(trap_rows)
+    multi_passed = sum(1 for row in multi_rows if row["matched"])
+    traps2_refused = sum(1 for row in traps2_rows if row["refused"])
+    total_passed = (
+        base_passed + single_passed + two_passed + three_passed
+        + traps_refused + multi_passed + traps2_refused
+    )
+    total_tasks = (
+        len(base_rows) + len(single_rows) + len(two_rows) + len(three_rows)
+        + len(trap_rows) + len(multi_rows) + len(traps2_rows)
+    )
     three_topologies = sorted({str(row["topology"]) for row in three_rows})
-    return {
+    payload = {
         "seed": int(seed),
         "catalog_digest": str(catalog["digest"]),
         "base": {"passed": int(base_passed), "total": len(base_rows), "rows": base_rows},
@@ -4184,4 +4608,16 @@ def run_diverse_dag_battery(engine=None, seed: int = 0) -> Dict[str, object]:
         "total": {"passed": int(total_passed), "total": int(total_tasks)},
         "drift": float(round(drift, 4)),
     }
+    if extended:
+        payload["multi"] = {
+            "passed": int(multi_passed),
+            "total": len(multi_rows),
+            "rows": multi_rows,
+        }
+        payload["traps2"] = {
+            "refused": int(traps2_refused),
+            "total": len(traps2_rows),
+            "rows": traps2_rows,
+        }
+    return payload
 

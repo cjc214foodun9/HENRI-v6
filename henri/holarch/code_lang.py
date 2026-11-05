@@ -1441,3 +1441,126 @@ def roundtrip_check(
         else:
             failures.append(str(path))
     return {"texts": total, "ok": ok, "failures": failures}
+
+# ---------------------------------------------------------------------------
+# Directive K4: cross-tenant Tier-2 vocabulary rebase
+# ---------------------------------------------------------------------------
+@dataclass
+class VocabularyRebase:
+    """The canonical union of two tenant vocabularies and its id maps.
+
+    Tier-1 ids (0 .. vocab_size - 1) are immutable and identical in both
+    tokenizers, so every map is the identity there. Tier-2 ids are assigned
+    in the union order: tenant A's tail first, then the names tenant B added,
+    in tenant B's own order. The translation is one integer lookup per token,
+    O(L) for a length-L sequence, and it never re-tokenizes a string.
+    """
+
+    tier1_size: int
+    union_identifiers: Tuple[str, ...]
+    id_map_a_to_union: Dict[int, int]
+    id_map_b_to_union: Dict[int, int]
+    added_from_b: Tuple[str, ...]
+    tier1_shifts: int
+    union_size: int
+    tokenizer: "HolarchCodeTextTokenizer" = field(repr=False, default=None)
+
+    def translate(self, ids: Sequence[int], tenant: str = "b") -> List[int]:
+        table = self.id_map_b_to_union if str(tenant) == "b" else self.id_map_a_to_union
+        return [int(table.get(int(token), int(token))) for token in ids]
+
+    def as_payload(self) -> Dict[str, object]:
+        return {
+            "tier1_size": int(self.tier1_size),
+            "union_identifiers": list(self.union_identifiers),
+            "added_from_b": list(self.added_from_b),
+            "tier1_shifts": int(self.tier1_shifts),
+            "union_size": int(self.union_size),
+            "id_map_b_to_union": {str(key): int(value) for key, value in sorted(self.id_map_b_to_union.items())},
+            "digest": hashlib.sha256(
+                json.dumps(list(self.union_identifiers)).encode("utf-8")
+            ).hexdigest(),
+        }
+
+
+def rebase_tenant_vocabulary(
+    tokenizer_a: HolarchCodeTextTokenizer,
+    tokenizer_b: HolarchCodeTextTokenizer,
+) -> VocabularyRebase:
+    """Merge two tenants' Tier-2 tails with zero Tier-1 movement.
+
+    The curated prefix and the Tier-1 identifier order must agree; a mismatch
+    is refused rather than silently rebased, because two tenants that share
+    the pinned lock can only differ above the elastic boundary. The merged
+    tokenizer is a clone of A with B's unseen identifiers appended in B's
+    order, so A's ids never move.
+    """
+    import copy
+
+    if int(tokenizer_a.vocab_size) != int(tokenizer_b.vocab_size):
+        raise ValueError("the two tenants must share the Tier-1 boundary")
+    if list(tokenizer_a._curated) != list(tokenizer_b._curated):
+        raise ValueError("the two tenants have different curated prefixes")
+    tier1 = int(tokenizer_a.vocab_size)
+    tier1_a = {
+        token: tokenizer_a.token_text(token) for token in range(int(len(tokenizer_a)))
+        if token < tier1
+    }
+    tier1_b = {
+        token: tokenizer_b.token_text(token) for token in range(int(len(tokenizer_b)))
+        if token < tier1
+    }
+    shifts = sum(
+        1
+        for token, name in tier1_a.items()
+        if name and tier1_b.get(token) != name
+    )
+    if shifts:
+        raise ValueError(
+            f"the tenants disagree on {shifts} Tier-1 ids; rebase would move a locked id"
+        )
+
+    union: List[str] = list(tokenizer_a.identifiers)
+    seen = set(union)
+    added: List[str] = []
+    for name in tokenizer_b.identifiers:
+        if name not in seen:
+            union.append(str(name))
+            added.append(str(name))
+            seen.add(str(name))
+
+    merged = copy.deepcopy(tokenizer_a)
+    ledger = VocabularyLedger(
+        identifiers=tuple(union),
+        vocab_size=int(tokenizer_a.vocab_size),
+        curated_size=len(tokenizer_a._curated),
+        curated_digest=TokenizerSpec(pieces=tuple(tokenizer_a._curated)).digest(),
+        source="cross-tenant-rebase",
+        elastic_cap=max(int(tokenizer_a.elastic_cap), int(tokenizer_b.elastic_cap)),
+    )
+    merged.apply_ledger(ledger)
+
+    def build_map(tokenizer: HolarchCodeTextTokenizer) -> Dict[int, int]:
+        table: Dict[int, int] = {}
+        for token in range(int(len(tokenizer))):
+            if token < tier1:
+                table[token] = token
+                continue
+            name = tokenizer.token_text(token)
+            target = merged.stoi.get(name)
+            table[token] = int(target) if target is not None else int(token)
+        return table
+
+    map_a = build_map(tokenizer_a)
+    map_b = build_map(tokenizer_b)
+    return VocabularyRebase(
+        tier1_size=tier1,
+        union_identifiers=tuple(union),
+        id_map_a_to_union=map_a,
+        id_map_b_to_union=map_b,
+        added_from_b=tuple(added),
+        tier1_shifts=0,
+        union_size=int(len(union)),
+        tokenizer=merged,
+    )
+

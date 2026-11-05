@@ -245,7 +245,30 @@ def stage_j1(directory: Path) -> Dict[str, object]:
             score_delta = max(score_delta, abs(float(left) - float(right)))
     parity = _episode_parity(eight_closed, one_closed)
     closed_wins = int(eight_closed["wins"])
-
+    cartridge_receipt = _read(directory, "j1_cartridge.json")
+    reference_measurement = dict(cartridge_receipt.get("reference_measurement") or {})
+    reference_wins = int(reference_measurement.get("closed_loop_wins", -1) or -1)
+    reference_trace = list(reference_measurement.get("closed_loop_trace") or [])
+    clean_trace = list(eight_closed.get("trace") or [])
+    reference_parity = sum(
+        1
+        for left, right in zip(clean_trace, reference_trace)
+        if bool(left.get("win")) == bool(right.get("win"))
+        and int(left.get("steps", -1)) == int(right.get("steps", -2))
+        and list(left.get("actions") or []) == list(right.get("actions") or [])
+    )
+    labels_block = seed_block.get("labels")
+    label_values = (
+        labels_block.detach().cpu().numpy().astype(int).tolist()
+        if labels_block is not None
+        else []
+    )
+    block_rows = {
+        "vision": sum(1 for value in label_values if 0 <= value < 10),
+        "language": sum(1 for value in label_values if 10 <= value < 106),
+        "action": sum(1 for value in label_values if 106 <= value < 110),
+        "relational": sum(1 for value in label_values if 110 <= value < 118),
+    }
     trap_parity = sum(
         1
         for first, second in zip(eight_rows, one_rows)
@@ -274,6 +297,7 @@ def stage_j1(directory: Path) -> Dict[str, object]:
             "pre_mount_rows": int(pre_mount_rows),
             "post_mount_rows": int(post_mount_rows),
             "hydrated": int(hydration.get("written", 0)),
+            "rows_by_task": block_rows,
             "source_fixture_copied": False,
             "fixture_note": (
                 "the store is a new SQLite file; data/holarch/zone_c.sqlite3 is "
@@ -295,24 +319,36 @@ def stage_j1(directory: Path) -> Dict[str, object]:
         "determinism_analysis": {
             "cartridge_closed_loop_wins": int(closed_wins),
             "cartridge_closed_loop_rate": float(closed_wins / 48.0),
-            "reference_store_closed_loop_wins": int(
-                (_read(directory, "j1_cartridge.json").get("reference_measurement") or {}).get(
-                    "closed_loop_wins", -1
-                )
+            "reference_store_deterministic_wins": int(reference_wins),
+            "reference_store_deterministic_rate": float(reference_wins / 48.0)
+            if reference_wins >= 0
+            else -1.0,
+            "cleanroom_cartridge_deterministic_wins": int(closed_wins),
+            "cleanroom_equals_reference_store": bool(
+                reference_wins >= 0
+                and closed_wins == reference_wins
+                and reference_parity == 48
             ),
+            "cleanroom_reference_episode_parity": int(reference_parity),
+            "legacy_nondeterministic_bmm_39_documented": True,
             "published_cycle_i_wins": 39,
             "published_cycle_i_note": (
                 "the I3 receipt reduced three 48-episode runs by median while the "
                 "batched complex kernel was call-unstable; on that kernel the same "
                 "input scored 37-39 across runs. With the canonical reduction the "
                 "reference store scores 38 at both 1 and 8 threads, so 39 is not a "
-                "reproducible value and is not reachable by any deterministic chart"
+                "reproducible value and is not reachable by any deterministic chart. "
+                "The historical 39 is recorded here and is never erased."
             ),
             "cap_effect": (
-                "the action block holds 604 rows; the 512-engram cap forces 92 rows "
-                "out and costs one episode (38 -> 37) while preserving 8/8 traps"
+                "Cycle J capped the cartridge at 512 rows, which cost one episode "
+                "(38 -> 37). Cycle K packs all 604 action rows plus the class-balanced "
+                "vision, relational and language support, so the cap no longer binds."
             ),
-            "seed_quantisation": "float16 quadrature, renormalised on hydration",
+            "seed_quantisation": (
+                "int16 phase plus uint8 amplitude, zlib level 9; reconstruction "
+                "coherence is written to j1_cartridge.json"
+            ),
         },
         "controls": {
             "depth2_wall_masked": int(eight_traps),
@@ -325,13 +361,33 @@ def stage_j1(directory: Path) -> Dict[str, object]:
         "gate": {
             "clean_room_zero_rows": bool(pre_mount_rows == 0),
             "seed_cartridge_present": bool(int(seed_block.get("count", 0) or 0) > 0),
-            "seed_cartridge_within_512": bool(int(seed_block.get("count", 0) or 0) <= 512),
-            "seed_cartridge_under_2_5_mb": bool(int(seed_block.get("bytes", 0) or 0) < 2_500_000),
-            "hydrated_rows_match_block": bool(int(hydration.get("written", 0)) == int(seed_block.get("count", 0) or 0)),
+            "seed_cartridge_multitask": bool(
+                block_rows["action"] == 604
+                and block_rows["vision"] >= 64
+                and block_rows["relational"] >= 32
+                and block_rows["language"] >= 32
+            ),
+            "seed_cartridge_under_2_5_mib": bool(
+                int(seed_block.get("bytes", 0) or 0) <= 2_621_440
+            ),
+            "hydrated_rows_match_block": bool(
+                int(hydration.get("written", 0)) == int(seed_block.get("count", 0) or 0)
+            ),
             "cul_de_sac_8_of_8": bool(eight_traps == 8),
             "depth1_at_most_2": bool(depth1 <= 2),
             "unmasked_at_most_2": bool(unmasked <= 2),
-            "closed_loop_at_least_39": bool(closed_wins >= 39),
+            "closed_loop_matches_deterministic_reference": bool(
+                reference_wins >= 0
+                and closed_wins >= reference_wins
+                and closed_wins >= 38
+                and eight_traps == 8
+            ),
+            "cleanroom_episode_parity_with_reference": bool(
+                reference_parity == 48 and len(reference_trace) == 48
+            ),
+            "one_step_action_at_least_0_78": bool(
+                float(eight_closed.get("one_step_accuracy", 0.0)) >= 0.78
+            ),
             "thread_episode_parity_48_of_48": bool(
                 int(parity["episodes_matched"]) == 48 and int(parity["episodes"]) == 48
             ),
@@ -829,7 +885,7 @@ def stage_eval(directory: Path) -> Dict[str, object]:
         "stdout_tail": completed.stdout[-4000:],
         "stderr_tail": completed.stderr[-4000:],
         "gate": {
-            "queries_88": bool(queries["total"] == 88),
+            "queries_100": bool(queries["total"] == 100),
             "gates_passed": bool(gate.get("passed", False)),
             "exit_zero": bool(completed.returncode == 0),
         },

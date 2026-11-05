@@ -59,8 +59,8 @@
     }
   },
   "roundtrip": {
-    "files": 233,
-    "ok": 233,
+    "files": 240,
+    "ok": 240,
     "rate": 1.0
   },
   "persistence": {
@@ -93,6 +93,6 @@
     "tier2_waves_distinct": true,
     "passed": true
   },
-  "wall_seconds": 3.777028899989091,
+  "wall_seconds": 4.244790000026114,
   "evidence": "OBSERVED"
 }

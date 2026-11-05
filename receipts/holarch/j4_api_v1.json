@@ -41,16 +41,16 @@
     "errors": [],
     "ok": 64,
     "all_valid": true,
-    "concurrent_seconds": 2.0318172999832314,
-    "serial_seconds": 2.189237000013236,
-    "concurrent_rate": 31.498895102688707,
-    "serial_rate": 29.233929446475216,
-    "throughput_ratio": 1.077477290911591,
+    "concurrent_seconds": 1.4121917999873403,
+    "serial_seconds": 1.8085322999977507,
+    "concurrent_rate": 45.319623014787176,
+    "serial_rate": 35.38781143144615,
+    "throughput_ratio": 1.2806562819681881,
     "lock_stats": {
       "readers": 0,
       "writer": 0,
       "waiting_writers": 0,
-      "peak_readers": 7,
+      "peak_readers": 9,
       "total_reads": 130,
       "total_writes": 1
     },
@@ -88,7 +88,7 @@
     "synthesize": {
       "status_code": 200,
       "object": "chat.completion",
-      "content": "def chat_edge_scale(edges):\n    step_1 = sorted({edge.source for edge in edges})\n    step_2 = int(len(step_1))\n    return max(2.0, min(5.0, float(step_2)))\n",
+      "content": "def chat_edge_scale(edges):\n    step_1 = sorted({_s0_edge.source for _s0_edge in edges})\n    step_2 = int(len(step_1))\n    return max(2.0, min(5.0, float(step_2)))\n",
       "abstained": false,
       "action": "synthesize",
       "receipt_valid": true,
@@ -96,7 +96,7 @@
       "compiled_playbooks": 24,
       "status": "verified",
       "composed_stages": 1,
-      "source_chars": 156
+      "source_chars": 164
     }
   },
   "gate": {
@@ -116,6 +116,6 @@
     "openai_synthesize": true,
     "passed": true
   },
-  "wall_seconds": 12.399614099995233,
+  "wall_seconds": 11.783204699982889,
   "evidence": "OBSERVED"
 }

@@ -42,6 +42,8 @@ import ast
 import hashlib
 import math
 import re
+
+import numpy as np
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple
@@ -354,9 +356,78 @@ class OntologyVerifier:
         self.mean_length = float(
             sum(len(terms) for terms in self.terms) / max(len(self.terms), 1)
         )
+        self._build_bm25_matrices()
 
     # --------------------------------------------------------------- search
+    def _build_bm25_matrices(self) -> None:
+        """Precompute the BM25 scoring matrix once per corpus (Directive K4).
+
+        A row is one passage, a column is one term, and the entry is
+
+            A[p, t] = idf_t * f_pt (k1 + 1) / (f_pt + k1 (1 - b + b L_p / avg))
+
+        so the score of a query is A @ q for the 0/1 query vector q. That is
+        one float32 matmul, and numpy releases the CPython GIL inside it.
+        """
+        k1, b = 1.5, 0.75
+        matrix_rows = len(self.terms)
+        vocab: Dict[str, int] = {}
+        for terms in self.terms:
+            for term in terms:
+                if term not in vocab:
+                    vocab[term] = len(vocab)
+        width = len(vocab)
+        self._bm25_vocab = vocab
+        self._bm25_k1 = float(k1)
+        self._bm25_b = float(b)
+        if matrix_rows == 0 or width == 0:
+            self._bm25_matrix = np.zeros((matrix_rows, 0), dtype=np.float32)
+            return
+        matrix = np.zeros((matrix_rows, width), dtype=np.float32)
+        average = max(self.mean_length, _EPS)
+        lengths = np.asarray([len(terms) for terms in self.terms], dtype=np.float64)
+        norm = float(k1) * (1.0 - float(b) + float(b) * lengths / average)
+        for index, terms in enumerate(self.terms):
+            if not terms:
+                continue
+            counts: Dict[str, float] = {}
+            for term in terms:
+                counts[term] = counts.get(term, 0.0) + 1.0
+            row = norm[index]
+            for term, frequency in counts.items():
+                column = vocab.get(term)
+                if column is None:
+                    continue
+                weight = float(self.idf.get(term, 0.0))
+                matrix[index, column] = weight * (frequency * (k1 + 1.0)) / (
+                    frequency + row
+                )
+        self._bm25_matrix = matrix
+
     def bm25(self, claim: str, top_k: int = 4) -> List[Tuple[float, int]]:
+        query = [term for term in extract_terms(claim) if term not in STOPWORDS]
+        if not query or not self.passages:
+            return []
+        matrix = getattr(self, "_bm25_matrix", None)
+        vocab = getattr(self, "_bm25_vocab", None)
+        if matrix is None or vocab is None:
+            return self._bm25_python(claim, top_k)
+        vector = np.zeros((matrix.shape[1],), dtype=np.float32)
+        for term in set(query):
+            column = vocab.get(term)
+            if column is not None:
+                vector[column] = 1.0
+        if not bool(vector.any()):
+            return []
+        scores = matrix @ vector
+        finite = np.flatnonzero(scores > 0.0)
+        if finite.size == 0:
+            return []
+        order = sorted(finite.tolist(), key=lambda index: (-float(scores[index]), int(index)))
+        return [(float(scores[index]), int(index)) for index in order[: max(1, int(top_k))]]
+
+    def _bm25_python(self, claim: str, top_k: int = 4) -> List[Tuple[float, int]]:
+        """The Cycle J per-passage loop, retained as the parity reference."""
         query = [term for term in extract_terms(claim) if term not in STOPWORDS]
         if not query or not self.passages:
             return []

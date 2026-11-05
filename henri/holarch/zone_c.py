@@ -42,6 +42,7 @@ coherence rescoring on the full wave. The tests measure all three.
 
 from __future__ import annotations
 
+import hashlib
 import math
 import os
 import sqlite3
@@ -110,6 +111,72 @@ def _unit(wave: np.ndarray) -> np.ndarray:
     if not np.isfinite(norm) or norm < _EPS:
         raise ValueError("cannot store or query a zero or non-finite wave")
     return arr / norm
+
+
+BOUNDARY_AXIOM_KIND = "boundary_axiom"
+"""Metadata kind that turns a tier-3 engram into an active boundary axiom."""
+
+BOUNDARY_POLARITIES = ("LAW", "ATTRACTOR", "REPULSOR")
+"""LAW is a hard Sagnac reference, ATTRACTOR lowers free energy, REPULSOR raises it."""
+
+BOUNDARY_SOURCES = (
+    "human_heuristic",
+    "physics_law",
+    "ast_grammar",
+    "test_time_learned",
+    "library_prototype",
+)
+"""Where an axiom came from. A learned trap is never labelled as a human rule."""
+
+AXIOM_LABEL_BASE = SYMBOL_LABEL_OFFSET + 1000
+"""Boundary axioms live outside every task label block, so a task query never returns one."""
+
+
+@dataclass(frozen=True)
+class BoundaryAxiom:
+    """One typed Zone C boundary axiom (Directive K2).
+
+    Attributes:
+        axiom_id: stable metadata key, unique per namespace.
+        name: human-readable name.
+        polarity: LAW, ATTRACTOR, or REPULSOR.
+        source: one of BOUNDARY_SOURCES.
+        slot_mask: which of the four slots the axiom governs.
+        namespace: tenant namespace.
+        engram_id: the tier-3 Zone C row that carries the wave.
+        wave: the governed unit wave, masked to slot_mask.
+        created_ts: unix seconds of registration.
+    """
+
+    axiom_id: str
+    name: str
+    polarity: str
+    source: str
+    slot_mask: Tuple[bool, bool, bool, bool]
+    namespace: str
+    engram_id: int
+    wave: np.ndarray
+    created_ts: float = 0.0
+
+    def governed(self) -> np.ndarray:
+        """The wave with every ungoverned slot zeroed and the remainder unit."""
+        slots = np.asarray(self.wave, dtype=np.complex64).reshape(4, -1).copy()
+        mask = np.asarray(self.slot_mask, dtype=bool)
+        slots[~mask] = 0.0
+        return _unit(slots.reshape(-1))
+
+    def as_payload(self) -> Dict[str, object]:
+        return {
+            "axiom_id": str(self.axiom_id),
+            "name": str(self.name),
+            "polarity": str(self.polarity),
+            "source": str(self.source),
+            "slot_mask": [bool(value) for value in self.slot_mask],
+            "namespace": str(self.namespace),
+            "engram_id": int(self.engram_id),
+            "created_ts": float(self.created_ts),
+            "wave_sha256": hashlib.sha256(self.governed().tobytes()).hexdigest(),
+        }
 
 
 @dataclass(frozen=True)
@@ -1153,6 +1220,105 @@ class ZoneCMemory:
         if getter is None:
             return []
         return list(getter())
+
+    # ------------------------------------------------------- boundary axioms
+    def register_axiom(
+        self,
+        wave: np.ndarray,
+        name: str,
+        polarity: str,
+        source: str = "human_heuristic",
+        slot_mask: Sequence[bool] = (False, False, False, True),
+        namespace: str = "default",
+        key: Optional[str] = None,
+    ) -> BoundaryAxiom:
+        """Persist one typed boundary axiom as a tier-3 engram (Directive K2).
+
+        The wave is masked to the governed slots before it is written, so a
+        Slot-3 grammar rule cannot accidentally steer Slot 0 geometry. The
+        metadata row is the registry entry; the engram itself is the wave the
+        Zone B relaxation reads back. A repeated key appends a new row and
+        updates the registry pointer, which is how test-time learning replaces
+        a refuted axiom without deleting history.
+        """
+        polarity_value = str(polarity).upper()
+        if polarity_value not in BOUNDARY_POLARITIES:
+            raise ValueError(f"polarity must be one of {BOUNDARY_POLARITIES}, got {polarity!r}")
+        source_value = str(source)
+        if source_value not in BOUNDARY_SOURCES:
+            raise ValueError(f"source must be one of {BOUNDARY_SOURCES}, got {source!r}")
+        mask = tuple(bool(value) for value in slot_mask)
+        if len(mask) != 4:
+            raise ValueError("slot_mask must hold four booleans")
+        if not any(mask):
+            raise ValueError("an axiom must govern at least one slot")
+        base = _unit(wave)
+        slots = base.reshape(4, -1).copy()
+        slots[[index for index, keep in enumerate(mask) if not keep]] = 0.0
+        governed = _unit(slots.reshape(-1))
+        axiom_id = str(key or f"{namespace}:{polarity_value}:{name}")
+        digest = hashlib.sha256(axiom_id.encode("utf-8")).hexdigest()
+        label = AXIOM_LABEL_BASE + (int(digest[:8], 16) % 900)
+        record = self.write(
+            governed, label=int(label), tier=TIER_AXIOMATIC, namespace=namespace
+        )
+        axiom = BoundaryAxiom(
+            axiom_id=axiom_id,
+            name=str(name),
+            polarity=polarity_value,
+            source=source_value,
+            slot_mask=mask,
+            namespace=str(namespace or "default"),
+            engram_id=int(record.engram_id),
+            wave=governed,
+            created_ts=float(record.ts),
+        )
+        self.put_meta(axiom.namespace, BOUNDARY_AXIOM_KIND, axiom.axiom_id, axiom.as_payload())
+        return axiom
+
+    def boundary_axioms(
+        self,
+        namespace: str = "default",
+        polarity: Optional[str] = None,
+    ) -> List[BoundaryAxiom]:
+        """Every registered axiom of one tenant, optionally of one polarity."""
+        wanted = None if polarity is None else str(polarity).upper()
+        out: List[BoundaryAxiom] = []
+        for key, payload in self.get_meta(namespace, BOUNDARY_AXIOM_KIND):
+            value = str(payload.get("polarity", ""))
+            if wanted is not None and value != wanted:
+                continue
+            engram_id = int(payload.get("engram_id", -1))
+            try:
+                wave = self.fetch_wave(engram_id)
+            except (KeyError, ValueError):
+                continue
+            out.append(
+                BoundaryAxiom(
+                    axiom_id=str(payload.get("axiom_id", key)),
+                    name=str(payload.get("name", "")),
+                    polarity=value,
+                    source=str(payload.get("source", "")),
+                    slot_mask=tuple(bool(v) for v in payload.get("slot_mask", (0, 0, 0, 1))),
+                    namespace=str(payload.get("namespace", namespace)),
+                    engram_id=engram_id,
+                    wave=np.asarray(wave, dtype=np.complex64),
+                    created_ts=float(payload.get("created_ts", 0.0)),
+                )
+            )
+        out.sort(key=lambda axiom: (axiom.engram_id, axiom.axiom_id))
+        return out
+
+    def axiom_waves(
+        self,
+        namespace: str = "default",
+        polarity: Optional[str] = None,
+    ) -> np.ndarray:
+        """The axioms of one polarity as an (M, dim) complex64 matrix."""
+        axioms = self.boundary_axioms(namespace, polarity)
+        if not axioms:
+            return np.zeros((0, self.dim), dtype=np.complex64)
+        return np.stack([axiom.governed() for axiom in axioms]).astype(np.complex64)
 
     # ------------------------------------------------------------- lifecycle
     def _raw_weight(self, now: Optional[float] = None) -> np.ndarray:

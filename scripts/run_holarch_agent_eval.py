@@ -29,6 +29,7 @@ import json
 import os
 import sys
 import tempfile
+import threading
 import time
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple
@@ -58,7 +59,7 @@ from henri.holarch.pipeline import HenriHolarch
 from henri.holarch.server import SidecarService, build_app, verify_receipt
 from henri.holarch.symbolic import CodeGraphIndexer, Edge, SymbolicTopologyTask, index_code
 from henri.holarch.tasks import GridWorldTask, build_tasks
-from henri.holarch.train import Trainer, TrainConfig
+from henri.holarch.train import Trainer, TrainConfig, evaluate
 from henri.holarch.zone_c import ZoneCMemory
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -1549,22 +1550,23 @@ def run_agent_eval(
         bool(
             cartridge_present
             and pre_mount_rows == 0
-            and clean_rows == 512
+            and clean_rows == seed_count
+            and seed_count >= 700
         ),
         evidence="open_clean_room_memory created a new SQLite file; no fixture copy",
     )
     _record_probe(
         "j1_store_rows_equal_seed_count",
         "j1_cleanroom",
-        "clean-room store rows == seed block count (512) and hydrated == count",
+        "clean-room store rows == seed block count and hydrated == count",
         {
             "store_rows": clean_rows,
             "seed_count": seed_count,
             "hydrated": clean_hydrated,
-            "seed_limit": 512,
+            "seed_limit": 1536,
         },
         bool(
-            seed_count == 512
+            seed_count >= 700
             and clean_rows == seed_count
             and clean_hydrated == seed_count
         ),
@@ -1896,6 +1898,284 @@ def run_agent_eval(
         j4_plan_ok,
         evidence="planner mounted on the clean-room store at 1 thread",
     )
+    # =================== Cycle K: 12 further clean-room probes =================
+    k_tasks = build_tasks(cfg, seed=int(cfg.seed))
+    k1_test = evaluate(clean_model, k_tasks, "test", limit=2000)
+    k1_empty = {"vision": 0, "relational": 0}
+    for name in ("vision", "relational"):
+        for batch in k_tasks[name].epoch(64, "val"):
+            output = clean_model(name, batch.x, training=False)
+            k1_empty[name] += int((output.veto & (~output.memory_mask)).sum())
+    _record_probe(
+        "k1_vision_cleanroom",
+        "k1_multitask",
+        "clean-room vision test accuracy >= 0.975 with a hydrated multi-task cartridge",
+        {
+            "vision_accuracy": float(k1_test.get("vision_accuracy", 0.0)),
+            "vision_veto_rate": float(k1_test.get("vision_veto_rate", 0.0)),
+            "seed_count": int(seed_count),
+            "pre_mount_rows": int(pre_mount_rows),
+        },
+        bool(float(k1_test.get("vision_accuracy", 0.0)) >= 0.975),
+        evidence="evaluate(clean_model, tasks, 'test') on the hydrated cartridge",
+    )
+    _record_probe(
+        "k1_relational_cleanroom",
+        "k1_multitask",
+        "clean-room relational test accuracy >= 0.7600 on the hydrated cartridge",
+        {
+            "relational_accuracy": float(k1_test.get("relational_accuracy", 0.0)),
+            "relational_veto_rate": float(k1_test.get("relational_veto_rate", 0.0)),
+        },
+        bool(float(k1_test.get("relational_accuracy", 0.0)) >= 0.76),
+        evidence="evaluate(clean_model, tasks, 'test') on the hydrated cartridge",
+    )
+    _record_probe(
+        "k1_empty_store_veto_zero",
+        "k1_multitask",
+        "no vision or relational query is vetoed by an empty retrieval",
+        {"empty_veto": dict(k1_empty), "total": int(sum(k1_empty.values()))},
+        bool(int(sum(k1_empty.values())) == 0),
+        evidence="per-sample veto AND NOT memory_mask over the validation splits",
+    )
+    k1_labels = seed_payload.get("labels")
+    k1_values = (
+        k1_labels.detach().cpu().numpy().astype(int).tolist()
+        if k1_labels is not None
+        else []
+    )
+    k1_rows = {
+        "vision": sum(1 for value in k1_values if 0 <= value < 10),
+        "language": sum(1 for value in k1_values if 10 <= value < 106),
+        "action": sum(1 for value in k1_values if 106 <= value < 110),
+        "relational": sum(1 for value in k1_values if 110 <= value < 118),
+    }
+    _record_probe(
+        "k1_cartridge_multitask_budget",
+        "k1_multitask",
+        "cartridge holds 604 action + >=64 vision + >=32 relational + >=32 language under 2.5 MiB",
+        {
+            "rows_by_task": k1_rows,
+            "seed_count": int(seed_count),
+            "seed_bytes": int(seed_payload.get("bytes", 0) or 0),
+            "dtype": str(seed_payload.get("dtype", "")),
+        },
+        bool(
+            k1_rows["action"] == 604
+            and k1_rows["vision"] >= 64
+            and k1_rows["relational"] >= 32
+            and k1_rows["language"] >= 32
+            and int(seed_payload.get("bytes", 0) or 0) <= 2_621_440
+        ),
+        evidence="label histogram of the mounted seed block",
+    )
+
+    # ------------------- K2: boundary-axiom discovery -------------------
+    from henri.holarch.discovery import run_discovery_battery
+
+    k2 = run_discovery_battery(clean_model, memory=clean_memory, namespace="agent_eval_k2")
+    _record_probe(
+        "k2_spatial_discovery",
+        "k2_boundary_axioms",
+        "4/4 spatial blocked-path probes discovered with law/repulsor steering",
+        {
+            "spatial": int(k2["probes"]["spatial"]),
+            "correct": int(sum(1 for row in k2["spatial"] if row["steered_correct"])),
+            "control_repeated_forbidden": int(
+                sum(1 for row in k2["spatial"] if row["control_repeated_forbidden"])
+            ),
+            "axioms": dict(k2["axioms"]),
+        },
+        bool(k2["gate"]["spatial_4_of_4"]),
+        evidence="Zone B relax_discovery under Zone C LAW/ATTRACTOR/REPULSOR axioms",
+    )
+    _record_probe(
+        "k2_symbolic_discovery",
+        "k2_boundary_axioms",
+        "4/4 symbolic operator probes discovered with a tenant LAW",
+        {
+            "symbolic": int(k2["probes"]["symbolic"]),
+            "correct": int(sum(1 for row in k2["symbolic"] if row["steered_correct"])),
+            "weight_updates": int(k2["weight_updates"]),
+        },
+        bool(k2["gate"]["symbolic_4_of_4"]),
+        evidence="Zone B relax_discovery over type-compatible operator candidates",
+    )
+
+    # ------------------- K3: multi-statement DAG ------------------------
+    from henri.holarch.code_gen import _compiled_plan
+
+    k3_sources = [
+        "def filter_above(items: list, threshold: float) -> list:\n    kept = []\n    for item in items:\n        if item > threshold:\n            kept.append(item)\n    return kept\n",
+        "def scale_values(values: list, factor: float) -> list:\n    scaled = []\n    for value in values:\n        scaled.append(value * factor)\n    return scaled\n",
+        "def total(values: list) -> float:\n    accumulator = 0.0\n    for value in values:\n        accumulator += value\n    return accumulator\n",
+    ]
+    k3_plans = [
+        _compiled_plan(f"k3_stage_{index}", "k3", source)
+        for index, source in enumerate(k3_sources)
+    ]
+    k3_verdict = compose_plan_dag(
+        k3_plans,
+        {"func": "k3_multistatement", "args": ["items", "threshold", "factor"], "numbers": []},
+    )
+    k3_scope: Dict[str, object] = {"__builtins__": __builtins__}
+    k3_actual = None
+    k3_error = ""
+    try:
+        exec(str(k3_verdict.get("source") or ""), k3_scope)
+        k3_actual = k3_scope["k3_multistatement"]([1.0, 2.0, 3.0, 4.0], 2.0, 2.0)
+    except Exception as error:  # noqa: BLE001
+        k3_error = f"{type(error).__name__}: {error}"
+    _record_probe(
+        "k3_multistatement_dag",
+        "k3_vla_dag",
+        "three multi-statement stages splice and execute; the answer matches the reference",
+        {
+            "ok": bool(k3_verdict.get("ok", False)),
+            "actual": k3_actual,
+            "expected": 14.0,
+            "error": k3_error,
+            "source_chars": len(str(k3_verdict.get("source") or "")),
+        },
+        bool(bool(k3_verdict.get("ok", False)) and k3_actual == 14.0),
+        evidence="AST alpha-renaming + terminal-return splicing, then execution",
+    )
+    k3_scaled = compose_plan_dag(
+        [_compiled_plan("k3_a", "k3", k3_sources[0]), _compiled_plan("k3_b", "k3", k3_sources[1]), _compiled_plan("k3_c", "k3", k3_sources[2])],
+        {"func": "k3_collision", "args": ["items", "threshold", "factor"], "numbers": []},
+    )
+    k3_collision = str(k3_scaled.get("source") or "")
+    _record_probe(
+        "k3_alpha_rename_no_collision",
+        "k3_vla_dag",
+        "stage locals are alpha-renamed to _s{i}_* so loop accumulators cannot collide",
+        {
+            "ok": bool(k3_scaled.get("ok", False)),
+            "stage_prefixes": int(k3_collision.count("_s0_")) + int(k3_collision.count("_s1_")) + int(k3_collision.count("_s2_")),
+            "source_chars": len(k3_collision),
+        },
+        bool(bool(k3_scaled.get("ok", False)) and "_s0_" in k3_collision and "_s1_" in k3_collision and "_s2_" in k3_collision),
+        evidence="scoped AST NodeTransformer rename",
+    )
+
+    # ------------------- K4: rebase and vectorised reads ----------------
+    from henri.holarch.code_lang import (
+        HolarchCodeTextTokenizer as _K4Tokenizer,
+        VocabularyLedger as _K4Ledger,
+        rebase_tenant_vocabulary as _k4_rebase,
+    )
+
+    k4_lock = _K4Ledger.load(lock_path) if lock_path.exists() else None
+    k4_a = _K4Tokenizer(vocab_lock=k4_lock, elastic_cap=8192)
+    k4_b = _K4Tokenizer(vocab_lock=k4_lock, elastic_cap=8192)
+    k4_names_a = [f"k4_alpha_{index:03d}_value" for index in range(300)]
+    k4_names_b = [f"k4_beta_{index:03d}_value" for index in range(300)]
+    k4_a.add_identifiers(k4_names_a)
+    k4_b.add_identifiers(k4_names_b)
+    k4_rebase = _k4_rebase(k4_a, k4_b)
+    k4_lossless = 0
+    for name in (k4_names_a[:10] + k4_names_b[:10]):
+        text = f"call {name}(value)"
+        ids_b = k4_b.encode(text)
+        k4_lossless += int(k4_rebase.tokenizer.decode(k4_rebase.translate(ids_b, "b")) == k4_b.decode(ids_b))
+    _record_probe(
+        "k4_cross_tenant_rebase",
+        "k4_rebase_concurrency",
+        "two 300-identifier tenants rebase with 0 Tier-1 shifts and lossless translation",
+        {
+            "tier1_shifts": int(k4_rebase.tier1_shifts),
+            "union": int(k4_rebase.union_size),
+            "lossless": int(k4_lossless),
+            "total": 20,
+            "added_from_b": len(k4_rebase.added_from_b),
+        },
+        bool(k4_rebase.tier1_shifts == 0 and k4_lossless == 20),
+        evidence="rebase_tenant_vocabulary + id_map translation, decode equality",
+    )
+    k4_verifier = service.sidecar.verifier if getattr(service.sidecar, "verifier", None) is not None else None
+    if k4_verifier is None:
+        from henri.holarch.ontology_guard import build_verifier as _k4_build
+
+        k4_verifier = _k4_build(ROOT)
+    k4_claims = [
+        "The medium profile has 1,020,380 parameters and reaches 0.7083 closed-loop action.",
+        "The vision accuracy (test) is 0.9798 against a 0.9750 bar.",
+        "Zone C stores engrams in SQLite when TimescaleDB is not reachable.",
+        "The tokenizer falls back to a 256-byte vocabulary for lossless round trips.",
+    ]
+    k4_parity = 0
+    for claim in k4_claims:
+        matrix = [index for _score, index in k4_verifier.bm25(claim, top_k=4)]
+        python = [index for _score, index in k4_verifier._bm25_python(claim, top_k=4)]
+        k4_parity += int(matrix == python)
+    _record_probe(
+        "k4_vectorised_bm25",
+        "k4_rebase_concurrency",
+        "NumPy-matmul BM25 returns the same top-4 passages as the reference loop",
+        {
+            "top4_parity": int(k4_parity),
+            "claims": len(k4_claims),
+            "passages": len(k4_verifier.passages),
+            "vocabulary": int(len(k4_verifier._bm25_vocab)),
+        },
+        bool(k4_parity == len(k4_claims)),
+        evidence="matrix-vector product vs the retained per-passage loop",
+    )
+    k4_errors: List[str] = []
+    k4_status: List[int] = []
+    k4_lock_obj = threading.Lock()
+    k4_observation = build_cul_de_sac_traps()[0]["observation"]
+
+    def _k4_worker(worker_id: int) -> None:
+        try:
+            for _round in range(8):
+                kind = worker_id % 4
+                if kind == 0:
+                    result = service.verify(k4_claims[0], kind="text")
+                elif kind == 1:
+                    result = service.plan(k4_observation, transition="rotor", lookahead_depth=2)
+                elif kind == 2:
+                    result = service.veto("action", k4_observation)
+                else:
+                    result = service.solve("ZoneCMemory.query", ["CALLS", "CALLS"])
+                with k4_lock_obj:
+                    k4_status.append(200 if bool(result.get("ok", False)) else 500)
+        except Exception as error:  # noqa: BLE001
+            with k4_lock_obj:
+                k4_errors.append(f"{type(error).__name__}: {error}")
+
+    k4_threads = [threading.Thread(target=_k4_worker, args=(index,)) for index in range(16)]
+    for thread in k4_threads:
+        thread.start()
+    for thread in k4_threads:
+        thread.join()
+    _record_probe(
+        "k4_concurrent_reads_128",
+        "k4_rebase_concurrency",
+        "128 concurrent reads across 16 threads complete with zero errors and one receipt chain",
+        {
+            "requests": len(k4_status),
+            "ok": int(sum(1 for status in k4_status if status == 200)),
+            "errors": k4_errors,
+            "chain_valid": bool(service.ledger.verify_chain()),
+        },
+        bool(len(k4_status) == 128 and not k4_errors and service.ledger.verify_chain()),
+        evidence="16 threads x 8 mixed verify/plan/veto/solve requests",
+    )
+    k4_bundle = service.export_import_bundle("default", "agent_eval_import")
+    _record_probe(
+        "k4_tenant_bundle",
+        "k4_rebase_concurrency",
+        "export_import_bundle copies the tenant ledger and plan library to a new namespace",
+        {
+            "written": int((k4_bundle.get("result") or {}).get("written", 0)),
+            "plans": int((k4_bundle.get("result") or {}).get("plan_records", 0)),
+            "tier2": int((k4_bundle.get("result") or {}).get("tier2_ids", 0)),
+        },
+        bool(int((k4_bundle.get("result") or {}).get("written", 0)) > 0),
+        evidence="Zone C metadata copy, one envelope receipt",
+    )
+
     clean_memory.close()
 
     for _category in (
@@ -1903,6 +2183,10 @@ def run_agent_eval(
         "j2_elastic_vocab",
         "j3_diverse_dag",
         "j4_openai_adapter",
+        "k1_multitask",
+        "k2_boundary_axioms",
+        "k3_vla_dag",
+        "k4_rebase_concurrency",
     ):
         per_category[_category]["rows"] = [
             row for row in probe_rows if row["category"] == _category
@@ -1970,6 +2254,10 @@ def run_agent_eval(
             "j2_elastic_vocab": 2,
             "j3_diverse_dag": 4,
             "j4_openai_adapter": 2,
+            "k1_multitask": 4,
+            "k2_boundary_axioms": 2,
+            "k3_vla_dag": 2,
+            "k4_rebase_concurrency": 4,
             "setup_receipts": 2,
         },
         "code_index": {
@@ -2181,16 +2469,16 @@ def run_agent_eval(
     # Directive J: one gate per new probe, plus the 88-query count gate.
     for _row in probe_rows:
         payload["gate"][str(_row["name"])] = bool(_row["correct"])
-    payload["gate"]["queries_88"] = bool(
-        int(payload["queries"]) == 88
-        and int(payload["total_queries"]) == 88
-        and int(payload["probe_slots"]) == 12
-        and int(payload["query_slots"]) == 88
-        and sum(int(value) for value in payload["query_mix"].values()) == 88
+    payload["gate"]["queries_100"] = bool(
+        int(payload["queries"]) == 100
+        and int(payload["total_queries"]) == 100
+        and int(payload["probe_slots"]) == 24
+        and int(payload["query_slots"]) == 100
+        and sum(int(value) for value in payload["query_mix"].values()) == 100
     )
-    payload["gate"]["probes_12_present"] = bool(
-        len(probe_rows) == 12
-        and len({str(row["category"]) for row in probe_rows}) == 4
+    payload["gate"]["probes_24_present"] = bool(
+        len(probe_rows) == 24
+        and len({str(row["category"]) for row in probe_rows}) == 8
         and all(
             {"name", "category", "expected", "measured", "correct"}.issubset(row)
             for row in probe_rows
@@ -2217,8 +2505,8 @@ def run_agent_eval(
         and payload["gate"]["verification_mcp_perfect"]
         and payload["gate"]["synthesis_multiplan_verified"]
         and payload["gate"]["delta_blast_radius_perfect"]
-        and payload["gate"]["queries_88"]
-        and payload["gate"]["probes_12_present"]
+        and payload["gate"]["queries_100"]
+        and payload["gate"]["probes_24_present"]
         and all(payload["gate"][str(row["name"])] for row in probe_rows)
     )
     try:

@@ -1346,6 +1346,53 @@ class SidecarService:
             },
         }
 
+    def export_import_bundle(
+        self, src_ns: str = "default", dst_ns: str = "imported"
+    ) -> Dict[str, Any]:
+        """Copy one tenant's vocabulary ledger and plan library to another.
+
+        Directive K4. The bundle carries the exact identifier order and the
+        Tier-2 address map, so the destination namespace can answer with the
+        source tenant's token ids without re-tokenizing a string. The
+        rebase id map is produced by rebase_tenant_vocabulary when the caller
+        holds two live tokenizers; this method moves the durable records.
+        """
+        from henri.holarch.code_lang import VOCAB_LEDGER_KIND
+
+        memory = getattr(self.sidecar.model, "memory", None)
+        if memory is None:
+            raise ValueError("the service has no Zone C memory")
+        source = str(src_ns or "default")
+        dest = str(dst_ns or "imported")
+        ledger = memory.get_meta(source, VOCAB_LEDGER_KIND, "vocab_ledger")
+        tier2 = memory.get_meta(source, VOCAB_LEDGER_KIND, "vocab_ledger_tier2")
+        plans = memory.get_meta(source, "plan")
+        written = 0
+        if ledger:
+            memory.put_meta(dest, VOCAB_LEDGER_KIND, "vocab_ledger", dict(ledger[-1][1]))
+            written += 1
+        if tier2:
+            memory.put_meta(dest, VOCAB_LEDGER_KIND, "vocab_ledger_tier2", dict(tier2[-1][1]))
+            written += 1
+        for key, payload in plans:
+            memory.put_meta(dest, "plan", str(key), dict(payload))
+            written += 1
+        tier2_ids = list(dict(tier2[-1][1]).get("tier2_ids", [])) if tier2 else []
+        result = {
+            "source": source,
+            "destination": dest,
+            "ledger_records": len(ledger),
+            "tier2_records": len(tier2),
+            "plan_records": len(plans),
+            "tier2_ids": len(tier2_ids),
+            "written": int(written),
+            "ledger_digest": str(
+                dict(ledger[-1][1]).get("digest", "") if ledger else ""
+            ),
+            "plans": [str(key) for key, _payload in plans],
+        }
+        return self._envelope("/v1/holarch/bundle", {"src": source, "dst": dest}, result)
+
     def health(self) -> Dict[str, Any]:
         with self.rw.read_locked():
             rotor = getattr(self.sidecar.model, "action_rotor", None)

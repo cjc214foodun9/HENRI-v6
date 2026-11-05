@@ -1,0 +1,66 @@
+{
+  "stage": "K4",
+  "rebase": {
+    "tenant_a_identifiers": 300,
+    "tenant_b_identifiers": 300,
+    "shared_identifiers": 50,
+    "tier1_size": 2048,
+    "union_identifiers": 1615,
+    "added_from_b": 300,
+    "tier1_shifts": 0,
+    "lossless_translations": 60,
+    "translation_total": 60,
+    "id_map_exact": true,
+    "payload_digest": "86d89306633cfcbd2fa63d7719149c2f041074993e09c425521bf978e9262de7"
+  },
+  "bm25": {
+    "claims": 10,
+    "top4_parity": 10,
+    "matrix_p50_ms": 0.2121500001521781,
+    "matrix_p95_ms": 0.3178000042680651,
+    "python_p50_ms": 1.2062499881722033,
+    "python_p95_ms": 1.836334992549382,
+    "speedup_p50": 5.685835433923844,
+    "speedup_p95": 5.778272397379922,
+    "passages": 848,
+    "vocabulary": 3109
+  },
+  "concurrency": {
+    "threads": 16,
+    "requests": 128,
+    "errors": [],
+    "ok": 128,
+    "seconds": 7.643227099993965,
+    "p50_ms": 729.0374500007601,
+    "p95_ms": 2265.0440350043937,
+    "receipt_chain_valid": true,
+    "gil_enabled": true
+  },
+  "bundle": {
+    "source": "default",
+    "destination": "imported",
+    "ledger_records": 1,
+    "tier2_records": 1,
+    "plan_records": 1,
+    "tier2_ids": 8,
+    "written": 3,
+    "ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
+    "plans": [
+      "k4_bundle_probe"
+    ]
+  },
+  "gate": {
+    "rebase_zero_tier1_shifts": true,
+    "rebase_lossless_100pct": true,
+    "rebase_id_map_exact": true,
+    "bm25_top4_parity": true,
+    "bm25_faster_p50": true,
+    "bm25_faster_p95": true,
+    "concurrency_128_zero_errors": true,
+    "concurrency_receipt_chain": true,
+    "bundle_copied": true,
+    "passed": true
+  },
+  "wall_seconds": 8.914074100001017,
+  "evidence": "OBSERVED"
+}

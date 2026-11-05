@@ -1,0 +1,1653 @@
+{
+  "stage": "K1",
+  "checkpoint": {
+    "path": "receipts\\holarch\\holarch_medium.pt",
+    "sha256": "f06642dcaf37dd6553dc311f8a7d506628c9998f57bfaabbe6e34ffd7659d9bd",
+    "bytes": 7756571,
+    "seed_engrams": {
+      "count": 845,
+      "bytes": 2512125,
+      "dtype": "int16-phase-uint8-amplitude-zlib9",
+      "rows_by_task": {
+        "vision": 106,
+        "language": 63,
+        "action": 604,
+        "relational": 72
+      },
+      "reconstruction_coherence_min": 0.9999657273292542
+    }
+  },
+  "clean_room": {
+    "pre_mount_rows": 0,
+    "post_mount_rows": 845,
+    "hydrated": 845,
+    "source_fixture_copied": false
+  },
+  "reference_store": {
+    "fixture": "data\\holarch\\zone_c.sqlite3",
+    "sha256": "d0863a4179bb37dd1199a08dd8f1c5997cbd693161a32bfa439030bcf4064c80",
+    "closed_loop_wins": 38,
+    "vision_test_accuracy": 0.9797979797979798,
+    "relational_test_accuracy": 0.7746478873239436,
+    "vision_val_accuracy": 0.9733333333333334,
+    "relational_val_accuracy": 0.7746478873239436
+  },
+  "closed_loop": {
+    "reference_store_deterministic_wins": 38,
+    "cleanroom_cartridge_wins": 38,
+    "cleanroom_cartridge_wins_thread1": 38,
+    "cleanroom_equals_reference_store": true,
+    "episode_parity_with_reference": 48,
+    "thread_episode_parity": 48,
+    "legacy_bmm_nondet_39_documented": true,
+    "one_step_accuracy": 0.8125,
+    "reactive_success_rate": 0.4583333333333333,
+    "trace_thread8": [
+      {
+        "index": 0,
+        "win": false,
+        "steps": 0,
+        "actions": [
+          1,
+          1,
+          1,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1
+        ]
+      },
+      {
+        "index": 1,
+        "win": true,
+        "steps": 18,
+        "actions": [
+          0,
+          0,
+          0,
+          3,
+          2,
+          0,
+          0,
+          3,
+          3,
+          3,
+          1,
+          0,
+          3,
+          3,
+          1,
+          1,
+          0,
+          3
+        ]
+      },
+      {
+        "index": 2,
+        "win": false,
+        "steps": 0,
+        "actions": [
+          0,
+          0,
+          3,
+          1,
+          0,
+          3,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0
+        ]
+      },
+      {
+        "index": 3,
+        "win": false,
+        "steps": 0,
+        "actions": [
+          0,
+          0,
+          0,
+          3,
+          1,
+          3,
+          2,
+          3,
+          2,
+          3,
+          2,
+          3,
+          2,
+          3,
+          2,
+          3,
+          2,
+          3,
+          2,
+          3
+        ]
+      },
+      {
+        "index": 4,
+        "win": true,
+        "steps": 6,
+        "actions": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          2
+        ]
+      },
+      {
+        "index": 5,
+        "win": false,
+        "steps": 0,
+        "actions": [
+          0,
+          3,
+          1,
+          2,
+          0,
+          3,
+          1,
+          2,
+          0,
+          3,
+          1,
+          2,
+          0,
+          3,
+          1,
+          2,
+          0,
+          3,
+          1,
+          2
+        ]
+      },
+      {
+        "index": 6,
+        "win": true,
+        "steps": 8,
+        "actions": [
+          3,
+          1,
+          3,
+          3,
+          1,
+          1,
+          1,
+          2
+        ]
+      },
+      {
+        "index": 7,
+        "win": true,
+        "steps": 3,
+        "actions": [
+          3,
+          3,
+          3
+        ]
+      },
+      {
+        "index": 8,
+        "win": true,
+        "steps": 6,
+        "actions": [
+          1,
+          1,
+          1,
+          2,
+          2,
+          2
+        ]
+      },
+      {
+        "index": 9,
+        "win": false,
+        "steps": 0,
+        "actions": [
+          0,
+          0,
+          0,
+          3,
+          0,
+          2,
+          3,
+          1,
+          0,
+          2,
+          3,
+          1,
+          0,
+          2,
+          3,
+          1,
+          0,
+          2,
+          3,
+          1
+        ]
+      },
+      {
+        "index": 10,
+        "win": true,
+        "steps": 11,
+        "actions": [
+          2,
+          1,
+          1,
+          3,
+          2,
+          3,
+          1,
+          3,
+          1,
+          1,
+          2
+        ]
+      },
+      {
+        "index": 11,
+        "win": true,
+        "steps": 5,
+        "actions": [
+          3,
+          0,
+          3,
+          3,
+          1
+        ]
+      },
+      {
+        "index": 12,
+        "win": true,
+        "steps": 5,
+        "actions": [
+          1,
+          3,
+          1,
+          3,
+          3
+        ]
+      },
+      {
+        "index": 13,
+        "win": false,
+        "steps": 0,
+        "actions": [
+          1,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1
+        ]
+      },
+      {
+        "index": 14,
+        "win": true,
+        "steps": 7,
+        "actions": [
+          0,
+          3,
+          0,
+          0,
+          3,
+          0,
+          3
+        ]
+      },
+      {
+        "index": 15,
+        "win": true,
+        "steps": 7,
+        "actions": [
+          1,
+          1,
+          2,
+          2,
+          2,
+          2,
+          0
+        ]
+      },
+      {
+        "index": 16,
+        "win": true,
+        "steps": 2,
+        "actions": [
+          1,
+          3
+        ]
+      },
+      {
+        "index": 17,
+        "win": true,
+        "steps": 2,
+        "actions": [
+          0,
+          3
+        ]
+      },
+      {
+        "index": 18,
+        "win": true,
+        "steps": 13,
+        "actions": [
+          2,
+          2,
+          2,
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          3,
+          3,
+          1
+        ]
+      },
+      {
+        "index": 19,
+        "win": true,
+        "steps": 4,
+        "actions": [
+          3,
+          0,
+          3,
+          3
+        ]
+      },
+      {
+        "index": 20,
+        "win": false,
+        "steps": 0,
+        "actions": [
+          1,
+          0,
+          1,
+          2,
+          0,
+          0,
+          1,
+          2,
+          1,
+          0,
+          3,
+          0,
+          1,
+          0,
+          1,
+          2,
+          1,
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "index": 21,
+        "win": false,
+        "steps": 0,
+        "actions": [
+          0,
+          3,
+          3,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1
+        ]
+      },
+      {
+        "index": 22,
+        "win": true,
+        "steps": 5,
+        "actions": [
+          0,
+          0,
+          0,
+          3,
+          3
+        ]
+      },
+      {
+        "index": 23,
+        "win": true,
+        "steps": 7,
+        "actions": [
+          2,
+          2,
+          2,
+          0,
+          2,
+          2,
+          2
+        ]
+      },
+      {
+        "index": 24,
+        "win": true,
+        "steps": 8,
+        "actions": [
+          2,
+          2,
+          0,
+          0,
+          2,
+          1,
+          0,
+          2
+        ]
+      },
+      {
+        "index": 25,
+        "win": true,
+        "steps": 2,
+        "actions": [
+          1,
+          2
+        ]
+      },
+      {
+        "index": 26,
+        "win": true,
+        "steps": 7,
+        "actions": [
+          1,
+          2,
+          2,
+          0,
+          2,
+          2,
+          2
+        ]
+      },
+      {
+        "index": 27,
+        "win": true,
+        "steps": 6,
+        "actions": [
+          1,
+          1,
+          2,
+          1,
+          0,
+          2
+        ]
+      },
+      {
+        "index": 28,
+        "win": true,
+        "steps": 2,
+        "actions": [
+          1,
+          3
+        ]
+      },
+      {
+        "index": 29,
+        "win": true,
+        "steps": 4,
+        "actions": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "index": 30,
+        "win": false,
+        "steps": 0,
+        "actions": [
+          1,
+          2,
+          2,
+          0,
+          3,
+          1,
+          2,
+          0,
+          3,
+          1,
+          2,
+          0,
+          3,
+          1,
+          2,
+          0,
+          3,
+          1,
+          2,
+          0
+        ]
+      },
+      {
+        "index": 31,
+        "win": true,
+        "steps": 3,
+        "actions": [
+          0,
+          3,
+          3
+        ]
+      },
+      {
+        "index": 32,
+        "win": true,
+        "steps": 6,
+        "actions": [
+          1,
+          1,
+          1,
+          1,
+          3,
+          3
+        ]
+      },
+      {
+        "index": 33,
+        "win": false,
+        "steps": 0,
+        "actions": [
+          0,
+          0,
+          0,
+          2,
+          3,
+          2,
+          3,
+          2,
+          3,
+          2,
+          3,
+          2,
+          3,
+          2,
+          3,
+          2,
+          3,
+          2,
+          3,
+          2
+        ]
+      },
+      {
+        "index": 34,
+        "win": true,
+        "steps": 3,
+        "actions": [
+          0,
+          0,
+          3
+        ]
+      },
+      {
+        "index": 35,
+        "win": true,
+        "steps": 5,
+        "actions": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "index": 36,
+        "win": true,
+        "steps": 7,
+        "actions": [
+          1,
+          1,
+          1,
+          2,
+          2,
+          2,
+          2
+        ]
+      },
+      {
+        "index": 37,
+        "win": true,
+        "steps": 8,
+        "actions": [
+          2,
+          1,
+          1,
+          0,
+          2,
+          1,
+          0,
+          2
+        ]
+      },
+      {
+        "index": 38,
+        "win": true,
+        "steps": 3,
+        "actions": [
+          3,
+          3,
+          3
+        ]
+      },
+      {
+        "index": 39,
+        "win": true,
+        "steps": 6,
+        "actions": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          3
+        ]
+      },
+      {
+        "index": 40,
+        "win": true,
+        "steps": 7,
+        "actions": [
+          2,
+          1,
+          1,
+          1,
+          1,
+          1,
+          3
+        ]
+      },
+      {
+        "index": 41,
+        "win": true,
+        "steps": 6,
+        "actions": [
+          0,
+          0,
+          0,
+          0,
+          3,
+          3
+        ]
+      },
+      {
+        "index": 42,
+        "win": true,
+        "steps": 3,
+        "actions": [
+          2,
+          2,
+          1
+        ]
+      },
+      {
+        "index": 43,
+        "win": true,
+        "steps": 4,
+        "actions": [
+          0,
+          0,
+          3,
+          3
+        ]
+      },
+      {
+        "index": 44,
+        "win": true,
+        "steps": 8,
+        "actions": [
+          0,
+          0,
+          2,
+          0,
+          3,
+          3,
+          3,
+          1
+        ]
+      },
+      {
+        "index": 45,
+        "win": true,
+        "steps": 5,
+        "actions": [
+          1,
+          1,
+          2,
+          1,
+          2
+        ]
+      },
+      {
+        "index": 46,
+        "win": true,
+        "steps": 5,
+        "actions": [
+          1,
+          1,
+          1,
+          2,
+          2
+        ]
+      },
+      {
+        "index": 47,
+        "win": true,
+        "steps": 10,
+        "actions": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          2,
+          2,
+          2,
+          0
+        ]
+      }
+    ],
+    "trace_thread1": [
+      {
+        "index": 0,
+        "win": false,
+        "steps": 0,
+        "actions": [
+          1,
+          1,
+          1,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1
+        ]
+      },
+      {
+        "index": 1,
+        "win": true,
+        "steps": 18,
+        "actions": [
+          0,
+          0,
+          0,
+          3,
+          2,
+          0,
+          0,
+          3,
+          3,
+          3,
+          1,
+          0,
+          3,
+          3,
+          1,
+          1,
+          0,
+          3
+        ]
+      },
+      {
+        "index": 2,
+        "win": false,
+        "steps": 0,
+        "actions": [
+          0,
+          0,
+          3,
+          1,
+          0,
+          3,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0
+        ]
+      },
+      {
+        "index": 3,
+        "win": false,
+        "steps": 0,
+        "actions": [
+          0,
+          0,
+          0,
+          3,
+          1,
+          3,
+          2,
+          3,
+          2,
+          3,
+          2,
+          3,
+          2,
+          3,
+          2,
+          3,
+          2,
+          3,
+          2,
+          3
+        ]
+      },
+      {
+        "index": 4,
+        "win": true,
+        "steps": 6,
+        "actions": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          2
+        ]
+      },
+      {
+        "index": 5,
+        "win": false,
+        "steps": 0,
+        "actions": [
+          0,
+          3,
+          1,
+          2,
+          0,
+          3,
+          1,
+          2,
+          0,
+          3,
+          1,
+          2,
+          0,
+          3,
+          1,
+          2,
+          0,
+          3,
+          1,
+          2
+        ]
+      },
+      {
+        "index": 6,
+        "win": true,
+        "steps": 8,
+        "actions": [
+          3,
+          1,
+          3,
+          3,
+          1,
+          1,
+          1,
+          2
+        ]
+      },
+      {
+        "index": 7,
+        "win": true,
+        "steps": 3,
+        "actions": [
+          3,
+          3,
+          3
+        ]
+      },
+      {
+        "index": 8,
+        "win": true,
+        "steps": 6,
+        "actions": [
+          1,
+          1,
+          1,
+          2,
+          2,
+          2
+        ]
+      },
+      {
+        "index": 9,
+        "win": false,
+        "steps": 0,
+        "actions": [
+          0,
+          0,
+          0,
+          3,
+          0,
+          2,
+          3,
+          1,
+          0,
+          2,
+          3,
+          1,
+          0,
+          2,
+          3,
+          1,
+          0,
+          2,
+          3,
+          1
+        ]
+      },
+      {
+        "index": 10,
+        "win": true,
+        "steps": 11,
+        "actions": [
+          2,
+          1,
+          1,
+          3,
+          2,
+          3,
+          1,
+          3,
+          1,
+          1,
+          2
+        ]
+      },
+      {
+        "index": 11,
+        "win": true,
+        "steps": 5,
+        "actions": [
+          3,
+          0,
+          3,
+          3,
+          1
+        ]
+      },
+      {
+        "index": 12,
+        "win": true,
+        "steps": 5,
+        "actions": [
+          1,
+          3,
+          1,
+          3,
+          3
+        ]
+      },
+      {
+        "index": 13,
+        "win": false,
+        "steps": 0,
+        "actions": [
+          1,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1
+        ]
+      },
+      {
+        "index": 14,
+        "win": true,
+        "steps": 7,
+        "actions": [
+          0,
+          3,
+          0,
+          0,
+          3,
+          0,
+          3
+        ]
+      },
+      {
+        "index": 15,
+        "win": true,
+        "steps": 7,
+        "actions": [
+          1,
+          1,
+          2,
+          2,
+          2,
+          2,
+          0
+        ]
+      },
+      {
+        "index": 16,
+        "win": true,
+        "steps": 2,
+        "actions": [
+          1,
+          3
+        ]
+      },
+      {
+        "index": 17,
+        "win": true,
+        "steps": 2,
+        "actions": [
+          0,
+          3
+        ]
+      },
+      {
+        "index": 18,
+        "win": true,
+        "steps": 13,
+        "actions": [
+          2,
+          2,
+          2,
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          3,
+          3,
+          1
+        ]
+      },
+      {
+        "index": 19,
+        "win": true,
+        "steps": 4,
+        "actions": [
+          3,
+          0,
+          3,
+          3
+        ]
+      },
+      {
+        "index": 20,
+        "win": false,
+        "steps": 0,
+        "actions": [
+          1,
+          0,
+          1,
+          2,
+          0,
+          0,
+          1,
+          2,
+          1,
+          0,
+          3,
+          0,
+          1,
+          0,
+          1,
+          2,
+          1,
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "index": 21,
+        "win": false,
+        "steps": 0,
+        "actions": [
+          0,
+          3,
+          3,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1
+        ]
+      },
+      {
+        "index": 22,
+        "win": true,
+        "steps": 5,
+        "actions": [
+          0,
+          0,
+          0,
+          3,
+          3
+        ]
+      },
+      {
+        "index": 23,
+        "win": true,
+        "steps": 7,
+        "actions": [
+          2,
+          2,
+          2,
+          0,
+          2,
+          2,
+          2
+        ]
+      },
+      {
+        "index": 24,
+        "win": true,
+        "steps": 8,
+        "actions": [
+          2,
+          2,
+          0,
+          0,
+          2,
+          1,
+          0,
+          2
+        ]
+      },
+      {
+        "index": 25,
+        "win": true,
+        "steps": 2,
+        "actions": [
+          1,
+          2
+        ]
+      },
+      {
+        "index": 26,
+        "win": true,
+        "steps": 7,
+        "actions": [
+          1,
+          2,
+          2,
+          0,
+          2,
+          2,
+          2
+        ]
+      },
+      {
+        "index": 27,
+        "win": true,
+        "steps": 6,
+        "actions": [
+          1,
+          1,
+          2,
+          1,
+          0,
+          2
+        ]
+      },
+      {
+        "index": 28,
+        "win": true,
+        "steps": 2,
+        "actions": [
+          1,
+          3
+        ]
+      },
+      {
+        "index": 29,
+        "win": true,
+        "steps": 4,
+        "actions": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "index": 30,
+        "win": false,
+        "steps": 0,
+        "actions": [
+          1,
+          2,
+          2,
+          0,
+          3,
+          1,
+          2,
+          0,
+          3,
+          1,
+          2,
+          0,
+          3,
+          1,
+          2,
+          0,
+          3,
+          1,
+          2,
+          0
+        ]
+      },
+      {
+        "index": 31,
+        "win": true,
+        "steps": 3,
+        "actions": [
+          0,
+          3,
+          3
+        ]
+      },
+      {
+        "index": 32,
+        "win": true,
+        "steps": 6,
+        "actions": [
+          1,
+          1,
+          1,
+          1,
+          3,
+          3
+        ]
+      },
+      {
+        "index": 33,
+        "win": false,
+        "steps": 0,
+        "actions": [
+          0,
+          0,
+          0,
+          2,
+          3,
+          2,
+          3,
+          2,
+          3,
+          2,
+          3,
+          2,
+          3,
+          2,
+          3,
+          2,
+          3,
+          2,
+          3,
+          2
+        ]
+      },
+      {
+        "index": 34,
+        "win": true,
+        "steps": 3,
+        "actions": [
+          0,
+          0,
+          3
+        ]
+      },
+      {
+        "index": 35,
+        "win": true,
+        "steps": 5,
+        "actions": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "index": 36,
+        "win": true,
+        "steps": 7,
+        "actions": [
+          1,
+          1,
+          1,
+          2,
+          2,
+          2,
+          2
+        ]
+      },
+      {
+        "index": 37,
+        "win": true,
+        "steps": 8,
+        "actions": [
+          2,
+          1,
+          1,
+          0,
+          2,
+          1,
+          0,
+          2
+        ]
+      },
+      {
+        "index": 38,
+        "win": true,
+        "steps": 3,
+        "actions": [
+          3,
+          3,
+          3
+        ]
+      },
+      {
+        "index": 39,
+        "win": true,
+        "steps": 6,
+        "actions": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          3
+        ]
+      },
+      {
+        "index": 40,
+        "win": true,
+        "steps": 7,
+        "actions": [
+          2,
+          1,
+          1,
+          1,
+          1,
+          1,
+          3
+        ]
+      },
+      {
+        "index": 41,
+        "win": true,
+        "steps": 6,
+        "actions": [
+          0,
+          0,
+          0,
+          0,
+          3,
+          3
+        ]
+      },
+      {
+        "index": 42,
+        "win": true,
+        "steps": 3,
+        "actions": [
+          2,
+          2,
+          1
+        ]
+      },
+      {
+        "index": 43,
+        "win": true,
+        "steps": 4,
+        "actions": [
+          0,
+          0,
+          3,
+          3
+        ]
+      },
+      {
+        "index": 44,
+        "win": true,
+        "steps": 8,
+        "actions": [
+          0,
+          0,
+          2,
+          0,
+          3,
+          3,
+          3,
+          1
+        ]
+      },
+      {
+        "index": 45,
+        "win": true,
+        "steps": 5,
+        "actions": [
+          1,
+          1,
+          2,
+          1,
+          2
+        ]
+      },
+      {
+        "index": 46,
+        "win": true,
+        "steps": 5,
+        "actions": [
+          1,
+          1,
+          1,
+          2,
+          2
+        ]
+      },
+      {
+        "index": 47,
+        "win": true,
+        "steps": 10,
+        "actions": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          2,
+          2,
+          2,
+          0
+        ]
+      }
+    ]
+  },
+  "traps": {
+    "truth": [
+      1,
+      2,
+      2,
+      1,
+      0,
+      3,
+      3,
+      0
+    ],
+    "actions_thread8": [
+      1,
+      2,
+      2,
+      1,
+      0,
+      3,
+      3,
+      0
+    ],
+    "actions_thread1": [
+      1,
+      2,
+      2,
+      1,
+      0,
+      3,
+      3,
+      0
+    ],
+    "correct_thread8": 8,
+    "correct_thread1": 8
+  },
+  "multi_task": {
+    "test": {
+      "vision": 0.9764309764309764,
+      "language": 0.1943359375,
+      "action": 0.7875,
+      "relational": 0.7746478873239436
+    },
+    "val": {
+      "vision": 0.9733333333333334,
+      "language": 0.21044921875,
+      "action": 0.7875,
+      "relational": 0.7746478873239436
+    },
+    "veto_rates": {
+      "vision": 0.05723905723905724,
+      "language": 0.19580078125,
+      "action": 0.0,
+      "relational": 0.09859154929577464
+    },
+    "empty_store_veto": {
+      "vision": 0,
+      "relational": 0,
+      "total": 0
+    }
+  },
+  "gate": {
+    "clean_room_zero_rows": true,
+    "cartridge_under_2_5_mib": true,
+    "cartridge_multitask": true,
+    "hydrated_matches_block": true,
+    "closed_loop_38_at_eight_threads": true,
+    "closed_loop_38_at_one_thread": true,
+    "cleanroom_equals_reference_store": true,
+    "thread_episode_parity_48_of_48": true,
+    "traps_8_of_8": true,
+    "one_step_action_at_least_0_78": true,
+    "vision_test_at_least_0_975": true,
+    "relational_test_at_least_0_76": true,
+    "empty_store_veto_zero": true,
+    "passed": true
+  },
+  "wall_seconds": 184.14001279999502,
+  "evidence": "OBSERVED"
+}

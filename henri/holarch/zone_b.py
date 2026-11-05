@@ -763,6 +763,262 @@ class PhotonicCore(nn.Module):
         dark = self.dark_energy(bright).sum(dim=-1)
         return residual + float(lambda_dark) * dark, align
 
+    # --------------------------------------------- boundary-axiom discovery
+    def discovery_energy(
+        self,
+        bright: torch.Tensor,
+        attractors: Optional[torch.Tensor] = None,
+        repulsors: Optional[torch.Tensor] = None,
+        laws: Optional[torch.Tensor] = None,
+        *,
+        tau_rep: float = 0.30,
+        tau_law: float = 0.35,
+        lambda_rep: float = 1.0,
+        lambda_law: float = 2.0,
+        lambda_dark: float = 0.5,
+    ) -> Tuple[torch.Tensor, Dict[str, torch.Tensor]]:
+        """Boundary-guided discovery free energy, shape (batch,).
+
+            E = (1 - max_m Re<psi, phi_m^+>)
+              + lambda_rep * sum_q max(0, Re<psi, phi_q^-> - tau_rep)
+              + lambda_law * sum_l max(0, Sagnac(psi, alpha_l) - tau_law)
+              + lambda_dark * sum_s dark_s
+
+        Every term is a measured wave statistic; no term is a tuned logit.
+        """
+        batch = int(bright.shape[0])
+        device = bright.device
+        zeros = torch.zeros(batch, device=device, dtype=torch.float32)
+        goal = zeros.clone()
+        repulsion = zeros.clone()
+        law_penalty = zeros.clone()
+        align_attractor = torch.zeros(batch, 0, device=device)
+        align_repulsor = torch.zeros(batch, 0, device=device)
+        law_delta = torch.zeros(batch, 0, device=device)
+        if attractors is not None and int(attractors.numel()):
+            align_attractor = self.alignment(bright, attractors.to(bright.dtype))
+            goal = 1.0 - align_attractor.amax(dim=-1)
+        if repulsors is not None and int(repulsors.numel()):
+            align_repulsor = self.alignment(bright, repulsors.to(bright.dtype))
+            repulsion = float(lambda_rep) * torch.clamp(
+                align_repulsor - float(tau_rep), min=0.0
+            ).sum(dim=-1)
+        if laws is not None and int(laws.numel()):
+            columns = [
+                sagnac_delta(bright, laws[index].unsqueeze(0).expand_as(bright))
+                for index in range(int(laws.shape[0]))
+            ]
+            law_delta = torch.stack(columns, dim=-1)
+            law_penalty = float(lambda_law) * torch.clamp(
+                law_delta - float(tau_law), min=0.0
+            ).sum(dim=-1)
+        dark = float(lambda_dark) * self.dark_energy(bright).sum(dim=-1)
+        total = goal + repulsion + law_penalty + dark
+        return total, {
+            "goal": goal,
+            "repulsor": repulsion,
+            "law": law_penalty,
+            "dark": dark,
+            "attractor_alignment": align_attractor,
+            "repulsor_alignment": align_repulsor,
+            "law_delta": law_delta,
+        }
+
+    def _probe_waves(
+        self,
+        psi: torch.Tensor,
+        repulsors: Optional[torch.Tensor],
+        probes: int,
+        seed: int,
+        phase_scale: float,
+        directions: Optional[torch.Tensor] = None,
+    ) -> torch.Tensor:
+        """Deterministic probe swarm, shape (batch, probes, dim).
+
+        With explicit directions the probes are the supplied candidate waves
+        mixed with the input wave; without them they are seeded phase
+        perturbations. In both cases every probe is projected orthogonal to
+        the active repulsor subspace, so the swarm cannot start inside a
+        known trap.
+        """
+        batch, dim = int(psi.shape[0]), int(psi.shape[1])
+        probes = max(1, int(probes))
+        if directions is not None:
+            waves = psi.unsqueeze(1) + directions.to(psi.dtype)
+        else:
+            generator = torch.Generator().manual_seed(int(seed))
+            real = torch.randn(batch, probes, dim, generator=generator)
+            imag = torch.randn(batch, probes, dim, generator=generator)
+            noise = torch.complex(real, imag).to(psi.dtype)
+            phase = float(phase_scale) * torch.tanh(noise.real) * math.pi
+            waves = psi.unsqueeze(1) * torch.exp(1j * phase)
+        if directions is None and repulsors is not None and int(repulsors.numel()):
+            # Random probes are projected out of the repulsor subspace. An
+            # explicit direction is a candidate the caller built (an action
+            # successor, an operator wave); it must reach the plates exactly,
+            # and the repulsor term of the energy still penalises it.
+            basis = _unit(repulsors.to(psi.dtype))
+            for index in range(int(basis.shape[0])):
+                vector = basis[index].reshape(1, 1, dim)
+                coefficient = (waves.conj() * vector).sum(dim=-1, keepdim=True).real
+                waves = waves - coefficient * vector
+        return _unit(waves, dim=-1)
+
+    def relax_discovery(
+        self,
+        psi: torch.Tensor,
+        attractors: Optional[torch.Tensor] = None,
+        repulsors: Optional[torch.Tensor] = None,
+        laws: Optional[torch.Tensor] = None,
+        *,
+        probes: int = 8,
+        steps: int = 3,
+        t_bias: Optional[float] = None,
+        tau_rep: float = 0.30,
+        tau_law: float = 0.35,
+        lambda_rep: float = 1.0,
+        lambda_law: float = 2.0,
+        lambda_dark: float = 0.5,
+        phase_scale: float = 0.65,
+        eta: float = 0.25,
+        directions: Optional[torch.Tensor] = None,
+        seed: Optional[int] = None,
+    ) -> Tuple[PhotonicState, Dict[str, object]]:
+        """Thermal discovery swarm under the Zone C boundary axioms (K2).
+
+        Launches B_probe deterministic perturbations orthogonal to the active
+        repulsors at the elevated Curie-Weiss heater temperature, propagates
+        each through the four BaTiO3 plates, and keeps the minimum-energy wave
+        that satisfies every LAW axiom. The accepted wave is never worse in
+        free energy than the input pass, by the same comparison rule the
+        prototype loop uses.
+        """
+        psi = _unit(psi.to(torch.complex64))
+        batch = int(psi.shape[0])
+        dim = int(psi.shape[1])
+        probe_count = max(1, int(probes))
+        if directions is not None:
+            probe_count = max(1, int(directions.shape[1]))
+        bias = float(self.cfg.t_max if t_bias is None else t_bias)
+        # The boundary sets live in the same optical space as the candidates.
+        # A law written as a pre-photonic successor is carried through the same
+        # plates once, so the Sagnac comparison is output-to-output and not a
+        # comparison across two different spaces.
+        if attractors is not None and int(attractors.numel()):
+            attractors = _unit(self.forward(_unit(attractors.to(torch.complex64)), t_bias=bias).bright)
+        if repulsors is not None and int(repulsors.numel()):
+            repulsors = _unit(self.forward(_unit(repulsors.to(torch.complex64)), t_bias=bias).bright)
+        if laws is not None and int(laws.numel()):
+            laws = _unit(self.forward(_unit(laws.to(torch.complex64)), t_bias=bias).bright)
+        current_seed = int(self.cfg.seed) + 9101 if seed is None else int(seed)
+        candidates = self._probe_waves(
+            psi, repulsors, probe_count, current_seed, phase_scale, directions=directions
+        )
+        flat = candidates.reshape(batch * probe_count, dim)
+        state = self.forward(flat, t_bias=bias)
+        energy, parts = self.discovery_energy(
+            state.bright,
+            attractors,
+            repulsors,
+            laws,
+            tau_rep=tau_rep,
+            tau_law=tau_law,
+            lambda_rep=lambda_rep,
+            lambda_law=lambda_law,
+            lambda_dark=lambda_dark,
+        )
+        energy_grid = energy.reshape(batch, probe_count)
+        best_index = energy_grid.argmin(dim=-1)
+        row = torch.arange(batch, device=psi.device)
+        best_bright = state.bright.reshape(batch, probe_count, dim)[row, best_index]
+        best_energy = energy_grid[row, best_index]
+        # Re-propagate the winning wave so the returned state carries a dark
+        # port, heater grid and feature block with the winning batch shape.
+        best_state = self.forward(best_bright, t_bias=bias)
+        best_state = self._replace_bright(
+            best_state,
+            best_bright,
+            best_bright if attractors is None else best_bright,
+        )
+        trace_energy = [float(best_energy.mean().detach())]
+        target = None
+        if attractors is not None and int(attractors.numel()):
+            reference = attractors.to(psi.dtype)
+            align = self.alignment(best_bright, reference)
+            weights = torch.softmax(align, dim=-1).to(torch.complex64)
+            target = _unit(
+                (weights @ reference.reshape(reference.shape[0], -1)).reshape(-1, dim)
+                if batch == 1
+                else best_bright
+            )
+            if batch > 1:
+                mixed = torch.zeros_like(best_bright)
+                for index in range(batch):
+                    mixed[index] = (
+                        torch.softmax(align[index], dim=-1).to(torch.complex64)
+                        @ reference.reshape(reference.shape[0], -1)
+                    )
+                target = _unit(mixed)
+        for _step in range(max(0, int(steps))):
+            corrected = best_bright
+            if target is not None:
+                phase = torch.angle(target * corrected.conj())
+                corrected = _unit(corrected * torch.exp(1j * float(eta) * phase))
+            if repulsors is not None and int(repulsors.numel()):
+                basis = _unit(repulsors.to(psi.dtype))
+                for index in range(int(basis.shape[0])):
+                    vector = basis[index].reshape(1, dim)
+                    overlap = (corrected.conj() * vector).sum(dim=-1, keepdim=True).real
+                    push = torch.clamp(overlap - float(tau_rep), min=0.0)
+                    corrected = corrected - push.to(corrected.dtype) * vector
+                corrected = _unit(corrected)
+            candidate_state = self.forward(corrected, t_bias=bias)
+            candidate_energy, _candidate_parts = self.discovery_energy(
+                candidate_state.bright,
+                attractors,
+                repulsors,
+                laws,
+                tau_rep=tau_rep,
+                tau_law=tau_law,
+                lambda_rep=lambda_rep,
+                lambda_law=lambda_law,
+                lambda_dark=lambda_dark,
+            )
+            improved = candidate_energy < best_energy
+            best_bright = torch.where(
+                improved.unsqueeze(-1), candidate_state.bright, best_bright
+            )
+            best_energy = torch.where(improved, candidate_energy, best_energy)
+            best_state = self._replace_bright(
+                candidate_state,
+                best_bright,
+                target if target is not None else best_bright,
+            )
+            trace_energy.append(float(best_energy.mean().detach()))
+        law_max = torch.zeros(batch, device=psi.device)
+        law_ok = torch.ones(batch, dtype=torch.bool, device=psi.device)
+        if laws is not None and int(laws.numel()):
+            columns = [
+                sagnac_delta(best_bright, laws[index].unsqueeze(0).expand_as(best_bright))
+                for index in range(int(laws.shape[0]))
+            ]
+            law_max = torch.stack(columns, dim=-1).amax(dim=-1)
+            law_ok = law_max <= float(tau_law)
+        trace: Dict[str, object] = {
+            "probes": int(probe_count),
+            "steps": int(steps),
+            "temperature_bias": float(bias),
+            "probe_energies": [float(value) for value in energy_grid.mean(dim=0).detach()],
+            "best_energy": [float(value) for value in best_energy.detach()],
+            "energy_trace": trace_energy,
+            "law_max_delta": [float(value) for value in law_max.detach()],
+            "law_satisfied": [bool(value) for value in law_ok.detach()],
+            "attractors": int(attractors.shape[0]) if attractors is not None else 0,
+            "repulsors": int(repulsors.shape[0]) if repulsors is not None else 0,
+            "laws": int(laws.shape[0]) if laws is not None else 0,
+        }
+        return best_state, trace
+
     def relax_prototype(
         self,
         psi: torch.Tensor,

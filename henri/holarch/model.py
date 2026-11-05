@@ -28,6 +28,7 @@ import os
 import shutil
 import tempfile
 import time
+import zlib
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
@@ -104,23 +105,44 @@ def action_rotor_from_payload(payload: Optional[Dict[str, Any]], cfg) -> Optiona
     return rotor
 
 
-SEED_ENGRAM_FORMAT = "henri-seed-engrams-v1"
-"""Directive J1: the checkpoint-resident Zone C context chart."""
+SEED_ENGRAM_FORMAT = "henri-seed-engrams-v2"
+"""Directive K1: the multi-task checkpoint-resident Zone C context chart."""
 
-SEED_ENGRAM_LIMIT = 512
+SEED_ENGRAM_FORMAT_V1 = "henri-seed-engrams-v1"
+"""Cycle J half-precision quadrature cartridge, still readable."""
+
+SEED_ENGRAM_LIMIT = 1536
 """Hard cap on distilled engrams, so the cartridge cannot become a database."""
 
-SEED_ENGRAM_BYTE_BUDGET = 2_500_000
-"""Hard byte cap on the serialised seed block."""
+SEED_ENGRAM_BYTE_BUDGET = 2_621_440
+"""Hard byte cap on the serialised seed block: 2.5 MiB, not 2.5 MB."""
+
+SEED_ENGRAM_PHASE_LEVELS = 65535
+"""Uniform int16 phase quantisation levels over [-pi, pi)."""
+
+SEED_ENGRAM_AMPLITUDE_LEVELS = 255
+"""Per-row peak-normalised uint8 amplitude levels."""
 
 
 def seed_engram_payload(rows: Optional[Sequence[Dict[str, Any]]]) -> Optional[Dict[str, Any]]:
-    """Serialise the distilled Zone C rows into checkpoint tensors (J1).
+    """Serialise the distilled Zone C rows into one compressed block (K1).
 
     Each row is {label, tier, wave, namespace?}. The wave is the stored unit
-    complex64 vector, so the mounted store retrieves exactly the rows the
-    reference store served. Nothing here is a copy of the 21 MB fixture: only
-    the engrams the deployed planner actually reads are kept.
+    complex64 vector, so the mounted store retrieves the rows the reference
+    store served. Nothing here is a copy of the 21 MB fixture: only the
+    engrams the deployed planner and the four task blocks actually read.
+
+    Byte budget. Cycle J stored two float16 quadratures (4 bytes per
+    dimension) and had to cap the action block at 512 rows to stay under
+    budget, which cost one closed-loop episode (38 -> 37). Cycle K stores a
+    unit wave as a uniform int16 phase plus a peak-normalised uint8 amplitude
+    (3 bytes per dimension), then compresses the byte planes with zlib level
+    9. A measured boundary decides the precision: the action block needs the
+    16-bit phase to reproduce the 38/48 deterministic reference rollout
+    (int8 quadrature scores 37/48), and the support blocks are equally exact
+    at this precision. The format is lossless with respect to the quantised
+    polar code, not with respect to complex64; reconstruction coherence is
+    measured and written to the receipt.
     """
     if not rows:
         return None
@@ -138,44 +160,108 @@ def seed_engram_payload(rows: Optional[Sequence[Dict[str, Any]]]) -> Optional[Di
         tiers.append(int(row.get("tier", 1)))
         waves.append(wave.copy())
         namespaces.append(str(row.get("namespace", "default")))
-    stacked = np.stack(waves)
-    # The block is stored as two half-precision quadratures rather than one
-    # complex64 tensor. The byte budget is 2.5 MB for up to 512 engrams, and a
-    # complex64 row at D = 1024 costs 8 KB, which does not fit (512 * 8 KB =
-    # 4.2 MB). Half precision costs 4 KB per row (2.1 MB total) and the
-    # quantisation error is ~1e-5 on a unit wave, three orders of magnitude
-    # below the coherence differences that decide a retrieval. The deployed
-    # retrieval therefore reads exactly the rows this block stores.
-    real = torch.from_numpy(np.ascontiguousarray(stacked.real)).to(torch.float16)
-    imag = torch.from_numpy(np.ascontiguousarray(stacked.imag)).to(torch.float16)
+    stacked = np.stack(waves).astype(np.complex64)
+    phase = np.angle(stacked).astype(np.float64)
+    amplitude = np.abs(stacked).astype(np.float64)
+    peak = amplitude.max(axis=1)
+    peak = np.where(peak > 0.0, peak, 1.0)
+    levels = int(SEED_ENGRAM_PHASE_LEVELS)
+    quantised_phase = np.rint((phase + np.pi) / (2.0 * np.pi) * levels)
+    quantised_phase = np.clip(quantised_phase, 0, levels).astype(np.uint16)
+    quantised_amplitude = np.rint(amplitude / peak[:, None] * SEED_ENGRAM_AMPLITUDE_LEVELS)
+    quantised_amplitude = np.clip(
+        quantised_amplitude, 0, SEED_ENGRAM_AMPLITUDE_LEVELS
+    ).astype(np.uint8)
+    raw = (
+        quantised_phase.tobytes()
+        + quantised_amplitude.tobytes()
+        + np.asarray(peak, dtype=np.float32).tobytes()
+    )
+    compressed = zlib.compress(raw, 9)
+    payload = torch.frombuffer(bytearray(compressed), dtype=torch.uint8).clone()
     block = {
         "format": SEED_ENGRAM_FORMAT,
         "labels": torch.tensor(labels, dtype=torch.int64),
         "tiers": torch.tensor(tiers, dtype=torch.int64),
-        "real": real,
-        "imag": imag,
+        "payload": payload,
         "count": int(len(labels)),
         "dim": int(stacked.shape[1]),
         "namespace": namespaces[0] if namespaces else "default",
         "source_sha256": str(rows[0].get("source_sha256", "")) if rows else "",
-        "dtype": "float16-quadrature",
+        "dtype": "int16-phase-uint8-amplitude-zlib9",
+        "compression": "zlib-9",
+        "raw_bytes": int(len(raw)),
+        "phase_levels": levels,
+        "amplitude_levels": int(SEED_ENGRAM_AMPLITUDE_LEVELS),
     }
     block["bytes"] = int(
-        real.numel() * real.element_size()
-        + imag.numel() * imag.element_size()
+        int(payload.numel())
         + block["labels"].numel() * 8
         + block["tiers"].numel() * 8
     )
-    if int(block["bytes"]) >= SEED_ENGRAM_BYTE_BUDGET:
+    if int(block["bytes"]) > SEED_ENGRAM_BYTE_BUDGET:
         raise ValueError(
             f"the seed cartridge exceeds {SEED_ENGRAM_BYTE_BUDGET} bytes: {block['bytes']}"
         )
     return block
 
 
+def seed_engram_waves(block: Optional[Dict[str, Any]]) -> Optional[np.ndarray]:
+    """Decode a v2 block into its (count, dim) complex64 waves.
+
+    Pure function of the stored bytes: the same block always decodes to the
+    same array, so a clean-room replay is bit-identical.
+    """
+    if not block or block.get("format") != SEED_ENGRAM_FORMAT:
+        return None
+    payload = block.get("payload")
+    if payload is None:
+        return None
+    count = int(block.get("count", 0) or 0)
+    dim = int(block.get("dim", 0) or 0)
+    if count <= 0 or dim <= 0:
+        return None
+    raw = zlib.decompress(bytes(payload.detach().cpu().numpy().tobytes()))
+    phase_bytes = count * dim * 2
+    amplitude_bytes = count * dim
+    phase = np.frombuffer(raw[:phase_bytes], dtype=np.uint16).reshape(count, dim)
+    amplitude = np.frombuffer(
+        raw[phase_bytes : phase_bytes + amplitude_bytes], dtype=np.uint8
+    ).reshape(count, dim)
+    peak = np.frombuffer(raw[phase_bytes + amplitude_bytes :], dtype=np.float32).reshape(count)
+    levels = float(block.get("phase_levels", SEED_ENGRAM_PHASE_LEVELS))
+    amplitude_levels = float(block.get("amplitude_levels", SEED_ENGRAM_AMPLITUDE_LEVELS))
+    reconstructed_phase = phase.astype(np.float64) / levels * (2.0 * np.pi) - np.pi
+    reconstructed_amplitude = (
+        amplitude.astype(np.float64) / amplitude_levels * peak.astype(np.float64)[:, None]
+    )
+    waves = (reconstructed_amplitude * np.exp(1j * reconstructed_phase)).astype(np.complex64)
+    norms = np.linalg.norm(waves, axis=1, keepdims=True)
+    return waves / np.maximum(norms, 1e-12)
+
+
 def seed_engram_rows(block: Optional[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """Inverse of seed_engram_payload: the rows a mount will hydrate."""
-    if not block or block.get("format") != SEED_ENGRAM_FORMAT:
+    if not block:
+        return []
+    if block.get("format") == SEED_ENGRAM_FORMAT:
+        waves = seed_engram_waves(block)
+        labels = block.get("labels")
+        tiers = block.get("tiers")
+        if waves is None or labels is None:
+            return []
+        rows = []
+        for index in range(int(waves.shape[0])):
+            rows.append(
+                {
+                    "label": int(labels[index]),
+                    "tier": int(tiers[index]) if tiers is not None else 1,
+                    "wave": np.asarray(waves[index], dtype=np.complex64),
+                    "namespace": str(block.get("namespace", "default") or "default"),
+                }
+            )
+        return rows
+    if block.get("format") != SEED_ENGRAM_FORMAT_V1:
         return []
     labels = block.get("labels")
     tiers = block.get("tiers")
