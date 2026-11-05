@@ -105,8 +105,11 @@ def action_rotor_from_payload(payload: Optional[Dict[str, Any]], cfg) -> Optiona
     return rotor
 
 
-SEED_ENGRAM_FORMAT = "henri-seed-engrams-v2"
-"""Directive K1: the multi-task checkpoint-resident Zone C context chart."""
+SEED_ENGRAM_FORMAT = "henri-seed-engrams-v3"
+"""Directive M3: the full-reference polar-packed Zone C context chart."""
+
+SEED_ENGRAM_FORMAT_V2 = "henri-seed-engrams-v2"
+"""Cycle K multi-task cartridge, still readable."""
 
 SEED_ENGRAM_FORMAT_V1 = "henri-seed-engrams-v1"
 """Cycle J half-precision quadrature cartridge, still readable."""
@@ -124,7 +127,11 @@ SEED_ENGRAM_AMPLITUDE_LEVELS = 255
 """Per-row peak-normalised uint8 amplitude levels."""
 
 
-def seed_engram_payload(rows: Optional[Sequence[Dict[str, Any]]]) -> Optional[Dict[str, Any]]:
+def seed_engram_payload(
+    rows: Optional[Sequence[Dict[str, Any]]],
+    enforce_budget: bool = True,
+    exact_ids: Sequence[int] = (),
+) -> Optional[Dict[str, Any]]:
     """Serialise the distilled Zone C rows into one compressed block (K1).
 
     Each row is {label, tier, wave, namespace?}. The wave is the stored unit
@@ -161,58 +168,272 @@ def seed_engram_payload(rows: Optional[Sequence[Dict[str, Any]]]) -> Optional[Di
         waves.append(wave.copy())
         namespaces.append(str(row.get("namespace", "default")))
     stacked = np.stack(waves).astype(np.complex64)
-    phase = np.angle(stacked).astype(np.float64)
-    amplitude = np.abs(stacked).astype(np.float64)
-    peak = amplitude.max(axis=1)
-    peak = np.where(peak > 0.0, peak, 1.0)
-    levels = int(SEED_ENGRAM_PHASE_LEVELS)
-    quantised_phase = np.rint((phase + np.pi) / (2.0 * np.pi) * levels)
-    quantised_phase = np.clip(quantised_phase, 0, levels).astype(np.uint16)
-    quantised_amplitude = np.rint(amplitude / peak[:, None] * SEED_ENGRAM_AMPLITUDE_LEVELS)
-    quantised_amplitude = np.clip(
-        quantised_amplitude, 0, SEED_ENGRAM_AMPLITUDE_LEVELS
-    ).astype(np.uint8)
-    raw = (
-        quantised_phase.tobytes()
-        + quantised_amplitude.tobytes()
-        + np.asarray(peak, dtype=np.float32).tobytes()
+    dim = int(stacked.shape[1])
+    label_array = np.asarray(labels, dtype=np.int64)
+    action_index = np.flatnonzero((label_array >= 106) & (label_array < 110)).astype(np.int64)
+    support_index = np.flatnonzero(
+        ~((label_array >= 106) & (label_array < 110))
+    ).astype(np.int64)
+
+    action_payload = b""
+    action_proto_labels = np.zeros(0, dtype=np.int64)
+    if int(action_index.size):
+        block_waves = stacked[action_index]
+        block_labels = label_array[action_index]
+        # Prototype-residual delta coding: every action wave is stored as a
+        # phase residual against the tier-3 prototype of its own class. The
+        # residual cluster makes the 12-bit phase code exact enough to
+        # reproduce the deterministic reference rollout, and the prototype
+        # phases themselves cost 2 bytes per dimension for four classes.
+        prototypes: Dict[int, np.ndarray] = {}
+        for position, index in enumerate(action_index):
+            if int(tiers[int(index)]) == 3:
+                prototypes.setdefault(int(block_labels[position]), block_waves[position])
+        action_proto_labels = np.asarray(sorted(prototypes), dtype=np.int64)
+        proto_phase = np.stack(
+            [np.angle(prototypes[int(label)]) for label in action_proto_labels]
+        ).astype(np.float64)
+        proto_lookup = {
+            int(label): proto_phase[position]
+            for position, label in enumerate(action_proto_labels)
+        }
+        phase = np.angle(block_waves).astype(np.float64)
+        residual = np.zeros_like(phase)
+        for position, label in enumerate(block_labels):
+            reference = proto_lookup.get(int(label))
+            if reference is None:
+                reference = np.zeros(dim, dtype=np.float64)
+            residual[position] = (phase[position] - reference + np.pi) % (2.0 * np.pi) - np.pi
+        amplitude = np.abs(block_waves).astype(np.float64)
+        peak = np.maximum(amplitude.max(axis=1), 1e-12)
+        quantised_phase = np.clip(
+            np.rint((residual + np.pi) / (2.0 * np.pi) * 4095), 0, 4095
+        ).astype(np.uint16)
+        # The 4-bit amplitude uses a square-root law: the code step is fine
+        # near zero and coarse near the peak, which is where a unit wave
+        # spends almost all of its channels.
+        quantised_amplitude = np.clip(
+            np.rint(np.sqrt(amplitude / peak[:, None]) * 15), 0, 15
+        ).astype(np.uint16)
+        packed = (quantised_phase << 4) | quantised_amplitude
+        quantised_proto = np.clip(
+            np.rint((proto_phase + np.pi) / (2.0 * np.pi) * 65535), 0, 65535
+        ).astype(np.uint16)
+        action_payload = zlib.compress(
+            action_proto_labels.astype(np.int64).tobytes()
+            + quantised_proto.astype(np.uint16).tobytes()
+            + packed.astype(np.uint16).tobytes()
+            + np.asarray(peak, dtype=np.float32).tobytes(),
+            9,
+        )
+
+    support_payload = b""
+    if int(support_index.size):
+        block_waves = stacked[support_index]
+        scale = np.maximum(np.abs(block_waves).max(axis=1), 1e-12)
+        quantised_real = np.clip(
+            np.rint(block_waves.real / scale[:, None] * 127), -127, 127
+        ).astype(np.int8)
+        quantised_imag = np.clip(
+            np.rint(block_waves.imag / scale[:, None] * 127), -127, 127
+        ).astype(np.int8)
+        support_payload = zlib.compress(
+            quantised_real.tobytes()
+            + quantised_imag.tobytes()
+            + np.asarray(scale, dtype=np.float32).tobytes(),
+            9,
+        )
+
+    exact_set = {int(value) for value in exact_ids}
+    exact_index = np.asarray(
+        [
+            position
+            for position, row in enumerate(rows)
+            if int(row.get("engram_id", -1)) in exact_set
+        ],
+        dtype=np.int64,
     )
-    compressed = zlib.compress(raw, 9)
-    payload = torch.frombuffer(bytearray(compressed), dtype=torch.uint8).clone()
+    exact_payload = b""
+    if int(exact_index.size):
+        exact_waves = stacked[exact_index]
+        exact_phase = np.clip(
+            np.rint((np.angle(exact_waves) + np.pi) / (2.0 * np.pi) * 65535), 0, 65535
+        ).astype(np.uint16)
+        exact_amp = np.abs(exact_waves)
+        exact_peak = np.maximum(exact_amp.max(axis=1), 1e-12)
+        exact_quant = np.clip(
+            np.rint(exact_amp / exact_peak[:, None] * 255), 0, 255
+        ).astype(np.uint8)
+        exact_payload = zlib.compress(
+            exact_index.astype(np.int64).tobytes()
+            + exact_phase.tobytes()
+            + exact_quant.tobytes()
+            + np.asarray(exact_peak, dtype=np.float32).tobytes(),
+            9,
+        )
+
     block = {
         "format": SEED_ENGRAM_FORMAT,
+        "exact_index": torch.tensor(exact_index, dtype=torch.int64),
+        "exact_payload": (
+            torch.frombuffer(bytearray(exact_payload), dtype=torch.uint8).clone()
+            if exact_payload
+            else torch.zeros(0, dtype=torch.uint8)
+        ),
         "labels": torch.tensor(labels, dtype=torch.int64),
         "tiers": torch.tensor(tiers, dtype=torch.int64),
-        "payload": payload,
+        "action_index": torch.tensor(action_index, dtype=torch.int64),
+        "action_payload": (
+            torch.frombuffer(bytearray(action_payload), dtype=torch.uint8).clone()
+            if action_payload
+            else torch.zeros(0, dtype=torch.uint8)
+        ),
+        "support_index": torch.tensor(support_index, dtype=torch.int64),
+        "support_payload": (
+            torch.frombuffer(bytearray(support_payload), dtype=torch.uint8).clone()
+            if support_payload
+            else torch.zeros(0, dtype=torch.uint8)
+        ),
         "count": int(len(labels)),
         "dim": int(stacked.shape[1]),
         "namespace": namespaces[0] if namespaces else "default",
         "source_sha256": str(rows[0].get("source_sha256", "")) if rows else "",
-        "dtype": "int16-phase-uint8-amplitude-zlib9",
+        "dtype": "v3-action-int12-sqrt4-support-int8-zlib9",
         "compression": "zlib-9",
-        "raw_bytes": int(len(raw)),
-        "phase_levels": levels,
-        "amplitude_levels": int(SEED_ENGRAM_AMPLITUDE_LEVELS),
+        "action_rows": int(action_index.size),
+        "action_proto_count": int(action_proto_labels.size),
+        "support_rows": int(support_index.size),
     }
     block["bytes"] = int(
-        int(payload.numel())
+        int(block["action_payload"].numel())
+        + int(block["support_payload"].numel())
         + block["labels"].numel() * 8
         + block["tiers"].numel() * 8
+        + block["action_index"].numel() * 8
+        + block["support_index"].numel() * 8
+        + int(block["exact_payload"].numel())
+        + block["exact_index"].numel() * 8
     )
-    if int(block["bytes"]) > SEED_ENGRAM_BYTE_BUDGET:
+    if enforce_budget and int(block["bytes"]) > SEED_ENGRAM_BYTE_BUDGET:
         raise ValueError(
             f"the seed cartridge exceeds {SEED_ENGRAM_BYTE_BUDGET} bytes: {block['bytes']}"
         )
     return block
 
 
+def _seed_engram_waves_v3(block: Dict[str, Any]) -> Optional[np.ndarray]:
+    """Decode the M3 mixed polar block: packed action rows, int8 support rows."""
+    count = int(block.get("count", 0) or 0)
+    dim = int(block.get("dim", 0) or 0)
+    if count <= 0 or dim <= 0:
+        return None
+    waves = np.zeros((count, dim), dtype=np.complex64)
+    action_index = block.get("action_index")
+    support_index = block.get("support_index")
+    if action_index is not None and int(action_index.numel()):
+        indices = action_index.detach().cpu().numpy().astype(np.int64)
+        raw = zlib.decompress(
+            bytes(block["action_payload"].detach().cpu().numpy().tobytes())
+        )
+        rows = int(indices.size)
+        proto_count = int(block.get("action_proto_count", 0) or 0)
+        cursor = 0
+        proto_labels = np.frombuffer(
+            raw[cursor : cursor + proto_count * 8], dtype=np.int64
+        )
+        cursor += proto_count * 8
+        proto_quantised = np.frombuffer(
+            raw[cursor : cursor + proto_count * dim * 2], dtype=np.uint16
+        ).reshape(proto_count, dim)
+        cursor += proto_count * dim * 2
+        packed = np.frombuffer(
+            raw[cursor : cursor + rows * dim * 2], dtype=np.uint16
+        ).reshape(rows, dim)
+        cursor += rows * dim * 2
+        peaks = np.frombuffer(raw[cursor : cursor + rows * 4], dtype=np.float32)[:rows]
+        proto_phase = (
+            proto_quantised.astype(np.float64) / 65535.0 * (2.0 * np.pi) - np.pi
+        )
+        lookup = {
+            int(label): position for position, label in enumerate(proto_labels.tolist())
+        }
+        residual = (packed >> 4).astype(np.float64) / 4095.0 * (2.0 * np.pi) - np.pi
+        labels_tensor = block.get("labels")
+        labels = (
+            labels_tensor.detach().cpu().numpy().astype(np.int64)
+            if labels_tensor is not None
+            else np.zeros(count, dtype=np.int64)
+        )
+        phase = np.zeros_like(residual)
+        for position, index in enumerate(indices):
+            reference = lookup.get(int(labels[int(index)]))
+            phase[position] = (
+                residual[position] + (proto_phase[reference] if reference is not None else 0.0)
+            )
+        amplitude = (packed & 15).astype(np.float64) / 15.0
+        amplitude = (amplitude ** 2) * peaks.astype(np.float64)[:, None]
+        reconstructed = amplitude * np.exp(1j * phase)
+        norms = np.linalg.norm(reconstructed, axis=1, keepdims=True)
+        waves[indices] = (reconstructed / np.maximum(norms, 1e-12)).astype(np.complex64)
+    if support_index is not None and int(support_index.numel()):
+        indices = support_index.detach().cpu().numpy().astype(np.int64)
+        raw = zlib.decompress(
+            bytes(block["support_payload"].detach().cpu().numpy().tobytes())
+        )
+        rows = int(indices.size)
+        plane = rows * dim
+        real = np.frombuffer(raw[:plane], dtype=np.int8).reshape(rows, dim)
+        imag = np.frombuffer(raw[plane : 2 * plane], dtype=np.int8).reshape(rows, dim)
+        scale = np.frombuffer(raw[2 * plane :], dtype=np.float32)[:rows]
+        reconstructed = (
+            (real.astype(np.float64) + 1j * imag.astype(np.float64))
+            * scale.astype(np.float64)[:, None]
+            / 127.0
+        )
+        norms = np.linalg.norm(reconstructed, axis=1, keepdims=True)
+        waves[indices] = (reconstructed / np.maximum(norms, 1e-12)).astype(np.complex64)
+    exact_index = block.get("exact_index")
+    if exact_index is not None and int(exact_index.numel()):
+        indices = exact_index.detach().cpu().numpy().astype(np.int64)
+        raw = zlib.decompress(
+            bytes(block["exact_payload"].detach().cpu().numpy().tobytes())
+        )
+        rows = int(indices.size)
+        cursor = 0
+        stored_index = np.frombuffer(raw[cursor : cursor + rows * 8], dtype=np.int64)
+        cursor += rows * 8
+        phase = np.frombuffer(
+            raw[cursor : cursor + rows * dim * 2], dtype=np.uint16
+        ).reshape(rows, dim)
+        cursor += rows * dim * 2
+        amplitude = np.frombuffer(
+            raw[cursor : cursor + rows * dim], dtype=np.uint8
+        ).reshape(rows, dim)
+        cursor += rows * dim
+        peaks = np.frombuffer(raw[cursor : cursor + rows * 4], dtype=np.float32)[:rows]
+        exact_phase = phase.astype(np.float64) / 65535.0 * (2.0 * np.pi) - np.pi
+        exact_amplitude = (
+            amplitude.astype(np.float64) / 255.0 * peaks.astype(np.float64)[:, None]
+        )
+        reconstructed = exact_amplitude * np.exp(1j * exact_phase)
+        norms = np.linalg.norm(reconstructed, axis=1, keepdims=True)
+        waves[stored_index] = (
+            reconstructed / np.maximum(norms, 1e-12)
+        ).astype(np.complex64)
+    return waves
+
+
 def seed_engram_waves(block: Optional[Dict[str, Any]]) -> Optional[np.ndarray]:
-    """Decode a v2 block into its (count, dim) complex64 waves.
+    """Decode a stored block into its (count, dim) complex64 waves.
 
     Pure function of the stored bytes: the same block always decodes to the
     same array, so a clean-room replay is bit-identical.
     """
-    if not block or block.get("format") != SEED_ENGRAM_FORMAT:
+    if not block:
+        return None
+    if block.get("format") == SEED_ENGRAM_FORMAT:
+        return _seed_engram_waves_v3(block)
+    if block.get("format") != SEED_ENGRAM_FORMAT_V2:
         return None
     payload = block.get("payload")
     if payload is None:
@@ -244,7 +465,7 @@ def seed_engram_rows(block: Optional[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """Inverse of seed_engram_payload: the rows a mount will hydrate."""
     if not block:
         return []
-    if block.get("format") == SEED_ENGRAM_FORMAT:
+    if block.get("format") in {SEED_ENGRAM_FORMAT, SEED_ENGRAM_FORMAT_V2}:
         waves = seed_engram_waves(block)
         labels = block.get("labels")
         tiers = block.get("tiers")
@@ -1019,6 +1240,164 @@ class LatentActionLookahead:
             lookahead[action] = row[torch.as_tensor(legal, dtype=torch.long)].max()
         return lookahead
 
+    # -------------------------------------------------- online repulsor (M1)
+    def cycle_score(self, psi: torch.Tensor, recent: Sequence[torch.Tensor]) -> float:
+        """Largest coherence between this wave and any non-adjacent visit."""
+        if len(recent) < 2:
+            return 0.0
+        return max(
+            float((psi.reshape(-1).conj() * state.reshape(-1)).sum().real)
+            for state in recent[1:]
+        )
+
+    def dead_end(self, psi: torch.Tensor) -> bool:
+        """True when at most one non-reversing unit move is legal."""
+        blocked = self.wall_mask(psi)
+        legal = [index for index in range(4) if not bool(blocked[index])]
+        if len(legal) <= 1:
+            return True
+        return False
+
+    @torch.no_grad()
+    def discover_escape(
+        self,
+        psi: torch.Tensor,
+        recent: Sequence[torch.Tensor],
+        legal: np.ndarray,
+        previous_action: Optional[int],
+        memory,
+        namespace: str = "episode",
+        cycle_threshold: float = 0.98,
+        visited: Optional[Sequence[torch.Tensor]] = None,
+        prior_scores: Optional[torch.Tensor] = None,
+        alignment_weight: float = 1.0,
+        prior_weight: float = 0.5,
+        coherence_weight: float = 2.0,
+        distance_weight: float = 1.5,
+        distance_first: bool = False,
+        avoid_reverse: bool = False,
+    ) -> Dict[str, object]:
+        """Register the trapping wave and let Zone B settle an escape action.
+
+        The current sensor wave is written to Zone C as a test-time REPULSOR,
+        then PhotonicCore.relax_discovery is attracted to the goal wave and
+        repelled by the recent visit buffer. The settled wave is compared with
+        the four one-step successors read through the same plates, and the
+        best legal action that is not the immediately previous action is
+        returned.
+        """
+        successors = self.predict_batch(psi, [0, 1, 2, 3])
+        successors_out = self.model.zone_b(successors, t_bias=float(self.model.cfg.t_max)).bright
+        basis: List[torch.Tensor] = [psi.reshape(-1)] + [
+            state.reshape(-1) for state in recent[:4]
+        ]
+        repulsors = torch.stack(basis).to(torch.complex64)
+        directions = torch.cat([successors - psi, psi - successors], dim=0).unsqueeze(0)
+        axiom: Dict[str, object] = {"registered": False}
+        try:
+            record = memory.register_axiom(
+                psi.detach().cpu().numpy(),
+                name=f"trap_{namespace}_{len(recent)}",
+                polarity="REPULSOR",
+                source="test_time_learned",
+                slot_mask=(True, True, True, True),
+                namespace=namespace,
+            )
+            axiom = {"registered": True, "engram_id": int(record.engram_id)}
+        except Exception as error:  # noqa: BLE001 - the failure is the measurement
+            axiom = {"registered": False, "error": f"{type(error).__name__}: {error}"}
+        state, trace = self.model.zone_b.relax_discovery(
+            psi.reshape(1, -1),
+            attractors=self.goal.reshape(1, -1),
+            repulsors=repulsors,
+            laws=None,
+            probes=8,
+            steps=2,
+            tau_rep=0.55,
+            lambda_rep=1.2,
+            lambda_law=0.0,
+            lambda_dark=0.15,
+            directions=directions,
+            seed=int(self.model.cfg.seed) + 7300 + int(len(recent)),
+        )
+        settled = state.bright.detach().reshape(-1)
+        alignment = torch.zeros(4)
+        for action in range(4):
+            alignment[action] = (settled.conj() * successors_out[action].reshape(-1)).sum().real
+        history = list(visited or recent)
+        coherence = np.zeros(4)
+        for action in range(4):
+            successor = successors[action].reshape(-1)
+            values = [
+                float((successor.conj() * state.reshape(-1)).sum().real)
+                for state in history
+            ]
+            coherence[action] = max(values) if values else 0.0
+        legal_mask = np.asarray(legal, dtype=bool).copy()
+        # Hard novelty veto: an action whose successor repeats a recently
+        # visited wave is removed unless every legal action repeats. The
+        # REPULSOR axioms carry the same information into Zone B; this mask
+        # is the deterministic decoding rule that makes the escape repeatable.
+        fresh = legal_mask & (coherence < float(cycle_threshold))
+        candidate_mask = fresh if bool(fresh.any()) else legal_mask
+        if avoid_reverse and visited and len(visited) > 1 and int(candidate_mask.sum()) > 1:
+            # Do not step straight back into the state the agent just left.
+            # Adjacent cells are only ~0.9 coherent, so this is a separate
+            # rule from the exact-revisit veto above: exclude the single
+            # successor most coherent with the most recent visit.
+            recent_wave = visited[0].reshape(-1)
+            back = np.array(
+                [
+                    float((successors[action].reshape(-1).conj() * recent_wave).sum().real)
+                    for action in range(4)
+                ]
+            )
+            back[~candidate_mask] = -np.inf
+            candidate_mask[int(np.argmax(back))] = False
+        if not bool(candidate_mask.any()):
+            candidate_mask = np.ones(4, dtype=bool)
+        prior = prior_scores if prior_scores is not None else torch.zeros(4)
+        prior = prior.detach().to(torch.float32).clone()
+        prior[~torch.isfinite(prior)] = float(prior[torch.isfinite(prior)].min()) if bool(torch.isfinite(prior).any()) else 0.0
+        def _z(value: torch.Tensor) -> torch.Tensor:
+            spread = float(value.std())
+            return (value - value.mean()) / spread if spread > 1e-8 else torch.zeros_like(value)
+        distance = torch.tensor(
+            [float(self.goal_distance(successors[action])) for action in range(4)],
+            dtype=torch.float32,
+        )
+        if distance_first:
+            # Escape mode for a state that has just been trapped: the goal
+            # distance is the primary term, the wave alignment and the prior
+            # only break ties, and a revisited successor is still penalised.
+            combined = (
+                -10.0 * distance
+                + 0.2 * _z(prior)
+                + 0.1 * _z(alignment)
+                - float(coherence_weight) * torch.from_numpy(coherence).to(torch.float32)
+            )
+        else:
+            combined = (
+                float(alignment_weight) * _z(alignment)
+                + float(prior_weight) * _z(prior)
+                - float(coherence_weight) * torch.from_numpy(coherence).to(torch.float32)
+                - float(distance_weight) * _z(distance)
+                + 3.0 * (distance <= 0.0).to(torch.float32)
+            )
+        masked = combined.clone()
+        masked[~torch.from_numpy(candidate_mask)] = -float("inf")
+        action = int(masked.argmax())
+        return {
+            "action": action,
+            "scores": [float(value) for value in combined],
+            "coherence": [float(value) for value in coherence],
+            "candidate_mask": [bool(value) for value in candidate_mask],
+            "axiom": axiom,
+            "trace": trace,
+            "cycle_score": self.cycle_score(psi, recent),
+            "dead_end": self.dead_end(psi),
+        }
+
     # --------------------------------------------------------------- rollout
     @torch.no_grad()
     def choose(
@@ -1075,6 +1454,8 @@ def evaluate_closed_loop_action(
     batch_rollout: bool = True,
     use_memory: bool = True,
     trace: bool = False,
+    online_repulsor: bool = False,
+    online_namespace: str = "m1",
 ) -> Dict[str, object]:
     """Closed-loop success of the 1-step latent wave lookahead policy.
 
@@ -1128,9 +1509,13 @@ def evaluate_closed_loop_action(
                 reactive_wins += 1
                 break
     per_episode: List[Dict[str, object]] = []
+    online_discoveries = 0
+    online_rows: List[Dict[str, object]] = []
     for index in range(episode_count):
         walls, agent, goal = task.val_layouts[index]
         recent: List[torch.Tensor] = []
+        visited: List[torch.Tensor] = []
+        distances: List[int] = []
         episode_actions: List[int] = []
         episode_win = False
         episode_steps = 0
@@ -1138,6 +1523,43 @@ def evaluate_closed_loop_action(
             observation = world.observe(walls, agent, goal)
             choice = lookahead.choose(observation, recent, use_memory=bool(use_memory))
             action = int(choice["action"])
+            if online_repulsor:
+                psi = choice["psi"]
+                distance = int(lookahead.goal_distance(psi))
+                stalled = bool(
+                    len(distances) >= 5
+                    and min(distances[-4:]) >= distances[-5]
+                )
+                trapped = (
+                    lookahead.cycle_score(psi, visited[-12:]) > 0.98
+                    or lookahead.dead_end(psi)
+                    or stalled
+                )
+                if trapped:
+                    previous = episode_actions[-1] if episode_actions else None
+                    escape = lookahead.discover_escape(
+                        psi,
+                        visited[-4:] or recent,
+                        choice["legal"],
+                        previous,
+                        getattr(model, "memory", None),
+                        namespace=f"{online_namespace}_{index}",
+                        visited=visited[-12:],
+                        prior_scores=choice["scores"],
+                    )
+                    action = int(escape["action"])
+                    online_discoveries += 1
+                    online_rows.append(
+                        {
+                            "episode": int(index),
+                            "step": int(_step),
+                            "previous_action": None if previous is None else int(previous),
+                            "escape_action": int(action),
+                            "cycle_score": float(escape["cycle_score"]),
+                            "dead_end": bool(escape["dead_end"]),
+                            "axiom": dict(escape["axiom"]),
+                        }
+                    )
             episode_actions.append(action)
             chosen_actions.append(action)
             dr, dc = ((-1, 0), (1, 0), (0, -1), (0, 1))[action]
@@ -1149,6 +1571,9 @@ def evaluate_closed_loop_action(
             agent = (row, col)
             recent.insert(0, choice["psi"])
             del recent[lookahead.history :]
+            visited.append(choice["psi"])
+            if online_repulsor:
+                distances.append(int(lookahead.goal_distance(choice["psi"])))
             if agent == goal:
                 wins += 1
                 steps_used.append(_step + 1)
@@ -1201,6 +1626,9 @@ def evaluate_closed_loop_action(
         "use_memory": bool(use_memory),
         "rotor_fitted": bool(getattr(rotor, "fitted", False)),
         "trace": list(per_episode),
+        "online_repulsor": bool(online_repulsor),
+        "online_discoveries": int(online_discoveries),
+        "online_rows": online_rows,
         "evidence": "OBSERVED",
     }
 

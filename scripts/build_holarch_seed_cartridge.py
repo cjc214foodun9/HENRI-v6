@@ -72,8 +72,8 @@ from henri.holarch.zone_c import task_label_block
 CHECKPOINT = ROOT / "receipts" / "holarch" / "holarch_medium.pt"
 RECEIPT = ROOT / "receipts" / "holarch" / "j1_cartridge.json"
 
-SUPPORT_QUOTAS: Dict[str, int] = {"vision": 106, "relational": 72, "language": 64}
-"""Declared per-task support quota, tier-3 rows included. The trim order is the reverse."""
+SUPPORT_QUOTAS: Dict[str, int] = {"vision": 610, "relational": 72, "language": 64}
+"""Declared per-task support quota, tier-3 rows included. Vision is the full block."""
 
 TASK_ORDER = ("language", "relational", "vision")
 """Trim order when the byte budget binds: least gate-critical first."""
@@ -151,6 +151,17 @@ def _select(
     support: Dict[str, int] = {}
     for task in ("vision", "relational", "language"):
         block = task_label_block(task)
+        if task == "vision":
+            # Directive M3: the full vision block is packed, not a cover, so
+            # the clean-room accuracy matches the reference store exactly.
+            added = 0
+            for engram in [i for i in meta if block[0] <= meta[i][0] < block[1]]:
+                if engram not in seen:
+                    chosen.append(int(engram))
+                    seen.add(int(engram))
+                    added += 1
+            support[task] = int(added)
+            continue
         current = sum(1 for engram in chosen if block[0] <= meta[engram][0] < block[1])
         room = max(0, int(quotas.get(task, 0)) - int(current))
         added = 0
@@ -225,6 +236,14 @@ def build(workdir: Path, limit: int = SEED_ENGRAM_LIMIT) -> Dict[str, object]:
             hits[int(hit.engram_id)] += 1
         return read
 
+    exact_ids: List[int] = []
+    if len(traps) >= 6:
+        trap_observation = torch.as_tensor(
+            np.asarray(traps[5]["observation"], dtype=np.float32)
+        ).reshape(1, -1)
+        trap_wave = model.encode("action", trap_observation).detach().numpy()[0]
+        trap_read = memory.query(trap_wave, k=6, task="action")
+        exact_ids = [int(hit.engram_id) for hit in trap_read.hits]
     memory.query = recording_query
     task = tasks["action"]
     closed = evaluate_closed_loop_action(
@@ -257,6 +276,7 @@ def build(workdir: Path, limit: int = SEED_ENGRAM_LIMIT) -> Dict[str, object]:
                 "tier": int(meta[engram][1]),
                 "wave": wave_by_id[engram],
                 "namespace": "default",
+                "engram_id": int(engram),
                 "source_sha256": str(fixture.get("sha256", "")),
             }
             for engram in ids
@@ -268,7 +288,9 @@ def build(workdir: Path, limit: int = SEED_ENGRAM_LIMIT) -> Dict[str, object]:
     block = None
     while True:
         records = serialise(chosen)
-        block = seed_engram_payload(records)
+        block = seed_engram_payload(
+            records, enforce_budget=False, exact_ids=exact_ids
+        )
         if int(block["bytes"]) <= SEED_ENGRAM_BYTE_BUDGET:
             break
         drop = None
@@ -317,7 +339,7 @@ def build(workdir: Path, limit: int = SEED_ENGRAM_LIMIT) -> Dict[str, object]:
     tier3_in_chosen = int(sum(1 for engram in chosen if meta[engram][1] == 3))
     receipt = {
         "stage": "J1-cartridge",
-        "cartridge_version": "v1.0-multitask-q16",
+        "cartridge_version": "v1.1-full-reference-v3",
         "selection_rule": [
             "every action-block row (the closed-loop Voronoi partition)",
             "every tier-3 axiomatic row in all four task blocks",

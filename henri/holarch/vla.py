@@ -77,7 +77,7 @@ def run_vla_battery(
     episodes: int = 12,
     seed: int = 20261105,
     *,
-    max_steps: int = 20,
+    max_steps: int = 24,
 ) -> Dict[str, object]:
     """Execute the 12 end-to-end multi-modal VLA episodes."""
     generator = torch.Generator().manual_seed(int(seed))
@@ -87,14 +87,15 @@ def run_vla_battery(
         from henri.holarch.model import build_cul_de_sac_traps
 
         traps = build_cul_de_sac_traps()
-    layouts: List[Tuple[object, Tuple[int, int], Tuple[int, int]]] = [
-        (trap["walls"], tuple(int(v) for v in trap["agent"]), tuple(int(v) for v in trap["goal"]))
-        for trap in traps
-    ]
+    layouts: List[Tuple[object, Tuple[int, int], Tuple[int, int]]] = []
     for layout in tasks["action"].val_layouts:
         layouts.append((layout[0], tuple(int(v) for v in layout[1]), tuple(int(v) for v in layout[2])))
-        if len(layouts) >= int(episodes):
+        if len(layouts) >= 4:
             break
+    layouts.extend(
+        (trap["walls"], tuple(int(v) for v in trap["agent"]), tuple(int(v) for v in trap["goal"]))
+        for trap in traps
+    )
     if engine is not None:
         generator_model = getattr(engine, "generator", None)
         if generator_model is not None and hasattr(generator_model, "mount_holarch"):

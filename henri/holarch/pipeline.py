@@ -834,13 +834,24 @@ class HenriHolarch(nn.Module):
         if use_memory and getattr(self, "memory", None) is not None:
             context_rows: List[torch.Tensor] = []
             axiom_rows: List[torch.Tensor] = []
-            prefix_rows: List[np.ndarray] = []
-            for index, row in enumerate(psi_in.detach().cpu().numpy()):
-                prefix_np, row_read = self.memory.context_tensor(
-                    row, k=memory_k, task=task
+            waves_np = psi_in.detach().cpu().numpy()
+            if batch > 1 and hasattr(self.memory, "context_tensor_batch"):
+                # Directive M2: one (B, gram_dims) x (gram_dims, N) product
+                # replaces the per-row Python loop.
+                prefix_batch, reads = self.memory.context_tensor_batch(
+                    waves_np, k=memory_k, task=task
                 )
-                prefix_rows.append(prefix_np.reshape(-1))
-                reads.append(row_read)
+                prefix = torch.from_numpy(prefix_batch.reshape(batch, -1)).to(torch.float32)
+            else:
+                prefix_rows: List[np.ndarray] = []
+                for _index, row in enumerate(waves_np):
+                    prefix_np, row_read = self.memory.context_tensor(
+                        row, k=memory_k, task=task
+                    )
+                    prefix_rows.append(prefix_np.reshape(-1))
+                    reads.append(row_read)
+                prefix = torch.from_numpy(np.stack(prefix_rows)).to(torch.float32)
+            for index, row_read in enumerate(reads):
                 if row_read.hits:
                     context_rows.append(torch.from_numpy(row_read.context))
                     top = row_read.top_wave
@@ -852,7 +863,6 @@ class HenriHolarch(nn.Module):
                 else:
                     context_rows.append(torch.zeros(self.dim, dtype=torch.complex64))
                     axiom_rows.append(torch.zeros(self.dim, dtype=torch.complex64))
-            prefix = torch.from_numpy(np.stack(prefix_rows)).to(torch.float32)
             context_wave = _unit(torch.stack(context_rows).to(psi_in.dtype))
             top_axiom = _unit(torch.stack(axiom_rows).to(psi_in.dtype))
             read = reads[0] if reads else None
@@ -1419,8 +1429,9 @@ class HenriHolarch(nn.Module):
         engine=None,
         namespace: str = "default",
         test_source: Optional[str] = None,
-        max_steps: int = 20,
+        max_steps: int = 24,
         seed: int = 0,
+        online_repulsor: bool = True,
     ) -> Dict[str, object]:
         """One closed-loop Vision -> Symbolic -> Action -> Code VLA episode.
 
@@ -1510,32 +1521,46 @@ class HenriHolarch(nn.Module):
             from henri.holarch.model import LatentActionLookahead
 
             walls, agent, goal = layout
-            lookahead = LatentActionLookahead(
-                self, task, rotor=getattr(self, "action_rotor", None),
-                transition="rotor", lookahead_depth=2, gamma_look=0.02,
+            # The VLA planner is the same closed-loop evaluator the 48-layout
+            # measurement uses. Duplicating its loop here was the source of a
+            # real divergence (the episode re-implementation did not always
+            # detect the same trap), so the episode delegates to the one
+            # measured policy instead.
+            import copy
+
+            from henri.holarch.model import evaluate_closed_loop_action
+
+            probe_task = copy.copy(task)
+            probe_task.val_layouts = [(walls, agent, goal)]
+            result = evaluate_closed_loop_action(
+                self,
+                probe_task,
+                episodes=1,
+                limit=int(max_steps),
+                rotor=getattr(self, "action_rotor", None),
+                transition="rotor",
+                lookahead_depth=2,
+                gamma_look=0.02,
+                batch_rollout=True,
+                use_memory=True,
+                trace=True,
+                online_repulsor=bool(online_repulsor),
+                online_namespace=f"{namespace}_vla",
             )
-            recent: List[torch.Tensor] = []
-            actions: List[int] = []
-            reached = False
-            for _step in range(int(max_steps)):
-                observation = task.world.observe(walls, agent, goal)
-                choice = lookahead.choose(observation, recent, use_memory=True)
-                action = int(choice["action"])
-                actions.append(action)
-                dr, dc = ((-1, 0), (1, 0), (0, -1), (0, 1))[action]
-                row, col = int(agent[0]) + dr, int(agent[1]) + dc
-                if not (0 <= row < int(task.grid_size) and 0 <= col < int(task.grid_size)):
-                    plan_ok = False
-                    break
-                if bool(walls[row, col]):
-                    plan_ok = False
-                    break
-                agent = (row, col)
-                recent.insert(0, choice["psi"])
-                del recent[lookahead.history :]
-                if agent == goal:
-                    reached = True
-                    break
+            trace_row = (result.get("trace") or [{}])[0]
+            actions = [int(action) for action in (trace_row.get("actions") or [])]
+            reached = bool(trace_row.get("win", False))
+            plan_ok = bool(len(actions) > 0)
+            discoveries = [
+                {
+                    "step": int(row.get("step", 0)),
+                    "action": int(row.get("escape_action", -1)),
+                    "cycle_score": float(row.get("cycle_score", 0.0)),
+                    "dead_end": bool(row.get("dead_end", False)),
+                    "axiom": dict(row.get("axiom") or {}),
+                }
+                for row in (result.get("online_rows") or [])
+            ]
             planning.update(
                 {
                     "actions": actions,
@@ -1544,6 +1569,8 @@ class HenriHolarch(nn.Module):
                     "legal": bool(plan_ok),
                     "start": list(layout[1]),
                     "goal": list(layout[2]),
+                    "online_discoveries": len(discoveries),
+                    "discovery_rows": discoveries,
                 }
             )
             for action in actions:

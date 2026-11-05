@@ -1,6 +1,6 @@
 {
   "stage": "J1-cartridge",
-  "cartridge_version": "v1.0-multitask-q16",
+  "cartridge_version": "v1.1-full-reference-v3",
   "selection_rule": [
     "every action-block row (the closed-loop Voronoi partition)",
     "every tier-3 axiomatic row in all four task blocks",
@@ -8,7 +8,7 @@
     "byte trim: lowest-ranked support row first (language, relational, vision)"
   ],
   "quotas": {
-    "vision": 106,
+    "vision": 610,
     "relational": 72,
     "language": 64
   },
@@ -35,12 +35,12 @@
   },
   "support": {
     "added": {
-      "vision": 96,
+      "vision": 600,
       "relational": 64,
       "language": 18
     },
     "rows_by_task": {
-      "vision": 106,
+      "vision": 610,
       "language": 63,
       "action": 604,
       "relational": 72
@@ -49,24 +49,24 @@
     "trimmed_ids": []
   },
   "cartridge": {
-    "count": 845,
-    "bytes": 2512125,
-    "raw_bytes": 2599220,
+    "count": 1349,
+    "bytes": 2609132,
+    "raw_bytes": 0,
     "dim": 1024,
-    "dtype": "int16-phase-uint8-amplitude-zlib9",
+    "dtype": "v3-action-int12-sqrt4-support-int8-zlib9",
     "compression": "zlib-9",
     "limit": 1536,
-    "sha256": "f06642dcaf37dd6553dc311f8a7d506628c9998f57bfaabbe6e34ffd7659d9bd",
+    "sha256": "ccf823bf9c420bd3eef82f48058b53224f8f34a45f074c84282149f269302cc2",
     "rows_by_task": {
-      "vision": 106,
+      "vision": 610,
       "language": 63,
       "action": 604,
       "relational": 72
     },
     "tier3_rows": 67,
     "within_budget": true,
-    "reconstruction_coherence_min": 0.9999657273292542,
-    "reconstruction_coherence_mean": 0.9999932050704956
+    "reconstruction_coherence_min": 0.997283399105072,
+    "reconstruction_coherence_mean": 0.9991033673286438
   },
   "reference_measurement": {
     "closed_loop_wins": 38,
@@ -904,9 +904,9 @@
   },
   "checkpoint": {
     "path": "receipts\\holarch\\holarch_medium.pt",
-    "sha256": "f06642dcaf37dd6553dc311f8a7d506628c9998f57bfaabbe6e34ffd7659d9bd",
-    "bytes": 7756571
+    "sha256": "ccf823bf9c420bd3eef82f48058b53224f8f34a45f074c84282149f269302cc2",
+    "bytes": 7854979
   },
-  "wall_seconds": 105.63955510000233,
+  "wall_seconds": 97.17948610000894,
   "evidence": "OBSERVED"
 }

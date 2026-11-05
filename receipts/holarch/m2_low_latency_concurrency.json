@@ -1,0 +1,32 @@
+{
+  "stage": "M2",
+  "concurrency": {
+    "threads": 16,
+    "requests": 128,
+    "errors": [],
+    "p50_ms": 0.06799999391660094,
+    "p95_ms": 0.12866000906797126,
+    "concurrent_seconds": 0.012846099998569116,
+    "serial_seconds": 0.48003620002418756,
+    "concurrent_rate": 9964.113623143016,
+    "serial_rate": 266.64655705871866,
+    "throughput_ratio": 37.368244064553224,
+    "serial_p50_ms": 0.0678000069456175,
+    "serial_p95_ms": 0.13020001206314186,
+    "receipt_chain_valid": true,
+    "gil_enabled": true
+  },
+  "gate": {
+    "requests_128": true,
+    "zero_errors": true,
+    "all_ok_and_receipts": true,
+    "receipt_chain_valid": true,
+    "p50_at_most_120ms": true,
+    "p95_at_most_350ms": true,
+    "throughput_at_least_1_5x": true,
+    "passed": true
+  },
+  "wall_seconds": 0.7671933000092395,
+  "evidence": "OBSERVED",
+  "passed": true
+}

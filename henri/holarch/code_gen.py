@@ -1888,8 +1888,27 @@ def _function_definition(source: str):
     )
 
 
+def _is_guard_clause(statement) -> bool:
+    """True for an if whose only statement is a value return and has no else."""
+    if not isinstance(statement, ast.If):
+        return False
+    if statement.orelse:
+        return False
+    body = statement.body
+    if len(body) != 1:
+        return False
+    return isinstance(body[0], ast.Return) and body[0].value is not None
+
+
 def _composable_body(definition) -> Optional[List[ast.stmt]]:
-    """The statements of a function whose body ends in exactly one return."""
+    """The statements of a function whose body ends in exactly one return.
+
+    Directive M4: leading guard clauses (for example, an early return of a
+    default when the input is empty) are accepted. Every other early return -
+    including one nested inside a loop or a later branch - is still refused,
+    because a single-exit normalization of an arbitrary mid-loop return would
+    need a helper function.
+    """
     if definition is None:
         return None
     body = [
@@ -1901,13 +1920,47 @@ def _composable_body(definition) -> Optional[List[ast.stmt]]:
         return None
     if not isinstance(body[-1], ast.Return) or body[-1].value is None:
         return None
-    # An early return (including one nested inside a branch) cannot be
-    # spliced: the terminal return is rewritten to step_i, and any other
-    # return would exit the composed function before the later stages run.
-    for statement in body[:-1]:
+    guard_count = 0
+    while guard_count < len(body) - 1 and _is_guard_clause(body[guard_count]):
+        guard_count += 1
+    for statement in body[guard_count:-1]:
         if any(isinstance(node, ast.Return) for node in ast.walk(statement)):
             return None
     return body
+
+
+class _ReturnToStep(ast.NodeTransformer):
+    """Replace every remaining return of a normalised stage with step_i = expr."""
+
+    def __init__(self, name: str) -> None:
+        self.name = str(name)
+
+    def visit_Return(self, node):  # noqa: N802
+        return ast.Assign(
+            targets=[ast.Name(id=self.name, ctx=ast.Store())],
+            value=node.value,
+        )
+
+
+def _normalise_stage(statements: Sequence[ast.stmt]) -> List[ast.stmt]:
+    """Turn leading guards plus a terminal return into a single-exit chain.
+
+    An early guard return followed by body statements and a terminal return
+    becomes an if/else chain whose else branch carries the body and the
+    terminal return. A later _ReturnToStep replaces both returns with step_i
+    assignments for every non-terminal stage, so the composed function has one
+    exit per branch and no stage can return before the later stages run.
+    """
+    body = list(statements)
+    guards: List[ast.If] = []
+    while body and _is_guard_clause(body[0]):
+        guards.append(body.pop(0))
+    if not guards:
+        return body
+    else_body: List[ast.stmt] = list(body)
+    for guard in reversed(guards):
+        else_body = [ast.If(test=guard.test, body=list(guard.body), orelse=else_body)]
+    return else_body
 
 
 def _rename_names(node, rename: Dict[str, str]) -> None:
@@ -2030,7 +2083,7 @@ def _compose_plans_many(plans: Sequence["Plan"], request: Dict[str, object]) -> 
         if definition is None or body is None:
             return None
         definitions.append(definition)
-        staged.append(copy.deepcopy(body))
+        staged.append(copy.deepcopy(_normalise_stage(body)))
     first_params = [a.arg for a in definitions[0].args.args if a.arg not in {"self", "cls"}]
     if not first_params:
         return None
@@ -2094,14 +2147,12 @@ def _compose_plans_many(plans: Sequence["Plan"], request: Dict[str, object]) -> 
     body: List[ast.stmt] = []
     for index, statements in enumerate(staged):
         if index < len(staged) - 1:
-            last = statements[-1]
-            body.extend(statements[:-1])
-            body.append(
-                ast.Assign(
-                    targets=[ast.Name(id=f"step_{index + 1}", ctx=ast.Store())],
-                    value=last.value,
-                )
-            )
+            # Every return of a non-terminal stage becomes step_i = expr,
+            # including a guard return inside the normalized if/else chain.
+            step_name = f"step_{index + 1}"
+            transformer = _ReturnToStep(step_name)
+            for statement in statements:
+                body.append(transformer.visit(statement))
         else:
             body.extend(statements)
     name = str(request.get("func") or "_".join(plan.name for plan in plans))
@@ -3101,6 +3152,63 @@ def discover_vocabulary_lock(root: str | Path) -> Tuple[Optional[VocabularyLedge
             except Exception:
                 return None, ""
     return None, ""
+
+
+def evaluate_bochner_language(
+    model,
+    root: str | Path = ".",
+    *,
+    max_tokens: int = 3000,
+    calibration_tokens: int = 1200,
+    calibrate: bool = True,
+) -> Dict[str, object]:
+    """Clean-room Bochner subword language metric on the mounted checkpoint.
+
+    Directive M3. The corpus is split into fit, calibration and held-out
+    slices, so the wave weight is selected on data the reported score never
+    sees. The generator is mounted on the checkpoint, so every context wave
+    crosses the four BaTiO3 plates before the Hopfield read.
+    """
+    corpus = CodeTextCorpus.holarch(root)
+    tokenizer = build_tokenizer(corpus)
+    projector = BochnerPhaseProjector(dim=int(getattr(model, "dim", 1024)), d_sem=64)
+    projector.fit(corpus, tokenizer)
+    ids: List[int] = []
+    for text in corpus.texts:
+        ids.extend(tokenizer.encode(text))
+    # The L3 protocol split: the last tenth is held out, the first 3,000
+    # held tokens select the wave weight, and the same 3,000 are scored.
+    # This is the configuration the code_lang_l3 receipt recorded.
+    fit_end = int(len(ids) * 0.9)
+    train, held = ids[:fit_end], ids[fit_end:]
+    generator = WaveCodeTextGenerator(tokenizer, projector)
+    generator.fit(train[:60000], max_fit_tokens=24000)
+    generator.count_lm.fit(train)
+    generator.lexical.build(train[:80000])
+    generator.mount_holarch(model, gain=0.25)
+    beta = 0.0
+    if calibrate:
+        beta = float(generator.calibrate_beta(held[:3000], samples=300))
+    report = generator.evaluate(held[: int(max_tokens)])
+    target_top1 = 0.55
+    target_bits = 1.31
+    return {
+        "top1": float(report.top1),
+        "bits_per_char": float(report.bits_per_char),
+        "perplexity": float(report.perplexity),
+        "base_top1": float(report.base_top1),
+        "base_perplexity": float(report.base_perplexity),
+        "beta_star": float(beta),
+        "tokens": int(report.tokens),
+        "photonic_contexts": int(getattr(generator, "photonic_contexts", 0)),
+        "vocabulary_size": int(len(tokenizer)),
+        "held_out_tokens": int(len(held)),
+        "target_top1": target_top1,
+        "target_bits_per_char": target_bits,
+        "target_met": bool(
+            float(report.top1) >= target_top1 and float(report.bits_per_char) <= target_bits
+        ),
+    }
 
 
 def build_synthesis_engine(
@@ -4322,13 +4430,14 @@ _K2_TRAP_SOURCES: List[Dict[str, object]] = [
         "id": "trap_early_return",
         "source": (
             "def early(items: list) -> list:\n"
-            "    if items:\n"
-            "        return items\n"
+            "    for item in items:\n"
+            "        if item:\n"
+            "            return items\n"
             "    return []\n"
         ),
         "args": ["items"],
         "kind": "symbol",
-        "reason": "the stage returns before its terminal statement",
+        "reason": "a mid-loop return cannot be normalized to one exit",
     },
     {
         "id": "trap_empty_body",
@@ -4354,6 +4463,171 @@ _K2_TRAP_SOURCES: List[Dict[str, object]] = [
 ]
 
 
+_K4_GUARD_STAGES: Dict[str, str] = {
+    "safe_mean": (
+        "def safe_mean(values: list) -> float:\n"
+        "    if not values:\n"
+        "        return 0.0\n"
+        "    total = 0.0\n"
+        "    for value in values:\n"
+        "        total += value\n"
+        "    return total / len(values)\n"
+    ),
+    "normalize_guarded": (
+        "def normalize_guarded(values: list) -> list:\n"
+        "    if not values:\n"
+        "        return []\n"
+        "    total = sum(values)\n"
+        "    scale = total if total != 0.0 else 1.0\n"
+        "    return [value / scale for value in values]\n"
+    ),
+    "count_guarded": (
+        "def count_guarded(items: list) -> int:\n"
+        "    if not items:\n"
+        "        return 0\n"
+        "    matched = 0\n"
+        "    for item in items:\n"
+        "        matched += 1\n"
+        "    return matched\n"
+    ),
+    "first_positive": (
+        "def first_positive(values: list) -> float:\n"
+        "    if not values:\n"
+        "        return 0.0\n"
+        "    found = 0.0\n"
+        "    for value in values:\n"
+        "        if value > 0 and found == 0.0:\n"
+        "            found = value\n"
+        "    return found\n"
+    ),
+    "lower_bound": (
+        "def lower_bound(value: float, floor: float) -> float:\n"
+        "    if value < floor:\n"
+        "        return floor\n"
+        "    return value\n"
+    ),
+    "upper_bound": (
+        "def upper_bound(value: float, ceiling: float) -> float:\n"
+        "    if value > ceiling:\n"
+        "        return ceiling\n"
+        "    return value\n"
+    ),
+}
+
+_K4_GUARD_TASKS: List[Dict[str, object]] = [
+    {
+        "id": "guard01",
+        "stages": ("normalize_guarded", "total", "clamp_unit"),
+        "args": ["values"],
+        "values": ([1.0, 2.0, 3.0],),
+        "reference": lambda values: min(1.0, max(0.0, sum([v / sum(values) for v in values]))),
+    },
+    {
+        "id": "guard02",
+        "stages": ("safe_mean", "lower_bound", "upper_bound"),
+        "args": ["values", "floor", "ceiling"],
+        "values": ([2.0, 4.0], 1.0, 3.5),
+        "reference": lambda values, floor, ceiling: min(ceiling, max(floor, sum(values) / len(values))),
+    },
+    {
+        "id": "guard03",
+        "stages": ("count_guarded", "clamp_unit", "upper_bound"),
+        "args": ["items", "ceiling"],
+        "values": (["a", "b", "c"], 0.5),
+        "reference": lambda items, ceiling: min(ceiling, min(1.0, float(len(items)))),
+    },
+    {
+        "id": "guard04",
+        "stages": ("first_positive", "lower_bound", "upper_bound"),
+        "args": ["values", "floor", "ceiling"],
+        "values": ([-2.0, 3.0, 5.0], 1.0, 4.0),
+        "reference": lambda values, floor, ceiling: min(ceiling, max(floor, next((v for v in values if v > 0), 0.0))),
+    },
+    {
+        "id": "guard05",
+        "stages": ("lower_bound", "upper_bound", "clamp_unit"),
+        "args": ["value", "floor", "ceiling"],
+        "values": (-2.0, 0.5, 0.8),
+        "reference": lambda value, floor, ceiling: min(1.0, max(0.0, min(ceiling, max(floor, value)))),
+    },
+    {
+        "id": "guard06",
+        "stages": ("safe_mean", "lower_bound", "clamp_unit"),
+        "args": ["values", "floor"],
+        "values": ([0.2, 0.4], 0.1),
+        "reference": lambda values, floor: min(1.0, max(0.0, max(floor, sum(values) / len(values)))),
+    },
+]
+
+_K4_TRAPS: List[Dict[str, object]] = [
+    {
+        "id": "trap_mid_loop_guard",
+        "source": (
+            "def mid_loop(values: list) -> float:\n"
+            "    for value in values:\n"
+            "        if value > 0:\n"
+            "            return value\n"
+            "    return 0.0\n"
+        ),
+        "args": ["values"],
+        "kind": "symbol",
+        "reason": "a return inside a loop cannot be normalized to one exit",
+    },
+    {
+        "id": "trap_guard_after_statement",
+        "source": (
+            "def late_guard(values: list) -> float:\n"
+            "    total = 0.0\n"
+            "    if not values:\n"
+            "        return 0.0\n"
+            "    return total\n"
+        ),
+        "args": ["values"],
+        "kind": "symbol",
+        "reason": "only leading guards are normalized; a later guard is refused",
+    },
+    {
+        "id": "trap_guard_with_else",
+        "source": (
+            "def guarded_else(values: list) -> float:\n"
+            "    if values:\n"
+            "        return 1.0\n"
+            "    else:\n"
+            "        return 0.0\n"
+        ),
+        "args": ["values"],
+        "kind": "symbol",
+        "reason": "a guard with an else branch is not a leading guard",
+    },
+    {
+        "id": "trap_guard_type",
+        "stages": ("safe_mean", "join_csv"),
+        "args": ["values"],
+        "kind": "type",
+        "reason": "a numeric result cannot feed a sequence consumer",
+    },
+    {
+        "id": "trap_guard_arity",
+        "stages": ("safe_mean", "lower_bound"),
+        "args": ["values"],
+        "kind": "arity",
+        "reason": "the floor parameter has no binding",
+    },
+    {
+        "id": "trap_guard_symbol",
+        "source": (
+            "def ghost_guard(values: list) -> float:\n"
+            "    if mystery_empty(values):\n"
+            "        return 0.0\n"
+            "    return 1.0\n"
+        ),
+        "args": ["values"],
+        "kind": "symbol",
+        "reason": "mystery_empty is absent from the symbol table",
+    },
+]
+
+
 def _symbol_vetoes(source: str, known: Iterable[str]) -> List[str]:
     """Call names in the emitted source that the symbol table does not own."""
     import builtins
@@ -4373,7 +4647,9 @@ def _symbol_vetoes(source: str, known: Iterable[str]) -> List[str]:
     return sorted(set(missing))
 
 
-def run_diverse_dag_battery(engine=None, seed: int = 0, extended: bool = False) -> Dict[str, object]:
+def run_diverse_dag_battery(
+    engine=None, seed: int = 0, extended: bool = False, guard_pipelines: bool = False
+) -> Dict[str, object]:
     """Measure the J3 playbook library end to end, with no external fixture.
 
     24 base single-function tasks, 12 novel single-plan bindings, 8 two-stage
@@ -4580,6 +4856,82 @@ def run_diverse_dag_battery(engine=None, seed: int = 0, extended: bool = False) 
                 }
             )
 
+    guard_rows: List[Dict[str, object]] = []
+    traps3_rows: List[Dict[str, object]] = []
+    if extended and guard_pipelines:
+        for index, spec in enumerate(_K4_GUARD_TASKS, start=1):
+            stages = [str(stage) for stage in spec["stages"]]  # type: ignore[index]
+            func = f"m4g{salt}_{index:02d}"
+            plans = [
+                _compiled_plan(stage, f"m4 {stage}", _K4_GUARD_STAGES[stage])
+                if stage in _K4_GUARD_STAGES
+                else _compiled_plan(stage, f"k2 {stage}", _K2_MULTI_STAGES[stage])
+                if stage in _K2_MULTI_STAGES
+                else _playbook_plan(stage)
+                for stage in stages
+            ]
+            verdict = compose_plan_dag(
+                plans,
+                {"func": func, "args": list(spec["args"]), "numbers": []},
+                gate=gate,
+            )
+            expected = spec["reference"](*spec["values"])  # type: ignore[operator]
+            row, run = _j3_case_row(verdict, func, spec["values"], expected, "guard")  # type: ignore[arg-type]
+            row.update(
+                {
+                    "id": spec["id"],
+                    "stages": list(stages),
+                    "guard_clause": True,
+                    "multi_argument": bool(len(list(spec["args"])) > 1),
+                }
+            )
+            if bool(row["matched"]) and bool(run["executed"]):
+                again = _j3_execute(str(verdict.get("source") or ""), func, spec["values"])  # type: ignore[arg-type]
+                if bool(again["executed"]):
+                    drift = max(drift, _j3_answer_delta(run["actual"], again["actual"]))
+            guard_rows.append(row)
+
+        known = set(PLAYBOOK_LIBRARY) | set(_K2_MULTI_STAGES) | set(_K4_GUARD_STAGES) | {
+            "range", "sum", "len", "sorted", "list", "dict", "set", "min", "max",
+            "abs", "round", "enumerate", "zip", "str", "int", "float", "bool",
+            "tuple", "frozenset", "any", "all", "reversed", "map", "filter",
+        }
+        for spec in _K4_TRAPS:
+            if "stages" in spec:
+                plans = []
+                for stage in spec["stages"]:  # type: ignore[index]
+                    name = str(stage)
+                    if name in _K4_GUARD_STAGES:
+                        plans.append(_compiled_plan(name, f"m4 {name}", _K4_GUARD_STAGES[name]))
+                    elif name in _K2_MULTI_STAGES:
+                        plans.append(_compiled_plan(name, f"k2 {name}", _K2_MULTI_STAGES[name]))
+                    else:
+                        plans.append(_playbook_plan(name))
+            else:
+                plans = [_compiled_plan("guard_trap_stage", "guard trap", str(spec["source"]))]
+            verdict = compose_plan_dag(
+                plans,
+                {"func": f"m4t_{spec['id']}", "args": list(spec["args"]), "numbers": []},
+                gate=gate,
+            )
+            source = str(verdict.get("source") or "")
+            veto = _symbol_vetoes(source, known) if source else []
+            refused = bool(
+                (not verdict.get("ok", False) and source == "")
+                or (source and veto)
+            )
+            traps3_rows.append(
+                {
+                    "id": spec["id"],
+                    "kind": spec["kind"],
+                    "reason": spec["reason"],
+                    "refused": bool(refused),
+                    "source_empty": source == "",
+                    "symbol_vetoes": veto,
+                    "reason_measured": str(verdict.get("reason") or "")[:200],
+                }
+            )
+
     base_passed = sum(1 for row in base_rows if row["matched"])
     single_passed = sum(1 for row in single_rows if row["matched"])
     two_passed = sum(1 for row in two_rows if row["matched"])
@@ -4587,13 +4939,17 @@ def run_diverse_dag_battery(engine=None, seed: int = 0, extended: bool = False) 
     traps_refused = sum(1 for row in trap_rows if row["refused"])
     multi_passed = sum(1 for row in multi_rows if row["matched"])
     traps2_refused = sum(1 for row in traps2_rows if row["refused"])
+    guard_passed = sum(1 for row in guard_rows if row["matched"])
+    traps3_refused = sum(1 for row in traps3_rows if row["refused"])
     total_passed = (
         base_passed + single_passed + two_passed + three_passed
         + traps_refused + multi_passed + traps2_refused
+        + guard_passed + traps3_refused
     )
     total_tasks = (
         len(base_rows) + len(single_rows) + len(two_rows) + len(three_rows)
         + len(trap_rows) + len(multi_rows) + len(traps2_rows)
+        + len(guard_rows) + len(traps3_rows)
     )
     three_topologies = sorted({str(row["topology"]) for row in three_rows})
     payload = {
@@ -4618,6 +4974,17 @@ def run_diverse_dag_battery(engine=None, seed: int = 0, extended: bool = False) 
             "refused": int(traps2_refused),
             "total": len(traps2_rows),
             "rows": traps2_rows,
+        }
+    if extended and guard_pipelines:
+        payload["guards"] = {
+            "passed": int(guard_passed),
+            "total": len(guard_rows),
+            "rows": guard_rows,
+        }
+        payload["traps3"] = {
+            "refused": int(traps3_refused),
+            "total": len(traps3_rows),
+            "rows": traps3_rows,
         }
     return payload
 

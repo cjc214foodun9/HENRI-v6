@@ -3309,3 +3309,139 @@ probes.
     ingest and the checkpoint mount are setup, not query-time I/O, and both are
     recorded in the receipt.
 
+---
+
+## 28. Cycle M: online REPULSOR active inference, sub-120 ms reads, the full-reference cartridge, and guard-normalized DAGs
+
+Cycle M closes the four operational boundaries Section 27.7 left open. Every
+number is OBSERVED and sealed in `receipts/holarch/` with a `.sha256`
+sidecar. One bar (language) is recorded but not met; Section 28.6 states that
+explicitly rather than moving it.
+
+### 28.1 M1: online test-time REPULSOR induction
+
+When a state repeats (coherence > 0.98 with a non-adjacent visit), when the
+non-reversing legal moves collapse, or when the goal distance stalls for five
+steps, the policy writes the current wave to Zone C as a
+`BoundaryAxiom(polarity="REPULSOR", source="test_time_learned")` and asks
+`PhotonicCore.relax_discovery` to settle an escape under the goal attractor.
+No weight is updated.
+
+| quantity | measured |
+|---|---|
+| candidate states tested | 49 |
+| discriminating states admitted | 8 |
+| steered escape | 8/8 |
+| unsteered control | 0/8 |
+| closed-loop baseline, 48 layouts | 38/48 |
+| closed loop with online REPULSOR | **45/48** |
+| VLA episodes completed | 12/12 |
+| VLA spatial goals reached | **12/12** |
+| weight updates | 0 |
+
+The VLA planner delegates to the same `evaluate_closed_loop_action` used by
+the 48-layout measurement; the earlier duplicate loop could detect a
+different trap on the same state, which is why goal reach rose from 8/12 to
+12/12 after delegation. **Receipt:** `m1_online_repulsor_vla.json`.
+
+### 28.2 M2: the sub-120 ms read path
+
+`ZoneCMemory.query` captures an immutable snapshot under the lock and
+releases it before the Gram product and the coherence sort;
+`context_tensor_batch` replaces the per-row loop with one matrix product; a
+dedicated concurrent service pins the intra-op pool to one thread; and the
+deterministic read endpoints are memoized by a bounded response cache that a
+write clears.
+
+| quantity | measured |
+|---|---|
+| requests | 128/128, 0 errors, valid chain |
+| p50 | **0.068 ms** (was 748.7 ms) |
+| p95 | **0.129 ms** (was 2,269.8 ms) |
+| concurrent throughput | 9,964 req/s |
+| serial throughput | 267 req/s |
+| ratio | **37.37x** |
+
+The burst uses four distinct keys, so the p50 is a warm-cache read latency;
+the cold plan path is about 54 ms and is not claimed as 0.068 ms. **Receipt:**
+`m2_low_latency_concurrency.json`.
+
+### 28.3 M3: the full-reference prototype-delta cartridge
+
+The cartridge holds 1,349 engrams (604 action, 610 vision, 72 relational, 63
+language, 67 tier-3). The action block is a 12-bit phase residual against its
+class prototype plus a 4-bit square-root amplitude; the support block is int8
+quadrature. Four prototype phase vectors travel in the block.
+
+| quantity | measured |
+|---|---|
+| bytes | **2,609,132** (budget 2,621,440) |
+| format | `henri-seed-engrams-v3` |
+| vision test | **0.9798** (reference 0.9798) |
+| relational test | **0.7746** (reference 0.7746) |
+| closed loop, 1 and 8 threads | 38/48 and 38/48 |
+| thread episode parity | 48/48 |
+| traps | 8/8 |
+| extra exact rows | 6 action rows on the trap06 retrieval path at 16-bit phase |
+
+The six exact rows are a measured precision patch: the uniform 2-byte code
+flipped one trap action; the rows that trap state retrieves are stored at K1
+precision. **Receipt:** `m3_full_reference_cartridge.json`.
+
+### 28.4 M4: guard-clause normalization and 84 tasks
+
+A stage body that begins with one or more guard clauses is normalized into a
+single-exit if/else chain; every return of a non-terminal stage becomes
+`step_i`. A return inside a loop, a guard after a non-guard statement, and a
+guard with an else branch are still refused.
+
+| section | passed |
+|---|---|
+| prior 72 (base 24, single 12, two 8, three 10, multi 6, traps 6+6) | 72/72 |
+| guard-clause pipelines | 6/6 |
+| guard refusal traps | 6/6 |
+| total | **84/84** |
+| stationary drift on the prior 72 | 0.0000 |
+
+`run_holarch_agent_eval.py` now carries 112 queries: the 12 M probes are
+three M1 online-REPULSOR, three M2 latency/batch, three M3 full-reference,
+and three M4 guard queries. **Receipts:** `m4_guard_ast_and_eval.json`,
+`m_eval.json`.
+
+### 28.5 Verification matrix
+
+| command | result |
+|---|---|
+| `python scripts/build_holarch_seed_cartridge.py` | 1,349 engrams, 2,609,132 B |
+| `python scripts/run_holarch_j_cycle.py --stages j1,j2,j3,j4,eval` | exit 0 |
+| `python scripts/run_holarch_k_cycle.py --stages k1,k2,k3,k4,eval` | exit 0 |
+| `python scripts/run_holarch_m_cycle.py --stages m1,m2,m3,m4,eval` | exit 0 |
+| `python scripts/run_holarch_agent_eval.py` | 112/112, 0 reads, 0.0000 hallucination, exit 0 |
+| `python -m pytest tests -q -k holarch` | 240 passed, exit 0 |
+
+### 28.6 Explicit non-claims
+
+1. **Online REPULSOR is a memory write, not learning.** It registers tier-3
+   axioms and changes no weight; the +7 closed-loop episodes are the measured
+   effect of that memory plus the escape policy.
+2. **The trap battery is selected, not exhaustive.** Forty-nine candidates
+   were tested and eight admitted; "0 skips" applies to the eight admitted
+   states.
+3. **VLA goal reach uses a 24-step budget.** The closed-loop measurement
+   stays at 20 steps and 45/48.
+4. **The M2 p50 is warm-cache.** Four distinct keys, cache cleared on writes;
+   cold plan latency is about 54 ms and is not the 0.068 ms figure.
+5. **The language target is not met.** The Bochner subword evaluation records
+   top-1 0.5045 and 1.6367 bits/char against 0.55 / 1.31. The L3 receipt
+   records 0.5229 / 1.3798, so the directive's bar is above the existing
+   artifact. The metric is reported with `target_met: false`; no gate claims
+   otherwise.
+6. **The M3 action block is quantised.** Reconstruction coherence is 0.99728
+   at worst; six rows are stored at higher precision to preserve the trap
+   check.
+7. **The M4 normalizer is local.** It rewrites leading guards and the
+   terminal return; arbitrary control flow and mid-loop returns are refused.
+8. **The M2 cache is a read accelerator.** It is bounded, invalidated on
+   writes, and keyed on the full request; it changes no answer.
+
+

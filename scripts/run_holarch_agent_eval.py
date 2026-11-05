@@ -1316,6 +1316,7 @@ def run_agent_eval(
     for name, text in H_DELTA_FILES.items():
         (delta_root / name).write_text(text, encoding="utf-8")
     service.sidecar.ingest_code(delta_root, package="pkg", namespace="delta")
+    service._cache_clear()
     delta_rows = []
     delta_queries = [
         {
@@ -2176,6 +2177,337 @@ def run_agent_eval(
         evidence="Zone C metadata copy, one envelope receipt",
     )
 
+    # =================== Cycle M: 12 further clean-room probes =================
+    k_tasks_m = k_tasks
+    m1_traps = build_cul_de_sac_traps()
+    m1_single = LatentActionLookahead(
+        clean_model, None, rotor=getattr(clean_model, "action_rotor", None),
+        transition="rotor", lookahead_depth=1,
+    )
+    m1_masked = LatentActionLookahead(
+        clean_model, None, rotor=getattr(clean_model, "action_rotor", None),
+        transition="rotor", lookahead_depth=2, gamma_look=0.02,
+    )
+    import importlib.util as _ilu
+
+    _m_spec = _ilu.spec_from_file_location(
+        "_m_cycle_probe", ROOT / "scripts" / "run_holarch_m_cycle.py"
+    )
+    _m_cycle = _ilu.module_from_spec(_m_spec)
+    _m_spec.loader.exec_module(_m_cycle)
+    _trap_battery = _m_cycle._trap_rows(clean_model, cfg)
+    m1_rows = [
+        {
+            "id": str(row["id"]),
+            "bypass": int(row["bypass_action"]),
+            "control": int(row["depth1_action"]),
+            "escape": int(row["escape_action"]),
+            "escape_correct": bool(row["escape_correct"]),
+            "control_correct": bool(row["control_correct"]),
+        }
+        for row in _trap_battery["rows"]
+    ]
+    _record_probe(
+        "m1_online_escape_8_of_8",
+        "m1_online_repulsor",
+        "8/8 unsteered trap states are escaped by the online REPULSOR swarm",
+        {
+            "rows": m1_rows,
+            "escape_correct": int(sum(1 for row in m1_rows if row["escape_correct"])),
+            "control_correct": int(sum(1 for row in m1_rows if row["control_correct"])),
+        },
+        bool(
+            len(m1_rows) == 8
+            and all(row["escape_correct"] for row in m1_rows)
+            and all(not row["control_correct"] for row in m1_rows)
+        ),
+        evidence="discover_escape with a test-time REPULSOR and goal attraction",
+    )
+    m1_baseline = evaluate_closed_loop_action(
+        clean_model, k_tasks_m["action"], episodes=12,
+        rotor=getattr(clean_model, "action_rotor", None), transition="rotor",
+        lookahead_depth=2, gamma_look=0.02, batch_rollout=True, use_memory=True,
+        trace=False, online_repulsor=False,
+    )
+    m1_online = evaluate_closed_loop_action(
+        clean_model, k_tasks_m["action"], episodes=12,
+        rotor=getattr(clean_model, "action_rotor", None), transition="rotor",
+        lookahead_depth=2, gamma_look=0.02, batch_rollout=True, use_memory=True,
+        trace=False, online_repulsor=True, online_namespace="agent_eval_m1_loop",
+    )
+    _record_probe(
+        "m1_closed_loop_lift",
+        "m1_online_repulsor",
+        "online REPULSOR discovery adds at least two wins on the first 12 layouts",
+        {
+            "baseline_wins": int(m1_baseline["wins"]),
+            "online_wins": int(m1_online["wins"]),
+            "discoveries": int(m1_online["online_discoveries"]),
+        },
+        bool(
+            int(m1_online["wins"]) >= int(m1_baseline["wins"]) + 2
+            and int(m1_online["wins"]) >= 10
+        ),
+        evidence="12-layout subset; the full 48-layout measurement is in m1_online_repulsor_vla.json",
+    )
+    from henri.holarch.vla import run_vla_battery
+
+    try:
+        m1_engine = service.sidecar._ensure_engine("default")
+        m1_vla = run_vla_battery(clean_model, m1_engine, k_tasks_m)
+        m1_vla_ok = bool(
+            m1_vla["completed"] == 12
+            and float(m1_vla["hallucination_rate"]) == 0.0
+            and int(m1_vla["goals_reached"]) >= 11
+        )
+        m1_vla_row = {
+            "completed": int(m1_vla["completed"]),
+            "goals_reached": int(m1_vla["goals_reached"]),
+            "hallucination_rate": float(m1_vla["hallucination_rate"]),
+        }
+    except Exception as error:  # noqa: BLE001
+        m1_vla_ok = False
+        m1_vla_row = {"error": f"{type(error).__name__}: {error}"}
+    _record_probe(
+        "m1_vla_goal_reach_11",
+        "m1_online_repulsor",
+        "12/12 VLA episodes complete and at least 11 reach the spatial goal",
+        m1_vla_row,
+        bool(m1_vla_ok),
+        evidence="online REPULSOR agents inside the unified VLA pipeline",
+    )
+
+    # ------------------- M2: low-latency concurrent reads ---------------
+    batch_probe_waves = np.stack(
+        [
+            clean_model.encode("vision", k_tasks_m["vision"].sample(1, "val").x)[0].detach().numpy()
+            for _ in range(4)
+        ]
+    )
+    batch_prefix, batch_reads = clean_memory.context_tensor_batch(batch_probe_waves, k=4, task="vision")
+    singles = [
+        clean_memory.context_tensor(row, k=4, task="vision")[0] for row in batch_probe_waves
+    ]
+    batch_ok = bool(
+        batch_prefix.shape == (4, int(cfg.context_tokens), int(cfg.context_dim))
+        and all(
+            np.allclose(batch_prefix[index].reshape(-1), singles[index].reshape(-1), atol=1e-5)
+            for index in range(4)
+        )
+    )
+    _record_probe(
+        "m2_batched_context_tensor",
+        "m2_low_latency",
+        "context_tensor_batch equals the per-row context tensors",
+        {"shape": list(batch_prefix.shape), "rows": len(batch_reads)},
+        batch_ok,
+        evidence="one Gram product over four waves versus four per-row reads",
+    )
+    m2_observation = m1_traps[0]["observation"]
+    m2_claim = "The medium profile has 1,020,380 parameters and reaches 0.7083 closed-loop action."
+    m2_errors: List[str] = []
+    m2_latency: List[float] = []
+    m2_status: List[int] = []
+    m2_lock = threading.Lock()
+    m2_barrier = threading.Barrier(16)
+
+    def _m2_worker(worker_id: int) -> None:
+        try:
+            m2_barrier.wait(timeout=30)
+            for round_index in range(4):
+                clock = time.perf_counter()
+                kind = (worker_id + round_index) % 4
+                if kind == 0:
+                    result = service.verify(m2_claim, kind="text")
+                elif kind == 1:
+                    result = service.plan(m2_observation, transition="rotor", lookahead_depth=2)
+                elif kind == 2:
+                    result = service.veto("action", m2_observation)
+                else:
+                    result = service.solve("ZoneCMemory.query", ["CALLS", "CALLS"])
+                elapsed = (time.perf_counter() - clock) * 1e3
+                with m2_lock:
+                    m2_latency.append(elapsed)
+                    m2_status.append(200 if bool(result.get("ok", False)) else 500)
+        except Exception as error:  # noqa: BLE001
+            with m2_lock:
+                m2_errors.append(f"{type(error).__name__}: {error}")
+
+    m2_threads = [threading.Thread(target=_m2_worker, args=(index,)) for index in range(16)]
+    for thread in m2_threads:
+        thread.start()
+    for thread in m2_threads:
+        thread.join()
+    m2_p50 = float(np.percentile(m2_latency, 50)) if m2_latency else 1e9
+    _record_probe(
+        "m2_concurrent_p50_120ms",
+        "m2_low_latency",
+        "64 mixed requests over 16 threads finish with p50 <= 120 ms and zero errors",
+        {
+            "requests": len(m2_status),
+            "errors": m2_errors,
+            "p50_ms": m2_p50,
+            "p95_ms": float(np.percentile(m2_latency, 95)) if m2_latency else 1e9,
+        },
+        bool(len(m2_status) == 64 and not m2_errors and m2_p50 <= 120.0),
+        evidence="reader thread guard plus the lock-free Zone C snapshot",
+    )
+    _record_probe(
+        "m2_concurrent_receipt_chain",
+        "m2_low_latency",
+        "the concurrent read burst leaves one valid contiguous receipt chain",
+        {"requests": len(m2_status), "chain_valid": bool(service.ledger.verify_chain())},
+        bool(len(m2_status) == 64 and service.ledger.verify_chain()),
+        evidence="ReceiptLedger chain verification after the burst",
+    )
+
+    # ------------------- M3: full-reference cartridge -------------------
+    m3_block = seed_payload if isinstance(seed_payload, dict) else {}
+    m3_labels = m3_block.get("labels")
+    m3_values = (
+        m3_labels.detach().cpu().numpy().astype(int).tolist()
+        if m3_labels is not None
+        else []
+    )
+    m3_rows = {
+        "vision": sum(1 for value in m3_values if 0 <= value < 10),
+        "language": sum(1 for value in m3_values if 10 <= value < 106),
+        "action": sum(1 for value in m3_values if 106 <= value < 110),
+        "relational": sum(1 for value in m3_values if 110 <= value < 118),
+    }
+    _record_probe(
+        "m3_full_reference_cartridge",
+        "m3_full_reference",
+        "cartridge carries 1349 rows (610 vision) under 2.5 MiB",
+        {
+            "count": int(m3_block.get("count", 0) or 0),
+            "bytes": int(m3_block.get("bytes", 0) or 0),
+            "rows_by_task": m3_rows,
+            "format": str(m3_block.get("format", "")),
+        },
+        bool(
+            int(m3_block.get("count", 0) or 0) >= 1349
+            and int(m3_block.get("bytes", 0) or 0) <= 2_621_440
+            and m3_rows["vision"] >= 610
+        ),
+        evidence="v3 prototype-residual action rows plus int8 support rows",
+    )
+    _record_probe(
+        "m3_vision_equals_reference",
+        "m3_full_reference",
+        "clean-room vision test accuracy is at least 0.9790 (reference 0.9798)",
+        {"vision_accuracy": float(k1_test.get("vision_accuracy", 0.0))},
+        bool(float(k1_test.get("vision_accuracy", 0.0)) >= 0.9790),
+        evidence="full 610-row vision block in the clean room",
+    )
+    from henri.holarch.code_gen import evaluate_bochner_language
+
+    try:
+        m3_language = evaluate_bochner_language(clean_model, ROOT)
+        m3_language_ok = bool(
+            "top1" in m3_language and "bits_per_char" in m3_language
+        )
+        m3_language_row = dict(m3_language)
+    except Exception as error:  # noqa: BLE001
+        m3_language_ok = False
+        m3_language_row = {"error": f"{type(error).__name__}: {error}"}
+    _record_probe(
+        "m3_bochner_language",
+        "m3_full_reference",
+        "Bochner subword language metric is measured and its target outcome recorded",
+        m3_language_row,
+        bool(m3_language_ok),
+        evidence="Zone-B-coupled generator on a held-out corpus slice",
+    )
+
+    # ------------------- M4: guard AST and 84 tasks ---------------------
+    guard_plan = _compiled_plan(
+        "guard_probe",
+        "guard",
+        "def guard_probe(values: list) -> float:\n"
+        "    if not values:\n"
+        "        return 0.0\n"
+        "    total = 0.0\n"
+        "    for value in values:\n"
+        "        total += value\n"
+        "    return total / len(values)\n",
+    )
+    guard_lower = _compiled_plan(
+        "guard_lower",
+        "guard",
+        "def guard_lower(value: float, floor: float) -> float:\n"
+        "    if value < floor:\n"
+        "        return floor\n"
+        "    return value\n",
+    )
+    guard_verdict = compose_plan_dag(
+        [guard_plan, guard_lower],
+        {"func": "m4_guard_pipeline", "args": ["values", "floor"], "numbers": []},
+    )
+    guard_scope: Dict[str, object] = {"__builtins__": __builtins__}
+    guard_result = None
+    guard_error = ""
+    try:
+        exec(str(guard_verdict.get("source") or ""), guard_scope)
+        guard_result = guard_scope["m4_guard_pipeline"]([], 1.0)
+    except Exception as error:  # noqa: BLE001
+        guard_error = f"{type(error).__name__}: {error}"
+    _record_probe(
+        "m4_guard_pipeline",
+        "m4_guard_ast",
+        "a leading guard clause is normalized and the pipeline executes",
+        {
+            "ok": bool(guard_verdict.get("ok", False)),
+            "actual": guard_result,
+            "expected": 1.0,
+            "error": guard_error,
+        },
+        bool(bool(guard_verdict.get("ok", False)) and guard_result == 1.0),
+        evidence="guard return rewritten to a step_i assignment inside if/else",
+    )
+    from henri.holarch.code_gen import run_diverse_dag_battery
+
+    m4_battery = run_diverse_dag_battery(seed=20261105, extended=True, guard_pipelines=True)
+    _record_probe(
+        "m4_84_task_suite",
+        "m4_guard_ast",
+        "the guard-extended synthesis suite passes 84/84 with 0.0000 drift",
+        {
+            "total": dict(m4_battery["total"]),
+            "guards": {"passed": m4_battery["guards"]["passed"], "total": m4_battery["guards"]["total"]},
+            "traps3": {"refused": m4_battery["traps3"]["refused"], "total": m4_battery["traps3"]["total"]},
+            "drift": float(m4_battery["drift"]),
+        },
+        bool(
+            m4_battery["total"]["passed"] == 84
+            and m4_battery["total"]["total"] == 84
+            and abs(float(m4_battery["drift"])) < 1e-12
+        ),
+        evidence="run_diverse_dag_battery(guard_pipelines=True)",
+    )
+    mid_loop = compose_plan_dag(
+        [
+            _compiled_plan(
+                "mid_loop",
+                "mid",
+                "def mid_loop(values: list) -> float:\n"
+                "    for value in values:\n"
+                "        if value > 0:\n"
+                "            return value\n"
+                "    return 0.0\n",
+            )
+        ],
+        {"func": "m4_mid_loop", "args": ["values"], "numbers": []},
+    )
+    _record_probe(
+        "m4_midloop_refused",
+        "m4_guard_ast",
+        "an un-normalizable mid-loop return is refused with an empty source",
+        {"ok": bool(mid_loop.get("ok", False)), "source_empty": str(mid_loop.get("source", "")) == ""},
+        bool(not mid_loop.get("ok", False) and str(mid_loop.get("source", "")) == ""),
+        evidence="fail-closed splicer contract retained",
+    )
+
     clean_memory.close()
 
     for _category in (
@@ -2187,6 +2519,10 @@ def run_agent_eval(
         "k2_boundary_axioms",
         "k3_vla_dag",
         "k4_rebase_concurrency",
+        "m1_online_repulsor",
+        "m2_low_latency",
+        "m3_full_reference",
+        "m4_guard_ast",
     ):
         per_category[_category]["rows"] = [
             row for row in probe_rows if row["category"] == _category
@@ -2258,6 +2594,10 @@ def run_agent_eval(
             "k2_boundary_axioms": 2,
             "k3_vla_dag": 2,
             "k4_rebase_concurrency": 4,
+            "m1_online_repulsor": 3,
+            "m2_low_latency": 3,
+            "m3_full_reference": 3,
+            "m4_guard_ast": 3,
             "setup_receipts": 2,
         },
         "code_index": {
@@ -2469,16 +2809,16 @@ def run_agent_eval(
     # Directive J: one gate per new probe, plus the 88-query count gate.
     for _row in probe_rows:
         payload["gate"][str(_row["name"])] = bool(_row["correct"])
-    payload["gate"]["queries_100"] = bool(
-        int(payload["queries"]) == 100
-        and int(payload["total_queries"]) == 100
-        and int(payload["probe_slots"]) == 24
-        and int(payload["query_slots"]) == 100
-        and sum(int(value) for value in payload["query_mix"].values()) == 100
+    payload["gate"]["queries_112"] = bool(
+        int(payload["queries"]) == 112
+        and int(payload["total_queries"]) == 112
+        and int(payload["probe_slots"]) == 36
+        and int(payload["query_slots"]) == 112
+        and sum(int(value) for value in payload["query_mix"].values()) == 112
     )
-    payload["gate"]["probes_24_present"] = bool(
-        len(probe_rows) == 24
-        and len({str(row["category"]) for row in probe_rows}) == 8
+    payload["gate"]["probes_36_present"] = bool(
+        len(probe_rows) == 36
+        and len({str(row["category"]) for row in probe_rows}) == 12
         and all(
             {"name", "category", "expected", "measured", "correct"}.issubset(row)
             for row in probe_rows
@@ -2505,8 +2845,8 @@ def run_agent_eval(
         and payload["gate"]["verification_mcp_perfect"]
         and payload["gate"]["synthesis_multiplan_verified"]
         and payload["gate"]["delta_blast_radius_perfect"]
-        and payload["gate"]["queries_100"]
-        and payload["gate"]["probes_24_present"]
+        and payload["gate"]["queries_112"]
+        and payload["gate"]["probes_36_present"]
         and all(payload["gate"][str(row["name"])] for row in probe_rows)
     )
     try:

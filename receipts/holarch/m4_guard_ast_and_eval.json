@@ -1,0 +1,1587 @@
+{
+  "stage": "M4",
+  "synthesis": {
+    "base": {
+      "passed": 24,
+      "total": 24,
+      "rows": [
+        {
+          "kind": "base",
+          "func": "count_words",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": 3,
+          "actual": 3,
+          "reason": "every stage is type compatible",
+          "source_sha256": "c0c79466dd66b8cc313dca00662e388e1be4f5620ffcc426914e694d7396838e",
+          "id": "b01"
+        },
+        {
+          "kind": "base",
+          "func": "first_word",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": "",
+          "actual": "",
+          "reason": "every stage is type compatible",
+          "source_sha256": "3fc34074fd012a8c930d1ed9237c566a759e4491c6ff90fb58a1534f2fb5476d",
+          "id": "b02"
+        },
+        {
+          "kind": "base",
+          "func": "uppercase_text",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": "HOLARCH",
+          "actual": "HOLARCH",
+          "reason": "every stage is type compatible",
+          "source_sha256": "c58bf744007728a36f59901e287ffc140499680c83b3f5413a3bc213b674d9e1",
+          "id": "b03"
+        },
+        {
+          "kind": "base",
+          "func": "strip_punctuation",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": "hello, world",
+          "actual": "hello, world",
+          "reason": "every stage is type compatible",
+          "source_sha256": "ead54bdf0fa823ffa120b85c788d07bca81c7809be6045ed70620552de3f00ee",
+          "id": "b04"
+        },
+        {
+          "kind": "base",
+          "func": "reverse_items",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": [
+            4,
+            3,
+            2,
+            1
+          ],
+          "actual": [
+            4,
+            3,
+            2,
+            1
+          ],
+          "reason": "every stage is type compatible",
+          "source_sha256": "f6c1cd536a0ee521617e5326fe8bf7f9d5585e409e090e6c11a660b65404927f",
+          "id": "b05"
+        },
+        {
+          "kind": "base",
+          "func": "list_length",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": 5,
+          "actual": 5,
+          "reason": "every stage is type compatible",
+          "source_sha256": "352bd0adc29fbff3a7625bf393640f1158a6ec6bf16e1127e4b582f32392fa48",
+          "id": "b06"
+        },
+        {
+          "kind": "base",
+          "func": "unique_sorted",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": [
+            1,
+            2,
+            3
+          ],
+          "actual": [
+            1,
+            2,
+            3
+          ],
+          "reason": "every stage is type compatible",
+          "source_sha256": "8fe310ad6673c76b20d9e548302c9348d52e591ad77ebfdbadbb8166fd73d9f6",
+          "id": "b07"
+        },
+        {
+          "kind": "base",
+          "func": "sum_positive",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": 5.5,
+          "actual": 5.5,
+          "reason": "every stage is type compatible",
+          "source_sha256": "2aa4c02d0888b8db463fff71fbcc4114e095af84944c11156ef9bbfcd8ac5728",
+          "id": "b08"
+        },
+        {
+          "kind": "base",
+          "func": "scale_values",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": [
+            2.0,
+            5.0
+          ],
+          "actual": [
+            2.0,
+            5.0
+          ],
+          "reason": "every stage is type compatible",
+          "source_sha256": "3a8f575e3f5a7f3cab135cc6d47845a5b7d841822fc2b0e718887ab5119dc34e",
+          "id": "b09"
+        },
+        {
+          "kind": "base",
+          "func": "mean_value",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": 4.0,
+          "actual": 4.0,
+          "reason": "every stage is type compatible",
+          "source_sha256": "a3f6dbc5dc9985cb5df626eae671b41014695131a7381d5470ad6c097000eb35",
+          "id": "b10"
+        },
+        {
+          "kind": "base",
+          "func": "max_value",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": 9.0,
+          "actual": 9.0,
+          "reason": "every stage is type compatible",
+          "source_sha256": "90bd0c269720dba7ddbcdeaf5ae082a8c5fff145e9862bb1ea0ae167929f95e0",
+          "id": "b11"
+        },
+        {
+          "kind": "base",
+          "func": "keys_sorted",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": [
+            "a",
+            "b"
+          ],
+          "actual": [
+            "a",
+            "b"
+          ],
+          "reason": "every stage is type compatible",
+          "source_sha256": "0207d2e9ab261d34779f69fff875118b3320a524911350bda4f52fa747af2be5",
+          "id": "b12"
+        },
+        {
+          "kind": "base",
+          "func": "get_default",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": 7,
+          "actual": 7,
+          "reason": "every stage is type compatible",
+          "source_sha256": "e42e2c105ce035435e646624094f109019b6d6b9677e9b10406a51653acf34d1",
+          "id": "b13"
+        },
+        {
+          "kind": "base",
+          "func": "has_key",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": true,
+          "actual": true,
+          "reason": "every stage is type compatible",
+          "source_sha256": "f7521ac8154fa7a299508bf75f99cab78bec4d7b717e4fc88747bc5d09eb5afd",
+          "id": "b14"
+        },
+        {
+          "kind": "base",
+          "func": "invert_index",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": {
+            "x": [
+              "a",
+              "c"
+            ],
+            "y": [
+              "b"
+            ]
+          },
+          "actual": {
+            "x": [
+              "a",
+              "c"
+            ],
+            "y": [
+              "b"
+            ]
+          },
+          "reason": "every stage is type compatible",
+          "source_sha256": "9e5904b3dcb4996feab80a4154ca787c3c6bfa5372d37be58f88a54553d5d140",
+          "id": "b15"
+        },
+        {
+          "kind": "base",
+          "func": "pair_count",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": 3,
+          "actual": 3,
+          "reason": "every stage is type compatible",
+          "source_sha256": "62a6e7a7ff05916ea588dc88bb90560bdf8e40d76fa190570f5b0db3b3b61e16",
+          "id": "b16"
+        },
+        {
+          "kind": "base",
+          "func": "is_even",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": true,
+          "actual": true,
+          "reason": "every stage is type compatible",
+          "source_sha256": "2e6ad295f92e3d9d7d7183565e6b2f1c7f02c898f6dbdabe9bac6e835a8845fc",
+          "id": "b17"
+        },
+        {
+          "kind": "base",
+          "func": "clamp_score",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": 0.5,
+          "actual": 0.5,
+          "reason": "every stage is type compatible",
+          "source_sha256": "fbe619a8f4f49232784a296f4ca38ea52a81cf399e7344056da49798d74c490b",
+          "id": "b18"
+        },
+        {
+          "kind": "base",
+          "func": "word_lengths",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": [
+            2,
+            3
+          ],
+          "actual": [
+            2,
+            3
+          ],
+          "reason": "every stage is type compatible",
+          "source_sha256": "d9869650d64ac77e5a1fdc4484d2a6c6b6308b03c0dc58d1da1483192a8ec814",
+          "id": "b19"
+        },
+        {
+          "kind": "base",
+          "func": "join_hyphen",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": "a-b-c",
+          "actual": "a-b-c",
+          "reason": "every stage is type compatible",
+          "source_sha256": "0213f0b2312755af74d189c2295f19042ac52a9b5d891d45d5f7fd17b5bd464e",
+          "id": "b20"
+        },
+        {
+          "kind": "base",
+          "func": "count_vowels",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": 2,
+          "actual": 2,
+          "reason": "every stage is type compatible",
+          "source_sha256": "89c85da5d5d0fd233a92498fb53323619d458ea30f0ececf46e8fffbc3af2ae6",
+          "id": "b21"
+        },
+        {
+          "kind": "base",
+          "func": "safe_divide",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": 25.0,
+          "actual": 25.0,
+          "reason": "every stage is type compatible",
+          "source_sha256": "eaf43d06ab04ef0d52d26e3557365237ee94f3d916ba350eb2bf2158f69ebfab",
+          "id": "b22"
+        },
+        {
+          "kind": "base",
+          "func": "first_char",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": "",
+          "actual": "",
+          "reason": "every stage is type compatible",
+          "source_sha256": "9988c503448c42e1dc3e8b8475fcc89e90903db7871e3a4409496633c84c7bb4",
+          "id": "b23"
+        },
+        {
+          "kind": "base",
+          "func": "contains_word",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": true,
+          "actual": true,
+          "reason": "every stage is type compatible",
+          "source_sha256": "efa8c1923fbc105a320134b84088d76e40065d795e8f60961bd548889881bfb7",
+          "id": "b24"
+        }
+      ]
+    },
+    "single": {
+      "passed": 12,
+      "total": 12,
+      "rows": [
+        {
+          "kind": "single",
+          "func": "j3s3105_01",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": [
+            "z",
+            "y",
+            "z"
+          ],
+          "actual": [
+            "z",
+            "y",
+            "z"
+          ],
+          "reason": "every stage is type compatible",
+          "source_sha256": "721b298ab1b8161bd038b0ac61a3517c01680a1a5cf67ff07e561c4b1ccf14b0",
+          "id": "s01",
+          "stage": "caller_names",
+          "novel_func": "j3s3105_01",
+          "novel_arg": "payload_01",
+          "numbers": []
+        },
+        {
+          "kind": "single",
+          "func": "j3s3105_02",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": 7.0,
+          "actual": 7.0,
+          "reason": "every stage is type compatible",
+          "source_sha256": "b726f9df3d9d27b843d40bffe1725e2a76af56dc9a4c04825bb88b4dcfe90129",
+          "id": "s02",
+          "stage": "clamp_unit",
+          "novel_func": "j3s3105_02",
+          "novel_arg": "payload_02",
+          "numbers": [
+            -2.0,
+            7.0
+          ]
+        },
+        {
+          "kind": "single",
+          "func": "j3s3105_03",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": [
+            0.25,
+            0.25,
+            0.5
+          ],
+          "actual": [
+            0.25,
+            0.25,
+            0.5
+          ],
+          "reason": "every stage is type compatible",
+          "source_sha256": "8b4671632e6b4fe0691560a477fd3ad208820defb76ecda51d1061c851e2376d",
+          "id": "s03",
+          "stage": "normalize_scores",
+          "novel_func": "j3s3105_03",
+          "novel_arg": "payload_03",
+          "numbers": []
+        },
+        {
+          "kind": "single",
+          "func": "j3s3105_04",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": 4.0,
+          "actual": 4.0,
+          "reason": "every stage is type compatible",
+          "source_sha256": "62ec89c56ef0bd2773b4affb70894a8e7a1e2185f5a57f70a54bcc5f0e8abc74",
+          "id": "s04",
+          "stage": "mean_of",
+          "novel_func": "j3s3105_04",
+          "novel_arg": "payload_04",
+          "numbers": []
+        },
+        {
+          "kind": "single",
+          "func": "j3s3105_05",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": true,
+          "actual": true,
+          "reason": "every stage is type compatible",
+          "source_sha256": "1d43597270d69a63e714aebec060d207c207006c80d5b7604b90b6587f8448d3",
+          "id": "s05",
+          "stage": "exceeds_tau",
+          "novel_func": "j3s3105_05",
+          "novel_arg": "payload_05",
+          "numbers": [
+            0.8
+          ]
+        },
+        {
+          "kind": "single",
+          "func": "j3s3105_06",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": {
+            "x": [
+              "a"
+            ],
+            "y": [
+              "b"
+            ]
+          },
+          "actual": {
+            "x": [
+              "a"
+            ],
+            "y": [
+              "b"
+            ]
+          },
+          "reason": "every stage is type compatible",
+          "source_sha256": "6a3a0a20264bd32cd5f672470a7c6183d95d25ce20b44a14e0b136e7dc36d6b6",
+          "id": "s06",
+          "stage": "invert_index",
+          "novel_func": "j3s3105_06",
+          "novel_arg": "payload_06",
+          "numbers": []
+        },
+        {
+          "kind": "single",
+          "func": "j3s3105_07",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": [
+            "a",
+            "b",
+            "c"
+          ],
+          "actual": [
+            "a",
+            "b",
+            "c"
+          ],
+          "reason": "every stage is type compatible",
+          "source_sha256": "9829beb1f063dc2831fa8cfe3cbdad8ebb576e8b90f98af9315ad5350885ef24",
+          "id": "s07",
+          "stage": "sorted_keys",
+          "novel_func": "j3s3105_07",
+          "novel_arg": "payload_07",
+          "numbers": []
+        },
+        {
+          "kind": "single",
+          "func": "j3s3105_08",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": "a,b,c",
+          "actual": "a,b,c",
+          "reason": "every stage is type compatible",
+          "source_sha256": "a0660a87df470d45dbd74700ba6d5bbdef2f2eea4ddfb81d7712af7f50e481f6",
+          "id": "s08",
+          "stage": "join_csv",
+          "novel_func": "j3s3105_08",
+          "novel_arg": "payload_08",
+          "numbers": []
+        },
+        {
+          "kind": "single",
+          "func": "j3s3105_09",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": "x = 1\ny = 2",
+          "actual": "x = 1\ny = 2",
+          "reason": "every stage is type compatible",
+          "source_sha256": "e2a77a410a8857e2d08ed80b395eef21aeba34cbf1742ee4263b035a80be04e7",
+          "id": "s09",
+          "stage": "strip_comments",
+          "novel_func": "j3s3105_09",
+          "novel_arg": "payload_09",
+          "numbers": []
+        },
+        {
+          "kind": "single",
+          "func": "j3s3105_10",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": [
+            "alpha",
+            "beta",
+            "gamma"
+          ],
+          "actual": [
+            "alpha",
+            "beta",
+            "gamma"
+          ],
+          "reason": "every stage is type compatible",
+          "source_sha256": "74d84af3349ad324060a89ee6a386364eafa0cf16c064bba76d6d487c28e03fa",
+          "id": "s10",
+          "stage": "split_identifiers",
+          "novel_func": "j3s3105_10",
+          "novel_arg": "payload_10",
+          "numbers": []
+        },
+        {
+          "kind": "single",
+          "func": "j3s3105_11",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": 3,
+          "actual": 3,
+          "reason": "every stage is type compatible",
+          "source_sha256": "1cf6371b0569b5ae700fbed072731200a79f880ea24237f634d663f0e1a69fc9",
+          "id": "s11",
+          "stage": "unique_count",
+          "novel_func": "j3s3105_11",
+          "novel_arg": "payload_11",
+          "numbers": []
+        },
+        {
+          "kind": "single",
+          "func": "j3s3105_12",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": [
+            -2.0,
+            3.0
+          ],
+          "actual": [
+            -2.0,
+            3.0
+          ],
+          "reason": "every stage is type compatible",
+          "source_sha256": "9579248cdd2fa3a57808be5a93e3a8a8547648a497cdd69edadda42e499fba67",
+          "id": "s12",
+          "stage": "running_deltas",
+          "novel_func": "j3s3105_12",
+          "novel_arg": "payload_12",
+          "numbers": []
+        }
+      ]
+    },
+    "two": {
+      "passed": 8,
+      "total": 8,
+      "rows": [
+        {
+          "kind": "two",
+          "func": "j3p3105_01",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": 3,
+          "actual": 3,
+          "reason": "every stage is type compatible",
+          "source_sha256": "c876a7101fe48ba1c87b9ef59771e6389e3c28a33d680068b42ed0a251bfcb74",
+          "id": "t01",
+          "stages": [
+            "caller_names",
+            "sequence_length"
+          ],
+          "topology": "text->sequence|sequence->numeric",
+          "numbers": []
+        },
+        {
+          "kind": "two",
+          "func": "j3p3105_02",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": 2.0,
+          "actual": 2.0,
+          "reason": "every stage is type compatible",
+          "source_sha256": "d55e6918a6db290eb6b4fef10a55dec5a85f6a332198c1ff2db3181ceca6ea7d",
+          "id": "t02",
+          "stages": [
+            "sequence_length",
+            "clamp_unit"
+          ],
+          "topology": "sequence->numeric|numeric->numeric",
+          "numbers": [
+            0.0,
+            2.0
+          ]
+        },
+        {
+          "kind": "two",
+          "func": "j3p3105_03",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": 0.3333333333333333,
+          "actual": 0.3333333333333333,
+          "reason": "every stage is type compatible",
+          "source_sha256": "4144fa878f5f6fea0b4375d46e35b27c1f334240ba251d9b07d3775e906d7f00",
+          "id": "t03",
+          "stages": [
+            "normalize_scores",
+            "mean_of"
+          ],
+          "topology": "numeric_sequence->numeric_sequence|numeric_sequence->numeric",
+          "numbers": []
+        },
+        {
+          "kind": "two",
+          "func": "j3p3105_04",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": true,
+          "actual": true,
+          "reason": "every stage is type compatible",
+          "source_sha256": "297731c81e1689f1ca0038bc4c9da95f6f12c269a76e7dca2e3de8a8fa18a46b",
+          "id": "t04",
+          "stages": [
+            "mean_of",
+            "exceeds_tau"
+          ],
+          "topology": "numeric_sequence->numeric|numeric->boolean",
+          "numbers": [
+            0.6
+          ]
+        },
+        {
+          "kind": "two",
+          "func": "j3p3105_05",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": [
+            "x",
+            "y"
+          ],
+          "actual": [
+            "x",
+            "y"
+          ],
+          "reason": "every stage is type compatible",
+          "source_sha256": "e03d9ecbfbfc9459507a5eb4dbf3258de2487012598fa3dbd78d47f2700d01ee",
+          "id": "t05",
+          "stages": [
+            "invert_index",
+            "sorted_keys"
+          ],
+          "topology": "mapping->mapping|mapping->sequence",
+          "numbers": []
+        },
+        {
+          "kind": "two",
+          "func": "j3p3105_06",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": "a,b",
+          "actual": "a,b",
+          "reason": "every stage is type compatible",
+          "source_sha256": "b1d9054036e143be64e0d63b1e90c3314f19b95da7b13e9fe55a4a962ad31a07",
+          "id": "t06",
+          "stages": [
+            "sorted_keys",
+            "join_csv"
+          ],
+          "topology": "mapping->sequence|sequence->text",
+          "numbers": []
+        },
+        {
+          "kind": "two",
+          "func": "j3p3105_07",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": [
+            "alpha",
+            "beta"
+          ],
+          "actual": [
+            "alpha",
+            "beta"
+          ],
+          "reason": "every stage is type compatible",
+          "source_sha256": "0c3ca9947c0845c1ac1928e9f5b893050130a82891e16ff61eec153b0cd2836a",
+          "id": "t07",
+          "stages": [
+            "strip_comments",
+            "split_identifiers"
+          ],
+          "topology": "text->text|text->sequence",
+          "numbers": []
+        },
+        {
+          "kind": "two",
+          "func": "j3p3105_08",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": [
+            2.0,
+            3.0
+          ],
+          "actual": [
+            2.0,
+            3.0
+          ],
+          "reason": "every stage is type compatible",
+          "source_sha256": "bd969b7b00b9263c7d90584d36f6ffabc709150139e9d84948a1ca4ba3938c32",
+          "id": "t08",
+          "stages": [
+            "running_deltas",
+            "abs_values"
+          ],
+          "topology": "numeric_sequence->numeric_sequence|numeric_sequence->numeric_sequence",
+          "numbers": []
+        }
+      ]
+    },
+    "three": {
+      "passed": 10,
+      "total": 10,
+      "rows": [
+        {
+          "kind": "three",
+          "func": "j3d3105_01",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": 1.0,
+          "actual": 1.0,
+          "reason": "every stage is type compatible",
+          "source_sha256": "fa0e6d790289cec9b530d8e8f01fc4c16b0fd516ce2171a09a4335ea49a46343",
+          "id": "f1a",
+          "family": "F1",
+          "stages": [
+            "caller_names",
+            "sequence_length",
+            "clamp_unit"
+          ],
+          "topology": "text->sequence|sequence->numeric|numeric->numeric",
+          "numbers": [
+            0.0,
+            1.0
+          ],
+          "guards": 2
+        },
+        {
+          "kind": "three",
+          "func": "j3d3105_02",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": 2.0,
+          "actual": 2.0,
+          "reason": "every stage is type compatible",
+          "source_sha256": "ccfe1c63fcb06d387d581a2b369436bd1d491d98369183b39f9a3a3b67ed9749",
+          "id": "f1b",
+          "family": "F1",
+          "stages": [
+            "caller_names",
+            "sequence_length",
+            "clamp_unit"
+          ],
+          "topology": "text->sequence|sequence->numeric|numeric->numeric",
+          "numbers": [
+            2.0,
+            5.0
+          ],
+          "guards": 2
+        },
+        {
+          "kind": "three",
+          "func": "j3d3105_03",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": true,
+          "actual": true,
+          "reason": "every stage is type compatible",
+          "source_sha256": "0d47f9db6510e9b062bbfc0bd43b00e24474693d651a8b567c6073ec3d6c37d1",
+          "id": "f2a",
+          "family": "F2",
+          "stages": [
+            "normalize_scores",
+            "mean_of",
+            "exceeds_tau"
+          ],
+          "topology": "numeric_sequence->numeric_sequence|numeric_sequence->numeric|numeric->boolean",
+          "numbers": [
+            0.25
+          ],
+          "guards": 2
+        },
+        {
+          "kind": "three",
+          "func": "j3d3105_04",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": false,
+          "actual": false,
+          "reason": "every stage is type compatible",
+          "source_sha256": "a1f30e87ccc77becd71964fa8aa998b8ebc46585ed0815e2eed28a0bf4a542aa",
+          "id": "f2b",
+          "family": "F2",
+          "stages": [
+            "normalize_scores",
+            "mean_of",
+            "exceeds_tau"
+          ],
+          "topology": "numeric_sequence->numeric_sequence|numeric_sequence->numeric|numeric->boolean",
+          "numbers": [
+            0.45
+          ],
+          "guards": 2
+        },
+        {
+          "kind": "three",
+          "func": "j3d3105_05",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": "x,y",
+          "actual": "x,y",
+          "reason": "every stage is type compatible",
+          "source_sha256": "f2ad55ae9b43daa897aa054de685f6d6b7d87d598f8a49b24aee7592184eeb15",
+          "id": "f3a",
+          "family": "F3",
+          "stages": [
+            "invert_index",
+            "sorted_keys",
+            "join_csv"
+          ],
+          "topology": "mapping->mapping|mapping->sequence|sequence->text",
+          "numbers": [],
+          "guards": 0
+        },
+        {
+          "kind": "three",
+          "func": "j3d3105_06",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": "z",
+          "actual": "z",
+          "reason": "every stage is type compatible",
+          "source_sha256": "0584a69430a2043dbd0caefe42a403eb71be80a56710ca7c1c9029913c639298",
+          "id": "f3b",
+          "family": "F3",
+          "stages": [
+            "invert_index",
+            "sorted_keys",
+            "join_csv"
+          ],
+          "topology": "mapping->mapping|mapping->sequence|sequence->text",
+          "numbers": [],
+          "guards": 0
+        },
+        {
+          "kind": "three",
+          "func": "j3d3105_07",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": 2,
+          "actual": 2,
+          "reason": "every stage is type compatible",
+          "source_sha256": "d6990d7a8931dfe89f041aabbef80bbf5309184d67bff0ff49594ae97b53e3ee",
+          "id": "f4a",
+          "family": "F4",
+          "stages": [
+            "strip_comments",
+            "split_identifiers",
+            "unique_count"
+          ],
+          "topology": "text->text|text->sequence|sequence->numeric",
+          "numbers": [],
+          "guards": 0
+        },
+        {
+          "kind": "three",
+          "func": "j3d3105_08",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": 4,
+          "actual": 4,
+          "reason": "every stage is type compatible",
+          "source_sha256": "4c6190578159f270bcc8d81eb81ec0c7e42d6f8e83eb2c1f829b32dbed85931e",
+          "id": "f4b",
+          "family": "F4",
+          "stages": [
+            "strip_comments",
+            "split_identifiers",
+            "unique_count"
+          ],
+          "topology": "text->text|text->sequence|sequence->numeric",
+          "numbers": [],
+          "guards": 0
+        },
+        {
+          "kind": "three",
+          "func": "j3d3105_09",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": 3.0,
+          "actual": 3.0,
+          "reason": "every stage is type compatible",
+          "source_sha256": "04f8dc2935449a8dbd217c4ec1a5deaf81b700d3828d1e762fda3afca43fac22",
+          "id": "f5a",
+          "family": "F5",
+          "stages": [
+            "running_deltas",
+            "abs_values",
+            "max_or_zero"
+          ],
+          "topology": "numeric_sequence->numeric_sequence|numeric_sequence->numeric_sequence|numeric_sequence->numeric",
+          "numbers": [
+            2.0
+          ],
+          "guards": 2
+        },
+        {
+          "kind": "three",
+          "func": "j3d3105_10",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": 5.0,
+          "actual": 5.0,
+          "reason": "every stage is type compatible",
+          "source_sha256": "5d6d0994d4370d4132fd5949870c55f72e4d7c8b8d583d393e441baff2d7743e",
+          "id": "f5b",
+          "family": "F5",
+          "stages": [
+            "running_deltas",
+            "abs_values",
+            "max_or_zero"
+          ],
+          "topology": "numeric_sequence->numeric_sequence|numeric_sequence->numeric_sequence|numeric_sequence->numeric",
+          "numbers": [
+            5.0
+          ],
+          "guards": 2
+        }
+      ]
+    },
+    "multi": {
+      "passed": 6,
+      "total": 6,
+      "rows": [
+        {
+          "kind": "multi",
+          "func": "k2m3105_01",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": 21.0,
+          "actual": 21.0,
+          "reason": "every stage is type compatible",
+          "source_sha256": "dbe185aadd6c39d994f8ef43f68d13a79b6fb52e79f2cef0d267dbc0fe2db47d",
+          "id": "multi01",
+          "stages": [
+            "filter_above",
+            "scale_values",
+            "total"
+          ],
+          "multi_statement": true,
+          "multi_argument": true
+        },
+        {
+          "kind": "multi",
+          "func": "k2m3105_02",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": "a",
+          "actual": "a",
+          "reason": "every stage is type compatible",
+          "source_sha256": "3a38208cdf7b816fc8f03a0af5074a2850e6ffb26a61eef8895ac31bcc86afa1",
+          "id": "multi02",
+          "stages": [
+            "pair_counts",
+            "select_keys",
+            "join_csv"
+          ],
+          "multi_statement": true,
+          "multi_argument": true
+        },
+        {
+          "kind": "multi",
+          "func": "k2m3105_03",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": 1.0,
+          "actual": 1.0,
+          "reason": "every stage is type compatible",
+          "source_sha256": "00693c63b750938db28b8a24dbc8e01626519125cab0f992b847ea31ba945ada",
+          "id": "multi03",
+          "stages": [
+            "filter_above",
+            "count_matches",
+            "clamp_unit"
+          ],
+          "multi_statement": true,
+          "multi_argument": true
+        },
+        {
+          "kind": "multi",
+          "func": "k2m3105_04",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": 1.0,
+          "actual": 1.0,
+          "reason": "every stage is type compatible",
+          "source_sha256": "3b793c0d73a171d4ff25aee471212eaa50dfe2e8ee2c39b6b5330c2de5c65c21",
+          "id": "multi04",
+          "stages": [
+            "window_means",
+            "max_or_zero",
+            "clamp_unit"
+          ],
+          "multi_statement": true,
+          "multi_argument": true
+        },
+        {
+          "kind": "multi",
+          "func": "k2m3105_05",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": [
+            1,
+            2
+          ],
+          "actual": [
+            1,
+            2
+          ],
+          "reason": "every stage is type compatible",
+          "source_sha256": "b2e771e1012b599a51161ded58ca01b11549589ce0e654c1e88840ca25aee3c9",
+          "id": "multi05",
+          "stages": [
+            "pair_counts",
+            "invert_index",
+            "sorted_keys"
+          ],
+          "multi_statement": true,
+          "multi_argument": false
+        },
+        {
+          "kind": "multi",
+          "func": "k2m3105_06",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": 2,
+          "actual": 2,
+          "reason": "every stage is type compatible",
+          "source_sha256": "20eef32fd9eb887e0312e585a260d6414be9f30be63349e123296c951a556f7d",
+          "id": "multi06",
+          "stages": [
+            "filter_above",
+            "scale_values",
+            "count_matches"
+          ],
+          "multi_statement": true,
+          "multi_argument": true
+        }
+      ]
+    },
+    "guards": {
+      "passed": 6,
+      "total": 6,
+      "rows": [
+        {
+          "kind": "guard",
+          "func": "m4g3105_01",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": 1.0,
+          "actual": 1.0,
+          "reason": "every stage is type compatible",
+          "source_sha256": "3c5c44bf9ca28823089f0867f5d5b4ed89be3d6b5ff404682e72d57611c24612",
+          "id": "guard01",
+          "stages": [
+            "normalize_guarded",
+            "total",
+            "clamp_unit"
+          ],
+          "guard_clause": true,
+          "multi_argument": false
+        },
+        {
+          "kind": "guard",
+          "func": "m4g3105_02",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": 3.0,
+          "actual": 3.0,
+          "reason": "every stage is type compatible",
+          "source_sha256": "d1ca27833e5e9c7fe33803938a27077bde76577f7a6611602f97d4ade1ef6635",
+          "id": "guard02",
+          "stages": [
+            "safe_mean",
+            "lower_bound",
+            "upper_bound"
+          ],
+          "guard_clause": true,
+          "multi_argument": true
+        },
+        {
+          "kind": "guard",
+          "func": "m4g3105_03",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": 0.5,
+          "actual": 0.5,
+          "reason": "every stage is type compatible",
+          "source_sha256": "d00453a5dde15ea32e8ea234552bca90013898f5a00b32c4db987c31944ae574",
+          "id": "guard03",
+          "stages": [
+            "count_guarded",
+            "clamp_unit",
+            "upper_bound"
+          ],
+          "guard_clause": true,
+          "multi_argument": true
+        },
+        {
+          "kind": "guard",
+          "func": "m4g3105_04",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": 3.0,
+          "actual": 3.0,
+          "reason": "every stage is type compatible",
+          "source_sha256": "85617d4ce086a92b3c5283c11d25b100fe1d7dd5788c6d7836a3061fabd1d8e0",
+          "id": "guard04",
+          "stages": [
+            "first_positive",
+            "lower_bound",
+            "upper_bound"
+          ],
+          "guard_clause": true,
+          "multi_argument": true
+        },
+        {
+          "kind": "guard",
+          "func": "m4g3105_05",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": 0.5,
+          "actual": 0.5,
+          "reason": "every stage is type compatible",
+          "source_sha256": "131306e04bb2da5bc61b6b153b95e55630e2c969b23c7cbddeaf6d1b56f6c8b7",
+          "id": "guard05",
+          "stages": [
+            "lower_bound",
+            "upper_bound",
+            "clamp_unit"
+          ],
+          "guard_clause": true,
+          "multi_argument": true
+        },
+        {
+          "kind": "guard",
+          "func": "m4g3105_06",
+          "type_ok": true,
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": 0.30000000000000004,
+          "actual": 0.30000000000000004,
+          "reason": "every stage is type compatible",
+          "source_sha256": "09cd1903811388e0d5be5f5c24b720ec08f4bb55d0f2a9d378083f1acf54d29b",
+          "id": "guard06",
+          "stages": [
+            "safe_mean",
+            "lower_bound",
+            "clamp_unit"
+          ],
+          "guard_clause": true,
+          "multi_argument": true
+        }
+      ]
+    },
+    "traps": {
+      "refused": 6,
+      "total": 6,
+      "rows": [
+        {
+          "id": "tr1",
+          "left": "exceeds_tau",
+          "right": "mean_of",
+          "conflict": "boolean->numeric_sequence",
+          "refused": true,
+          "source_empty": true,
+          "reason": "type mismatch: exceeds_tau.returns ['boolean'] cannot bind mean_of.values ['numeric_sequence']"
+        },
+        {
+          "id": "tr2",
+          "left": "invert_index",
+          "right": "clamp_unit",
+          "conflict": "mapping->numeric",
+          "refused": true,
+          "source_empty": true,
+          "reason": "type mismatch: invert_index.returns ['mapping'] cannot bind clamp_unit.value ['numeric']"
+        },
+        {
+          "id": "tr3",
+          "left": "join_csv",
+          "right": "mean_of",
+          "conflict": "text->numeric_sequence",
+          "refused": true,
+          "source_empty": true,
+          "reason": "type mismatch: join_csv.returns ['text'] cannot bind mean_of.values ['numeric_sequence']"
+        },
+        {
+          "id": "tr4",
+          "left": "normalize_scores",
+          "right": "sorted_keys",
+          "conflict": "numeric_sequence->mapping",
+          "refused": true,
+          "source_empty": true,
+          "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind sorted_keys.index ['mapping']"
+        },
+        {
+          "id": "tr5",
+          "left": "split_identifiers",
+          "right": "invert_index",
+          "conflict": "sequence->mapping",
+          "refused": true,
+          "source_empty": true,
+          "reason": "type mismatch: split_identifiers.returns ['sequence'] cannot bind invert_index.index ['mapping']"
+        },
+        {
+          "id": "tr6",
+          "left": "exceeds_tau",
+          "right": "clamp_unit",
+          "conflict": "boolean->numeric",
+          "refused": true,
+          "source_empty": true,
+          "reason": "type mismatch: exceeds_tau.returns ['boolean'] cannot bind clamp_unit.value ['numeric']"
+        }
+      ]
+    },
+    "traps2": {
+      "refused": 6,
+      "total": 6,
+      "rows": [
+        {
+          "id": "trap_arity",
+          "kind": "arity",
+          "reason": "the secondary parameter factor has no binding",
+          "refused": true,
+          "source_empty": true,
+          "symbol_vetoes": [],
+          "reason_measured": "the splicer refused the chain"
+        },
+        {
+          "id": "trap_no_return",
+          "kind": "symbol",
+          "reason": "the stage has no terminal return",
+          "refused": true,
+          "source_empty": true,
+          "symbol_vetoes": [],
+          "reason_measured": "the splicer refused the chain"
+        },
+        {
+          "id": "trap_early_return",
+          "kind": "symbol",
+          "reason": "a mid-loop return cannot be normalized to one exit",
+          "refused": true,
+          "source_empty": true,
+          "symbol_vetoes": [],
+          "reason_measured": "the splicer refused the chain"
+        },
+        {
+          "id": "trap_empty_body",
+          "kind": "symbol",
+          "reason": "the stage body is empty",
+          "refused": true,
+          "source_empty": true,
+          "symbol_vetoes": [],
+          "reason_measured": "the splicer refused the chain"
+        },
+        {
+          "id": "trap_unknown_callee",
+          "kind": "symbol",
+          "reason": "mystery_helper is absent from the symbol table",
+          "refused": true,
+          "source_empty": false,
+          "symbol_vetoes": [
+            "mystery_helper"
+          ],
+          "reason_measured": "every stage is type compatible"
+        },
+        {
+          "id": "trap_type_chain",
+          "kind": "type",
+          "reason": "a sequence cannot feed a mapping consumer",
+          "refused": true,
+          "source_empty": true,
+          "symbol_vetoes": [],
+          "reason_measured": "type mismatch: caller_names.returns ['sequence'] cannot bind invert_index.index ['mapping']"
+        }
+      ]
+    },
+    "traps3": {
+      "refused": 6,
+      "total": 6,
+      "rows": [
+        {
+          "id": "trap_mid_loop_guard",
+          "kind": "symbol",
+          "reason": "a return inside a loop cannot be normalized to one exit",
+          "refused": true,
+          "source_empty": true,
+          "symbol_vetoes": [],
+          "reason_measured": "the splicer refused the chain"
+        },
+        {
+          "id": "trap_guard_after_statement",
+          "kind": "symbol",
+          "reason": "only leading guards are normalized; a later guard is refused",
+          "refused": true,
+          "source_empty": true,
+          "symbol_vetoes": [],
+          "reason_measured": "the splicer refused the chain"
+        },
+        {
+          "id": "trap_guard_with_else",
+          "kind": "symbol",
+          "reason": "a guard with an else branch is not a leading guard",
+          "refused": true,
+          "source_empty": true,
+          "symbol_vetoes": [],
+          "reason_measured": "the splicer refused the chain"
+        },
+        {
+          "id": "trap_guard_type",
+          "kind": "type",
+          "reason": "a numeric result cannot feed a sequence consumer",
+          "refused": true,
+          "source_empty": true,
+          "symbol_vetoes": [],
+          "reason_measured": "type mismatch: safe_mean.returns ['numeric'] cannot bind join_csv.items ['sequence']"
+        },
+        {
+          "id": "trap_guard_arity",
+          "kind": "arity",
+          "reason": "the floor parameter has no binding",
+          "refused": true,
+          "source_empty": true,
+          "symbol_vetoes": [],
+          "reason_measured": "the splicer refused the chain"
+        },
+        {
+          "id": "trap_guard_symbol",
+          "kind": "symbol",
+          "reason": "mystery_empty is absent from the symbol table",
+          "refused": true,
+          "source_empty": false,
+          "symbol_vetoes": [
+            "mystery_empty"
+          ],
+          "reason_measured": "every stage is type compatible"
+        }
+      ]
+    },
+    "total": {
+      "passed": 84,
+      "total": 84
+    },
+    "drift": 0.0
+  },
+  "gate": {
+    "synthesis_84_of_84": true,
+    "guards_6_of_6": true,
+    "guard_traps_6_of_6": true,
+    "prior_72_preserved": true,
+    "stationary_drift_zero": true,
+    "passed": true
+  },
+  "wall_seconds": 0.07481639998150058,
+  "evidence": "OBSERVED",
+  "passed": true
+}

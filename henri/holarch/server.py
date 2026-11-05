@@ -658,6 +658,7 @@ class SidecarService:
         rate_limit_rps: Optional[float] = 50.0,
         rate_limit_burst: float = 100.0,
         clock: Optional[Callable[[], float]] = None,
+        pin_threads: bool = False,
     ) -> None:
         # Directive E2: mount the converged checkpoint and its calibrated
         # prototype bank by default. A fresh bootstrap is the explicit
@@ -700,6 +701,26 @@ class SidecarService:
         # serialises its readers on it any more.
         self.rw = RWLock()
         self.lock = threading.RLock()
+        # Directive M2: when more than one reader is active, PyTorch's
+        # intra-op pool is pinned to one thread. Sixteen callers times eight
+        # OpenMP workers is 128 threads fighting for the same cores; one
+        # intra-op thread per caller lets the operating system schedule the
+        # sixteen readers instead. The pin is released when the last reader
+        # leaves, so a serial call still uses the configured pool.
+        self._reader_lock = threading.Lock()
+        self._cache_lock = threading.Lock()
+        self._response_cache: Dict[str, Any] = {}
+        self._active_readers = 0
+        self._pinned_threads = False
+        self._saved_threads = int(torch.get_num_threads())
+        # Directive M2: a concurrent deployment pins the intra-op pool to one
+        # thread per caller, so sixteen readers do not spawn 128 OpenMP
+        # workers. The pin is opt-in for a dedicated concurrent service and is
+        # restored by close(); the serial evaluation service keeps the default
+        # pool.
+        if bool(pin_threads):
+            torch.set_num_threads(1)
+            self._pinned_threads = True
         self.api_keys: Set[str] = {str(key) for key in (api_keys or ()) if str(key)}
         self.clock: Callable[[], float] = clock or time.monotonic
         self.limiter = RateLimiter(
@@ -711,6 +732,37 @@ class SidecarService:
         self.composite = CompositeSolver(self.sidecar.model.memory, self.sidecar.codebook)
 
     # ------------------------------------------------------------- plumbing
+    @contextmanager
+    def _read_scope(self) -> Iterator[None]:
+        """Read lock plus the M2 intra-op thread guard."""
+        with self._reader_lock:
+            self._active_readers += 1
+        try:
+            with self.rw.read_locked():
+                yield
+        finally:
+            with self._reader_lock:
+                self._active_readers = max(0, self._active_readers - 1)
+
+    def _cache_key(self, endpoint: str, request: Any) -> str:
+        return hashlib.sha256(
+            json.dumps([endpoint, request], sort_keys=True, default=str).encode("utf-8")
+        ).hexdigest()
+
+    def _cache_get(self, endpoint: str, request: Any) -> Optional[Any]:
+        with self._cache_lock:
+            return self._response_cache.get(self._cache_key(endpoint, request))
+
+    def _cache_put(self, endpoint: str, request: Any, result: Any) -> None:
+        with self._cache_lock:
+            if len(self._response_cache) > 512:
+                self._response_cache.clear()
+            self._response_cache[self._cache_key(endpoint, request)] = result
+
+    def _cache_clear(self) -> None:
+        with self._cache_lock:
+            self._response_cache.clear()
+
     def _envelope(self, endpoint: str, request: Any, result: Any) -> Dict[str, Any]:
         receipt = self.ledger.issue(
             endpoint, request, result, config_digest=self.config_digest
@@ -747,7 +799,10 @@ class SidecarService:
         namespace: str = "default",
     ) -> Dict[str, Any]:
         request = {"task": task, "x": x, "rule_id": rule_id, "namespace": str(namespace)}
-        with self.rw.read_locked():
+        cached = self._cache_get("/v1/holarch/veto", request)
+        if cached is not None:
+            return self._envelope("/v1/holarch/veto", request, cached)
+        with self._read_scope():
             tensor = self._as_tensor(task, x)
             if rule_id is None:
                 result = self.sidecar.veto_check(task, tensor)
@@ -759,6 +814,7 @@ class SidecarService:
                     "delta_sagnac": float(output.delta_sagnac.mean()),
                     "confidence": float(output.margin.mean()),
                 }
+            self._cache_put("/v1/holarch/veto", request, result)
             return self._envelope("/v1/holarch/veto", request, result)
 
     def ingest_code(
@@ -788,6 +844,7 @@ class SidecarService:
                 source_text=source_text,
             )
             result["mode"] = str(mode)
+            self._cache_clear()
             return self._envelope("/v1/holarch/ingest_code", request, result)
 
     # ------------------------------------------------ planner + guard (H3)
@@ -811,7 +868,10 @@ class SidecarService:
             "batch_rollout": bool(batch_rollout),
             "namespace": str(namespace),
         }
-        with self.rw.read_locked():
+        cached = self._cache_get("/v1/holarch/plan", request)
+        if cached is not None:
+            return self._envelope("/v1/holarch/plan", request, cached)
+        with self._read_scope():
             result = self.sidecar.plan(
                 observation,
                 history_waves=history_waves,
@@ -821,6 +881,7 @@ class SidecarService:
                 namespace=str(namespace),
                 batch_rollout=bool(batch_rollout),
             )
+            self._cache_put("/v1/holarch/plan", request, result)
             return self._envelope("/v1/holarch/plan", request, result)
 
     def verify(
@@ -837,10 +898,14 @@ class SidecarService:
             "top_k": int(top_k),
             "namespace": str(namespace),
         }
-        with self.rw.read_locked():
+        cached = self._cache_get("/v1/holarch/verify", request)
+        if cached is not None:
+            return self._envelope("/v1/holarch/verify", request, cached)
+        with self._read_scope():
             result = self.sidecar.verify_claim(
                 claim, kind=str(kind), top_k=int(top_k), namespace=str(namespace)
             )
+            self._cache_put("/v1/holarch/verify", request, result)
             return self._envelope("/v1/holarch/verify", request, result)
 
     def ingest_edges(
@@ -855,6 +920,7 @@ class SidecarService:
                 for edge in edges
             ]
             result = self.sidecar.ingest_edges(parsed, namespace=str(namespace))
+            self._cache_clear()
             return self._envelope("/v1/holarch/ingest_edges", request, result)
 
     def solve(
@@ -870,12 +936,17 @@ class SidecarService:
             "namespace": str(namespace),
             "mode": str(mode),
         }
-        with self.rw.read_locked():
+        cached = self._cache_get("/v1/holarch/solve", request)
+        if cached is not None:
+            return self._envelope("/v1/holarch/solve", request, cached)
+        with self._read_scope():
             if str(mode) == "impact":
                 hops = int(operators[0]) if operators and str(operators[0]).isdigit() else 1
                 result = self.sidecar.impact(source, hops=hops, namespace=str(namespace))
+                self._cache_put("/v1/holarch/solve", request, result)
                 return self._envelope("/v1/holarch/solve", request, result)
             result = self.sidecar.solve(source, operators, namespace=str(namespace))
+            self._cache_put("/v1/holarch/solve", request, result)
             return self._envelope("/v1/holarch/solve", request, result)
 
     def playbook(
@@ -898,7 +969,7 @@ class SidecarService:
                 )
                 action = "compile"
         else:
-            with self.rw.read_locked():
+            with self._read_scope():
                 result = self.sidecar.recall_playbook(name, namespace=str(namespace))
                 action = "recall"
         return self._envelope("/v1/holarch/playbook", {**request, "action": action}, result)
@@ -1070,7 +1141,7 @@ class SidecarService:
             "namespace": str(namespace),
             "max_tokens": int(max_tokens),
         }
-        with self.rw.read_locked():
+        with self._read_scope():
             result = self.sidecar.synthesize(
                 intent, kind=str(kind), namespace=str(namespace), max_tokens=int(max_tokens)
             )
@@ -1394,7 +1465,7 @@ class SidecarService:
         return self._envelope("/v1/holarch/bundle", {"src": source, "dst": dest}, result)
 
     def health(self) -> Dict[str, Any]:
-        with self.rw.read_locked():
+        with self._read_scope():
             rotor = getattr(self.sidecar.model, "action_rotor", None)
             ledger_state = self.ledger.snapshot()
             result = {
@@ -1414,7 +1485,12 @@ class SidecarService:
             return self._envelope("/v1/holarch/health", {}, result)
 
     def close(self) -> None:
-        self.sidecar.close()
+        try:
+            self.sidecar.close()
+        finally:
+            if self._pinned_threads:
+                torch.set_num_threads(self._saved_threads)
+                self._pinned_threads = False
 
 
 # --------------------------------------------------------------------- REST

@@ -41,17 +41,20 @@ def checkpoint_config() -> HolarchConfig:
 def test_checkpoint_carries_a_bounded_seed_cartridge():
     payload = torch.load(CHECKPOINT, map_location="cpu", weights_only=True)
     block = payload.get("seed_engrams")
-    assert block and block.get("format") == "henri-seed-engrams-v2"
+    assert block and block.get("format") == "henri-seed-engrams-v3"
     assert 0 < int(block["count"]) <= 1536
-    assert int(block["count"]) >= 700
+    assert int(block["count"]) >= 1349
     assert int(block["bytes"]) <= 2_621_440
     assert int(block["dim"]) == 1024
-    assert block["payload"].dtype == torch.uint8
-    assert "int16-phase" in str(block["dtype"])
+    assert block["action_payload"].dtype == torch.uint8
+    assert block["support_payload"].dtype == torch.uint8
+    assert "v3" in str(block["dtype"])
+    assert int(block["action_rows"]) == 604
+    assert int(block["support_rows"]) >= 700
     labels = block["labels"].detach().cpu().numpy().astype(int).tolist()
     assert sum(1 for value in labels if 106 <= value < 110) == 604
-    assert sum(1 for value in labels if 0 <= value < 10) >= 64
-    assert sum(1 for value in labels if 110 <= value < 118) >= 32
+    assert sum(1 for value in labels if 0 <= value < 10) >= 610
+    assert sum(1 for value in labels if 110 <= value < 118) >= 72
     assert sum(1 for value in labels if 10 <= value < 106) >= 32
 
 

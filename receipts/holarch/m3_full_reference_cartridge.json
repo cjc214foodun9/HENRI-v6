@@ -1,0 +1,68 @@
+{
+  "stage": "M3",
+  "cartridge": {
+    "count": 1349,
+    "bytes": 2609132,
+    "format": "henri-seed-engrams-v3",
+    "dtype": "v3-action-int12-sqrt4-support-int8-zlib9",
+    "rows_by_task": {
+      "vision": 610,
+      "language": 63,
+      "action": 604,
+      "relational": 72
+    },
+    "action_rows": 604,
+    "support_rows": 745,
+    "action_proto_count": 4
+  },
+  "clean_room": {
+    "pre_mount_rows": 0,
+    "post_mount_rows": 1349,
+    "hydrated": 1349
+  },
+  "test": {
+    "vision": 0.9797979797979798,
+    "relational": 0.7746478873239436,
+    "action": 0.7875,
+    "reference_vision": 0.9797979797979798,
+    "reference_relational": 0.7746478873239436
+  },
+  "closed_loop": {
+    "wins_thread8": 38,
+    "wins_thread1": 38,
+    "thread_parity": 48,
+    "traps_correct": 8
+  },
+  "language": {
+    "legacy_char_accuracy": 0.1943359375,
+    "top1": 0.5045378151260504,
+    "bits_per_char": 1.6367330798975035,
+    "perplexity": 13.566816791849607,
+    "base_top1": 0.5092436974789916,
+    "base_perplexity": 13.488464991905042,
+    "beta_star": 0.0,
+    "tokens": 2975,
+    "photonic_contexts": 2967,
+    "vocabulary_size": 2048,
+    "held_out_tokens": 49748,
+    "target_top1": 0.55,
+    "target_bits_per_char": 1.31,
+    "target_met": false
+  },
+  "gate": {
+    "hydrated_at_least_1349": true,
+    "bytes_at_most_2_5_mib": true,
+    "all_vision_610": true,
+    "vision_equals_0_9798": true,
+    "relational_equals_0_7746": true,
+    "closed_loop_38_at_8": true,
+    "closed_loop_38_at_1": true,
+    "thread_episode_parity_48": true,
+    "traps_8_of_8": true,
+    "bochner_language_recorded": true,
+    "passed": true
+  },
+  "wall_seconds": 214.71743140000035,
+  "evidence": "OBSERVED",
+  "passed": true
+}

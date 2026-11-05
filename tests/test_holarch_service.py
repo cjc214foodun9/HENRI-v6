@@ -132,7 +132,7 @@ def test_agent_eval_contract(tmp_path):
     # Cycle I expanded the gauntlet from 64 to 76 slots; Cycle J added twelve
     # clean-room, elastic-vocabulary, diverse-DAG and OpenAI probes; Cycle K
     # added twelve multi-task, discovery, multi-statement and rebase probes.
-    assert payload["queries_total"] == 100
+    assert payload["queries_total"] == 112
     assert payload["composite"]["mcp_accuracy"] >= 0.90
     assert payload["composite"]["mcp_refused"] == payload["composite"]["traps_total"]
     assert set(payload["per_category"]) == {
@@ -160,6 +160,10 @@ def test_agent_eval_contract(tmp_path):
         "k2_boundary_axioms",
         "k3_vla_dag",
         "k4_rebase_concurrency",
+        "m1_online_repulsor",
+        "m2_low_latency",
+        "m3_full_reference",
+        "m4_guard_ast",
     }
     # The legacy 76-receipt chain is still contiguous; the twelve J probes add
     # their own receipts on top of it.

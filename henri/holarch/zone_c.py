@@ -1042,72 +1042,82 @@ class ZoneCMemory:
         start = time.perf_counter()
         query_wave = _unit(wave)
         query_gram = (self.projection @ query_wave).astype(np.complex64)
+        # Directive M2: capture an immutable snapshot under the lock, then
+        # release it. A writer appends at index size or reallocates the arrays;
+        # both leave this captured view intact, so the matrix-vector scoring
+        # and the coherence sort run outside the mutex.
         with self._lock:
             size = self._size
             if size == 0:
                 self._last_query = query_wave
                 return MemoryRead([], np.zeros(self.dim, dtype=np.complex64), 0.0,
                                   (time.perf_counter() - start) * 1e3, 0, True, 0.0, None)
-            grams = self._grams[:size]
-            ids = self._ids[:size]
-            labels = self._labels[:size]
-            norms = np.linalg.norm(grams, axis=1)
-            scores = np.real(grams @ np.conj(query_gram)) / np.maximum(
-                norms * (float(np.linalg.norm(query_gram)) + _EPS), _EPS
+            grams_all = self._grams
+            ids_all = self._ids
+            labels_all = self._labels
+            ns_all = self._ns
+            ts_all = self._ts
+            tier_all = self._tier
+            ns_code = self._ns_index.get(str(namespace)) if namespace is not None else None
+        grams = grams_all[:size]
+        ids = ids_all[:size]
+        labels = labels_all[:size]
+        norms = np.linalg.norm(grams, axis=1)
+        scores = np.real(grams @ np.conj(query_gram)) / np.maximum(
+            norms * (float(np.linalg.norm(query_gram)) + _EPS), _EPS
+        )
+        scores = np.nan_to_num(scores, nan=-1.0, posinf=-1.0, neginf=-1.0)
+        if namespace is not None:
+            allowed_ns = (
+                np.zeros(size, dtype=bool)
+                if ns_code is None
+                else (ns_all[:size] == int(ns_code))
             )
-            scores = np.nan_to_num(scores, nan=-1.0, posinf=-1.0, neginf=-1.0)
-            if namespace is not None:
-                code = self._ns_index.get(str(namespace))
-                allowed_ns = (
-                    np.zeros(size, dtype=bool)
-                    if code is None
-                    else (self._ns[:size] == int(code))
-                )
-                if not bool(allowed_ns.any()):
-                    self._last_query = query_wave
-                    return MemoryRead([], np.zeros(self.dim, dtype=np.complex64), 0.0,
-                                      (time.perf_counter() - start) * 1e3, 0, True, 0.0, None)
-                scores = np.where(allowed_ns, scores, -np.inf)
-            if task is not None:
-                lo, hi = task_label_block(task)
-                allowed = (labels >= lo) & (labels < hi)
-                if not bool(allowed.any()):
-                    self._last_query = query_wave
-                    return MemoryRead([], np.zeros(self.dim, dtype=np.complex64), 0.0,
-                                      (time.perf_counter() - start) * 1e3, 0, True, 0.0, None)
-                scores = np.where(allowed, scores, -np.inf)
-            if avoid_ids:
-                blocked = np.isin(ids, np.asarray(list(avoid_ids), dtype=np.int64))
-                scores = np.where(blocked, -np.inf, scores)
-            if not bool(np.isfinite(scores).any()):
+            if not bool(allowed_ns.any()):
                 self._last_query = query_wave
                 return MemoryRead([], np.zeros(self.dim, dtype=np.complex64), 0.0,
                                   (time.perf_counter() - start) * 1e3, 0, True, 0.0, None)
-            s_max = float(scores.max())
-            finite = np.flatnonzero(np.isfinite(scores))
-            if finite.size == 0:
+            scores = np.where(allowed_ns, scores, -np.inf)
+        if task is not None:
+            lo, hi = task_label_block(task)
+            allowed = (labels >= lo) & (labels < hi)
+            if not bool(allowed.any()):
                 self._last_query = query_wave
                 return MemoryRead([], np.zeros(self.dim, dtype=np.complex64), 0.0,
                                   (time.perf_counter() - start) * 1e3, 0, True, 0.0, None)
-            pool = int(min(finite.size, max(int(k) * int(candidate_multiplier), 32)))
-            # Decision D1: rank only the candidates that survived the task
-            # and avoid filters. Ranking the full index and truncating later
-            # would re-admit a filtered engram by its raw coherence.
-            local = np.argpartition(-scores[finite], pool - 1)[:pool]
-            candidates = finite[local]
-            # Constraint C11: never rank a tie plateau with a bare argmax.
-            # Sort by (score descending, engram id ascending), which is a
-            # total order even when scores are exactly equal.
-            order = sorted(
-                candidates.tolist(),
-                key=lambda i: (-float(scores[i]), int(ids[i])),
-            )
-            candidate_ids = [int(ids[i]) for i in order]
-            candidate_scores = {int(ids[i]): float(scores[i]) for i in order}
-            candidate_meta = {
-                int(ids[i]): (int(self._labels[i]), float(self._ts[i]), int(self._tier[i]))
-                for i in order
-            }
+            scores = np.where(allowed, scores, -np.inf)
+        if avoid_ids:
+            blocked = np.isin(ids, np.asarray(list(avoid_ids), dtype=np.int64))
+            scores = np.where(blocked, -np.inf, scores)
+        if not bool(np.isfinite(scores).any()):
+            self._last_query = query_wave
+            return MemoryRead([], np.zeros(self.dim, dtype=np.complex64), 0.0,
+                              (time.perf_counter() - start) * 1e3, 0, True, 0.0, None)
+        s_max = float(scores.max())
+        finite = np.flatnonzero(np.isfinite(scores))
+        if finite.size == 0:
+            self._last_query = query_wave
+            return MemoryRead([], np.zeros(self.dim, dtype=np.complex64), 0.0,
+                              (time.perf_counter() - start) * 1e3, 0, True, 0.0, None)
+        pool = int(min(finite.size, max(int(k) * int(candidate_multiplier), 32)))
+        # Decision D1: rank only the candidates that survived the task
+        # and avoid filters. Ranking the full index and truncating later
+        # would re-admit a filtered engram by its raw coherence.
+        local = np.argpartition(-scores[finite], pool - 1)[:pool]
+        candidates = finite[local]
+        # Constraint C11: never rank a tie plateau with a bare argmax.
+        # Sort by (score descending, engram id ascending), which is a
+        # total order even when scores are exactly equal.
+        order = sorted(
+            candidates.tolist(),
+            key=lambda i: (-float(scores[i]), int(ids[i])),
+        )
+        candidate_ids = [int(ids[i]) for i in order]
+        candidate_scores = {int(ids[i]): float(scores[i]) for i in order}
+        candidate_meta = {
+            int(ids[i]): (int(labels[i]), float(ts_all[i]), int(tier_all[i]))
+            for i in order
+        }
         waves = self._fetch(candidate_ids)
         by_id = dict(zip(candidate_ids, waves))
         exact = []
@@ -1172,6 +1182,145 @@ class ZoneCMemory:
         return int(matches[0]) if matches.size else 0
 
     # --------------------------------------------------------------- context
+    def query_batch(
+        self,
+        waves,
+        k: int = 8,
+        task: Optional[str] = None,
+        namespace: Optional[str] = "default",
+    ):
+        """Score a batch of query waves with one Gram matrix product.
+
+        The projection and the coherence ranking are one (B, gram_dims) x
+        (gram_dims, N) product, so the per-row Python loop is reduced to the
+        exact-wave fetch and fusion. The snapshot is captured under the lock
+        and scored outside it, the same rule query() follows.
+        """
+        matrix = np.asarray(waves, dtype=np.complex64)
+        if matrix.ndim != 2:
+            raise ValueError(f"expected (batch, dim) waves, got {matrix.shape}")
+        batch = int(matrix.shape[0])
+        unit_rows = np.stack([_unit(row) for row in matrix]).astype(np.complex64)
+        query_grams = (unit_rows @ self.projection.T).astype(np.complex64)
+        with self._lock:
+            size = self._size
+            if size == 0:
+                return [
+                    MemoryRead([], np.zeros(self.dim, dtype=np.complex64), 0.0, 0.0, 0, True, 0.0, None)
+                    for _ in range(batch)
+                ]
+            grams_all = self._grams
+            ids_all = self._ids
+            labels_all = self._labels
+            ns_all = self._ns
+            ts_all = self._ts
+            tier_all = self._tier
+            ns_code = self._ns_index.get(str(namespace)) if namespace is not None else None
+        grams = grams_all[:size]
+        ids = ids_all[:size]
+        labels = labels_all[:size]
+        norms = np.linalg.norm(grams, axis=1)
+        gram_norms = np.linalg.norm(query_grams, axis=1)
+        scores_matrix = np.real(query_grams @ np.conj(grams.T)) / np.maximum(
+            gram_norms[:, None] * norms[None, :], _EPS
+        )
+        scores_matrix = np.nan_to_num(scores_matrix, nan=-1.0, posinf=-1.0, neginf=-1.0)
+        allowed = np.ones(size, dtype=bool)
+        if namespace is not None:
+            if ns_code is None:
+                allowed[:] = False
+            else:
+                allowed &= ns_all[:size] == int(ns_code)
+        if task is not None:
+            lo, hi = task_label_block(task)
+            allowed &= (labels >= lo) & (labels < hi)
+        scores_matrix = np.where(allowed[None, :], scores_matrix, -np.inf)
+        reads = []
+        for row in range(batch):
+            scores = scores_matrix[row]
+            finite = np.flatnonzero(np.isfinite(scores))
+            if finite.size == 0:
+                reads.append(
+                    MemoryRead([], np.zeros(self.dim, dtype=np.complex64), 0.0, 0.0, 0, True, 0.0, None)
+                )
+                continue
+            s_max = float(scores.max())
+            pool = int(min(finite.size, max(int(k) * 6, 32)))
+            local = np.argpartition(-scores[finite], pool - 1)[:pool]
+            candidates = finite[local]
+            order = sorted(
+                candidates.tolist(), key=lambda i: (-float(scores[i]), int(ids[i]))
+            )
+            candidate_ids = [int(ids[i]) for i in order]
+            candidate_scores = {int(ids[i]): float(scores[i]) for i in order}
+            candidate_meta = {
+                int(ids[i]): (int(labels[i]), float(ts_all[i]), int(tier_all[i]))
+                for i in order
+            }
+            waves_fetched = self._fetch(candidate_ids)
+            by_id = dict(zip(candidate_ids, waves_fetched))
+            exact = [
+                (engram_id, coherence(unit_rows[row], by_id[engram_id]))
+                for engram_id in candidate_ids
+                if engram_id in by_id
+            ]
+            exact.sort(key=lambda pair: (-pair[1], pair[0]))
+            top = exact[: int(k)]
+            hits = [
+                MemoryHit(
+                    engram_id=engram_id,
+                    label=candidate_meta.get(engram_id, (-1, 0.0, 1))[0],
+                    score=float(candidate_scores.get(engram_id, 0.0)),
+                    coherence=float(coh),
+                    ts=candidate_meta.get(engram_id, (-1, 0.0, 1))[1],
+                    tier=candidate_meta.get(engram_id, (-1, 0.0, 1))[2],
+                )
+                for engram_id, coh in top
+            ]
+            weights = np.array([max(hit.coherence, 0.0) for hit in hits], dtype=np.float64)
+            if weights.sum() > _EPS:
+                weights = weights / weights.sum()
+                context = np.zeros(self.dim, dtype=np.complex64)
+                for weight, hit in zip(weights, hits):
+                    context = context + np.float32(weight) * by_id[hit.engram_id]
+                context = _unit(context)
+            else:
+                context = np.zeros(self.dim, dtype=np.complex64)
+            reads.append(
+                MemoryRead(
+                    hits=hits,
+                    context=context,
+                    context_norm=float(np.linalg.norm(context)),
+                    latency_ms=0.0,
+                    candidates=len(candidate_ids),
+                    used_boundary=False,
+                    s_max=float(s_max),
+                    top_wave=(by_id[top[0][0]] if top else None),
+                )
+            )
+        return reads
+
+    def context_tensor_batch(
+        self,
+        waves,
+        k: int = 8,
+        task: Optional[str] = None,
+        namespace: Optional[str] = "default",
+    ):
+        """Fixed (B, context_tokens, context_dim) tensor for a batch of waves."""
+        reads = self.query_batch(waves, k=k, task=task, namespace=namespace)
+        tokens = int(self.cfg.context_tokens)
+        prefix = np.zeros(
+            (len(reads), tokens, int(self.cfg.context_dim)), dtype=np.float32
+        )
+        for index, read in enumerate(reads):
+            if read.hits:
+                chunks = read.context.reshape(tokens, self.cfg.chunk)
+                prefix[index] = (
+                    chunks.real @ self.context_proj + chunks.imag @ self.context_proj
+                ) / np.sqrt(2.0)
+        return prefix, reads
+
     def context_tensor(
         self,
         wave: np.ndarray,

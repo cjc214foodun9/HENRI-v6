@@ -885,7 +885,7 @@ def stage_eval(directory: Path) -> Dict[str, object]:
         "stdout_tail": completed.stdout[-4000:],
         "stderr_tail": completed.stderr[-4000:],
         "gate": {
-            "queries_100": bool(queries["total"] == 100),
+            "queries_112": bool(queries["total"] == 112),
             "gates_passed": bool(gate.get("passed", False)),
             "exit_zero": bool(completed.returncode == 0),
         },

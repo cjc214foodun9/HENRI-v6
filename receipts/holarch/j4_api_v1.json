@@ -41,17 +41,17 @@
     "errors": [],
     "ok": 64,
     "all_valid": true,
-    "concurrent_seconds": 1.4121917999873403,
-    "serial_seconds": 1.8085322999977507,
-    "concurrent_rate": 45.319623014787176,
-    "serial_rate": 35.38781143144615,
-    "throughput_ratio": 1.2806562819681881,
+    "concurrent_seconds": 0.5909846000140533,
+    "serial_seconds": 0.18816449999576434,
+    "concurrent_rate": 108.29385401663278,
+    "serial_rate": 340.12791999256325,
+    "throughput_ratio": 0.3183915452133438,
     "lock_stats": {
       "readers": 0,
       "writer": 0,
       "waiting_writers": 0,
-      "peak_readers": 9,
-      "total_reads": 130,
+      "peak_readers": 5,
+      "total_reads": 8,
       "total_writes": 1
     },
     "chain_valid": true,
@@ -109,13 +109,13 @@
     "concurrency_zero_errors": true,
     "receipt_chain_valid": true,
     "readers_overlap": true,
-    "throughput_not_collapsed": true,
+    "throughput_not_collapsed": false,
     "openai_verify": true,
     "openai_plan": true,
     "openai_impact": true,
     "openai_synthesize": true,
-    "passed": true
+    "passed": false
   },
-  "wall_seconds": 11.783204699982889,
+  "wall_seconds": 12.751781600003596,
   "evidence": "OBSERVED"
 }

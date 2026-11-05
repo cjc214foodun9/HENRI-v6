@@ -1,0 +1,26 @@
+{
+  "cycle": "M",
+  "head": "a6813af729048c7440fc72efeb209f28baa745e0",
+  "stages": {
+    "m3": {
+      "receipt": "receipts\\holarch\\m3_full_reference_cartridge.json",
+      "sha256": "2d84cb466e2fc8554e82d8fa490698587a3691a9ee8be0ce78b6890b7173297c",
+      "passed": true,
+      "gate": {
+        "hydrated_at_least_1349": true,
+        "bytes_at_most_2_5_mib": true,
+        "all_vision_610": true,
+        "vision_equals_0_9798": true,
+        "relational_equals_0_7746": true,
+        "closed_loop_38_at_8": true,
+        "closed_loop_38_at_1": true,
+        "thread_episode_parity_48": true,
+        "traps_8_of_8": true,
+        "bochner_language_recorded": true,
+        "passed": true
+      },
+      "wall_seconds": 214.71743140000035
+    }
+  },
+  "passed": true
+}

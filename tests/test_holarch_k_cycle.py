@@ -299,19 +299,32 @@ def test_rebase_union_contains_every_identifier_once():
 
 
 # --------------------------------------------------------------- cartridge
-def test_v2_cartridge_round_trip_preserves_the_wave_direction():
-    rows = []
-    for index in range(8):
-        rows.append({"label": index, "tier": 1, "wave": _wave(1024, 100 + index)})
+def test_v3_cartridge_round_trip_preserves_the_wave_direction():
+    rows = [
+        {"label": 106, "tier": 3, "wave": _wave(1024, 90)},
+        {"label": 106, "tier": 1, "wave": _wave(1024, 91)},
+        {"label": 107, "tier": 3, "wave": _wave(1024, 92)},
+        {"label": 107, "tier": 1, "wave": _wave(1024, 93)},
+        {"label": 0, "tier": 1, "wave": _wave(1024, 100)},
+        {"label": 1, "tier": 1, "wave": _wave(1024, 101)},
+        {"label": 110, "tier": 1, "wave": _wave(1024, 102)},
+        {"label": 10, "tier": 1, "wave": _wave(1024, 103)},
+    ]
     block = seed_engram_payload(rows)
-    assert block["format"] == "henri-seed-engrams-v2"
+    assert block["format"] == "henri-seed-engrams-v3"
     assert block["count"] == 8
     assert int(block["bytes"]) <= SEED_ENGRAM_BYTE_BUDGET
+    assert int(block["action_rows"]) == 4
+    assert int(block["support_rows"]) == 4
+    assert int(block["action_proto_count"]) == 2
     decoded = seed_engram_rows(block)
     assert len(decoded) == 8
     for source, target in zip(rows, decoded):
         coherence = abs(np.vdot(source["wave"], target["wave"]))
-        assert coherence >= 0.9999
+        if 106 <= int(source["label"]) < 110:
+            assert coherence >= 0.995
+        else:
+            assert coherence >= 0.9999
     waves = seed_engram_waves(block)
     assert waves is not None and waves.shape == (8, 1024)
 
