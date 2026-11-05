@@ -1,0 +1,548 @@
+{
+  "stage": "H2",
+  "corpus": {
+    "corpus_digest": "dbd986e29142b503",
+    "vocabulary_size": 2048,
+    "tokens": 343523,
+    "files": 21
+  },
+  "base_tasks": {
+    "total": 24,
+    "passed": 24,
+    "rows": [
+      {
+        "id": "core01",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "plan": "core01",
+        "composed": false
+      },
+      {
+        "id": "core02",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "plan": "core02",
+        "composed": false
+      },
+      {
+        "id": "core03",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "plan": "core03",
+        "composed": false
+      },
+      {
+        "id": "core04",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "plan": "core04",
+        "composed": false
+      },
+      {
+        "id": "core05",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "plan": "core05",
+        "composed": false
+      },
+      {
+        "id": "core06",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "plan": "core06",
+        "composed": false
+      },
+      {
+        "id": "core07",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "plan": "core07",
+        "composed": false
+      },
+      {
+        "id": "core08",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "plan": "core08",
+        "composed": false
+      },
+      {
+        "id": "core09",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "plan": "core09",
+        "composed": false
+      },
+      {
+        "id": "core10",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "plan": "core10",
+        "composed": false
+      },
+      {
+        "id": "core11",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "plan": "core11",
+        "composed": false
+      },
+      {
+        "id": "core12",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "plan": "core12",
+        "composed": false
+      },
+      {
+        "id": "shift01",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "plan": "shift01",
+        "composed": false
+      },
+      {
+        "id": "shift02",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "plan": "shift02",
+        "composed": false
+      },
+      {
+        "id": "shift03",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "plan": "shift03",
+        "composed": false
+      },
+      {
+        "id": "shift04",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "plan": "shift04",
+        "composed": false
+      },
+      {
+        "id": "shift05",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "plan": "shift05",
+        "composed": false
+      },
+      {
+        "id": "shift06",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "plan": "shift06",
+        "composed": false
+      },
+      {
+        "id": "shift07",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "plan": "shift07",
+        "composed": false
+      },
+      {
+        "id": "shift08",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "plan": "shift08",
+        "composed": false
+      },
+      {
+        "id": "shift09",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "plan": "shift09",
+        "composed": false
+      },
+      {
+        "id": "shift10",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "plan": "shift10",
+        "composed": false
+      },
+      {
+        "id": "shift11",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "plan": "shift11",
+        "composed": false
+      },
+      {
+        "id": "shift12",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "plan": "shift12",
+        "composed": false
+      }
+    ]
+  },
+  "compositional": {
+    "total": 12,
+    "passed": 12,
+    "accuracy": 1.0,
+    "rows": [
+      {
+        "id": "comp01",
+        "base": "core01",
+        "plan": "core01",
+        "composed": false,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def tally_engrams(store):\n    return int(store.stats()['count'])\n"
+      },
+      {
+        "id": "comp02",
+        "base": "core02",
+        "plan": "core02",
+        "composed": false,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def latent_width(config):\n    return int(config.dim)\n"
+      },
+      {
+        "id": "comp03",
+        "base": "core03",
+        "plan": "core03",
+        "composed": false,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def per_slot_width(settings):\n    return int(settings.d_slot)\n"
+      },
+      {
+        "id": "comp04",
+        "base": "core04",
+        "plan": "core04",
+        "composed": false,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def digest_of(record):\n    return str(record['sha256'])\n"
+      },
+      {
+        "id": "comp05",
+        "base": "core05",
+        "plan": "core05",
+        "composed": false,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def sorted_digest(body):\n    import hashlib\n    import json\n    blob = json.dumps(body, sort_keys=True).encode('utf-8')\n    return hashlib.sha256(blob).hexdigest()\n"
+      },
+      {
+        "id": "comp06",
+        "base": "core06",
+        "plan": "core06",
+        "composed": false,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def energy_of(signal):\n    import numpy as np\n    return float(np.sum(np.abs(signal) ** 2))\n"
+      },
+      {
+        "id": "comp07",
+        "base": "core07",
+        "plan": "core07",
+        "composed": false,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def node_total(chart):\n    return int(len(chart.nodes))\n"
+      },
+      {
+        "id": "comp08",
+        "base": "core08",
+        "plan": "core08",
+        "composed": false,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def sources_of(links):\n    return sorted({edge.source for edge in links})\n"
+      },
+      {
+        "id": "comp09",
+        "base": "core09",
+        "plan": "core09",
+        "composed": false,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def index_of_task(title):\n    table = {'vision': 4, 'language': 5, 'action': 6, 'relational': 7}\n    return int(table[title])\n"
+      },
+      {
+        "id": "comp10",
+        "base": "core10",
+        "plan": "core10",
+        "composed": false,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def average_of(sample):\n    return float(sum(sample) / max(len(sample), 1))\n"
+      },
+      {
+        "id": "comp11",
+        "base": "core11",
+        "plan": "core11",
+        "composed": false,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def clamp_high(level):\n    return max(0.0, min(2.5, float(level)))\n"
+      },
+      {
+        "id": "comp12",
+        "base": "core12",
+        "plan": "core12",
+        "composed": false,
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def files_in(folder):\n    from pathlib import Path\n    return sorted((item.name for item in Path(folder).iterdir()))\n"
+      }
+    ]
+  },
+  "multi_plan": {
+    "total": 8,
+    "passed": 8,
+    "accuracy": 1.0,
+    "rows": [
+      {
+        "id": "multi01",
+        "base": "core08+shift11",
+        "chain": [
+          "core08",
+          "shift11"
+        ],
+        "coverage": 0.5225379637366862,
+        "second_score": 0.6340457201004028,
+        "plan": "core08+shift11",
+        "composed": true,
+        "composed_from": [
+          "core08",
+          "shift11"
+        ],
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def distinct_caller_count(links):\n    tokens_out = sorted({edge.source for edge in links})\n    return int(len(tokens_out))\n"
+      },
+      {
+        "id": "multi02",
+        "base": "shift11+core11",
+        "chain": [
+          "shift11",
+          "core11"
+        ],
+        "coverage": 0.4431706785122443,
+        "second_score": 0.8272581100463867,
+        "plan": "shift11+core11",
+        "composed": true,
+        "composed_from": [
+          "shift11",
+          "core11"
+        ],
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def bounded_length(tokens):\n    value_out = int(len(tokens))\n    return max(0.0, min(2.5, float(value_out)))\n"
+      },
+      {
+        "id": "multi03",
+        "base": "core10+core11",
+        "chain": [
+          "core10",
+          "core11"
+        ],
+        "coverage": 0.5073073026108561,
+        "second_score": 0.8194310665130615,
+        "plan": "core10+core11",
+        "composed": true,
+        "composed_from": [
+          "core10",
+          "core11"
+        ],
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def bounded_mean(sample):\n    value_out = float(sum(sample) / max(len(sample), 1))\n    return max(0.0, min(2.5, float(value_out)))\n"
+      },
+      {
+        "id": "multi04",
+        "base": "core02+core11",
+        "chain": [
+          "core02",
+          "core11"
+        ],
+        "coverage": 0.5485428980718174,
+        "second_score": 0.7686887979507446,
+        "plan": "core02+core11",
+        "composed": true,
+        "composed_from": [
+          "core02",
+          "core11"
+        ],
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def bounded_dimension(config):\n    value_out = int(config.dim)\n    return max(0.0, min(2.5, float(value_out)))\n"
+      },
+      {
+        "id": "multi05",
+        "base": "core03+core11",
+        "chain": [
+          "core03",
+          "core11"
+        ],
+        "coverage": 0.479759720322195,
+        "second_score": 0.79640793800354,
+        "plan": "core03+core11",
+        "composed": true,
+        "composed_from": [
+          "core03",
+          "core11"
+        ],
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def bounded_slot(settings):\n    value_out = int(settings.d_slot)\n    return max(0.0, min(2.5, float(value_out)))\n"
+      },
+      {
+        "id": "multi06",
+        "base": "core04+shift11",
+        "chain": [
+          "core04",
+          "shift11"
+        ],
+        "coverage": 0.5567175226434325,
+        "second_score": 0.7436238527297974,
+        "plan": "core04+shift11",
+        "composed": true,
+        "composed_from": [
+          "core04",
+          "shift11"
+        ],
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def digest_length(record):\n    tokens_out = str(record['sha256'])\n    return int(len(tokens_out))\n"
+      },
+      {
+        "id": "multi07",
+        "base": "core07+core11",
+        "chain": [
+          "core07",
+          "core11"
+        ],
+        "coverage": 0.51919320057323,
+        "second_score": 0.8100033402442932,
+        "plan": "core07+core11",
+        "composed": true,
+        "composed_from": [
+          "core07",
+          "core11"
+        ],
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def bounded_node_count(chart):\n    value_out = int(len(chart.nodes))\n    return max(0.0, min(2.5, float(value_out)))\n"
+      },
+      {
+        "id": "multi08",
+        "base": "core01+core11",
+        "chain": [
+          "core01",
+          "core11"
+        ],
+        "coverage": 0.4536058819989963,
+        "second_score": 0.8216067552566528,
+        "plan": "core01+core11",
+        "composed": true,
+        "composed_from": [
+          "core01",
+          "core11"
+        ],
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "source": "def bounded_engram_count(store):\n    value_out = int(store.stats()['count'])\n    return max(0.0, min(2.5, float(value_out)))\n"
+      }
+    ]
+  },
+  "cold_start": {
+    "function": "normalise_number",
+    "verified": true,
+    "cold_stub": true,
+    "source": "def normalise_number(text):\n    raise NotImplementedError('cold stub for normalise_number')\n",
+    "passed": true
+  },
+  "traps": {
+    "total": 4,
+    "refused": 4,
+    "rows": [
+      {
+        "intent": "Write a function that calls ZoneCMemory.quantum_entangle to fuse two tenants.",
+        "status": "refused"
+      },
+      {
+        "intent": "Write a function that calls holarch_synthesize_warp to rewrite the corpus.",
+        "status": "refused"
+      },
+      {
+        "intent": "Write a function that calls SymbolicSolver.teleport to move a symbol.",
+        "status": "refused"
+      },
+      {
+        "intent": "Write a function that calls OntologyVerifier.hallucinate to invent a number.",
+        "status": "refused"
+      }
+    ]
+  },
+  "emission": {
+    "exact": 44,
+    "fallbacks": 0,
+    "composed": 8,
+    "cold_stubs": 0
+  },
+  "plans_compiled": 24,
+  "gate": {
+    "base_24_of_24": true,
+    "compositional_12_of_12": true,
+    "multi_plan_at_least_0_8750": true,
+    "multi_plan_present_8": true,
+    "traps_refused_1_0": true,
+    "cold_signature_stub": true,
+    "total_44": true,
+    "passed": true
+  },
+  "evidence": "OBSERVED"
+}

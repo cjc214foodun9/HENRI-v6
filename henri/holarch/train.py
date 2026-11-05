@@ -33,7 +33,11 @@ import torch
 import torch.nn.functional as F
 
 from henri.holarch.config import HolarchConfig, TASK_IDS, TASK_NAMES
-from henri.holarch.model import evaluate_closed_loop_action, save_checkpoint
+from henri.holarch.model import (
+    evaluate_closed_loop_action,
+    fit_action_rotor,
+    save_checkpoint,
+)
 from henri.holarch.pipeline import HenriHolarch, HolarchOutput
 from henri.holarch.zone_a import ReplayBuffer
 
@@ -562,7 +566,23 @@ def run_experiment(
     # lookahead. The reactive arm is measured on the same 48 layouts and
     # recorded beside it, so the delta is attributable.
     reactive_success = action_success(model, tasks["action"], episodes=48)
+    # Directive H3: fit the learned action-transition rotor and deploy it as
+    # the default evaluator. The fitted mask is written into the checkpoint,
+    # so the number this receipt records is reproducible from the artifact
+    # alone, without a re-fit.
+    rotor_fit = fit_action_rotor(model, tasks["action"], episodes=40)
+    action_rotor = rotor_fit["rotor"]
     lookahead_eval = evaluate_closed_loop_action(
+        model,
+        tasks["action"],
+        episodes=48,
+        limit=20,
+        rotor=action_rotor,
+        transition="rotor",
+        lookahead_depth=2,
+        gamma_look=0.02,
+    )
+    lookahead_shift_eval = evaluate_closed_loop_action(
         model, tasks["action"], episodes=48, limit=20
     )
     success = float(lookahead_eval["success_rate"])
@@ -621,6 +641,7 @@ def run_experiment(
         train_config=asdict(train_config),
         metrics={**metrics, **test_metrics, "action_success": success},
         seed=int(cfg.seed if seed is None else seed),
+        rotor=action_rotor,
     )
     budget = budget_report(model, train_config.batch_size, cfg)
     elapsed = time.perf_counter() - start
@@ -673,7 +694,17 @@ def run_experiment(
         "memory": recall,
         "action_success": success,
         "action_success_reactive": reactive_success,
+        "action_success_shift_depth1": float(lookahead_shift_eval["success_rate"]),
         "closed_loop_lookahead": lookahead_eval,
+        "closed_loop_lookahead_shift": lookahead_shift_eval,
+        "action_rotor": {
+            "state": rotor_fit["state"],
+            "fit": rotor_fit["fit"],
+            "held_out": rotor_fit["held_out"],
+            "transition": "rotor",
+            "lookahead_depth": 2,
+            "gamma_look": 0.02,
+        },
         "action_success_unmasked": success_unmasked,
         "action_success_no_relax": success_no_relax,
         "ood_veto_rate": ood_veto,

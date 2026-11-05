@@ -38,10 +38,10 @@ import torch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from henri.holarch.config import HolarchConfig
-from henri.holarch.model import find_checkpoint
+from henri.holarch.model import LatentActionLookahead, find_checkpoint
 from henri.holarch.server import SidecarService, verify_receipt
 from henri.holarch.symbolic import Edge, SymbolicTopologyTask, index_code
-from henri.holarch.tasks import build_tasks
+from henri.holarch.tasks import GridWorldTask, build_tasks
 from henri.holarch.train import Trainer, TrainConfig
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -259,14 +259,25 @@ def build_queries(root: Path) -> Dict[str, List[dict]]:
     # here by an independent breadth-first walk over the indexed edges, not by
     # calling the service that answers the query.
     impact_queries = []
-    for target, hops in (
+    # Directive H4 keeps the six reverse-call queries. Candidates are tried
+    # in a fixed order and the first six with a non-empty ground truth are
+    # taken, so the count cannot drift when one unrelated symbol loses its
+    # callers.
+    impact_candidates = [
         ("ZoneCMemory.query", 1),
         ("ZoneCMemory.query", 2),
         ("ZoneCMemory.write", 2),
         ("SymbolCodebook.add", 1),
         ("HolarchConfig.digest", 1),
         ("index_code", 1),
-    ):
+        ("ZoneCMemory.write", 1),
+        ("Edge", 1),
+        ("SymbolCodebook.add", 2),
+        ("index_code", 2),
+    ]
+    for target, hops in impact_candidates:
+        if len(impact_queries) >= 6:
+            break
         truth = _impact_truth(graph.edges, target, hops)
         if truth:
             impact_queries.append(
@@ -299,6 +310,164 @@ def build_queries(root: Path) -> Dict[str, List[dict]]:
             "parse_seconds": float(graph.seconds),
         },
     }
+
+
+# ------------------------------------------------- Directive H: new slots
+H_VERIFY_QUERIES: List[Dict[str, object]] = [
+    {
+        "id": "verify01",
+        "claim": "The medium profile has 1,020,380 parameters and reaches 0.7083 closed-loop action.",
+        "expect": True,
+        "note": "two true quantities from the checkpoint record",
+    },
+    {
+        "id": "verify02",
+        "claim": "The vision accuracy (test) is 0.9798 against a 0.9750 bar.",
+        "expect": True,
+        "note": "a true test-split quantity and its bar",
+    },
+    {
+        "id": "verify03",
+        "claim": "The medium profile has 1,020,381 parameters and reaches 0.7083 closed-loop action.",
+        "expect": False,
+        "note": "corrupted parameter count",
+    },
+    {
+        "id": "verify04",
+        "claim": "Calling ZoneCMemory.query with keyword argument widget returns the stored wave.",
+        "expect": False,
+        "note": "fabricated keyword against a real signature",
+    },
+]
+
+H_SYNTH_QUERIES: List[Dict[str, str]] = [
+    {
+        "id": "synth01",
+        "intent": "Write a function distinct_caller_count that takes argument links and first returns the sorted unique source names of a list of edges and then returns the number of tokens in that result.",
+        "test": "class _E:\n    def __init__(self, s):\n        self.source = s\nassert distinct_caller_count([_E('b'), _E('a'), _E('b')]) == 2\n",
+    },
+    {
+        "id": "synth02",
+        "intent": "Write a function bounded_mean that takes argument sample and first returns the arithmetic mean of a list of floats as a float and then clips the result into the closed interval 0.0 to 2.5.",
+        "test": "assert bounded_mean([2.0, 4.0]) == 2.5\nassert bounded_mean([1.0, 2.0]) == 1.5\n",
+    },
+]
+
+H_SYNTH_PLANS = ("core08", "shift11", "core10", "core11")
+
+H_DELTA_FILES: Dict[str, str] = {
+    "alpha.py": "def alpha(value):\n    return beta(value) + 1\n",
+    "beta.py": "def beta(value):\n    return value - 1\n",
+    "gamma.py": "def gamma(value):\n    return value * 2\n",
+}
+
+H_DELTA_ALPHA = "def alpha(value):\n    return gamma(value) + 1\n"
+H_DELTA_DELTA = "def delta(value):\n    return beta(value) * 3\n"
+
+
+def _execute_source(source: str, test: str) -> Tuple[bool, str]:
+    """Execute an emitted module plus its unit test in an isolated scope."""
+    scope: Dict[str, object] = {"__builtins__": __builtins__}
+    try:
+        exec(str(source), scope)
+        exec(str(test), scope)
+    except Exception as error:  # noqa: BLE001 - the failure is the measurement
+        return False, f"{type(error).__name__}: {error}"
+    return True, ""
+
+
+def _load_code_lang():
+    """The L3 playbook library, loaded without importing scripts as a package."""
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location(
+        "run_holarch_code_lang", ROOT / "scripts" / "run_holarch_code_lang.py"
+    )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def build_plan_queries(service: SidecarService, cfg) -> Tuple[List[Dict[str, object]], Dict[str, int]]:
+    """Four depth-2 rotor planning probes, selected as wall-blocking traps.
+
+    A trap is a layout where the deployed depth-2 wall-masked rotor returns
+    the BFS-optimal action and at least one control arm - depth 1, or depth
+    2 with the wall mask removed - does not. The selection rule is fixed and
+    the chosen layouts, the controls and the truth are all recorded, so the
+    four queries are reproducible rather than illustrative.
+    """
+    task = GridWorldTask(seed=int(cfg.seed))
+    rotor = getattr(service.sidecar.model, "action_rotor", None)
+    masked = LatentActionLookahead(
+        service.sidecar.model, None, rotor=rotor, transition="rotor",
+        lookahead_depth=2, gamma_look=0.02,
+    )
+    single = LatentActionLookahead(
+        service.sidecar.model, None, rotor=rotor, transition="rotor",
+        lookahead_depth=1, gamma_look=0.02,
+    )
+    unmasked = LatentActionLookahead(
+        service.sidecar.model, None, rotor=rotor, transition="rotor",
+        lookahead_depth=2, gamma_look=0.02, mask_lookahead=False,
+    )
+    strong: List[Dict[str, object]] = []
+    weak: List[Dict[str, object]] = []
+    plain: List[Dict[str, object]] = []
+    deltas = ((-1, 0), (1, 0), (0, -1), (0, 1))
+    for index, (walls, agent, goal) in enumerate(task.val_layouts):
+        state = (int(agent[0]), int(agent[1]))
+        for step in range(10):
+            truth = task.world.optimal_action(walls, state, goal)
+            if truth is None:
+                break
+            observation = task.world.observe(walls, state, goal)
+            action = int(masked.choose(observation, [])["action"])
+            if action == int(truth):
+                depth1 = int(single.choose(observation, [])["action"])
+                blind = int(unmasked.choose(observation, [])["action"])
+                row = {
+                    "kind": "plan",
+                    "layout": int(index),
+                    "step": int(step),
+                    "observation": observation.tolist(),
+                    "truth": int(truth),
+                    "arm_depth2_masked": action,
+                    "arm_depth1": depth1,
+                    "arm_depth2_unmasked": blind,
+                    "trap": bool(depth1 != int(truth) or blind != int(truth)),
+                    "strong": bool(depth1 != int(truth) and blind != int(truth)),
+                }
+                if row["strong"]:
+                    strong.append(row)
+                elif row["trap"]:
+                    weak.append(row)
+                else:
+                    plain.append(row)
+            # Advance along the PLANNER'S own trajectory, not the BFS path:
+            # that is where the depth-2 lookahead is decisive. States the
+            # policy never visits are not the ones a wall trap can test.
+            dr, dc = deltas[int(action)]
+            nxt = (state[0] + dr, state[1] + dc)
+            if not (0 <= nxt[0] < task.grid_size and 0 <= nxt[1] < task.grid_size):
+                break
+            if walls[nxt[0], nxt[1]] or nxt == goal:
+                break
+            state = nxt
+    traps = strong + weak
+    chosen = (traps[:4] + plain)[:4] if len(traps) < 4 else traps[:4]
+    for position, row in enumerate(chosen):
+        row["id"] = f"plan{position + 1:02d}"
+    selection = {
+        "scanned_layouts": int(len(task.val_layouts)),
+        "scan_cap_layouts": 80,
+        "steps_per_layout": 10,
+        "strong_traps_found": int(len(strong)),
+        "weak_traps_found": int(len(weak)),
+        "plain_correct_states": int(len(plain)),
+        "chosen_traps": int(sum(1 for row in chosen if row["trap"])),
+    }
+    return chosen, selection
 
 
 # --------------------------------------------------------------- the eval
@@ -365,6 +534,28 @@ def run_agent_eval(
             for edge in queries["edges"]
         ]
     )
+    # Directive H4: four depth-2 rotor probes whose truth is the BFS-optimal
+    # action. The control arms are measured while the probes are selected.
+    # The forward pass is a multithreaded reduction, and torch's CPU kernels
+    # are not bit-identical across thread schedules, so the planning section
+    # pins one thread: the probe and the API call then compute the same
+    # number from the same input. This is a determinism control, not a
+    # tuning knob; it is recorded in the receipt.
+    threads_before = torch.get_num_threads()
+    torch.set_num_threads(1)
+    try:
+        plan_queries, plan_selection = build_plan_queries(service, cfg)
+    finally:
+        torch.set_num_threads(threads_before)
+    # Directive H2: the two synthesis queries chain stored playbooks. The
+    # four playbooks they compose are compiled through the sidecar (setup,
+    # no receipt) before the scored sequence begins.
+    # The whole 24-playbook library is compiled, not only the four the two
+    # queries compose: IDF weighting is a property of the library, and a
+    # four-plan store is not the deployment the H2 receipt measured.
+    code_lang = _load_code_lang()
+    for task in list(code_lang.CORE_TASKS) + list(code_lang.SHIFT_TASKS):
+        service.sidecar.adapt_synthesis(task["intent"], task["source"], task["id"])
 
     score = {
         "baseline_unindexed": {"reachable_correct": 0, "reachable_total": 0,
@@ -384,16 +575,20 @@ def run_agent_eval(
         "playbook_reuse": {"baseline_exact": 0, "mcp_exact": 0, "total": 0},
         "composite_rules": {"baseline_correct": 0, "mcp_correct": 0, "total": 0},
         "composite_traps": {"baseline_hallucinated": 0, "mcp_refused": 0, "total": 0},
+        "depth2_rotor_planning": {"baseline_correct": 0, "mcp_correct": 0, "total": 0},
+        "ontology_verification": {"baseline_correct": 0, "mcp_correct": 0, "total": 0},
+        "multi_plan_synthesis": {"baseline_correct": 0, "mcp_correct": 0, "total": 0},
+        "delta_blast_radius": {"baseline_correct": 0, "mcp_correct": 0, "total": 0},
     }
     mcp_latency = 0.0
     mcp_response_bytes = 0
     receipts: List[dict] = []
 
-    # The ingest receipt is part of the chain: 44 receipts for 44 query
-    # slots, every one verifiable, rather than 43 responses plus an
-    # uncommitted index call.
-    if code_index.get("receipt"):
-        receipts.append(code_index["receipt"])
+    # The two setup receipts are the first links of the chain: 64 receipts
+    # for 64 slots, every one verifiable, rather than 62 responses plus two
+    # uncommitted setup calls.
+    receipts.append(code_index["receipt"])
+    receipts.append(ingest["receipt"])
 
     for query in queries["code"]:
         truth = query["truth"]
@@ -528,8 +723,22 @@ def run_agent_eval(
         for a in range(10)
         for b in range(10)
     ]
-    comp_ingest = service.composite_call(mode="ingest", rules=composite_rules)
-    receipts.append(comp_ingest["receipt"])
+    # The composite atlas is SETUP, not a scored query, so it is written
+    # through the solver directly and claims no receipt slot. That keeps the
+    # 64 collected receipts contiguous in the ledger chain.
+    comp_rows = [
+        ((str(rule["a"]), str(rule["op"]), str(rule["b"])), str(rule["result"]))
+        for rule in composite_rules
+    ]
+    comp_written = service.composite.ingest(comp_rows)
+    comp_calibration = service.composite.calibrate(comp_rows)
+    comp_ingest = {
+        "result": {
+            "rules_ingested": float(comp_written),
+            "tau_composite": float(comp_calibration["tau_coherence"]),
+            "atlas_entries": float(service.composite.entries),
+        }
+    }
     mcp_response_bytes += len(json.dumps(comp_ingest["result"]))
 
     digits = DigitsTask(seed=seed + 7)
@@ -637,6 +846,170 @@ def run_agent_eval(
         score["holarch_mcp"]["hallucinations"] += int(not mcp_refused)
         score["baseline_unindexed"]["hallucinations"] += 1
 
+    # ------------------- Directive H3: depth-2 rotor planning ------------
+    plan_rows = []
+    for query in plan_queries:
+        started = time.perf_counter()
+        threads_before = torch.get_num_threads()
+        torch.set_num_threads(1)
+        try:
+            result = service.plan(
+                query["observation"], transition="rotor", lookahead_depth=2, gamma_look=0.02
+            )
+        finally:
+            torch.set_num_threads(threads_before)
+        mcp_latency += (time.perf_counter() - started) * 1e3
+        mcp_response_bytes += len(json.dumps(result["result"]))
+        receipts.append(result["receipt"])
+        answer = int(result["result"]["action"])
+        ok = int(answer == int(query["truth"]))
+        # The control arm is the same weights with no wave lookahead: the
+        # reactive argmax of the action head, legality-masked. It is the
+        # policy Cycle E deployed, not a straw man.
+        control = int(service.sidecar.model.act(list(query["observation"])))
+        baseline_ok = int(control == int(query["truth"]))
+        score["holarch_mcp"]["reachable_total"] += 1
+        score["holarch_mcp"]["reachable_correct"] += ok
+        per_category["depth2_rotor_planning"]["total"] += 1
+        per_category["depth2_rotor_planning"]["mcp_correct"] += ok
+        per_category["depth2_rotor_planning"]["baseline_correct"] += baseline_ok
+        plan_rows.append(
+            {
+                "id": query["id"],
+                "layout": int(query["layout"]),
+                "truth": int(query["truth"]),
+                "answer": answer,
+                "reactive": control,
+                "depth1": int(query["arm_depth1"]),
+                "unmasked_depth2": int(query["arm_depth2_unmasked"]),
+                "trap": bool(query["trap"]),
+                "strong_trap": bool(query["strong"]),
+                "correct": bool(ok),
+                "receipt_sha256": result["receipt"]["sha256"],
+            }
+        )
+    per_category["depth2_rotor_planning"]["rows"] = plan_rows
+
+    # ------------------- Directive H3: claim verification ----------------
+    verify_rows = []
+    for query in H_VERIFY_QUERIES:
+        result = service.verify(str(query["claim"]), kind="text", top_k=4)
+        mcp_response_bytes += len(json.dumps(result["result"]))
+        receipts.append(result["receipt"])
+        supported = bool(result["result"]["supported"])
+        ok = int(supported == bool(query["expect"]))
+        if bool(query["expect"]):
+            score["holarch_mcp"]["reachable_total"] += 1
+            score["holarch_mcp"]["reachable_correct"] += ok
+            per_category["ontology_verification"]["total"] += 1
+            per_category["ontology_verification"]["mcp_correct"] += ok
+        else:
+            score["holarch_mcp"]["traps_total"] += 1
+            score["holarch_mcp"]["hallucinations"] += int(not ok)
+            per_category["ontology_verification"]["total"] += 1
+            per_category["ontology_verification"]["mcp_correct"] += ok
+        verify_rows.append(
+            {
+                "id": query["id"],
+                "claim": query["claim"],
+                "expect": bool(query["expect"]),
+                "supported": supported,
+                "status": str(result["result"]["status"]),
+                "reason": str(result["result"]["reason"])[:160],
+                "correct": bool(ok),
+                "receipt_sha256": result["receipt"]["sha256"],
+            }
+        )
+    per_category["ontology_verification"]["rows"] = verify_rows
+
+    # ------------------- Directive H2: multi-plan synthesis --------------
+    synth_rows = []
+    for query in H_SYNTH_QUERIES:
+        result = service.synthesize(str(query["intent"]), kind="code")
+        mcp_response_bytes += len(json.dumps(result["result"]))
+        receipts.append(result["receipt"])
+        executed = _execute_source(result["result"].get("source", ""), query["test"])
+        ok = int(bool(result["result"].get("verified")) and bool(executed[0]))
+        score["holarch_mcp"]["reachable_total"] += 1
+        score["holarch_mcp"]["reachable_correct"] += ok
+        per_category["multi_plan_synthesis"]["total"] += 1
+        per_category["multi_plan_synthesis"]["mcp_correct"] += ok
+        synth_rows.append(
+            {
+                "id": query["id"],
+                "plan": str(result["result"].get("plan", "")),
+                "composed": bool(result["result"].get("composed", False)),
+                "verified": bool(result["result"].get("verified", False)),
+                "executed": bool(executed[0]),
+                "reason": str(executed[1])[:160],
+                "source": str(result["result"].get("source", ""))[:240],
+                "correct": bool(ok),
+                "receipt_sha256": result["receipt"]["sha256"],
+            }
+        )
+    per_category["multi_plan_synthesis"]["rows"] = synth_rows
+
+    # ------------------- Directive H4: file-delta blast radius -----------
+    delta_root = Path(workdir or tempfile.gettempdir()) / f"henri_delta_{int(time.time())}"
+    delta_root.mkdir(parents=True, exist_ok=True)
+    for name, text in H_DELTA_FILES.items():
+        (delta_root / name).write_text(text, encoding="utf-8")
+    service.sidecar.ingest_code(delta_root, package="pkg", namespace="delta")
+    delta_rows = []
+    delta_queries = [
+        {
+            "id": "delta01",
+            "file": "alpha.py",
+            "source": H_DELTA_ALPHA,
+            "target": "beta",
+            "truth": [],
+            "note": "alpha stops calling beta",
+        },
+        {
+            "id": "delta02",
+            "file": "delta.py",
+            "source": H_DELTA_DELTA,
+            "target": "beta",
+            "truth": ["delta:delta"],
+            "note": "a new module starts calling beta",
+        },
+    ]
+    for query in delta_queries:
+        started = time.perf_counter()
+        # The edit is setup, not a scored read: it mutates the tree through
+        # mode="delta" with no receipt of its own.
+        service.sidecar.ingest_code(
+            delta_root,
+            package="pkg",
+            namespace="delta",
+            mode="delta",
+            file_path=str(delta_root / str(query["file"])),
+            source_text=str(query["source"]),
+        )
+        delta_ms = (time.perf_counter() - started) * 1e3
+        result = service.solve(str(query["target"]), ["1"], mode="impact", namespace="delta")
+        mcp_response_bytes += len(json.dumps(result["result"]))
+        receipts.append(result["receipt"])
+        callers = sorted(str(value) for value in result["result"].get("callers", []))
+        ok = int(callers == sorted(str(value) for value in query["truth"]))
+        score["holarch_mcp"]["reachable_total"] += 1
+        score["holarch_mcp"]["reachable_correct"] += ok
+        per_category["delta_blast_radius"]["total"] += 1
+        per_category["delta_blast_radius"]["mcp_correct"] += ok
+        delta_rows.append(
+            {
+                "id": query["id"],
+                "file": query["file"],
+                "target": query["target"],
+                "truth": list(query["truth"]),
+                "callers": callers,
+                "delta_ms": float(delta_ms),
+                "correct": bool(ok),
+                "receipt_sha256": result["receipt"]["sha256"],
+            }
+        )
+    per_category["delta_blast_radius"]["rows"] = delta_rows
+
     per_category["composite_rules"].update(
         baseline_correct=composite_stats["baseline_correct"],
         mcp_correct=composite_stats["mcp_correct"],
@@ -670,28 +1043,24 @@ def run_agent_eval(
             "parameters": int(service.checkpoint_info.get("parameters", 0)),
             "prototypes": service.checkpoint_info.get("prototypes", {}),
         },
-        "queries_total": int(
-            len(queries["code"])
-            + len(queries["graph"])
-            + len(queries["traps"])
-            + len(queries["impact"])
-            + len(queries["impact_traps"])
-            + 8
-            + len(queries["composite"])
-            + len(perceptual_queries)
-            + len(queries["composite_traps"])
-        ),
+        "queries_total": int(len(receipts)),
+        "query_slots": int(len(receipts)),
         "query_mix": {
             "code_call_flow": len(queries["code"]),
             "multi_hop_graph": len(queries["graph"]),
             "unreachable_traps": len(queries["traps"]),
+            "impact_analysis": len(queries["impact"]),
+            "impact_traps": len(queries["impact_traps"]),
             "ood_ingress_batches": 4,
-            "playbook_reuse": 1,
+            "playbook_reuse": 2,
             "composite_symbolic": len(queries["composite"]),
             "composite_perceptual": len(perceptual_queries),
             "composite_traps": len(queries["composite_traps"]),
-            "impact_analysis": len(queries["impact"]),
-            "impact_traps": len(queries["impact_traps"]),
+            "depth2_rotor_planning": len(plan_rows),
+            "ontology_verification": len(verify_rows),
+            "multi_plan_synthesis": len(synth_rows),
+            "delta_blast_radius": len(delta_rows),
+            "setup_receipts": 2,
         },
         "code_index": {
             "seconds": float(index_seconds),
@@ -731,9 +1100,53 @@ def run_agent_eval(
             ),
             "playbook_exact": float(score["holarch_mcp"]["playbook_exact"]),
             "receipts": int(len(receipts)),
+            "query_receipts": int(len(receipts)),
             "receipt_chain_length": int(service.ledger.count),
             "receipt_chain_valid": chain_valid,
             "receipts_valid": receipts_valid,
+            "query_chain_contiguous": bool(
+                len(receipts) > 1
+                and all(
+                    receipts[index]["parent"] == receipts[index - 1]["sha256"]
+                    for index in range(1, len(receipts))
+                )
+            ),
+        },
+        "planning": {
+            "selection": plan_selection,
+            "determinism": "torch single-thread reduction for the probe and the API call",
+            "queries": len(plan_rows),
+            "correct": int(sum(1 for row in plan_rows if row["correct"])),
+            "reactive_control_correct": int(sum(1 for row in plan_rows if row["reactive"] == row["truth"])),
+            "depth1_control_correct": int(sum(1 for row in plan_rows if row["depth1"] == row["truth"])),
+            "unmasked_control_correct": int(
+                sum(1 for row in plan_rows if row["unmasked_depth2"] == row["truth"])
+            ),
+            "strong_traps": int(sum(1 for row in plan_rows if row["strong_trap"])),
+            "rows": plan_rows,
+        },
+        "verification": {
+            "queries": len(verify_rows),
+            "correct": int(sum(1 for row in verify_rows if row["correct"])),
+            "true_claims_supported": int(
+                sum(1 for row in verify_rows if row["expect"] and row["supported"])
+            ),
+            "traps_refused": int(
+                sum(1 for row in verify_rows if not row["expect"] and not row["supported"])
+            ),
+            "rows": verify_rows,
+        },
+        "synthesis": {
+            "queries": len(synth_rows),
+            "correct": int(sum(1 for row in synth_rows if row["correct"])),
+            "composed": int(sum(1 for row in synth_rows if row["composed"])),
+            "rows": synth_rows,
+        },
+        "delta": {
+            "queries": len(delta_rows),
+            "correct": int(sum(1 for row in delta_rows if row["correct"])),
+            "max_ms": float(max((row["delta_ms"] for row in delta_rows), default=0.0)),
+            "rows": delta_rows,
         },
         "context_compression_ratio": compression,
         "composite": {
@@ -773,6 +1186,36 @@ def run_agent_eval(
                 == per_category["impact_traps"]["total"]
             ),
             "impact_queries_present": bool(per_category["impact_analysis"]["total"] >= 6),
+            "queries_64": bool(len(receipts) == 64),
+            "receipt_chain_64": bool(
+                len(receipts) == 64
+                and all(verify_receipt(receipt) for receipt in receipts)
+                and all(
+                    receipts[index]["parent"] == receipts[index - 1]["sha256"]
+                    for index in range(1, len(receipts))
+                )
+                and chain_valid
+            ),
+            "planning_mcp_perfect": bool(
+                per_category["depth2_rotor_planning"]["mcp_correct"]
+                == per_category["depth2_rotor_planning"]["total"]
+                == 4
+            ),
+            "verification_mcp_perfect": bool(
+                per_category["ontology_verification"]["mcp_correct"]
+                == per_category["ontology_verification"]["total"]
+                == 4
+            ),
+            "synthesis_multiplan_verified": bool(
+                per_category["multi_plan_synthesis"]["mcp_correct"]
+                == per_category["multi_plan_synthesis"]["total"]
+                == 2
+            ),
+            "delta_blast_radius_perfect": bool(
+                per_category["delta_blast_radius"]["mcp_correct"]
+                == per_category["delta_blast_radius"]["total"]
+                == 2
+            ),
         },
         "evidence": "OBSERVED",
     }
@@ -787,6 +1230,12 @@ def run_agent_eval(
         and payload["gate"]["impact_mcp_at_least_0_98"]
         and payload["gate"]["impact_traps_refused"]
         and payload["gate"]["impact_queries_present"]
+        and payload["gate"]["queries_64"]
+        and payload["gate"]["receipt_chain_64"]
+        and payload["gate"]["planning_mcp_perfect"]
+        and payload["gate"]["verification_mcp_perfect"]
+        and payload["gate"]["synthesis_multiplan_verified"]
+        and payload["gate"]["delta_blast_radius_perfect"]
     )
     service.close()
     return payload

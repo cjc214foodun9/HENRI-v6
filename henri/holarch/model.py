@@ -34,6 +34,9 @@ import torch
 from henri.holarch.config import TASK_NAMES, HolarchConfig
 from henri.holarch.pipeline import HenriHolarch
 
+ACTION_NAMES = ("up", "down", "left", "right")
+"""The four grid actions, in the order every evaluator indexes them."""
+
 CHECKPOINT_FORMAT = "henri-holarch-checkpoint-v1"
 CHECKPOINT_NAMES = {
     "small": "holarch_small.pt",
@@ -56,6 +59,48 @@ def _digest_file(path: str | Path) -> str:
     return digest.hexdigest()
 
 
+def rotor_payload(rotor) -> Optional[Dict[str, Any]]:
+    """Serialise a fitted ActionTransitionRotor into checkpoint tensors (H3).
+
+    Tensors, not numpy arrays: the checkpoint is loaded with
+    weights_only=True, whose allow-list contains tensors and primitives but
+    not the numpy reconstructor. Storing the mask as complex64 keeps the
+    byte cost at D * n_actions * 8 and leaves no calibration to redo.
+    """
+    if rotor is None:
+        return None
+    phi = getattr(rotor, "phi", None)
+    counts = getattr(rotor, "counts", None)
+    if phi is None or counts is None or not bool(getattr(rotor, "fitted", False)):
+        return None
+    return {
+        "format": "henri-action-rotor-v1",
+        "phi": torch.from_numpy(np.asarray(phi).astype(np.complex64)).detach().cpu(),
+        "counts": torch.from_numpy(np.asarray(counts).astype(np.int64)).detach().cpu(),
+        "state": dict(getattr(rotor, "state", lambda: {})()),
+    }
+
+
+def action_rotor_from_payload(payload: Optional[Dict[str, Any]], cfg) -> Optional["ActionTransitionRotor"]:
+    """Rebuild the fitted rotor a checkpoint carries, or None (H3)."""
+    if not payload:
+        return None
+    phi = payload.get("phi")
+    counts = payload.get("counts")
+    if phi is None or counts is None:
+        return None
+    state = dict(payload.get("state", {}) or {})
+    dim = int(state.get("dim", cfg.dim))
+    n_actions = int(state.get("n_actions", getattr(cfg, "n_actions", 4)))
+    n_slots = int(state.get("n_slots", getattr(cfg, "n_slots", 4)))
+    grid = state.get("grid")
+    rotor = ActionTransitionRotor(dim, n_actions, n_slots, grid=grid)
+    rotor.phi = np.asarray(phi).astype(np.complex64).copy()
+    rotor.counts = np.asarray(counts).astype(np.int64).copy()
+    rotor.fitted = bool(int(rotor.counts.sum()) > 0)
+    return rotor
+
+
 @torch.no_grad()
 def save_checkpoint(
     model: HenriHolarch,
@@ -66,13 +111,17 @@ def save_checkpoint(
     train_config: Optional[Dict[str, Any]] = None,
     metrics: Optional[Dict[str, Any]] = None,
     seed: Optional[int] = None,
+    rotor=None,
+    created_utc: Optional[str] = None,
 ) -> Dict[str, Any]:
-    """Write weights, calibrated buffers, and the prototype bank.
+    """Write weights, calibrated buffers, the prototype bank, and the rotor.
 
     The prototype tensors are registered buffers, so they travel inside
     state_dict. The numpy banks and their calibrated beta are restored from
     the metadata on load, because beta is a calibration result and not a
-    parameter.
+    parameter. Directive H3 adds the fitted action-transition rotor: a
+    mounted medium checkpoint therefore carries the 0.8125 depth-2 planner
+    out of the box instead of making every process refit it.
     """
     cfg = cfg or model.cfg
     target = Path(path)
@@ -80,7 +129,7 @@ def save_checkpoint(
     payload = {
         "format": CHECKPOINT_FORMAT,
         "name": str(name),
-        "created_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "created_utc": str(created_utc or time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())),
         "config": {key: getattr(cfg, key) for key in cfg.__dataclass_fields__},
         "config_digest": str(cfg.digest()),
         "seed": int(cfg.seed if seed is None else seed),
@@ -90,6 +139,7 @@ def save_checkpoint(
         "prototypes": {
             task: model.prototypes[task].report() for task in TASK_NAMES
         },
+        "rotor": rotor_payload(rotor),
         "state_dict": {
             key: value.detach().cpu() for key, value in model.state_dict().items()
         },
@@ -155,7 +205,22 @@ def load_checkpoint(
         if "prototype_beta" in report:
             bank.beta = float(report["prototype_beta"])
             bank.beta_source = str(report.get("beta_source", "checkpoint"))
-    metadata = {key: value for key, value in payload.items() if key != "state_dict"}
+    # Directive H3: restore the fitted action-transition rotor that travels
+    # with the weights, and attach it to the model so a mounted checkpoint
+    # plans with the rotor it was measured with, without a re-fit.
+    rotor = action_rotor_from_payload(
+        payload.get("rotor"), HolarchConfig(**payload["config"])
+    )
+    try:
+        model.action_rotor = rotor
+    except Exception:  # pragma: no cover - a frozen module is not expected
+        pass
+    metadata = {
+        key: value
+        for key, value in payload.items()
+        if key not in {"state_dict", "rotor"}
+    }
+    metadata["rotor"] = dict(getattr(rotor, "state", lambda: {})()) if rotor is not None else None
     metadata["path"] = str(target)
     metadata["sha256"] = _digest_file(target)
     return model, metadata
@@ -336,6 +401,7 @@ class LatentActionLookahead:
         transition: str = "shift",
         lookahead_depth: int = 1,
         gamma_look: float = 0.02,
+        mask_lookahead: bool = True,
         **_unused,
     ) -> None:
         self.model = model
@@ -361,6 +427,10 @@ class LatentActionLookahead:
             raise ValueError("lookahead_depth must be 1 or 2")
         self.lookahead_depth = int(lookahead_depth)
         self.gamma_look = float(gamma_look)
+        # Directive H3 keeps the Cycle G mask as the deployed rule. The flag
+        # exists so a benchmark can MEASURE the unmasked arm that Cycle F
+        # shipped, instead of asserting that the mask matters.
+        self.mask_lookahead = bool(mask_lookahead)
         # Measured, not declared: on the validation layouts a weight of 0.50
         # lets the optimistic second step override the first-step policy
         # (35/48 wins), while 0.02 lets it break ties without overriding
@@ -466,7 +536,11 @@ class LatentActionLookahead:
             # loses to depth 1 (measured 0.7292 against 0.7708 in Cycle F).
             for action in range(4):
                 first = self.predict(psi, action)
-                blocked = self.wall_mask(first)
+                blocked = (
+                    self.wall_mask(first)
+                    if self.mask_lookahead
+                    else np.zeros(4, dtype=bool)
+                )
                 legal = [index for index in range(4) if not bool(blocked[index])]
                 opposite = (1, 0, 3, 2)[int(action)]
                 # A 180-degree reversal spends two steps to return to the
@@ -537,6 +611,8 @@ class LatentActionLookahead:
             "scores": scores,
             "alignment": terms["alignment"],
             "penalty": terms["penalty"],
+            "lookahead": terms["lookahead"],
+            "combined": terms["combined"],
             "psi": psi,
             "legal": legal,
         }
@@ -558,6 +634,7 @@ def evaluate_closed_loop_action(
     transition: str = "shift",
     lookahead_depth: int = 1,
     gamma_look: float = 0.02,
+    mask_lookahead: bool = True,
 ) -> Dict[str, object]:
     """Closed-loop success of the 1-step latent wave lookahead policy.
 
@@ -578,6 +655,7 @@ def evaluate_closed_loop_action(
         transition=transition,
         lookahead_depth=lookahead_depth,
         gamma_look=gamma_look,
+        mask_lookahead=mask_lookahead,
     )
     world = task.world
     wins = 0
@@ -658,6 +736,7 @@ def evaluate_closed_loop_action(
         "transition": str(transition),
         "lookahead_depth": int(lookahead_depth),
         "gamma_look": float(gamma_look),
+        "mask_lookahead": bool(mask_lookahead),
         "rotor_fitted": bool(getattr(rotor, "fitted", False)),
         "evidence": "OBSERVED",
     }

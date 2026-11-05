@@ -1,0 +1,323 @@
+{
+  "stage": "H4",
+  "package": {
+    "root": "henri\\holarch",
+    "files": 20,
+    "lines": 15402,
+    "nodes": 459,
+    "edges": 997,
+    "signatures": 512,
+    "full_index_ms": 152.30899999733083
+  },
+  "delta": {
+    "files": 20,
+    "median_ms": 8.998500008601695,
+    "mean_ms": 9.852094999223482,
+    "p90_ms": 16.537120006978515,
+    "max_ms": 23.68499999283813,
+    "min_ms": 2.701999997952953,
+    "under_10ms": 12,
+    "rows": [
+      {
+        "module": "__main__",
+        "bytes": 176,
+        "delta_ms": 2.701999997952953
+      },
+      {
+        "module": "__init__",
+        "bytes": 1683,
+        "delta_ms": 2.7990000089630485
+      },
+      {
+        "module": "mcp_server",
+        "bytes": 8471,
+        "delta_ms": 4.001199995400384
+      },
+      {
+        "module": "budget",
+        "bytes": 11538,
+        "delta_ms": 5.02859998960048
+      },
+      {
+        "module": "config",
+        "bytes": 20968,
+        "delta_ms": 5.0718999991659075
+      },
+      {
+        "module": "veto",
+        "bytes": 14682,
+        "delta_ms": 5.3047999972477555
+      },
+      {
+        "module": "sidecar",
+        "bytes": 24867,
+        "delta_ms": 7.778600003803149
+      },
+      {
+        "module": "zone_a",
+        "bytes": 21386,
+        "delta_ms": 7.811299990862608
+      },
+      {
+        "module": "ontology_guard",
+        "bytes": 24559,
+        "delta_ms": 8.15029998193495
+      },
+      {
+        "module": "cli",
+        "bytes": 24250,
+        "delta_ms": 8.6631000158377
+      },
+      {
+        "module": "server",
+        "bytes": 31050,
+        "delta_ms": 9.333900001365691
+      },
+      {
+        "module": "train",
+        "bytes": 31189,
+        "delta_ms": 9.472799982177094
+      },
+      {
+        "module": "code_lang",
+        "bytes": 44258,
+        "delta_ms": 11.168500001076609
+      },
+      {
+        "module": "tasks",
+        "bytes": 26291,
+        "delta_ms": 11.317800002871081
+      },
+      {
+        "module": "zone_b",
+        "bytes": 40137,
+        "delta_ms": 12.170300004072487
+      },
+      {
+        "module": "model",
+        "bytes": 41240,
+        "delta_ms": 12.182700011180714
+      },
+      {
+        "module": "pipeline",
+        "bytes": 61492,
+        "delta_ms": 15.358500008005649
+      },
+      {
+        "module": "symbolic",
+        "bytes": 54201,
+        "delta_ms": 16.291200008708984
+      },
+      {
+        "module": "zone_c",
+        "bytes": 60492,
+        "delta_ms": 18.750399991404265
+      },
+      {
+        "module": "code_gen",
+        "bytes": 97850,
+        "delta_ms": 23.68499999283813
+      }
+    ],
+    "repetitions": 5,
+    "reduction": "best of five per module (the machine only adds time)",
+    "note": "Latency includes ast.parse of the edited file, the graph rebuild and the engram_meta write. Files above roughly 40 KB exceed 10 ms because the parse alone costs 6-9 ms."
+  },
+  "identical_to_full_index": {
+    "edges": true,
+    "nodes": true,
+    "reverse": true,
+    "impact": true,
+    "probes": [
+      "ZoneCMemory.query",
+      "ZoneCMemory.write",
+      "SymbolCodebook.add",
+      "index_code"
+    ]
+  },
+  "speedup": 16.926043212950844,
+  "mutation": {
+    "module": "sidecar",
+    "delta_ms": 9.06599999871105,
+    "before": {
+      "ZoneCMemory.query": [
+        "cli:cmd_memory",
+        "cli:cmd_selftest",
+        "pipeline:forward",
+        "server:composite_call",
+        "server:playbook",
+        "sidecar:recall_playbook",
+        "symbolic:calibrate",
+        "symbolic:solve",
+        "symbolic:step",
+        "train:memory_recall",
+        "zone_a:consolidate",
+        "zone_c:context_tensor",
+        "zone_c:prefetch"
+      ],
+      "SymbolCodebook.add": [
+        "code_gen:register",
+        "ontology_guard:build",
+        "ontology_guard:build_verifier",
+        "server:playbook",
+        "sidecar:compile_playbook",
+        "sidecar:ingest_code",
+        "sidecar:ingest_edges",
+        "sidecar:synthesize",
+        "sidecar:verify_claim",
+        "symbolic:__init__",
+        "symbolic:_add_symbol",
+        "symbolic:_ensure_namespace",
+        "symbolic:_rebuild",
+        "symbolic:_resolve_module",
+        "symbolic:_symbol_at",
+        "symbolic:compose",
+        "symbolic:impact",
+        "symbolic:index",
+        "symbolic:index_code",
+        "symbolic:ingest",
+        "symbolic:key",
+        "symbolic:key_wave",
+        "symbolic:matrix",
+        "symbolic:symbol_names",
+        "symbolic:symbol_wave",
+        "symbolic:transition_wave",
+        "symbolic:update_file",
+        "symbolic:write_boundary_engrams",
+        "tasks:_bfs",
+        "tasks:_layout",
+        "tasks:optimal_action",
+        "train:dagger_round",
+        "train:fit",
+        "train:step",
+        "zone_c:__init__",
+        "zone_c:_load"
+      ]
+    },
+    "after": {
+      "ZoneCMemory.query": [
+        "cli:cmd_memory",
+        "cli:cmd_selftest",
+        "pipeline:forward",
+        "server:composite_call",
+        "symbolic:calibrate",
+        "symbolic:solve",
+        "symbolic:step",
+        "train:memory_recall",
+        "zone_a:consolidate",
+        "zone_c:context_tensor",
+        "zone_c:prefetch"
+      ],
+      "SymbolCodebook.add": [
+        "code_gen:register",
+        "ontology_guard:build",
+        "ontology_guard:build_verifier",
+        "server:playbook",
+        "sidecar:compile_playbook",
+        "sidecar:ingest_code",
+        "sidecar:ingest_edges",
+        "sidecar:synthesize",
+        "sidecar:verify_claim",
+        "symbolic:__init__",
+        "symbolic:_add_symbol",
+        "symbolic:_ensure_namespace",
+        "symbolic:_rebuild",
+        "symbolic:_resolve_module",
+        "symbolic:_symbol_at",
+        "symbolic:compose",
+        "symbolic:impact",
+        "symbolic:index",
+        "symbolic:index_code",
+        "symbolic:ingest",
+        "symbolic:key",
+        "symbolic:key_wave",
+        "symbolic:matrix",
+        "symbolic:symbol_names",
+        "symbolic:symbol_wave",
+        "symbolic:transition_wave",
+        "symbolic:update_file",
+        "symbolic:write_boundary_engrams",
+        "tasks:_bfs",
+        "tasks:_layout",
+        "tasks:optimal_action",
+        "train:dagger_round",
+        "train:fit",
+        "train:step",
+        "zone_c:__init__",
+        "zone_c:_load"
+      ]
+    },
+    "restored": {
+      "ZoneCMemory.query": [
+        "cli:cmd_memory",
+        "cli:cmd_selftest",
+        "pipeline:forward",
+        "server:composite_call",
+        "server:playbook",
+        "sidecar:recall_playbook",
+        "symbolic:calibrate",
+        "symbolic:solve",
+        "symbolic:step",
+        "train:memory_recall",
+        "zone_a:consolidate",
+        "zone_c:context_tensor",
+        "zone_c:prefetch"
+      ],
+      "SymbolCodebook.add": [
+        "code_gen:register",
+        "ontology_guard:build",
+        "ontology_guard:build_verifier",
+        "server:playbook",
+        "sidecar:compile_playbook",
+        "sidecar:ingest_code",
+        "sidecar:ingest_edges",
+        "sidecar:synthesize",
+        "sidecar:verify_claim",
+        "symbolic:__init__",
+        "symbolic:_add_symbol",
+        "symbolic:_ensure_namespace",
+        "symbolic:_rebuild",
+        "symbolic:_resolve_module",
+        "symbolic:_symbol_at",
+        "symbolic:compose",
+        "symbolic:impact",
+        "symbolic:index",
+        "symbolic:index_code",
+        "symbolic:ingest",
+        "symbolic:key",
+        "symbolic:key_wave",
+        "symbolic:matrix",
+        "symbolic:symbol_names",
+        "symbolic:symbol_wave",
+        "symbolic:transition_wave",
+        "symbolic:update_file",
+        "symbolic:write_boundary_engrams",
+        "tasks:_bfs",
+        "tasks:_layout",
+        "tasks:optimal_action",
+        "train:dagger_round",
+        "train:fit",
+        "train:step",
+        "zone_c:__init__",
+        "zone_c:_load"
+      ]
+    },
+    "changed": true,
+    "restore_exact": true
+  },
+  "persistence": {
+    "restored": true
+  },
+  "gate": {
+    "median_delta_under_10ms": true,
+    "graph_matches_full_index": true,
+    "delta_faster_than_full_index": true,
+    "mutation_changes_blast_radius": true,
+    "restore_is_exact": true,
+    "metadata_persisted": true,
+    "at_least_half_under_10ms": true,
+    "passed": true
+  },
+  "wall_seconds": 1.872135600016918,
+  "evidence": "OBSERVED"
+}

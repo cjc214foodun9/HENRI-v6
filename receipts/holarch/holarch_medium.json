@@ -288,8 +288,8 @@
   },
   "checkpoint": {
     "path": "receipts\\holarch\\holarch_medium.pt",
-    "sha256": "59896acefed669ffee19aa2fb59dd22df5f633c6f353c27cef95d7ccd484c3e8",
-    "bytes": 5209020,
+    "sha256": "fe905fd0a41789678c3edbdef63e9926e362416bb90f6ed0ca773c0b1f61737e",
+    "bytes": 5242630,
     "parameters": 1020380
   },
   "proto_alpha": 0.9677531123161316,
@@ -371,22 +371,27 @@
     "recall_at_1": 0.99,
     "n": 200.0
   },
-  "action_success": 0.7083333333333334,
+  "action_success": 0.8125,
   "action_success_reactive": 0.4583333333333333,
   "closed_loop_lookahead": {
-    "success_rate": 0.7083333333333334,
-    "wins": 34,
+    "success_rate": 0.8125,
+    "wins": 39,
     "episodes": 48,
     "reactive_success_rate": 0.4583333333333333,
     "reactive_wins": 22,
     "one_step_accuracy": 0.8125,
     "one_step_n": 80,
-    "mean_steps_to_goal": 5.294117647058823,
+    "mean_steps_to_goal": 6.0256410256410255,
     "goal_weight": 0.4,
     "cycle_weight": 0.6,
     "history": 4,
     "sensor_grid": 16,
     "goal_sigma": 1.6,
+    "transition": "rotor",
+    "lookahead_depth": 2,
+    "gamma_look": 0.02,
+    "mask_lookahead": true,
+    "rotor_fitted": true,
     "evidence": "OBSERVED"
   },
   "action_success_unmasked": 0.4583333333333333,
@@ -453,5 +458,26 @@
     "wall_seconds": 239.3170681000047
   },
   "wall_seconds": 459.727272899996,
-  "evidence": "OBSERVED"
+  "evidence": "OBSERVED",
+  "action_rotor": {
+    "state": {
+      "dim": 1024,
+      "n_actions": 4,
+      "grid": 16,
+      "fitted": true,
+      "counts": [
+        42,
+        57,
+        57,
+        41
+      ]
+    },
+    "transition": "rotor",
+    "lookahead_depth": 2,
+    "gamma_look": 0.02
+  },
+  "cycle_h_seal": {
+    "checkpoint_resealed_with_rotor": true,
+    "refit_during_seal": false
+  }
 }

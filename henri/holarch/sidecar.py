@@ -21,6 +21,7 @@ them.
 
 from __future__ import annotations
 
+import ast
 import hashlib
 import json
 import math
@@ -46,6 +47,27 @@ from henri.holarch.symbolic import (
 )
 
 _EPS = 1e-12
+
+
+def _wave_tensor(wave: Sequence[float], dim: int) -> torch.Tensor:
+    """One caller-supplied wave as a complex torch row.
+
+    Two encodings are accepted, both lossless: 2*D floats interleaved as
+    (real, imaginary), or D real floats. Anything else is a caller error
+    and is refused rather than truncated.
+    """
+    values = np.asarray(wave, dtype=np.float64).reshape(-1)
+    dim = int(dim)
+    if values.size == 2 * dim:
+        pairs = values.reshape(dim, 2)
+        data = pairs[:, 0] + 1j * pairs[:, 1]
+    elif values.size == dim:
+        data = values.astype(np.complex64)
+    else:
+        raise ValueError(
+            f"history wave has {values.size} values; expected {dim} or {2 * dim}"
+        )
+    return torch.from_numpy(np.asarray(data, dtype=np.complex64).reshape(1, dim))
 
 
 def _unit(vector: np.ndarray) -> np.ndarray:
@@ -119,14 +141,40 @@ class EpistemicSidecar:
         return report
 
     def ingest_code(
-        self, root: str | Path, package: str = "henri", namespace: str = "default"
+        self,
+        root: str | Path,
+        package: str = "henri",
+        namespace: str = "default",
+        mode: str = "edges",
+        file_path: Optional[str] = None,
+        source_text: Optional[str] = None,
     ) -> Dict[str, float]:
         """Read a package once, then answer from memory only.
 
         Stage 2: the index pass also extracts every signature and every AST
         parent-child transition and stores them as Tier-3 boundary engrams,
         so the Sagnac gate has an axiom to compare a proposed statement with.
+
+        Directive H4: mode="delta" re-indexes exactly ONE file through
+        CodeGraphIndexer.update_file. The per-module records are reused for
+        every other file, so an agent edit costs one ast.parse instead of a
+        package pass, and the resulting graph is identical to a full index.
         """
+        if str(mode) == "delta":
+            if file_path is None:
+                raise ValueError("mode='delta' needs a file_path")
+            if self.indexer is None:
+                self.indexer = CodeGraphIndexer.from_memory(self.model.memory, str(namespace))
+            if self.indexer is None:
+                self.indexer = CodeGraphIndexer(
+                    self.model.memory, namespace=str(namespace), symbol_codebook=self.codebook
+                )
+            report = self.indexer.update_file(root, file_path, source_text=source_text)
+            self._absorb_index_report(report)
+            self.index_report["delta"] = 1.0
+            self.index_report["delta_seconds"] = float(report.seconds)
+            self.index_report["delta_updated"] = float(len(report.updated))
+            return dict(self.index_report)
         indexer = CodeGraphIndexer(
             self.model.memory, namespace=str(namespace), symbol_codebook=self.codebook
         )
@@ -134,6 +182,10 @@ class EpistemicSidecar:
         self.indexer = indexer
         graph_edges = list(indexer.graph.edges)
         ingest = self.ingest_edges(graph_edges, namespace=str(namespace))
+        self._absorb_index_report(report)
+        return {**self.index_report, **ingest}
+
+    def _absorb_index_report(self, report) -> None:
         self.index_report = {
             "files_parsed": float(report.files),
             "lines_parsed": float(report.lines),
@@ -144,7 +196,6 @@ class EpistemicSidecar:
             "grammar_transitions": float(report.transitions),
             "boundary_engrams": float(report.boundary_engrams),
         }
-        return {**self.index_report, **ingest}
 
     def impact(self, target: str, hops: int = 1, namespace: str = "default") -> Dict[str, object]:
         """Reverse-call blast radius for one symbol (Directive F4).
@@ -351,13 +402,16 @@ class EpistemicSidecar:
             from henri.holarch.code_gen import build_synthesis_engine
 
             symbols = set()
+            signatures = {}
             if self.indexer is not None:
                 symbols |= self.indexer.symbol_names()
+                signatures = dict(self.indexer.signatures)
             engine, stats = build_synthesis_engine(
                 self.root,
                 self.model.memory,
                 namespace=str(namespace),
                 symbol_table=symbols,
+                signatures=signatures,
             )
             self._engine = engine
             self._engine_stats = stats
@@ -381,6 +435,179 @@ class EpistemicSidecar:
         self._engine.namespace = str(namespace)
         self._engine.plans.namespace = str(namespace)
         return self._engine.adapt(intent, corrected_source, name, kind=str(kind))
+
+    # ------------------------------------------- planner + claim guard (H3)
+    def _action_rotor(self, transition: str):
+        rotor = getattr(self.model, "action_rotor", None)
+        if str(transition) in {"rotor", "blend"} and rotor is None:
+            raise ValueError(
+                "the mounted checkpoint carries no fitted rotor; "
+                "mount a Cycle H checkpoint or use transition='shift'"
+            )
+        return rotor
+
+    def plan(
+        self,
+        observation: Sequence[float],
+        history_waves: Optional[Sequence[Sequence[float]]] = None,
+        transition: str = "rotor",
+        lookahead_depth: int = 2,
+        gamma_look: float = 0.02,
+        namespace: str = "default",
+    ) -> Dict[str, object]:
+        """Run the wall-masked depth-2 rotor lookahead on one observation.
+
+        Directive H3. The planner is the object the 0.8125 win rate was
+        measured with; it is now callable, and the rotor comes from the
+        checkpoint rather than being refitted per request.
+        """
+        from henri.holarch.model import ACTION_NAMES, LatentActionLookahead
+
+        rotor = self._action_rotor(transition)
+        lookahead = LatentActionLookahead(
+            self.model,
+            None,
+            rotor=rotor,
+            transition=str(transition),
+            lookahead_depth=int(lookahead_depth),
+            gamma_look=float(gamma_look),
+        )
+        recent: List[torch.Tensor] = []
+        for wave in list(history_waves or [])[-int(lookahead.history) :]:
+            recent.append(_wave_tensor(wave, int(self.cfg.dim)))
+        choice = lookahead.choose(observation, recent)
+        action = int(choice["action"])
+        scores = choice["scores"]
+        return {
+            "action": action,
+            "action_name": ACTION_NAMES[action % len(ACTION_NAMES)],
+            "scores": [float(value) for value in scores],
+            "alignment": [float(value) for value in choice["alignment"]],
+            "penalty": [float(value) for value in choice["penalty"]],
+            "lookahead": (
+                [float(value) for value in choice["lookahead"]]
+                if int(lookahead_depth) == 2
+                else []
+            ),
+            "legal_mask": [bool(value) for value in choice["legal"]],
+            "transition": str(transition),
+            "lookahead_depth": int(lookahead_depth),
+            "gamma_look": float(gamma_look),
+            "history_waves": int(len(recent)),
+            "namespace": str(namespace),
+        }
+
+    def verify_claim(
+        self,
+        claim: str,
+        kind: str = "text",
+        top_k: int = 4,
+        namespace: str = "default",
+    ) -> Dict[str, object]:
+        """Check a prose claim against the corpus, or code against the AST.
+
+        Directive H3. Text goes through the OntologyVerifier (rare terms and
+        quantities must appear in the evidence). Code is parsed, compiled,
+        and every callee is checked against the code index, so a fabricated
+        signature is refused rather than accepted.
+        """
+        text = str(claim).strip()
+        if str(kind) == "text":
+            verifier = self._ontology()
+            verdict = verifier.verify_claim(text, top_k=int(top_k))
+            payload = verdict.as_dict()
+            payload["supported"] = bool(verdict.supported)
+            payload["claim"] = text
+            payload["kind"] = "text"
+            payload["namespace"] = str(namespace)
+            payload["corpus_digest"] = str(getattr(verifier, "corpus_digest", ""))
+            return payload
+        missing_terms: List[str] = []
+        missing_numbers: List[str] = []
+        try:
+            tree = ast.parse(text)
+        except SyntaxError as error:
+            return {
+                "status": "unsupported",
+                "supported": False,
+                "reason": f"ast.parse: {error.msg} at line {error.lineno}",
+                "confidence": 0.0,
+                "passages": [],
+                "missing_terms": [],
+                "missing_numbers": [],
+                "kind": "code",
+                "claim": text,
+                "namespace": str(namespace),
+            }
+        try:
+            compile(tree, "<verify>", "exec")
+        except (SyntaxError, ValueError) as error:
+            return {
+                "status": "unsupported",
+                "supported": False,
+                "reason": f"compile: {error}",
+                "confidence": 0.0,
+                "passages": [],
+                "missing_terms": [],
+                "missing_numbers": [],
+                "kind": "code",
+                "claim": text,
+                "namespace": str(namespace),
+            }
+        from henri.holarch.code_gen import ASTGate
+
+        symbols = set()
+        if self.indexer is None:
+            self.indexer = CodeGraphIndexer.from_memory(self.model.memory, str(namespace))
+        if self.indexer is not None:
+            symbols |= self.indexer.symbol_names()
+        gate = ASTGate(symbols)
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                name = ""
+                if isinstance(node.func, ast.Name):
+                    name = node.func.id
+                elif isinstance(node.func, ast.Attribute):
+                    name = node.func.attr
+                if name and gate.symbol_veto(name):
+                    missing_terms.append(name)
+        if missing_terms:
+            return {
+                "status": "unsupported",
+                "supported": False,
+                "reason": f"callee(s) absent from the code index: {sorted(set(missing_terms))}",
+                "confidence": 0.0,
+                "passages": [],
+                "missing_terms": sorted(set(missing_terms)),
+                "missing_numbers": missing_numbers,
+                "kind": "code",
+                "claim": text,
+                "namespace": str(namespace),
+            }
+        return {
+            "status": "supported",
+            "supported": True,
+            "reason": "ast.parse and compile succeeded; every callee is indexed",
+            "confidence": 1.0,
+            "passages": [],
+            "missing_terms": [],
+            "missing_numbers": [],
+            "kind": "code",
+            "claim": text,
+            "namespace": str(namespace),
+        }
+
+    def _ontology(self):
+        cached = getattr(self, "_verifier_cache", None)
+        if cached is not None:
+            return cached
+        if self._engine is not None and getattr(self._engine, "verifier", None) is not None:
+            self._verifier_cache = self._engine.verifier
+            return self._verifier_cache
+        from henri.holarch.ontology_guard import build_verifier
+
+        self._verifier_cache = build_verifier(self.root)
+        return self._verifier_cache
 
     # ------------------------------------------------------------- lifecycle
     def report(self) -> Dict[str, float]:

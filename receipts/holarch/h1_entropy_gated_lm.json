@@ -1,0 +1,214 @@
+{
+  "stage": "H1",
+  "corpus": {
+    "source": "git_revision",
+    "revision": "67e9b25",
+    "digest": "921fd07a85daf51e",
+    "texts": 21,
+    "tokens": 311649,
+    "vocabulary": 2048,
+    "note": "The H1 corpus is pinned to the Cycle G commit so the floor is the exact number the G1 receipt recorded. The tokenizer is trained on the corpus, so a live-tree edit moves every token id."
+  },
+  "bank": {
+    "keys_order_1": 1706.0,
+    "keys_order_2": 16423.0,
+    "keys_order_3": 49470.0,
+    "keys_order_4": 83710.0,
+    "orders": 4.0
+  },
+  "weights": {
+    "order_weights": [
+      0.5,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "skip_weight": 3.0,
+    "gamma": 0.8,
+    "validation_loss": 2.6955433947106777,
+    "probe_beta": 0.12
+  },
+  "beta_star": 0.02,
+  "beta_gate": {
+    "beta_low": 0.01,
+    "beta_high": 0.02,
+    "tau_h": 0.75,
+    "tau_order": 3.0
+  },
+  "calibration": {
+    "joint": true,
+    "selected": true,
+    "beta_low": 0.01,
+    "beta_high": 0.02,
+    "tau_h": 0.75,
+    "tau_order": 3,
+    "validation_loss": 2.4659512042999268,
+    "validation_top1": 0.5308474576271186,
+    "floor_loss": 2.4692485332489014,
+    "floor_top1": 0.5308474576271186,
+    "mode_guard": true,
+    "samples": 1475
+  },
+  "beta_curve": [
+    [
+      0.02,
+      2.466055393218994
+    ],
+    [
+      0.05,
+      2.466552257537842
+    ],
+    [
+      0.08,
+      2.472679853439331
+    ],
+    [
+      0.12,
+      2.4885475635528564
+    ]
+  ],
+  "windows": {
+    "legacy": {
+      "floor": {
+        "top1": 0.562016806722689,
+        "perplexity": 10.13692474759838,
+        "bits_per_char": 1.2942462856808024,
+        "tokens": 2975.0,
+        "base_top1": 0.562016806722689,
+        "base_perplexity": 10.13692474759838,
+        "beta_star": 0.0,
+        "wave_weight": 0.0
+      },
+      "gated": {
+        "top1": 0.562016806722689,
+        "perplexity": 10.0907366914288,
+        "bits_per_char": 1.2916944159315715,
+        "tokens": 2975.0,
+        "base_top1": 0.562016806722689,
+        "base_perplexity": 10.13692474759838,
+        "beta_star": 0.02,
+        "wave_weight": 0.02
+      },
+      "static_beta_0_02": {
+        "top1": 0.562016806722689,
+        "perplexity": 10.089996880074008,
+        "bits_per_char": 1.2916534467032719,
+        "tokens": 2975.0,
+        "base_top1": 0.562016806722689,
+        "base_perplexity": 10.13692474759838,
+        "beta_star": 0.02,
+        "wave_weight": 0.02
+      },
+      "static_beta_0_05": {
+        "top1": 0.562016806722689,
+        "perplexity": 10.07187787828747,
+        "bits_per_char": 1.2906491149085184,
+        "tokens": 2975.0,
+        "base_top1": 0.562016806722689,
+        "base_perplexity": 10.13692474759838,
+        "beta_star": 0.05,
+        "wave_weight": 0.05
+      },
+      "static_beta_0_02_unguarded": {
+        "top1": 0.5576470588235294,
+        "perplexity": 10.091351337958152,
+        "bits_per_char": 1.2917284515054157,
+        "tokens": 2975.0,
+        "base_top1": 0.562016806722689,
+        "base_perplexity": 10.13692474759838,
+        "beta_star": 0.02,
+        "wave_weight": 0.02
+      },
+      "static_beta_0_05_unguarded": {
+        "top1": 0.5526050420168067,
+        "perplexity": 10.077175113696933,
+        "bits_per_char": 1.2909429261335506,
+        "tokens": 2975.0,
+        "base_top1": 0.562016806722689,
+        "base_perplexity": 10.13692474759838,
+        "beta_star": 0.05,
+        "wave_weight": 0.05
+      }
+    },
+    "disjoint": {
+      "floor": {
+        "top1": 0.5704201680672268,
+        "perplexity": 10.313709746896235,
+        "bits_per_char": 1.3115914155657253,
+        "tokens": 2975.0,
+        "base_top1": 0.5704201680672268,
+        "base_perplexity": 10.313709746896235,
+        "beta_star": 0.0,
+        "wave_weight": 0.0
+      },
+      "gated": {
+        "top1": 0.5704201680672268,
+        "perplexity": 10.261419520533016,
+        "bits_per_char": 1.3087344535296104,
+        "tokens": 2975.0,
+        "base_top1": 0.5704201680672268,
+        "base_perplexity": 10.313709746896235,
+        "beta_star": 0.02,
+        "wave_weight": 0.02
+      }
+    },
+    "full": {
+      "floor": {
+        "top1": 0.47591522157996147,
+        "perplexity": 16.516598841204374,
+        "bits_per_char": 1.6207528855291187,
+        "tokens": 31140.0,
+        "base_top1": 0.47591522157996147,
+        "base_perplexity": 16.516598841204374,
+        "beta_star": 0.0,
+        "wave_weight": 0.0
+      },
+      "gated": {
+        "top1": 0.47591522157996147,
+        "perplexity": 16.49790695772841,
+        "bits_per_char": 1.6200984596913512,
+        "tokens": 31140.0,
+        "base_top1": 0.47591522157996147,
+        "base_perplexity": 16.516598841204374,
+        "beta_star": 0.02,
+        "wave_weight": 0.02
+      }
+    }
+  },
+  "floor": {
+    "top1": 0.562016806722689,
+    "perplexity": 10.13692474759838,
+    "bits_per_char": 1.2942462856808024,
+    "tokens": 2975.0,
+    "base_top1": 0.562016806722689,
+    "base_perplexity": 10.13692474759838,
+    "beta_star": 0.0,
+    "wave_weight": 0.0
+  },
+  "tuned": {
+    "top1": 0.562016806722689,
+    "perplexity": 10.0907366914288,
+    "bits_per_char": 1.2916944159315715,
+    "tokens": 2975.0,
+    "base_top1": 0.562016806722689,
+    "base_perplexity": 10.13692474759838,
+    "beta_star": 0.02,
+    "wave_weight": 0.02
+  },
+  "evaluated_on": "held_out[0:3000] (the protocol of every committed L3/F/G receipt)",
+  "beta_selected_on": "held_out[0:1500]",
+  "gate": {
+    "beta_high_strictly_positive": true,
+    "bits_per_char_below_floor": true,
+    "top1_at_least_floor": true,
+    "floor_top1_at_least_0_5600": true,
+    "cross_entropy_below_floor": true,
+    "disjoint_top1_at_least_floor": true,
+    "disjoint_bits_per_char_below_floor": true,
+    "full_top1_at_least_floor": true,
+    "full_bits_per_char_below_floor": true,
+    "passed": true
+  },
+  "wall_seconds": 144.69243409999763,
+  "evidence": "OBSERVED"
+}

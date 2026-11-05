@@ -5,61 +5,67 @@
   "checkpoint": {
     "mounted": true,
     "path": "receipts\\holarch\\holarch_medium.pt",
-    "sha256": "59896acefed669ffee19aa2fb59dd22df5f633c6f353c27cef95d7ccd484c3e8",
+    "sha256": "fe905fd0a41789678c3edbdef63e9926e362416bb90f6ed0ca773c0b1f61737e",
     "parameters": 1020380,
     "prototypes": {
       "vision": {
         "prototypes": 10.0,
         "prototype_beta": 4.396588278841839,
-        "prototype_beta_calibrated": 1.0,
+        "prototype_beta_calibrated": 0.0,
         "prototype_beta_star_refused": 26.1
       },
       "language": {
         "prototypes": 45.0,
         "prototype_beta": 24.26012382958556,
-        "prototype_beta_calibrated": 1.0,
+        "prototype_beta_calibrated": 0.0,
         "prototype_beta_star_refused": 26.1
       },
       "action": {
         "prototypes": 4.0,
         "prototype_beta": 9.139434227985282,
-        "prototype_beta_calibrated": 1.0,
+        "prototype_beta_calibrated": 0.0,
         "prototype_beta_star_refused": 26.1
       },
       "relational": {
         "prototypes": 8.0,
         "prototype_beta": 24.26645751815495,
-        "prototype_beta_calibrated": 1.0,
+        "prototype_beta_calibrated": 0.0,
         "prototype_beta_star_refused": 26.1
       }
     }
   },
-  "queries_total": 52,
+  "queries_total": 64,
+  "query_slots": 64,
   "query_mix": {
     "code_call_flow": 8,
     "multi_hop_graph": 16,
     "unreachable_traps": 4,
+    "impact_analysis": 6,
+    "impact_traps": 2,
     "ood_ingress_batches": 4,
-    "playbook_reuse": 1,
+    "playbook_reuse": 2,
     "composite_symbolic": 3,
     "composite_perceptual": 3,
     "composite_traps": 2,
-    "impact_analysis": 6,
-    "impact_traps": 2
+    "depth2_rotor_planning": 4,
+    "ontology_verification": 4,
+    "multi_plan_synthesis": 2,
+    "delta_blast_radius": 2,
+    "setup_receipts": 2
   },
   "code_index": {
-    "seconds": 1.6805575000180397,
+    "seconds": 1.9090458000137005,
     "files": 20.0,
-    "lines": 13086.0,
-    "nodes": 403.0,
-    "edges": 873.0,
+    "lines": 15402.0,
+    "nodes": 459.0,
+    "edges": 997.0,
     "edges_ingested": 72.0
   },
   "baseline_unindexed": {
     "query_file_reads": 320,
-    "bytes_read_at_query_time": 8613904,
-    "response_bytes": 870,
-    "latency_ms_total": 50.69869998260401,
+    "bytes_read_at_query_time": 10252480,
+    "response_bytes": 864,
+    "latency_ms_total": 63.12550010625273,
     "reachable_accuracy": 0.5333333333333333,
     "hallucination_rate": 0.9926470588235294,
     "playbook_exact": 0.0
@@ -67,17 +73,199 @@
   "holarch_mcp": {
     "query_file_reads": 0,
     "bytes_read_at_query_time": 0,
-    "response_bytes": 10907,
-    "latency_ms_total": 49.71560000558384,
+    "response_bytes": 18194,
+    "latency_ms_total": 259.9842000345234,
     "reachable_accuracy": 1.0,
     "hallucination_rate": 0.0,
     "playbook_exact": 1.0,
-    "receipts": 52,
-    "receipt_chain_length": 53,
+    "receipts": 64,
+    "query_receipts": 64,
+    "receipt_chain_length": 64,
     "receipt_chain_valid": true,
-    "receipts_valid": true
+    "receipts_valid": true,
+    "query_chain_contiguous": true
   },
-  "context_compression_ratio": 789.7592371871275,
+  "planning": {
+    "selection": {
+      "scanned_layouts": 80,
+      "scan_cap_layouts": 80,
+      "steps_per_layout": 10,
+      "strong_traps_found": 0,
+      "weak_traps_found": 0,
+      "plain_correct_states": 358,
+      "chosen_traps": 0
+    },
+    "determinism": "torch single-thread reduction for the probe and the API call",
+    "queries": 4,
+    "correct": 4,
+    "reactive_control_correct": 4,
+    "depth1_control_correct": 4,
+    "unmasked_control_correct": 4,
+    "strong_traps": 0,
+    "rows": [
+      {
+        "id": "plan01",
+        "layout": 0,
+        "truth": 1,
+        "answer": 1,
+        "reactive": 1,
+        "depth1": 1,
+        "unmasked_depth2": 1,
+        "trap": false,
+        "strong_trap": false,
+        "correct": true,
+        "receipt_sha256": "5ae3907970e2413ef924715ef376b33e117f6ad84798fe887a4e6c897204aaa3"
+      },
+      {
+        "id": "plan02",
+        "layout": 0,
+        "truth": 1,
+        "answer": 1,
+        "reactive": 1,
+        "depth1": 1,
+        "unmasked_depth2": 1,
+        "trap": false,
+        "strong_trap": false,
+        "correct": true,
+        "receipt_sha256": "b01a5f1676e1b35afee846aeafb162aa82b50b9bee9cfb581c145f2fd7c707e8"
+      },
+      {
+        "id": "plan03",
+        "layout": 0,
+        "truth": 0,
+        "answer": 0,
+        "reactive": 0,
+        "depth1": 0,
+        "unmasked_depth2": 0,
+        "trap": false,
+        "strong_trap": false,
+        "correct": true,
+        "receipt_sha256": "12e0303c3bd88f8a4ffb4c3cd0443b87fe8b6fbb779a66b13c27926096eb84cd"
+      },
+      {
+        "id": "plan04",
+        "layout": 0,
+        "truth": 0,
+        "answer": 0,
+        "reactive": 0,
+        "depth1": 0,
+        "unmasked_depth2": 0,
+        "trap": false,
+        "strong_trap": false,
+        "correct": true,
+        "receipt_sha256": "607479bbdb7150d29be9d080817fad00078521129b350a6894dd9c9efd17f77d"
+      }
+    ]
+  },
+  "verification": {
+    "queries": 4,
+    "correct": 4,
+    "true_claims_supported": 2,
+    "traps_refused": 2,
+    "rows": [
+      {
+        "id": "verify01",
+        "claim": "The medium profile has 1,020,380 parameters and reaches 0.7083 closed-loop action.",
+        "expect": true,
+        "supported": true,
+        "status": "supported",
+        "reason": "all rare terms and all quantities present in evidence",
+        "correct": true,
+        "receipt_sha256": "4a6a6058d3d1825fdbd596e39b15aac798e11d55703095878f04ef2314bc8106"
+      },
+      {
+        "id": "verify02",
+        "claim": "The vision accuracy (test) is 0.9798 against a 0.9750 bar.",
+        "expect": true,
+        "supported": true,
+        "status": "supported",
+        "reason": "all rare terms and all quantities present in evidence",
+        "correct": true,
+        "receipt_sha256": "10b87c92e5d3a06d9406600f8893496d9302825d8b1a7861b21966f02f84ee76"
+      },
+      {
+        "id": "verify03",
+        "claim": "The medium profile has 1,020,381 parameters and reaches 0.7083 closed-loop action.",
+        "expect": false,
+        "supported": false,
+        "status": "contradicted",
+        "reason": "quantity 1020381 is stated differently in the evidence",
+        "correct": true,
+        "receipt_sha256": "5760612b5c45a3f94a0b6ad095b932f78ab10d703f987f0d7ae532eb4bdde095"
+      },
+      {
+        "id": "verify04",
+        "claim": "Calling ZoneCMemory.query with keyword argument widget returns the stored wave.",
+        "expect": false,
+        "supported": false,
+        "status": "unsupported",
+        "reason": "signature: ZoneCMemory.query does not accept keyword 'widget'; declared parameters are ['self', 'wave', 'k', 'avoid_ids', 'candidate_multiplier', 'task', 'names",
+        "correct": true,
+        "receipt_sha256": "ffbd980279f991a5215a92353f9b8ff879fb183015d470bb3d39855f47241056"
+      }
+    ]
+  },
+  "synthesis": {
+    "queries": 2,
+    "correct": 2,
+    "composed": 2,
+    "rows": [
+      {
+        "id": "synth01",
+        "plan": "core08+shift11",
+        "composed": true,
+        "verified": true,
+        "executed": true,
+        "reason": "",
+        "source": "def distinct_caller_count(links):\n    tokens_out = sorted({edge.source for edge in links})\n    return int(len(tokens_out))\n",
+        "correct": true,
+        "receipt_sha256": "4e6ad76d71a8238191d3cc6442266a0bd3348f38789d0329e79e3eb31c5212c9"
+      },
+      {
+        "id": "synth02",
+        "plan": "core10+core11",
+        "composed": true,
+        "verified": true,
+        "executed": true,
+        "reason": "",
+        "source": "def bounded_mean(sample):\n    value_out = float(sum(sample) / max(len(sample), 1))\n    return max(0.0, min(2.5, float(value_out)))\n",
+        "correct": true,
+        "receipt_sha256": "afe93ed7c31038ff25d95034fce9b40ec00c33453a44dfd0fa7db3177cbb4b23"
+      }
+    ]
+  },
+  "delta": {
+    "queries": 2,
+    "correct": 2,
+    "max_ms": 0.222400005441159,
+    "rows": [
+      {
+        "id": "delta01",
+        "file": "alpha.py",
+        "target": "beta",
+        "truth": [],
+        "callers": [],
+        "delta_ms": 0.222400005441159,
+        "correct": true,
+        "receipt_sha256": "08e9a074f29ce4e683bcec104bde23126b89c52d9b127ff6fa6d3405d2bce5d4"
+      },
+      {
+        "id": "delta02",
+        "file": "delta.py",
+        "target": "beta",
+        "truth": [
+          "delta:delta"
+        ],
+        "callers": [
+          "delta:delta"
+        ],
+        "delta_ms": 0.17529999604448676,
+        "correct": true,
+        "receipt_sha256": "9ad37130890d0796d7b3e987926ddb8a661010bce956e641f763fb895ae42956"
+      }
+    ]
+  },
+  "context_compression_ratio": 563.5088490711223,
   "composite": {
     "ingested": 200.0,
     "tau_composite": 0.9799999999999989,
@@ -136,6 +324,172 @@
       "baseline_hallucinated": 2,
       "mcp_refused": 2,
       "total": 2
+    },
+    "depth2_rotor_planning": {
+      "baseline_correct": 4,
+      "mcp_correct": 4,
+      "total": 4,
+      "rows": [
+        {
+          "id": "plan01",
+          "layout": 0,
+          "truth": 1,
+          "answer": 1,
+          "reactive": 1,
+          "depth1": 1,
+          "unmasked_depth2": 1,
+          "trap": false,
+          "strong_trap": false,
+          "correct": true,
+          "receipt_sha256": "5ae3907970e2413ef924715ef376b33e117f6ad84798fe887a4e6c897204aaa3"
+        },
+        {
+          "id": "plan02",
+          "layout": 0,
+          "truth": 1,
+          "answer": 1,
+          "reactive": 1,
+          "depth1": 1,
+          "unmasked_depth2": 1,
+          "trap": false,
+          "strong_trap": false,
+          "correct": true,
+          "receipt_sha256": "b01a5f1676e1b35afee846aeafb162aa82b50b9bee9cfb581c145f2fd7c707e8"
+        },
+        {
+          "id": "plan03",
+          "layout": 0,
+          "truth": 0,
+          "answer": 0,
+          "reactive": 0,
+          "depth1": 0,
+          "unmasked_depth2": 0,
+          "trap": false,
+          "strong_trap": false,
+          "correct": true,
+          "receipt_sha256": "12e0303c3bd88f8a4ffb4c3cd0443b87fe8b6fbb779a66b13c27926096eb84cd"
+        },
+        {
+          "id": "plan04",
+          "layout": 0,
+          "truth": 0,
+          "answer": 0,
+          "reactive": 0,
+          "depth1": 0,
+          "unmasked_depth2": 0,
+          "trap": false,
+          "strong_trap": false,
+          "correct": true,
+          "receipt_sha256": "607479bbdb7150d29be9d080817fad00078521129b350a6894dd9c9efd17f77d"
+        }
+      ]
+    },
+    "ontology_verification": {
+      "baseline_correct": 0,
+      "mcp_correct": 4,
+      "total": 4,
+      "rows": [
+        {
+          "id": "verify01",
+          "claim": "The medium profile has 1,020,380 parameters and reaches 0.7083 closed-loop action.",
+          "expect": true,
+          "supported": true,
+          "status": "supported",
+          "reason": "all rare terms and all quantities present in evidence",
+          "correct": true,
+          "receipt_sha256": "4a6a6058d3d1825fdbd596e39b15aac798e11d55703095878f04ef2314bc8106"
+        },
+        {
+          "id": "verify02",
+          "claim": "The vision accuracy (test) is 0.9798 against a 0.9750 bar.",
+          "expect": true,
+          "supported": true,
+          "status": "supported",
+          "reason": "all rare terms and all quantities present in evidence",
+          "correct": true,
+          "receipt_sha256": "10b87c92e5d3a06d9406600f8893496d9302825d8b1a7861b21966f02f84ee76"
+        },
+        {
+          "id": "verify03",
+          "claim": "The medium profile has 1,020,381 parameters and reaches 0.7083 closed-loop action.",
+          "expect": false,
+          "supported": false,
+          "status": "contradicted",
+          "reason": "quantity 1020381 is stated differently in the evidence",
+          "correct": true,
+          "receipt_sha256": "5760612b5c45a3f94a0b6ad095b932f78ab10d703f987f0d7ae532eb4bdde095"
+        },
+        {
+          "id": "verify04",
+          "claim": "Calling ZoneCMemory.query with keyword argument widget returns the stored wave.",
+          "expect": false,
+          "supported": false,
+          "status": "unsupported",
+          "reason": "signature: ZoneCMemory.query does not accept keyword 'widget'; declared parameters are ['self', 'wave', 'k', 'avoid_ids', 'candidate_multiplier', 'task', 'names",
+          "correct": true,
+          "receipt_sha256": "ffbd980279f991a5215a92353f9b8ff879fb183015d470bb3d39855f47241056"
+        }
+      ]
+    },
+    "multi_plan_synthesis": {
+      "baseline_correct": 0,
+      "mcp_correct": 2,
+      "total": 2,
+      "rows": [
+        {
+          "id": "synth01",
+          "plan": "core08+shift11",
+          "composed": true,
+          "verified": true,
+          "executed": true,
+          "reason": "",
+          "source": "def distinct_caller_count(links):\n    tokens_out = sorted({edge.source for edge in links})\n    return int(len(tokens_out))\n",
+          "correct": true,
+          "receipt_sha256": "4e6ad76d71a8238191d3cc6442266a0bd3348f38789d0329e79e3eb31c5212c9"
+        },
+        {
+          "id": "synth02",
+          "plan": "core10+core11",
+          "composed": true,
+          "verified": true,
+          "executed": true,
+          "reason": "",
+          "source": "def bounded_mean(sample):\n    value_out = float(sum(sample) / max(len(sample), 1))\n    return max(0.0, min(2.5, float(value_out)))\n",
+          "correct": true,
+          "receipt_sha256": "afe93ed7c31038ff25d95034fce9b40ec00c33453a44dfd0fa7db3177cbb4b23"
+        }
+      ]
+    },
+    "delta_blast_radius": {
+      "baseline_correct": 0,
+      "mcp_correct": 2,
+      "total": 2,
+      "rows": [
+        {
+          "id": "delta01",
+          "file": "alpha.py",
+          "target": "beta",
+          "truth": [],
+          "callers": [],
+          "delta_ms": 0.222400005441159,
+          "correct": true,
+          "receipt_sha256": "08e9a074f29ce4e683bcec104bde23126b89c52d9b127ff6fa6d3405d2bce5d4"
+        },
+        {
+          "id": "delta02",
+          "file": "delta.py",
+          "target": "beta",
+          "truth": [
+            "delta:delta"
+          ],
+          "callers": [
+            "delta:delta"
+          ],
+          "delta_ms": 0.17529999604448676,
+          "correct": true,
+          "receipt_sha256": "9ad37130890d0796d7b3e987926ddb8a661010bce956e641f763fb895ae42956"
+        }
+      ]
     }
   },
   "gate": {
@@ -149,6 +503,12 @@
     "impact_mcp_at_least_0_98": true,
     "impact_traps_refused": true,
     "impact_queries_present": true,
+    "queries_64": true,
+    "receipt_chain_64": true,
+    "planning_mcp_perfect": true,
+    "verification_mcp_perfect": true,
+    "synthesis_multiplan_verified": true,
+    "delta_blast_radius_perfect": true,
     "passed": true
   },
   "evidence": "OBSERVED"

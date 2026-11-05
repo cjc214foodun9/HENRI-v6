@@ -747,6 +747,8 @@ class IndexReport:
     seconds: float = 0.0
     boundary_engrams: int = 0
     modules: List[str] = field(default_factory=list)
+    updated: str = ""
+    delta: bool = False
 
     def as_dict(self) -> Dict[str, float]:
         return {
@@ -760,6 +762,7 @@ class IndexReport:
             "seconds": float(self.seconds),
             "boundary_engrams": float(self.boundary_engrams),
             "modules": float(len(self.modules)),
+            "delta": float(1.0 if self.delta else 0.0),
         }
 
 
@@ -797,17 +800,194 @@ class CodeGraphIndexer:
         self.report = IndexReport()
         self.root = ""
         self.package = "henri"
+        # Directive H4: per-module records are what makes a single-file
+        # delta possible without re-parsing the package.
+        self._modules: Dict[str, Dict[str, object]] = {}
+        self._module_defs: Dict[str, set] = {}
+        self._module_edges: Dict[str, List[Edge]] = {}
 
     # ----------------------------------------------------------------- index
+    def _ingest_module(self, module: str, text: str, tree) -> Dict[str, object]:
+        """Parse ONE module into the record the rebuild needs.
+
+        Directive H4. The full-index pass and the single-file delta share
+        this function, so a delta cannot disagree with a full re-index: the
+        same walk order, the same signature order, the same call order.
+        """
+        nodes: List[str] = []
+        module_defs: Dict[str, str] = {}
+        calls: List[Tuple[str, str]] = []
+        transitions: Dict[Tuple[str, str, str], int] = {}
+        signatures: List[FunctionSignature] = []
+        classes: Dict[str, List[str]] = {}
+
+        def record(node) -> None:
+            # Grammar transitions: the same (parent, field, child) triples
+            # _collect_transitions counts, folded into the one walk so a
+            # delta does not traverse the module three times.
+            for field_name, value in ast.iter_fields(node):
+                children = value if isinstance(value, list) else [value]
+                for child in children:
+                    if isinstance(child, ast.AST):
+                        key = (type(node).__name__, str(field_name), type(child).__name__)
+                        transitions[key] = transitions.get(key, 0) + 1
+
+        def walk(node, enclosing: str) -> None:
+            record(node)
+            for child in ast.iter_child_nodes(node):
+                if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                    qual = f"{module}:{child.name}"
+                    module_defs.setdefault(child.name, qual)
+                    nodes.append(qual)
+                    if isinstance(child, ast.ClassDef):
+                        classes[child.name] = [
+                            item.name
+                            for item in child.body
+                            if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef))
+                        ]
+                    else:
+                        signatures.append(_signature(child, module))
+                    walk(child, qual)
+                else:
+                    if isinstance(child, ast.Call):
+                        name = _callee_name(child)
+                        if name:
+                            calls.append((enclosing, name))
+                    walk(child, enclosing)
+
+        walk(tree, module)
+        return {
+            "nodes": nodes,
+            "defs": module_defs,
+            "calls": calls,
+            "transitions": transitions,
+            "signatures": signatures,
+            "classes": classes,
+            "lines": int(text.count(chr(10))) + 1,
+        }
+
+    def _resolve_module(
+        self, module: str, local_defs: Dict[str, str], definitions: Dict[str, str]
+    ) -> List[Edge]:
+        """Resolve one module's calls against the current definition tables."""
+        edges: List[Edge] = []
+        seen: set = set()
+        for caller, callee in self._modules[module]["calls"]:
+            target = local_defs.get(callee) or definitions.get(callee)
+            if not target or target == caller:
+                continue
+            key = (caller, target)
+            if key in seen:
+                continue
+            seen.add(key)
+            edges.append(Edge(caller, "CALLS", target))
+        return edges
+
+    def _rebuild(self, changed: Optional[str] = None) -> None:
+        """Recompute the graph, signatures, classes and reverse map from records.
+
+        Directive H4: when one module changed, only the modules whose
+        resolution can actually move are re-resolved - the changed module
+        itself and every module that calls a name the change added or
+        removed. Everything else keeps its cached edge list, which is why a
+        single-file delta costs a dictionary pass and not a graph pass.
+        """
+        modules = sorted(self._modules)
+        graph = CallGraph(root=str(self.root))
+        definitions: Dict[str, str] = {}
+        local: Dict[str, Dict[str, str]] = {}
+        for module in modules:
+            record = self._modules[module]
+            graph.nodes.extend(str(node) for node in record["nodes"])
+            for name, qual in dict(record["defs"]).items():
+                definitions.setdefault(str(name), str(qual))
+            local[module] = dict(record["defs"])
+        previous_defs = {key: set(value) for key, value in self._module_defs.items()}
+        for module in list(self._module_defs):
+            if module not in self._modules:
+                self._module_defs.pop(module, None)
+                self._module_edges.pop(module, None)
+        changed_names: set = set()
+        if changed is not None:
+            fresh = set(self._modules[changed]["defs"]) if changed in self._modules else set()
+            changed_names = fresh ^ set(previous_defs.get(changed, set()))
+        for module in modules:
+            self._module_defs[module] = set(self._modules[module]["defs"])
+        edges: List[Edge] = []
+        for module in modules:
+            cached = self._module_edges.get(module)
+            recalc = (
+                changed is None
+                or module == changed
+                or cached is None
+            )
+            if not recalc and changed_names:
+                callees = {callee for _caller, callee in self._modules[module]["calls"]}
+                recalc = bool(callees & changed_names)
+            if recalc:
+                cached = self._resolve_module(module, local[module], definitions)
+                self._module_edges[module] = cached
+            edges.extend(cached)
+        graph.edges = edges
+        # The original index removed one occurrence per name that never
+        # appears as a source, and kept any duplicate occurrence. Preserve
+        # that exact rule so a delta result is list-identical.
+        sources = {edge.source for edge in edges}
+        kept: List[str] = []
+        removed: set = set()
+        for name in graph.nodes:
+            if name not in sources and name not in removed:
+                removed.add(name)
+                continue
+            kept.append(name)
+        graph.nodes = kept
+        signatures: Dict[str, FunctionSignature] = {}
+        classes: Dict[str, List[str]] = {}
+        transitions: Dict[Tuple[str, str, str], int] = {}
+        for module in modules:
+            record = self._modules[module]
+            for signature in record["signatures"]:
+                signatures.setdefault(f"{module}:{signature.name}", signature)
+                signatures.setdefault(signature.name, signature)
+            classes.update(dict(record["classes"]))
+            for key, count in dict(record["transitions"]).items():
+                transitions[key] = transitions.get(key, 0) + int(count)
+        reverse: Dict[str, List[str]] = {}
+        for edge in edges:
+            # Directive F4: a caller may name the target by its qualified
+            # path, by its bare function name, or by Class.method. Index all
+            # three so the blast-radius query answers whichever the caller
+            # wrote, without a fuzzy match.
+            for alias in _aliases(edge.target):
+                reverse.setdefault(alias, []).append(edge.source)
+        self.graph = graph
+        self.signatures = signatures
+        self.classes = classes
+        self.transitions = transitions
+        self.reverse = {key: sorted(set(value)) for key, value in reverse.items()}
+        self._nodes = {str(node) for node in graph.nodes}
+
+    def _report(self, seconds: float, updated: str = "", delta: bool = False) -> IndexReport:
+        return IndexReport(
+            files=len(self._modules),
+            lines=int(sum(int(record["lines"]) for record in self._modules.values())),
+            nodes=len(self.graph.nodes),
+            edges=len(self.graph.edges),
+            signatures=len({id(value) for value in self.signatures.values()}),
+            transitions=len(self.transitions),
+            classes=len(self.classes),
+            seconds=float(seconds),
+            modules=sorted(self._modules),
+            updated=str(updated),
+            delta=bool(delta),
+        )
+
     def index(self, root: str | Path, package: str = "henri") -> IndexReport:
         started = time.perf_counter()
         root = Path(root)
-        graph = index_code(root, package=package)
-        self.graph = graph
-        signatures: Dict[str, FunctionSignature] = {}
-        transitions: Dict[Tuple[str, str, str], int] = {}
-        classes: Dict[str, List[str]] = {}
-        modules: List[str] = []
+        self.root = str(root)
+        self.package = str(package)
+        self._modules = {}
         for path in sorted(root.rglob("*.py")):
             if "__pycache__" in path.parts:
                 continue
@@ -817,45 +997,68 @@ class CodeGraphIndexer:
             except (OSError, SyntaxError):
                 continue
             module = ".".join(path.relative_to(root).with_suffix("").parts)
-            modules.append(module)
-            _collect_transitions(tree, transitions)
-            for node in ast.walk(tree):
-                if isinstance(node, ast.ClassDef):
-                    classes[node.name] = [
-                        child.name
-                        for child in node.body
-                        if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef))
-                    ]
-                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                    signature = _signature(node, module)
-                    signatures.setdefault(f"{module}:{node.name}", signature)
-                    signatures.setdefault(node.name, signature)
-        self.signatures = signatures
-        self.transitions = transitions
-        self.classes = classes
-        reverse: Dict[str, List[str]] = {}
-        for edge in graph.edges:
-            # Directive F4: a caller may name the target by its qualified
-            # path, by its bare function name, or by Class.method. Index all
-            # three so the blast-radius query answers whichever the caller
-            # wrote, without a fuzzy match.
-            for alias in _aliases(edge.target):
-                reverse.setdefault(alias, []).append(edge.source)
-        self.reverse = {key: sorted(set(value)) for key, value in reverse.items()}
-        self._nodes = {str(node) for node in graph.nodes}
-        self.report = IndexReport(
-            files=graph.files,
-            lines=graph.lines,
-            nodes=len(graph.nodes),
-            edges=len(graph.edges),
-            signatures=len({id(value) for value in signatures.values()}),
-            transitions=len(transitions),
-            classes=len(classes),
-            seconds=float(time.perf_counter() - started),
-            modules=modules,
-        )
+            self._modules[module] = self._ingest_module(module, text, tree)
+        self._module_defs = {}
+        self._module_edges = {}
+        self._rebuild()
+        self.report = self._report(time.perf_counter() - started)
         if self.memory is not None:
             self.report.boundary_engrams = self.write_boundary_engrams()
+            self.persist()
+        return self.report
+
+    def update_file(
+        self,
+        root: str | Path,
+        file_path: str | Path,
+        source_text: Optional[str] = None,
+    ) -> IndexReport:
+        """Incremental single-file delta index (Directive H4).
+
+        Only the named module is parsed. Its previous call edges,
+        signatures, class members, grammar transitions and reverse-call
+        entries are purged, the new record is folded in, and the graph is
+        rebuilt from the cached per-module records - a pass over integers,
+        not a pass over source. A full re-index and this delta therefore
+        produce the same graph by construction, and a test asserts it.
+        """
+        started = time.perf_counter()
+        root = Path(root) if str(root or "").strip() else Path(self.root or ".")
+        if not str(self.root):
+            self.root = str(root)
+        path = Path(file_path)
+        if not path.is_absolute():
+            path = root / path
+        try:
+            relative = path.relative_to(root)
+        except ValueError:
+            relative = Path(path.name)
+        module = ".".join(relative.with_suffix("").parts)
+        if not self._modules and self.graph.nodes:
+            # A restored index carries the graph but not the per-module
+            # records the delta needs. Re-index instead of pretending.
+            report = self.index(root, package=self.package)
+            report.delta = True
+            report.updated = module
+            return report
+        if source_text is None and not path.exists():
+            self._modules.pop(module, None)
+        else:
+            text = (
+                str(source_text)
+                if source_text is not None
+                else path.read_text(encoding="utf-8", errors="ignore")
+            )
+            try:
+                tree = ast.parse(text)
+            except SyntaxError as error:
+                raise ValueError(f"cannot index {module}: {error.msg} at line {error.lineno}")
+            self._modules[module] = self._ingest_module(module, text, tree)
+        self._rebuild(changed=module)
+        self.report = self._report(
+            time.perf_counter() - started, updated=module, delta=True
+        )
+        if self.memory is not None:
             self.persist()
         return self.report
 
@@ -869,14 +1072,20 @@ class CodeGraphIndexer:
         putter = getattr(self.memory, "put_meta", None) if self.memory is not None else None
         if putter is None:
             return False
+        # Directive H4: the payload carries the primary state only. The
+        # reverse map is a pure function of the edge list and the bare-name
+        # signature aliases are a pure function of the qualified ones, so
+        # both are rebuilt on load instead of being written twice. That
+        # halves the bytes a single-file delta must serialise.
         payload = {
             "root": str(self.root),
             "package": str(self.package),
             "nodes": sorted(self._nodes),
             "edges": [[edge.source, edge.operator, edge.target] for edge in self.graph.edges],
-            "reverse": {key: list(value) for key, value in self.reverse.items()},
             "signatures": {
-                key: signature.as_dict() for key, signature in self.signatures.items()
+                key: signature.as_dict()
+                for key, signature in self.signatures.items()
+                if ":" in key
             },
             "transitions": [
                 [parent, field_name, child, int(count)]
@@ -911,12 +1120,21 @@ class CodeGraphIndexer:
         ]
         indexer.graph = graph
         indexer._nodes = set(graph.nodes)
-        indexer.reverse = {
-            str(key): [str(value) for value in values]
-            for key, values in payload.get("reverse", {}).items()
-        }
-        indexer.signatures = {
-            str(key): FunctionSignature(
+        stored_reverse = payload.get("reverse")
+        if stored_reverse is None:
+            rebuilt: Dict[str, List[str]] = {}
+            for edge in graph.edges:
+                for alias in _aliases(edge.target):
+                    rebuilt.setdefault(alias, []).append(edge.source)
+            indexer.reverse = {key: sorted(set(value)) for key, value in rebuilt.items()}
+        else:
+            indexer.reverse = {
+                str(key): [str(value) for value in values]
+                for key, values in stored_reverse.items()
+            }
+        signatures: Dict[str, FunctionSignature] = {}
+        for key, row in payload.get("signatures", {}).items():
+            signature = FunctionSignature(
                 qualname=str(row.get("qualname", key)),
                 name=str(row.get("name", str(key).split(":")[-1])),
                 args=tuple(str(name) for name in row.get("args", [])),
@@ -925,8 +1143,11 @@ class CodeGraphIndexer:
                 module=str(row.get("module", "")),
                 lineno=int(row.get("lineno", 0)),
             )
-            for key, row in payload.get("signatures", {}).items()
-        }
+            signatures.setdefault(str(key), signature)
+            # Rebuild the bare-name alias the writer no longer stores.
+            if ":" in str(key):
+                signatures.setdefault(signature.name, signature)
+        indexer.signatures = signatures
         indexer.transitions = {
             (str(row[0]), str(row[1]), str(row[2])): int(row[3])
             for row in payload.get("transitions", [])

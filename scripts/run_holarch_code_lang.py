@@ -207,7 +207,7 @@ TRUE_CLAIMS = [
     "Zone C retrieval reaches 1.000 exact recovery across M = 72 multi-hop transitions and M = 200 composite arithmetic rules.",
     "The context compression ratio is 455.8x with 0 query-time file reads.",
     "The medium profile trains in 0.7914 GiB with 8.02 ms forward and 8.68 ms backward.",
-    "The checkpoint holarch_medium.pt has 1,020,380 parameters and 59896acefed669ffee19aa2fb59dd22df5f633c6f353c27cef95d7ccd484c3e8 as its digest.",
+    "The checkpoint holarch_medium.pt has 1,020,380 parameters and fe905fd0a41789678c3edbdef63e9926e362416bb90f6ed0ca773c0b1f61737e as its digest.",
     "The sidecar records 44 valid receipts and 3 of 3 perceptual truth matches.",
     "The relational accuracy (test) is 0.7746 against a 0.7600 bar.",
     "The vision accuracy (test) is 0.9798 against a 0.9750 bar.",

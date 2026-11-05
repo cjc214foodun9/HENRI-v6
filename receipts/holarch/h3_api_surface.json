@@ -1,0 +1,346 @@
+{
+  "stage": "H3",
+  "checkpoint": {
+    "path": "receipts\\holarch\\holarch_medium.pt",
+    "sha256": "fe905fd0a41789678c3edbdef63e9926e362416bb90f6ed0ca773c0b1f61737e",
+    "bytes": 5242630,
+    "parameters": 1020380,
+    "refit_during_seal": false,
+    "rotor_state": {
+      "dim": 1024,
+      "n_actions": 4,
+      "grid": 16,
+      "fitted": true,
+      "counts": [
+        42,
+        57,
+        57,
+        41
+      ]
+    },
+    "receipt_json": "receipts\\holarch\\holarch_medium.json",
+    "receipt_json_sha256": "376091b341759b181c06c5d93f5ef88abba8b0a3f098a7a774a681b8bd8cc88a"
+  },
+  "arms": {
+    "rotor_depth2": {
+      "success_rate": 0.8125,
+      "wins": 39,
+      "mean_steps_to_goal": 6.0256410256410255,
+      "transition": "rotor",
+      "lookahead_depth": 2
+    },
+    "rotor_depth1": {
+      "success_rate": 0.7708333333333334,
+      "wins": 37,
+      "mean_steps_to_goal": 5.621621621621622,
+      "transition": "rotor",
+      "lookahead_depth": 1
+    },
+    "shift_depth1": {
+      "success_rate": 0.7083333333333334,
+      "wins": 34,
+      "mean_steps_to_goal": 5.294117647058823,
+      "transition": "shift",
+      "lookahead_depth": 1
+    },
+    "rotor_depth2_unmasked": {
+      "success_rate": 0.7708333333333334,
+      "wins": 37,
+      "mean_steps_to_goal": 5.891891891891892,
+      "transition": "rotor",
+      "lookahead_depth": 2
+    }
+  },
+  "rotor": {
+    "fit": {
+      "dim": 1024,
+      "n_actions": 4,
+      "grid": 16,
+      "fitted": true,
+      "counts": [
+        42,
+        57,
+        57,
+        41
+      ]
+    },
+    "held_out": {}
+  },
+  "replay_without_refit": {
+    "success_rate": 0.8125,
+    "wins": 39,
+    "rotor_fitted": true,
+    "rotor_counts": [
+      42,
+      57,
+      57,
+      41
+    ],
+    "metadata_rotor": {
+      "dim": 1024,
+      "n_actions": 4,
+      "grid": 16,
+      "fitted": true,
+      "counts": [
+        42,
+        57,
+        57,
+        41
+      ]
+    }
+  },
+  "rest": {
+    "plan": {
+      "action": 1,
+      "action_name": "down",
+      "scores": [
+        -0.8318822383880615,
+        1.844611406326294,
+        -0.19357314705848694,
+        -0.8191558122634888
+      ],
+      "alignment": [
+        0.01386442594230175,
+        0.06549996882677078,
+        0.06578406691551208,
+        0.01396260503679514
+      ],
+      "penalty": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lookahead": [
+        0.027424447238445282,
+        0.12954631447792053,
+        0.12954631447792053,
+        0.02750270441174507
+      ],
+      "legal_mask": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "transition": "rotor",
+      "lookahead_depth": 2,
+      "gamma_look": 0.02,
+      "history_waves": 0,
+      "namespace": "h3"
+    },
+    "plan_receipt_valid": true,
+    "verify_true": {
+      "status": "supported",
+      "reason": "all rare terms and all quantities present in evidence",
+      "confidence": 1.0,
+      "passages": [
+        "797d9d643f6ad6f65d44faa599c4dff0f5cf9f4cf7a300f08773400790f351d6",
+        "5bd476ac8a73c9b3e0bc94dce5005040d7feda25518fad43f26ae9d2df8acc10",
+        "c15e57868a39432822d5de4cf4a59a892f091f1554148b54b6976256619c2e7f",
+        "66678154b25d0119808333f27ad06326433e0b640ccee8bfe9123cb5ee9122fd",
+        "476de59dceae515ba1ab4476411d4d76224faf95f92f78ca61b7ba270cceec2b"
+      ],
+      "missing_terms": [],
+      "missing_numbers": [],
+      "found_numbers": [
+        "1020380",
+        "0.7083"
+      ],
+      "signature_rule": "",
+      "evidence_chars": 976,
+      "supported": true,
+      "claim": "The medium profile has 1,020,380 parameters and reaches 0.7083 closed-loop action.",
+      "kind": "text",
+      "namespace": "default",
+      "corpus_digest": "f9abdc6221b2edf8"
+    },
+    "verify_corrupted": {
+      "status": "contradicted",
+      "reason": "quantity 1020381 is stated differently in the evidence",
+      "confidence": 0.0,
+      "passages": [
+        "5bd476ac8a73c9b3e0bc94dce5005040d7feda25518fad43f26ae9d2df8acc10",
+        "c15e57868a39432822d5de4cf4a59a892f091f1554148b54b6976256619c2e7f",
+        "66678154b25d0119808333f27ad06326433e0b640ccee8bfe9123cb5ee9122fd",
+        "7fc71b2d123bdeea6f5ab9ce6a8bd0de3c30f4fd0cbc4fdce11e2df54847e1e9"
+      ],
+      "missing_terms": [],
+      "missing_numbers": [
+        "1020381"
+      ],
+      "found_numbers": [],
+      "signature_rule": "",
+      "evidence_chars": 796,
+      "supported": false,
+      "claim": "The medium profile has 1,020,381 parameters.",
+      "kind": "text",
+      "namespace": "default",
+      "corpus_digest": "f9abdc6221b2edf8"
+    },
+    "verify_code": {
+      "status": "supported",
+      "supported": true,
+      "reason": "ast.parse and compile succeeded; every callee is indexed",
+      "confidence": 1.0,
+      "passages": [],
+      "missing_terms": [],
+      "missing_numbers": [],
+      "kind": "code",
+      "claim": "def merge_waves(left, right):\n    return left + right",
+      "namespace": "default"
+    },
+    "verify_fake_signature": {
+      "status": "unsupported",
+      "supported": false,
+      "reason": "callee(s) absent from the code index: ['quantum_entangle']",
+      "confidence": 0.0,
+      "passages": [],
+      "missing_terms": [
+        "quantum_entangle"
+      ],
+      "missing_numbers": [],
+      "kind": "code",
+      "claim": "def fake_call():\n    return ZoneCMemory.quantum_entangle(1)",
+      "namespace": "default"
+    }
+  },
+  "mcp": {
+    "plan": {
+      "action": 1,
+      "action_name": "down",
+      "scores": [
+        -0.8799930810928345,
+        1.8447270393371582,
+        -0.15160837769508362,
+        -0.813125491142273
+      ],
+      "alignment": [
+        0.01386442594230175,
+        0.06549996882677078,
+        0.06578406691551208,
+        0.01396260503679514
+      ],
+      "penalty": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lookahead": [
+        0.027424447238445282,
+        0.12954631447792053,
+        0.12954631447792053,
+        0.02750270441174507
+      ],
+      "legal_mask": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "transition": "rotor",
+      "lookahead_depth": 2,
+      "gamma_look": 0.02,
+      "history_waves": 0,
+      "namespace": "h3"
+    },
+    "verify": {
+      "status": "supported",
+      "reason": "all rare terms and all quantities present in evidence",
+      "confidence": 1.0,
+      "passages": [
+        "797d9d643f6ad6f65d44faa599c4dff0f5cf9f4cf7a300f08773400790f351d6",
+        "5bd476ac8a73c9b3e0bc94dce5005040d7feda25518fad43f26ae9d2df8acc10",
+        "c15e57868a39432822d5de4cf4a59a892f091f1554148b54b6976256619c2e7f",
+        "66678154b25d0119808333f27ad06326433e0b640ccee8bfe9123cb5ee9122fd",
+        "476de59dceae515ba1ab4476411d4d76224faf95f92f78ca61b7ba270cceec2b"
+      ],
+      "missing_terms": [],
+      "missing_numbers": [],
+      "found_numbers": [
+        "1020380",
+        "0.7083"
+      ],
+      "signature_rule": "",
+      "evidence_chars": 976,
+      "supported": true,
+      "claim": "The medium profile has 1,020,380 parameters and reaches 0.7083 closed-loop action.",
+      "kind": "text",
+      "namespace": "default",
+      "corpus_digest": "f9abdc6221b2edf8"
+    },
+    "plan_receipt_valid": true,
+    "verify_receipt_valid": true
+  },
+  "health": {
+    "status": "ok",
+    "config_digest": "ef06b94f9326e40a",
+    "parameters": 1020380.0,
+    "receipts": 7.0,
+    "chain_head": "b8358f49870d09e90f8bd87f8448a0d35a2cd7af40d6d2fccc236d7db68469d6",
+    "chain_valid": true,
+    "checkpoint": {
+      "mounted": true,
+      "path": "C:\\Users\\chan\\Desktop\\HENRI v6\\receipts\\holarch\\holarch_medium.pt",
+      "sha256": "fe905fd0a41789678c3edbdef63e9926e362416bb90f6ed0ca773c0b1f61737e",
+      "name": "holarch_medium",
+      "parameters": 1020380,
+      "config_digest": "ef06b94f9326e40a",
+      "created_utc": "2026-11-04T20:43:40Z",
+      "prototypes": {
+        "vision": {
+          "prototypes": 10.0,
+          "prototype_beta": 4.396588278841839,
+          "prototype_beta_calibrated": 0.0,
+          "prototype_beta_star_refused": 26.1
+        },
+        "language": {
+          "prototypes": 45.0,
+          "prototype_beta": 24.26012382958556,
+          "prototype_beta_calibrated": 0.0,
+          "prototype_beta_star_refused": 26.1
+        },
+        "action": {
+          "prototypes": 4.0,
+          "prototype_beta": 9.139434227985282,
+          "prototype_beta_calibrated": 0.0,
+          "prototype_beta_star_refused": 26.1
+        },
+        "relational": {
+          "prototypes": 8.0,
+          "prototype_beta": 24.26645751815495,
+          "prototype_beta_calibrated": 0.0,
+          "prototype_beta_star_refused": 26.1
+        }
+      }
+    },
+    "rotor": {
+      "dim": 1024,
+      "n_actions": 4,
+      "grid": 16,
+      "fitted": true,
+      "counts": [
+        42,
+        57,
+        57,
+        41
+      ]
+    }
+  },
+  "gate": {
+    "rotor_restored_from_checkpoint": true,
+    "rotor_used_without_refit": true,
+    "closed_loop_0_8125": true,
+    "replay_matches": true,
+    "rest_plan_receipt_valid": true,
+    "rest_verify_contract": true,
+    "mcp_matches_rest": true,
+    "receipt_chain_valid": true,
+    "health_reports_rotor": true,
+    "json_records_action_success": true,
+    "passed": true
+  },
+  "wall_seconds": 258.6573791000119,
+  "evidence": "OBSERVED"
+}

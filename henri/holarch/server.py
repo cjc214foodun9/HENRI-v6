@@ -290,18 +290,83 @@ class SidecarService:
             return self._envelope("/v1/holarch/veto", request, result)
 
     def ingest_code(
-        self, root: str, package: str = "henri", namespace: str = "default", mode: str = "edges"
+        self,
+        root: str,
+        package: str = "henri",
+        namespace: str = "default",
+        mode: str = "edges",
+        file_path: Optional[str] = None,
+        source_text: Optional[str] = None,
     ) -> Dict[str, Any]:
         request = {
             "root": str(root),
             "package": str(package),
             "namespace": str(namespace),
             "mode": str(mode),
+            "file_path": None if file_path is None else str(file_path),
+            "source_bytes": 0 if source_text is None else len(str(source_text).encode("utf-8")),
         }
         with self.lock:
-            result = self.sidecar.ingest_code(root, package=package, namespace=str(namespace))
+            result = self.sidecar.ingest_code(
+                root,
+                package=package,
+                namespace=str(namespace),
+                mode=str(mode),
+                file_path=file_path,
+                source_text=source_text,
+            )
             result["mode"] = str(mode)
             return self._envelope("/v1/holarch/ingest_code", request, result)
+
+    # ------------------------------------------------ planner + guard (H3)
+    def plan(
+        self,
+        observation: Any,
+        history_waves: Optional[Sequence[Any]] = None,
+        transition: str = "rotor",
+        lookahead_depth: int = 2,
+        gamma_look: float = 0.02,
+        namespace: str = "default",
+    ) -> Dict[str, Any]:
+        """Depth-2 wall-masked rotor planning over the mounted checkpoint."""
+        request = {
+            "observation": _clean(observation),
+            "history_waves": 0 if not history_waves else len(list(history_waves)),
+            "transition": str(transition),
+            "lookahead_depth": int(lookahead_depth),
+            "gamma_look": float(gamma_look),
+            "namespace": str(namespace),
+        }
+        with self.lock:
+            result = self.sidecar.plan(
+                observation,
+                history_waves=history_waves,
+                transition=str(transition),
+                lookahead_depth=int(lookahead_depth),
+                gamma_look=float(gamma_look),
+                namespace=str(namespace),
+            )
+            return self._envelope("/v1/holarch/plan", request, result)
+
+    def verify(
+        self,
+        claim: str,
+        kind: str = "text",
+        top_k: int = 4,
+        namespace: str = "default",
+    ) -> Dict[str, Any]:
+        """Ontology claim verification (text) or AST/signature checks (code)."""
+        request = {
+            "claim": str(claim),
+            "kind": str(kind),
+            "top_k": int(top_k),
+            "namespace": str(namespace),
+        }
+        with self.lock:
+            result = self.sidecar.verify_claim(
+                claim, kind=str(kind), top_k=int(top_k), namespace=str(namespace)
+            )
+            return self._envelope("/v1/holarch/verify", request, result)
 
     def ingest_edges(
         self, edges: Sequence[Dict[str, str]], namespace: str = "default"
@@ -552,6 +617,7 @@ class SidecarService:
 
     def health(self) -> Dict[str, Any]:
         with self.lock:
+            rotor = getattr(self.sidecar.model, "action_rotor", None)
             result = {
                 "status": "ok",
                 "config_digest": self.config_digest,
@@ -560,6 +626,9 @@ class SidecarService:
                 "chain_head": self.ledger.head(),
                 "chain_valid": bool(self.ledger.verify_chain()),
                 "checkpoint": dict(self.checkpoint_info),
+                "rotor": dict(getattr(rotor, "state", lambda: {})())
+                if rotor is not None
+                else None,
             }
             return self._envelope("/v1/holarch/health", {}, result)
 
@@ -587,6 +656,8 @@ class IngestCodeRequest(BaseModel):
     package: str = "henri"
     namespace: str = "default"
     mode: str = "edges"
+    file_path: Optional[str] = Field(None, description="delta mode: the one file to re-index")
+    source_text: Optional[str] = Field(None, description="delta mode: the new source text")
 
 
 class IngestEdgesRequest(BaseModel):
@@ -622,6 +693,24 @@ class SynthesizeRequest(BaseModel):
     kind: str = "code"
     namespace: str = "default"
     max_tokens: int = 320
+
+
+class PlanRequest(BaseModel):
+    observation: Any = Field(..., description="the 79-value sensor observation")
+    history_waves: Optional[List[Any]] = Field(
+        None, description="optional recent waves, 2*D interleaved or D real values each"
+    )
+    transition: str = "rotor"
+    lookahead_depth: int = 2
+    gamma_look: float = 0.02
+    namespace: str = "default"
+
+
+class VerifyRequest(BaseModel):
+    claim: str
+    kind: str = Field("text", description="text or code")
+    top_k: int = 4
+    namespace: str = "default"
 
 
 class CompositeRule(BaseModel):
@@ -668,8 +757,36 @@ def build_app(service: Optional[SidecarService] = None):
 
     @app.post("/v1/holarch/ingest_code")
     def ingest_code(request: IngestCodeRequest):
-        return get_service().ingest_code(
-            request.root, request.package, request.namespace, request.mode
+        try:
+            return get_service().ingest_code(
+                request.root,
+                request.package,
+                request.namespace,
+                request.mode,
+                request.file_path,
+                request.source_text,
+            )
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+
+    @app.post("/v1/holarch/plan")
+    def plan(request: PlanRequest):
+        try:
+            return get_service().plan(
+                request.observation,
+                request.history_waves,
+                request.transition,
+                request.lookahead_depth,
+                request.gamma_look,
+                request.namespace,
+            )
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+
+    @app.post("/v1/holarch/verify")
+    def verify(request: VerifyRequest):
+        return get_service().verify(
+            request.claim, request.kind, request.top_k, request.namespace
         )
 
     @app.post("/v1/holarch/ingest_edges")

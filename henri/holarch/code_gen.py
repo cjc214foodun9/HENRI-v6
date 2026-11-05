@@ -165,32 +165,86 @@ class CountLanguageModel:
                 out[token] += float(count)
         return out / out.sum()
 
-    def _order_distributions(self, context: Sequence[int]) -> List[Tuple[int, np.ndarray]]:
-        """(order index, distribution) for the orders this context supports."""
-        unigram = self.unigram / max(self.total, 1.0)
-        unigram = (unigram + self.floor) / (unigram + self.floor).sum()
-        pieces: List[Tuple[int, np.ndarray]] = [(0, unigram)]
+    def _order_counts(self, context: Sequence[int]) -> List[Tuple[int, Optional[Dict[int, int]]]]:
+        """(order index, exact count bucket) for the orders this context supports.
+
+        Directive H1. The bucket itself is returned, not only its normalised
+        distribution, because the gate needs the COUNT MASS at the highest
+        matched order: a single observation is a weaker claim of certainty
+        than twenty, and the wave term should be allowed to speak when the
+        top order rests on one event.
+        """
+        tables: List[Tuple[int, Optional[Dict[int, int]]]] = [(0, None)]
         if context:
             counts = self.bigram.get(int(context[-1]), {})
             if counts:
-                pieces.append((1, self._distribution(counts, 1.0)))
+                tables.append((1, counts))
         if len(context) >= 2:
             counts = self.trigram.get((int(context[-2]), int(context[-1])), {})
             if counts:
-                pieces.append((2, self._distribution(counts, 1.0)))
+                tables.append((2, counts))
         if len(context) >= 3:
             counts = self.quadgram.get(
                 (int(context[-3]), int(context[-2]), int(context[-1])), {}
             )
             if counts:
-                pieces.append((3, self._distribution(counts, 1.0)))
+                tables.append((3, counts))
         if len(context) >= 4:
             counts = self.quintgram.get(
                 (int(context[-4]), int(context[-3]), int(context[-2]), int(context[-1])), {}
             )
             if counts:
-                pieces.append((4, self._distribution(counts, 1.0)))
+                tables.append((4, counts))
+        return tables
+
+    def _order_distributions(self, context: Sequence[int]) -> List[Tuple[int, np.ndarray]]:
+        """(order index, distribution) for the orders this context supports."""
+        unigram = self.unigram / max(self.total, 1.0)
+        unigram = (unigram + self.floor) / (unigram + self.floor).sum()
+        pieces: List[Tuple[int, np.ndarray]] = []
+        for index, counts in self._order_counts(context):
+            if index == 0:
+                pieces.append((0, unigram))
+            elif counts:
+                pieces.append((index, self._distribution(counts, 1.0)))
         return pieces
+
+    def distribution(self, context: Sequence[int]) -> np.ndarray:
+        """The interpolated next-token probability the gate inspects (H1)."""
+        pieces = self._order_distributions(context)
+        total_weight = float(sum(self.weights[index] for index, _ in pieces))
+        if total_weight <= 0.0:
+            total_weight = 1.0
+        probability = np.zeros(self.vocab_size, dtype=np.float64)
+        for index, distribution in pieces:
+            probability += (float(self.weights[index]) / total_weight) * distribution
+        total = float(probability.sum())
+        if total <= 0.0:
+            return np.full(self.vocab_size, 1.0 / max(self.vocab_size, 1), dtype=np.float64)
+        return probability / total
+
+    def matched_order(self, context: Sequence[int]) -> Tuple[int, float]:
+        """Highest n-gram order with counts, and the count mass at that order.
+
+        m_max = 0 means no bigram was seen; m_max = 4 means the exact 5-gram
+        context is in the table. The mass is the number of times that suffix
+        was observed in total, so order 4 with mass 1 is still thin evidence.
+        """
+        tables = self._order_counts(context)
+        order, counts = tables[-1]
+        mass = float(self.total) if counts is None else float(sum(counts.values()))
+        return int(order), mass
+
+    def entropy(self, context: Sequence[int]) -> Tuple[float, float, int, float]:
+        """(Shannon entropy nats, top-1 probability, matched order, mass)."""
+        probability = self.distribution(context)
+        positive = probability[probability > 0.0]
+        value = 0.0
+        if positive.size:
+            value = float(-np.sum(positive * np.log(positive)))
+        top1 = float(probability.max()) if probability.size else 0.0
+        order, mass = self.matched_order(context)
+        return value, top1, int(order), float(mass)
 
     def log_probs(self, context: Sequence[int]) -> np.ndarray:
         """log P(next | context), interpolated over 4/3/2/1-grams.
@@ -544,6 +598,22 @@ class WaveCodeTextGenerator:
         self.beta_floor_loss = float("nan")
         self.beta_best_loss = float("nan")
         self.report: Optional[LMReport] = None
+        # Directive H1: the context-uncertainty gate. While beta_high is
+        # zero the blend is the Cycle G static beta_star, so a generator
+        # that never calibrates the gate is bit-identical to the old one.
+        self.beta_gate: Dict[str, float] = {
+            "beta_low": 0.0,
+            "beta_high": 0.0,
+            "tau_h": 0.0,
+            "tau_order": 3.0,
+        }
+        self.gate_report: Dict[str, object] = {}
+        # Directive H1, decision-preserving projection. The wave term is a
+        # smoothing prior, not a decision rule: after the blend the count
+        # floor's argmax is restored if the smoothing moved it. The
+        # probabilities still move (that is where the bits/char gain is),
+        # but the emitted token cannot disagree with a sharp count mode.
+        self.mode_guard = True
         # Directive G1.2 / G2: a rank-r delta-rule fast weight, written by
         # adapt() and READ by token_logits(). It is all zeros until the first
         # accepted correction, so a fresh generator is bit-identical to the
@@ -624,24 +694,86 @@ class WaveCodeTextGenerator:
             "lr": float(lr),
         }
 
-    def token_logits(self, context: Sequence[int]) -> np.ndarray:
-        """The D-Guard blend of the count floor and the wave head.
+    def _logit_parts(
+        self, context: Sequence[int]
+    ) -> Tuple[np.ndarray, np.ndarray, Optional[np.ndarray]]:
+        """(count log-probabilities, standardised wave score, fast weight).
 
-        The wave term is the multi-order holographic score (orders 1-4 plus
-        the skip-semantic window). The floor is the interpolated 4-gram. The
-        blend is additive with a standardised wave term, so beta = 0 is
-        exactly the floor and the D-Guard selection bound holds.
+        One computation feeds both the deployed blend and the joint
+        calibration, so a selected beta is measured on exactly the logits
+        the runtime evaluates.
         """
         context = [int(token) for token in context]
         base = self.count_lm.log_probs(context)
         base = base - np.logaddexp.reduce(base)
         wave = np.zeros(self.vocab_size, dtype=np.float32)
-        if self.beta_star > 0.0:
-            part = self.wave_scores(context[-self.WAVE_CONTEXT :])
-            if part is not None:
-                wave = self.beta_lang * part
-        logits = base + self.beta_star * wave
+        part = self.wave_scores(context[-self.WAVE_CONTEXT :])
+        if part is not None:
+            wave = (self.beta_lang * part).astype(np.float32)
         fast = self.fast_weight_logits(context)
+        return base.astype(np.float64), wave, fast
+
+    def context_certainty(self, context: Sequence[int]) -> Dict[str, float]:
+        """How sure the count floor is about this context (Directive H1).
+
+        entropy is the Shannon entropy of the interpolated count
+        distribution; top1 is its largest probability; order is the highest
+        n-gram order that matched; mass is the number of observations at
+        that order.
+        """
+        entropy, top1, order, mass = self.count_lm.entropy(context)
+        return {
+            "entropy": float(entropy),
+            "top1_probability": float(top1),
+            "matched_order": float(order),
+            "mass": float(mass),
+        }
+
+    def gate_active(self) -> bool:
+        return float(self.beta_gate.get("beta_high", 0.0) or 0.0) > 0.0
+
+    def beta_for(self, context: Sequence[int]) -> float:
+        """The context schedule beta(h_t): low on sharp modes, high on doubt.
+
+        A context is CERTAIN when the count floor matched at least
+        tau_order tokens of suffix AND its interpolated entropy is at most
+        tau_H. Then the unique mode is not blurred. Every other context -
+        a backoff, a flat distribution, a high-order match resting on one
+        observation - receives beta_high, which is where the Bochner bank
+        actually lowers cross-entropy.
+        """
+        if not self.gate_active():
+            return float(self.beta_star)
+        stats = self.context_certainty(context)
+        certain = (
+            stats["matched_order"] >= float(self.beta_gate.get("tau_order", 3.0))
+            and stats["entropy"] <= float(self.beta_gate.get("tau_h", 0.0))
+        )
+        return float(self.beta_gate["beta_low"] if certain else self.beta_gate["beta_high"])
+
+    def token_logits(self, context: Sequence[int]) -> np.ndarray:
+        """The D-Guard blend of the count floor and the wave head.
+
+        The wave term is the multi-order holographic score (orders 1-4 plus
+        the skip-semantic window). The floor is the interpolated 5-gram. The
+        blend is additive with a standardised wave term, so beta = 0 is
+        exactly the floor and the D-Guard selection bound holds.
+
+        Directive H1: beta is now a function of the context. A calibrated
+        gate (beta_high > 0) keeps the count mode unblurred where the floor
+        is already certain and applies the wave weight only where it is not.
+        """
+        context = [int(token) for token in context]
+        base, wave, fast = self._logit_parts(context)
+        beta = self.beta_for(context) if self.gate_active() else float(self.beta_star)
+        logits = base + float(beta) * wave
+        if self.mode_guard and float(beta) > 0.0:
+            # Decision-preserving projection: if the smoothing would change
+            # the count floor's decision, the floor keeps it. The rest of
+            # the distribution is untouched, so the likelihood gain stands.
+            floor_mode = int(np.argmax(base))
+            if int(np.argmax(logits)) != floor_mode:
+                logits[floor_mode] = float(np.max(logits)) + 1e-4
         if fast is not None:
             logits = logits + self.fast_gain * fast
         return logits.astype(np.float64)
@@ -653,46 +785,201 @@ class WaveCodeTextGenerator:
         context: int = WAVE_CONTEXT,
         samples: int = 2000,
         tolerance: float = 1e-6,
+        joint: bool = False,
+        beta_low_grid: Sequence[float] = (0.0, 0.01),
+        beta_high_grid: Sequence[float] = (0.0, 0.02, 0.05, 0.08, 0.12),
+        tau_grid: Sequence[float] = (0.75, 1.0, 1.25, 1.5, 2.0, 3.0),
+        order_grid: Sequence[int] = (3, 4),
+        top1_margin: float = 0.0,
+        mode_guard: Optional[bool] = None,
     ) -> float:
-        """D-Guard: pick beta* that minimises validation loss.
+        """D-Guard: pick the wave weight that minimises validation loss.
 
         The grid contains 0.0, so the coupled system is provably no worse
         than the count floor it is added to. Directive G1: with the
         multi-order bank the selector now has something to admit.
+
+        Directive H1 (joint=True): the selector now chooses the triple
+        (beta_low, beta_high, tau_H) - a weight for certain contexts and a
+        weight for uncertain ones - under the joint constraint that
+        validation cross-entropy strictly falls AND validation top-1 does
+        not fall. A grid point that buys likelihood with accuracy is not
+        eligible, whatever its loss. The arithmetic is vectorised: every
+        sample's count logits and standardised wave score are computed
+        once, then each candidate only rescales the cached wave term, so
+        the search measures the deployed blend exactly.
         """
         sequence = [int(token) for token in ids]
         indices = list(range(context, len(sequence) - 1))
         if len(indices) > int(samples):
             stride = max(1, len(indices) // int(samples))
             indices = indices[::stride]
+        guard = float(top1_margin)
+        if mode_guard is None:
+            mode_guard = bool(self.mode_guard)
+        if not joint:
+            curve: List[Tuple[float, float]] = []
+            for beta in grid:
+                self.beta_star = float(beta)
+                total = 0.0
+                for index in indices:
+                    window = sequence[max(0, index - context) : index]
+                    logits = self.token_logits(window)
+                    logits = logits - np.max(logits)
+                    logprob = logits[sequence[index]] - np.log(np.sum(np.exp(logits)))
+                    total -= float(logprob)
+                curve.append((total / max(len(indices), 1), float(beta)))
+            best_loss = min(loss for loss, _ in curve)
+            # D-Guard is an argmin over a grid that contains 0.0. A parsimony
+            # window was tried and removed: with a 0.010-nat tolerance it
+            # always returned 0.0 whenever the gain was small, which made the
+            # selector deaf to a real improvement instead of cautious about a
+            # noise-sized one. Ties (within 1e-6) still prefer the smaller
+            # weight.
+            eligible = [
+                (loss, beta) for loss, beta in curve if loss <= best_loss + float(tolerance)
+            ]
+            eligible.sort(key=lambda pair: (pair[0], pair[1]))
+            self.beta_star = float(eligible[0][1]) if eligible else 0.0
+            self.beta_curve = [(float(beta), float(loss)) for loss, beta in curve]
+            self.beta_floor_loss = float(curve[0][0])
+            self.beta_best_loss = float(best_loss)
+            self.gate_report = {"joint": False, "beta_star": float(self.beta_star)}
+            return self.beta_star
+
+        # ---------------------------------------------------------- joint H1
+        base_rows: List[np.ndarray] = []
+        wave_rows: List[np.ndarray] = []
+        fast_rows: List[np.ndarray] = []
+        targets: List[int] = []
+        entropies: List[float] = []
+        orders: List[int] = []
+        for index in indices:
+            window = sequence[max(0, index - context) : index]
+            base, wave, fast = self._logit_parts(window)
+            stats = self.context_certainty(window)
+            base_rows.append(base.astype(np.float32))
+            wave_rows.append(wave.astype(np.float32))
+            fast_rows.append(
+                np.zeros(self.vocab_size, dtype=np.float32)
+                if fast is None
+                else (self.fast_gain * fast).astype(np.float32)
+            )
+            targets.append(int(sequence[index]))
+            entropies.append(float(stats["entropy"]))
+            orders.append(int(stats["matched_order"]))
+        base_mat = np.stack(base_rows)
+        wave_mat = np.stack(wave_rows)
+        fast_mat = np.stack(fast_rows)
+        target_array = np.asarray(targets, dtype=np.int64)
+        entropy_array = np.asarray(entropies, dtype=np.float64)
+        order_array = np.asarray(orders, dtype=np.int64)
+        rows = np.arange(target_array.size)
+
+        floor_modes = base_mat.argmax(axis=1)
+
+        def measure(beta_vector: np.ndarray) -> Tuple[float, float]:
+            logits = base_mat + beta_vector[:, None].astype(np.float32) * wave_mat + fast_mat
+            if mode_guard:
+                moved = np.nonzero(
+                    (logits.argmax(axis=1) != floor_modes) & (beta_vector > 0.0)
+                )[0]
+                if moved.size:
+                    peak_before = logits[moved].max(axis=1) + np.float32(1e-4)
+                    logits[moved, floor_modes[moved]] = np.maximum(
+                        logits[moved, floor_modes[moved]], peak_before
+                    )
+            peak = logits.max(axis=1)
+            shifted = logits - peak[:, None]
+            norm = peak + np.log(np.exp(shifted, dtype=np.float32).sum(axis=1))
+            loss = float(np.mean(norm - logits[rows, target_array]))
+            top1 = float(np.mean(logits.argmax(axis=1) == target_array))
+            return loss, top1
+
+        floor_beta = np.zeros(target_array.size, dtype=np.float32)
+        floor_loss, floor_top1 = measure(floor_beta)
+        best: Optional[Tuple[float, float, float, float, int, float]] = None
         curve: List[Tuple[float, float]] = []
-        for beta in grid:
-            self.beta_star = float(beta)
-            total = 0.0
-            for index in indices:
-                window = sequence[max(0, index - context) : index]
-                logits = self.token_logits(window)
-                logits = logits - np.max(logits)
-                logprob = logits[sequence[index]] - np.log(np.sum(np.exp(logits)))
-                total -= float(logprob)
-            curve.append((total / max(len(indices), 1), float(beta)))
-        best_loss = min(loss for loss, _ in curve)
-        # D-Guard is an argmin over a grid that contains 0.0, and that is what
-        # this is. A parsimony window was tried and removed: with a 0.010-nat
-        # tolerance it always returned 0.0 whenever the gain was small, which
-        # made the selector deaf to a real improvement instead of cautious
-        # about a noise-sized one. Numerical ties (within 1e-6) still prefer
-        # the smaller weight.
-        eligible = [
-            (loss, beta) for loss, beta in curve if loss <= best_loss + float(tolerance)
-        ]
-        # Argmin first; the (very small) tolerance only breaks floating-point
-        # ties, and a tie resolves to the smaller weight.
-        eligible.sort(key=lambda pair: (pair[0], pair[1]))
-        self.beta_star = float(eligible[0][1]) if eligible else 0.0
-        self.beta_curve = [(float(beta), float(loss)) for loss, beta in curve]
-        self.beta_floor_loss = float(curve[0][0])
-        self.beta_best_loss = float(best_loss)
+        for tau_order in order_grid:
+            certain_order = order_array >= int(tau_order)
+            for tau_h in tau_grid:
+                certain = certain_order & (entropy_array <= float(tau_h))
+                for beta_low in beta_low_grid:
+                    for beta_high in beta_high_grid:
+                        if float(beta_low) == 0.0 and float(beta_high) == 0.0:
+                            loss, top1 = floor_loss, floor_top1
+                        else:
+                            beta_vector = np.where(
+                                certain, np.float32(beta_low), np.float32(beta_high)
+                            )
+                            loss, top1 = measure(beta_vector)
+                        if (
+                            float(beta_high) > 0.0
+                            and tau_h == tau_grid[0]
+                            and tau_order == order_grid[0]
+                            and float(beta_low) == float(beta_low_grid[0])
+                        ):
+                            curve.append((float(beta_high), float(loss)))
+                        if float(beta_high) <= 0.0:
+                            continue
+                        if float(top1) < float(floor_top1) + float(guard):
+                            continue
+                        if float(loss) >= float(floor_loss) - float(tolerance):
+                            continue
+                        candidate = (
+                            float(loss),
+                            float(beta_low),
+                            float(beta_high),
+                            float(tau_h),
+                            int(tau_order),
+                            float(top1),
+                        )
+                        if best is None or candidate[0] < best[0] - 1e-12 or (
+                            abs(candidate[0] - best[0]) <= 1e-12
+                            and (candidate[2], candidate[1], candidate[3]) < (best[2], best[1], best[3])
+                        ):
+                            best = candidate
+        if best is None:
+            # No gated configuration beat the floor without costing top-1.
+            # The gate stays closed, and the receipt says so.
+            self.beta_gate = {"beta_low": 0.0, "beta_high": 0.0, "tau_h": 0.0, "tau_order": 3.0}
+            self.beta_star = 0.0
+            self.gate_report = {
+                "joint": True,
+                "selected": False,
+                "floor_loss": float(floor_loss),
+                "floor_top1": float(floor_top1),
+                "samples": int(target_array.size),
+            }
+            return 0.0
+        loss, beta_low, beta_high, tau_h, tau_order, top1 = best
+        self.beta_gate = {
+            "beta_low": float(beta_low),
+            "beta_high": float(beta_high),
+            "tau_h": float(tau_h),
+            "tau_order": float(tau_order),
+        }
+        # beta_star keeps its old meaning for every receipt reader: the
+        # admitted wave weight. It is the high-entropy arm, because that is
+        # the arm that is active on the contexts the head is allowed to move.
+        self.beta_star = float(beta_high)
+        self.beta_floor_loss = float(floor_loss)
+        self.beta_best_loss = float(loss)
+        self.beta_curve = [(float(beta), float(value)) for beta, value in curve]
+        self.gate_report = {
+            "joint": True,
+            "selected": True,
+            "beta_low": float(beta_low),
+            "beta_high": float(beta_high),
+            "tau_h": float(tau_h),
+            "tau_order": int(tau_order),
+            "validation_loss": float(loss),
+            "validation_top1": float(top1),
+            "floor_loss": float(floor_loss),
+            "floor_top1": float(floor_top1),
+            "mode_guard": bool(mode_guard),
+            "samples": int(target_array.size),
+        }
         return self.beta_star
 
     # ------------------------------------------------------------ evaluate
@@ -1060,6 +1347,125 @@ def _adapt_source(source: str, slots: Dict[str, object], request: Dict[str, obje
     return ast.unparse(tree) + chr(10)
 
 
+def _single_expression(source: str):
+    """(argument names, return expression) of a one-return function.
+
+    Directive H2. Composition is an AST operation, so it is only defined
+    on a function whose body IS one expression. A template with statements
+    is a complete program, not a transform, and it is refused rather than
+    spliced by string surgery.
+    """
+    try:
+        tree = ast.parse(str(source))
+    except SyntaxError:
+        return None
+    definition = next(
+        (node for node in tree.body if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))),
+        None,
+    )
+    if definition is None:
+        return None
+    body = list(definition.body)
+    if body and isinstance(body[0], ast.Expr) and isinstance(body[0].value, ast.Constant):
+        body = body[1:]
+    if len(body) != 1 or not isinstance(body[0], ast.Return) or body[0].value is None:
+        return None
+    args = [str(arg.arg) for arg in definition.args.args if str(arg.arg) not in {"self", "cls"}]
+    if not args:
+        return None
+    return args, body[0].value
+
+
+def _rebind_constants(expression: ast.AST, numbers: Sequence[float]) -> None:
+    """Positionally rebind the numeric constants of one expression."""
+    nodes = [
+        node
+        for node in ast.walk(expression)
+        if isinstance(node, ast.Constant)
+        and isinstance(node.value, (int, float))
+        and not isinstance(node.value, bool)
+    ]
+    nodes.sort(key=lambda node: (int(getattr(node, "lineno", 0)), int(getattr(node, "col_offset", 0))))
+    if len(nodes) != len(numbers):
+        return
+    for node, value in zip(nodes, numbers):
+        if isinstance(node.value, int) and float(value).is_integer():
+            node.value = int(value)
+        else:
+            node.value = float(value)
+
+
+def _compose_plans(p1: Plan, p2: Plan, request: Dict[str, object]) -> Optional[str]:
+    """f(g(x)) as a real AST: bind p1's result into p2's single argument.
+
+    Directive H2. The two playbooks are parsed, the first plan's arguments
+    are renamed to the request's argument names, its return expression is
+    assigned to an intermediate, and the second plan's expression consumes
+    that intermediate. The second plan's own constants are rebound from the
+    request's numeric literals, so a composition can carry a new bound
+    (clamp at 2.5) as well as new names. Nothing is string-concatenated:
+    the result is emitted by ast.unparse and then re-parsed by ASTGate.
+    """
+    left = _single_expression(p1.source)
+    right = _single_expression(p2.source)
+    if left is None or right is None:
+        return None
+    left_args, left_expr = left
+    right_args, right_expr = right
+    if len(right_args) != 1:
+        return None
+    requested = [str(name) for name in (request.get("args") or []) if str(name).isidentifier()]
+    if requested and len(requested) > len(left_args):
+        return None
+    rename: Dict[str, str] = {}
+    for old, new in zip(left_args, requested):
+        if new != old:
+            rename[old] = new
+    if rename:
+        for node in ast.walk(left_expr):
+            if isinstance(node, ast.Name) and node.id in rename:
+                node.id = rename[node.id]
+    numbers = [float(value) for value in (request.get("numbers") or [])]
+    if numbers:
+        _rebind_constants(right_expr, numbers)
+    staged = f"{right_args[0]}_out" if right_args[0].isidentifier() else "staged_out"
+    for node in ast.walk(right_expr):
+        if isinstance(node, ast.Name) and node.id == right_args[0]:
+            node.id = staged
+    name = str(request.get("func") or f"{p1.name}_{p2.name}")
+    if not name.isidentifier():
+        name = f"{p1.name}_{p2.name}"
+    arguments = ast.arguments(
+        posonlyargs=[],
+        args=[ast.arg(arg=rename.get(old, old)) for old in left_args],
+        vararg=None,
+        kwonlyargs=[],
+        kw_defaults=[],
+        kwarg=None,
+        defaults=[],
+    )
+    keywords: Dict[str, object] = {}
+    if "type_params" in getattr(ast.FunctionDef, "_fields", ()):
+        keywords["type_params"] = []
+    definition = ast.FunctionDef(
+        name=name,
+        args=arguments,
+        body=[
+            ast.Assign(
+                targets=[ast.Name(id=staged, ctx=ast.Store())],
+                value=left_expr,
+            ),
+            ast.Return(value=right_expr),
+        ],
+        decorator_list=[],
+        returns=None,
+        **keywords,
+    )
+    module = ast.Module(body=[definition], type_ignores=[])
+    ast.fix_missing_locations(module)
+    return ast.unparse(module) + chr(10)
+
+
 @dataclass
 class Plan:
     """One compiled strategy: a verified source plus its role-slot bindings.
@@ -1277,6 +1683,107 @@ class PlanStore:
             return None
         return best
 
+    def _intent_tokens(self, intent: str) -> List[int]:
+        return [int(token) for token in self.tokenizer.encode(str(intent))[:96]]
+
+    def coverage(self, intent: str, plan: Plan) -> float:
+        """Fraction of the intent's IDF mass that this plan's intent covers.
+
+        Directive H2. A single playbook that explains most of the weighted
+        intent is a complete answer; one that explains only part of it is
+        half of a compound request.
+        """
+        tokens = self._intent_tokens(intent)
+        if not tokens:
+            return 0.0
+        covered = set(self._intent_tokens(plan.intent))
+        total = 0.0
+        hit = 0.0
+        for token in tokens:
+            weight = float(self.token_weight[token]) if 0 <= token < self.token_weight.size else 1.0
+            total += weight
+            if token in covered:
+                hit += weight
+        return float(hit / total) if total > 0.0 else 0.0
+
+    def residual_key(self, intent: str, plan: Plan) -> Tuple[Optional[np.ndarray], List[int]]:
+        """The intent wave left after the first plan's tokens are masked out."""
+        tokens = self._intent_tokens(intent)
+        covered = set(self._intent_tokens(plan.intent))
+        total = np.zeros(self.projector.dim, dtype=np.complex64)
+        leftover: List[int] = []
+        for token in tokens:
+            if token in covered:
+                continue
+            weight = float(self.token_weight[token]) if 0 <= token < self.token_weight.size else 1.0
+            total = total + weight * self.projector.slot_wave(int(token), self.tokenizer)
+            leftover.append(int(token))
+        norm = float(np.linalg.norm(total))
+        if norm <= _EPS:
+            return None, leftover
+        return (total / norm).astype(np.complex64), leftover
+
+    _SEQUENCE_CUE = re.compile(r"\s+(?:and\s+)?then\s+", re.IGNORECASE)
+
+    @classmethod
+    def split_sequence(cls, intent: str) -> Tuple[str, str]:
+        """(head, tail) of a compound request, split at the first "then".
+
+        Directive H2. A compound request names its FIRST operation before
+        its second, and a bag-of-phases key throws that order away. The
+        split restores it without position powers: the primary plan is
+        matched against the head, and the residue is matched against the
+        rest of the request. A request without a cue is returned whole.
+        """
+        text = str(intent)
+        match = cls._SEQUENCE_CUE.search(text)
+        if match is None:
+            return text, ""
+        return text[: match.start()].strip(), text[match.end() :].strip()
+
+    def retrieve_chain(
+        self,
+        intent: str,
+        max_plans: int = 2,
+        arity: Optional[int] = None,
+        tau_chain: float = 0.60,
+        coverage_floor: float = 0.60,
+    ) -> List[Tuple[Plan, float]]:
+        """One plan, or the ordered pair that a compound intent needs (H2).
+
+        Retrieval is iterative. The primary plan is matched against the head
+        of the request. Its intent tokens are then masked out of the WHOLE
+        request, and the remaining high-IDF tokens are matched against the
+        other plans. The pair is returned only when the primary plan covers
+        less than coverage_floor of the weighted request AND the residue
+        clears tau_chain: one half of the sentence explained, the other half
+        strongly matched. Anything less is a single plan.
+        """
+        if not self.plans or int(max_plans) < 1:
+            return []
+        head, tail = self.split_sequence(intent)
+        first = self.retrieve_for(head if tail else intent, arity=arity)
+        if first is None:
+            return []
+        if int(max_plans) < 2:
+            return [first]
+        plan, score = first
+        if self.coverage(intent, plan) >= float(coverage_floor):
+            return [first]
+        residue, leftover = self.residual_key(intent, plan)
+        if residue is None or not leftover:
+            return [first]
+        best: Optional[Tuple[Plan, float]] = None
+        for other in self.plans.values():
+            if other.name == plan.name:
+                continue
+            value = float(np.real(np.vdot(residue, self.key(other.intent))))
+            if best is None or value > best[1]:
+                best = (other, value)
+        if best is None or best[1] < float(tau_chain):
+            return [first]
+        return [first, best]
+
     def retrieve_for(self, intent: str, arity: Optional[int] = None) -> Optional[Tuple[Plan, float]]:
         """Retrieve with a role-slot compatibility filter (Directive G2).
 
@@ -1334,6 +1841,7 @@ class SynthesisEngine:
         verifier=None,
         namespace: str = "default",
         plan_offset: int = 20000,
+        signatures: Optional[Dict[str, object]] = None,
     ) -> None:
         self.generator = generator
         self.projector = projector
@@ -1341,6 +1849,12 @@ class SynthesisEngine:
         self.memory = memory
         self.verifier = verifier
         self.namespace = str(namespace)
+        # Directive H2: the code index's declared surfaces. When no plan
+        # matches, a known signature is the difference between a verified
+        # stub and ungrounded tokens.
+        self.signatures: Dict[str, object] = dict(signatures or {})
+        self.composed = 0
+        self.cold_stubs = 0
         self.plans = PlanStore(
             memory,
             projector,
@@ -1409,7 +1923,27 @@ class SynthesisEngine:
         arity = len(request.get("args") or []) or None
         hit = self.plans.retrieve_for(intent, arity=arity) if self.plans.plans else None
         adapted_from = ""
-        if hit is not None:
+        composed_names: List[str] = []
+        cold_used = False
+        adapted: Optional[str] = None
+        coherence = 0.0
+        used = ""
+        source = ""
+        output: Dict[str, object] = {"tokens": [], "text": "", "vetoed": 0}
+        if kind == "code" and self.plans.plans:
+            chain = self.plans.retrieve_chain(intent, max_plans=2, arity=arity)
+        else:
+            chain = []
+        if len(chain) >= 2:
+            # Directive H2: the primary plan explains less than the coverage
+            # floor of the intent, and the residue matched a second plan.
+            candidate = _compose_plans(chain[0][0], chain[1][0], request)
+            if candidate is not None:
+                adapted = candidate
+                coherence = float(chain[0][1])
+                used = f"{chain[0][0].name}+{chain[1][0].name}"
+                composed_names = [chain[0][0].name, chain[1][0].name]
+        if adapted is None and hit is not None:
             plan, coherence = hit
             # Directive G2: rebind the template to this request BEFORE
             # emission. The rebinding is an AST edit, so a new function name,
@@ -1420,6 +1954,8 @@ class SynthesisEngine:
                 if kind == "code" and plan.slots
                 else plan.source
             )
+            used = plan.name
+        if adapted is not None:
             adapted_from = adapted
             prior = self.tokenizer.encode(adapted)
             output = self._emit(
@@ -1438,7 +1974,23 @@ class SynthesisEngine:
                 # template so the failure is a refusal, not a silent replay.
                 source = adapted
                 self.emission_fallbacks += 1
-            used = plan.name
+            if composed_names:
+                self.composed += 1
+        elif kind == "code" and self.signatures:
+            # Directive H2 cold start: no playbook matched, but the code
+            # index declares this callable's surface, so a verified stub is
+            # grounded in the AST rather than invented token by token.
+            cold = self._cold_signature_source(request)
+            if cold is not None:
+                source = cold
+                coherence = 0.0
+                used = ""
+                self.cold_stubs += 1
+                self.emission_exact += 1
+                cold_used = True
+            elif allow_free:
+                output = self._emit(intent, None, max_tokens=int(max_tokens), require_parse=True)
+                source = str(output.get("text", ""))
         elif allow_free:
             output = self._emit(intent, None, max_tokens=int(max_tokens), require_parse=True)
             source = output["text"]
@@ -1477,9 +2029,39 @@ class SynthesisEngine:
             "adapted": bool(adapted_from and adapted_from.strip() != str(hit[0].source).strip())
             if hit is not None
             else False,
-            "emitted_tokens": len(output["tokens"]),
-            "vetoed_tokens": int(output["vetoed"]),
+            "composed": bool(composed_names),
+            "composed_from": list(composed_names),
+            "cold_stub": bool(cold_used),
+            "emitted_tokens": len(output.get("tokens", [])),
+            "vetoed_tokens": int(output.get("vetoed", 0)),
         }
+
+    def _cold_signature_source(self, request: Dict[str, object]) -> Optional[str]:
+        """A verified stub for a callable the code index already declares.
+
+        Directive H2. The function name comes from the request; the argument
+        list comes from the requested names, or from the indexed signature
+        when the request names none. The body raises, which is the honest
+        statement that the behaviour is not yet known, and the whole source
+        is re-parsed and compiled before it is returned.
+        """
+        name = str(request.get("func") or "").strip()
+        if not name or not name.isidentifier():
+            return None
+        signature = self.signatures.get(name)
+        if signature is None:
+            return None
+        declared = [str(value) for value in (getattr(signature, "args", ()) or ())]
+        requested = [str(value) for value in (request.get("args") or [])]
+        args = [value for value in (requested or declared) if value.isidentifier() and value not in {"self", "cls"}]
+        source = (
+            f"def {name}({', '.join(args)}):"
+            + chr(10)
+            + "    raise NotImplementedError(" + repr(f"cold stub for {name}") + ")"
+            + chr(10)
+        )
+        verdict = self.verify(source, kind="code")
+        return source if verdict["ok"] else None
 
     def _intent_symbol_veto(self, intent: str) -> str:
         """A callable named in the intent must exist in the code index.
@@ -1664,6 +2246,7 @@ def build_synthesis_engine(
     namespace: str = "default",
     symbol_table: Optional[Iterable[str]] = None,
     max_fit_tokens: int = 60000,
+    signatures: Optional[Dict[str, object]] = None,
 ) -> Tuple["SynthesisEngine", Dict[str, object]]:
     """Build the full ingress+egress stack over a corpus, once.
 
@@ -1690,6 +2273,7 @@ def build_synthesis_engine(
         memory,
         verifier=build_verifier(root),
         namespace=str(namespace),
+        signatures=signatures,
     )
     return engine, {
         "corpus_digest": corpus.digest,

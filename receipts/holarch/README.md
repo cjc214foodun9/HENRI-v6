@@ -20,7 +20,16 @@ bytes in the sidecar `.sha256`.
 | `holarch_medium.pt` | the converged E1 checkpoint, written beside the receipt and mounted by the sidecar |
 | `e_cycle.json` | `python scripts/run_holarch_e_cycle.py` (cycle E verification ledger) |
 | `d_cycle.json` | `python scripts/run_holarch_d_cycle.py` (cycle D verification ledger) |
-| `agent_eval.json` | `python scripts/run_holarch_agent_eval.py` |
+| `f_cycle.json` | `python scripts/run_holarch_f_cycle.py` (cycle F ledger) |
+| `code_lang_eval.json`, `code_lang_l1/l2/l3.json` | `python scripts/run_holarch_code_lang.py` (L1-L3) |
+| `g_cycle.json` | `python scripts/run_holarch_g_cycle.py` (cycle G ledger) |
+| `g1_wave_lm.json`, `g2_parametric_synth.json`, `g3_depth2_lookahead.json`, `g4_persistence.json` | the four Cycle G directive receipts |
+| `agent_eval.json` | `python scripts/run_holarch_agent_eval.py` (64 queries in Cycle H) |
+| `h_cycle.json` | `python scripts/run_holarch_h_cycle.py --stages h1,h2,h3,h4,eval` (cycle H ledger) |
+| `h1_entropy_gated_lm.json` | H1: entropy-gated wave blend on the pinned 67e9b25 corpus |
+| `h2_multiplan_synth.json` | H2: 24 base + 12 compositional + 8 two-plan pipelines + cold start |
+| `h3_api_surface.json` | H3: checkpoint rotor, plan/verify over REST and MCP |
+| `h4_delta_index.json` | H4: single-file delta index, exactness and latency |
 | `c_cycle.json` | `python scripts/run_holarch_c_cycle.py` (cycle C verification ledger) |
 | `budget.json` | `python -m henri.holarch budget` |
 | `gate_d1_k*.json` | the Decision A1 detector-width sweep; kept as evidence of the arm that failed |

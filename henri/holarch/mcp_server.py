@@ -86,14 +86,56 @@ def holarch_veto(
 
 @mcp.tool()
 def holarch_ingest_code(
-    root: str, package: str = "henri", namespace: str = "default"
+    root: str,
+    package: str = "henri",
+    namespace: str = "default",
+    mode: str = "edges",
+    file_path: Optional[str] = None,
+    source_text: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Parse a package once and index its symbols and call edges in Zone C.
 
     Query time performs no file reads. The graph is stored as wave engrams,
-    so no model weight changes.
+    so no model weight changes. mode="delta" re-indexes exactly ONE file
+    (file_path, optional source_text) without re-parsing the package.
     """
-    return service().ingest_code(root, package, namespace)
+    return service().ingest_code(root, package, namespace, mode, file_path, source_text)
+
+
+@mcp.tool()
+def holarch_plan(
+    observation: Any,
+    history_waves: Optional[List[Any]] = None,
+    transition: str = "rotor",
+    lookahead_depth: int = 2,
+    gamma_look: float = 0.02,
+    namespace: str = "default",
+) -> Dict[str, Any]:
+    """Depth-2 wall-masked rotor planning on the mounted checkpoint.
+
+    Expects the 79-value sensor observation (5x5x3 local view plus four
+    relative coordinates). history_waves optionally carries recent waves
+    for the cycle penalty. Returns the action, its name, all four scores,
+    the goal alignment, the second-step lookahead values, the cycle
+    penalty, the legal-move mask, and a SHA-256 receipt.
+    """
+    return service().plan(
+        observation, history_waves, transition, lookahead_depth, gamma_look, namespace
+    )
+
+
+@mcp.tool()
+def holarch_verify(
+    claim: str, kind: str = "text", top_k: int = 4, namespace: str = "default"
+) -> Dict[str, Any]:
+    """Verify a prose claim against the corpus, or code against the AST.
+
+    Text runs the ontology guard: every rare term and every quantity must
+    appear in the retrieved evidence, otherwise the claim is contradicted
+    or unsupported. Code is parsed, compiled, and every callee is checked
+    against the code index, so a fabricated signature is refused.
+    """
+    return service().verify(claim, kind, top_k, namespace)
 
 
 @mcp.tool()

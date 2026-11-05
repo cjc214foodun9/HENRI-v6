@@ -129,7 +129,7 @@ def test_agent_eval_contract(tmp_path):
     # accuracy must already be perfect on this short smoke run.
     assert payload["holarch_mcp"]["reachable_accuracy"] >= 0.98
     assert payload["per_category"]["code_call_flow"]["mcp_correct"] > 0
-    assert payload["queries_total"] >= 52
+    assert payload["queries_total"] == 64
     assert payload["composite"]["mcp_accuracy"] >= 0.90
     assert payload["composite"]["mcp_refused"] == payload["composite"]["traps_total"]
     assert set(payload["per_category"]) == {
@@ -142,7 +142,13 @@ def test_agent_eval_contract(tmp_path):
         "composite_traps",
         "impact_analysis",
         "impact_traps",
+        "depth2_rotor_planning",
+        "ontology_verification",
+        "multi_plan_synthesis",
+        "delta_blast_radius",
     }
+    assert payload["gate"]["receipt_chain_64"] is True
+    assert payload["holarch_mcp"]["query_receipts"] == 64
 
 
 def test_mcp_tool_table_exposes_the_decision_surface(tmp_path):
