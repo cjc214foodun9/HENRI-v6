@@ -1,0 +1,764 @@
+{
+  "cycle": "G1-G4",
+  "git_head": "9d84a2ebd9831e2c2c7bfda3ba29c9bbeaf14760",
+  "directives": {
+    "G1": {
+      "stage": "G1",
+      "bank": {
+        "keys_order_1": 1706.0,
+        "keys_order_2": 16423.0,
+        "keys_order_3": 49470.0,
+        "keys_order_4": 83710.0,
+        "orders": 4.0
+      },
+      "weights": {
+        "order_weights": [
+          0.5,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "skip_weight": 3.0,
+        "gamma": 0.8,
+        "validation_loss": 2.6955433947106777,
+        "probe_beta": 0.12
+      },
+      "beta_star": 0.02,
+      "beta_curve": [
+        [
+          0.0,
+          2.469248500623102
+        ],
+        [
+          0.02,
+          2.4657781828262864
+        ],
+        [
+          0.05,
+          2.46579478829058
+        ],
+        [
+          0.08,
+          2.471514628265001
+        ],
+        [
+          0.12,
+          2.486981196191317
+        ],
+        [
+          0.18,
+          2.5244502667640574
+        ],
+        [
+          0.25,
+          2.5856596082428376
+        ]
+      ],
+      "windows": {
+        "legacy_held_out_0_3000": {
+          "floor": {
+            "top1": 0.562016806722689,
+            "perplexity": 10.13692474759838,
+            "bits_per_char": 1.2942462856808024,
+            "tokens": 2975.0,
+            "base_top1": 0.562016806722689,
+            "base_perplexity": 10.13692474759838,
+            "beta_star": 0.0,
+            "wave_weight": 0.0
+          },
+          "tuned": {
+            "top1": 0.5576470588235294,
+            "perplexity": 10.091351337958152,
+            "bits_per_char": 1.2917284515054157,
+            "tokens": 2975.0,
+            "base_top1": 0.562016806722689,
+            "base_perplexity": 10.13692474759838,
+            "beta_star": 0.02,
+            "wave_weight": 0.02
+          }
+        },
+        "disjoint_held_out_1500_4500": {
+          "floor": {
+            "top1": 0.5704201680672268,
+            "perplexity": 10.313709746896235,
+            "bits_per_char": 1.3115914155657253,
+            "tokens": 2975.0,
+            "base_top1": 0.5704201680672268,
+            "base_perplexity": 10.313709746896235,
+            "beta_star": 0.0,
+            "wave_weight": 0.0
+          },
+          "tuned": {
+            "top1": 0.5667226890756303,
+            "perplexity": 10.262019127002747,
+            "bits_per_char": 1.308767296450022,
+            "tokens": 2975.0,
+            "base_top1": 0.5704201680672268,
+            "base_perplexity": 10.313709746896235,
+            "beta_star": 0.02,
+            "wave_weight": 0.02
+          }
+        },
+        "full_held_out": {
+          "floor": {
+            "top1": 0.47591522157996147,
+            "perplexity": 16.516598841204374,
+            "bits_per_char": 1.6207528855291187,
+            "tokens": 31140.0,
+            "base_top1": 0.47591522157996147,
+            "base_perplexity": 16.516598841204374,
+            "beta_star": 0.0,
+            "wave_weight": 0.0
+          },
+          "tuned": {
+            "top1": 0.47597944765574823,
+            "perplexity": 16.49517589301384,
+            "bits_per_char": 1.620002779679286,
+            "tokens": 31140.0,
+            "base_top1": 0.47591522157996147,
+            "base_perplexity": 16.516598841204374,
+            "beta_star": 0.02,
+            "wave_weight": 0.02
+          }
+        }
+      },
+      "floor": {
+        "top1": 0.562016806722689,
+        "perplexity": 10.13692474759838,
+        "bits_per_char": 1.2942462856808024,
+        "tokens": 2975.0,
+        "base_top1": 0.562016806722689,
+        "base_perplexity": 10.13692474759838,
+        "beta_star": 0.0,
+        "wave_weight": 0.0
+      },
+      "tuned": {
+        "top1": 0.5576470588235294,
+        "perplexity": 10.091351337958152,
+        "bits_per_char": 1.2917284515054157,
+        "tokens": 2975.0,
+        "base_top1": 0.562016806722689,
+        "base_perplexity": 10.13692474759838,
+        "beta_star": 0.02,
+        "wave_weight": 0.02
+      },
+      "evaluated_on": "held_out[0:3000] (the protocol of every committed L3/F receipt)",
+      "beta_selected_on": "held_out[0:1500]",
+      "gate": {
+        "beta_star_strictly_positive": true,
+        "top1_at_least_0_5250": true,
+        "bits_per_char_below_1_3798": true,
+        "cross_entropy_below_floor": true,
+        "disjoint_top1_at_least_0_5250": true,
+        "cross_entropy_below_floor_on_every_window": true,
+        "passed": true
+      },
+      "evidence": "OBSERVED"
+    },
+    "G2": {
+      "stage": "G2",
+      "corpus": {
+        "corpus_digest": "921fd07a85daf51e",
+        "vocabulary_size": 2048,
+        "tokens": 311649,
+        "files": 21
+      },
+      "base_tasks": {
+        "total": 24,
+        "passed": 24,
+        "rows": [
+          {
+            "id": "core01",
+            "adapted": true,
+            "verified": true,
+            "executed": true,
+            "exact_emission": true
+          },
+          {
+            "id": "core02",
+            "adapted": true,
+            "verified": true,
+            "executed": true,
+            "exact_emission": true
+          },
+          {
+            "id": "core03",
+            "adapted": true,
+            "verified": true,
+            "executed": true,
+            "exact_emission": true
+          },
+          {
+            "id": "core04",
+            "adapted": true,
+            "verified": true,
+            "executed": true,
+            "exact_emission": true
+          },
+          {
+            "id": "core05",
+            "adapted": true,
+            "verified": true,
+            "executed": true,
+            "exact_emission": true
+          },
+          {
+            "id": "core06",
+            "adapted": true,
+            "verified": true,
+            "executed": true,
+            "exact_emission": true
+          },
+          {
+            "id": "core07",
+            "adapted": true,
+            "verified": true,
+            "executed": true,
+            "exact_emission": true
+          },
+          {
+            "id": "core08",
+            "adapted": true,
+            "verified": true,
+            "executed": true,
+            "exact_emission": true
+          },
+          {
+            "id": "core09",
+            "adapted": true,
+            "verified": true,
+            "executed": true,
+            "exact_emission": true
+          },
+          {
+            "id": "core10",
+            "adapted": true,
+            "verified": true,
+            "executed": true,
+            "exact_emission": true
+          },
+          {
+            "id": "core11",
+            "adapted": true,
+            "verified": true,
+            "executed": true,
+            "exact_emission": true
+          },
+          {
+            "id": "core12",
+            "adapted": true,
+            "verified": true,
+            "executed": true,
+            "exact_emission": true
+          },
+          {
+            "id": "shift01",
+            "adapted": true,
+            "verified": true,
+            "executed": true,
+            "exact_emission": true
+          },
+          {
+            "id": "shift02",
+            "adapted": true,
+            "verified": true,
+            "executed": true,
+            "exact_emission": true
+          },
+          {
+            "id": "shift03",
+            "adapted": true,
+            "verified": true,
+            "executed": true,
+            "exact_emission": true
+          },
+          {
+            "id": "shift04",
+            "adapted": true,
+            "verified": true,
+            "executed": true,
+            "exact_emission": true
+          },
+          {
+            "id": "shift05",
+            "adapted": true,
+            "verified": true,
+            "executed": true,
+            "exact_emission": true
+          },
+          {
+            "id": "shift06",
+            "adapted": true,
+            "verified": true,
+            "executed": true,
+            "exact_emission": true
+          },
+          {
+            "id": "shift07",
+            "adapted": true,
+            "verified": true,
+            "executed": true,
+            "exact_emission": true
+          },
+          {
+            "id": "shift08",
+            "adapted": true,
+            "verified": true,
+            "executed": true,
+            "exact_emission": true
+          },
+          {
+            "id": "shift09",
+            "adapted": true,
+            "verified": true,
+            "executed": true,
+            "exact_emission": true
+          },
+          {
+            "id": "shift10",
+            "adapted": true,
+            "verified": true,
+            "executed": true,
+            "exact_emission": true
+          },
+          {
+            "id": "shift11",
+            "adapted": true,
+            "verified": true,
+            "executed": true,
+            "exact_emission": true
+          },
+          {
+            "id": "shift12",
+            "adapted": true,
+            "verified": true,
+            "executed": true,
+            "exact_emission": true
+          }
+        ]
+      },
+      "compositional": {
+        "total": 12,
+        "passed": 12,
+        "accuracy": 1.0,
+        "rows": [
+          {
+            "id": "comp01",
+            "base": "core01",
+            "plan": "core01",
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "bound": {
+              "func": "tally_engrams",
+              "args": [
+                "store"
+              ],
+              "numbers": []
+            },
+            "source": "def tally_engrams(store):\n    return int(store.stats()['count'])\n"
+          },
+          {
+            "id": "comp02",
+            "base": "core02",
+            "plan": "core02",
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "bound": {
+              "func": "latent_width",
+              "args": [
+                "config"
+              ],
+              "numbers": []
+            },
+            "source": "def latent_width(config):\n    return int(config.dim)\n"
+          },
+          {
+            "id": "comp03",
+            "base": "core03",
+            "plan": "core03",
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "bound": {
+              "func": "per_slot_width",
+              "args": [
+                "settings"
+              ],
+              "numbers": []
+            },
+            "source": "def per_slot_width(settings):\n    return int(settings.d_slot)\n"
+          },
+          {
+            "id": "comp04",
+            "base": "core04",
+            "plan": "core04",
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "bound": {
+              "func": "digest_of",
+              "args": [
+                "record"
+              ],
+              "numbers": []
+            },
+            "source": "def digest_of(record):\n    return str(record['sha256'])\n"
+          },
+          {
+            "id": "comp05",
+            "base": "core05",
+            "plan": "core05",
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "bound": {
+              "func": "sorted_digest",
+              "args": [
+                "body"
+              ],
+              "numbers": []
+            },
+            "source": "def sorted_digest(body):\n    import hashlib\n    import json\n    blob = json.dumps(body, sort_keys=True).encode('utf-8')\n    return hashlib.sha256(blob).hexdigest()\n"
+          },
+          {
+            "id": "comp06",
+            "base": "core06",
+            "plan": "core06",
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "bound": {
+              "func": "energy_of",
+              "args": [
+                "signal"
+              ],
+              "numbers": []
+            },
+            "source": "def energy_of(signal):\n    import numpy as np\n    return float(np.sum(np.abs(signal) ** 2))\n"
+          },
+          {
+            "id": "comp07",
+            "base": "core07",
+            "plan": "core07",
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "bound": {
+              "func": "node_total",
+              "args": [
+                "chart"
+              ],
+              "numbers": []
+            },
+            "source": "def node_total(chart):\n    return int(len(chart.nodes))\n"
+          },
+          {
+            "id": "comp08",
+            "base": "core08",
+            "plan": "core08",
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "bound": {
+              "func": "sources_of",
+              "args": [
+                "links"
+              ],
+              "numbers": []
+            },
+            "source": "def sources_of(links):\n    return sorted({edge.source for edge in links})\n"
+          },
+          {
+            "id": "comp09",
+            "base": "core09",
+            "plan": "core09",
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "bound": {
+              "func": "index_of_task",
+              "args": [
+                "title"
+              ],
+              "numbers": [
+                4.0,
+                5.0,
+                6.0,
+                7.0
+              ]
+            },
+            "source": "def index_of_task(title):\n    table = {'vision': 4, 'language': 5, 'action': 6, 'relational': 7}\n    return int(table[title])\n"
+          },
+          {
+            "id": "comp10",
+            "base": "core10",
+            "plan": "core10",
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "bound": {
+              "func": "average_of",
+              "args": [
+                "sample"
+              ],
+              "numbers": []
+            },
+            "source": "def average_of(sample):\n    return float(sum(sample) / max(len(sample), 1))\n"
+          },
+          {
+            "id": "comp11",
+            "base": "core11",
+            "plan": "core11",
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "bound": {
+              "func": "clamp_high",
+              "args": [
+                "level"
+              ],
+              "numbers": [
+                0.0,
+                2.5
+              ]
+            },
+            "source": "def clamp_high(level):\n    return max(0.0, min(2.5, float(level)))\n"
+          },
+          {
+            "id": "comp12",
+            "base": "core12",
+            "plan": "core12",
+            "verified": true,
+            "executed": true,
+            "reason": "executed",
+            "bound": {
+              "func": "files_in",
+              "args": [
+                "folder"
+              ],
+              "numbers": []
+            },
+            "source": "def files_in(folder):\n    from pathlib import Path\n    return sorted((item.name for item in Path(folder).iterdir()))\n"
+          }
+        ],
+        "rebound_function_or_args": 12,
+        "rebound_constants": 2
+      },
+      "traps": {
+        "total": 4,
+        "refused": 4,
+        "rows": [
+          {
+            "intent": "Write a function that calls ZoneCMemory.quantum_entangle to fuse two tenants.",
+            "status": "refused"
+          },
+          {
+            "intent": "Write a function that calls holarch_synthesize_warp to rewrite the corpus.",
+            "status": "refused"
+          },
+          {
+            "intent": "Write a function that calls SymbolicSolver.teleport to move a symbol.",
+            "status": "refused"
+          },
+          {
+            "intent": "Write a function that calls OntologyVerifier.hallucinate to invent a number.",
+            "status": "refused"
+          }
+        ]
+      },
+      "emission": {
+        "exact": 36,
+        "fallbacks": 0
+      },
+      "plans_compiled": 24,
+      "gate": {
+        "base_24_of_24": true,
+        "compositional_at_least_0_90": true,
+        "compositional_present_12": true,
+        "traps_refused_1_0": true,
+        "stationary_drift_zero": true,
+        "passed": true
+      },
+      "evidence": "OBSERVED"
+    },
+    "G3": {
+      "stage": "G3",
+      "checkpoint": {
+        "sha256": "59896acefed669ffee19aa2fb59dd22df5f633c6f353c27cef95d7ccd484c3e8",
+        "parameters": 1020380
+      },
+      "rotor": {
+        "fit": {
+          "transitions": 197,
+          "coherence": 0.9081373241952229,
+          "actions_covered": 4
+        },
+        "held_out": {
+          "transitions": 210,
+          "coherence": 0.9029180997893924,
+          "coherence_min": 0.7559905052185059
+        }
+      },
+      "arms": {
+        "shift_depth1": {
+          "success_rate": 0.7083333333333334,
+          "wins": 34,
+          "mean_steps_to_goal": 5.294117647058823,
+          "transition": "shift",
+          "lookahead_depth": 1
+        },
+        "rotor_depth1": {
+          "success_rate": 0.7708333333333334,
+          "wins": 37,
+          "mean_steps_to_goal": 5.5675675675675675,
+          "transition": "rotor",
+          "lookahead_depth": 1
+        },
+        "rotor_depth2": {
+          "success_rate": 0.8125,
+          "wins": 39,
+          "mean_steps_to_goal": 5.9743589743589745,
+          "transition": "rotor",
+          "lookahead_depth": 2
+        },
+        "shift_depth2": {
+          "success_rate": 0.7083333333333334,
+          "wins": 34,
+          "mean_steps_to_goal": 5.294117647058823,
+          "transition": "shift",
+          "lookahead_depth": 2
+        }
+      },
+      "gamma_sweep": [
+        {
+          "gamma_look": 0.02,
+          "success_rate": 0.8125,
+          "wins": 39,
+          "mean_steps_to_goal": 6.487179487179487
+        },
+        {
+          "gamma_look": 0.1,
+          "success_rate": 0.75,
+          "wins": 36,
+          "mean_steps_to_goal": 5.722222222222222
+        },
+        {
+          "gamma_look": 0.25,
+          "success_rate": 0.75,
+          "wins": 36,
+          "mean_steps_to_goal": 5.777777777777778
+        },
+        {
+          "gamma_look": 0.5,
+          "success_rate": 0.7291666666666666,
+          "wins": 35,
+          "mean_steps_to_goal": 5.428571428571429
+        }
+      ],
+      "wall_mask": "slot-0 occupancy at the shifted frame, relative threshold",
+      "gate": {
+        "coherence_at_least_0_90": true,
+        "depth2_at_least_0_7708": true,
+        "depth2_beats_cycle_e_shift": true,
+        "depth2_matches_or_beats_depth1": true,
+        "passed": true
+      },
+      "evidence": "OBSERVED"
+    },
+    "G4": {
+      "stage": "G4",
+      "database": "receipts\\holarch\\_work\\g4_persistence.sqlite3",
+      "namespace": "tenant_prod",
+      "reingestion_calls_in_instance_2": 0,
+      "instance_1": {
+        "ingest": {
+          "files_parsed": 20.0,
+          "lines_parsed": 14101.0,
+          "parse_seconds": 0.27657049999106675,
+          "edges": 914.0,
+          "nodes": 428.0,
+          "signatures": 476.0,
+          "grammar_transitions": 522.0,
+          "boundary_engrams": 998.0,
+          "edges_ingested": 914.0,
+          "engrams_before": 998.0,
+          "engrams_after": 1912.0,
+          "parameters_unchanged": 1.0,
+          "namespace": "tenant_prod",
+          "tau_coherence": 0.9800000000000004,
+          "coherence_median": 1.0,
+          "n": 914.0,
+          "mode": "edges"
+        },
+        "adapted": {
+          "adapted": true,
+          "plan": "clamp_unit",
+          "version": 1,
+          "engram_id": 1917,
+          "digest": "7d926ae01c7fffffd957966f094d66e88de2696ee3d3f26ee24abf722fafcf3d",
+          "gate": 1.0
+        },
+        "measured": {
+          "solve": "s02",
+          "impact": 13,
+          "composite": "d3",
+          "synthesize": "verified",
+          "plan_restored_before": 0
+        },
+        "authoring_status": "rejected"
+      },
+      "instance_2": {
+        "measured": {
+          "solve": "s02",
+          "impact": 13,
+          "composite": "d3",
+          "synthesize": "verified",
+          "plan_restored_after": 1
+        },
+        "foreign_tenant_vetoed": true
+      },
+      "gate": {
+        "solve_1_0": true,
+        "impact_identical": true,
+        "composite_1_0": true,
+        "synthesize_1_0": true,
+        "plan_restored_from_disk": true,
+        "zero_reingestion": true,
+        "foreign_tenant_still_refused": true,
+        "passed": true
+      },
+      "evidence": "OBSERVED"
+    }
+  },
+  "receipts": {
+    "G1": {
+      "path": "receipts\\holarch\\g1_wave_lm.json",
+      "sha256": "20bc5e8260395a7ad321d25ff6d107c87cae947fd2d64f6dd4c6e600bb9434cb"
+    },
+    "G2": {
+      "path": "receipts\\holarch\\g2_parametric_synth.json",
+      "sha256": "f3518cc430a50dc81b6db0c92e88eb9de318aab9f9536dbc6fbe42eea429fa01"
+    },
+    "G3": {
+      "path": "receipts\\holarch\\g3_depth2_lookahead.json",
+      "sha256": "fdab3d990790683e378613092ac1ff1af6d00320f021191565ca27ecc4ac5ceb"
+    },
+    "G4": {
+      "path": "receipts\\holarch\\g4_persistence.json",
+      "sha256": "c76b7ba0de7a966b1e725398a468d73e8d8cb65e4e7e9ebbd3fec22dc6b38b11"
+    }
+  },
+  "upstream_receipts": {
+    "f_cycle.json": "15a5ec1f11686c4dffc5f19073d61666f1568cf4d829713592364e0c98d975b5",
+    "code_lang_eval.json": "133da307e49317675e86fa77436d6b4eabaf8caab11a646f1a56deaa89886f36",
+    "holarch_medium.json": "a7142aa8a22a5d7806cf6f0c3cda9d9ced13d19195369a4004e3532bc709c2e3"
+  },
+  "summary": {
+    "passed": 4,
+    "total": 4
+  },
+  "wall_seconds": 476.5942388000258,
+  "evidence": "DERIVED"
+}

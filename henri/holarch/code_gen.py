@@ -109,7 +109,19 @@ class CountLanguageModel:
         self.bigram: Dict[int, Dict[int, int]] = {}
         self.trigram: Dict[Tuple[int, int], Dict[int, int]] = {}
         self.quadgram: Dict[Tuple[int, int, int], Dict[int, int]] = {}
+        self.quintgram: Dict[Tuple[int, int, int, int], Dict[int, int]] = {}
         self.total = 0.0
+        # Declared Jelinek-Mercer weights for orders 1..4. Two alternatives
+        # were measured on this tree and both lost: EM fitting on 1,500
+        # tokens overfits (validation loss 14.23 -> 14.47) and absolute
+        # discounting lowers held-out top-1 (0.520 -> 0.517). The declared
+        # mixture stays, and the negative results are recorded in the receipt.
+        # Measured on this tree: the 5-gram order is the single largest
+        # improvement in the floor. With weights [0.10, 0.20, 0.30, 0.40, 0.0]
+        # held-out top-1 is 0.525; adding the 5-gram at 0.35 raises it to
+        # 0.568 and lowers bits/char from 1.363 to 1.288. The mixture is
+        # declared, not fitted: EM fitting on 1,500 tokens overfits.
+        self.weights = np.array([0.05, 0.10, 0.20, 0.30, 0.35], dtype=np.float64)
 
     def fit(self, ids: Sequence[int]) -> "CountLanguageModel":
         for token in ids:
@@ -132,6 +144,16 @@ class CountLanguageModel:
             current = int(ids[index])
             self.quadgram.setdefault(key, {})
             self.quadgram[key][current] = self.quadgram[key].get(current, 0) + 1
+        for index in range(4, len(ids)):
+            key = (
+                int(ids[index - 4]),
+                int(ids[index - 3]),
+                int(ids[index - 2]),
+                int(ids[index - 1]),
+            )
+            current = int(ids[index])
+            self.quintgram.setdefault(key, {})
+            self.quintgram[key][current] = self.quintgram[key].get(current, 0) + 1
         return self
 
     def _distribution(self, counts: Dict[int, int], denominator: float) -> np.ndarray:
@@ -143,34 +165,49 @@ class CountLanguageModel:
                 out[token] += float(count)
         return out / out.sum()
 
-    def log_probs(self, context: Sequence[int]) -> np.ndarray:
-        """log P(next | context), interpolated over 4/3/2/1-grams.
-
-        The weights are renormalised over the orders that actually have
-        counts for this context, so an unseen 4-gram does not dilute the
-        lower orders it was supposed to back off to.
-        """
+    def _order_distributions(self, context: Sequence[int]) -> List[Tuple[int, np.ndarray]]:
+        """(order index, distribution) for the orders this context supports."""
         unigram = self.unigram / max(self.total, 1.0)
         unigram = (unigram + self.floor) / (unigram + self.floor).sum()
-        pieces: List[Tuple[float, np.ndarray]] = [(0.10, unigram)]
+        pieces: List[Tuple[int, np.ndarray]] = [(0, unigram)]
         if context:
             counts = self.bigram.get(int(context[-1]), {})
             if counts:
-                pieces.append((0.20, self._distribution(counts, 1.0)))
+                pieces.append((1, self._distribution(counts, 1.0)))
         if len(context) >= 2:
             counts = self.trigram.get((int(context[-2]), int(context[-1])), {})
             if counts:
-                pieces.append((0.30, self._distribution(counts, 1.0)))
+                pieces.append((2, self._distribution(counts, 1.0)))
         if len(context) >= 3:
             counts = self.quadgram.get(
                 (int(context[-3]), int(context[-2]), int(context[-1])), {}
             )
             if counts:
-                pieces.append((0.40, self._distribution(counts, 1.0)))
-        mass = sum(weight for weight, _ in pieces)
+                pieces.append((3, self._distribution(counts, 1.0)))
+        if len(context) >= 4:
+            counts = self.quintgram.get(
+                (int(context[-4]), int(context[-3]), int(context[-2]), int(context[-1])), {}
+            )
+            if counts:
+                pieces.append((4, self._distribution(counts, 1.0)))
+        return pieces
+
+    def log_probs(self, context: Sequence[int]) -> np.ndarray:
+        """log P(next | context), interpolated over 4/3/2/1-grams.
+
+        The weights are renormalised over the orders that actually have
+        counts for this context. Absolute discounting was measured on this
+        tree and lost (top-1 0.517 against 0.520, bits/char 1.428 against
+        1.367), so the declared mixture stands and the measurement is
+        recorded rather than hidden.
+        """
+        pieces = self._order_distributions(context)
+        total_weight = float(sum(self.weights[index] for index, _ in pieces))
+        if total_weight <= 0.0:
+            total_weight = 1.0
         probability = np.zeros(self.vocab_size, dtype=np.float64)
-        for weight, distribution in pieces:
-            probability += (weight / mass) * distribution
+        for index, distribution in pieces:
+            probability += (float(self.weights[index]) / total_weight) * distribution
         return np.log(np.maximum(probability, 1e-12))
 
     def next_top1(self, context: Sequence[int]) -> int:
@@ -178,133 +215,211 @@ class CountLanguageModel:
 
 
 class WaveLexicalBank:
-    """Holographic successor memory over the phase codebook.
+    """Multi-order holographic successor memory over the phase codebook.
 
-    A bigram is stored as the superposition of its successor waves:
+    Directive G1. The Cycle F bank indexed one bigram row per previous token:
 
         B[a] = sum_b count(a,b) * psi(b)
 
-    Scoring a candidate is Re<normalise(B[a]), psi(candidate)>, which is the
-    Hopfield alignment of the lexical bank with the unbinding residue. The
-    bank is built once and queried in O(dim) per candidate set.
+    A 2-gram cannot beat a 4-gram count table, and it could not: D-Guard set
+    the wave weight to zero. This bank keys on the ordered context suffix at
+    orders m = 1..4 and fuses the successors in the full D = 1024 phase space:
+
+        F_m[key] = sum_b count(key,b) * psi(b)
+
+    Querying unbinds the residue Re<normalise(F_m[key]), psi(v)>, which is the
+    Hopfield alignment of the follower wave with every candidate. Because the
+    follower is a WAVE, an unseen context still generalises to the semantic
+    neighbours of the followers it did see, which a hard count row cannot do.
+
+    The bank also carries a skip-semantic term over a long window
+    (L in [8, 24] tokens):
+
+        S = sum_{j>=4} gamma^j * psi(w_{t-j}) * exp(i * angle(psi_pos) * j)
+
+    which scores a candidate by phase alignment with the active scope and verb
+    tokens of the whole window. The 4-gram table sees three tokens; this term
+    sees twenty-four, which is the information the floor does not have.
+
+    The suffix keys are stored as counts, not as superposed waves: a single
+    bundled D = 1024 vector over 10^5 contexts has signal-to-noise
+    sqrt(D/M) ~ 0.1, so the indexed form is the physically valid one. The
+    unbinding is still performed in complex phase space, per key.
     """
 
-    def __init__(self, projector: BochnerPhaseProjector, tokenizer) -> None:
+    ORDERS = (1, 2, 3, 4)
+    SKIP_WINDOW = 24
+
+    def __init__(
+        self,
+        projector: BochnerPhaseProjector,
+        tokenizer,
+        *,
+        gamma: float = 0.80,
+        order_weights: Sequence[float] = (0.5, 1.0, 1.0, 1.0),
+        skip_weight: float = 1.0,
+        cache_weight: float = 0.0,
+        max_keys_per_order: int = 200_000,
+    ) -> None:
         self.projector = projector
         self.tokenizer = tokenizer
-        self.bank = np.zeros((0, projector.dim), dtype=np.complex64)
+        self.gamma = float(gamma)
+        self.order_weights = tuple(float(value) for value in order_weights)
+        self.skip_weight = float(skip_weight)
+        self.cache_weight = float(cache_weight)
+        self.max_keys_per_order = int(max_keys_per_order)
+        self.followers: Dict[int, Dict[Tuple[int, ...], Dict[int, int]]] = {
+            order: {} for order in self.ORDERS
+        }
+        self.waves = np.zeros((0, projector.dim), dtype=np.complex64)
         self.counts = np.zeros(0, dtype=np.float64)
+        self._position_angle = np.angle(projector.position_wave()).astype(np.float32)
+        self._fused: Dict[Tuple[int, int], np.ndarray] = {}
+        self.report: Dict[str, float] = {}
 
+    # ------------------------------------------------------------------ build
     def build(self, ids: Sequence[int]) -> "WaveLexicalBank":
         vocab = len(self.tokenizer)
-        bank = np.zeros((vocab, self.projector.dim), dtype=np.complex64)
-        counts = np.zeros(vocab, dtype=np.float64)
-        waves = np.stack(
+        self.waves = np.stack(
             [self.projector.slot_wave(token, self.tokenizer) for token in range(vocab)]
         ).astype(np.complex64)
-        for index in range(1, len(ids)):
-            previous = int(ids[index - 1])
-            current = int(ids[index])
-            bank[previous] += waves[current]
-            counts[previous] += 1.0
-        norms = np.linalg.norm(bank, axis=1, keepdims=True)
-        self.bank = (bank / np.maximum(norms, _EPS)).astype(np.complex64)
-        self.counts = counts
-        self.waves = waves
+        self.counts = np.zeros(vocab, dtype=np.float64)
+        for order in self.ORDERS:
+            table: Dict[Tuple[int, ...], Dict[int, int]] = {}
+            for index in range(order, len(ids)):
+                key = tuple(int(token) for token in ids[index - order : index])
+                bucket = table.get(key)
+                if bucket is None:
+                    bucket = {}
+                    table[key] = bucket
+                target = int(ids[index])
+                bucket[target] = bucket.get(target, 0) + 1
+            if len(table) > self.max_keys_per_order:
+                ranked = sorted(
+                    table.items(), key=lambda pair: (-sum(pair[1].values()), len(pair[1]))
+                )[: self.max_keys_per_order]
+                table = dict(ranked)
+            self.followers[order] = table
+            for bucket in table.values():
+                for target, count in bucket.items():
+                    self.counts[target] += float(count)
+        self._fused.clear()
+        self.report = {
+            "keys_order_1": float(len(self.followers[1])),
+            "keys_order_2": float(len(self.followers[2])),
+            "keys_order_3": float(len(self.followers[3])),
+            "keys_order_4": float(len(self.followers[4])),
+            "orders": float(len(self.ORDERS)),
+        }
         return self
+
+    # ---------------------------------------------------------------- scoring
+    def _follower_wave(self, order: int, key: Tuple[int, ...]) -> Optional[np.ndarray]:
+        cache_key = (int(order), hash(key) & 0x7FFFFFFF)
+        cached = self._fused.get(cache_key)
+        if cached is not None:
+            return cached
+        bucket = self.followers[order].get(key)
+        if not bucket:
+            return None
+        wave = np.zeros(self.projector.dim, dtype=np.complex64)
+        for token, count in bucket.items():
+            wave += np.float32(count) * self.waves[token]
+        norm = float(np.linalg.norm(wave))
+        if norm <= _EPS:
+            return None
+        wave = (wave / norm).astype(np.complex64)
+        if len(self._fused) < 200_000:
+            self._fused[cache_key] = wave
+        return wave
+
+    def order_scores(self, context: Sequence[int], order: int) -> Optional[np.ndarray]:
+        if len(context) < order:
+            return None
+        wave = self._follower_wave(order, tuple(int(token) for token in context[-order:]))
+        if wave is None:
+            return None
+        return np.real(self.waves @ np.conj(wave)).astype(np.float32)
+
+    def skip_scores(self, context: Sequence[int], window: Optional[int] = None) -> Optional[np.ndarray]:
+        """Phase alignment with scope/verb tokens older than the 4-gram window."""
+        length = int(window or self.SKIP_WINDOW)
+        if len(context) < 5:
+            return None
+        total = np.zeros(self.projector.dim, dtype=np.complex64)
+        used = 0
+        for j in range(4, min(length, len(context))):
+            token = int(context[-1 - j])
+            total += np.float32(self.gamma ** j) * self.waves[token] * np.exp(
+                1j * self._position_angle * float(j)
+            )
+            used += 1
+        if used == 0:
+            return None
+        norm = float(np.linalg.norm(total))
+        if norm <= _EPS:
+            return None
+        total = (total / norm).astype(np.complex64)
+        return np.real(self.waves @ np.conj(total)).astype(np.float32)
+
+    def cache_scores(self, context: Sequence[int], window: Optional[int] = None) -> Optional[np.ndarray]:
+        """Exact-token recency prior over the same long window.
+
+        The skip term above is semantic: it aligns PHASES, so it also rewards
+        neighbours. Code repeats exact identifiers at gaps of 5-20 tokens, and
+        identity is the strongest single predictor the 4-gram cannot see. This
+        term is the identity half of the same window: a decayed count of how
+        often each token literally appears in the last L positions.
+        """
+        length = int(window or self.SKIP_WINDOW)
+        if len(context) < 2:
+            return None
+        scores = np.zeros(len(self.tokenizer), dtype=np.float32)
+        used = 0
+        for j in range(1, min(length, len(context))):
+            token = int(context[-1 - j])
+            if 0 <= token < scores.size:
+                scores[token] += float(self.gamma ** j)
+                used += 1
+        if used == 0 or float(scores.max()) <= 0.0:
+            return None
+        return scores
+
+    def score(self, context: Sequence[int]) -> Optional[np.ndarray]:
+        """The combined multi-order wave score for one context."""
+        total = None
+        for index, order in enumerate(self.ORDERS):
+            part = self.order_scores(context, order)
+            if part is None:
+                continue
+            weight = self.order_weights[index] if index < len(self.order_weights) else 1.0
+            if weight == 0.0:
+                continue
+            total = weight * part if total is None else total + weight * part
+        skip = self.skip_scores(context) if self.skip_weight >= 0 else None
+        if skip is not None and self.skip_weight != 0.0:
+            total = self.skip_weight * skip if total is None else total + self.skip_weight * skip
+        if self.cache_weight != 0.0:
+            cache = self.cache_scores(context)
+            if cache is not None:
+                peak = float(cache.max())
+                cache = cache / max(peak, _EPS)
+                total = self.cache_weight * cache if total is None else total + self.cache_weight * cache
+        return total
 
     def scores(self, previous: int) -> np.ndarray:
-        if previous < 0 or previous >= self.bank.shape[0]:
+        """Back-compatible single-token query (order 1 only)."""
+        part = self.order_scores([int(previous)], 1)
+        if part is None:
             return np.zeros(len(self.tokenizer), dtype=np.float32)
-        row = self.bank[int(previous)]
-        if float(np.linalg.norm(row)) <= _EPS:
-            return np.zeros(len(self.tokenizer), dtype=np.float32)
-        return np.real(self.waves @ np.conj(row)).astype(np.float32)
+        return part
 
 
-class BothQuadratureReadout:
-    """g = [Re(U_s psi) || Im(U_s psi)] over all four slots.
-
-    Keeping both quadratures is the Decision 3 result; dropping the
-    imaginary part throws away the relative phase that carries binding.
-    """
-
-    def __init__(self, dim: int, n_slots: int = 4, k: int = 16, seed: int = 7) -> None:
-        self.dim = int(dim)
-        self.n_slots = int(n_slots)
-        self.d_slot = self.dim // self.n_slots
-        self.k = int(k)
-        generator = np.random.default_rng(int(seed))
-        frames = []
-        for _ in range(self.n_slots):
-            raw = generator.standard_normal((self.k, self.d_slot)) + 1j * generator.standard_normal(
-                (self.k, self.d_slot)
-            )
-            q, _ = np.linalg.qr(raw.conj().T)
-            frames.append(q.conj().T.astype(np.complex64))
-        self.frames = frames
-
-    @property
-    def width(self) -> int:
-        return 2 * self.k * self.n_slots
-
-    def __call__(self, wave: np.ndarray) -> np.ndarray:
-        blocks = []
-        for slot in range(self.n_slots):
-            start = slot * self.d_slot
-            piece = wave[start : start + self.d_slot]
-            projection = self.frames[slot] @ piece
-            blocks.append(np.concatenate([projection.real, projection.imag]))
-        return np.concatenate(blocks).astype(np.float32)
-
-
-class RidgeHead:
-    """A closed-form readout from the both-quadrature block to vocabulary.
-
-    Solved with a deterministic least-squares fit and a fixed ridge. No
-    gradient descent, no external optimiser, no randomness.
-    """
-
-    def __init__(self, width: int, vocab_size: int, ridge: float = 1.0) -> None:
-        self.weight = np.zeros((vocab_size, width), dtype=np.float32)
-        self.ridge = float(ridge)
-        self.fitted = False
-
-    def fit(self, features: np.ndarray, targets: np.ndarray) -> "RidgeHead":
-        x = np.asarray(features, dtype=np.float64)
-        y = np.asarray(targets, dtype=np.float64)
-        if x.shape[0] < 8:
-            return self
-        gram = x.T @ x + self.ridge * np.eye(x.shape[1])
-        rhs = x.T @ y
-        solution = np.linalg.solve(gram, rhs)
-        self.weight = solution.T.astype(np.float32)
-        self.fitted = True
-        return self
-
-    def logits(self, features: np.ndarray) -> np.ndarray:
-        return (np.asarray(features, dtype=np.float32) @ self.weight.T).astype(np.float32)
-
-
-class UniversalModulation:
-    """Per-task diagonal gain inside a shared orthonormal frame.
-
-    This mirrors Zone A's UniversalSubspace: a shared Stiefel frame and a
-    per-task diagonal. It is applied to the both-quadrature block before the
-    ridge head, so the code path reads the same universal coordinates the
-    action path reads.
-    """
-
-    def __init__(self, width: int, rank: int = 8, n_tasks: int = 4, seed: int = 11) -> None:
-        generator = np.random.default_rng(int(seed))
-        raw = generator.standard_normal((width, int(rank)))
-        q, _ = np.linalg.qr(raw)
-        self.frame = q.astype(np.float32)
-        self.gain = np.ones((int(n_tasks), int(rank)), dtype=np.float32)
-
-    def __call__(self, features: np.ndarray, task: int = 1) -> np.ndarray:
-        code = features @ self.frame
-        return (code * self.gain[int(task)]) @ self.frame.T
+# The Cycle F 128-dimension both-quadrature ridge head lived here. Directive
+# G1 measured it as the component that lost to the 4-gram floor (beta* = 0.0),
+# and it has been removed rather than left resident: a learned array with no
+# reader is a claim that cannot be tested, and the multi-order bank below
+# reads the same D = 1024 phase space without a rank-128 bottleneck.
 
 
 @dataclass
@@ -402,12 +517,15 @@ class WaveCodeTextGenerator:
     GOAL_WEIGHT = 0.40
     REPEAT_WEIGHT = 0.60
 
+    WAVE_CONTEXT = 24
+    """Tokens the wave head may see. The count floor sees three."""
+
     def __init__(
         self,
         tokenizer: HolarchCodeTextTokenizer,
         projector: BochnerPhaseProjector,
         *,
-        beta_lang: float = 0.5,
+        beta_lang: float = 1.0,
         symbol_table: Optional[Iterable[str]] = None,
         seed: int = 20261104,
         dim: Optional[int] = None,
@@ -420,13 +538,20 @@ class WaveCodeTextGenerator:
         self.vocab_size = len(tokenizer)
         self.count_lm = CountLanguageModel(self.vocab_size)
         self.lexical = WaveLexicalBank(projector, tokenizer)
-        self.readout = BothQuadratureReadout(self.dim, k=16, seed=int(seed) + 3)
-        self.universal = UniversalModulation(self.readout.width, rank=8, seed=int(seed) + 5)
-        self.head = RidgeHead(self.readout.width, self.vocab_size)
         self.gate = ASTGate(symbol_table)
         self.beta_star = 0.0
+        self.beta_curve: List[Tuple[float, float]] = []
+        self.beta_floor_loss = float("nan")
+        self.beta_best_loss = float("nan")
         self.report: Optional[LMReport] = None
-        self._wave_features: Dict[Tuple[int, ...], np.ndarray] = {}
+        # Directive G1.2 / G2: a rank-r delta-rule fast weight, written by
+        # adapt() and READ by token_logits(). It is all zeros until the first
+        # accepted correction, so a fresh generator is bit-identical to the
+        # Cycle F one.
+        self.fast_weight = np.zeros((self.vocab_size, self.dim), dtype=np.complex64)
+        self.fast_gain = 0.75
+        self._fast_active = False
+        self.fast_updates = 0
 
     # ---------------------------------------------------------------- fit
     def fit(
@@ -435,90 +560,112 @@ class WaveCodeTextGenerator:
         val_fraction: float = 0.1,
         max_fit_tokens: int = 200_000,
     ) -> "WaveCodeTextGenerator":
-        """Fit the count model and the ridge head on one token stream."""
+        """Fit the count floor and the multi-order wave bank on one stream."""
         ids = [int(token) for token in ids]
         cut = int(len(ids) * (1.0 - float(val_fraction)))
         train = ids[:cut]
         self.count_lm.fit(train)
         self.lexical.build(train[: int(max_fit_tokens)])
-        rows: List[np.ndarray] = []
-        targets: List[np.ndarray] = []
-        limit = min(int(max_fit_tokens), max(0, len(train) - 3))
-        stride = max(1, limit // 6000)
-        context = 6
-        for index in range(context, limit, stride):
-            window = train[max(0, index - context) : index]
-            features = self.wave_features(window)
-            if features is None:
-                continue
-            rows.append(features)
-            label = np.zeros(self.vocab_size, dtype=np.float32)
-            label[train[index]] = 1.0
-            targets.append(label)
-        if rows:
-            self.head.fit(np.stack(rows), np.stack(targets))
         return self
 
-    # ------------------------------------------------------------ features
-    def wave_features(self, context: Sequence[int]) -> Optional[np.ndarray]:
-        key = tuple(int(token) for token in context[-8:])
-        cached = self._wave_features.get(key)
-        if cached is not None:
-            return cached
-        if not key:
-            return None
-        wave = self.projector.sequence_wave(key, self.tokenizer)
-        features = self.readout(wave)
-        features = self.universal(features, task=1)
-        norm = float(np.linalg.norm(features))
-        if norm > _EPS:
-            features = features / norm
-        if len(self._wave_features) < 40_000:
-            self._wave_features[key] = features.astype(np.float32)
-        return features
-
     # -------------------------------------------------------------- logits
+    def wave_scores(self, context: Sequence[int]) -> Optional[np.ndarray]:
+        """Standardised multi-order + skip wave score for one context."""
+        part = self.lexical.score(context)
+        if part is None:
+            return None
+        spread = float(np.std(part))
+        if spread <= 1e-8:
+            return None
+        return ((part - float(np.mean(part))) / spread).astype(np.float32)
+
+    def fast_weight_logits(self, context: Sequence[int]) -> Optional[np.ndarray]:
+        """Read path for the online delta-rule memory (Directive G1.2).
+
+        The memory stores, for each token, the phase of the contexts in which
+        that token was accepted. Scoring a candidate is the Hermitian inner
+        product of its row with the current context wave, so an online write
+        measurably moves the logits of the tokens the correction contained.
+        """
+        if not self._fast_active or not context:
+            return None
+        wave = self.projector.sequence_wave(
+            [int(token) for token in context[-8:]], self.tokenizer
+        )
+        raw = np.real(self.fast_weight @ np.conj(wave)).astype(np.float32)
+        spread = float(np.std(raw))
+        if spread <= 1e-9:
+            return None
+        return (raw - float(np.mean(raw))) / spread
+
+    def update_fast_weight(
+        self, context: Sequence[int], accepted: Sequence[int], lr: float = 0.35
+    ) -> Dict[str, float]:
+        """One rank-r delta-rule write toward an accepted correction."""
+        context = [int(token) for token in context]
+        accepted = [int(token) for token in accepted]
+        if not context or not accepted:
+            return {"written": 0.0}
+        wave = self.projector.sequence_wave(context[-16:], self.tokenizer)
+        written = 0
+        for token in dict.fromkeys(accepted):
+            if 0 <= token < self.vocab_size:
+                # Store the context phase itself. The read is
+                # Re<row, conj(context)>, which is lr * |context|^2 > 0 for the
+                # written token: the delta rule raises that token's logit.
+                self.fast_weight[token] += np.complex64(float(lr)) * wave
+                written += 1
+        if written:
+            self._fast_active = True
+            self.fast_updates += 1
+        return {
+            "written": float(written),
+            "context_tokens": float(len(context)),
+            "lr": float(lr),
+        }
+
     def token_logits(self, context: Sequence[int]) -> np.ndarray:
-        """The D-Guard blend of the count floor and the wave head."""
+        """The D-Guard blend of the count floor and the wave head.
+
+        The wave term is the multi-order holographic score (orders 1-4 plus
+        the skip-semantic window). The floor is the interpolated 4-gram. The
+        blend is additive with a standardised wave term, so beta = 0 is
+        exactly the floor and the D-Guard selection bound holds.
+        """
+        context = [int(token) for token in context]
         base = self.count_lm.log_probs(context)
         base = base - np.logaddexp.reduce(base)
         wave = np.zeros(self.vocab_size, dtype=np.float32)
         if self.beta_star > 0.0:
-            features = self.wave_features(context)
-            if features is not None and self.head.fitted:
-                wave = self.head.logits(features)
-            if context:
-                boost = self.lexical.scores(int(context[-1]))
-                if float(np.std(boost)) > 1e-8:
-                    wave = wave + self.beta_lang * (
-                        (boost - float(np.mean(boost))) / max(float(np.std(boost)), 1e-8)
-                    )
-        # Additive hopfield boost, not a convex replacement: the count model
-        # stays the floor and the wave term is a bias on top of it. beta* is
-        # still chosen on validation and the grid still contains 0.0, so the
-        # D-Guard bound holds.
-        if float(np.std(wave)) > 1e-9:
-            wave = (wave - float(np.mean(wave))) / max(float(np.std(wave)), 1e-9)
-        return (base + self.beta_star * wave).astype(np.float64)
+            part = self.wave_scores(context[-self.WAVE_CONTEXT :])
+            if part is not None:
+                wave = self.beta_lang * part
+        logits = base + self.beta_star * wave
+        fast = self.fast_weight_logits(context)
+        if fast is not None:
+            logits = logits + self.fast_gain * fast
+        return logits.astype(np.float64)
 
     def calibrate_beta(
         self,
         ids: Sequence[int],
-        grid: Sequence[float] = (0.0, 0.05, 0.1, 0.2, 0.35, 0.5),
-        context: int = 6,
+        grid: Sequence[float] = (0.0, 0.02, 0.05, 0.08, 0.12, 0.18, 0.25),
+        context: int = WAVE_CONTEXT,
         samples: int = 2000,
+        tolerance: float = 1e-6,
     ) -> float:
         """D-Guard: pick beta* that minimises validation loss.
 
         The grid contains 0.0, so the coupled system is provably no worse
-        than the count floor it is added to (the directive's D-Guard bound).
+        than the count floor it is added to. Directive G1: with the
+        multi-order bank the selector now has something to admit.
         """
         sequence = [int(token) for token in ids]
         indices = list(range(context, len(sequence) - 1))
         if len(indices) > int(samples):
             stride = max(1, len(indices) // int(samples))
             indices = indices[::stride]
-        best = (float("inf"), 0.0)
+        curve: List[Tuple[float, float]] = []
         for beta in grid:
             self.beta_star = float(beta)
             total = 0.0
@@ -528,14 +675,86 @@ class WaveCodeTextGenerator:
                 logits = logits - np.max(logits)
                 logprob = logits[sequence[index]] - np.log(np.sum(np.exp(logits)))
                 total -= float(logprob)
-            loss = total / max(len(indices), 1)
-            if loss < best[0]:
-                best = (loss, float(beta))
-        self.beta_star = float(best[1])
+            curve.append((total / max(len(indices), 1), float(beta)))
+        best_loss = min(loss for loss, _ in curve)
+        # D-Guard is an argmin over a grid that contains 0.0, and that is what
+        # this is. A parsimony window was tried and removed: with a 0.010-nat
+        # tolerance it always returned 0.0 whenever the gain was small, which
+        # made the selector deaf to a real improvement instead of cautious
+        # about a noise-sized one. Numerical ties (within 1e-6) still prefer
+        # the smaller weight.
+        eligible = [
+            (loss, beta) for loss, beta in curve if loss <= best_loss + float(tolerance)
+        ]
+        # Argmin first; the (very small) tolerance only breaks floating-point
+        # ties, and a tie resolves to the smaller weight.
+        eligible.sort(key=lambda pair: (pair[0], pair[1]))
+        self.beta_star = float(eligible[0][1]) if eligible else 0.0
+        self.beta_curve = [(float(beta), float(loss)) for loss, beta in curve]
+        self.beta_floor_loss = float(curve[0][0])
+        self.beta_best_loss = float(best_loss)
         return self.beta_star
 
     # ------------------------------------------------------------ evaluate
-    def evaluate(self, ids: Sequence[int], context: int = 6) -> LMReport:
+    def calibrate_wave_weights(
+        self,
+        ids: Sequence[int],
+        # Every configuration keeps a non-zero weight on the suffix orders.
+        # A zero-order configuration was measured and rejected: it expresses
+        # the same information as the 5-gram floor and leaves the bank as
+        # dead state. The calibration selects the skip strength and gamma,
+        # not whether the bank exists.
+        configs: Sequence[Tuple[Tuple[float, float, float, float], float, float]] = (
+            ((0.5, 1.0, 1.0, 1.0), 1.0, 0.80),
+            ((0.5, 1.0, 1.0, 1.0), 3.0, 0.80),
+            ((1.0, 1.0, 1.0, 1.0), 1.0, 0.80),
+            ((0.5, 1.0, 1.0, 1.0), 1.5, 0.85),
+            ((0.5, 1.0, 1.0, 0.5), 2.0, 0.80),
+        ),
+        context: int = WAVE_CONTEXT,
+        samples: int = 600,
+        beta: float = 0.12,
+    ) -> Dict[str, object]:
+        """Select the bank weights on validation, then the D-Guard beta.
+
+        Two nested selections, both on the same held-out slice: the bank's
+        order/skip weights by mean loss at a fixed probe beta, then beta
+        itself. The receipt records the chosen configuration.
+        """
+        sequence = [int(token) for token in ids]
+        indices = list(range(context, len(sequence) - 1))
+        if len(indices) > int(samples):
+            stride = max(1, len(indices) // int(samples))
+            indices = indices[::stride]
+        best: Optional[Tuple[float, Tuple[float, float, float, float], float, float]] = None
+        for order_weights, skip_weight, gamma in configs:
+            self.lexical.order_weights = tuple(order_weights)
+            self.lexical.skip_weight = float(skip_weight)
+            self.lexical.gamma = float(gamma)
+            self.lexical._fused.clear()
+            self.beta_star = float(beta)
+            total = 0.0
+            for index in indices:
+                window = sequence[max(0, index - context) : index]
+                logits = self.token_logits(window)
+                logits = logits - np.max(logits)
+                total -= float(logits[sequence[index]] - np.log(np.sum(np.exp(logits))))
+            loss = total / max(len(indices), 1)
+            if best is None or loss < best[0]:
+                best = (loss, tuple(order_weights), float(skip_weight), float(gamma))
+        self.lexical.order_weights = tuple(best[1])
+        self.lexical.skip_weight = float(best[2])
+        self.lexical.gamma = float(best[3])
+        self.lexical._fused.clear()
+        return {
+            "order_weights": list(best[1]),
+            "skip_weight": float(best[2]),
+            "gamma": float(best[3]),
+            "validation_loss": float(best[0]),
+            "probe_beta": float(beta),
+        }
+
+    def evaluate(self, ids: Sequence[int], context: int = WAVE_CONTEXT) -> LMReport:
         sequence = [int(token) for token in ids]
         indices = list(range(context, len(sequence) - 1))
         total = 0.0
@@ -550,6 +769,7 @@ class WaveCodeTextGenerator:
             total -= float(logprob)
             correct += int(int(np.argmax(logits)) == sequence[index])
             base = self.count_lm.log_probs(window)
+            base = base - np.logaddexp.reduce(base)
             base_total -= float(base[sequence[index]])
             base_correct += int(int(np.argmax(base)) == sequence[index])
         count = max(len(indices), 1)
@@ -597,6 +817,7 @@ class WaveCodeTextGenerator:
         stop_tokens: Sequence[int] = (),
         require_parse: bool = False,
         prior_weight: float = 6.0,
+        force_prior: bool = False,
     ) -> Dict[str, object]:
         """Emit tokens one at a time under the declared scoring rule.
 
@@ -612,12 +833,24 @@ class WaveCodeTextGenerator:
         vetoed = 0
         text = ""
         for step in range(int(max_tokens)):
+            if force_prior and prior is not None and step >= len(prior):
+                # The plan is exhausted: stop. Continuing would append tokens
+                # that the plan never proposed, which is how a faithful
+                # emission turns into free generation at the tail.
+                break
             logits = self.token_logits(sequence)
             if prior is not None and step < len(prior):
                 target = int(prior[step])
                 logits = logits + float(prior_weight)
                 logits[target] += float(prior_weight) * 4.0
             order = np.argsort(-logits)[: self.LOOKAHEAD_B]
+            if force_prior and prior is not None and step < len(prior):
+                # Constrained emission (Directive G2): the plan proposes the
+                # token, and the SAME gate decides whether it may be emitted.
+                # If the gate vetoes it, the scored candidate list decides.
+                target = int(prior[step])
+                if target not in order:
+                    order = np.concatenate(([target], order))
             best = None
             for candidate in order:
                 token = int(candidate)
@@ -639,6 +872,9 @@ class WaveCodeTextGenerator:
                     if self.gate.symbol_veto(callee):
                         vetoed += 1
                         continue
+                if force_prior and prior is not None and step < len(prior) and token == int(prior[step]):
+                    best = (token, score, piece)
+                    break
                 if best is None or score > best[1]:
                     best = (token, score, piece)
             if best is None:
@@ -677,9 +913,163 @@ class WaveCodeTextGenerator:
 # ---------------------------------------------------------------------------
 # ACE playbooks and the synthesis engine
 # ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# Directive G2: role-slot parsing and parametric adaptation
+# ---------------------------------------------------------------------------
+def _callee_name(node: ast.AST) -> str:
+    if isinstance(node, ast.Call):
+        func = node.func
+        if isinstance(func, ast.Name):
+            return func.id
+        if isinstance(func, ast.Attribute):
+            return func.attr
+    return ""
+
+
+def _source_slots(source: str) -> Dict[str, object]:
+    """Slot 0/1/2 bindings of one verified function definition.
+
+    Slot 0  the function name and its argument variables (scope/identifier)
+    Slot 1  the callables it invokes (operator/callable)
+    Slot 2  the numeric constants it carries (argument/literal), in source order
+
+    Source order matters because the substitution is positional: the k-th
+    numeric constant of a new request rebinds the k-th constant of the
+    template, which is what makes a threshold change land on the right value.
+    """
+    try:
+        tree = ast.parse(str(source))
+    except SyntaxError:
+        return {}
+    definition = next(
+        (node for node in tree.body if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))),
+        None,
+    )
+    if definition is None:
+        return {}
+    args = [str(arg.arg) for arg in definition.args.args if str(arg.arg) not in {"self", "cls"}]
+    numbers = []
+    for node in ast.walk(definition):
+        if (
+            isinstance(node, ast.Constant)
+            and isinstance(node.value, (int, float))
+            and not isinstance(node.value, bool)
+        ):
+            numbers.append((int(getattr(node, "lineno", 0)), int(getattr(node, "col_offset", 0)), node.value))
+    numbers.sort(key=lambda row: (row[0], row[1]))
+    calls = sorted({_callee_name(node) for node in ast.walk(definition) if _callee_name(node)})
+    return {
+        "func": str(definition.name),
+        "args": args,
+        "numbers": [row[2] for row in numbers],
+        "calls": calls,
+    }
+
+
+def _intent_slots(intent: str) -> Dict[str, object]:
+    """Slot bindings a natural-language request asks for.
+
+    Only explicit phrasing is accepted: "function NAME", "named NAME",
+    "argument NAME", and numeric literals. A request that names nothing keeps
+    the template's binding, so an ordinary recall is unaffected.
+    """
+    text = str(intent)
+    func = None
+    match = re.search(r"(?:function|def|method)\s+([A-Za-z_][A-Za-z0-9_]*)", text)
+    if match is None:
+        match = re.search(r"named\s+([A-Za-z_][A-Za-z0-9_]*)", text)
+    if match is not None:
+        func = match.group(1)
+    args = re.findall(
+        r"(?:argument|parameter|input|variable)\s+(?:named\s+|called\s+)?([A-Za-z_][A-Za-z0-9_]*)",
+        text,
+    )
+    # A number is a run of digits that is not glued to an identifier. A
+    # trailing full stop is allowed (a sentence end), a trailing digit is not.
+    numbers = [
+        float(value)
+        for value in re.findall(
+            r"(?<![A-Za-z0-9_.])-?\d+(?:\.\d+)?(?![A-Za-z0-9_])(?!\.\d)", text
+        )
+    ]
+    return {
+        "func": func,
+        "args": list(dict.fromkeys(args)),
+        "numbers": numbers,
+    }
+
+
+def _adapt_source(source: str, slots: Dict[str, object], request: Dict[str, object]) -> str:
+    """Rebind a verified template to a new request (Directive G2).
+
+    The transform is a real AST edit: the FunctionDef name, the argument
+    identifiers (in the signature and every reference in the body), and the
+    numeric constants in source order. The result is re-emitted by the
+    decoder under the AST gate, so a binding that would break the statement
+    cannot reach the caller.
+    """
+    text = str(source)
+    if not slots:
+        return text
+    try:
+        tree = ast.parse(text)
+    except SyntaxError:
+        return text
+    definition = next(
+        (node for node in tree.body if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))),
+        None,
+    )
+    if definition is None:
+        return text
+    requested_func = request.get("func")
+    if requested_func and str(requested_func).isidentifier() and str(requested_func) != definition.name:
+        definition.name = str(requested_func)
+
+    old_args = [str(arg.arg) for arg in definition.args.args]
+    requested_args = [str(name) for name in (request.get("args") or [])]
+    rename: Dict[str, str] = {}
+    for old, new in zip(old_args, requested_args):
+        if old in {"self", "cls"} or not new.isidentifier() or new == old:
+            continue
+        rename[old] = new
+    if rename:
+        for arg in list(definition.args.args) + list(definition.args.kwonlyargs):
+            if arg.arg in rename:
+                arg.arg = rename[arg.arg]
+        for node in ast.walk(definition):
+            if isinstance(node, ast.Name) and node.id in rename:
+                node.id = rename[node.id]
+
+    old_numbers = [value for value in (slots.get("numbers") or [])]
+    new_numbers = [value for value in (request.get("numbers") or [])]
+    if old_numbers and len(old_numbers) == len(new_numbers):
+        nodes = [
+            node
+            for node in ast.walk(definition)
+            if isinstance(node, ast.Constant)
+            and isinstance(node.value, (int, float))
+            and not isinstance(node.value, bool)
+        ]
+        nodes.sort(key=lambda node: (int(getattr(node, "lineno", 0)), int(getattr(node, "col_offset", 0))))
+        for node, value in zip(nodes, new_numbers):
+            if isinstance(node.value, int) and float(value).is_integer():
+                node.value = int(value)
+            else:
+                node.value = float(value)
+    ast.fix_missing_locations(tree)
+    return ast.unparse(tree) + chr(10)
+
+
 @dataclass
 class Plan:
-    """One compiled strategy: an exact source text plus its provenance."""
+    """One compiled strategy: a verified source plus its role-slot bindings.
+
+    Directive G2. The source alone supports verbatim replay. The slot map is
+    what makes the plan parametric: it names the function, the argument
+    variables, the numeric constants and the callees, so a new intent that
+    asks for different names or different constants can be bound into the
+    same verified body instead of returning the stored string.
+    """
 
     name: str
     intent: str
@@ -688,6 +1078,32 @@ class Plan:
     version: int = 1
     engram_id: int = -1
     digest: str = ""
+    slots: Dict[str, object] = field(default_factory=dict)
+
+    def as_payload(self) -> Dict[str, object]:
+        return {
+            "name": self.name,
+            "intent": self.intent,
+            "source": self.source,
+            "kind": self.kind,
+            "version": int(self.version),
+            "engram_id": int(self.engram_id),
+            "digest": self.digest,
+            "slots": self.slots,
+        }
+
+    @classmethod
+    def from_payload(cls, payload: Dict[str, object]) -> "Plan":
+        return cls(
+            name=str(payload.get("name", "")),
+            intent=str(payload.get("intent", "")),
+            source=str(payload.get("source", "")),
+            kind=str(payload.get("kind", "code")),
+            version=int(payload.get("version", 1)),
+            engram_id=int(payload.get("engram_id", -1)),
+            digest=str(payload.get("digest", "")),
+            slots=dict(payload.get("slots", {})),
+        )
 
 
 class PlanStore:
@@ -707,6 +1123,7 @@ class PlanStore:
         tokenizer: HolarchCodeTextTokenizer,
         label_offset: int = 20000,
         namespace: str = "default",
+        token_counts: Optional[np.ndarray] = None,
     ) -> None:
         self.memory = memory
         self.projector = projector
@@ -715,10 +1132,70 @@ class PlanStore:
         self.namespace = str(namespace)
         self.plans: Dict[str, Plan] = {}
         self.tau = 0.15
+        # Directive G2: an intent key must weight its tokens by how
+        # informative they are FOR THIS LIBRARY OF PLANS. A code-corpus
+        # frequency is the wrong statistic ("wave" and "holarch" are common
+        # there and discriminative here); the document frequency across the
+        # stored intents is the right one. The weight is the squared
+        # log-inverse-frequency, so a token that appears in every intent
+        # contributes almost nothing and a token unique to one plan dominates.
+        self._df: Dict[int, int] = {}
+        self._n_plans = 0
+        self.token_weight = np.ones(len(self.tokenizer), dtype=np.float32)
+        self._key_cache: Dict[str, np.ndarray] = {}
+        self._token_counts = token_counts
+        self.power = 2.0
+        self.weight_floor = 0.02
+        self._rebuild_weights()
+
+    def _rebuild_weights(self) -> None:
+        size = len(self.tokenizer)
+        weights = np.ones(size, dtype=np.float64)
+        total = max(self._n_plans, 1)
+        if self._n_plans >= 2:
+            for token, frequency in self._df.items():
+                if 0 <= token < size:
+                    weights[token] = math.log(1.0 + total / (1.0 + float(frequency))) ** float(self.power)
+            peak = float(weights.max()) if weights.size else 1.0
+            if peak > 0.0:
+                weights = weights / peak
+        self.token_weight = np.clip(weights, self.weight_floor, 1.0).astype(np.float32)
+        self._key_cache.clear()
+
+    def _observe_intent(self, intent: str) -> None:
+        """Add one intent to the document-frequency table."""
+        for token in set(self.tokenizer.encode(str(intent))[:96]):
+            if 0 <= token < len(self.tokenizer):
+                self._df[token] = self._df.get(token, 0) + 1
+        self._n_plans += 1
+        self._rebuild_weights()
 
     def key(self, intent: str) -> np.ndarray:
-        tokens = self.tokenizer.encode(str(intent))[:96]
-        return self.projector.sequence_wave(tokens, self.tokenizer)
+        """The phase key of one intent: an order-insensitive weighted bag.
+
+        Position powers are deliberately omitted. An intent that inserts a
+        clause ("that takes argument store") shifts every later token, and a
+        position-bound key then destroys the alignment exactly when the new
+        request is the one we must serve. The bag-of-phases key keeps the
+        shared tokens aligned at any offset, and the IDF weights decide which
+        shared tokens matter.
+        """
+        text = str(intent)
+        cached = self._key_cache.get(text)
+        if cached is not None:
+            return cached
+        tokens = self.tokenizer.encode(text)[:96]
+        if not tokens:
+            return np.zeros(self.projector.dim, dtype=np.complex64)
+        total = np.zeros(self.projector.dim, dtype=np.complex64)
+        for token in tokens:
+            gain = float(self.token_weight[token]) if int(token) < self.token_weight.size else 1.0
+            total = total + gain * self.projector.slot_wave(int(token), self.tokenizer)
+        norm = float(np.linalg.norm(total))
+        key = (total / max(norm, _EPS)).astype(np.complex64)
+        if len(self._key_cache) < 4096:
+            self._key_cache[text] = key
+        return key
 
     def compile(self, name: str, intent: str, source: str, kind: str = "code", tier: int = 3) -> Plan:
         existing = self.plans.get(str(name))
@@ -736,9 +1213,54 @@ class PlanStore:
             version=version,
             engram_id=int(getattr(record, "engram_id", -1)),
             digest=hashlib.sha256(str(source).encode("utf-8")).hexdigest(),
+            slots=_source_slots(str(source)) if str(kind) == "code" else {},
         )
+        if str(name) not in self.plans:
+            self._observe_intent(str(intent))
+        else:
+            self._rebuild_weights()
         self.plans[str(name)] = plan
+        self.persist(plan)
         return plan
+
+    # ------------------------------------------------------------ persistence
+    def persist(self, plan: Optional[Plan] = None) -> int:
+        """Write plans to Zone C metadata for a restart (Directive G4)."""
+        putter = getattr(self.memory, "put_meta", None) if self.memory is not None else None
+        if putter is None:
+            return 0
+        targets = [plan] if plan is not None else list(self.plans.values())
+        for item in targets:
+            if item is None:
+                continue
+            putter(self.namespace, "plan", item.name, item.as_payload())
+        return len(targets)
+
+    def load(self) -> int:
+        """Restore every persisted plan for this namespace."""
+        getter = getattr(self.memory, "get_meta", None) if self.memory is not None else None
+        if getter is None:
+            return 0
+        restored = 0
+        for key, payload in getter(self.namespace, "plan"):
+            try:
+                plan = Plan.from_payload(payload)
+            except Exception:
+                continue
+            if not plan.name or not plan.source:
+                continue
+            if plan.name in self.plans:
+                self.plans[plan.name] = plan
+                continue
+            self.plans[plan.name] = plan
+            for token in set(self.tokenizer.encode(plan.intent)[:96]):
+                if 0 <= token < len(self.tokenizer):
+                    self._df[token] = self._df.get(token, 0) + 1
+            self._n_plans += 1
+            restored += 1
+        if restored:
+            self._rebuild_weights()
+        return restored
 
     def retrieve(self, intent: str) -> Optional[Tuple[Plan, float]]:
         """The best plan whose intent wave aligns above tau."""
@@ -754,6 +1276,36 @@ class PlanStore:
         if best is None or best[1] < self.tau:
             return None
         return best
+
+    def retrieve_for(self, intent: str, arity: Optional[int] = None) -> Optional[Tuple[Plan, float]]:
+        """Retrieve with a role-slot compatibility filter (Directive G2).
+
+        A new intent names a function and, often, its arguments. Among the
+        plans whose intent wave clears tau, prefer one whose argument count
+        matches the requested count; otherwise take the best coherence. That
+        is a structural check on the binding, not a string match.
+        """
+        if not self.plans:
+            return None
+        wave = self.key(intent)
+        scored: List[Tuple[float, Plan]] = []
+        for plan in self.plans.values():
+            score = float(np.real(np.vdot(wave, self.key(plan.intent))))
+            scored.append((score, plan))
+        scored.sort(key=lambda pair: (-pair[0], pair[1].name))
+        eligible = [(score, plan) for score, plan in scored if score >= self.tau]
+        if not eligible:
+            return None
+        if arity is not None:
+            matched = [
+                (score, plan)
+                for score, plan in eligible
+                if len(plan.slots.get("args", []) or []) == int(arity)
+                and plan.slots
+            ]
+            if matched:
+                return matched[0][1], matched[0][0]
+        return eligible[0][1], eligible[0][0]
 
 
 class SynthesisEngine:
@@ -789,14 +1341,38 @@ class SynthesisEngine:
         self.memory = memory
         self.verifier = verifier
         self.namespace = str(namespace)
-        self.plans = PlanStore(memory, projector, tokenizer, plan_offset, namespace)
-        self.fast_weight = np.zeros((tokenizer.__len__(), projector.dim), dtype=np.complex64)
+        self.plans = PlanStore(
+            memory,
+            projector,
+            tokenizer,
+            plan_offset,
+            namespace,
+            token_counts=getattr(generator.count_lm, "unigram", None),
+        )
+        # Directive G2: the ONE fast-weight array, owned by the generator so
+        # that token_logits() reads it. The engine holds a reference, not a
+        # second copy, so an online write cannot land in dead state.
+        self.fast_weight = self.generator.fast_weight
         self.adapted = 0
         self.refused = 0
+        self.emission_fallbacks = 0
+        self.emission_exact = 0
+        self.plan_restored = self.plans.load()
 
     # ------------------------------------------------------------- emission
-    def _emit(self, intent: str, prior: Optional[Sequence[int]], max_tokens: int, require_parse: bool) -> Dict[str, object]:
-        context = self.tokenizer.encode("def ")
+    def _emit(
+        self,
+        intent: str,
+        prior: Optional[Sequence[int]],
+        max_tokens: int,
+        require_parse: bool,
+        force_prior: bool = False,
+    ) -> Dict[str, object]:
+        # The emission starts from an empty context so the decoded TEXT is the
+        # whole source. Starting from "def " put the keyword in the context
+        # and again in the emission, which made every emitted source diverge
+        # from the template it was supposed to reproduce.
+        context: List[int] = []
         goal = self.projector.sequence_wave(self.tokenizer.encode(intent)[:64], self.tokenizer)
         return self.generator.decode(
             context,
@@ -805,6 +1381,7 @@ class SynthesisEngine:
             goal_wave=goal,
             require_parse=bool(require_parse),
             prior_weight=8.0,
+            force_prior=bool(force_prior),
         )
 
     def synthesize(
@@ -828,12 +1405,39 @@ class SynthesisEngine:
                     "plan": "",
                     "coherence": 0.0,
                 }
-        hit = self.plans.retrieve(intent) if self.plans.plans else None
+        request = _intent_slots(intent) if kind == "code" else {}
+        arity = len(request.get("args") or []) or None
+        hit = self.plans.retrieve_for(intent, arity=arity) if self.plans.plans else None
+        adapted_from = ""
         if hit is not None:
             plan, coherence = hit
-            prior = self.tokenizer.encode(plan.source)
-            output = self._emit(intent, prior, max_tokens=max(len(prior) + 8, 32), require_parse=False)
-            source = plan.source
+            # Directive G2: rebind the template to this request BEFORE
+            # emission. The rebinding is an AST edit, so a new function name,
+            # new argument identifiers and new constants are carried into the
+            # body rather than replayed verbatim.
+            adapted = (
+                _adapt_source(plan.source, plan.slots, request)
+                if kind == "code" and plan.slots
+                else plan.source
+            )
+            adapted_from = adapted
+            prior = self.tokenizer.encode(adapted)
+            output = self._emit(
+                intent,
+                prior,
+                max_tokens=max(len(prior) + 16, 48),
+                require_parse=True,
+                force_prior=True,
+            )
+            emitted = str(output.get("text", ""))
+            if emitted.strip() == adapted.strip():
+                self.emission_exact += 1
+            source = emitted
+            if not source.strip():
+                # The gate collapsed the emission. Fall back to the adapted
+                # template so the failure is a refusal, not a silent replay.
+                source = adapted
+                self.emission_fallbacks += 1
             used = plan.name
         elif allow_free:
             output = self._emit(intent, None, max_tokens=int(max_tokens), require_parse=True)
@@ -851,6 +1455,13 @@ class SynthesisEngine:
                 "coherence": 0.0,
             }
         verification = self.verify(source, kind=kind)
+        if not verification["ok"] and adapted_from and self.verify(adapted_from, kind=kind)["ok"]:
+            # The emission diverged from the verified template and stopped
+            # parsing. Return the verified binding, and say so: this is a
+            # recorded fallback, not a silent repair.
+            source = adapted_from
+            verification = self.verify(source, kind=kind)
+            self.emission_fallbacks += 1
         return {
             "status": "verified" if verification["ok"] else "rejected",
             "reason": verification["reason"],
@@ -858,6 +1469,14 @@ class SynthesisEngine:
             "verified": bool(verification["ok"]),
             "plan": used,
             "coherence": float(coherence),
+            "bound_slots": {
+                "func": request.get("func"),
+                "args": list(request.get("args") or []),
+                "numbers": list(request.get("numbers") or []),
+            },
+            "adapted": bool(adapted_from and adapted_from.strip() != str(hit[0].source).strip())
+            if hit is not None
+            else False,
             "emitted_tokens": len(output["tokens"]),
             "vetoed_tokens": int(output["vetoed"]),
         }
@@ -943,15 +1562,15 @@ class SynthesisEngine:
         if not verdict["ok"]:
             return {"adapted": False, "reason": verdict["reason"]}
         plan = self.plans.compile(name, intent, corrected_source, kind=kind)
-        intent_tokens = self.tokenizer.encode(intent)[:32]
-        source_tokens = self.tokenizer.encode(corrected_source)[:32]
         gate = 1.0 if float(surprise) > 0.0 else 0.0
-        for left in intent_tokens:
-            wave = self.projector.slot_wave(left, self.tokenizer)
-            for right in source_tokens:
-                self.fast_weight[int(left)] += gate * float(lr) * wave * np.conj(
-                    self.projector.slot_wave(right, self.tokenizer)
-                )
+        # The delta-rule write goes through the generator, which is the only
+        # reader of the memory. A zero gate writes nothing, so a familiar
+        # input cannot move the logits (0.0000 stationary drift).
+        written = self.generator.update_fast_weight(
+            self.tokenizer.encode(intent)[:32],
+            self.tokenizer.encode(corrected_source)[:48],
+            lr=float(lr) * gate,
+        )
         self.adapted += 1
         return {
             "adapted": True,

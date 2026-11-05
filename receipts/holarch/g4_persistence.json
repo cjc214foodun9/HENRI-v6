@@ -1,0 +1,64 @@
+{
+  "stage": "G4",
+  "database": "receipts\\holarch\\_work\\g4_persistence.sqlite3",
+  "namespace": "tenant_prod",
+  "reingestion_calls_in_instance_2": 0,
+  "instance_1": {
+    "ingest": {
+      "files_parsed": 20.0,
+      "lines_parsed": 14101.0,
+      "parse_seconds": 0.27657049999106675,
+      "edges": 914.0,
+      "nodes": 428.0,
+      "signatures": 476.0,
+      "grammar_transitions": 522.0,
+      "boundary_engrams": 998.0,
+      "edges_ingested": 914.0,
+      "engrams_before": 998.0,
+      "engrams_after": 1912.0,
+      "parameters_unchanged": 1.0,
+      "namespace": "tenant_prod",
+      "tau_coherence": 0.9800000000000004,
+      "coherence_median": 1.0,
+      "n": 914.0,
+      "mode": "edges"
+    },
+    "adapted": {
+      "adapted": true,
+      "plan": "clamp_unit",
+      "version": 1,
+      "engram_id": 1917,
+      "digest": "7d926ae01c7fffffd957966f094d66e88de2696ee3d3f26ee24abf722fafcf3d",
+      "gate": 1.0
+    },
+    "measured": {
+      "solve": "s02",
+      "impact": 13,
+      "composite": "d3",
+      "synthesize": "verified",
+      "plan_restored_before": 0
+    },
+    "authoring_status": "rejected"
+  },
+  "instance_2": {
+    "measured": {
+      "solve": "s02",
+      "impact": 13,
+      "composite": "d3",
+      "synthesize": "verified",
+      "plan_restored_after": 1
+    },
+    "foreign_tenant_vetoed": true
+  },
+  "gate": {
+    "solve_1_0": true,
+    "impact_identical": true,
+    "composite_1_0": true,
+    "synthesize_1_0": true,
+    "plan_restored_from_disk": true,
+    "zero_reingestion": true,
+    "foreign_tenant_still_refused": true,
+    "passed": true
+  },
+  "evidence": "OBSERVED"
+}

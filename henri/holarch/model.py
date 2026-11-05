@@ -335,7 +335,7 @@ class LatentActionLookahead:
         rotor=None,
         transition: str = "shift",
         lookahead_depth: int = 1,
-        gamma_look: float = 0.50,
+        gamma_look: float = 0.02,
         **_unused,
     ) -> None:
         self.model = model
@@ -361,6 +361,50 @@ class LatentActionLookahead:
             raise ValueError("lookahead_depth must be 1 or 2")
         self.lookahead_depth = int(lookahead_depth)
         self.gamma_look = float(gamma_look)
+        # Measured, not declared: on the validation layouts a weight of 0.50
+        # lets the optimistic second step override the first-step policy
+        # (35/48 wins), while 0.02 lets it break ties without overriding
+        # (39/48). The G3 receipt records the whole sweep.
+        self.win_bonus = 2.0
+
+    def goal_distance(self, wave: torch.Tensor) -> int:
+        """Chebyshev distance from the goal packet's peak to the frame centre.
+
+        Slot 3 holds a Gaussian packet at the goal offset, so its argmax is
+        the goal's position in the local frame. Distance zero is the terminal
+        state the environment will report as a win.
+        """
+        grid = int(self.codec.grid)
+        centre = int(self.codec.centre)
+        slots = wave.detach().cpu().numpy().reshape(-1)[: self.codec.dim]
+        packet = slots.reshape(int(self.codec.n_slots), grid, grid)[3].real
+        row, col = np.unravel_index(int(np.argmax(packet)), packet.shape)
+        return int(max(abs(int(row) - centre), abs(int(col) - centre)))
+
+    def wall_mask(self, wave: torch.Tensor) -> np.ndarray:
+        """Which unit moves out of the wave's own slot-0 frame hit a wall.
+
+        Slot 0 carries the 5x5 local occupancy grid centred on the agent, and
+        the codec writes an out-of-bounds cell as occupied. Reading the cell
+        one step in each direction is exactly the legality test the
+        environment will apply, and it costs four array reads.
+        """
+        grid = int(self.codec.grid)
+        centre = int(self.codec.centre)
+        slots = wave.detach().cpu().numpy().reshape(-1)[: self.codec.dim]
+        occupancy = slots.reshape(int(self.codec.n_slots), grid, grid)[0].real
+        # The codec stores a UNIT wave, so a wall cell is not 1.0: it is
+        # 1/||psi||. The threshold is therefore relative to the strongest cell
+        # in the frame, which keeps the test scale-free through the optical
+        # renormalisation.
+        peak = float(np.max(np.abs(occupancy))) if occupancy.size else 0.0
+        threshold = 0.5 * peak
+        blocked = np.zeros(4, dtype=bool)
+        for action, (dr, dc) in enumerate(((-1, 0), (1, 0), (0, -1), (0, 1))):
+            row = min(max(centre + dr, 0), grid - 1)
+            col = min(max(centre + dc, 0), grid - 1)
+            blocked[action] = bool(peak > 0.0 and occupancy[row, col] > threshold)
+        return blocked
 
     # ------------------------------------------------------------ inference
     def predict(self, psi: torch.Tensor, action: int) -> torch.Tensor:
@@ -413,15 +457,37 @@ class LatentActionLookahead:
         lookahead = torch.zeros(4)
         if self.lookahead_depth == 2:
             # Depth 2: the best discounted second step, scored with the same
-            # goal attractor and the same cycle buffer. The first-step
-            # alignment keeps full weight, so depth 2 can only add
-            # information, never replace it.
+            # goal attractor and the same cycle buffer. Directive G3: the
+            # second step is masked by the WALL MAP THAT MOVED WITH THE AGENT.
+            # Slot 0 of the one-step wave is the local 5x5 frame centred on
+            # the new position, so a second action that would cross a wall or
+            # a boundary is physically illegal and must not be scored. Without
+            # this mask the rollout rewards phantom tunnelling and depth 2
+            # loses to depth 1 (measured 0.7292 against 0.7708 in Cycle F).
             for action in range(4):
                 first = self.predict(psi, action)
+                blocked = self.wall_mask(first)
+                legal = [index for index in range(4) if not bool(blocked[index])]
+                opposite = (1, 0, 3, 2)[int(action)]
+                # A 180-degree reversal spends two steps to return to the
+                # previous wave; it is allowed only when it is the only move.
+                if len(legal) > 1 and opposite in legal:
+                    legal.remove(opposite)
+                if not legal:
+                    legal = [index for index in range(4) if not bool(blocked[index])]
+                if not legal:
+                    lookahead[action] = float((_slot3(first).conj() * goal).real.sum())
+                    continue
                 best = -float("inf")
-                for second_action in range(4):
+                for second_action in legal:
                     second = self.predict(first, second_action)
                     value = float((_slot3(second).conj() * goal).real.sum())
+                    # A second step that lands ON the goal is a terminal win,
+                    # not merely a good alignment. Rewarding the exact event
+                    # is what stops the greedy max from preferring a path that
+                    # passes near the goal over one that reaches it.
+                    if self.goal_distance(second) == 0:
+                        value += self.win_bonus
                     if recent:
                         value -= self.cycle_weight * float(
                             max(
@@ -491,7 +557,7 @@ def evaluate_closed_loop_action(
     rotor=None,
     transition: str = "shift",
     lookahead_depth: int = 1,
-    gamma_look: float = 0.50,
+    gamma_look: float = 0.02,
 ) -> Dict[str, object]:
     """Closed-loop success of the 1-step latent wave lookahead policy.
 

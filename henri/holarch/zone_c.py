@@ -218,6 +218,21 @@ class SQLiteEngramStore:
         self._conn.execute(
             "CREATE INDEX IF NOT EXISTS idx_engram_namespace ON engram(dim, namespace, engram_id)"
         )
+        # Directive G4: sidecar metadata (tenant symbol tables, the code graph
+        # and the compiled plans) lives beside the engrams, so a process that
+        # restarts on this file answers without re-ingesting anything.
+        self._conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS engram_meta (
+                namespace TEXT NOT NULL,
+                kind TEXT NOT NULL,
+                key TEXT NOT NULL,
+                payload_json TEXT NOT NULL,
+                updated_at REAL NOT NULL,
+                PRIMARY KEY (namespace, kind, key)
+            )
+            """
+        )
         self._conn.commit()
 
     def _row(self, engram: Engram, dim: int) -> tuple:
@@ -239,6 +254,66 @@ class SQLiteEngramStore:
             float(engram.weight),
             str(engram.namespace),
         )
+
+    # ------------------------------------------------------------------ meta
+    def put_meta(self, namespace: str, kind: str, key: str, payload: dict) -> None:
+        import json as _json
+
+        with self._lock:
+            self._conn.execute(
+                "INSERT OR REPLACE INTO engram_meta VALUES (?,?,?,?,?)",
+                (
+                    str(namespace),
+                    str(kind),
+                    str(key),
+                    _json.dumps(payload, sort_keys=True, default=str),
+                    float(time.time()),
+                ),
+            )
+            self._conn.commit()
+
+    def get_meta(self, namespace: str, kind: str, key: Optional[str] = None) -> List[Tuple[str, dict]]:
+        import json as _json
+
+        with self._lock:
+            if key is None:
+                rows = self._conn.execute(
+                    "SELECT key, payload_json FROM engram_meta WHERE namespace=? AND kind=? ORDER BY key",
+                    (str(namespace), str(kind)),
+                ).fetchall()
+            else:
+                rows = self._conn.execute(
+                    "SELECT key, payload_json FROM engram_meta WHERE namespace=? AND kind=? AND key=?",
+                    (str(namespace), str(kind), str(key)),
+                ).fetchall()
+        out: List[Tuple[str, dict]] = []
+        for row in rows:
+            try:
+                out.append((str(row[0]), _json.loads(row[1])))
+            except Exception:
+                continue
+        return out
+
+    def meta_namespaces(self) -> List[str]:
+        with self._lock:
+            rows = self._conn.execute(
+                "SELECT DISTINCT namespace FROM engram_meta ORDER BY namespace"
+            ).fetchall()
+        return [str(row[0]) for row in rows]
+
+    def delete_meta(self, namespace: str, kind: Optional[str] = None) -> int:
+        with self._lock:
+            if kind is None:
+                cur = self._conn.execute(
+                    "DELETE FROM engram_meta WHERE namespace=?", (str(namespace),)
+                )
+            else:
+                cur = self._conn.execute(
+                    "DELETE FROM engram_meta WHERE namespace=? AND kind=?",
+                    (str(namespace), str(kind)),
+                )
+            self._conn.commit()
+        return int(cur.rowcount)
 
     def append(self, engram: Engram) -> None:
         self.append_many([engram])
@@ -412,6 +487,20 @@ class TimescaleEngramStore:
                 f"CREATE INDEX IF NOT EXISTS idx_{self.table}_namespace "
                 f"ON {self.table}(dim, namespace, engram_id)"
             )
+            # Directive G4: the same metadata table, so both backends restore
+            # the same sidecar state after a restart.
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS engram_meta (
+                    namespace TEXT NOT NULL,
+                    kind TEXT NOT NULL,
+                    key TEXT NOT NULL,
+                    payload_json TEXT NOT NULL,
+                    updated_at TIMESTAMPTZ NOT NULL,
+                    PRIMARY KEY (namespace, kind, key)
+                )
+                """
+            )
             cur.execute(
                 f"SELECT create_hypertable('{self.table}','recorded_at',"
                 " chunk_time_interval => INTERVAL '1 hour',"
@@ -439,6 +528,59 @@ class TimescaleEngramStore:
             float(engram.weight),
             str(engram.namespace),
         )
+
+    # ------------------------------------------------------------------ meta
+    def put_meta(self, namespace: str, kind: str, key: str, payload: dict) -> None:
+        import json as _json
+
+        with self._lock, self._conn.cursor() as cur:
+            cur.execute(
+                "INSERT INTO engram_meta VALUES (%s,%s,%s,%s,now()) "
+                "ON CONFLICT (namespace, kind, key) DO UPDATE SET "
+                "payload_json = EXCLUDED.payload_json, updated_at = now()",
+                (str(namespace), str(kind), str(key), _json.dumps(payload, sort_keys=True, default=str)),
+            )
+
+    def get_meta(self, namespace: str, kind: str, key: Optional[str] = None) -> List[Tuple[str, dict]]:
+        import json as _json
+
+        with self._lock, self._conn.cursor() as cur:
+            if key is None:
+                cur.execute(
+                    "SELECT key, payload_json FROM engram_meta WHERE namespace=%s AND kind=%s ORDER BY key",
+                    (str(namespace), str(kind)),
+                )
+            else:
+                cur.execute(
+                    "SELECT key, payload_json FROM engram_meta "
+                    "WHERE namespace=%s AND kind=%s AND key=%s",
+                    (str(namespace), str(kind), str(key)),
+                )
+            rows = cur.fetchall()
+        out: List[Tuple[str, dict]] = []
+        for row in rows:
+            try:
+                out.append((str(row[0]), _json.loads(row[1])))
+            except Exception:
+                continue
+        return out
+
+    def meta_namespaces(self) -> List[str]:
+        with self._lock, self._conn.cursor() as cur:
+            cur.execute("SELECT DISTINCT namespace FROM engram_meta ORDER BY namespace")
+            rows = cur.fetchall()
+        return [str(row[0]) for row in rows]
+
+    def delete_meta(self, namespace: str, kind: Optional[str] = None) -> int:
+        with self._lock, self._conn.cursor() as cur:
+            if kind is None:
+                cur.execute("DELETE FROM engram_meta WHERE namespace=%s", (str(namespace),))
+            else:
+                cur.execute(
+                    "DELETE FROM engram_meta WHERE namespace=%s AND kind=%s",
+                    (str(namespace), str(kind)),
+                )
+            return int(cur.rowcount)
 
     def append(self, engram: Engram) -> None:
         self.append_many([engram])
@@ -990,6 +1132,27 @@ class ZoneCMemory:
         """
         rows = self.store.metadata(self.dim, namespace=namespace)
         return [(int(row[0]), int(row[2])) for row in rows if int(row[4]) >= TIER_AXIOMATIC]
+
+    # -------------------------------------------------------------- metadata
+    def put_meta(self, namespace: str, kind: str, key: str, payload: dict) -> bool:
+        """Persist one metadata record for a tenant (Directive G4)."""
+        putter = getattr(self.store, "put_meta", None)
+        if putter is None:
+            return False
+        putter(str(namespace), str(kind), str(key), dict(payload))
+        return True
+
+    def get_meta(self, namespace: str, kind: str, key: Optional[str] = None) -> List[Tuple[str, dict]]:
+        getter = getattr(self.store, "get_meta", None)
+        if getter is None:
+            return []
+        return list(getter(str(namespace), str(kind), key))
+
+    def meta_namespaces(self) -> List[str]:
+        getter = getattr(self.store, "meta_namespaces", None)
+        if getter is None:
+            return []
+        return list(getter())
 
     # ------------------------------------------------------------- lifecycle
     def _raw_weight(self, now: Optional[float] = None) -> np.ndarray:

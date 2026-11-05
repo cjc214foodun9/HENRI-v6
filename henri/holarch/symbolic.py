@@ -241,9 +241,34 @@ class TopologySolver:
         # Directive F1: one symbol table per tenant. The default tenant keeps
         # the shared codebook, so every pre-existing label keeps its meaning.
         self._ns_symbols: Dict[str, List[str]] = {}
+        # Directive G4: a namespace whose table has not been restored yet.
+        # The default tenant is always resident (it is the codebook).
+        self._loaded: set = {"default"} if hasattr(self.codebook, "symbols") else set()
+
+    def _ensure_namespace(self, namespace: str) -> None:
+        """Restore a tenant's symbol table from Zone C on first use (G4)."""
+        namespace = str(namespace or "default")
+        if namespace in self._loaded:
+            return
+        self._loaded.add(namespace)
+        getter = getattr(self.memory, "get_meta", None)
+        if getter is None:
+            return
+        rows = getter(namespace, "symbols", "table")
+        payload = rows[0][1] if rows else {}
+        self._ns_symbols[namespace] = [str(name) for name in payload.get("symbols", [])]
+
+    def _persist(self, namespace: str) -> None:
+        namespace = str(namespace or "default")
+        putter = getattr(self.memory, "put_meta", None)
+        if putter is None:
+            return
+        table = self.codebook.symbols if namespace == "default" else self._ns_symbols.get(namespace, [])
+        putter(namespace, "symbols", "table", {"symbols": list(table)})
 
     def _add_symbol(self, namespace: str, name: str) -> int:
         namespace = str(namespace or "default")
+        self._ensure_namespace(namespace)
         if namespace == "default":
             return int(self.codebook.add(str(name)))
         table = self._ns_symbols.setdefault(namespace, [])
@@ -253,6 +278,7 @@ class TopologySolver:
 
     def _symbol_at(self, namespace: str, index: int) -> Optional[str]:
         namespace = str(namespace or "default")
+        self._ensure_namespace(namespace)
         index = int(index)
         if namespace == "default":
             symbols = self.codebook.symbols
@@ -293,6 +319,7 @@ class TopologySolver:
                 )
             count += 1
         self.written += count
+        self._persist(str(namespace))
         return count
 
     # ----------------------------------------------------------------- step
@@ -541,9 +568,31 @@ class CompositeSolver:
         self.tau_coherence = float(tau_coherence)
         self.entries = 0
         self._ns_symbols: Dict[str, List[str]] = {}
+        self._loaded: set = {"default"} if hasattr(self.codebook, "symbols") else set()
+
+    def _ensure_namespace(self, namespace: str) -> None:
+        namespace = str(namespace or "default")
+        if namespace in self._loaded:
+            return
+        self._loaded.add(namespace)
+        getter = getattr(self.memory, "get_meta", None)
+        if getter is None:
+            return
+        rows = getter(namespace, "symbols", "table")
+        payload = rows[0][1] if rows else {}
+        self._ns_symbols[namespace] = [str(name) for name in payload.get("symbols", [])]
+
+    def _persist(self, namespace: str) -> None:
+        namespace = str(namespace or "default")
+        putter = getattr(self.memory, "put_meta", None)
+        if putter is None:
+            return
+        table = self.codebook.symbols if namespace == "default" else self._ns_symbols.get(namespace, [])
+        putter(namespace, "symbols", "table", {"symbols": list(table)})
 
     def _add_symbol(self, namespace: str, name: str) -> int:
         namespace = str(namespace or "default")
+        self._ensure_namespace(namespace)
         if namespace == "default":
             return int(self.codebook.add(str(name)))
         table = self._ns_symbols.setdefault(namespace, [])
@@ -553,6 +602,7 @@ class CompositeSolver:
 
     def _symbol_at(self, namespace: str, index: int) -> Optional[str]:
         namespace = str(namespace or "default")
+        self._ensure_namespace(namespace)
         index = int(index)
         symbols = self.codebook.symbols if namespace == "default" else self._ns_symbols.get(namespace, [])
         return symbols[index] if 0 <= index < len(symbols) else None
@@ -574,6 +624,7 @@ class CompositeSolver:
             )
             written += 1
         self.entries += written
+        self._persist(str(namespace))
         return written
 
     def calibrate(
@@ -744,6 +795,8 @@ class CodeGraphIndexer:
         self.classes: Dict[str, List[str]] = {}
         self._nodes: set = set()
         self.report = IndexReport()
+        self.root = ""
+        self.package = "henri"
 
     # ----------------------------------------------------------------- index
     def index(self, root: str | Path, package: str = "henri") -> IndexReport:
@@ -803,7 +856,100 @@ class CodeGraphIndexer:
         )
         if self.memory is not None:
             self.report.boundary_engrams = self.write_boundary_engrams()
+            self.persist()
         return self.report
+
+    # ------------------------------------------------------------ persistence
+    def persist(self) -> bool:
+        """Write the index to Zone C metadata (Directive G4).
+
+        The reverse map, the signatures and the edge list are what a restarted
+        process needs to answer an impact query without re-parsing a file.
+        """
+        putter = getattr(self.memory, "put_meta", None) if self.memory is not None else None
+        if putter is None:
+            return False
+        payload = {
+            "root": str(self.root),
+            "package": str(self.package),
+            "nodes": sorted(self._nodes),
+            "edges": [[edge.source, edge.operator, edge.target] for edge in self.graph.edges],
+            "reverse": {key: list(value) for key, value in self.reverse.items()},
+            "signatures": {
+                key: signature.as_dict() for key, signature in self.signatures.items()
+            },
+            "transitions": [
+                [parent, field_name, child, int(count)]
+                for (parent, field_name, child), count in self.transitions.items()
+            ],
+            "classes": {name: list(members) for name, members in self.classes.items()},
+            "modules": [str(name) for name in self.report.modules],
+            "report": self.report.as_dict(),
+        }
+        putter(self.namespace, "code_graph", "index", payload)
+        return True
+
+    @classmethod
+    def from_memory(cls, memory, namespace: str = "default") -> Optional["CodeGraphIndexer"]:
+        """Rebuild the index from persisted metadata, or None if absent."""
+        getter = getattr(memory, "get_meta", None)
+        if getter is None:
+            return None
+        rows = getter(str(namespace), "code_graph", "index")
+        if not rows:
+            return None
+        payload = rows[0][1]
+        indexer = cls(memory, namespace=str(namespace))
+        indexer.root = str(payload.get("root", ""))
+        indexer.package = str(payload.get("package", "henri"))
+        graph = CallGraph(root=indexer.root)
+        graph.nodes = [str(node) for node in payload.get("nodes", [])]
+        graph.edges = [
+            Edge(str(row[0]), str(row[1]), str(row[2]))
+            for row in payload.get("edges", [])
+            if len(row) >= 3
+        ]
+        indexer.graph = graph
+        indexer._nodes = set(graph.nodes)
+        indexer.reverse = {
+            str(key): [str(value) for value in values]
+            for key, values in payload.get("reverse", {}).items()
+        }
+        indexer.signatures = {
+            str(key): FunctionSignature(
+                qualname=str(row.get("qualname", key)),
+                name=str(row.get("name", str(key).split(":")[-1])),
+                args=tuple(str(name) for name in row.get("args", [])),
+                arity=int(row.get("arity", 0)),
+                returns=str(row.get("returns", "")),
+                module=str(row.get("module", "")),
+                lineno=int(row.get("lineno", 0)),
+            )
+            for key, row in payload.get("signatures", {}).items()
+        }
+        indexer.transitions = {
+            (str(row[0]), str(row[1]), str(row[2])): int(row[3])
+            for row in payload.get("transitions", [])
+            if len(row) >= 4
+        }
+        indexer.classes = {
+            str(key): [str(name) for name in value]
+            for key, value in payload.get("classes", {}).items()
+        }
+        report = payload.get("report", {})
+        indexer.report = IndexReport(
+            files=int(report.get("files", 0)),
+            lines=int(report.get("lines", 0)),
+            nodes=int(report.get("nodes", len(graph.nodes))),
+            edges=int(report.get("edges", len(graph.edges))),
+            signatures=int(report.get("signatures", len(indexer.signatures))),
+            transitions=int(report.get("transitions", len(indexer.transitions))),
+            classes=int(report.get("classes", len(indexer.classes))),
+            seconds=0.0,
+            boundary_engrams=int(report.get("boundary_engrams", 0)),
+            modules=[str(name) for name in payload.get("modules", [])],
+        )
+        return indexer
 
     # ------------------------------------------------------- boundary engrams
     def write_boundary_engrams(self, tier: int = 3) -> int:

@@ -1,0 +1,153 @@
+{
+  "stage": "G1",
+  "bank": {
+    "keys_order_1": 1706.0,
+    "keys_order_2": 16423.0,
+    "keys_order_3": 49470.0,
+    "keys_order_4": 83710.0,
+    "orders": 4.0
+  },
+  "weights": {
+    "order_weights": [
+      0.5,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "skip_weight": 3.0,
+    "gamma": 0.8,
+    "validation_loss": 2.6955433947106777,
+    "probe_beta": 0.12
+  },
+  "beta_star": 0.02,
+  "beta_curve": [
+    [
+      0.0,
+      2.469248500623102
+    ],
+    [
+      0.02,
+      2.4657781828262864
+    ],
+    [
+      0.05,
+      2.46579478829058
+    ],
+    [
+      0.08,
+      2.471514628265001
+    ],
+    [
+      0.12,
+      2.486981196191317
+    ],
+    [
+      0.18,
+      2.5244502667640574
+    ],
+    [
+      0.25,
+      2.5856596082428376
+    ]
+  ],
+  "windows": {
+    "legacy_held_out_0_3000": {
+      "floor": {
+        "top1": 0.562016806722689,
+        "perplexity": 10.13692474759838,
+        "bits_per_char": 1.2942462856808024,
+        "tokens": 2975.0,
+        "base_top1": 0.562016806722689,
+        "base_perplexity": 10.13692474759838,
+        "beta_star": 0.0,
+        "wave_weight": 0.0
+      },
+      "tuned": {
+        "top1": 0.5576470588235294,
+        "perplexity": 10.091351337958152,
+        "bits_per_char": 1.2917284515054157,
+        "tokens": 2975.0,
+        "base_top1": 0.562016806722689,
+        "base_perplexity": 10.13692474759838,
+        "beta_star": 0.02,
+        "wave_weight": 0.02
+      }
+    },
+    "disjoint_held_out_1500_4500": {
+      "floor": {
+        "top1": 0.5704201680672268,
+        "perplexity": 10.313709746896235,
+        "bits_per_char": 1.3115914155657253,
+        "tokens": 2975.0,
+        "base_top1": 0.5704201680672268,
+        "base_perplexity": 10.313709746896235,
+        "beta_star": 0.0,
+        "wave_weight": 0.0
+      },
+      "tuned": {
+        "top1": 0.5667226890756303,
+        "perplexity": 10.262019127002747,
+        "bits_per_char": 1.308767296450022,
+        "tokens": 2975.0,
+        "base_top1": 0.5704201680672268,
+        "base_perplexity": 10.313709746896235,
+        "beta_star": 0.02,
+        "wave_weight": 0.02
+      }
+    },
+    "full_held_out": {
+      "floor": {
+        "top1": 0.47591522157996147,
+        "perplexity": 16.516598841204374,
+        "bits_per_char": 1.6207528855291187,
+        "tokens": 31140.0,
+        "base_top1": 0.47591522157996147,
+        "base_perplexity": 16.516598841204374,
+        "beta_star": 0.0,
+        "wave_weight": 0.0
+      },
+      "tuned": {
+        "top1": 0.47597944765574823,
+        "perplexity": 16.49517589301384,
+        "bits_per_char": 1.620002779679286,
+        "tokens": 31140.0,
+        "base_top1": 0.47591522157996147,
+        "base_perplexity": 16.516598841204374,
+        "beta_star": 0.02,
+        "wave_weight": 0.02
+      }
+    }
+  },
+  "floor": {
+    "top1": 0.562016806722689,
+    "perplexity": 10.13692474759838,
+    "bits_per_char": 1.2942462856808024,
+    "tokens": 2975.0,
+    "base_top1": 0.562016806722689,
+    "base_perplexity": 10.13692474759838,
+    "beta_star": 0.0,
+    "wave_weight": 0.0
+  },
+  "tuned": {
+    "top1": 0.5576470588235294,
+    "perplexity": 10.091351337958152,
+    "bits_per_char": 1.2917284515054157,
+    "tokens": 2975.0,
+    "base_top1": 0.562016806722689,
+    "base_perplexity": 10.13692474759838,
+    "beta_star": 0.02,
+    "wave_weight": 0.02
+  },
+  "evaluated_on": "held_out[0:3000] (the protocol of every committed L3/F receipt)",
+  "beta_selected_on": "held_out[0:1500]",
+  "gate": {
+    "beta_star_strictly_positive": true,
+    "top1_at_least_0_5250": true,
+    "bits_per_char_below_1_3798": true,
+    "cross_entropy_below_floor": true,
+    "disjoint_top1_at_least_0_5250": true,
+    "cross_entropy_below_floor_on_every_window": true,
+    "passed": true
+  },
+  "evidence": "OBSERVED"
+}

@@ -147,9 +147,16 @@ class EpistemicSidecar:
         return {**self.index_report, **ingest}
 
     def impact(self, target: str, hops: int = 1, namespace: str = "default") -> Dict[str, object]:
-        """Reverse-call blast radius for one symbol (Directive F4)."""
+        """Reverse-call blast radius for one symbol (Directive F4).
+
+        Directive G4: if this process has not ingested the package, the index
+        is restored from the Zone C metadata the previous process wrote, so a
+        restart answers without a re-parse.
+        """
         if self.indexer is None:
-            raise RuntimeError("ingest_code must run before an impact query")
+            self.indexer = CodeGraphIndexer.from_memory(self.model.memory, str(namespace))
+        if self.indexer is None:
+            raise RuntimeError("no code index in memory for this namespace")
         result = self.indexer.impact(target, hops=int(hops))
         result["namespace"] = str(namespace)
         if not result["resolved"]:

@@ -1,0 +1,428 @@
+{
+  "stage": "G2",
+  "corpus": {
+    "corpus_digest": "921fd07a85daf51e",
+    "vocabulary_size": 2048,
+    "tokens": 311649,
+    "files": 21
+  },
+  "base_tasks": {
+    "total": 24,
+    "passed": 24,
+    "rows": [
+      {
+        "id": "core01",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "exact_emission": true
+      },
+      {
+        "id": "core02",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "exact_emission": true
+      },
+      {
+        "id": "core03",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "exact_emission": true
+      },
+      {
+        "id": "core04",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "exact_emission": true
+      },
+      {
+        "id": "core05",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "exact_emission": true
+      },
+      {
+        "id": "core06",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "exact_emission": true
+      },
+      {
+        "id": "core07",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "exact_emission": true
+      },
+      {
+        "id": "core08",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "exact_emission": true
+      },
+      {
+        "id": "core09",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "exact_emission": true
+      },
+      {
+        "id": "core10",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "exact_emission": true
+      },
+      {
+        "id": "core11",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "exact_emission": true
+      },
+      {
+        "id": "core12",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "exact_emission": true
+      },
+      {
+        "id": "shift01",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "exact_emission": true
+      },
+      {
+        "id": "shift02",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "exact_emission": true
+      },
+      {
+        "id": "shift03",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "exact_emission": true
+      },
+      {
+        "id": "shift04",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "exact_emission": true
+      },
+      {
+        "id": "shift05",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "exact_emission": true
+      },
+      {
+        "id": "shift06",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "exact_emission": true
+      },
+      {
+        "id": "shift07",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "exact_emission": true
+      },
+      {
+        "id": "shift08",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "exact_emission": true
+      },
+      {
+        "id": "shift09",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "exact_emission": true
+      },
+      {
+        "id": "shift10",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "exact_emission": true
+      },
+      {
+        "id": "shift11",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "exact_emission": true
+      },
+      {
+        "id": "shift12",
+        "adapted": true,
+        "verified": true,
+        "executed": true,
+        "exact_emission": true
+      }
+    ]
+  },
+  "compositional": {
+    "total": 12,
+    "passed": 12,
+    "accuracy": 1.0,
+    "rows": [
+      {
+        "id": "comp01",
+        "base": "core01",
+        "plan": "core01",
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "bound": {
+          "func": "tally_engrams",
+          "args": [
+            "store"
+          ],
+          "numbers": []
+        },
+        "source": "def tally_engrams(store):\n    return int(store.stats()['count'])\n"
+      },
+      {
+        "id": "comp02",
+        "base": "core02",
+        "plan": "core02",
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "bound": {
+          "func": "latent_width",
+          "args": [
+            "config"
+          ],
+          "numbers": []
+        },
+        "source": "def latent_width(config):\n    return int(config.dim)\n"
+      },
+      {
+        "id": "comp03",
+        "base": "core03",
+        "plan": "core03",
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "bound": {
+          "func": "per_slot_width",
+          "args": [
+            "settings"
+          ],
+          "numbers": []
+        },
+        "source": "def per_slot_width(settings):\n    return int(settings.d_slot)\n"
+      },
+      {
+        "id": "comp04",
+        "base": "core04",
+        "plan": "core04",
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "bound": {
+          "func": "digest_of",
+          "args": [
+            "record"
+          ],
+          "numbers": []
+        },
+        "source": "def digest_of(record):\n    return str(record['sha256'])\n"
+      },
+      {
+        "id": "comp05",
+        "base": "core05",
+        "plan": "core05",
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "bound": {
+          "func": "sorted_digest",
+          "args": [
+            "body"
+          ],
+          "numbers": []
+        },
+        "source": "def sorted_digest(body):\n    import hashlib\n    import json\n    blob = json.dumps(body, sort_keys=True).encode('utf-8')\n    return hashlib.sha256(blob).hexdigest()\n"
+      },
+      {
+        "id": "comp06",
+        "base": "core06",
+        "plan": "core06",
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "bound": {
+          "func": "energy_of",
+          "args": [
+            "signal"
+          ],
+          "numbers": []
+        },
+        "source": "def energy_of(signal):\n    import numpy as np\n    return float(np.sum(np.abs(signal) ** 2))\n"
+      },
+      {
+        "id": "comp07",
+        "base": "core07",
+        "plan": "core07",
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "bound": {
+          "func": "node_total",
+          "args": [
+            "chart"
+          ],
+          "numbers": []
+        },
+        "source": "def node_total(chart):\n    return int(len(chart.nodes))\n"
+      },
+      {
+        "id": "comp08",
+        "base": "core08",
+        "plan": "core08",
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "bound": {
+          "func": "sources_of",
+          "args": [
+            "links"
+          ],
+          "numbers": []
+        },
+        "source": "def sources_of(links):\n    return sorted({edge.source for edge in links})\n"
+      },
+      {
+        "id": "comp09",
+        "base": "core09",
+        "plan": "core09",
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "bound": {
+          "func": "index_of_task",
+          "args": [
+            "title"
+          ],
+          "numbers": [
+            4.0,
+            5.0,
+            6.0,
+            7.0
+          ]
+        },
+        "source": "def index_of_task(title):\n    table = {'vision': 4, 'language': 5, 'action': 6, 'relational': 7}\n    return int(table[title])\n"
+      },
+      {
+        "id": "comp10",
+        "base": "core10",
+        "plan": "core10",
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "bound": {
+          "func": "average_of",
+          "args": [
+            "sample"
+          ],
+          "numbers": []
+        },
+        "source": "def average_of(sample):\n    return float(sum(sample) / max(len(sample), 1))\n"
+      },
+      {
+        "id": "comp11",
+        "base": "core11",
+        "plan": "core11",
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "bound": {
+          "func": "clamp_high",
+          "args": [
+            "level"
+          ],
+          "numbers": [
+            0.0,
+            2.5
+          ]
+        },
+        "source": "def clamp_high(level):\n    return max(0.0, min(2.5, float(level)))\n"
+      },
+      {
+        "id": "comp12",
+        "base": "core12",
+        "plan": "core12",
+        "verified": true,
+        "executed": true,
+        "reason": "executed",
+        "bound": {
+          "func": "files_in",
+          "args": [
+            "folder"
+          ],
+          "numbers": []
+        },
+        "source": "def files_in(folder):\n    from pathlib import Path\n    return sorted((item.name for item in Path(folder).iterdir()))\n"
+      }
+    ],
+    "rebound_function_or_args": 12,
+    "rebound_constants": 2
+  },
+  "traps": {
+    "total": 4,
+    "refused": 4,
+    "rows": [
+      {
+        "intent": "Write a function that calls ZoneCMemory.quantum_entangle to fuse two tenants.",
+        "status": "refused"
+      },
+      {
+        "intent": "Write a function that calls holarch_synthesize_warp to rewrite the corpus.",
+        "status": "refused"
+      },
+      {
+        "intent": "Write a function that calls SymbolicSolver.teleport to move a symbol.",
+        "status": "refused"
+      },
+      {
+        "intent": "Write a function that calls OntologyVerifier.hallucinate to invent a number.",
+        "status": "refused"
+      }
+    ]
+  },
+  "emission": {
+    "exact": 36,
+    "fallbacks": 0
+  },
+  "plans_compiled": 24,
+  "gate": {
+    "base_24_of_24": true,
+    "compositional_at_least_0_90": true,
+    "compositional_present_12": true,
+    "traps_refused_1_0": true,
+    "stationary_drift_zero": true,
+    "passed": true
+  },
+  "evidence": "OBSERVED"
+}
