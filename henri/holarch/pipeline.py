@@ -38,6 +38,7 @@ from torch import nn
 import torch.nn.functional as F
 
 from henri.holarch.config import TASK_IDS, TASK_NAMES, HolarchConfig
+from henri.holarch.deterministic import basis_readout
 from henri.holarch.zone_a import LeanSwarm, ReplayBuffer, SwarmOutput
 from henri.holarch.zone_b import PhotonicCore, PhotonicState, _unit, sagnac_delta
 from henri.holarch.veto import TwoConditionVeto, lower_threshold, upper_threshold
@@ -225,7 +226,7 @@ class RelationalBasis(nn.Module):
         return q.transpose(-1, -2).contiguous()
 
     def forward(self, bound: torch.Tensor) -> torch.Tensor:
-        projection = torch.einsum("bd,kd->bk", bound, self.basis().conj())
+        projection = basis_readout(bound, self.basis())
         return torch.cat([projection.real, projection.imag], dim=-1)
 
 
@@ -1358,6 +1359,53 @@ class HenriHolarch(nn.Module):
     # -------------------------------------------------------------- budget
     def parameter_count(self) -> int:
         return int(sum(parameter.numel() for parameter in self.parameters() if parameter.requires_grad))
+
+    # ------------------------------------------------------- seed cartridge
+    @torch.no_grad()
+    def hydrate_seed_engrams(self, namespace: str = "default") -> Dict[str, object]:
+        """Mount the checkpoint's distilled Zone C chart into an empty store.
+
+        Directive J1. The seed block travels inside the checkpoint (see
+        seed_engram_payload in model.py). Hydration runs only when the store
+        holds zero rows, so a populated tenant store is never overwritten by a
+        mount, and the returned dict reports both the offered count and the
+        written count. Rows are written in ascending reference id order, which
+        is the order the reference store's tie-break used, so the reconstructed
+        index ranks ties the same way.
+        """
+        from henri.holarch.model import seed_engram_rows
+
+        block = getattr(self, "seed_engrams", None)
+        rows = seed_engram_rows(block)
+        memory = getattr(self, "memory", None)
+        info: Dict[str, object] = {
+            "available": int(len(rows)),
+            "written": 0,
+            "skipped": True,
+            "namespace": str(namespace),
+        }
+        if memory is None or not rows:
+            return info
+        try:
+            existing = int(memory.stats().get("count", 0))
+        except Exception:
+            existing = 0
+        if existing > 0:
+            info["existing"] = existing
+            return info
+        written = 0
+        for row in rows:
+            memory.write(
+                row["wave"],
+                label=int(row["label"]),
+                tier=int(row["tier"]),
+                namespace=str(namespace or row.get("namespace", "default")),
+            )
+            written += 1
+        info["written"] = int(written)
+        info["skipped"] = bool(written == 0)
+        info["count_after"] = int(memory.stats().get("count", 0))
+        return info
 
     def memory_report(self) -> Dict[str, float]:
         if getattr(self, "memory", None) is None:

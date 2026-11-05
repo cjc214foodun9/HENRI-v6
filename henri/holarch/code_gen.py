@@ -1446,6 +1446,10 @@ _TYPE_NAMES = {
     "MutableMapping": TYPE_MAPPING, "DefaultDict": TYPE_MAPPING,
     "OrderedDict": TYPE_MAPPING, "Counter": TYPE_MAPPING,
     "set": TYPE_MAPPING, "frozenset": TYPE_MAPPING, "Set": TYPE_MAPPING,
+    # Directive J3: the refinement is a first-class annotation word so a
+    # playbook stage can declare it without a typing import.
+    "numeric_sequence": TYPE_NUMERIC_SEQUENCE,
+    "numeric-sequence": TYPE_NUMERIC_SEQUENCE,
 }
 
 # "sum" is deliberately absent: it CONSUMES a sequence and produces a
@@ -3004,3 +3008,1180 @@ def build_synthesis_engine(
         else "",
         "vocab_lock_path": str(lock_path),
     }
+
+
+# ---------------------------------------------------------------------------
+# Directive J3: a first-class diverse playbook library and typed DAG battery
+# ---------------------------------------------------------------------------
+# Cycle I proved three-stage splicing on one typed triple. This section makes
+# the playbook a library: fifteen small pure stages, five distinct three-stage
+# families over the canonical types, guarded templates that survive renaming
+# and constant rebinding, and a fail-closed type gate in front of the splicer.
+# Every source below is a complete Python function; the battery parses,
+# compiles, executes and compares each emitted source with an independent
+# reference answer.
+
+PLAYBOOK_LIBRARY: Dict[str, str] = {
+    # F1 graph -> set -> bound
+    "caller_names": (
+        "def caller_names(text: str) -> list:\n"
+        "    return [line.strip() for line in text.splitlines() if line.strip()]\n"
+    ),
+    "sequence_length": (
+        "def sequence_length(items: list) -> int:\n"
+        "    return len(items)\n"
+    ),
+    "clamp_unit": (
+        "def clamp_unit(value: float) -> float:\n"
+        "    low = 0.0\n"
+        "    high = 1.0\n"
+        "    result = value if value > low else low\n"
+        "    return result if result < high else high\n"
+    ),
+    # F2 numeric sequence -> statistic -> threshold
+    "normalize_scores": (
+        'def normalize_scores(values: "numeric_sequence") -> "numeric_sequence":\n'
+        "    total = sum(values)\n"
+        "    scale = total if total != 0.0 else 1.0\n"
+        "    return [value / scale for value in values]\n"
+    ),
+    "mean_of": (
+        'def mean_of(values: "numeric_sequence") -> float:\n'
+        "    return sum(values) / len(values) if values else 0.0\n"
+    ),
+    "exceeds_tau": (
+        "def exceeds_tau(value: float) -> bool:\n"
+        "    return float(value) > 0.5\n"
+    ),
+    # F3 mapping -> filter/sort -> aggregate text
+    "invert_index": (
+        "def invert_index(index: dict) -> dict:\n"
+        "    inverted = {}\n"
+        "    for key, value in index.items():\n"
+        "        inverted.setdefault(value, []).append(key)\n"
+        "    return inverted\n"
+    ),
+    "sorted_keys": (
+        "def sorted_keys(index: dict) -> list:\n"
+        "    return sorted(index.keys())\n"
+    ),
+    "join_csv": (
+        "def join_csv(items: list) -> str:\n"
+        '    return ",".join(str(item) for item in items)\n'
+    ),
+    # F4 text -> tokenize -> count
+    "strip_comments": (
+        "def strip_comments(text: str) -> str:\n"
+        '    kept = [line.partition("#")[0].rstrip() for line in text.splitlines()]\n'
+        '    return "\\n".join(line for line in kept if line)\n'
+    ),
+    "split_identifiers": (
+        "def split_identifiers(text: str) -> list:\n"
+        '    cleaned = text.replace("(", " ").replace(")", " ").replace(",", " ")\n'
+        "    return [token for token in cleaned.split() if token.isidentifier()]\n"
+    ),
+    "unique_count": (
+        "def unique_count(items: list) -> int:\n"
+        "    return len(set(items))\n"
+    ),
+    # F5 numeric sequence -> window -> peak
+    "running_deltas": (
+        'def running_deltas(values: "numeric_sequence") -> "numeric_sequence":\n'
+        "    return [values[index] - values[index - 1] for index in range(1, len(values))]\n"
+    ),
+    "abs_values": (
+        'def abs_values(values: "numeric_sequence") -> "numeric_sequence":\n'
+        "    return [abs(value) for value in values]\n"
+    ),
+    "max_or_zero": (
+        'def max_or_zero(values: "numeric_sequence") -> float:\n'
+        "    floor = 0.0\n"
+        "    peak = max(values) if values else floor\n"
+        "    return peak if peak > floor else floor\n"
+    ),
+}
+
+_PLAYBOOK_INTENTS: Dict[str, str] = {
+    "caller_names": "returns the caller names in a text one per line",
+    "sequence_length": "returns the number of items in a sequence",
+    "clamp_unit": "clips a number into a bounded interval",
+    "normalize_scores": "normalizes a numeric sequence so it sums to one",
+    "mean_of": "returns the arithmetic mean of a numeric sequence",
+    "exceeds_tau": "returns whether a number exceeds a threshold",
+    "invert_index": "inverts a mapping into value to keys",
+    "sorted_keys": "returns the sorted keys of a mapping",
+    "join_csv": "joins a sequence of values into comma separated text",
+    "strip_comments": "strips comment text from source text",
+    "split_identifiers": "splits text into identifier tokens",
+    "unique_count": "counts the distinct items of a sequence",
+    "running_deltas": "returns the successive differences of a numeric sequence",
+    "abs_values": "returns the absolute values of a numeric sequence",
+    "max_or_zero": "returns the maximum of a numeric sequence above a floor",
+}
+
+_PLAYBOOK_TYPES: Dict[str, Tuple[str, str]] = {
+    "caller_names": (TYPE_TEXT, TYPE_SEQUENCE),
+    "sequence_length": (TYPE_SEQUENCE, TYPE_NUMERIC),
+    "clamp_unit": (TYPE_NUMERIC, TYPE_NUMERIC),
+    "normalize_scores": (TYPE_NUMERIC_SEQUENCE, TYPE_NUMERIC_SEQUENCE),
+    "mean_of": (TYPE_NUMERIC_SEQUENCE, TYPE_NUMERIC),
+    "exceeds_tau": (TYPE_NUMERIC, TYPE_BOOLEAN),
+    "invert_index": (TYPE_MAPPING, TYPE_MAPPING),
+    "sorted_keys": (TYPE_MAPPING, TYPE_SEQUENCE),
+    "join_csv": (TYPE_SEQUENCE, TYPE_TEXT),
+    "strip_comments": (TYPE_TEXT, TYPE_TEXT),
+    "split_identifiers": (TYPE_TEXT, TYPE_SEQUENCE),
+    "unique_count": (TYPE_SEQUENCE, TYPE_NUMERIC),
+    "running_deltas": (TYPE_NUMERIC_SEQUENCE, TYPE_NUMERIC_SEQUENCE),
+    "abs_values": (TYPE_NUMERIC_SEQUENCE, TYPE_NUMERIC_SEQUENCE),
+    "max_or_zero": (TYPE_NUMERIC_SEQUENCE, TYPE_NUMERIC),
+}
+
+PLAYBOOK_FAMILIES: Dict[str, Dict[str, object]] = {
+    "F1": {
+        "label": "graph names to length to bounded score",
+        "stages": ("caller_names", "sequence_length", "clamp_unit"),
+    },
+    "F2": {
+        "label": "numeric sequence normalize to mean to threshold",
+        "stages": ("normalize_scores", "mean_of", "exceeds_tau"),
+    },
+    "F3": {
+        "label": "mapping inversion to sorted keys to csv text",
+        "stages": ("invert_index", "sorted_keys", "join_csv"),
+    },
+    "F4": {
+        "label": "comment strip to identifiers to distinct count",
+        "stages": ("strip_comments", "split_identifiers", "unique_count"),
+    },
+    "F5": {
+        "label": "running deltas to magnitudes to floored peak",
+        "stages": ("running_deltas", "abs_values", "max_or_zero"),
+    },
+}
+
+
+def _j3_topology(stages: Sequence[str]) -> str:
+    """The typed stage chain, e.g. 'text->sequence|sequence->numeric|...'."""
+    edges = []
+    for stage in stages:
+        source_type, result_type = _PLAYBOOK_TYPES[str(stage)]
+        edges.append(f"{source_type}->{result_type}")
+    return "|".join(edges)
+
+
+def _playbook_signature(name: str) -> Dict[str, object]:
+    """The declared canonical signature of one library stage."""
+    source = PLAYBOOK_LIBRARY[str(name)]
+    argument = str((_source_slots(source).get("args") or [name])[0])
+    in_type, out_type = _PLAYBOOK_TYPES[str(name)]
+    return {
+        "name": str(name),
+        "args": [{"name": argument, "type": [in_type]}],
+        "arity": 1,
+        "returns": [out_type],
+    }
+
+
+def _playbook_plan(name: str, plan_name: Optional[str] = None) -> "Plan":
+    """A Plan whose slots carry the declared playbook contract.
+
+    The declared signature is also what the source infers, so the gate reads
+    the same contract whether the plan came from this factory or from
+    PlanStore.compile(). No engine state is required or touched.
+    """
+    source = PLAYBOOK_LIBRARY[str(name)]
+    slots = _source_slots(source)
+    slots["types"] = _playbook_signature(str(name))
+    return Plan(
+        name=str(plan_name or name),
+        intent=_PLAYBOOK_INTENTS[str(name)],
+        source=source,
+        kind="code",
+        digest=hashlib.sha256(source.encode("utf-8")).hexdigest(),
+        slots=slots,
+    )
+
+
+def _compiled_plan(name: str, intent: str, source: str) -> "Plan":
+    """Compile one standalone source the way PlanStore.compile does."""
+    slots = _source_slots(str(source))
+    slots["types"] = _abstract_signature(str(source))
+    return Plan(
+        name=str(name),
+        intent=str(intent),
+        source=str(source),
+        kind="code",
+        digest=hashlib.sha256(str(source).encode("utf-8")).hexdigest(),
+        slots=slots,
+    )
+
+
+def playbook_catalog() -> Dict[str, object]:
+    """The pinnable J3 registry: sources, signatures, family triples, digest.
+
+    A receipt pins the digest; it covers every stage source and every
+    family's ordered stage tuple, so a later edit changes the pin.
+    """
+    sources = dict(PLAYBOOK_LIBRARY)
+    signatures: Dict[str, object] = {}
+    for name, source in sources.items():
+        in_type, out_type = _PLAYBOOK_TYPES[name]
+        signatures[name] = {
+            "name": name,
+            "input": in_type,
+            "output": out_type,
+            "source_sha256": hashlib.sha256(source.encode("utf-8")).hexdigest(),
+        }
+    families: Dict[str, object] = {}
+    triples: List[List[str]] = []
+    for family, spec in PLAYBOOK_FAMILIES.items():
+        stages = [str(stage) for stage in spec["stages"]]  # type: ignore[index]
+        triples.append(list(stages))
+        families[family] = {
+            "label": str(spec["label"]),
+            "stages": list(stages),
+            "types": [[_PLAYBOOK_TYPES[stage][0], _PLAYBOOK_TYPES[stage][1]] for stage in stages],
+            "topology": _j3_topology(stages),
+        }
+    topologies = sorted({str(entry["topology"]) for entry in families.values()})  # type: ignore[index]
+    payload = {
+        "sources": sources,
+        "signatures": signatures,
+        "families": {
+            key: {"stages": value["stages"], "types": value["types"]}  # type: ignore[index]
+            for key, value in families.items()
+        },
+    }
+    return {
+        "sources": sources,
+        "signatures": signatures,
+        "families": families,
+        "triples": triples,
+        "topologies": topologies,
+        "digest": digest(payload),
+    }
+
+
+def compose_plan_dag(
+    plans: Sequence["Plan"],
+    request: Dict[str, object],
+    gate: Optional["TypeCompatibilityGate"] = None,
+) -> Dict[str, object]:
+    """Type-check an ordered plan chain, then splice it; refuse first.
+
+    Directive J3. The gate runs to completion before _compose_plans_many is
+    called, so a refused chain returns an empty source: no partial pipeline
+    and no unverified text can reach the caller.
+    """
+    chain = list(plans)
+    if not chain:
+        return {
+            "ok": False,
+            "status": "refused",
+            "reason": "no plans to compose",
+            "source": "",
+            "type_chain": [],
+        }
+    checker = gate if gate is not None else TypeCompatibilityGate()
+    verdict = checker.check_chain(chain)
+    if not bool(verdict.get("ok", False)):
+        return {
+            "ok": False,
+            "status": "refused",
+            "reason": str(verdict.get("reason", "type mismatch")),
+            "source": "",
+            "type_chain": list(verdict.get("rows", [])),
+        }
+    source = _compose_plans_many(chain, request)
+    if source is None:
+        return {
+            "ok": False,
+            "status": "rejected",
+            "reason": "the splicer refused the chain",
+            "source": "",
+            "type_chain": list(verdict.get("rows", [])),
+        }
+    return {
+        "ok": True,
+        "status": "composed",
+        "reason": "every stage is type compatible",
+        "source": source,
+        "type_chain": list(verdict.get("rows", [])),
+    }
+
+
+# ---------------------------------------------------------------------------
+# Directive J3: independent reference answers for the battery
+# ---------------------------------------------------------------------------
+def _j3_ref_names(text: str) -> List[str]:
+    return [line.strip() for line in str(text).splitlines() if line.strip()]
+
+
+def _j3_ref_bound(value: float, low: float, high: float) -> float:
+    if value <= low:
+        return low
+    if value >= high:
+        return high
+    return value
+
+
+def _j3_ref_normalize(values: Sequence[float]) -> List[float]:
+    total = sum(values)
+    scale = total if total != 0.0 else 1.0
+    return [value / scale for value in values]
+
+
+def _j3_ref_mean(values: Sequence[float]) -> float:
+    return sum(values) / len(values) if values else 0.0
+
+
+def _j3_ref_invert(index: Dict[str, object]) -> Dict[str, List[str]]:
+    inverted: Dict[str, List[str]] = {}
+    for key, value in index.items():
+        inverted.setdefault(value, []).append(key)  # type: ignore[arg-type]
+    return inverted
+
+
+def _j3_ref_csv(values: Sequence[object]) -> str:
+    return ",".join(str(value) for value in values)
+
+
+def _j3_ref_strip(text: str) -> str:
+    kept = []
+    for line in str(text).splitlines():
+        kept.append(line.split("#", 1)[0].rstrip())
+    return "\n".join(line for line in kept if line)
+
+
+def _j3_ref_identifiers(text: str) -> List[str]:
+    words = []
+    for token in str(text).replace("(", " ").replace(")", " ").replace(",", " ").split():
+        if token.isidentifier():
+            words.append(token)
+    return words
+
+
+def _j3_ref_signed_deltas(values: Sequence[float]) -> List[float]:
+    return [values[index] - values[index - 1] for index in range(1, len(values))]
+
+
+def _j3_ref_deltas(values: Sequence[float]) -> List[float]:
+    return [abs(right - left) for left, right in zip(values, values[1:])]
+
+
+def _j3_ref_floor_peak(values: Sequence[float], floor: float) -> float:
+    deltas = _j3_ref_deltas(values)
+    peak = max(deltas) if deltas else floor
+    return peak if peak > floor else floor
+
+
+# ---------------------------------------------------------------------------
+# Directive J3: fixture-free task tables
+# ---------------------------------------------------------------------------
+_J3_BASE_TASKS: List[Dict[str, object]] = [
+    {
+        "id": "b01",
+        "name": "count_words",
+        "arg": "text",
+        "source": "def count_words(text: str) -> int:\n    return len(text.split())\n",
+        "intent": "Write a function count_words that takes argument text and returns the number of words.",
+        "args": ("alpha beta gamma",),
+        "reference": lambda s: len(s.split()),
+    },
+    {
+        "id": "b02",
+        "name": "first_word",
+        "arg": "text",
+        "source": 'def first_word(text: str) -> str:\n    return text.split()[0] if text.split() else ""\n',
+        "intent": "Write a function first_word that takes argument text and returns its first word or an empty string.",
+        "args": ("",),
+        "reference": lambda s: s.split()[0] if s.split() else "",
+    },
+    {
+        "id": "b03",
+        "name": "uppercase_text",
+        "arg": "text",
+        "source": "def uppercase_text(text: str) -> str:\n    return text.upper()\n",
+        "intent": "Write a function uppercase_text that takes argument text and returns it in upper case.",
+        "args": ("holarch",),
+        "reference": lambda s: s.upper(),
+    },
+    {
+        "id": "b04",
+        "name": "strip_punctuation",
+        "arg": "text",
+        "source": 'def strip_punctuation(text: str) -> str:\n    return text.strip(".,;:!?")\n',
+        "intent": "Write a function strip_punctuation that takes argument text and removes surrounding punctuation.",
+        "args": ("hello, world!",),
+        "reference": lambda s: s.strip(".,;:!?"),
+    },
+    {
+        "id": "b05",
+        "name": "reverse_items",
+        "arg": "items",
+        "source": "def reverse_items(items: list) -> list:\n    return list(reversed(items))\n",
+        "intent": "Write a function reverse_items that takes argument items and returns them in reverse order.",
+        "args": ([1, 2, 3, 4],),
+        "reference": lambda items: list(items)[::-1],
+    },
+    {
+        "id": "b06",
+        "name": "list_length",
+        "arg": "items",
+        "source": "def list_length(items: list) -> int:\n    return len(items)\n",
+        "intent": "Write a function list_length that takes argument items and returns how many there are.",
+        "args": ([1, 2, 3, 4, 5],),
+        "reference": lambda items: len(items),
+    },
+    {
+        "id": "b07",
+        "name": "unique_sorted",
+        "arg": "items",
+        "source": "def unique_sorted(items: list) -> list:\n    return sorted(set(items))\n",
+        "intent": "Write a function unique_sorted that takes argument items and returns the distinct values in order.",
+        "args": ([3, 1, 3, 2, 1],),
+        "reference": lambda items: sorted(dict.fromkeys(items)),
+    },
+    {
+        "id": "b08",
+        "name": "sum_positive",
+        "arg": "values",
+        "source": (
+            "def sum_positive(values: list) -> float:\n"
+            "    return float(sum(value for value in values if value > 0))\n"
+        ),
+        "intent": "Write a function sum_positive that takes argument values and returns the sum of the positive ones.",
+        "args": ([-1.0, 2.0, 3.5, 0.0],),
+        "reference": lambda values: float(sum(value for value in values if value > 0.0)),
+    },
+    {
+        "id": "b09",
+        "name": "scale_values",
+        "arg": "values",
+        "source": "def scale_values(values: list) -> list:\n    return [value * 2 for value in values]\n",
+        "intent": "Write a function scale_values that takes argument values and doubles each one.",
+        "args": ([1.0, 2.5],),
+        "reference": lambda values: [value * 2 for value in values],
+    },
+    {
+        "id": "b10",
+        "name": "mean_value",
+        "arg": "values",
+        "source": (
+            "def mean_value(values: list) -> float:\n"
+            "    return sum(values) / len(values) if values else 0.0\n"
+        ),
+        "intent": "Write a function mean_value that takes argument values and returns their arithmetic mean.",
+        "args": ([2.0, 4.0, 6.0],),
+        "reference": lambda values: sum(values) / float(len(values)) if values else 0.0,
+    },
+    {
+        "id": "b11",
+        "name": "max_value",
+        "arg": "values",
+        "source": (
+            "def max_value(values: list) -> float:\n"
+            "    return float(max(values)) if values else 0.0\n"
+        ),
+        "intent": "Write a function max_value that takes argument values and returns the largest one.",
+        "args": ([2.0, 9.0, 4.0],),
+        "reference": lambda values: float(max(values)) if values else 0.0,
+    },
+    {
+        "id": "b12",
+        "name": "keys_sorted",
+        "arg": "table",
+        "source": "def keys_sorted(table: dict) -> list:\n    return sorted(table.keys())\n",
+        "intent": "Write a function keys_sorted that takes argument table and returns its keys in order.",
+        "args": ({"b": 2, "a": 1},),
+        "reference": lambda table: sorted(table.keys()),
+    },
+    {
+        "id": "b13",
+        "name": "get_default",
+        "arg": "table",
+        "source": 'def get_default(table: dict) -> int:\n    return table.get("x", 0)\n',
+        "intent": "Write a function get_default that takes argument table and returns the x field or zero.",
+        "args": ({"x": 7},),
+        "reference": lambda table: table.get("x", 0),
+    },
+    {
+        "id": "b14",
+        "name": "has_key",
+        "arg": "table",
+        "source": 'def has_key(table: dict) -> bool:\n    return "x" in table\n',
+        "intent": "Write a function has_key that takes argument table and reports whether x is present.",
+        "args": ({"x": 1},),
+        "reference": lambda table: "x" in table,
+    },
+    {
+        "id": "b15",
+        "name": "invert_index",
+        "arg": "index",
+        "source": (
+            "def invert_index(index: dict) -> dict:\n"
+            "    inverted = {}\n"
+            "    for key, value in index.items():\n"
+            "        inverted.setdefault(value, []).append(key)\n"
+            "    return inverted\n"
+        ),
+        "intent": "Write a function invert_index that takes argument index and maps each value to its keys.",
+        "args": ({"a": "x", "b": "y", "c": "x"},),
+        "reference": lambda index: _j3_ref_invert(index),
+    },
+    {
+        "id": "b16",
+        "name": "pair_count",
+        "arg": "table",
+        "source": "def pair_count(table: dict) -> int:\n    return len(table)\n",
+        "intent": "Write a function pair_count that takes argument table and returns how many pairs it holds.",
+        "args": ({"a": 1, "b": 2, "c": 3},),
+        "reference": lambda table: len(table),
+    },
+    {
+        "id": "b17",
+        "name": "is_even",
+        "arg": "number",
+        "source": "def is_even(number: int) -> bool:\n    return number % 2 == 0\n",
+        "intent": "Write a function is_even that takes argument number and reports whether it is even.",
+        "args": (42,),
+        "reference": lambda number: number % 2 == 0,
+    },
+    {
+        "id": "b18",
+        "name": "clamp_score",
+        "arg": "number",
+        "source": (
+            "def clamp_score(number: float) -> float:\n"
+            "    return number if 0.0 <= number <= 1.0 else 0.0\n"
+        ),
+        "intent": "Write a function clamp_score that takes argument number and keeps it in the unit interval.",
+        "args": (0.5,),
+        "reference": lambda number: number if 0.0 <= number <= 1.0 else 0.0,
+    },
+    {
+        "id": "b19",
+        "name": "word_lengths",
+        "arg": "text",
+        "source": (
+            "def word_lengths(text: str) -> list:\n"
+            "    return [len(word) for word in text.split()]\n"
+        ),
+        "intent": "Write a function word_lengths that takes argument text and returns each word length.",
+        "args": ("ab abc",),
+        "reference": lambda text: [len(word) for word in text.split()],
+    },
+    {
+        "id": "b20",
+        "name": "join_hyphen",
+        "arg": "words",
+        "source": (
+            "def join_hyphen(words: list) -> str:\n"
+            '    return "-".join(str(word) for word in words)\n'
+        ),
+        "intent": "Write a function join_hyphen that takes argument words and joins them with hyphens.",
+        "args": (["a", "b", "c"],),
+        "reference": lambda words: "-".join(str(word) for word in words),
+    },
+    {
+        "id": "b21",
+        "name": "count_vowels",
+        "arg": "text",
+        "source": (
+            "def count_vowels(text: str) -> int:\n"
+            '    return sum(1 for char in text.lower() if char in "aeiou")\n'
+        ),
+        "intent": "Write a function count_vowels that takes argument text and counts its vowels.",
+        "args": ("Holarch",),
+        "reference": lambda text: sum(1 for char in text.lower() if char in "aeiou"),
+    },
+    {
+        "id": "b22",
+        "name": "safe_divide",
+        "arg": "number",
+        "source": (
+            "def safe_divide(number: float) -> float:\n"
+            "    return 100.0 / number if number != 0.0 else 0.0\n"
+        ),
+        "intent": "Write a function safe_divide that takes argument number and divides one hundred by it safely.",
+        "args": (4.0,),
+        "reference": lambda number: (100.0 / number) if number != 0.0 else 0.0,
+    },
+    {
+        "id": "b23",
+        "name": "first_char",
+        "arg": "text",
+        "source": 'def first_char(text: str) -> str:\n    return text[0] if text else ""\n',
+        "intent": "Write a function first_char that takes argument text and returns its first character.",
+        "args": ("",),
+        "reference": lambda text: text[0] if text else "",
+    },
+    {
+        "id": "b24",
+        "name": "contains_word",
+        "arg": "text",
+        "source": 'def contains_word(text: str) -> bool:\n    return "holarch" in text.lower()\n',
+        "intent": "Write a function contains_word that takes argument text and reports whether it names holarch.",
+        "args": ("The Holarch protocol",),
+        "reference": lambda text: "holarch" in text.lower(),
+    },
+]
+
+_J3_SINGLE_TASKS: List[Dict[str, object]] = [
+    {
+        "id": "s01",
+        "stage": "caller_names",
+        "numbers": [],
+        "args": ("z\ny\nz\n",),
+        "reference": lambda text: _j3_ref_names(text),
+    },
+    {
+        "id": "s02",
+        "stage": "clamp_unit",
+        "numbers": [-2.0, 7.0],
+        "args": (9.0,),
+        "reference": lambda value: _j3_ref_bound(value, -2.0, 7.0),
+    },
+    {
+        "id": "s03",
+        "stage": "normalize_scores",
+        "numbers": [],
+        "args": ([1.0, 1.0, 2.0],),
+        "reference": lambda values: _j3_ref_normalize(values),
+    },
+    {
+        "id": "s04",
+        "stage": "mean_of",
+        "numbers": [],
+        "args": ([2.0, 4.0, 6.0],),
+        "reference": lambda values: _j3_ref_mean(values),
+    },
+    {
+        "id": "s05",
+        "stage": "exceeds_tau",
+        "numbers": [0.8],
+        "args": (0.9,),
+        "reference": lambda value: float(value) > 0.8,
+    },
+    {
+        "id": "s06",
+        "stage": "invert_index",
+        "numbers": [],
+        "args": ({"a": "x", "b": "y"},),
+        "reference": lambda index: _j3_ref_invert(index),
+    },
+    {
+        "id": "s07",
+        "stage": "sorted_keys",
+        "numbers": [],
+        "args": ({"b": 1, "a": 2, "c": 3},),
+        "reference": lambda index: sorted(index.keys()),
+    },
+    {
+        "id": "s08",
+        "stage": "join_csv",
+        "numbers": [],
+        "args": (["a", "b", "c"],),
+        "reference": lambda items: _j3_ref_csv(items),
+    },
+    {
+        "id": "s09",
+        "stage": "strip_comments",
+        "numbers": [],
+        "args": ("x = 1  # note\ny = 2\n",),
+        "reference": lambda text: _j3_ref_strip(text),
+    },
+    {
+        "id": "s10",
+        "stage": "split_identifiers",
+        "numbers": [],
+        "args": ("alpha, beta(gamma)",),
+        "reference": lambda text: _j3_ref_identifiers(text),
+    },
+    {
+        "id": "s11",
+        "stage": "unique_count",
+        "numbers": [],
+        "args": (["a", "b", "a", "c", "b"],),
+        "reference": lambda items: len(set(items)),
+    },
+    {
+        "id": "s12",
+        "stage": "running_deltas",
+        "numbers": [],
+        "args": ([3.0, 1.0, 4.0],),
+        "reference": lambda values: _j3_ref_signed_deltas(values),
+    },
+]
+
+_J3_TWO_TASKS: List[Dict[str, object]] = [
+    {
+        "id": "t01",
+        "stages": ("caller_names", "sequence_length"),
+        "numbers": [],
+        "args": ("a\nb\nc\n",),
+        "reference": lambda text: len(_j3_ref_names(text)),
+    },
+    {
+        "id": "t02",
+        "stages": ("sequence_length", "clamp_unit"),
+        "numbers": [0.0, 2.0],
+        "args": ([1, 2, 3],),
+        "reference": lambda items: _j3_ref_bound(len(items), 0.0, 2.0),
+    },
+    {
+        "id": "t03",
+        "stages": ("normalize_scores", "mean_of"),
+        "numbers": [],
+        "args": ([1.0, 1.0, 2.0],),
+        "reference": lambda values: _j3_ref_mean(_j3_ref_normalize(values)),
+    },
+    {
+        "id": "t04",
+        "stages": ("mean_of", "exceeds_tau"),
+        "numbers": [0.6],
+        "args": ([2.0, 4.0, 6.0],),
+        "reference": lambda values: _j3_ref_mean(values) > 0.6,
+    },
+    {
+        "id": "t05",
+        "stages": ("invert_index", "sorted_keys"),
+        "numbers": [],
+        "args": ({"a": "x", "b": "y"},),
+        "reference": lambda index: sorted(_j3_ref_invert(index).keys()),
+    },
+    {
+        "id": "t06",
+        "stages": ("sorted_keys", "join_csv"),
+        "numbers": [],
+        "args": ({"b": 1, "a": 2},),
+        "reference": lambda index: _j3_ref_csv(sorted(index.keys())),
+    },
+    {
+        "id": "t07",
+        "stages": ("strip_comments", "split_identifiers"),
+        "numbers": [],
+        "args": ("alpha = 1 # x\nbeta\n",),
+        "reference": lambda text: _j3_ref_identifiers(_j3_ref_strip(text)),
+    },
+    {
+        "id": "t08",
+        "stages": ("running_deltas", "abs_values"),
+        "numbers": [],
+        "args": ([3.0, 1.0, 4.0],),
+        "reference": lambda values: _j3_ref_deltas(values),
+    },
+]
+
+_J3_THREE_TASKS: List[Dict[str, object]] = [
+    {
+        "id": "f1a",
+        "family": "F1",
+        "numbers": [0.0, 1.0],
+        "args": ("b\na\nb\nc\n",),
+        "reference": lambda text: _j3_ref_bound(len(_j3_ref_names(text)), 0.0, 1.0),
+    },
+    {
+        "id": "f1b",
+        "family": "F1",
+        "numbers": [2.0, 5.0],
+        "args": ("x\ny\n",),
+        "reference": lambda text: _j3_ref_bound(len(_j3_ref_names(text)), 2.0, 5.0),
+    },
+    {
+        "id": "f2a",
+        "family": "F2",
+        "numbers": [0.25],
+        "args": ([1.0, 1.0, 2.0],),
+        "reference": lambda values: _j3_ref_mean(_j3_ref_normalize(values)) > 0.25,
+    },
+    {
+        "id": "f2b",
+        "family": "F2",
+        "numbers": [0.45],
+        "args": ([1.0, 2.0, 5.0],),
+        "reference": lambda values: _j3_ref_mean(_j3_ref_normalize(values)) > 0.45,
+    },
+    {
+        "id": "f3a",
+        "family": "F3",
+        "numbers": [],
+        "args": ({"a": "x", "b": "y", "c": "x"},),
+        "reference": lambda index: _j3_ref_csv(sorted(_j3_ref_invert(index).keys())),
+    },
+    {
+        "id": "f3b",
+        "family": "F3",
+        "numbers": [],
+        "args": ({"m": "z"},),
+        "reference": lambda index: _j3_ref_csv(sorted(_j3_ref_invert(index).keys())),
+    },
+    {
+        "id": "f4a",
+        "family": "F4",
+        "numbers": [],
+        "args": ("alpha = 1  # note\nbeta_2 = 2\n# only\n",),
+        "reference": lambda text: len(set(_j3_ref_identifiers(_j3_ref_strip(text)))),
+    },
+    {
+        "id": "f4b",
+        "family": "F4",
+        "numbers": [],
+        "args": ("def f(x):\n    return x  # note\n",),
+        "reference": lambda text: len(set(_j3_ref_identifiers(_j3_ref_strip(text)))),
+    },
+    {
+        "id": "f5a",
+        "family": "F5",
+        "numbers": [2.0],
+        "args": ([3.0, 1.0, 4.0],),
+        "reference": lambda values: _j3_ref_floor_peak(values, 2.0),
+    },
+    {
+        "id": "f5b",
+        "family": "F5",
+        "numbers": [5.0],
+        "args": ([0.5, 0.2],),
+        "reference": lambda values: _j3_ref_floor_peak(values, 5.0),
+    },
+]
+
+_J3_TYPE_TRAPS: List[Dict[str, object]] = [
+    {
+        "id": "tr1",
+        "stages": ("exceeds_tau", "mean_of"),
+        "conflict": "boolean->numeric_sequence",
+    },
+    {
+        "id": "tr2",
+        "stages": ("invert_index", "clamp_unit"),
+        "conflict": "mapping->numeric",
+    },
+    {
+        "id": "tr3",
+        "stages": ("join_csv", "mean_of"),
+        "conflict": "text->numeric_sequence",
+    },
+    {
+        "id": "tr4",
+        "stages": ("normalize_scores", "sorted_keys"),
+        "conflict": "numeric_sequence->mapping",
+    },
+    {
+        "id": "tr5",
+        "stages": ("split_identifiers", "invert_index"),
+        "conflict": "sequence->mapping",
+    },
+    {
+        "id": "tr6",
+        "stages": ("exceeds_tau", "clamp_unit"),
+        "conflict": "boolean->numeric",
+    },
+]
+
+
+# ---------------------------------------------------------------------------
+# Directive J3: execution and comparison helpers
+# ---------------------------------------------------------------------------
+def _j3_plain(value):
+    """A JSON-safe copy of a task answer (rows are returned to receipts)."""
+    if isinstance(value, dict):
+        return {str(key): _j3_plain(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple, set)):
+        return [_j3_plain(item) for item in value]
+    if isinstance(value, bool) or value is None:
+        return value
+    if isinstance(value, (int, float, str)):
+        return value
+    return repr(value)
+
+
+def _j3_same(actual, expected) -> bool:
+    if isinstance(expected, bool) or isinstance(actual, bool):
+        return (
+            isinstance(actual, bool)
+            and isinstance(expected, bool)
+            and actual == expected
+        )
+    if isinstance(expected, (int, float)) and isinstance(actual, (int, float)):
+        return abs(float(actual) - float(expected)) <= 1e-9
+    if isinstance(expected, list) and isinstance(actual, list):
+        return len(actual) == len(expected) and all(
+            _j3_same(item_a, item_e) for item_a, item_e in zip(actual, expected)
+        )
+    if isinstance(expected, dict) and isinstance(actual, dict):
+        return set(actual.keys()) == set(expected.keys()) and all(
+            _j3_same(actual[key], expected[key]) for key in expected
+        )
+    return actual == expected
+
+
+def _j3_answer_delta(left, right) -> float:
+    """Absolute drift between two executions of the same composed function."""
+    if isinstance(left, bool) or isinstance(right, bool):
+        return 0.0 if left is right or left == right else 1.0
+    if isinstance(left, (int, float)) and isinstance(right, (int, float)):
+        return abs(float(left) - float(right))
+    try:
+        return 0.0 if _j3_same(left, right) else 1.0
+    except Exception:  # noqa: BLE001 - a comparison failure is drift, not a pass
+        return 1.0
+
+
+def _j3_execute(source: str, func: str, args: Sequence[object]) -> Dict[str, object]:
+    """Parse, compile, exec and call one emitted source.
+
+    Directive J3: a task passes only when the emitted text is a real module,
+    the named function exists, and its answer matches an independently
+    computed reference. Nothing here reads a declared pass flag.
+    """
+    report: Dict[str, object] = {
+        "parsed": False,
+        "compiled": False,
+        "executed": False,
+        "actual": None,
+        "reason": "",
+    }
+    text = str(source or "")
+    if not text.strip():
+        report["reason"] = "empty source"
+        return report
+    try:
+        tree = ast.parse(text)
+    except SyntaxError as error:
+        report["reason"] = f"ast.parse: {error.msg} at line {error.lineno}"
+        return report
+    report["parsed"] = True
+    try:
+        code = compile(tree, "<j3-battery>", "exec")
+    except (SyntaxError, ValueError) as error:
+        report["reason"] = f"compile: {error}"
+        return report
+    report["compiled"] = True
+    scope: Dict[str, object] = {}
+    try:
+        exec(code, scope)
+    except Exception as error:  # noqa: BLE001 - the failure is the measurement
+        report["reason"] = f"exec: {type(error).__name__}: {error}"
+        return report
+    function = scope.get(str(func))
+    if not callable(function):
+        report["reason"] = f"emitted source has no callable {func!r}"
+        return report
+    try:
+        report["actual"] = function(*args)
+    except Exception as error:  # noqa: BLE001 - the failure is the measurement
+        report["reason"] = f"call: {type(error).__name__}: {error}"
+        return report
+    report["executed"] = True
+    return report
+
+
+def _j3_guard_count(source: str) -> int:
+    try:
+        tree = ast.parse(str(source or ""))
+    except SyntaxError:
+        return 0
+    return sum(1 for node in ast.walk(tree) if isinstance(node, ast.IfExp))
+
+
+def _j3_case_row(
+    verdict: Dict[str, object],
+    func: str,
+    args: Sequence[object],
+    expected,
+    kind: str,
+) -> Tuple[Dict[str, object], Dict[str, object]]:
+    source = str(verdict.get("source") or "")
+    if bool(verdict.get("ok", False)):
+        run = _j3_execute(source, func, args)
+    else:
+        run = {
+            "parsed": False,
+            "compiled": False,
+            "executed": False,
+            "actual": None,
+            "reason": "",
+        }
+    matched = bool(run["executed"] and _j3_same(run["actual"], expected))
+    reason = str(verdict.get("reason") or run.get("reason") or "")
+    if not matched and not reason:
+        reason = str(run.get("reason") or "answer mismatch")
+    row = {
+        "kind": kind,
+        "func": func,
+        "type_ok": bool(verdict.get("ok", False)),
+        "parsed": bool(run["parsed"]),
+        "compiled": bool(run["compiled"]),
+        "executed": bool(run["executed"]),
+        "matched": matched,
+        "expected": _j3_plain(expected),
+        "actual": _j3_plain(run["actual"]),
+        "reason": reason[:200],
+        "source_sha256": (
+            hashlib.sha256(source.encode("utf-8")).hexdigest() if source else ""
+        ),
+    }
+    return row, run
+
+
+# ---------------------------------------------------------------------------
+# Directive J3: the public, fixture-free battery
+# ---------------------------------------------------------------------------
+def run_diverse_dag_battery(engine=None, seed: int = 0) -> Dict[str, object]:
+    """Measure the J3 playbook library end to end, with no external fixture.
+
+    24 base single-function tasks, 12 novel single-plan bindings, 8 two-stage
+    pipelines, 10 three-stage pipelines over the five families, and 6
+    fail-closed type traps. Every emitted source is ast.parse'd, compiled,
+    executed, and compared with an independent reference answer. The optional
+    engine contributes only its type_gate: this function compiles no plan
+    into it and writes no file, so it is read-only and repeatable.
+    """
+    catalog = playbook_catalog()
+    gate = getattr(engine, "type_gate", None) if engine is not None else None
+    if gate is None:
+        gate = TypeCompatibilityGate()
+    salt = 1000 + (int(seed) % 9000)
+
+    base_rows: List[Dict[str, object]] = []
+    for task in _J3_BASE_TASKS:
+        plan = _compiled_plan(str(task["name"]), str(task["intent"]), str(task["source"]))
+        verdict = compose_plan_dag(
+            [plan],
+            {"func": task["name"], "args": [task["arg"]], "numbers": []},
+            gate=gate,
+        )
+        expected = task["reference"](*task["args"])  # type: ignore[operator]
+        row, _run = _j3_case_row(verdict, str(task["name"]), task["args"], expected, "base")  # type: ignore[arg-type]
+        row["id"] = task["id"]
+        base_rows.append(row)
+
+    single_rows: List[Dict[str, object]] = []
+    for index, spec in enumerate(_J3_SINGLE_TASKS, start=1):
+        stage = str(spec["stage"])
+        func = f"j3s{salt}_{index:02d}"
+        argument = f"payload_{index:02d}"
+        plan = _playbook_plan(stage, plan_name=f"j3_{stage}")
+        verdict = compose_plan_dag(
+            [plan],
+            {"func": func, "args": [argument], "numbers": list(spec["numbers"])},
+            gate=gate,
+        )
+        expected = spec["reference"](*spec["args"])  # type: ignore[operator]
+        row, _run = _j3_case_row(verdict, func, spec["args"], expected, "single")  # type: ignore[arg-type]
+        row.update(
+            {
+                "id": spec["id"],
+                "stage": stage,
+                "novel_func": func,
+                "novel_arg": argument,
+                "numbers": list(spec["numbers"]),
+            }
+        )
+        single_rows.append(row)
+
+    two_rows: List[Dict[str, object]] = []
+    for index, spec in enumerate(_J3_TWO_TASKS, start=1):
+        stages = [str(stage) for stage in spec["stages"]]  # type: ignore[index]
+        func = f"j3p{salt}_{index:02d}"
+        argument = f"input_{index:02d}"
+        plans = [_playbook_plan(stage, plan_name=f"j3_{stage}") for stage in stages]
+        verdict = compose_plan_dag(
+            plans,
+            {"func": func, "args": [argument], "numbers": list(spec["numbers"])},
+            gate=gate,
+        )
+        expected = spec["reference"](*spec["args"])  # type: ignore[operator]
+        row, _run = _j3_case_row(verdict, func, spec["args"], expected, "two")  # type: ignore[arg-type]
+        row.update(
+            {
+                "id": spec["id"],
+                "stages": list(stages),
+                "topology": _j3_topology(stages),
+                "numbers": list(spec["numbers"]),
+            }
+        )
+        two_rows.append(row)
+
+    three_rows: List[Dict[str, object]] = []
+    drift = 0.0
+    for index, spec in enumerate(_J3_THREE_TASKS, start=1):
+        family = str(spec["family"])
+        stages = [str(stage) for stage in PLAYBOOK_FAMILIES[family]["stages"]]  # type: ignore[index]
+        func = f"j3d{salt}_{index:02d}"
+        argument = f"root_{index:02d}"
+        plans = [_playbook_plan(stage, plan_name=f"j3_{stage}") for stage in stages]
+        verdict = compose_plan_dag(
+            plans,
+            {"func": func, "args": [argument], "numbers": list(spec["numbers"])},
+            gate=gate,
+        )
+        expected = spec["reference"](*spec["args"])  # type: ignore[operator]
+        row, run = _j3_case_row(verdict, func, spec["args"], expected, "three")  # type: ignore[arg-type]
+        source = str(verdict.get("source") or "")
+        row.update(
+            {
+                "id": spec["id"],
+                "family": family,
+                "stages": list(stages),
+                "topology": _j3_topology(stages),
+                "numbers": list(spec["numbers"]),
+                "guards": _j3_guard_count(source),
+            }
+        )
+        if bool(row["matched"]) and bool(run["executed"]):
+            again = _j3_execute(source, func, spec["args"])  # type: ignore[arg-type]
+            if bool(again["executed"]):
+                drift = max(drift, _j3_answer_delta(run["actual"], again["actual"]))
+        three_rows.append(row)
+
+    trap_rows: List[Dict[str, object]] = []
+    for spec in _J3_TYPE_TRAPS:
+        left_stage, right_stage = [str(stage) for stage in spec["stages"]]  # type: ignore[index]
+        verdict = compose_plan_dag(
+            [_playbook_plan(left_stage), _playbook_plan(right_stage)],
+            {"func": "j3_trap_probe", "args": ["payload"], "numbers": []},
+            gate=gate,
+        )
+        source = str(verdict.get("source") or "")
+        reason = str(verdict.get("reason") or "")
+        refused = bool(
+            not verdict.get("ok", False)
+            and source == ""
+            and reason.startswith("type mismatch")
+        )
+        trap_rows.append(
+            {
+                "id": spec["id"],
+                "left": left_stage,
+                "right": right_stage,
+                "conflict": spec["conflict"],
+                "refused": refused,
+                "source_empty": source == "",
+                "reason": reason[:200],
+            }
+        )
+
+    base_passed = sum(1 for row in base_rows if row["matched"])
+    single_passed = sum(1 for row in single_rows if row["matched"])
+    two_passed = sum(1 for row in two_rows if row["matched"])
+    three_passed = sum(1 for row in three_rows if row["matched"])
+    traps_refused = sum(1 for row in trap_rows if row["refused"])
+    total_passed = base_passed + single_passed + two_passed + three_passed + traps_refused
+    total_tasks = len(base_rows) + len(single_rows) + len(two_rows) + len(three_rows) + len(trap_rows)
+    three_topologies = sorted({str(row["topology"]) for row in three_rows})
+    return {
+        "seed": int(seed),
+        "catalog_digest": str(catalog["digest"]),
+        "base": {"passed": int(base_passed), "total": len(base_rows), "rows": base_rows},
+        "single": {"passed": int(single_passed), "total": len(single_rows), "rows": single_rows},
+        "two": {"passed": int(two_passed), "total": len(two_rows), "rows": two_rows},
+        "three": {"passed": int(three_passed), "total": len(three_rows), "rows": three_rows},
+        "three_topologies": three_topologies,
+        "traps": {"refused": int(traps_refused), "total": len(trap_rows), "rows": trap_rows},
+        "total": {"passed": int(total_passed), "total": int(total_tasks)},
+        "drift": float(round(drift, 4)),
+    }
+

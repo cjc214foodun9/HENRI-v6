@@ -5,7 +5,7 @@
   "checkpoint": {
     "mounted": true,
     "path": "receipts\\holarch\\holarch_medium.pt",
-    "sha256": "fe905fd0a41789678c3edbdef63e9926e362416bb90f6ed0ca773c0b1f61737e",
+    "sha256": "a2a392e66ff7c253e3ae258bdd003083c677ac0e512adfd00364039d6b79189b",
     "parameters": 1020380,
     "prototypes": {
       "vision": {
@@ -34,8 +34,12 @@
       }
     }
   },
-  "queries_total": 76,
-  "query_slots": 76,
+  "queries_total": 88,
+  "query_slots": 88,
+  "queries": 88,
+  "total_queries": 88,
+  "probe_slots": 12,
+  "ledger_receipts": 76,
   "query_mix": {
     "code_call_flow": 8,
     "multi_hop_graph": 16,
@@ -54,21 +58,25 @@
     "dag_synthesis": 4,
     "cross_package_agent_step": 4,
     "vocab_lock": 4,
+    "j1_cleanroom": 4,
+    "j2_elastic_vocab": 2,
+    "j3_diverse_dag": 4,
+    "j4_openai_adapter": 2,
     "setup_receipts": 2
   },
   "code_index": {
-    "seconds": 2.171858499990776,
-    "files": 20.0,
-    "lines": 16990.0,
-    "nodes": 501.0,
-    "edges": 1113.0,
+    "seconds": 2.287829699984286,
+    "files": 21.0,
+    "lines": 19583.0,
+    "nodes": 549.0,
+    "edges": 1255.0,
     "edges_ingested": 72.0
   },
   "baseline_unindexed": {
-    "query_file_reads": 320,
-    "bytes_read_at_query_time": 11376416,
+    "query_file_reads": 336,
+    "bytes_read_at_query_time": 12990640,
     "response_bytes": 864,
-    "latency_ms_total": 58.809100184589624,
+    "latency_ms_total": 65.7871000294108,
     "reachable_accuracy": 0.5333333333333333,
     "hallucination_rate": 0.9926470588235294,
     "playbook_exact": 0.0
@@ -76,14 +84,14 @@
   "holarch_mcp": {
     "query_file_reads": 0,
     "bytes_read_at_query_time": 0,
-    "response_bytes": 27606,
-    "latency_ms_total": 224.63880002032965,
+    "response_bytes": 28174,
+    "latency_ms_total": 313.32980006118305,
     "reachable_accuracy": 1.0,
     "hallucination_rate": 0.0,
     "playbook_exact": 1.0,
     "receipts": 76,
     "query_receipts": 76,
-    "receipt_chain_length": 76,
+    "receipt_chain_length": 80,
     "receipt_chain_valid": true,
     "receipts_valid": true,
     "query_chain_contiguous": true
@@ -100,7 +108,7 @@
     },
     "memory_fixture": {
       "source": "data\\holarch\\zone_c.sqlite3",
-      "path": "C:\\Users\\chan\\AppData\\Local\\Temp\\henri_planner_memory_12876.sqlite3",
+      "path": "C:\\Users\\chan\\AppData\\Local\\Temp\\dsh-7QmnYX\\henri_planner_memory_19532.sqlite3",
       "sha256": "d0863a4179bb37dd1199a08dd8f1c5997cbd693161a32bfa439030bcf4064c80",
       "bytes": 21590016,
       "engrams": 2467,
@@ -135,7 +143,7 @@
         "trap": true,
         "strong_trap": true,
         "correct": true,
-        "receipt_sha256": "0a9a98e28b465a0a6987b3b2b2f46b90f04845771de9dc38fed4e8ecaa4a6ada"
+        "receipt_sha256": "b1caf79863047c7e6aa4ba3edba78ed7856fa73db92380d9604899decdc7e79f"
       },
       {
         "id": "plan02",
@@ -156,7 +164,7 @@
         "trap": true,
         "strong_trap": true,
         "correct": true,
-        "receipt_sha256": "f5b7962935f9d93f2788a7e6fce1b4d6059c62c9f86d4c82d19a359a52d5a10a"
+        "receipt_sha256": "e18522d48cae3607d71b1390cd07e31a97a9c89ee729628bc3239caaedc762d5"
       },
       {
         "id": "plan03",
@@ -177,7 +185,7 @@
         "trap": true,
         "strong_trap": true,
         "correct": true,
-        "receipt_sha256": "1253adf87bed82f514d7ffb43e2f65f3845dad5886b69d2c57626ded6600cd6a"
+        "receipt_sha256": "dec369306a7009ae70c3c733a99621d91fd6d0073628294f54d60b5a14dede5c"
       },
       {
         "id": "plan04",
@@ -198,7 +206,7 @@
         "trap": true,
         "strong_trap": true,
         "correct": true,
-        "receipt_sha256": "233c7b627a65e30b7ceada1f31862fc6cc501cc71aa2154728c232483cbec3e7"
+        "receipt_sha256": "a40185566ed029bc950d43695dea3b07866251f822ad311ece513ab5ad23a83d"
       }
     ]
   },
@@ -216,7 +224,7 @@
         "status": "supported",
         "reason": "all rare terms and all quantities present in evidence",
         "correct": true,
-        "receipt_sha256": "dfa7fe3e7466fea084512f7b5f47525415500288012fc627f6b5370e2cd98566"
+        "receipt_sha256": "b4b12875802bad6416d9f06c76e2d8f7b5385c6af1c4bdb150129c2d2e8c7087"
       },
       {
         "id": "verify02",
@@ -226,7 +234,7 @@
         "status": "supported",
         "reason": "all rare terms and all quantities present in evidence",
         "correct": true,
-        "receipt_sha256": "fce2071bbd4620468d79107b92a3a191e4ec8cd286efdc6023927e69df84e3c2"
+        "receipt_sha256": "e3aab0e40290c7b170725885bc80b68524b082952dab6d8c893a1efd1104421b"
       },
       {
         "id": "verify03",
@@ -236,7 +244,7 @@
         "status": "contradicted",
         "reason": "quantity 1020381 is stated differently in the evidence",
         "correct": true,
-        "receipt_sha256": "5b2aad5841802e440ebb4024e43f72a29225fe4e17df0457593f826a802822c2"
+        "receipt_sha256": "ad056a8fb2c9f2166b230040dafcd6c95806c520c08f7d270461d7995118eb42"
       },
       {
         "id": "verify04",
@@ -246,7 +254,7 @@
         "status": "unsupported",
         "reason": "signature: ZoneCMemory.query does not accept keyword 'widget'; declared parameters are ['self', 'wave', 'k', 'avoid_ids', 'candidate_multiplier', 'task', 'names",
         "correct": true,
-        "receipt_sha256": "ec26a4dfa1d45a82840f30bdfc44ede7e190b3c858a7bc1271722d487c4f8d91"
+        "receipt_sha256": "41ea11de32335cb00f781d28de21efb8f63857fdd9bf0c8fe11e073f01e05c35"
       }
     ]
   },
@@ -264,7 +272,7 @@
         "reason": "",
         "source": "def distinct_caller_count(links):\n    step_1 = sorted({edge.source for edge in links})\n    return int(len(step_1))\n",
         "correct": true,
-        "receipt_sha256": "1628c9f74cb2751854630a8271a77f1b26d777ecbb3bd805196017a05ca4c60e"
+        "receipt_sha256": "0ee07e01d1bcd4fe1b253b987122c9dc078009af343b0284cb842b64c2a57cf3"
       },
       {
         "id": "synth02",
@@ -275,14 +283,14 @@
         "reason": "",
         "source": "def bounded_mean(sample):\n    step_1 = float(sum(sample) / max(len(sample), 1))\n    return max(0.0, min(2.5, float(step_1)))\n",
         "correct": true,
-        "receipt_sha256": "4d95ca7a63e7e9af1881d1b7a644fde160a3053a10127e99ad666cd7814a6e73"
+        "receipt_sha256": "7890bb4f7778be5be2d0f0fd71ab71ca20b1e8ba1225f0b6a9631c944e611505"
       }
     ]
   },
   "delta": {
     "queries": 2,
     "correct": 2,
-    "max_ms": 0.28569999267347157,
+    "max_ms": 0.2823999966494739,
     "rows": [
       {
         "id": "delta01",
@@ -290,9 +298,9 @@
         "target": "beta",
         "truth": [],
         "callers": [],
-        "delta_ms": 0.28569999267347157,
+        "delta_ms": 0.2823999966494739,
         "correct": true,
-        "receipt_sha256": "13757636a760f6041f98252d7cfad683a5f535ba2f4bc26f3595e62873fcdda0"
+        "receipt_sha256": "0ebe52c80e89575239f54f0be5dd080bb5d5a1128277db0315c2eaadfa488ff2"
       },
       {
         "id": "delta02",
@@ -304,9 +312,9 @@
         "callers": [
           "delta:delta"
         ],
-        "delta_ms": 0.2564000023994595,
+        "delta_ms": 0.20069998572580516,
         "correct": true,
-        "receipt_sha256": "51948a025a9d376078bcd4999c0b811fcd54ea237f58eeac0fd617eb8822c984"
+        "receipt_sha256": "b875a82571dc775894e52b469dadc42143ecc943bcfd109b70bb6124b61de4ea"
       }
     ]
   },
@@ -332,7 +340,7 @@
         "reason": "",
         "source": "def tri_agent(links):\n    step_1 = sorted({edge.source for edge in links})\n    step_2 = int(len(step_1))\n    return max(0.0, min(2.5, float(step_2)))\n",
         "correct": true,
-        "receipt_sha256": "4655a7a5f1385c46e6971cd487a8ed2f5abbae5ad6484d0b433a40e8605d6f59"
+        "receipt_sha256": "960d1705f77764527e42dfe3c1f3f189e3088c0500c30c1783b470d188de40ac"
       },
       {
         "id": "dag02",
@@ -349,7 +357,7 @@
         "reason": "",
         "source": "def bounded_sources(edges):\n    step_1 = sorted({edge.source for edge in edges})\n    step_2 = int(len(step_1))\n    return max(0.0, min(1.0, float(step_2)))\n",
         "correct": true,
-        "receipt_sha256": "fee3ad863120412bd09a34374032a15d00e6bfb2f44b26d17b32fcc3f6c4d5c1"
+        "receipt_sha256": "ed08db96335b9f10ec0be577f2153f367489f4f3a06ce968a296d1d0315dbce2"
       },
       {
         "id": "dag03",
@@ -365,7 +373,7 @@
         "reason": "type mismatch: core04.returns ['text'] cannot bind core10.values ['numeric_sequence']",
         "note": "text -> numeric_sequence (mean of a list)",
         "correct": true,
-        "receipt_sha256": "98e63b7a589b13cdbdf9d41896b8157af3d55fcb7e4617ae90be16a020c2a3eb"
+        "receipt_sha256": "9ee0bc17dfa374d0eb77cc4955e9c59cd3ad31b71c50f6b73ef088baa3243109"
       },
       {
         "id": "dag04",
@@ -381,7 +389,7 @@
         "reason": "type mismatch: core10.returns ['numeric'] cannot bind core04.receipt ['mapping']",
         "note": "numeric -> mapping (a receipt field is subscripted)",
         "correct": true,
-        "receipt_sha256": "45a19264de1ff480948a3cce31f05ac2a6fce3683850283c7f32914962ba901a"
+        "receipt_sha256": "f9753d11cdde69513c5852bc9a0b0063aa7c472bd3a9892b43654b382707452e"
       }
     ]
   },
@@ -389,10 +397,10 @@
     "queries": 4,
     "correct": 4,
     "workspace": {
-      "files": 217,
-      "nodes": 2258,
-      "edges": 6709,
-      "seconds": 0.870391100004781
+      "files": 224,
+      "nodes": 2387,
+      "edges": 7190,
+      "seconds": 0.9394661999831442
     },
     "rows": [
       {
@@ -429,7 +437,7 @@
           "tests.test_holarch_i_decisions:test_vocabulary_lock_pins_ids_and_appends"
         ],
         "correct": true,
-        "receipt_sha256": "49a75af705471691a7b6bc0da5c4573a67a4fc19820a886804c2fb5c87b15d5f"
+        "receipt_sha256": "d8fec1810fe496de2885ee2e0620ba49bf6644fe7513e77826603f18cd5ff02d"
       },
       {
         "id": "xp02",
@@ -449,7 +457,7 @@
           "scripts.run_holarch_i_cycle:stage_i2"
         ],
         "correct": true,
-        "receipt_sha256": "876bce0e9a9cb44b78facae7d432affafc6dc8c334097080cc3f6e5b3e2f0645"
+        "receipt_sha256": "46c07162cf1738182cd995c77342400e94100c5c7300d6adeb23316aabd91dc9"
       },
       {
         "id": "xp03",
@@ -457,7 +465,7 @@
         "claim": "def use_locked_tokenizer(cfg):\n    return build_tokenizer(cfg)\n",
         "status": "supported",
         "correct": true,
-        "receipt_sha256": "007fa5a4fcbf026c697aeccc13068a39fa4690e6eed45f41e50d577679a1f077"
+        "receipt_sha256": "35c682a4cb6258de7c1c8f648399da196797298428a2105f31e0078d442f8eef"
       },
       {
         "id": "xp04",
@@ -466,7 +474,7 @@
         "action_chosen": 0,
         "truth": 0,
         "correct": true,
-        "receipt_sha256": "e5abd478ef7e9da105ad5b7ff7a464f40bbc9fc1dfb1ce7f8922397a51069ed4"
+        "receipt_sha256": "51bf06d91c27f4da2359d333bf0339cd5464d008170d4e1b5f593a3d98c0c746"
       }
     ]
   },
@@ -483,7 +491,7 @@
         "returned_token_id": 1765,
         "ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
         "correct": true,
-        "receipt_sha256": "9303a0181ba4f4aa363075a18c3a825c576adf275e2da2fc4ec8e9e084e8c79b"
+        "receipt_sha256": "3d627b3f1ba8f8b7d0ad3790baf4e0e8a8226e4b2875489eeb2b6844f50684a3"
       },
       {
         "id": "vocab02",
@@ -492,7 +500,7 @@
         "returned_token_id": 1373,
         "ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
         "correct": true,
-        "receipt_sha256": "f2916877b03566390aa71e3e5d54215286474a4ba370bca52caf7daaa5ac97f5"
+        "receipt_sha256": "f71323d486c1b18ba872e7ce7d1f6f2fc31d3a518f10b1dfcfb4a6e6566596e9"
       },
       {
         "id": "vocab03",
@@ -501,7 +509,7 @@
         "returned_token_id": 1674,
         "ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
         "correct": true,
-        "receipt_sha256": "26b7234be0116310d82e3f61929c795ed31af54e7479ebcdf707575bac911367"
+        "receipt_sha256": "5488bd75d73ff39ceb2b772d822096a68f9957f329b5f4aa12fa5c9160c672ad"
       },
       {
         "id": "vocab04",
@@ -510,11 +518,11 @@
         "returned_token_id": null,
         "status": "unsupported",
         "correct": true,
-        "receipt_sha256": "1dee69ceb73187a236cb857504872028a40818af92d97bcb506d31a77637aa36"
+        "receipt_sha256": "e6e01c5f02563e449e55493b458315c201289af1b6b86b8ad4505bc1bdbaeb42"
       }
     ]
   },
-  "context_compression_ratio": 412.0993986814461,
+  "context_compression_ratio": 461.0861077589267,
   "composite": {
     "ingested": 200.0,
     "tau_composite": 0.9799999999999989,
@@ -598,7 +606,7 @@
           "trap": true,
           "strong_trap": true,
           "correct": true,
-          "receipt_sha256": "0a9a98e28b465a0a6987b3b2b2f46b90f04845771de9dc38fed4e8ecaa4a6ada"
+          "receipt_sha256": "b1caf79863047c7e6aa4ba3edba78ed7856fa73db92380d9604899decdc7e79f"
         },
         {
           "id": "plan02",
@@ -619,7 +627,7 @@
           "trap": true,
           "strong_trap": true,
           "correct": true,
-          "receipt_sha256": "f5b7962935f9d93f2788a7e6fce1b4d6059c62c9f86d4c82d19a359a52d5a10a"
+          "receipt_sha256": "e18522d48cae3607d71b1390cd07e31a97a9c89ee729628bc3239caaedc762d5"
         },
         {
           "id": "plan03",
@@ -640,7 +648,7 @@
           "trap": true,
           "strong_trap": true,
           "correct": true,
-          "receipt_sha256": "1253adf87bed82f514d7ffb43e2f65f3845dad5886b69d2c57626ded6600cd6a"
+          "receipt_sha256": "dec369306a7009ae70c3c733a99621d91fd6d0073628294f54d60b5a14dede5c"
         },
         {
           "id": "plan04",
@@ -661,7 +669,7 @@
           "trap": true,
           "strong_trap": true,
           "correct": true,
-          "receipt_sha256": "233c7b627a65e30b7ceada1f31862fc6cc501cc71aa2154728c232483cbec3e7"
+          "receipt_sha256": "a40185566ed029bc950d43695dea3b07866251f822ad311ece513ab5ad23a83d"
         }
       ]
     },
@@ -678,7 +686,7 @@
           "status": "supported",
           "reason": "all rare terms and all quantities present in evidence",
           "correct": true,
-          "receipt_sha256": "dfa7fe3e7466fea084512f7b5f47525415500288012fc627f6b5370e2cd98566"
+          "receipt_sha256": "b4b12875802bad6416d9f06c76e2d8f7b5385c6af1c4bdb150129c2d2e8c7087"
         },
         {
           "id": "verify02",
@@ -688,7 +696,7 @@
           "status": "supported",
           "reason": "all rare terms and all quantities present in evidence",
           "correct": true,
-          "receipt_sha256": "fce2071bbd4620468d79107b92a3a191e4ec8cd286efdc6023927e69df84e3c2"
+          "receipt_sha256": "e3aab0e40290c7b170725885bc80b68524b082952dab6d8c893a1efd1104421b"
         },
         {
           "id": "verify03",
@@ -698,7 +706,7 @@
           "status": "contradicted",
           "reason": "quantity 1020381 is stated differently in the evidence",
           "correct": true,
-          "receipt_sha256": "5b2aad5841802e440ebb4024e43f72a29225fe4e17df0457593f826a802822c2"
+          "receipt_sha256": "ad056a8fb2c9f2166b230040dafcd6c95806c520c08f7d270461d7995118eb42"
         },
         {
           "id": "verify04",
@@ -708,7 +716,7 @@
           "status": "unsupported",
           "reason": "signature: ZoneCMemory.query does not accept keyword 'widget'; declared parameters are ['self', 'wave', 'k', 'avoid_ids', 'candidate_multiplier', 'task', 'names",
           "correct": true,
-          "receipt_sha256": "ec26a4dfa1d45a82840f30bdfc44ede7e190b3c858a7bc1271722d487c4f8d91"
+          "receipt_sha256": "41ea11de32335cb00f781d28de21efb8f63857fdd9bf0c8fe11e073f01e05c35"
         }
       ]
     },
@@ -726,7 +734,7 @@
           "reason": "",
           "source": "def distinct_caller_count(links):\n    step_1 = sorted({edge.source for edge in links})\n    return int(len(step_1))\n",
           "correct": true,
-          "receipt_sha256": "1628c9f74cb2751854630a8271a77f1b26d777ecbb3bd805196017a05ca4c60e"
+          "receipt_sha256": "0ee07e01d1bcd4fe1b253b987122c9dc078009af343b0284cb842b64c2a57cf3"
         },
         {
           "id": "synth02",
@@ -737,7 +745,7 @@
           "reason": "",
           "source": "def bounded_mean(sample):\n    step_1 = float(sum(sample) / max(len(sample), 1))\n    return max(0.0, min(2.5, float(step_1)))\n",
           "correct": true,
-          "receipt_sha256": "4d95ca7a63e7e9af1881d1b7a644fde160a3053a10127e99ad666cd7814a6e73"
+          "receipt_sha256": "7890bb4f7778be5be2d0f0fd71ab71ca20b1e8ba1225f0b6a9631c944e611505"
         }
       ]
     },
@@ -752,9 +760,9 @@
           "target": "beta",
           "truth": [],
           "callers": [],
-          "delta_ms": 0.28569999267347157,
+          "delta_ms": 0.2823999966494739,
           "correct": true,
-          "receipt_sha256": "13757636a760f6041f98252d7cfad683a5f535ba2f4bc26f3595e62873fcdda0"
+          "receipt_sha256": "0ebe52c80e89575239f54f0be5dd080bb5d5a1128277db0315c2eaadfa488ff2"
         },
         {
           "id": "delta02",
@@ -766,9 +774,9 @@
           "callers": [
             "delta:delta"
           ],
-          "delta_ms": 0.2564000023994595,
+          "delta_ms": 0.20069998572580516,
           "correct": true,
-          "receipt_sha256": "51948a025a9d376078bcd4999c0b811fcd54ea237f58eeac0fd617eb8822c984"
+          "receipt_sha256": "b875a82571dc775894e52b469dadc42143ecc943bcfd109b70bb6124b61de4ea"
         }
       ]
     },
@@ -792,7 +800,7 @@
           "reason": "",
           "source": "def tri_agent(links):\n    step_1 = sorted({edge.source for edge in links})\n    step_2 = int(len(step_1))\n    return max(0.0, min(2.5, float(step_2)))\n",
           "correct": true,
-          "receipt_sha256": "4655a7a5f1385c46e6971cd487a8ed2f5abbae5ad6484d0b433a40e8605d6f59"
+          "receipt_sha256": "960d1705f77764527e42dfe3c1f3f189e3088c0500c30c1783b470d188de40ac"
         },
         {
           "id": "dag02",
@@ -809,7 +817,7 @@
           "reason": "",
           "source": "def bounded_sources(edges):\n    step_1 = sorted({edge.source for edge in edges})\n    step_2 = int(len(step_1))\n    return max(0.0, min(1.0, float(step_2)))\n",
           "correct": true,
-          "receipt_sha256": "fee3ad863120412bd09a34374032a15d00e6bfb2f44b26d17b32fcc3f6c4d5c1"
+          "receipt_sha256": "ed08db96335b9f10ec0be577f2153f367489f4f3a06ce968a296d1d0315dbce2"
         },
         {
           "id": "dag03",
@@ -825,7 +833,7 @@
           "reason": "type mismatch: core04.returns ['text'] cannot bind core10.values ['numeric_sequence']",
           "note": "text -> numeric_sequence (mean of a list)",
           "correct": true,
-          "receipt_sha256": "98e63b7a589b13cdbdf9d41896b8157af3d55fcb7e4617ae90be16a020c2a3eb"
+          "receipt_sha256": "9ee0bc17dfa374d0eb77cc4955e9c59cd3ad31b71c50f6b73ef088baa3243109"
         },
         {
           "id": "dag04",
@@ -841,7 +849,7 @@
           "reason": "type mismatch: core10.returns ['numeric'] cannot bind core04.receipt ['mapping']",
           "note": "numeric -> mapping (a receipt field is subscripted)",
           "correct": true,
-          "receipt_sha256": "45a19264de1ff480948a3cce31f05ac2a6fce3683850283c7f32914962ba901a"
+          "receipt_sha256": "f9753d11cdde69513c5852bc9a0b0063aa7c472bd3a9892b43654b382707452e"
         }
       ],
       "pipelines_executed": 2,
@@ -886,7 +894,7 @@
             "tests.test_holarch_i_decisions:test_vocabulary_lock_pins_ids_and_appends"
           ],
           "correct": true,
-          "receipt_sha256": "49a75af705471691a7b6bc0da5c4573a67a4fc19820a886804c2fb5c87b15d5f"
+          "receipt_sha256": "d8fec1810fe496de2885ee2e0620ba49bf6644fe7513e77826603f18cd5ff02d"
         },
         {
           "id": "xp02",
@@ -906,7 +914,7 @@
             "scripts.run_holarch_i_cycle:stage_i2"
           ],
           "correct": true,
-          "receipt_sha256": "876bce0e9a9cb44b78facae7d432affafc6dc8c334097080cc3f6e5b3e2f0645"
+          "receipt_sha256": "46c07162cf1738182cd995c77342400e94100c5c7300d6adeb23316aabd91dc9"
         },
         {
           "id": "xp03",
@@ -914,7 +922,7 @@
           "claim": "def use_locked_tokenizer(cfg):\n    return build_tokenizer(cfg)\n",
           "status": "supported",
           "correct": true,
-          "receipt_sha256": "007fa5a4fcbf026c697aeccc13068a39fa4690e6eed45f41e50d577679a1f077"
+          "receipt_sha256": "35c682a4cb6258de7c1c8f648399da196797298428a2105f31e0078d442f8eef"
         },
         {
           "id": "xp04",
@@ -923,14 +931,14 @@
           "action_chosen": 0,
           "truth": 0,
           "correct": true,
-          "receipt_sha256": "e5abd478ef7e9da105ad5b7ff7a464f40bbc9fc1dfb1ce7f8922397a51069ed4"
+          "receipt_sha256": "51bf06d91c27f4da2359d333bf0339cd5464d008170d4e1b5f593a3d98c0c746"
         }
       ],
       "workspace": {
-        "files": 217,
-        "nodes": 2258,
-        "edges": 6709,
-        "seconds": 0.870391100004781
+        "files": 224,
+        "nodes": 2387,
+        "edges": 7190,
+        "seconds": 0.9394661999831442
       }
     },
     "vocab_lock": {
@@ -945,7 +953,7 @@
           "returned_token_id": 1765,
           "ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
           "correct": true,
-          "receipt_sha256": "9303a0181ba4f4aa363075a18c3a825c576adf275e2da2fc4ec8e9e084e8c79b"
+          "receipt_sha256": "3d627b3f1ba8f8b7d0ad3790baf4e0e8a8226e4b2875489eeb2b6844f50684a3"
         },
         {
           "id": "vocab02",
@@ -954,7 +962,7 @@
           "returned_token_id": 1373,
           "ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
           "correct": true,
-          "receipt_sha256": "f2916877b03566390aa71e3e5d54215286474a4ba370bca52caf7daaa5ac97f5"
+          "receipt_sha256": "f71323d486c1b18ba872e7ce7d1f6f2fc31d3a518f10b1dfcfb4a6e6566596e9"
         },
         {
           "id": "vocab03",
@@ -963,7 +971,7 @@
           "returned_token_id": 1674,
           "ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
           "correct": true,
-          "receipt_sha256": "26b7234be0116310d82e3f61929c795ed31af54e7479ebcdf707575bac911367"
+          "receipt_sha256": "5488bd75d73ff39ceb2b772d822096a68f9957f329b5f4aa12fa5c9160c672ad"
         },
         {
           "id": "vocab04",
@@ -972,12 +980,678 @@
           "returned_token_id": null,
           "status": "unsupported",
           "correct": true,
-          "receipt_sha256": "1dee69ceb73187a236cb857504872028a40818af92d97bcb506d31a77637aa36"
+          "receipt_sha256": "e6e01c5f02563e449e55493b458315c201289af1b6b86b8ad4505bc1bdbaeb42"
         }
       ],
       "locked": true,
       "ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35"
+    },
+    "j1_cleanroom": {
+      "baseline_correct": 0,
+      "mcp_correct": 4,
+      "total": 4,
+      "rows": [
+        {
+          "name": "j1_trap_thread_parity",
+          "category": "j1_cleanroom",
+          "expected": "8/8 Cul-de-Sac bypass actions at 1 and 8 threads with identical vectors",
+          "measured": {
+            "actions_thread1": [
+              1,
+              2,
+              2,
+              1,
+              0,
+              3,
+              3,
+              0
+            ],
+            "actions_thread8": [
+              1,
+              2,
+              2,
+              1,
+              0,
+              3,
+              3,
+              0
+            ],
+            "bypass": [
+              1,
+              2,
+              2,
+              1,
+              0,
+              3,
+              3,
+              0
+            ],
+            "parity": 8,
+            "correct_thread1": 8,
+            "correct_thread8": 8
+          },
+          "correct": true,
+          "evidence": "depth-2 wall-masked rotor planner on the clean-room store"
+        },
+        {
+          "name": "j1_closed_loop_thread_parity",
+          "category": "j1_cleanroom",
+          "expected": "48-episode clean-room wins >= 1; first 8 episodes identical at 1 vs 8 threads",
+          "measured": {
+            "wins": 37,
+            "episodes": 48,
+            "wins_thread8": 4,
+            "parity_episodes": 8,
+            "parity_scope": "first 8 episodes of the 1-thread 48-episode run against an 8-episode 8-thread run",
+            "episode_rows": [
+              {
+                "index": 0,
+                "win": false,
+                "steps": 0
+              },
+              {
+                "index": 1,
+                "win": true,
+                "steps": 18
+              },
+              {
+                "index": 2,
+                "win": false,
+                "steps": 0
+              },
+              {
+                "index": 3,
+                "win": false,
+                "steps": 0
+              },
+              {
+                "index": 4,
+                "win": true,
+                "steps": 6
+              },
+              {
+                "index": 5,
+                "win": false,
+                "steps": 0
+              },
+              {
+                "index": 6,
+                "win": true,
+                "steps": 8
+              },
+              {
+                "index": 7,
+                "win": true,
+                "steps": 3
+              }
+            ]
+          },
+          "correct": true,
+          "evidence": "trace=True per-episode comparison; the 48-episode arm runs once"
+        },
+        {
+          "name": "j1_seed_cartridge_and_empty_store",
+          "category": "j1_cleanroom",
+          "expected": "checkpoint carries seed_engrams (count > 0) and pre_mount_rows == 0",
+          "measured": {
+            "cartridge_present": true,
+            "seed_count": 512,
+            "seed_bytes": 2105344,
+            "seed_dtype": "float16-quadrature",
+            "pre_mount_rows": 0,
+            "hydrated": 512,
+            "post_mount_rows": 512,
+            "load_hydration": {
+              "available": 512,
+              "written": 0,
+              "skipped": true,
+              "namespace": "default",
+              "existing": 512
+            }
+          },
+          "correct": true,
+          "evidence": "open_clean_room_memory created a new SQLite file; no fixture copy"
+        },
+        {
+          "name": "j1_store_rows_equal_seed_count",
+          "category": "j1_cleanroom",
+          "expected": "clean-room store rows == seed block count (512) and hydrated == count",
+          "measured": {
+            "store_rows": 512,
+            "seed_count": 512,
+            "hydrated": 512,
+            "seed_limit": 512
+          },
+          "correct": true,
+          "evidence": "row count read from the clean-room Zone C store after the mount"
+        }
+      ]
+    },
+    "j2_elastic_vocab": {
+      "baseline_correct": 0,
+      "mcp_correct": 2,
+      "total": 2,
+      "rows": [
+        {
+          "name": "j2_elastic_tenant_vocab",
+          "category": "j2_elastic_vocab",
+          "expected": ">=600 new identifiers at Tier-2 ids (>=2048), 0 Tier-1 shifts, lossless calls",
+          "measured": {
+            "added": 640,
+            "tier2_count": 640,
+            "tier2_first": 2048,
+            "tier2_last": 2687,
+            "tier1_shifts": 0,
+            "base_size": 2048,
+            "elastic_cap": 4096,
+            "calls": 640,
+            "roundtrip_ok": 640,
+            "ledger_digest": "1b1494fe28a29d7257e18c909105613988bdf7fe73432206bff47f1712385e72"
+          },
+          "correct": true,
+          "evidence": "640 generated functions synced into the Zone C vocabulary metadata"
+        },
+        {
+          "name": "j2_ledger_restore_from_zone_c",
+          "category": "j2_elastic_vocab",
+          "expected": "restore_ledger from Zone C metadata: exact id map, 0 re-ingestion calls",
+          "measured": {
+            "ledger_records": 1,
+            "tier2_records": 1,
+            "restore_added": 640,
+            "restored_identifiers": 1605,
+            "restored_tier2": 640,
+            "exact_map": true,
+            "tier2_payload_match": true,
+            "reingestion_calls": 0
+          },
+          "correct": true,
+          "evidence": "fresh tokenizer restored from the Zone C vocab_ledger payload only"
+        }
+      ]
+    },
+    "j3_diverse_dag": {
+      "baseline_correct": 0,
+      "mcp_correct": 4,
+      "total": 4,
+      "rows": [
+        {
+          "name": "j3_three_stage_f1",
+          "category": "j3_diverse_dag",
+          "expected": "F1 three-stage pipeline: ast.parse + compile + exec under a novel name, answer matches the reference",
+          "measured": {
+            "family": "F1",
+            "func": "j3d3105_02",
+            "stages": [
+              "caller_names",
+              "sequence_length",
+              "clamp_unit"
+            ],
+            "topology": "text->sequence|sequence->numeric|numeric->numeric",
+            "parsed": true,
+            "compiled": true,
+            "executed": true,
+            "matched": true,
+            "expected": 2.0,
+            "actual": 2.0,
+            "source_sha256": "0dacaf739f2bb18b8b78457cd3edbd37ad6e0931f60b5c6fcd7f0ba9a1b02b57"
+          },
+          "correct": true,
+          "evidence": "run_diverse_dag_battery three-stage row"
+        },
+        {
+          "name": "j3_three_stage_f2",
+          "category": "j3_diverse_dag",
+          "expected": "F2 three-stage pipeline: ast.parse + compile + exec under a novel name, answer matches the reference",
+          "measured": {
+            "family": "F2",
+            "func": "j3d3105_04",
+            "stages": [
+              "normalize_scores",
+              "mean_of",
+              "exceeds_tau"
+            ],
+            "topology": "numeric_sequence->numeric_sequence|numeric_sequence->numeric|numeric->boolean",
+            "parsed": true,
+            "compiled": true,
+            "executed": true,
+            "matched": true,
+            "expected": false,
+            "actual": false,
+            "source_sha256": "2ddc8a2b4d444cfac52182df30ee3f12f11e69391e90382240c4a377bd127ab3"
+          },
+          "correct": true,
+          "evidence": "run_diverse_dag_battery three-stage row"
+        },
+        {
+          "name": "j3_three_stage_f3",
+          "category": "j3_diverse_dag",
+          "expected": "F3 three-stage pipeline: ast.parse + compile + exec under a novel name, answer matches the reference",
+          "measured": {
+            "family": "F3",
+            "func": "j3d3105_06",
+            "stages": [
+              "invert_index",
+              "sorted_keys",
+              "join_csv"
+            ],
+            "topology": "mapping->mapping|mapping->sequence|sequence->text",
+            "parsed": true,
+            "compiled": true,
+            "executed": true,
+            "matched": true,
+            "expected": "z",
+            "actual": "z",
+            "source_sha256": "96607f64f40f612d0e5bc91554b1c1c33cc0fb3b4f81379c7d82d914469f2368"
+          },
+          "correct": true,
+          "evidence": "run_diverse_dag_battery three-stage row"
+        },
+        {
+          "name": "j3_new_type_conflict_refused",
+          "category": "j3_diverse_dag",
+          "expected": "a new text->numeric conflict is refused with empty source; battery traps 6/6",
+          "measured": {
+            "novel_pair": [
+              "join_csv",
+              "clamp_unit"
+            ],
+            "refused": true,
+            "reason": "type mismatch: join_csv.returns ['text'] cannot bind clamp_unit.value ['numeric']",
+            "source_empty": true,
+            "battery_traps_refused": 6,
+            "battery_traps_total": 6,
+            "battery_three_passed": 10,
+            "battery_total": {
+              "passed": 60,
+              "total": 60
+            },
+            "battery_drift": 0.0
+          },
+          "correct": true,
+          "evidence": "compose_plan_dag refuses before splicing a single stage"
+        }
+      ]
+    },
+    "j4_openai_adapter": {
+      "baseline_correct": 0,
+      "mcp_correct": 2,
+      "total": 2,
+      "rows": [
+        {
+          "name": "j4_chat_verify",
+          "category": "j4_openai_adapter",
+          "expected": "POST /v1/chat/completions -> verify: chat.completion, non-empty content, accepted receipt",
+          "measured": {
+            "object": "chat.completion",
+            "content": "all rare terms and all quantities present in evidence",
+            "action": "verify",
+            "status": "supported",
+            "receipt_valid": true,
+            "agent_receipt_valid": true,
+            "receipt_sha256": "3f596eb73c350b89f617f92387bd2ae650d34674fdb58091faac6c5bfccd81c3",
+            "agent_receipt_sha256": "6c16993c6aab2c0a99ba54f145740840f384973a75c47c01c95fd1499b7c1d8e",
+            "error": ""
+          },
+          "correct": true,
+          "evidence": "fastapi TestClient, bearer key agent-eval-j4"
+        },
+        {
+          "name": "j4_chat_plan",
+          "category": "j4_openai_adapter",
+          "expected": "POST /v1/chat/completions -> plan: chat.completion, non-empty content, accepted receipt",
+          "measured": {
+            "object": "chat.completion",
+            "content": "up (action 0)",
+            "action": "plan",
+            "status": "ok",
+            "action_chosen": 0,
+            "reference_action": 0,
+            "matches_reference": true,
+            "receipt_valid": true,
+            "agent_receipt_valid": true,
+            "receipt_sha256": "eb286a91ba87152f9a2342275e89c7ac83b2ae7da79726eb0f7821166a504fad",
+            "agent_receipt_sha256": "4dcae01d6ea38f56fd0e785bd14d3c19dd3257625638907eeaa824bf042b5a74",
+            "error": ""
+          },
+          "correct": true,
+          "evidence": "planner mounted on the clean-room store at 1 thread"
+        }
+      ]
     }
+  },
+  "probes": {
+    "queries": 12,
+    "correct": 12,
+    "categories": [
+      {
+        "category": "j1_cleanroom",
+        "total": 4,
+        "correct": 4
+      },
+      {
+        "category": "j2_elastic_vocab",
+        "total": 2,
+        "correct": 2
+      },
+      {
+        "category": "j3_diverse_dag",
+        "total": 4,
+        "correct": 4
+      },
+      {
+        "category": "j4_openai_adapter",
+        "total": 2,
+        "correct": 2
+      }
+    ],
+    "rows": [
+      {
+        "name": "j1_trap_thread_parity",
+        "category": "j1_cleanroom",
+        "expected": "8/8 Cul-de-Sac bypass actions at 1 and 8 threads with identical vectors",
+        "measured": {
+          "actions_thread1": [
+            1,
+            2,
+            2,
+            1,
+            0,
+            3,
+            3,
+            0
+          ],
+          "actions_thread8": [
+            1,
+            2,
+            2,
+            1,
+            0,
+            3,
+            3,
+            0
+          ],
+          "bypass": [
+            1,
+            2,
+            2,
+            1,
+            0,
+            3,
+            3,
+            0
+          ],
+          "parity": 8,
+          "correct_thread1": 8,
+          "correct_thread8": 8
+        },
+        "correct": true,
+        "evidence": "depth-2 wall-masked rotor planner on the clean-room store"
+      },
+      {
+        "name": "j1_closed_loop_thread_parity",
+        "category": "j1_cleanroom",
+        "expected": "48-episode clean-room wins >= 1; first 8 episodes identical at 1 vs 8 threads",
+        "measured": {
+          "wins": 37,
+          "episodes": 48,
+          "wins_thread8": 4,
+          "parity_episodes": 8,
+          "parity_scope": "first 8 episodes of the 1-thread 48-episode run against an 8-episode 8-thread run",
+          "episode_rows": [
+            {
+              "index": 0,
+              "win": false,
+              "steps": 0
+            },
+            {
+              "index": 1,
+              "win": true,
+              "steps": 18
+            },
+            {
+              "index": 2,
+              "win": false,
+              "steps": 0
+            },
+            {
+              "index": 3,
+              "win": false,
+              "steps": 0
+            },
+            {
+              "index": 4,
+              "win": true,
+              "steps": 6
+            },
+            {
+              "index": 5,
+              "win": false,
+              "steps": 0
+            },
+            {
+              "index": 6,
+              "win": true,
+              "steps": 8
+            },
+            {
+              "index": 7,
+              "win": true,
+              "steps": 3
+            }
+          ]
+        },
+        "correct": true,
+        "evidence": "trace=True per-episode comparison; the 48-episode arm runs once"
+      },
+      {
+        "name": "j1_seed_cartridge_and_empty_store",
+        "category": "j1_cleanroom",
+        "expected": "checkpoint carries seed_engrams (count > 0) and pre_mount_rows == 0",
+        "measured": {
+          "cartridge_present": true,
+          "seed_count": 512,
+          "seed_bytes": 2105344,
+          "seed_dtype": "float16-quadrature",
+          "pre_mount_rows": 0,
+          "hydrated": 512,
+          "post_mount_rows": 512,
+          "load_hydration": {
+            "available": 512,
+            "written": 0,
+            "skipped": true,
+            "namespace": "default",
+            "existing": 512
+          }
+        },
+        "correct": true,
+        "evidence": "open_clean_room_memory created a new SQLite file; no fixture copy"
+      },
+      {
+        "name": "j1_store_rows_equal_seed_count",
+        "category": "j1_cleanroom",
+        "expected": "clean-room store rows == seed block count (512) and hydrated == count",
+        "measured": {
+          "store_rows": 512,
+          "seed_count": 512,
+          "hydrated": 512,
+          "seed_limit": 512
+        },
+        "correct": true,
+        "evidence": "row count read from the clean-room Zone C store after the mount"
+      },
+      {
+        "name": "j2_elastic_tenant_vocab",
+        "category": "j2_elastic_vocab",
+        "expected": ">=600 new identifiers at Tier-2 ids (>=2048), 0 Tier-1 shifts, lossless calls",
+        "measured": {
+          "added": 640,
+          "tier2_count": 640,
+          "tier2_first": 2048,
+          "tier2_last": 2687,
+          "tier1_shifts": 0,
+          "base_size": 2048,
+          "elastic_cap": 4096,
+          "calls": 640,
+          "roundtrip_ok": 640,
+          "ledger_digest": "1b1494fe28a29d7257e18c909105613988bdf7fe73432206bff47f1712385e72"
+        },
+        "correct": true,
+        "evidence": "640 generated functions synced into the Zone C vocabulary metadata"
+      },
+      {
+        "name": "j2_ledger_restore_from_zone_c",
+        "category": "j2_elastic_vocab",
+        "expected": "restore_ledger from Zone C metadata: exact id map, 0 re-ingestion calls",
+        "measured": {
+          "ledger_records": 1,
+          "tier2_records": 1,
+          "restore_added": 640,
+          "restored_identifiers": 1605,
+          "restored_tier2": 640,
+          "exact_map": true,
+          "tier2_payload_match": true,
+          "reingestion_calls": 0
+        },
+        "correct": true,
+        "evidence": "fresh tokenizer restored from the Zone C vocab_ledger payload only"
+      },
+      {
+        "name": "j3_three_stage_f1",
+        "category": "j3_diverse_dag",
+        "expected": "F1 three-stage pipeline: ast.parse + compile + exec under a novel name, answer matches the reference",
+        "measured": {
+          "family": "F1",
+          "func": "j3d3105_02",
+          "stages": [
+            "caller_names",
+            "sequence_length",
+            "clamp_unit"
+          ],
+          "topology": "text->sequence|sequence->numeric|numeric->numeric",
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": 2.0,
+          "actual": 2.0,
+          "source_sha256": "0dacaf739f2bb18b8b78457cd3edbd37ad6e0931f60b5c6fcd7f0ba9a1b02b57"
+        },
+        "correct": true,
+        "evidence": "run_diverse_dag_battery three-stage row"
+      },
+      {
+        "name": "j3_three_stage_f2",
+        "category": "j3_diverse_dag",
+        "expected": "F2 three-stage pipeline: ast.parse + compile + exec under a novel name, answer matches the reference",
+        "measured": {
+          "family": "F2",
+          "func": "j3d3105_04",
+          "stages": [
+            "normalize_scores",
+            "mean_of",
+            "exceeds_tau"
+          ],
+          "topology": "numeric_sequence->numeric_sequence|numeric_sequence->numeric|numeric->boolean",
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": false,
+          "actual": false,
+          "source_sha256": "2ddc8a2b4d444cfac52182df30ee3f12f11e69391e90382240c4a377bd127ab3"
+        },
+        "correct": true,
+        "evidence": "run_diverse_dag_battery three-stage row"
+      },
+      {
+        "name": "j3_three_stage_f3",
+        "category": "j3_diverse_dag",
+        "expected": "F3 three-stage pipeline: ast.parse + compile + exec under a novel name, answer matches the reference",
+        "measured": {
+          "family": "F3",
+          "func": "j3d3105_06",
+          "stages": [
+            "invert_index",
+            "sorted_keys",
+            "join_csv"
+          ],
+          "topology": "mapping->mapping|mapping->sequence|sequence->text",
+          "parsed": true,
+          "compiled": true,
+          "executed": true,
+          "matched": true,
+          "expected": "z",
+          "actual": "z",
+          "source_sha256": "96607f64f40f612d0e5bc91554b1c1c33cc0fb3b4f81379c7d82d914469f2368"
+        },
+        "correct": true,
+        "evidence": "run_diverse_dag_battery three-stage row"
+      },
+      {
+        "name": "j3_new_type_conflict_refused",
+        "category": "j3_diverse_dag",
+        "expected": "a new text->numeric conflict is refused with empty source; battery traps 6/6",
+        "measured": {
+          "novel_pair": [
+            "join_csv",
+            "clamp_unit"
+          ],
+          "refused": true,
+          "reason": "type mismatch: join_csv.returns ['text'] cannot bind clamp_unit.value ['numeric']",
+          "source_empty": true,
+          "battery_traps_refused": 6,
+          "battery_traps_total": 6,
+          "battery_three_passed": 10,
+          "battery_total": {
+            "passed": 60,
+            "total": 60
+          },
+          "battery_drift": 0.0
+        },
+        "correct": true,
+        "evidence": "compose_plan_dag refuses before splicing a single stage"
+      },
+      {
+        "name": "j4_chat_verify",
+        "category": "j4_openai_adapter",
+        "expected": "POST /v1/chat/completions -> verify: chat.completion, non-empty content, accepted receipt",
+        "measured": {
+          "object": "chat.completion",
+          "content": "all rare terms and all quantities present in evidence",
+          "action": "verify",
+          "status": "supported",
+          "receipt_valid": true,
+          "agent_receipt_valid": true,
+          "receipt_sha256": "3f596eb73c350b89f617f92387bd2ae650d34674fdb58091faac6c5bfccd81c3",
+          "agent_receipt_sha256": "6c16993c6aab2c0a99ba54f145740840f384973a75c47c01c95fd1499b7c1d8e",
+          "error": ""
+        },
+        "correct": true,
+        "evidence": "fastapi TestClient, bearer key agent-eval-j4"
+      },
+      {
+        "name": "j4_chat_plan",
+        "category": "j4_openai_adapter",
+        "expected": "POST /v1/chat/completions -> plan: chat.completion, non-empty content, accepted receipt",
+        "measured": {
+          "object": "chat.completion",
+          "content": "up (action 0)",
+          "action": "plan",
+          "status": "ok",
+          "action_chosen": 0,
+          "reference_action": 0,
+          "matches_reference": true,
+          "receipt_valid": true,
+          "agent_receipt_valid": true,
+          "receipt_sha256": "eb286a91ba87152f9a2342275e89c7ac83b2ae7da79726eb0f7821166a504fad",
+          "agent_receipt_sha256": "4dcae01d6ea38f56fd0e785bd14d3c19dd3257625638907eeaa824bf042b5a74",
+          "error": ""
+        },
+        "correct": true,
+        "evidence": "planner mounted on the clean-room store at 1 thread"
+      }
+    ]
   },
   "gate": {
     "mcp_zero_query_reads": true,
@@ -1000,6 +1674,20 @@
     "verification_mcp_perfect": true,
     "synthesis_multiplan_verified": true,
     "delta_blast_radius_perfect": true,
+    "j1_trap_thread_parity": true,
+    "j1_closed_loop_thread_parity": true,
+    "j1_seed_cartridge_and_empty_store": true,
+    "j1_store_rows_equal_seed_count": true,
+    "j2_elastic_tenant_vocab": true,
+    "j2_ledger_restore_from_zone_c": true,
+    "j3_three_stage_f1": true,
+    "j3_three_stage_f2": true,
+    "j3_three_stage_f3": true,
+    "j3_new_type_conflict_refused": true,
+    "j4_chat_verify": true,
+    "j4_chat_plan": true,
+    "queries_88": true,
+    "probes_12_present": true,
     "passed": true
   },
   "evidence": "OBSERVED"

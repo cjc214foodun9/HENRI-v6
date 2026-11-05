@@ -1,0 +1,121 @@
+{
+  "stage": "J4",
+  "auth": {
+    "configured": true,
+    "healthz_status": 200,
+    "missing_status": 401,
+    "invalid_status": 401,
+    "valid_status": 200,
+    "valid_receipt": true
+  },
+  "rate_limit": {
+    "rps": 2.0,
+    "burst": 4.0,
+    "statuses": [
+      200,
+      200,
+      200,
+      200,
+      429,
+      429,
+      429,
+      429
+    ],
+    "ok_count": 4,
+    "limited_count": 4,
+    "healthz_statuses": [
+      200,
+      200,
+      200,
+      200,
+      200,
+      200,
+      200,
+      200
+    ]
+  },
+  "concurrency": {
+    "threads": 16,
+    "rounds": 4,
+    "requests": 64,
+    "errors": [],
+    "ok": 64,
+    "all_valid": true,
+    "concurrent_seconds": 2.0318172999832314,
+    "serial_seconds": 2.189237000013236,
+    "concurrent_rate": 31.498895102688707,
+    "serial_rate": 29.233929446475216,
+    "throughput_ratio": 1.077477290911591,
+    "lock_stats": {
+      "readers": 0,
+      "writer": 0,
+      "waiting_writers": 0,
+      "peak_readers": 7,
+      "total_reads": 130,
+      "total_writes": 1
+    },
+    "chain_valid": true,
+    "gil_enabled": true
+  },
+  "openai_adapter": {
+    "verify": {
+      "status_code": 200,
+      "object": "chat.completion",
+      "content": "all rare terms and all quantities present in evidence",
+      "abstained": false,
+      "action": "verify",
+      "receipt_valid": true,
+      "ok": true
+    },
+    "plan": {
+      "status_code": 200,
+      "object": "chat.completion",
+      "content": "down (action 1)",
+      "abstained": false,
+      "action": "plan",
+      "receipt_valid": true,
+      "ok": true
+    },
+    "impact": {
+      "status_code": 200,
+      "object": "chat.completion",
+      "content": "impact solve: 3 caller(s): mcp_server:holarch_solve, server:agent_step, zone_b:matrix",
+      "abstained": false,
+      "action": "impact",
+      "receipt_valid": true,
+      "ok": true
+    },
+    "synthesize": {
+      "status_code": 200,
+      "object": "chat.completion",
+      "content": "def chat_edge_scale(edges):\n    step_1 = sorted({edge.source for edge in edges})\n    step_2 = int(len(step_1))\n    return max(2.0, min(5.0, float(step_2)))\n",
+      "abstained": false,
+      "action": "synthesize",
+      "receipt_valid": true,
+      "ok": true,
+      "compiled_playbooks": 24,
+      "status": "verified",
+      "composed_stages": 1,
+      "source_chars": 156
+    }
+  },
+  "gate": {
+    "healthz_public": true,
+    "missing_token_401": true,
+    "invalid_token_401": true,
+    "valid_token_200": true,
+    "burst_429": true,
+    "healthz_not_rate_limited": true,
+    "concurrency_zero_errors": true,
+    "receipt_chain_valid": true,
+    "readers_overlap": true,
+    "throughput_not_collapsed": true,
+    "openai_verify": true,
+    "openai_plan": true,
+    "openai_impact": true,
+    "openai_synthesize": true,
+    "passed": true
+  },
+  "wall_seconds": 12.399614099995233,
+  "evidence": "OBSERVED"
+}

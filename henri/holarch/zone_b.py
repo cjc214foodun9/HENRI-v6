@@ -54,6 +54,13 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 
+from henri.holarch.deterministic import (
+    prototype_align,
+    slot_mix,
+    stiefel_readout,
+    stiefel_reproject,
+)
+
 TWO_PI = 2.0 * math.pi
 _EPS = 1e-12
 
@@ -292,7 +299,9 @@ class SlotMixer(nn.Module):
         return torch.linalg.solve(eye - 0.5 * skew, eye + 0.5 * skew)
 
     def forward(self, slots: torch.Tensor) -> torch.Tensor:
-        return torch.einsum("ij,bjd->bid", self.matrix(), slots)
+        # Directive J1: no batched GEMM. slot_mix is an explicit four-term sum,
+        # so the slot coupling is order-free and thread-invariant.
+        return slot_mix(self.matrix(), slots)
 
 
 class StiefelSlotPool(nn.Module):
@@ -353,8 +362,11 @@ class StiefelSlotPool(nn.Module):
         return q.transpose(-1, -2).contiguous()
 
     def forward(self, slots: torch.Tensor) -> torch.Tensor:
+        # Directive J1: one two-dimensional product per slot with a float64
+        # accumulator, because the batched complex kernel is not call-stable
+        # on this host (see henri/holarch/deterministic.py).
         basis = self.basis()
-        return torch.einsum("bsd,skd->bsk", slots, basis.conj()).real.flatten(1)
+        return stiefel_readout(slots, basis).real.flatten(1)
 
 
 class PhotonicCore(nn.Module):
@@ -689,7 +701,7 @@ class PhotonicCore(nn.Module):
         """Re<psi_s, phi_m,s> for every slot, shape (batch, n_slots, M)."""
         slots = bright.reshape(-1, self.n_slots, self.d_slot)
         phi_slots = phi.reshape(-1, self.n_slots, self.d_slot)
-        return torch.einsum("bsd,msd->bsm", slots.conj(), phi_slots).real
+        return prototype_align(slots, phi_slots).real
 
     def alignment(self, bright: torch.Tensor, phi: torch.Tensor) -> torch.Tensor:
         """Re<psi, phi_m> against every prototype, shape (batch, M).
@@ -703,8 +715,8 @@ class PhotonicCore(nn.Module):
         """P psi = U_s^H (U_s psi_s) for every slot, same shape as input."""
         slots = wave.reshape(-1, self.n_slots, self.d_slot)
         basis = self.pool.basis()
-        inner = torch.einsum("bsd,skd->bsk", slots, basis.conj())
-        back = torch.einsum("bsk,skd->bsd", inner, basis)
+        inner = stiefel_readout(slots, basis)
+        back = stiefel_reproject(inner, basis)
         return back.reshape(-1, self.dim)
 
     def slot_alignment_subspace(
@@ -731,7 +743,7 @@ class PhotonicCore(nn.Module):
         """
         slots = bright.reshape(-1, self.n_slots, self.d_slot)
         basis = self.pool.basis()
-        inner = torch.einsum("bsd,skd->bsk", slots, basis.conj())
+        inner = stiefel_readout(slots, basis)
         captured = inner.abs().pow(2).sum(dim=-1)
         total = slots.abs().pow(2).sum(dim=-1)
         return (total - captured).clamp_min(0.0)

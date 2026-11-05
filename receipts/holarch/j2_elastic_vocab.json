@@ -1,0 +1,98 @@
+{
+  "stage": "J2",
+  "vocabulary": {
+    "lock": {
+      "path": "receipts\\holarch\\vocab_lock.json",
+      "sha256": "982653ecb74011f82c9134bda6e1f3c19cc3f46b19139f656cc52463a47c20ae",
+      "digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
+      "identifiers": 965,
+      "vocab_size": 2048
+    },
+    "tier1_size": 2048,
+    "elastic_cap": 4096,
+    "tier2_base": 2048,
+    "tier2_ids": 600,
+    "tier2_first": 2048,
+    "tier2_last": 2647,
+    "tier2_sample": [
+      "live_probe_0",
+      "live_probe_1",
+      "live_probe_10",
+      "live_probe_100",
+      "live_probe_101",
+      "live_probe_102",
+      "live_probe_103",
+      "live_probe_104"
+    ],
+    "tier1_id_shifts": 0
+  },
+  "sync": {
+    "added": 600,
+    "size_after": 2648,
+    "tier2_ids": 600,
+    "full": false,
+    "elastic_cap": 4096
+  },
+  "encoding": {
+    "calls": 600,
+    "mean_tokens_tier1": 9.775,
+    "mean_tokens_elastic": 4.0,
+    "token_reduction": 0.5907928388746804,
+    "example": {
+      "call": "live_probe_0(value)",
+      "tier1": [
+        302,
+        80,
+        138,
+        80,
+        794,
+        57,
+        527,
+        58
+      ],
+      "elastic": [
+        2048,
+        57,
+        527,
+        58
+      ]
+    }
+  },
+  "roundtrip": {
+    "files": 233,
+    "ok": 233,
+    "rate": 1.0
+  },
+  "persistence": {
+    "ledger_records": 1,
+    "tier2_records": 1,
+    "restored_identifiers": 600,
+    "restore_added": 600,
+    "reingestion_calls": 0,
+    "size_before_restore": 2048,
+    "size_after_restore": 2648,
+    "tier2_after_restore": 600,
+    "exact_map": true
+  },
+  "phase_waves": {
+    "sampled": 64,
+    "distinct": 64,
+    "mean_pair_abs_coherence": 0.9999287128448486,
+    "max_pair_abs_coherence": 0.9999996423721313
+  },
+  "gate": {
+    "tier1_zero_shifts": true,
+    "tier2_at_least_500": true,
+    "tier2_within_cap": true,
+    "single_token_admission": true,
+    "mean_tokens_reduced_40pct": true,
+    "lossless_roundtrip": true,
+    "persisted_in_zone_c": true,
+    "restart_exact_map": true,
+    "zero_reingestion": true,
+    "tier2_waves_distinct": true,
+    "passed": true
+  },
+  "wall_seconds": 3.777028899989091,
+  "evidence": "OBSERVED"
+}

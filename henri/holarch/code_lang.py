@@ -243,6 +243,15 @@ class VocabularyLedger:
     curated_digest: str = ""
     source: str = ""
     version: int = VOCAB_LEDGER_VERSION
+    # Directive J2: the two-tier ceiling. vocab_size stays the immutable
+    # Tier-1 boundary (0 .. vocab_size-1); elastic_cap is the total address
+    # space the ledger may grow into (vocab_size .. elastic_cap-1 are the
+    # Tier-2 tenant slots). Zero means "no elastic tail", which is exactly the
+    # Cycle I behaviour, so an old lock file keeps its meaning. It is a
+    # capacity declaration and not part of the digest: the identifiers tuple
+    # is what fixes every id, and re-digesting that tuple must keep working
+    # for the locks Cycle I already signed.
+    elastic_cap: int = 0
 
     # ------------------------------------------------------------- geometry
     @property
@@ -255,9 +264,25 @@ class VocabularyLedger:
         return int(self.curated_size) + N_BYTE_TOKENS
 
     @property
+    def elastic(self) -> int:
+        """Total address space, Tier 1 plus Tier 2 (Directive J2)."""
+        return max(int(self.vocab_size), int(self.elastic_cap or self.vocab_size))
+
+    @property
+    def tier2_base(self) -> int:
+        """The first Tier-2 id. Immutable Tier-1 is [0, tier2_base)."""
+        return int(self.vocab_size)
+
+    @property
+    def tier2_identifiers(self) -> Tuple[str, ...]:
+        """The identifiers whose id lands at or above the Tier-1 boundary."""
+        split = max(0, self.tier2_base - self.identifier_base)
+        return tuple(self.identifiers[split:])
+
+    @property
     def capacity(self) -> int:
         """How many identifier slots the declared vocabulary has."""
-        return max(0, int(self.vocab_size) - int(self.curated_size) - N_BYTE_TOKENS)
+        return max(0, int(self.elastic) - int(self.curated_size) - N_BYTE_TOKENS)
 
     def id_of(self, name: str) -> Optional[int]:
         """The pinned id of one identifier, or None when it is not locked."""
@@ -277,6 +302,7 @@ class VocabularyLedger:
             curated_digest=str(self.curated_digest),
             source=str(self.source),
             version=int(self.version),
+            elastic_cap=int(self.elastic_cap),
         )
 
     # ------------------------------------------------------------- payload
@@ -288,6 +314,10 @@ class VocabularyLedger:
             "curated_digest": str(self.curated_digest),
             "source": str(self.source),
             "identifier_count": len(self.identifiers),
+            "elastic_cap": int(self.elastic),
+            "tier1_size": int(self.vocab_size),
+            "tier2_base": int(self.tier2_base),
+            "tier2_identifiers": list(self.tier2_identifiers),
             "identifier_digest": hashlib.sha256(
                 "\n".join(self.identifiers).encode("utf-8", errors="surrogatepass")
             ).hexdigest(),
@@ -319,6 +349,7 @@ class VocabularyLedger:
             curated_digest=str(payload.get("curated_digest", "")),
             source=str(payload.get("source", "")),
             version=int(payload.get("version", VOCAB_LEDGER_VERSION)),
+            elastic_cap=int(payload.get("elastic_cap", 0) or 0),
         )
 
     # ----------------------------------------------------------- persistence
@@ -373,11 +404,21 @@ class HolarchCodeTextTokenizer:
         seed: int = 0,
         extra_identifiers: Sequence[str] = (),
         vocab_lock: Optional[VocabularyLedger] = None,
+        elastic_cap: Optional[int] = None,
     ) -> None:
         if int(vocab_size) > 2048:
             raise ValueError("vocab_size must be <= 2048")
         if int(vocab_size) <= N_BYTE_TOKENS + 8:
             raise ValueError("vocab_size leaves no room for subword pieces")
+        inherited = int(getattr(vocab_lock, "elastic", vocab_size)) if vocab_lock is not None else int(vocab_size)
+        cap = int(elastic_cap) if elastic_cap is not None else inherited
+        # Directive J2: vocab_size is the immutable Tier-1 boundary; cap is the
+        # total address space. A cap equal to the base is the Cycle I
+        # behaviour, bit for bit: the append-only loop stops at the same id.
+        if cap < int(vocab_size):
+            raise ValueError("elastic_cap must be >= vocab_size")
+        self.tier1_size = int(vocab_size)
+        self.elastic_cap = int(cap)
         self.vocab_size = int(vocab_size)
         self.seed = int(seed)
         budget = self.vocab_size - N_BYTE_TOKENS
@@ -438,12 +479,50 @@ class HolarchCodeTextTokenizer:
             curated_size=len(self._curated),
             curated_digest=TokenizerSpec(pieces=tuple(self._curated)).digest(),
             source=str(self.ledger_source if source is None else source),
+            elastic_cap=int(self.elastic_cap),
         )
 
     @property
     def identifiers(self) -> Tuple[str, ...]:
         """The identifier half of the vocabulary, in pinned id order."""
         return tuple(self._identifiers)
+
+    # ---------------------------------------------------------- two tiers
+    @property
+    def tier2_ids(self) -> Tuple[int, ...]:
+        """Every id at or above the immutable Tier-1 boundary (Directive J2)."""
+        return tuple(range(int(self.vocab_size), len(self._texts)))
+
+    def tier_of(self, token: int) -> int:
+        """1 for the locked base vocabulary, 2 for the elastic tenant tail."""
+        return 1 if int(token) < int(self.vocab_size) else 2
+
+    def tier2_payload(self) -> Dict[str, object]:
+        """The exact Tier-2 address map, for Zone C metadata and replay."""
+        return {
+            "tier1_size": int(self.vocab_size),
+            "elastic_cap": int(self.elastic_cap),
+            "tier2_base": int(self.vocab_size),
+            "tier2_ids": [int(token) for token in self.tier2_ids],
+            "tier2_identifiers": [
+                self._texts[int(token)] for token in self.tier2_ids
+            ],
+            "count": len(self.tier2_ids),
+        }
+
+    def restore_ledger(self, payload: Dict[str, object]) -> int:
+        """Rebuild the exact id map from a persisted ledger payload.
+
+        Directive J2: the ids are a function of the identifier order, so
+        replaying the recorded order restores Tier-1 and Tier-2 without a
+        single re-ingestion call. A payload whose curated prefix disagrees with
+        this tokenizer is refused rather than silently rebased.
+        """
+        ledger = VocabularyLedger.from_payload(payload)
+        cap = int(ledger.elastic or self.vocab_size)
+        if cap > int(self.elastic_cap):
+            self.elastic_cap = cap
+        return self.apply_ledger(ledger)
 
     def apply_ledger(self, ledger: VocabularyLedger) -> int:
         """Append a locked identifier order, preserving every pinned id.
@@ -485,13 +564,23 @@ class HolarchCodeTextTokenizer:
         self.ledger = self._make_ledger(source=source)
         if memory is not None and hasattr(memory, "put_meta"):
             memory.put_meta(str(namespace), VOCAB_LEDGER_KIND, "vocab_ledger", self.ledger.as_payload())
+            # Directive J2: a second record pins the exact Tier-2 address map
+            # for this tenant, so a restart restores ids and not just names.
+            memory.put_meta(
+                str(namespace), VOCAB_LEDGER_KIND, "vocab_ledger_tier2", self.tier2_payload()
+            )
         saved = self.ledger.save(save_path) if save_path is not None else {}
         return {
             "added": int(added),
             "size_before": int(before),
             "size_after": int(len(self._texts)),
             "vocab_size": int(self.vocab_size),
-            "full": bool(len(self._texts) >= int(self.vocab_size)),
+            "elastic_cap": int(self.elastic_cap),
+            "tier2_added": int(len(self.tier2_ids) - max(0, before - int(self.vocab_size))),
+            "tier2_ids": int(len(self.tier2_ids)),
+            "tier2_base": int(self.vocab_size),
+            "full": bool(len(self._texts) >= int(self.elastic_cap)),
+            "tier1_full": bool(len(self._texts) >= int(self.vocab_size)),
             "identifiers": len(self._identifiers),
             "ledger_digest": self.ledger.digest(),
             "saved": saved,
@@ -508,7 +597,7 @@ class HolarchCodeTextTokenizer:
         for name in dict.fromkeys(str(name) for name in names):
             if not name or name in self.stoi:
                 continue
-            if len(self._texts) >= self.vocab_size:
+            if len(self._texts) >= int(getattr(self, "elastic_cap", self.vocab_size)):
                 break
             token_id = len(self._texts)
             self.stoi[name] = token_id
@@ -986,10 +1075,18 @@ class BochnerPhaseProjector:
 
     # ------------------------------------------------------------ projection
     def stem(self, token: int) -> np.ndarray:
-        """The role-smoothed distributional vector of one token."""
+        """The role-smoothed distributional vector of one token.
+
+        Directive J2: a Tier-2 tenant identifier has no row in the fitted PMI
+        stem, because the stem was fitted on the base corpus. Rather than
+        return a zero vector (which would make every novel name share one
+        constant phase wave), the vector is derived from the Tier-1 pieces the
+        identifier is spelled from and from its syntactic role class, so the
+        novel token lands near the base tokens it is built from.
+        """
         index = int(token)
         if index < 0 or index >= self.embeddings.shape[0]:
-            return np.zeros(self.d_sem, dtype=np.float32)
+            return self.elastic_stem(index)
         row = self.embeddings[index]
         if self.role_blend > 0.0:
             anchor = self.class_anchors.get(self.token_concept.get(index, ""))
@@ -999,6 +1096,114 @@ class BochnerPhaseProjector:
                 if norm > _EPS:
                     return (blended / norm).astype(np.float32)
         return row
+
+    def _trigram_basis(self) -> np.ndarray:
+        """A fixed random frame for the character-trigram identity kernel."""
+        basis = getattr(self, "_trigram_frame", None)
+        if basis is None:
+            generator = np.random.default_rng(self.seed ^ 0x9E3779B9)
+            basis = generator.standard_normal((4096, self.d_sem)).astype(np.float32)
+            basis /= np.maximum(np.linalg.norm(basis, axis=1, keepdims=True), _EPS)
+            self._trigram_frame = basis
+        return basis
+
+    def elastic_stem(self, token: int) -> np.ndarray:
+        """A deterministic distributional vector for a Tier-2 identifier.
+
+        The construction is declared, not learned:
+
+        1. Longest Tier-1 pieces contained in the identifier text carry the
+           stem: the mean of their fitted rows, weighted by piece length. That
+           is the co-occurrence half of the directive, read from the base
+           vocabulary the tenant build is spelled from.
+        2. The leaf is blended toward the role-class anchor of its syntactic
+           class (identifier, type, operator, literal), the same smoothing
+           stem() applies to a known token.
+        3. An identifier with no Tier-1 piece falls back to a blake2b seed
+           projected through a fixed Gaussian basis, so two distinct novel
+           names never collapse onto the same wave.
+
+        The result is cached, so repeated encodes cost one hash lookup.
+        """
+        index = int(token)
+        cache = getattr(self, "_elastic_stem_cache", None)
+        if cache is None:
+            cache = {}
+            self._elastic_stem_cache = cache
+        cached = cache.get(index)
+        if cached is not None:
+            return cached
+        tokenizer = self.tokenizer
+        name = "" if tokenizer is None else str(tokenizer.token_text(index))
+        if not name:
+            value = np.zeros(self.d_sem, dtype=np.float32)
+            cache[index] = value
+            return value
+        rows: List[np.ndarray] = []
+        weights: List[float] = []
+        seen: set = set()
+        # The identity half: a hashed character-trigram kernel over the
+        # identifier text. Two names that share a stem share most trigrams and
+        # land close; two names that differ in their suffix differ by the
+        # trigrams that carry that suffix. Without it every variant of one
+        # prefix collapses onto a single wave (measured: 4 distinct waves for
+        # 20 novel names), which would silently recreate the byte-fallback
+        # problem the Tier-2 block exists to remove.
+        trigram_basis = self._trigram_basis()
+        trigrams = sorted({name[max(0, index - 2) : index + 1] for index in range(len(name))})
+        char_rows = [
+            trigram_basis[
+                int.from_bytes(
+                    hashlib.blake2b(gram.encode("utf-8", errors="surrogatepass"), digest_size=4).digest(),
+                    "little",
+                )
+                % trigram_basis.shape[0]
+            ]
+            for gram in trigrams
+        ]
+        for piece in sorted(
+            (text for text in tokenizer.stoi if 2 <= len(text) < len(name)),
+            key=lambda text: (-len(text), text),
+        ):
+            if len(rows) >= 8:
+                break
+            if piece in seen or piece not in name:
+                continue
+            piece_id = int(tokenizer.stoi[piece])
+            if piece_id >= self.embeddings.shape[0]:
+                continue
+            row = self.embeddings[piece_id]
+            if float(np.linalg.norm(row)) <= _EPS:
+                continue
+            seen.add(piece)
+            rows.append(row)
+            weights.append(float(len(piece)))
+        if rows:
+            total = float(sum(weights))
+            lexical = np.sum(
+                np.stack([row * (weight / total) for row, weight in zip(rows, weights)]),
+                axis=0,
+            )
+            char = np.mean(np.stack(char_rows), axis=0) if char_rows else np.zeros(self.d_sem)
+            vector = (0.6 * lexical + 0.4 * char).astype(np.float32)
+        elif char_rows:
+            vector = np.mean(np.stack(char_rows), axis=0).astype(np.float32)
+        else:
+            digest = hashlib.blake2b(name.encode("utf-8", errors="surrogatepass"), digest_size=16).digest()
+            generator = np.random.default_rng(int.from_bytes(digest, "little"))
+            vector = generator.standard_normal(self.d_sem).astype(np.float32)
+        norm = float(np.linalg.norm(vector))
+        if norm > _EPS:
+            vector = (vector / norm).astype(np.float32)
+        if self.role_blend > 0.0:
+            anchor = self.class_anchors.get(_class_of(name))
+            if anchor is not None:
+                blended = (1.0 - self.role_blend) * vector + self.role_blend * anchor
+                length = float(np.linalg.norm(blended))
+                if length > _EPS:
+                    vector = (blended / length).astype(np.float32)
+        cache[index] = vector
+        return vector
 
     def slot_wave(self, token: int, tokenizer: Optional[HolarchCodeTextTokenizer] = None) -> np.ndarray:
         """The four-slot unit wave of one token, routed by grammatical role."""
@@ -1188,6 +1393,7 @@ def build_tokenizer(
     seed: int = 0,
     vocab_lock: Optional[VocabularyLedger] = None,
     discover: bool = True,
+    elastic_cap: Optional[int] = None,
 ) -> HolarchCodeTextTokenizer:
     """A vocabulary covering the curated list and this corpus's identifiers.
 
@@ -1198,7 +1404,10 @@ def build_tokenizer(
     replayable.
     """
     tokenizer = HolarchCodeTextTokenizer(
-        vocab_size=vocab_size, seed=seed, vocab_lock=vocab_lock
+        vocab_size=vocab_size,
+        seed=seed,
+        vocab_lock=vocab_lock,
+        elastic_cap=elastic_cap,
     )
     if discover:
         tokenizer.add_identifiers(corpus.python_identifiers())

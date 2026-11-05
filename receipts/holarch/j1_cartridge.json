@@ -1,0 +1,91 @@
+{
+  "stage": "J1-cartridge",
+  "selection_rule": [
+    "all tier-3 axiomatic rows of the action task block",
+    "all engrams in the candidate pool of the eight Cul-de-Sac trap states",
+    "closed-loop retrieved engrams ranked by retrieval count, to the cap",
+    "then remaining action-block rows in id order, to the cap"
+  ],
+  "reference_fixture": {
+    "path": "data\\holarch\\zone_c.sqlite3",
+    "sha256": "d0863a4179bb37dd1199a08dd8f1c5997cbd693161a32bfa439030bcf4064c80",
+    "engrams": 2467,
+    "bytes": 21590016
+  },
+  "action_block": {
+    "rows": 604,
+    "tier3": 4,
+    "trap_pool": 202,
+    "retrieved": 414,
+    "retrieved_total_hits": 4548
+  },
+  "cartridge": {
+    "count": 512,
+    "bytes": 2105344,
+    "dim": 1024,
+    "dtype": "float16-quadrature",
+    "limit": 512,
+    "sha256": "a2a392e66ff7c253e3ae258bdd003083c677ac0e512adfd00364039d6b79189b"
+  },
+  "reference_measurement": {
+    "closed_loop_wins": 38,
+    "traps_correct": 8,
+    "traps": [
+      {
+        "id": "trap01",
+        "action": 1,
+        "bypass": 1,
+        "correct": true
+      },
+      {
+        "id": "trap02",
+        "action": 2,
+        "bypass": 2,
+        "correct": true
+      },
+      {
+        "id": "trap03",
+        "action": 2,
+        "bypass": 2,
+        "correct": true
+      },
+      {
+        "id": "trap04",
+        "action": 1,
+        "bypass": 1,
+        "correct": true
+      },
+      {
+        "id": "trap05",
+        "action": 0,
+        "bypass": 0,
+        "correct": true
+      },
+      {
+        "id": "trap06",
+        "action": 3,
+        "bypass": 3,
+        "correct": true
+      },
+      {
+        "id": "trap07",
+        "action": 3,
+        "bypass": 3,
+        "correct": true
+      },
+      {
+        "id": "trap08",
+        "action": 0,
+        "bypass": 0,
+        "correct": true
+      }
+    ]
+  },
+  "checkpoint": {
+    "path": "receipts\\holarch\\holarch_medium.pt",
+    "sha256": "a2a392e66ff7c253e3ae258bdd003083c677ac0e512adfd00364039d6b79189b",
+    "bytes": 7350051
+  },
+  "wall_seconds": 83.40623759999289,
+  "evidence": "OBSERVED"
+}

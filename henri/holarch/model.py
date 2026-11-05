@@ -104,6 +104,107 @@ def action_rotor_from_payload(payload: Optional[Dict[str, Any]], cfg) -> Optiona
     return rotor
 
 
+SEED_ENGRAM_FORMAT = "henri-seed-engrams-v1"
+"""Directive J1: the checkpoint-resident Zone C context chart."""
+
+SEED_ENGRAM_LIMIT = 512
+"""Hard cap on distilled engrams, so the cartridge cannot become a database."""
+
+SEED_ENGRAM_BYTE_BUDGET = 2_500_000
+"""Hard byte cap on the serialised seed block."""
+
+
+def seed_engram_payload(rows: Optional[Sequence[Dict[str, Any]]]) -> Optional[Dict[str, Any]]:
+    """Serialise the distilled Zone C rows into checkpoint tensors (J1).
+
+    Each row is {label, tier, wave, namespace?}. The wave is the stored unit
+    complex64 vector, so the mounted store retrieves exactly the rows the
+    reference store served. Nothing here is a copy of the 21 MB fixture: only
+    the engrams the deployed planner actually reads are kept.
+    """
+    if not rows:
+        return None
+    if len(rows) > SEED_ENGRAM_LIMIT:
+        raise ValueError(
+            f"the seed cartridge holds at most {SEED_ENGRAM_LIMIT} engrams, got {len(rows)}"
+        )
+    labels: List[int] = []
+    tiers: List[int] = []
+    waves: List[np.ndarray] = []
+    namespaces: List[str] = []
+    for row in rows:
+        wave = np.asarray(row["wave"], dtype=np.complex64).reshape(-1)
+        labels.append(int(row.get("label", -1)))
+        tiers.append(int(row.get("tier", 1)))
+        waves.append(wave.copy())
+        namespaces.append(str(row.get("namespace", "default")))
+    stacked = np.stack(waves)
+    # The block is stored as two half-precision quadratures rather than one
+    # complex64 tensor. The byte budget is 2.5 MB for up to 512 engrams, and a
+    # complex64 row at D = 1024 costs 8 KB, which does not fit (512 * 8 KB =
+    # 4.2 MB). Half precision costs 4 KB per row (2.1 MB total) and the
+    # quantisation error is ~1e-5 on a unit wave, three orders of magnitude
+    # below the coherence differences that decide a retrieval. The deployed
+    # retrieval therefore reads exactly the rows this block stores.
+    real = torch.from_numpy(np.ascontiguousarray(stacked.real)).to(torch.float16)
+    imag = torch.from_numpy(np.ascontiguousarray(stacked.imag)).to(torch.float16)
+    block = {
+        "format": SEED_ENGRAM_FORMAT,
+        "labels": torch.tensor(labels, dtype=torch.int64),
+        "tiers": torch.tensor(tiers, dtype=torch.int64),
+        "real": real,
+        "imag": imag,
+        "count": int(len(labels)),
+        "dim": int(stacked.shape[1]),
+        "namespace": namespaces[0] if namespaces else "default",
+        "source_sha256": str(rows[0].get("source_sha256", "")) if rows else "",
+        "dtype": "float16-quadrature",
+    }
+    block["bytes"] = int(
+        real.numel() * real.element_size()
+        + imag.numel() * imag.element_size()
+        + block["labels"].numel() * 8
+        + block["tiers"].numel() * 8
+    )
+    if int(block["bytes"]) >= SEED_ENGRAM_BYTE_BUDGET:
+        raise ValueError(
+            f"the seed cartridge exceeds {SEED_ENGRAM_BYTE_BUDGET} bytes: {block['bytes']}"
+        )
+    return block
+
+
+def seed_engram_rows(block: Optional[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Inverse of seed_engram_payload: the rows a mount will hydrate."""
+    if not block or block.get("format") != SEED_ENGRAM_FORMAT:
+        return []
+    labels = block.get("labels")
+    tiers = block.get("tiers")
+    if block.get("real") is not None and block.get("imag") is not None:
+        real = np.asarray(block["real"].detach().cpu().numpy(), dtype=np.float32)
+        imag = np.asarray(block["imag"].detach().cpu().numpy(), dtype=np.float32)
+        waves = (real + 1j * imag).astype(np.complex64)
+    elif block.get("waves") is not None:
+        waves = np.asarray(block["waves"].detach().cpu().numpy(), dtype=np.complex64)
+    else:
+        return []
+    count = int(waves.shape[0])
+    rows: List[Dict[str, Any]] = []
+    for index in range(count):
+        row = waves[index]
+        length = float(np.linalg.norm(row))
+        if length > 1e-8:
+            row = row / length
+        rows.append(
+            {
+                "label": int(labels[index]) if labels is not None else -1,
+                "tier": int(tiers[index]) if tiers is not None else 1,
+                "wave": np.asarray(row, dtype=np.complex64),
+                "namespace": str(block.get("namespace", "default") or "default"),
+            }
+        )
+    return rows
+
+
 @torch.no_grad()
 def save_checkpoint(
     model: HenriHolarch,
@@ -116,6 +217,7 @@ def save_checkpoint(
     seed: Optional[int] = None,
     rotor=None,
     created_utc: Optional[str] = None,
+    seed_engrams: Optional[Sequence[Dict[str, Any]]] = None,
 ) -> Dict[str, Any]:
     """Write weights, calibrated buffers, the prototype bank, and the rotor.
 
@@ -143,6 +245,11 @@ def save_checkpoint(
             task: model.prototypes[task].report() for task in TASK_NAMES
         },
         "rotor": rotor_payload(rotor),
+        # Directive J1: the checkpoint carries the task-scoped Zone C context
+        # chart it was measured with, so a clean-room mount does not depend on
+        # an uncommitted 21 MB SQLite fixture. The block is a tensor dictionary
+        # because the checkpoint is loaded with weights_only=True.
+        "seed_engrams": seed_engram_payload(seed_engrams),
         "state_dict": {
             key: value.detach().cpu() for key, value in model.state_dict().items()
         },
@@ -159,6 +266,54 @@ def save_checkpoint(
 
 
 @torch.no_grad()
+@torch.no_grad()
+def open_clean_room_memory(
+    cfg,
+    checkpoint: Optional[str | Path] = None,
+    workdir: Optional[str | Path] = None,
+    prefix: str = "henri_clean_room",
+) -> Tuple[object, Dict[str, object]]:
+    """Create an EMPTY Zone C store and hydrate it from a checkpoint (J1).
+
+    Unlike open_planner_memory this function never copies the repository
+    fixture: the directory is new, the SQLite file holds zero rows before the
+    mount, and every retrievable engram arrived inside the checkpoint. The
+    returned info block states the pre-mount row count so a receipt can prove
+    the clean-room condition instead of asserting it.
+    """
+    from henri.holarch.zone_c import ZoneCMemory
+
+    directory = Path(workdir or tempfile.gettempdir())
+    directory.mkdir(parents=True, exist_ok=True)
+    target = directory / f"{prefix}_{os.getpid()}_{int(time.time() * 1000) % 100000}.sqlite3"
+    memory = ZoneCMemory(cfg, backend="sqlite", path=str(target))
+    before = int(memory.stats().get("count", 0))
+    info: Dict[str, object] = {
+        "path": str(target),
+        "pre_mount_rows": before,
+        "checkpoint": str(checkpoint or ""),
+        "empty": bool(before == 0),
+    }
+    if checkpoint is not None and Path(checkpoint).exists():
+        block = torch.load(checkpoint, map_location="cpu", weights_only=True).get("seed_engrams")
+        rows = seed_engram_rows(block)
+        written = 0
+        for row in rows:
+            memory.write(
+                row["wave"],
+                label=int(row["label"]),
+                tier=int(row["tier"]),
+                namespace=str(row.get("namespace", "default")),
+            )
+            written += 1
+        info["hydrated"] = int(written)
+        info["post_mount_rows"] = int(memory.stats().get("count", 0))
+    else:
+        info["hydrated"] = 0
+        info["post_mount_rows"] = before
+    return memory, info
+
+
 def open_planner_memory(
     cfg,
     source: Optional[str | Path] = None,
@@ -271,12 +426,32 @@ def load_checkpoint(
         model.action_rotor = rotor
     except Exception:  # pragma: no cover - a frozen module is not expected
         pass
+    # Directive J1: the checkpoint carries its own Zone C context chart. A
+    # mount into a store that holds zero rows hydrates the distilled engrams
+    # into the default namespace, so the planner's psi_fused wave is the wave
+    # the checkpoint was measured with and no external fixture is consulted.
+    seed_block = payload.get("seed_engrams")
+    hydration: Dict[str, Any] = {"available": 0, "written": 0, "skipped": True}
+    try:
+        model.seed_engrams = seed_block
+    except Exception:  # pragma: no cover - a frozen module is not expected
+        pass
+    if seed_block:
+        hydration = dict(model.hydrate_seed_engrams())
     metadata = {
         key: value
         for key, value in payload.items()
-        if key not in {"state_dict", "rotor"}
+        if key not in {"state_dict", "rotor", "seed_engrams"}
     }
     metadata["rotor"] = dict(getattr(rotor, "state", lambda: {})()) if rotor is not None else None
+    metadata["seed_engrams"] = {
+        "present": bool(seed_block),
+        "format": str((seed_block or {}).get("format", "")),
+        "count": int((seed_block or {}).get("count", 0) or 0),
+        "bytes": int((seed_block or {}).get("bytes", 0) or 0),
+        "dim": int((seed_block or {}).get("dim", 0) or 0),
+        "hydration": dict(hydration),
+    }
     metadata["path"] = str(target)
     metadata["sha256"] = _digest_file(target)
     return model, metadata
@@ -813,6 +988,7 @@ def evaluate_closed_loop_action(
     mask_lookahead: bool = True,
     batch_rollout: bool = True,
     use_memory: bool = True,
+    trace: bool = False,
 ) -> Dict[str, object]:
     """Closed-loop success of the 1-step latent wave lookahead policy.
 
@@ -865,13 +1041,18 @@ def evaluate_closed_loop_action(
             if agent == goal:
                 reactive_wins += 1
                 break
+    per_episode: List[Dict[str, object]] = []
     for index in range(episode_count):
         walls, agent, goal = task.val_layouts[index]
         recent: List[torch.Tensor] = []
+        episode_actions: List[int] = []
+        episode_win = False
+        episode_steps = 0
         for _step in range(int(limit)):
             observation = world.observe(walls, agent, goal)
             choice = lookahead.choose(observation, recent, use_memory=bool(use_memory))
             action = int(choice["action"])
+            episode_actions.append(action)
             chosen_actions.append(action)
             dr, dc = ((-1, 0), (1, 0), (0, -1), (0, 1))[action]
             row, col = agent[0] + dr, agent[1] + dc
@@ -885,7 +1066,21 @@ def evaluate_closed_loop_action(
             if agent == goal:
                 wins += 1
                 steps_used.append(_step + 1)
+                episode_win = True
+                episode_steps = _step + 1
                 break
+        if trace:
+            # Directive J1: the thread-parity gate compares episodes, not only
+            # an aggregate rate, so each episode's outcome and action sequence
+            # are returned when a caller asks for the trace.
+            per_episode.append(
+                {
+                    "index": int(index),
+                    "win": bool(episode_win),
+                    "steps": int(episode_steps),
+                    "actions": list(episode_actions),
+                }
+            )
     # One-step action accuracy on the held-out pairs, for the E1 triple gate.
     correct = 0
     total = 0
@@ -919,6 +1114,7 @@ def evaluate_closed_loop_action(
         "batch_rollout": bool(batch_rollout),
         "use_memory": bool(use_memory),
         "rotor_fitted": bool(getattr(rotor, "fitted", False)),
+        "trace": list(per_episode),
         "evidence": "OBSERVED",
     }
 

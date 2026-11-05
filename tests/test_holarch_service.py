@@ -129,8 +129,9 @@ def test_agent_eval_contract(tmp_path):
     # accuracy must already be perfect on this short smoke run.
     assert payload["holarch_mcp"]["reachable_accuracy"] >= 0.98
     assert payload["per_category"]["code_call_flow"]["mcp_correct"] > 0
-    # Cycle I expanded the gauntlet from 64 to 76 slots.
-    assert payload["queries_total"] == 76
+    # Cycle I expanded the gauntlet from 64 to 76 slots; Cycle J added the
+    # twelve clean-room, elastic-vocabulary, diverse-DAG and OpenAI probes.
+    assert payload["queries_total"] == 88
     assert payload["composite"]["mcp_accuracy"] >= 0.90
     assert payload["composite"]["mcp_refused"] == payload["composite"]["traps_total"]
     assert set(payload["per_category"]) == {
@@ -150,7 +151,13 @@ def test_agent_eval_contract(tmp_path):
         "dag_synthesis",
         "cross_package_agent_step",
         "vocab_lock",
+        "j1_cleanroom",
+        "j2_elastic_vocab",
+        "j3_diverse_dag",
+        "j4_openai_adapter",
     }
+    # The legacy 76-receipt chain is still contiguous; the twelve J probes add
+    # their own receipts on top of it.
     assert payload["gate"]["receipt_chain_76"] is True
     assert payload["holarch_mcp"]["query_receipts"] == 76
 

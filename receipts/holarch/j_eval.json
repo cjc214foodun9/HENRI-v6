@@ -1,0 +1,24 @@
+{
+  "stage": "EVAL",
+  "receipt": {
+    "path": "receipts\\holarch\\agent_eval.json",
+    "sha256": "2d2db9e7dd3aad9bc75a138d096915a131f272f2e3a887f9d1181dba0d441bb1",
+    "bytes": 55719
+  },
+  "queries": {
+    "total": 88,
+    "holarch_mcp_correct": 0,
+    "zero_disk_reads": true
+  },
+  "returncode": 0,
+  "stdout_tail": "{\n  \"mcp_zero_query_reads\": true,\n  \"mcp_reachable_at_least_0_98\": true,\n  \"mcp_hallucination_zero\": true,\n  \"mcp_playbook_exact\": true,\n  \"composite_mcp_at_least_0_90\": true,\n  \"composite_traps_refused\": true,\n  \"receipt_chain_valid\": true,\n  \"impact_mcp_at_least_0_98\": true,\n  \"impact_traps_refused\": true,\n  \"impact_queries_present\": true,\n  \"queries_76\": true,\n  \"receipt_chain_76\": true,\n  \"planning_controls_separated\": true,\n  \"dag_three_plan_and_traps\": true,\n  \"agent_step_cross_package\": true,\n  \"vocab_lock_verified\": true,\n  \"planning_mcp_perfect\": true,\n  \"verification_mcp_perfect\": true,\n  \"synthesis_multiplan_verified\": true,\n  \"delta_blast_radius_perfect\": true,\n  \"j1_trap_thread_parity\": true,\n  \"j1_closed_loop_thread_parity\": true,\n  \"j1_seed_cartridge_and_empty_store\": true,\n  \"j1_store_rows_equal_seed_count\": true,\n  \"j2_elastic_tenant_vocab\": true,\n  \"j2_ledger_restore_from_zone_c\": true,\n  \"j3_three_stage_f1\": true,\n  \"j3_three_stage_f2\": true,\n  \"j3_three_stage_f3\": true,\n  \"j3_new_type_conflict_refused\": true,\n  \"j4_chat_verify\": true,\n  \"j4_chat_plan\": true,\n  \"queries_88\": true,\n  \"probes_12_present\": true,\n  \"passed\": true\n}\nbaseline reads=336 bytes=12990640 acc=0.533 hall=0.993\nholarch_mcp reads=0 bytes=0 acc=1.000 hall=0.000 receipts=76 chain=True\n",
+  "stderr_tail": "",
+  "gate": {
+    "queries_88": true,
+    "gates_passed": true,
+    "exit_zero": true,
+    "passed": true
+  },
+  "wall_seconds": 98.31825270000263,
+  "evidence": "OBSERVED"
+}

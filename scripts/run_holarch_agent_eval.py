@@ -26,6 +26,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import sys
 import tempfile
 import time
@@ -37,19 +38,28 @@ import torch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from henri.holarch.code_lang import VocabularyLedger
+from henri.holarch.code_lang import (
+    VOCAB_LEDGER_KIND,
+    CodeTextCorpus,
+    HolarchCodeTextTokenizer,
+    VocabularyLedger,
+)
 from henri.holarch.config import HolarchConfig
 from henri.holarch.model import (
     LatentActionLookahead,
     build_cul_de_sac_traps,
+    evaluate_closed_loop_action,
     find_checkpoint,
     load_checkpoint,
+    open_clean_room_memory,
     open_planner_memory,
 )
-from henri.holarch.server import SidecarService, verify_receipt
+from henri.holarch.pipeline import HenriHolarch
+from henri.holarch.server import SidecarService, build_app, verify_receipt
 from henri.holarch.symbolic import CodeGraphIndexer, Edge, SymbolicTopologyTask, index_code
 from henri.holarch.tasks import GridWorldTask, build_tasks
 from henri.holarch.train import Trainer, TrainConfig
+from henri.holarch.zone_c import ZoneCMemory
 
 ROOT = Path(__file__).resolve().parents[1]
 CODE_ROOT = ROOT / "henri" / "holarch"
@@ -669,6 +679,10 @@ def run_agent_eval(
         "dag_synthesis": {"baseline_correct": 0, "mcp_correct": 0, "total": 0},
         "cross_package_agent_step": {"baseline_correct": 0, "mcp_correct": 0, "total": 0},
         "vocab_lock": {"baseline_correct": 0, "mcp_correct": 0, "total": 0},
+        "j1_cleanroom": {"baseline_correct": 0, "mcp_correct": 0, "total": 0},
+        "j2_elastic_vocab": {"baseline_correct": 0, "mcp_correct": 0, "total": 0},
+        "j3_diverse_dag": {"baseline_correct": 0, "mcp_correct": 0, "total": 0},
+        "j4_openai_adapter": {"baseline_correct": 0, "mcp_correct": 0, "total": 0},
     }
     mcp_latency = 0.0
     mcp_response_bytes = 0
@@ -1356,6 +1370,545 @@ def run_agent_eval(
         )
     per_category["delta_blast_radius"]["rows"] = delta_rows
 
+    # =================== Directive J: 12 clean-room probes =================
+    # The 76 scored queries above are unchanged. The block below adds exactly
+    # 12 deterministic probes (4 J1, 2 J2, 4 J3, 2 J4). Each probe records its
+    # own row: name, category, expected, measured, correct and evidence.
+    # None of them appends to the legacy 76-receipt chain, so queries_76 and
+    # receipt_chain_76 keep their Cycle I meaning. The two J4 probes issue
+    # their own ledger receipts (agent_step + chat completion); those receipts
+    # are verified row by row and by the whole-ledger chain check.
+    scratch_dir = Path(workdir) if workdir is not None else (ROOT / "probe_tmp_eval")
+    scratch_dir.mkdir(parents=True, exist_ok=True)
+    probe_rows: List[Dict[str, object]] = []
+
+    def _record_probe(name, category, expected, measured, correct, **evidence):
+        row = {
+            "name": str(name),
+            "category": str(category),
+            "expected": expected,
+            "measured": measured,
+            "correct": bool(correct),
+        }
+        row.update(evidence)
+        probe_rows.append(row)
+        bucket = per_category.setdefault(
+            str(category),
+            {"baseline_correct": 0, "mcp_correct": 0, "total": 0},
+        )
+        bucket["total"] = int(bucket.get("total", 0)) + 1
+        bucket["mcp_correct"] = int(bucket.get("mcp_correct", 0)) + int(bool(correct))
+        return row
+
+    # ------------------- J1: clean-room mounted checkpoint ----------------
+    clean_memory, clean_info = open_clean_room_memory(
+        cfg, checkpoint, scratch_dir, prefix="agent_eval_clean"
+    )
+    seed_payload: Dict[str, object] = {}
+    if checkpoint is not None and Path(checkpoint).exists():
+        _loaded = torch.load(checkpoint, map_location="cpu", weights_only=True)
+        if isinstance(_loaded, dict):
+            seed_payload = dict(_loaded.get("seed_engrams") or {})
+    seed_count = int(seed_payload.get("count", 0) or 0)
+    clean_model = HenriHolarch(cfg, memory=clean_memory)
+    if checkpoint is not None and Path(checkpoint).exists():
+        clean_model, clean_metadata = load_checkpoint(str(checkpoint), model=clean_model)
+    else:
+        clean_metadata = {}
+    clean_model.eval()
+    pre_mount_rows = int(clean_info.get("pre_mount_rows", -1) or 0)
+    clean_hydrated = int(clean_info.get("hydrated", 0) or 0)
+    clean_rows = int(clean_memory.stats().get("count", 0) or 0)
+
+    clean_traps = build_cul_de_sac_traps()
+
+    def _clean_trap_actions(threads: int) -> List[int]:
+        before_threads = torch.get_num_threads()
+        torch.set_num_threads(int(threads))
+        try:
+            rotor = getattr(clean_model, "action_rotor", None)
+            lookahead = LatentActionLookahead(
+                clean_model, None, rotor=rotor, transition="rotor",
+                lookahead_depth=2, gamma_look=0.02,
+            )
+            return [
+                int(lookahead.choose(trap["observation"], [])["action"])
+                for trap in clean_traps
+            ]
+        finally:
+            torch.set_num_threads(before_threads)
+
+    trap_actions_1 = _clean_trap_actions(1)
+    trap_actions_8 = _clean_trap_actions(8)
+    trap_truth = [int(trap["bypass_action"]) for trap in clean_traps]
+    trap_parity = sum(1 for left, right in zip(trap_actions_1, trap_actions_8) if left == right)
+    trap_correct_1 = sum(1 for left, truth in zip(trap_actions_1, trap_truth) if left == truth)
+    trap_correct_8 = sum(1 for left, truth in zip(trap_actions_8, trap_truth) if left == truth)
+    _record_probe(
+        "j1_trap_thread_parity",
+        "j1_cleanroom",
+        "8/8 Cul-de-Sac bypass actions at 1 and 8 threads with identical vectors",
+        {
+            "actions_thread1": trap_actions_1,
+            "actions_thread8": trap_actions_8,
+            "bypass": trap_truth,
+            "parity": trap_parity,
+            "correct_thread1": trap_correct_1,
+            "correct_thread8": trap_correct_8,
+        },
+        bool(
+            len(trap_truth) == 8
+            and trap_parity == 8
+            and trap_correct_1 == 8
+            and trap_correct_8 == 8
+        ),
+        evidence="depth-2 wall-masked rotor planner on the clean-room store",
+    )
+
+    grid_task = build_tasks(cfg, seed=int(cfg.seed))["action"]
+
+    def _clean_closed_loop(threads: int, episodes: int) -> Dict[str, object]:
+        before_threads = torch.get_num_threads()
+        torch.set_num_threads(int(threads))
+        try:
+            return evaluate_closed_loop_action(
+                clean_model,
+                grid_task,
+                episodes=int(episodes),
+                rotor=getattr(clean_model, "action_rotor", None),
+                transition="rotor",
+                lookahead_depth=2,
+                gamma_look=0.02,
+                batch_rollout=True,
+                use_memory=True,
+                trace=True,
+            )
+        finally:
+            torch.set_num_threads(before_threads)
+
+    closed_48 = _clean_closed_loop(1, 48)
+    closed_8 = _clean_closed_loop(8, 8)
+    trace_48 = list(closed_48.get("trace") or [])[:8]
+    trace_8 = list(closed_8.get("trace") or [])
+    episode_parity = sum(
+        1
+        for left, right in zip(trace_48, trace_8)
+        if bool(left["win"]) == bool(right["win"])
+        and int(left["steps"]) == int(right["steps"])
+        and list(left["actions"]) == list(right["actions"])
+    )
+    closed_wins = int(closed_48.get("wins", 0))
+    _record_probe(
+        "j1_closed_loop_thread_parity",
+        "j1_cleanroom",
+        "48-episode clean-room wins >= 1; first 8 episodes identical at 1 vs 8 threads",
+        {
+            "wins": closed_wins,
+            "episodes": int(closed_48.get("episodes", 0)),
+            "wins_thread8": int(closed_8.get("wins", 0)),
+            "parity_episodes": episode_parity,
+            "parity_scope": (
+                "first 8 episodes of the 1-thread 48-episode run against an "
+                "8-episode 8-thread run"
+            ),
+            "episode_rows": [
+                {
+                    "index": int(row["index"]),
+                    "win": bool(row["win"]),
+                    "steps": int(row["steps"]),
+                }
+                for row in trace_48
+            ],
+        },
+        bool(
+            closed_wins >= 1
+            and len(trace_48) == 8
+            and len(trace_8) == 8
+            and episode_parity == 8
+        ),
+        evidence="trace=True per-episode comparison; the 48-episode arm runs once",
+    )
+
+    cartridge_present = bool(seed_payload) and seed_count > 0
+    _record_probe(
+        "j1_seed_cartridge_and_empty_store",
+        "j1_cleanroom",
+        "checkpoint carries seed_engrams (count > 0) and pre_mount_rows == 0",
+        {
+            "cartridge_present": cartridge_present,
+            "seed_count": seed_count,
+            "seed_bytes": int(seed_payload.get("bytes", 0) or 0),
+            "seed_dtype": str(seed_payload.get("dtype", "")),
+            "pre_mount_rows": pre_mount_rows,
+            "hydrated": clean_hydrated,
+            "post_mount_rows": clean_rows,
+            "load_hydration": dict(
+                ((clean_metadata or {}).get("seed_engrams") or {}).get("hydration") or {}
+            ),
+        },
+        bool(
+            cartridge_present
+            and pre_mount_rows == 0
+            and clean_rows == 512
+        ),
+        evidence="open_clean_room_memory created a new SQLite file; no fixture copy",
+    )
+    _record_probe(
+        "j1_store_rows_equal_seed_count",
+        "j1_cleanroom",
+        "clean-room store rows == seed block count (512) and hydrated == count",
+        {
+            "store_rows": clean_rows,
+            "seed_count": seed_count,
+            "hydrated": clean_hydrated,
+            "seed_limit": 512,
+        },
+        bool(
+            seed_count == 512
+            and clean_rows == seed_count
+            and clean_hydrated == seed_count
+        ),
+        evidence="row count read from the clean-room Zone C store after the mount",
+    )
+
+    # ------------------- J2: elastic tenant vocabulary -------------------
+    tenant_lock = VocabularyLedger.load(lock_path) if lock_path.exists() else None
+    tenant_tokenizer = HolarchCodeTextTokenizer(vocab_lock=tenant_lock, elastic_cap=4096)
+    tenant_base_map = dict(tenant_tokenizer.stoi)
+    tenant_base_size = int(len(tenant_tokenizer))
+    j2_path = scratch_dir / f"agent_eval_j2_{os.getpid()}.sqlite3"
+    if j2_path.exists():
+        j2_path.unlink()
+    j2_memory = ZoneCMemory(cfg, backend="sqlite", path=str(j2_path))
+    tenant_texts = [
+        f"def tenant_{index:04d}_probe(item):\n    return item + {index}\n"
+        for index in range(640)
+    ]
+    tenant_corpus = CodeTextCorpus(
+        texts=tenant_texts,
+        names=[f"tenant_{index:04d}.py" for index in range(640)],
+        digest=hashlib.sha256("".join(tenant_texts).encode("utf-8")).hexdigest()[:16],
+    )
+    tenant_sync = tenant_tokenizer.sync_corpus(
+        tenant_corpus, memory=j2_memory, namespace="tenant-eval"
+    )
+    tenant_tier2 = list(tenant_tokenizer.tier2_ids)
+    tenant_added_names = [tenant_tokenizer.token_text(token) for token in tenant_tier2]
+    tenant_calls = [f"{name}(value)" for name in tenant_added_names]
+    tenant_roundtrip = sum(
+        1
+        for call in tenant_calls
+        if tenant_tokenizer.decode(tenant_tokenizer.encode(call)) == call
+    )
+    tenant_shifts = sum(
+        1
+        for name, token in tenant_base_map.items()
+        if tenant_tokenizer.stoi.get(name) != token
+    )
+    tenant_added = int(tenant_sync.get("added", 0))
+    _record_probe(
+        "j2_elastic_tenant_vocab",
+        "j2_elastic_vocab",
+        ">=600 new identifiers at Tier-2 ids (>=2048), 0 Tier-1 shifts, lossless calls",
+        {
+            "added": tenant_added,
+            "tier2_count": len(tenant_tier2),
+            "tier2_first": int(tenant_tier2[0]) if tenant_tier2 else -1,
+            "tier2_last": int(tenant_tier2[-1]) if tenant_tier2 else -1,
+            "tier1_shifts": tenant_shifts,
+            "base_size": tenant_base_size,
+            "elastic_cap": int(tenant_tokenizer.elastic_cap),
+            "calls": len(tenant_calls),
+            "roundtrip_ok": tenant_roundtrip,
+            "ledger_digest": tenant_tokenizer.ledger.digest(),
+        },
+        bool(
+            tenant_added >= 600
+            and len(tenant_tier2) >= 600
+            and (not tenant_tier2 or int(tenant_tier2[0]) >= 2048)
+            and tenant_shifts == 0
+            and tenant_roundtrip == len(tenant_calls)
+        ),
+        evidence="640 generated functions synced into the Zone C vocabulary metadata",
+    )
+
+    tenant_stored = j2_memory.get_meta("tenant-eval", VOCAB_LEDGER_KIND, "vocab_ledger")
+    tenant_stored_tier2 = j2_memory.get_meta(
+        "tenant-eval", VOCAB_LEDGER_KIND, "vocab_ledger_tier2"
+    )
+    tenant_restored = HolarchCodeTextTokenizer(vocab_lock=tenant_lock, elastic_cap=4096)
+    reingestion_calls = 0  # no sync_corpus on the restored tokenizer
+    restore_added = 0
+    if tenant_stored:
+        restore_added = int(
+            tenant_restored.restore_ledger(dict(tenant_stored[-1][1]))
+        )
+    restored_exact = bool(
+        tenant_stored
+        and all(
+            tenant_restored.stoi.get(name) == token
+            for name, token in tenant_tokenizer.stoi.items()
+        )
+        and all(
+            tenant_tokenizer.stoi.get(name) == token
+            for name, token in tenant_restored.stoi.items()
+        )
+    )
+    tier2_payload_match = bool(
+        tenant_stored_tier2
+        and list(tenant_stored_tier2[-1][1].get("tier2_ids", [])) == tenant_tier2
+    )
+    restored_tier2 = len(tenant_restored.tier2_ids)
+    _record_probe(
+        "j2_ledger_restore_from_zone_c",
+        "j2_elastic_vocab",
+        "restore_ledger from Zone C metadata: exact id map, 0 re-ingestion calls",
+        {
+            "ledger_records": len(tenant_stored),
+            "tier2_records": len(tenant_stored_tier2),
+            "restore_added": restore_added,
+            "restored_identifiers": len(tenant_restored.identifiers),
+            "restored_tier2": restored_tier2,
+            "exact_map": restored_exact,
+            "tier2_payload_match": tier2_payload_match,
+            "reingestion_calls": reingestion_calls,
+        },
+        bool(
+            restored_exact
+            and reingestion_calls == 0
+            and restored_tier2 == len(tenant_tier2)
+            and tier2_payload_match
+        ),
+        evidence="fresh tokenizer restored from the Zone C vocab_ledger payload only",
+    )
+    j2_memory.close()
+
+    # ------------------- J3: diverse guarded DAG synthesis ---------------
+    from henri.holarch.code_gen import (
+        _playbook_plan,
+        compose_plan_dag,
+        run_diverse_dag_battery,
+    )
+
+    j3_battery = run_diverse_dag_battery(seed=20261105)
+    j3_three = list((j3_battery.get("three") or {}).get("rows") or [])
+    j3_by_family = {str(row.get("family", "")): row for row in j3_three}
+    for family in ("F1", "F2", "F3"):
+        j3_row = j3_by_family.get(family, {})
+        j3_stage_ok = bool(
+            j3_row.get("parsed")
+            and j3_row.get("compiled")
+            and j3_row.get("executed")
+            and j3_row.get("matched")
+            and str(j3_row.get("func", "")).startswith("j3d")
+        )
+        _record_probe(
+            f"j3_three_stage_{family.lower()}",
+            "j3_diverse_dag",
+            (
+                f"{family} three-stage pipeline: ast.parse + compile + exec under "
+                "a novel name, answer matches the reference"
+            ),
+            {
+                "family": family,
+                "func": j3_row.get("func", ""),
+                "stages": list(j3_row.get("stages") or []),
+                "topology": j3_row.get("topology", ""),
+                "parsed": bool(j3_row.get("parsed", False)),
+                "compiled": bool(j3_row.get("compiled", False)),
+                "executed": bool(j3_row.get("executed", False)),
+                "matched": bool(j3_row.get("matched", False)),
+                "expected": j3_row.get("expected"),
+                "actual": j3_row.get("actual"),
+                "source_sha256": j3_row.get("source_sha256", ""),
+            },
+            j3_stage_ok,
+            evidence="run_diverse_dag_battery three-stage row",
+        )
+
+    novel_trap = compose_plan_dag(
+        [_playbook_plan("join_csv"), _playbook_plan("clamp_unit")],
+        {"func": "j3_novel_trap_probe", "args": ["payload"], "numbers": [0.0, 1.0]},
+    )
+    novel_refused = bool(
+        not novel_trap.get("ok", False)
+        and str(novel_trap.get("source", "")) == ""
+        and str(novel_trap.get("reason", "")).startswith("type mismatch")
+    )
+    battery_traps = dict(j3_battery.get("traps") or {})
+    traps_refused = bool(
+        int(battery_traps.get("refused", 0)) == int(battery_traps.get("total", -1)) == 6
+    )
+    _record_probe(
+        "j3_new_type_conflict_refused",
+        "j3_diverse_dag",
+        "a new text->numeric conflict is refused with empty source; battery traps 6/6",
+        {
+            "novel_pair": ["join_csv", "clamp_unit"],
+            "refused": novel_refused,
+            "reason": str(novel_trap.get("reason", ""))[:160],
+            "source_empty": str(novel_trap.get("source", "")) == "",
+            "battery_traps_refused": int(battery_traps.get("refused", 0)),
+            "battery_traps_total": int(battery_traps.get("total", 0)),
+            "battery_three_passed": int((j3_battery.get("three") or {}).get("passed", 0)),
+            "battery_total": dict(j3_battery.get("total") or {}),
+            "battery_drift": float(j3_battery.get("drift", 0.0)),
+        },
+        bool(novel_refused and traps_refused),
+        evidence="compose_plan_dag refuses before splicing a single stage",
+    )
+
+    # ------------------- J4: OpenAI-compatible adapter -------------------
+    from fastapi.testclient import TestClient
+
+    j4_key = "agent-eval-j4"
+    j4_app = build_app(service, api_keys={j4_key})
+    j4_headers = {"Authorization": f"Bearer {j4_key}"}
+    j4_claim = str(H_VERIFY_QUERIES[0]["claim"])
+    j4_trap = build_cul_de_sac_traps()[4]
+    j4_verify_request = {
+        "model": "henri-holarch",
+        "messages": [{"role": "user", "content": j4_claim}],
+        "metadata": {
+            "action": "verify",
+            "payload": {"claim": j4_claim, "kind": "text"},
+        },
+    }
+    j4_plan_request = {
+        "model": "henri-holarch",
+        "messages": [{"role": "user", "content": "plan the bypass around the pocket"}],
+        "metadata": {
+            "action": "plan",
+            "payload": {
+                "observation": j4_trap["observation"],
+                "transition": "rotor",
+                "lookahead_depth": 2,
+                "gamma_look": 0.02,
+            },
+        },
+    }
+
+    def _j4_envelope(body: Dict[str, object]) -> Dict[str, object]:
+        receipt = dict(body.get("epistemic_receipt") or {})
+        holarch = dict(body.get("holarch") or {})
+        agent_receipt = dict(holarch.get("agent_receipt") or {})
+        choices = list(body.get("choices") or [])
+        content = ""
+        if choices:
+            content = str((dict(choices[0]).get("message") or {}).get("content", ""))
+        return {
+            "object": str(body.get("object", "")),
+            "content": content,
+            "action": str(holarch.get("action", "")),
+            "status": str(holarch.get("status", "")),
+            "result": dict(holarch.get("result") or {}),
+            "receipt_valid": bool(receipt) and verify_receipt(receipt),
+            "agent_receipt_valid": bool(agent_receipt) and verify_receipt(agent_receipt),
+            "receipt_sha256": str(receipt.get("sha256", "")),
+            "agent_receipt_sha256": str(agent_receipt.get("sha256", "")),
+        }
+
+    verify_body: Dict[str, object] = {}
+    plan_body: Dict[str, object] = {}
+    j4_error = ""
+    j4_service_memory = service.sidecar.model.memory
+    j4_threads = torch.get_num_threads()
+    try:
+        with TestClient(j4_app) as client:
+            verify_response = client.post(
+                "/v1/chat/completions", json=j4_verify_request, headers=j4_headers
+            )
+            verify_body = dict(verify_response.json())
+            service.sidecar.model.memory = clean_memory
+            mount_planning_checkpoint()
+            torch.set_num_threads(1)
+            try:
+                plan_response = client.post(
+                    "/v1/chat/completions", json=j4_plan_request, headers=j4_headers
+                )
+                plan_body = dict(plan_response.json())
+            finally:
+                service.sidecar.model.memory = j4_service_memory
+                restore_trained_weights()
+                torch.set_num_threads(j4_threads)
+    except Exception as error:  # noqa: BLE001 - the failure is the measurement
+        j4_error = f"{type(error).__name__}: {error}"
+        service.sidecar.model.memory = j4_service_memory
+        restore_trained_weights()
+        torch.set_num_threads(j4_threads)
+
+    verify_envelope = _j4_envelope(verify_body)
+    plan_envelope = _j4_envelope(plan_body)
+    j4_verify_ok = bool(
+        verify_envelope["object"] == "chat.completion"
+        and str(verify_envelope["content"]).strip()
+        and verify_envelope["receipt_valid"]
+        and verify_envelope["agent_receipt_valid"]
+        and verify_envelope["action"] == "verify"
+        and verify_envelope["status"] == "supported"
+    )
+    _record_probe(
+        "j4_chat_verify",
+        "j4_openai_adapter",
+        "POST /v1/chat/completions -> verify: chat.completion, non-empty content, accepted receipt",
+        {
+            "object": verify_envelope["object"],
+            "content": str(verify_envelope["content"])[:160],
+            "action": verify_envelope["action"],
+            "status": verify_envelope["status"],
+            "receipt_valid": verify_envelope["receipt_valid"],
+            "agent_receipt_valid": verify_envelope["agent_receipt_valid"],
+            "receipt_sha256": verify_envelope["receipt_sha256"],
+            "agent_receipt_sha256": verify_envelope["agent_receipt_sha256"],
+            "error": j4_error,
+        },
+        j4_verify_ok,
+        evidence="fastapi TestClient, bearer key agent-eval-j4",
+    )
+
+    plan_action = int(plan_envelope["result"].get("action", -1))
+    reference_action = int(j4_trap["bypass_action"])
+    j4_plan_ok = bool(
+        plan_envelope["object"] == "chat.completion"
+        and str(plan_envelope["content"]).strip()
+        and plan_envelope["receipt_valid"]
+        and plan_envelope["agent_receipt_valid"]
+        and plan_envelope["action"] == "plan"
+    )
+    _record_probe(
+        "j4_chat_plan",
+        "j4_openai_adapter",
+        "POST /v1/chat/completions -> plan: chat.completion, non-empty content, accepted receipt",
+        {
+            "object": plan_envelope["object"],
+            "content": str(plan_envelope["content"])[:160],
+            "action": plan_envelope["action"],
+            "status": plan_envelope["status"],
+            "action_chosen": plan_action,
+            "reference_action": reference_action,
+            "matches_reference": bool(plan_action == reference_action),
+            "receipt_valid": plan_envelope["receipt_valid"],
+            "agent_receipt_valid": plan_envelope["agent_receipt_valid"],
+            "receipt_sha256": plan_envelope["receipt_sha256"],
+            "agent_receipt_sha256": plan_envelope["agent_receipt_sha256"],
+            "error": j4_error,
+        },
+        j4_plan_ok,
+        evidence="planner mounted on the clean-room store at 1 thread",
+    )
+    clean_memory.close()
+
+    for _category in (
+        "j1_cleanroom",
+        "j2_elastic_vocab",
+        "j3_diverse_dag",
+        "j4_openai_adapter",
+    ):
+        per_category[_category]["rows"] = [
+            row for row in probe_rows if row["category"] == _category
+        ]
+    total_queries = int(len(receipts) + len(probe_rows))
+
     per_category["composite_rules"].update(
         baseline_correct=composite_stats["baseline_correct"],
         mcp_correct=composite_stats["mcp_correct"],
@@ -1389,8 +1942,12 @@ def run_agent_eval(
             "parameters": int(service.checkpoint_info.get("parameters", 0)),
             "prototypes": service.checkpoint_info.get("prototypes", {}),
         },
-        "queries_total": int(len(receipts)),
-        "query_slots": int(len(receipts)),
+        "queries_total": int(total_queries),
+        "query_slots": int(total_queries),
+        "queries": int(total_queries),
+        "total_queries": int(total_queries),
+        "probe_slots": int(len(probe_rows)),
+        "ledger_receipts": int(len(receipts)),
         "query_mix": {
             "code_call_flow": len(queries["code"]),
             "multi_hop_graph": len(queries["graph"]),
@@ -1409,6 +1966,10 @@ def run_agent_eval(
             "dag_synthesis": len(dag_rows),
             "cross_package_agent_step": len(xp_rows),
             "vocab_lock": len(vocab_rows),
+            "j1_cleanroom": 4,
+            "j2_elastic_vocab": 2,
+            "j3_diverse_dag": 4,
+            "j4_openai_adapter": 2,
             "setup_receipts": 2,
         },
         "code_index": {
@@ -1536,6 +2097,24 @@ def run_agent_eval(
             "baseline_hallucinated": composite_stats["baseline_hallucinated"],
         },
         "per_category": per_category,
+        "probes": {
+            "queries": len(probe_rows),
+            "correct": int(sum(1 for row in probe_rows if row["correct"])),
+            "categories": [
+                {
+                    "category": category,
+                    "total": int(per_category[category]["total"]),
+                    "correct": int(per_category[category]["mcp_correct"]),
+                }
+                for category in (
+                    "j1_cleanroom",
+                    "j2_elastic_vocab",
+                    "j3_diverse_dag",
+                    "j4_openai_adapter",
+                )
+            ],
+            "rows": probe_rows,
+        },
         "gate": {
             "mcp_zero_query_reads": True,
             "mcp_reachable_at_least_0_98": bool(
@@ -1599,6 +2178,24 @@ def run_agent_eval(
         },
         "evidence": "OBSERVED",
     }
+    # Directive J: one gate per new probe, plus the 88-query count gate.
+    for _row in probe_rows:
+        payload["gate"][str(_row["name"])] = bool(_row["correct"])
+    payload["gate"]["queries_88"] = bool(
+        int(payload["queries"]) == 88
+        and int(payload["total_queries"]) == 88
+        and int(payload["probe_slots"]) == 12
+        and int(payload["query_slots"]) == 88
+        and sum(int(value) for value in payload["query_mix"].values()) == 88
+    )
+    payload["gate"]["probes_12_present"] = bool(
+        len(probe_rows) == 12
+        and len({str(row["category"]) for row in probe_rows}) == 4
+        and all(
+            {"name", "category", "expected", "measured", "correct"}.issubset(row)
+            for row in probe_rows
+        )
+    )
     payload["gate"]["passed"] = bool(
         payload["gate"]["mcp_zero_query_reads"]
         and payload["gate"]["mcp_reachable_at_least_0_98"]
@@ -1620,6 +2217,9 @@ def run_agent_eval(
         and payload["gate"]["verification_mcp_perfect"]
         and payload["gate"]["synthesis_multiplan_verified"]
         and payload["gate"]["delta_blast_radius_perfect"]
+        and payload["gate"]["queries_88"]
+        and payload["gate"]["probes_12_present"]
+        and all(payload["gate"][str(row["name"])] for row in probe_rows)
     )
     try:
         planner_memory.close()

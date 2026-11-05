@@ -168,7 +168,7 @@ class SymbolCodebook:
         if matrix.shape[0] == 0:
             return "", float("nan"), np.zeros(0, dtype=np.float32)
         query = torch.from_numpy(_unit(wave)).to(torch.complex64)
-        align = torch.einsum("d,vd->v", query.conj(), matrix).real.numpy()
+        align = torch.matmul(matrix, query.conj()).real.numpy()
         index = int(np.argmax(align))
         return self._symbols[index], float(align[index]), align
 

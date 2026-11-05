@@ -1,0 +1,99 @@
+{
+  "cycle": "J",
+  "head": "b516afba4384c5520ccfd211c2a4b432012f21b3",
+  "stages": {
+    "j1": {
+      "receipt": "receipts\\holarch\\j1_cleanroom_planner.json",
+      "sha256": "d3daa2215a7a461db5a82993f8c44637d4545892cdfb2209c272f9c282edeb89",
+      "passed": false,
+      "gate": {
+        "clean_room_zero_rows": true,
+        "seed_cartridge_present": true,
+        "seed_cartridge_within_512": true,
+        "seed_cartridge_under_2_5_mb": true,
+        "hydrated_rows_match_block": true,
+        "cul_de_sac_8_of_8": true,
+        "depth1_at_most_2": true,
+        "unmasked_at_most_2": true,
+        "closed_loop_at_least_39": false,
+        "thread_episode_parity_48_of_48": true,
+        "thread_trap_parity_8_of_8": true,
+        "thread_score_delta_under_1e_6": true,
+        "passed": false
+      },
+      "wall_seconds": 135.87159170000814
+    },
+    "j2": {
+      "receipt": "receipts\\holarch\\j2_elastic_vocab.json",
+      "sha256": "5e829691e4cc3c5a3a4728b97e7550b9c700a63e6f5ba62faa78941d5fd5e69c",
+      "passed": true,
+      "gate": {
+        "tier1_zero_shifts": true,
+        "tier2_at_least_500": true,
+        "tier2_within_cap": true,
+        "single_token_admission": true,
+        "mean_tokens_reduced_40pct": true,
+        "lossless_roundtrip": true,
+        "persisted_in_zone_c": true,
+        "restart_exact_map": true,
+        "zero_reingestion": true,
+        "tier2_waves_distinct": true,
+        "passed": true
+      },
+      "wall_seconds": 3.777028899989091
+    },
+    "j3": {
+      "receipt": "receipts\\holarch\\j3_diverse_dag.json",
+      "sha256": "a614f1c4c3237ff0c729b448de7bd96ded250ea035f6661adf265c3a92f803f8",
+      "passed": true,
+      "gate": {
+        "base_24_of_24": true,
+        "single_12_of_12": true,
+        "two_8_of_8": true,
+        "three_10_of_10": true,
+        "five_distinct_topologies": true,
+        "traps_6_of_6": true,
+        "total_60_of_60": true,
+        "stationary_drift_zero": true,
+        "passed": true
+      },
+      "wall_seconds": 0.027906600007554516
+    },
+    "j4": {
+      "receipt": "receipts\\holarch\\j4_api_v1.json",
+      "sha256": "148d2878709abd309174ca4d1f1734f673686c0898ef3fe9d5e9f74ce670b7ec",
+      "passed": true,
+      "gate": {
+        "healthz_public": true,
+        "missing_token_401": true,
+        "invalid_token_401": true,
+        "valid_token_200": true,
+        "burst_429": true,
+        "healthz_not_rate_limited": true,
+        "concurrency_zero_errors": true,
+        "receipt_chain_valid": true,
+        "readers_overlap": true,
+        "throughput_not_collapsed": true,
+        "openai_verify": true,
+        "openai_plan": true,
+        "openai_impact": true,
+        "openai_synthesize": true,
+        "passed": true
+      },
+      "wall_seconds": 12.399614099995233
+    },
+    "eval": {
+      "receipt": "receipts\\holarch\\j_eval.json",
+      "sha256": "f4b3023e2b4c8894cf4e5e0c332dc45b7f7e987b2ab05103662be15b38022fc2",
+      "passed": true,
+      "gate": {
+        "queries_88": true,
+        "gates_passed": true,
+        "exit_zero": true,
+        "passed": true
+      },
+      "wall_seconds": 98.31825270000263
+    }
+  },
+  "passed": false
+}
