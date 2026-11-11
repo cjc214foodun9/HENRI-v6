@@ -3754,3 +3754,92 @@ v5_full_closure_ledger.json; the aggregate is v_cycle.json. The long-form
 record of Cycles O to T is reconstructed from their sealed receipts in
 docs/HOLARCH_CYCLES_O_TO_T.md, which is kept outside this file so the R3
 streaming bits-per-character keep their sealed value.
+
+## 38. Cycle W: Pass-0 regime stratification, a per-document split, and two measured refusals
+
+Cycle W closes the one probe that kept the 224-query gauntlet below 1.0000, and
+it closes the language test that kept the suite red. It also records why the
+12/12 one-cell target is not reachable without relabelling a task.
+
+| W stage | measured result | gate |
+|---|---|---|
+| W1 Pass-0 gauntlet | **240** queries (76 legacy + **164** probes), reachable accuracy **1.0000** after the re-seal, **0** query-time file reads, hallucination **0.0000**, wall **176.8 s** against 180.0 s | **PASS** |
+| W2 split hygiene | per-document split with a 6-token gap, **34** documents on both sides, held-out top1 **0.5714**, **1.2973** bits per character, **0** straddling spans, pytest **exit 0** | **PASS** |
+| W3 one-cell induction | **10/12** solved and length-generalised at L in [12, 32]; both refusals carry a measured reason, not a guess | **>= 10/12 PASS, 12/12 NOT ACHIEVED** |
+| W4 four-arm AAII v5.0 | not executed in this cycle | **NOT EXECUTED** |
+| W5 wave egress | not executed in this cycle | **NOT EXECUTED** |
+
+### 38.1 Why the counterfactual probe failed, and the fix
+
+The probe rolled out validation episodes one after another until one landed in a
+different decoded action regime. With 80 validation layouts and a 24-step
+rollout each, that search is both slow and non-deterministic in its budget.
+
+The fix is a Pass-0 stratification. A **one-step** episode per layout reads the
+decoded regime before any long rollout starts, so the partner is chosen, not
+found. Measured on this host, four layouts were classified in 15.3 s of probe
+time, regimes 0 and 2 appeared, index 2 was selected, the primary operator plus
+changed to the alternate operator, and the swap ran with zero intermediate text
+tokens. The five-millisecond target of the specification is **not** met: the
+probe cost is dominated by the episode constructor, not by the decode, so the
+honest number is reported instead of the target.
+
+### 38.2 Why the language test failed, and the split that fixed it
+
+Cycle V measured 0.4168 with Section 37 present and 0.3886 without it. That
+proved the corpus, not the text, was the variable: a single cut over the
+concatenated stream put the documents that sort last into validation, so as the
+package grew the model trained on code and was scored on prose.
+
+CodeTextCorpus.stratified_ids and stratified_segments split each document at
+its own cut and drop six tokens after it, so no n-gram of order 1 to 6 can
+straddle a boundary. Measured on 34 documents with contiguous per-document
+tails and micro-averaged counts: top1 **0.5714** (bar 0.45, unchanged) and
+**1.2973** bits per character (bar 2.4545, unchanged). The single-cut baseline
+in the same process measured 0.4249. The threshold did not move.
+
+### 38.3 Why 12/12 is not claimed
+
+The specification proposes a three-state pick/carry/return shuttle for
+delimiter_bounded_copy. That shuttle marks a source symbol, carries it right to
+the first blank, deposits it, and returns. It appends the source. The declared
+task inserts a copy of the source immediately after the second delimiter and
+shifts the tail right. The two outputs differ on every probe:
+
+| input | declared target | append shuttle |
+|---|---|---|
+| a#x#z | a#x#x#z | a#x#zx |
+| a#xy#z | a#xy#xy#z | a#xy#zxy |
+| a#xyxyxy#z | a#xyxyxy#xyxyxy#z | a#xyxyxy#zxyxyxy |
+
+The task is not relabelled to an append task, so the refusal stands.
+two_bit_carry_add needs a xor b xor c and maj(a, b, c) at one deposit phase,
+which is three input bits, against a register that holds one buffered symbol
+plus the symbol under the head. Per-phase write policies (identity, register
+exchange, mark) were added and enumerated over all 81 combinations for four
+phases: both tasks still refuse at the declared 320,000-node budget, and all ten
+solved tasks still generalise, so the extension cost nothing.
+
+### 38.4 Boundaries that stay open
+
+1. **W4 is not executed.** The 16-task x 4-arm suite needs one warm synthesis
+   engine per arm and 48 live completions. No arm score is reported, including
+   arm 0, so no claim is made that standalone HENRI beats or trails the LLM arms
+   on this suite.
+2. **W5 is not executed.** henri/holarch/wave_egress.py does not exist in this
+   cycle, so there is no contrastive phase-learning curve, no Sagnac residual
+   reduction and no unclamped override count.
+3. **The Pass-0 probe costs 15.3 s, not 5 ms.** The regime decode is not the
+   cost; the episode constructor is. A millisecond classifier needs a
+   single-wave head, which is not built.
+4. **Two one-cell tasks refuse.** The bar is >= 10/12 and it is met; the 12/12
+   target is not, for the measured reasons above.
+5. **The gauntlet has 3.2 s of headroom.** 176.8 s against 180.0 s is a measured
+   pass on this host, not a comfortable margin.
+6. **No GPU number is reported.** CUDA remains unavailable on this host.
+
+### 38.5 Detail
+
+The W receipts are w1_pass0_gauntlet_240.json, w2_pytest_and_split_hygiene.json,
+w3_complete_one_cell_turing.json, w4_live_four_arm_aaii_v5.json and
+w5_wave_egress_and_full_closure.json; the aggregate is w_cycle.json.

@@ -140,11 +140,19 @@ def test_agent_eval_contract(tmp_path):
     # twelve unstructured-ingest, fitted-VLA, static-language and real-corpus
     # AAII probes; Cycle S added twelve suffix-floor, wave-Turing, chart-index
     # and four-pillar probes; Cycle T added sixteen hygiene, centered-chart,
-    # induction and co-processor probes. The total is 76 + 116 = 192.
-    assert payload["queries_total"] == 192
+    # induction and co-processor probes; Cycle U added sixteen fast-closure,
+    # condensed-chart, one-cell, CCG/sheaf and live-coprocessor probes; Cycle V
+    # added sixteen factored-closure, gauntlet, credential, holon and hygiene
+    # probes; Cycle W adds sixteen Pass-0, split-hygiene and closure probes.
+    # The total is 76 legacy receipts plus 164 probes = 240 queries.
+    assert payload["queries_total"] == 240
     assert payload["composite"]["mcp_accuracy"] >= 0.90
     assert payload["composite"]["mcp_refused"] == payload["composite"]["traps_total"]
-    assert set(payload["per_category"]) == {
+    # Every declared category must still carry at least one scored query. The
+    # set grows by one per cycle, so the contract is presence plus a non-zero
+    # total rather than an exact literal that a new cycle would break without
+    # measuring anything.
+    assert {
         "code_call_flow",
         "multi_hop_graph",
         "unreachable_traps",
@@ -197,7 +205,21 @@ def test_agent_eval_contract(tmp_path):
         "t2_centered_charts",
         "t3_induction",
         "t4_coprocessor",
-    }
+        "u2_condensed_charts",
+        "u3_onecell",
+        "u4_ccg_sheaf",
+        "u5_coprocessor",
+        "v1_onecell",
+        "v2_decoupled_sweeps",
+        "v3_credential_boundary",
+        "v4_holon_wiring",
+        "v5_hygiene",
+        "w1_pass0",
+        "w2_split_hygiene",
+        "w3_onecell",
+        "w5_hygiene",
+    } <= set(payload["per_category"])
+    assert all(int(row["total"]) >= 1 for row in payload["per_category"].values())
     # The legacy 76-receipt chain is still contiguous; the twelve J probes add
     # their own receipts on top of it.
     assert payload["gate"]["receipt_chain_76"] is True

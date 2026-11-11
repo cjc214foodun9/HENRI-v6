@@ -11,10 +11,10 @@
     "candidates": 60,
     "plan_store_size": 4,
     "engine": {
-      "corpus_digest": "b9d9c6084cf67975",
+      "corpus_digest": "207b088a8caedb19",
       "vocabulary_size": 2048,
       "vocabulary_digest": "d5a64f73b97c6aab",
-      "tokens": 864011,
+      "tokens": 869692,
       "files": 34,
       "vocab_locked": true,
       "vocab_ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
@@ -34,7 +34,7 @@
         "unique_count",
         "clamp_unit"
       ],
-      "attempts": 512,
+      "attempts": 497,
       "candidates": 15,
       "effects": 32,
       "rolled_back": false,
@@ -55,7 +55,7 @@
         "join_csv",
         "strip_comments"
       ],
-      "attempts": 1201,
+      "attempts": 1176,
       "candidates": 15,
       "effects": 32,
       "rolled_back": false,
@@ -76,7 +76,7 @@
         "normalize_scores",
         "max_or_zero"
       ],
-      "attempts": 1227,
+      "attempts": 1383,
       "candidates": 15,
       "effects": 32,
       "rolled_back": false,
@@ -97,7 +97,7 @@
         "max_or_zero",
         "exceeds_tau"
       ],
-      "attempts": 2472,
+      "attempts": 2447,
       "candidates": 15,
       "effects": 32,
       "rolled_back": false,
@@ -189,7 +189,7 @@
     "v4_tier1_sheaf_live": true,
     "passed": true
   },
-  "wall_seconds": 12.50216310005635,
+  "wall_seconds": 12.562670100014657,
   "evidence": "OBSERVED",
   "passed": true
 }

@@ -1,0 +1,20 @@
+{
+  "stage": "W5",
+  "docs_sections": 38,
+  "docs_contiguous": true,
+  "wave_egress": {
+    "module_present": false,
+    "executed": false,
+    "reason": "the contrastive phase learner and the margin-relaxed decoder were not built in this cycle; no Sagnac residual curve and no override count is reported"
+  },
+  "gate": {
+    "w5_docs_contiguous_1_to_38": true,
+    "w5_wave_egress_organ_present": false,
+    "w5_contrastive_learning_measured": false,
+    "w5_margin_decoder_measured": false,
+    "passed": false
+  },
+  "wall_seconds": 0.001123500056564808,
+  "evidence": "OBSERVED",
+  "passed": false
+}

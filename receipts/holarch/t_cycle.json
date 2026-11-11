@@ -1,15 +1,15 @@
 {
   "cycle": "T",
-  "head": "7d3522e3f55a999ff1edb84dbb44db2b3e2b6fdd",
+  "head": "6322f2c5fdda8da44ceb453fa6e39151c3e7545e",
   "stages": {
     "t1": {
       "receipt": "receipts\\holarch\\t1_hygiene_and_determinism.json",
-      "sha256": "f70d1e8a4ef03d48fdc745cca167bb20b84f6734f567501a4db7f99f133f197e",
+      "sha256": "0e28158b7638ba5f22a75bfb47ba819518f1f1ded1d3386ab24f595fd305436a",
       "passed": true,
       "gate": {
         "t1_docs_monotonic": true,
         "t1_docs_no_duplicates": true,
-        "t1_docs_sections_1_to_37": true,
+        "t1_docs_sections_1_to_38": true,
         "t1_docs_receipts_referenced": true,
         "t1_q2_passed": true,
         "t1_q2_goals_12": true,
@@ -24,11 +24,11 @@
         "t1_s3_latency_clock_invariant": true,
         "passed": true
       },
-      "wall_seconds": 0.005758799961768091
+      "wall_seconds": 0.0059247000608593225
     },
     "t2": {
       "receipt": "receipts\\holarch\\t2_centered_charts_mmlu.json",
-      "sha256": "d7df6557f04abfccaeafc16ec47960f4bb390ae554f6978a3a2017a58c7ef4dd",
+      "sha256": "034a0af9ab03fbb55562c35f35220ab68d73547cc3c28d9d53142cb13646c038",
       "passed": true,
       "gate": {
         "t2_store_2500": true,
@@ -43,11 +43,11 @@
         "t2_auto_centered": true,
         "passed": true
       },
-      "wall_seconds": 43.234724599984474
+      "wall_seconds": 43.43259370001033
     },
     "t3": {
       "receipt": "receipts\\holarch\\t3_inductive_wave_turing.json",
-      "sha256": "32fc56b35ab72d7191da099e5dad5df07b4e1dac348b852cbee758c4c6e1569f",
+      "sha256": "9c0e3aca3bad492d41693c0fb9fd3c31367262825827a4b84d17941a3a1318c3",
       "passed": true,
       "gate": {
         "t3_tasks_10": true,
@@ -60,11 +60,11 @@
         "t3_memory_tier3": true,
         "passed": true
       },
-      "wall_seconds": 2.3491799000184983
+      "wall_seconds": 2.2372647000011057
     },
     "t4": {
       "receipt": "receipts\\holarch\\t4_coprocessor_and_substrate.json",
-      "sha256": "4a4980e4df2b70456ac39254ab8faac979d1b42c41f021bcbdcc6ded7721efc3",
+      "sha256": "a493c47d587b439c7e8c466d0cd028cc67e38396b8efdbb56d2a212a2fe08d7e",
       "passed": true,
       "gate": {
         "t4_scenarios_16": true,
@@ -79,7 +79,7 @@
         "t4_no_fabricated_gpu": true,
         "passed": true
       },
-      "wall_seconds": 0.10361709992866963
+      "wall_seconds": 0.10098290001042187
     }
   },
   "passed": true

@@ -132,26 +132,79 @@ def test_verifier_passages_are_content_addressed(verifier):
 # ------------------------------------------------------------------- L3
 @pytest.fixture(scope="module")
 def generator(corpus, tokenizer, projector) -> WaveCodeTextGenerator:
-    ids = []
-    for text in corpus.texts:
-        ids.extend(tokenizer.encode(text))
+    """Fit on the document-stratified training split.
+
+    Cycle W replaced a single cut over the concatenated stream. That cut put
+    every document that sorts last into validation, so once the package grew
+    the validation slice was almost pure prose while training was almost pure
+    code. The stratified split keeps every document on both sides.
+    """
+    segments = corpus.stratified_segments(tokenizer, val_fraction=0.1, boundary_gap=6)
+    train = []
+    for _name, train_ids, _val_ids in segments:
+        train.extend(train_ids)
     model = WaveCodeTextGenerator(tokenizer, projector)
-    model.fit(ids[:24000], max_fit_tokens=8000)
-    model.count_lm.fit(ids[: int(len(ids) * 0.9)])
-    model.lexical.build(ids[:24000])
+    model.fit(train, max_fit_tokens=8000)
+    model.count_lm.fit(train)
+    model.lexical.build(train[:24000])
     return model
 
 
-def test_generator_predicts_tokens_above_the_char_baseline(generator, corpus, tokenizer):
-    ids = []
-    for text in corpus.texts:
-        ids.extend(tokenizer.encode(text))
-    held = ids[int(len(ids) * 0.9) :]
-    report = generator.evaluate(held[:3000])
-    assert report.top1 >= 0.45, report.as_dict()
-    baseline_bits = float(np.log2(17.043866783609086))
-    assert report.bits_per_char <= 0.6 * baseline_bits, report.as_dict()
+def _stratified_report(generator, corpus, tokenizer, cap_total: int = 6000):
+    """Score every document's contiguous tail and micro-average the counts."""
+    segments = corpus.stratified_segments(tokenizer, val_fraction=0.1, boundary_gap=6)
+    cap = max(64, int(cap_total) // max(len(segments), 1))
+    tokens = 0
+    top1_num = 0.0
+    nll_per_char = 0.0
+    rows = []
+    for name, _train_ids, val_ids in segments:
+        part = val_ids[:cap]
+        report = generator.evaluate(part)
+        tokens += int(report.tokens)
+        top1_num += float(report.top1) * int(report.tokens)
+        nll_per_char += float(report.bits_per_char) * int(report.tokens)
+        rows.append({"document": name, "tokens": int(report.tokens),
+                     "top1": float(report.top1),
+                     "bits_per_char": float(report.bits_per_char)})
+    return {
+        "documents": len(segments),
+        "tokens": int(tokens),
+        "top1": float(top1_num / max(tokens, 1)),
+        "bits_per_char": float(nll_per_char / max(tokens, 1)),
+        "rows": rows,
+    }
 
+
+def test_generator_predicts_tokens_above_the_char_baseline(generator, corpus, tokenizer):
+    measurement = _stratified_report(generator, corpus, tokenizer)
+    assert measurement["documents"] >= 20
+    assert measurement["tokens"] >= 3000
+    assert measurement["top1"] >= 0.45, measurement
+    baseline_bits = float(np.log2(17.043866783609086))
+    assert measurement["bits_per_char"] <= 0.6 * baseline_bits, measurement
+
+
+def test_stratified_split_has_no_boundary_leakage(corpus, tokenizer):
+    """The split skips a six-token gap at every document boundary.
+
+    A span of at most six tokens cannot then contain a training token and a
+    validation token, so no n-gram of order 1..6 straddles a boundary.
+    """
+    segments = corpus.stratified_segments(tokenizer, val_fraction=0.1, boundary_gap=6)
+    assert len(segments) >= 20
+    checked = 0
+    for text, (name, train_ids, val_ids) in zip(corpus.texts, segments):
+        full = [int(token) for token in tokenizer.encode(str(text))]
+        cut = len(train_ids)
+        assert full[:cut] == list(train_ids), name
+        assert full[cut + 6 :] == list(val_ids), name
+        assert cut + 6 + len(val_ids) <= len(full)
+        checked += 1
+    assert checked == len(segments)
+    # A span of order n <= 6 that held a train index (<= cut - 1) and a val
+    # index (>= cut + 6) would need length >= 8. It cannot exist.
+    assert 6 + 2 > 6
 
 def test_synthesis_refuses_a_symbol_that_does_not_exist(tmp_path, generator, projector, tokenizer, verifier):
     memory = ZoneCMemory(

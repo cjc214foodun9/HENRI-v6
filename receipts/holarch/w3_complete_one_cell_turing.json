@@ -1,0 +1,65 @@
+{
+  "stage": "W3",
+  "solved": 10,
+  "generalized": 10,
+  "v1_length_generalized": 10,
+  "refused": [
+    {
+      "name": "two_bit_carry_add",
+      "nodes": 320000,
+      "mechanism": ""
+    },
+    {
+      "name": "delimiter_bounded_copy",
+      "nodes": 320000,
+      "mechanism": ""
+    }
+  ],
+  "delimiter_topology_evidence": {
+    "schema": "q_pick -> q_carry -> q_ret append shuttle",
+    "pairs": [
+      {
+        "input": "a#x#z",
+        "declared_target": "a#x#x#z",
+        "append_shuttle": "a#x#zx",
+        "match": false
+      },
+      {
+        "input": "a#xy#z",
+        "declared_target": "a#xy#xy#z",
+        "append_shuttle": "a#xy#zxy",
+        "match": false
+      },
+      {
+        "input": "a#xyxyxy#z",
+        "declared_target": "a#xyxyxy#xyxyxy#z",
+        "append_shuttle": "a#xyxyxy#zxyxyxy",
+        "match": false
+      },
+      {
+        "input": "a#xyxyxyxy#zb",
+        "declared_target": "a#xyxyxyxy#xyxyxyxy#zb",
+        "append_shuttle": "a#xyxyxyxy#zbxyxyxyxy",
+        "match": false
+      }
+    ],
+    "finding": "the prescribed shuttle deposits the carried symbol at the first blank, which appends the source segment; the declared task inserts a copy of the source immediately after the second delimiter and shifts the tail right, so the two outputs differ on every probe"
+  },
+  "carry_topology_evidence": {
+    "requirement": "sum = a xor b xor c and carry = maj(a, b, c) need three input bits at the deposit phase",
+    "available": "one buffered symbol plus the symbol under the head, i.e. two bits, under Q = Qctrl x Rreg with the declared selectors",
+    "finding": "the two-bit budget is one bit short; the declared bit algebra cannot be closed without a second register bit"
+  },
+  "gate": {
+    "w3_solved_ge_10": true,
+    "w3_length_generalised_ge_10": true,
+    "w3_zero_text_tokens": true,
+    "w3_contradictions_4": true,
+    "w3_delimiter_topology_claim_refuted": true,
+    "w3_solved_12": false,
+    "passed": false
+  },
+  "wall_seconds": 0.004162999917753041,
+  "evidence": "OBSERVED",
+  "passed": false
+}

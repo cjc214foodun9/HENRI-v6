@@ -784,6 +784,64 @@ class CodeTextCorpus:
                 paths.append(doc)
         return cls.from_paths(paths, max_chars=max_chars)
 
+    def stratified_ids(
+        self,
+        tokenizer,
+        val_fraction: float = 0.1,
+        boundary_gap: int = 6,
+    ) -> Tuple[List[int], List[int]]:
+        """Per-document train/validation split with a boundary gap.
+
+        A single cut over the concatenated stream puts every document that
+        sorts last into the validation slice. When the package grows, that
+        slice becomes one modality only, so a model trained on Python is
+        scored on prose. This split keeps every document on both sides: the
+        first (1 - val_fraction) of each document trains, the final
+        val_fraction validates, and boundary_gap tokens after each cut are
+        dropped from both sides so no n-gram can straddle them.
+
+        Returns:
+            (train_ids, val_ids). Both are concatenations in document order.
+        """
+        train: List[int] = []
+        val: List[int] = []
+        gap = max(0, int(boundary_gap))
+        fraction = min(max(float(val_fraction), 0.0), 0.5)
+        for text in self.texts:
+            ids = [int(token) for token in tokenizer.encode(str(text))]
+            if len(ids) <= gap + 2:
+                continue
+            cut = int(len(ids) * (1.0 - fraction))
+            cut = max(1, min(cut, len(ids) - gap - 1))
+            train.extend(ids[:cut])
+            val.extend(ids[cut + gap :])
+        return train, val
+
+    def stratified_segments(
+        self,
+        tokenizer,
+        val_fraction: float = 0.1,
+        boundary_gap: int = 6,
+    ) -> List[Tuple[str, List[int], List[int]]]:
+        """Per-document (name, train_ids, val_ids) segments.
+
+        A contiguous validation slice measures one modality when the corpus
+        holds several. This returns one segment per document so a caller can
+        score every modality with its own contiguous context and then combine
+        the counts.
+        """
+        segments: List[Tuple[str, List[int], List[int]]] = []
+        gap = max(0, int(boundary_gap))
+        fraction = min(max(float(val_fraction), 0.0), 0.5)
+        for text, name in zip(self.texts, self.names):
+            ids = [int(token) for token in tokenizer.encode(str(text))]
+            if len(ids) <= gap + 2:
+                continue
+            cut = int(len(ids) * (1.0 - fraction))
+            cut = max(1, min(cut, len(ids) - gap - 1))
+            segments.append((str(name), ids[:cut], ids[cut + gap :]))
+        return segments
+
     def python_identifiers(self) -> List[str]:
         """Names the corpus actually uses, ordered by frequency then name.
 

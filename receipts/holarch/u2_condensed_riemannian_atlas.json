@@ -25,10 +25,10 @@
     "grounded_queries": 100,
     "ood_queries": 100,
     "engine": {
-      "corpus_digest": "b9d9c6084cf67975",
+      "corpus_digest": "207b088a8caedb19",
       "vocabulary_size": 2048,
       "vocabulary_digest": "d5a64f73b97c6aab",
-      "tokens": 864011,
+      "tokens": 869692,
       "files": 34,
       "vocab_locked": true,
       "vocab_ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
@@ -44,10 +44,10 @@
     "hallucination_rate": 0.0,
     "online_recall": 1.0,
     "chart_births": 30,
-    "candidate_ratio": 0.026406,
-    "speedup": 2.5857102646938364,
-    "charted_p50_ms": 0.36810000892728567,
-    "flat_p50_ms": 0.9517999715171754,
+    "candidate_ratio": 0.026143999999999997,
+    "speedup": 2.5787493721244554,
+    "charted_p50_ms": 0.37174997851252556,
+    "flat_p50_ms": 0.958650023676455,
     "condensations": 15,
     "staged_now": 0,
     "recall_misses": []
@@ -62,18 +62,18 @@
     "top_charts": 1,
     "top_charts_max": 1,
     "spawns": 0,
-    "absorbs": 115,
-    "staged_writes": 885,
+    "absorbs": 110,
+    "staged_writes": 890,
     "staged_now": 0,
     "condensations": 15,
     "condensed_charts": 30,
-    "condensed_rows": 885,
+    "condensed_rows": 890,
     "b_stage": 64,
     "k_condense": 2,
     "min_cluster": 8,
-    "largest_chart": 233,
+    "largest_chart": 131,
     "mean_chart": 50.0,
-    "digest": "628983beaa7a9a0f"
+    "digest": "52fde4921c68dcb4"
   },
   "gate": {
     "u2_parity_1": true,
@@ -87,7 +87,7 @@
     "u2_speedup_ge_1_65": true,
     "passed": true
   },
-  "wall_seconds": 47.15800080006011,
+  "wall_seconds": 47.36224080005195,
   "evidence": "OBSERVED",
   "passed": true
 }

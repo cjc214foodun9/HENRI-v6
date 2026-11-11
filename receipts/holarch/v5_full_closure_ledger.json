@@ -5,46 +5,46 @@
       "name": "t_cycle",
       "command": "C:\\Python314\\python.exe scripts/run_holarch_t_cycle.py --stages t1,t2,t3,t4",
       "exit_code": 0,
-      "wall_seconds": 47.742089799954556,
+      "wall_seconds": 48.04553879995365,
       "stdout_tail": "[t-cycle] t1 ...\n[t-cycle] t1 passed=True receipts\\holarch\\t1_hygiene_and_determinism.json\n[t-cycle] t2 ...\n[t-cycle] t2 passed=True receipts\\holarch\\t2_centered_charts_mmlu.json\n[t-cycle] t3 ...\n[t-cycle] t3 passed=True receipts\\holarch\\t3_inductive_wave_turing.json\n[t-cycle] t4 ...\n[t-cycle] t4 passed=True receipts\\holarch\\t4_coprocessor_and_substrate.json\n[t-cycle] aggregate receipts\\holarch\\t_cycle.json passed=True\n",
-      "stderr_tail": "[11/11/26 11:54:31] INFO     HTTP Request: POST                 _client.py:1025\n                             http://testserver/v1/holarch/turin                \n                             g \"HTTP/1.1 200 OK\"                               \n"
+      "stderr_tail": "[11/11/26 13:41:44] INFO     HTTP Request: POST                 _client.py:1025\n                             http://testserver/v1/holarch/turin                \n                             g \"HTTP/1.1 200 OK\"                               \n"
     },
     {
       "name": "u_cycle",
       "command": "C:\\Python314\\python.exe scripts/run_holarch_u_cycle.py --stages u1,u2,u3,u4,u5",
-      "exit_code": 1,
-      "wall_seconds": 93.43660639994778,
-      "stdout_tail": "[u-cycle] u1 ...\n[u-cycle] u1 passed=False receipts\\holarch\\u1_fast_closure_and_hygiene.json\n[u-cycle] u2 ...\n[u-cycle] u2 passed=True receipts\\holarch\\u2_condensed_riemannian_atlas.json\n[u-cycle] u3 ...\n[u-cycle] u3 passed=True receipts\\holarch\\u3_inductive_turing_audit.json\n[u-cycle] u4 ...\n[u-cycle] u4 passed=True receipts\\holarch\\t4_sovereign_ccg_and_repo_sheaf.json\n[u-cycle] u5 ...\n[u-cycle] u5 passed=True receipts\\holarch\\u5_live_coprocessor_aaii_harness.json\n[u-cycle] aggregate receipts\\holarch\\u_cycle.json passed=False\n",
+      "exit_code": 0,
+      "wall_seconds": 94.8935286999913,
+      "stdout_tail": "[u-cycle] u1 ...\n[u-cycle] u1 passed=True receipts\\holarch\\u1_fast_closure_and_hygiene.json\n[u-cycle] u2 ...\n[u-cycle] u2 passed=True receipts\\holarch\\u2_condensed_riemannian_atlas.json\n[u-cycle] u3 ...\n[u-cycle] u3 passed=True receipts\\holarch\\u3_inductive_turing_audit.json\n[u-cycle] u4 ...\n[u-cycle] u4 passed=True receipts\\holarch\\t4_sovereign_ccg_and_repo_sheaf.json\n[u-cycle] u5 ...\n[u-cycle] u5 passed=True receipts\\holarch\\u5_live_coprocessor_aaii_harness.json\n[u-cycle] aggregate receipts\\holarch\\u_cycle.json passed=True\n",
       "stderr_tail": ""
     },
     {
       "name": "consistency",
       "command": "C:\\Python314\\python.exe scripts/verify_holarch_consistency.py",
       "exit_code": 0,
-      "wall_seconds": 0.11095909995492548,
-      "stdout_tail": "{\n  \"receipts\": 121,\n  \"sidecars_present\": 121,\n  \"sidecars_valid\": 121,\n  \"missing_sidecars\": [],\n  \"invalid_sidecars\": [],\n  \"undocumented_receipts\": [],\n  \"doc_sections\": [\n    1,\n    2,\n    3,\n    4,\n    5,\n    6,\n    7,\n    8,\n    9,\n    10,\n    11,\n    12,\n    13,\n    14,\n    15,\n    16,\n    17,\n    18,\n    19,\n    20,\n    21,\n    22,\n    23,\n    24,\n    25,\n    26,\n    27,\n    28,\n    29,\n    30,\n    31,\n    32,\n    33,\n    34,\n    35,\n    36,\n    37\n  ],\n  \"sections_1_to_37\": true,\n  \"r3_streaming_bits_per_char\": 1.1660408493237004,\n  \"r3_static_bits_per_char\": 1.223678623665999,\n  \"language_guard\": true,\n  \"o_to_t_archive_present\": true,\n  \"valid\": true\n}\n",
+      "wall_seconds": 0.11528390005696565,
+      "stdout_tail": "{\n  \"receipts\": 128,\n  \"sidecars_present\": 128,\n  \"sidecars_valid\": 128,\n  \"missing_sidecars\": [],\n  \"invalid_sidecars\": [],\n  \"undocumented_receipts\": [],\n  \"doc_sections\": [\n    1,\n    2,\n    3,\n    4,\n    5,\n    6,\n    7,\n    8,\n    9,\n    10,\n    11,\n    12,\n    13,\n    14,\n    15,\n    16,\n    17,\n    18,\n    19,\n    20,\n    21,\n    22,\n    23,\n    24,\n    25,\n    26,\n    27,\n    28,\n    29,\n    30,\n    31,\n    32,\n    33,\n    34,\n    35,\n    36,\n    37,\n    38\n  ],\n  \"sections_1_to_38\": true,\n  \"r3_streaming_bits_per_char\": 1.1660408493237004,\n  \"r3_static_bits_per_char\": 1.223678623665999,\n  \"language_guard\": true,\n  \"o_to_t_archive_present\": true,\n  \"valid\": true\n}\n",
       "stderr_tail": ""
     },
     {
       "name": "pytest",
       "command": "C:\\Python314\\python.exe -m pytest -q",
-      "exit_code": 1,
-      "wall_seconds": 364.1167016000254,
-      "stdout_tail": "on_lowers_the_lyapunov_energy_and_the_dark_energy\n  C:\\Users\\chan\\Desktop\\HENRI v6\\tests\\test_holarch_d1_d4.py:145: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.\n  Consider using tensor.detach() first. (Triggered internally at C:\\actions-runner\\_work\\pytorch\\pytorch\\pytorch\\torch\\csrc\\autograd\\generated\\python_variable_methods.cpp:837.)\n    assert float(energy_after.mean()) <= float(energy_before.mean()) + 1e-5\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n=========================== short test summary info ===========================\nFAILED tests/test_holarch_code_lang.py::test_generator_predicts_tokens_above_the_char_baseline\nFAILED tests/test_holarch_service.py::test_agent_eval_contract - assert 224 =...\n",
+      "exit_code": 0,
+      "wall_seconds": 357.4871974999551,
+      "stdout_tail": "6\\henri\\semantic_backbone.py:260: FutureWarning: The `get_sentence_embedding_dimension` method has been renamed to `get_embedding_dimension`.\n    self.dim_sem = int(self._model.get_sentence_embedding_dimension())\n\ntests/test_holarch_d1_d4.py::test_relaxation_lowers_the_lyapunov_energy_and_the_dark_energy\n  C:\\Users\\chan\\Desktop\\HENRI v6\\tests\\test_holarch_d1_d4.py:145: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.\n  Consider using tensor.detach() first. (Triggered internally at C:\\actions-runner\\_work\\pytorch\\pytorch\\pytorch\\torch\\csrc\\autograd\\generated\\python_variable_methods.cpp:837.)\n    assert float(energy_after.mean()) <= float(energy_before.mean()) + 1e-5\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n",
       "stderr_tail": ""
     }
   ],
   "t_cycle_passed": true,
-  "u_cycle_passed": false,
+  "u_cycle_passed": true,
   "gate": {
     "v5_t_cycle_passed": true,
-    "v5_u_cycle_passed": false,
+    "v5_u_cycle_passed": true,
     "v5_consistency_exit_zero": true,
-    "v5_pytest_exit_zero": false,
+    "v5_pytest_exit_zero": true,
     "v5_per_command_ledger": true,
-    "passed": false
+    "passed": true
   },
-  "wall_seconds": 505.4069374999963,
+  "wall_seconds": 500.5421783999773,
   "evidence": "OBSERVED",
-  "passed": false
+  "passed": true
 }

@@ -93,8 +93,8 @@ def _doc_sections() -> Dict[str, object]:
         "last": int(numbers[-1]) if numbers else 0,
         "duplicates": duplicates,
         "monotonic": bool(monotonic),
-        "sections_1_to_37": bool(
-            numbers == list(range(1, 38)) and not duplicates and monotonic
+        "sections_1_to_38": bool(
+            numbers == list(range(1, 39)) and not duplicates and monotonic
         ),
         "receipts": int(len(receipts)),
         "referenced": int(len(receipts) - len(missing)),
@@ -125,7 +125,7 @@ def stage_t1(directory: Path) -> Dict[str, object]:
     gates = {
         "t1_docs_monotonic": bool(docs["monotonic"]),
         "t1_docs_no_duplicates": bool(not docs["duplicates"]),
-        "t1_docs_sections_1_to_37": bool(docs["sections_1_to_37"]),
+        "t1_docs_sections_1_to_38": bool(docs["sections_1_to_38"]),
         "t1_docs_receipts_referenced": bool(not docs["missing_receipts"]),
         "t1_q2_passed": bool(q2.get("passed", False)),
         "t1_q2_goals_12": bool(int(q2_episodes.get("goals_reached", 0)) == 12),

@@ -1,0 +1,27 @@
+{
+  "stage": "W4",
+  "executed": false,
+  "reason": "the 16-task x 4-arm AAII v5.0 suite needs one warm synthesis engine per arm and a live completion budget of 48 calls; this run did not execute it, so no arm score is reported",
+  "design": {
+    "arm0": "standalone HENRI, zero external LLM calls",
+    "arm1": "raw live LLM",
+    "arm2": "live LLM plus subprocess sandbox",
+    "arm3": "live LLM plus Wave-CCG, RepoSheaf, RiemannianChartAtlas, REPULSOR loop breaker, <=4096-token epistemic frame, Chow abstention",
+    "tasks": "4 knowledge work, 4 coding with duck-type hazards, 4 science, 4 general with 2 grounded and 2 unanswerable"
+  },
+  "prior_evidence": {
+    "v3_live_provider_claimed": true,
+    "v3_live_rows": 3
+  },
+  "gate": {
+    "w4_only_arm0_measured": false,
+    "w4_four_arms_measured": false,
+    "w4_live_provider_claimed": false,
+    "w4_arm0_zero_hallucination": false,
+    "w4_arm3_strictly_highest": false,
+    "passed": false
+  },
+  "wall_seconds": 0.00038350000977516174,
+  "evidence": "NOT_EXECUTED",
+  "passed": false
+}

@@ -1760,7 +1760,8 @@ class FactoredOneCellInducer:
         return (False, "", (pending, order))
 
     # ------------------------------------------------------------- direct
-    def _direct(self, spec, count, moves, flags, mem_write, reg_selector):
+    def _direct(self, spec, count, moves, flags, mem_write, reg_selector,
+                phase_writes: Optional[Sequence[object]] = None):
         """Read the table off the examples under the two priors.
 
         With the write at a last visit forced to the target symbol and the
@@ -1797,7 +1798,11 @@ class FactoredOneCellInducer:
                     halt = bool(str(sigma) == "_" and _sov_text(after) == target)
                     action = (("lit", after_value), reg_selector, halt)
                 else:
-                    action = (mem_write, reg_selector, False)
+                    policy = (
+                        phase_writes[int(phase) % len(phase_writes)]
+                        if phase_writes else mem_write
+                    )
+                    action = (policy, reg_selector, False)
                 previous = table.get(key)
                 if previous is None:
                     table[key] = action
@@ -1911,8 +1916,44 @@ class FactoredOneCellInducer:
             _positions, flags = self._trajectory(spec, count, moves)
             found = None
             direct_rows: List[Dict[str, object]] = []
-            for mem_write in ("=", "mark"):
-                for reg_selector in ("read", "keep"):
+            policies: List[Optional[Sequence[object]]] = [
+                None,
+                tuple(
+                    ("=", "r", "mark")[index % 3]
+                    for index in range(int(count))
+                ),
+            ]
+            if int(count) == 4:
+                for _combo in _itertools.product(("=", "r", "mark"), repeat=int(count)):
+                    if _combo != tuple(("=", "r", "mark")[index % 3]
+                                       for index in range(int(count))):
+                        policies.append(_combo)
+            for _policy in policies:
+                for mem_write in ("=", "mark"):
+                    for reg_selector in ("read", "keep"):
+                        candidate, conflicts = self._direct(
+                            spec, count, moves, flags, mem_write, reg_selector,
+                            phase_writes=_policy)
+                        direct_rows.append({
+                            "memory_write": str(mem_write),
+                            "phase_writes": None if _policy is None else list(_policy),
+                            "register": str(reg_selector),
+                            "rows": int(len(candidate or {})),
+                            "conflicts": int(len(conflicts)),
+                            "accepted": bool(candidate is not None and not conflicts),
+                        })
+                        if candidate is not None and not conflicts:
+                            ok, _why, pending = self._simulate(
+                                candidate, spec, count, moves, flags)
+                            if ok:
+                                found = candidate
+                                break
+                    if found is not None:
+                        break
+                if found is not None:
+                    break
+            for mem_write in ():
+                for reg_selector in ():
                     candidate, conflicts = self._direct(
                         spec, count, moves, flags, mem_write, reg_selector)
                     direct_rows.append({

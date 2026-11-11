@@ -1,0 +1,84 @@
+{
+  "cycle": "W",
+  "head": "6322f2c5fdda8da44ceb453fa6e39151c3e7545e",
+  "stages": {
+    "w1": {
+      "receipt": "receipts\\holarch\\w1_pass0_gauntlet_240.json",
+      "sha256": "6e2fabbc2a312ed93d7100fd29456172e64c59ab7a4e8cbaddcd72a2a7135150",
+      "passed": true,
+      "gate": {
+        "w1_queries_240": true,
+        "w1_probe_slots_164": true,
+        "w1_reachable_1": true,
+        "w1_hallucination_0": true,
+        "w1_zero_query_reads": true,
+        "w1_wall_le_180": true,
+        "w1_gauntlet_gate": true,
+        "w1_pass0_probes_present": true,
+        "passed": true
+      },
+      "wall_seconds": 0.0016943999798968434
+    },
+    "w2": {
+      "receipt": "receipts\\holarch\\w2_pytest_and_split_hygiene.json",
+      "sha256": "edf4da634c105e72539a571e9ef56b5eeb3b8ad66f2cd69e95f9466957b90beb",
+      "passed": true,
+      "gate": {
+        "w2_receipt_present": true,
+        "w2_receipt_sidecar": true,
+        "w2_top1_ge_0_45": true,
+        "w2_bpc_le_char_baseline": true,
+        "w2_zero_straddling_spans": true,
+        "w2_gap_verified": true,
+        "w2_pytest_exit_zero": true,
+        "w2_pytest_zero_failures": true,
+        "w2_beats_single_cut": true,
+        "passed": true
+      },
+      "wall_seconds": 0.00047989992890506983
+    },
+    "w3": {
+      "receipt": "receipts\\holarch\\w3_complete_one_cell_turing.json",
+      "sha256": "cec232da94e3b2e6252a0a5b5626e0ba0c23a110dab1f6346cfe14864108bc40",
+      "passed": false,
+      "gate": {
+        "w3_solved_ge_10": true,
+        "w3_length_generalised_ge_10": true,
+        "w3_zero_text_tokens": true,
+        "w3_contradictions_4": true,
+        "w3_delimiter_topology_claim_refuted": true,
+        "w3_solved_12": false,
+        "passed": false
+      },
+      "wall_seconds": 0.004162999917753041
+    },
+    "w4": {
+      "receipt": "receipts\\holarch\\w4_live_four_arm_aaii_v5.json",
+      "sha256": "44d30aa92fb0a252c794c3d21fa4d3f708cf374f51a2957c2e2a4c60a2a552f0",
+      "passed": false,
+      "gate": {
+        "w4_only_arm0_measured": false,
+        "w4_four_arms_measured": false,
+        "w4_live_provider_claimed": false,
+        "w4_arm0_zero_hallucination": false,
+        "w4_arm3_strictly_highest": false,
+        "passed": false
+      },
+      "wall_seconds": 0.00038350000977516174
+    },
+    "w5": {
+      "receipt": "receipts\\holarch\\w5_wave_egress_and_full_closure.json",
+      "sha256": "e7d80a167fc674920659edd7a82cbb0ba5c17787fba18cfaa1c7d11cd2ad5b65",
+      "passed": false,
+      "gate": {
+        "w5_docs_contiguous_1_to_38": true,
+        "w5_wave_egress_organ_present": false,
+        "w5_contrastive_learning_measured": false,
+        "w5_margin_decoder_measured": false,
+        "passed": false
+      },
+      "wall_seconds": 0.001123500056564808
+    }
+  },
+  "passed": false
+}

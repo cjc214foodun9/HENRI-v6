@@ -117,11 +117,11 @@ def stage_u1(directory: Path) -> Dict[str, object]:
     ]
     gates = {
         "u1_docs_monotonic": bool(docs["monotonic"] and docs["unique"]),
-        "u1_docs_sections_1_to_37": bool(docs["numbers"] == list(range(1, 38))),
+        "u1_docs_sections_1_to_38": bool(docs["numbers"] == list(range(1, 39))),
         "u1_receipt_index_outside_docs": bool((RECEIPTS / "RECEIPT_INDEX.md").exists()),
         "u1_sidecar_parity_100": bool(sidecars["parity"] == 1.0),
         "u1_no_undocumented_receipts": bool(not undocumented),
-        "u1_gauntlet_224": bool(gauntlet["queries"] == 224 and gauntlet["probe_slots"] == 148),
+        "u1_gauntlet_240": bool(gauntlet["queries"] == 240 and gauntlet["probe_slots"] == 164),
         "u1_gauntlet_passed": bool(gauntlet["passed"]),
         "u1_zero_query_reads": bool(gauntlet["query_file_reads"] == 0),
         "u1_reachable_1": bool(gauntlet["reachable_accuracy"] == 1.0),

@@ -174,8 +174,8 @@ def stage_v2(directory: Path) -> Dict[str, object]:
             "sealed_passed": bool((sealed.get("gate") or {}).get("passed", False)),
         }
     gates = {
-        "v2_queries_224": bool(int(payload.get("total_queries", 0)) == 224),
-        "v2_probe_slots_148": bool(int(payload.get("probe_slots", 0)) == 148),
+        "v2_queries_240": bool(int(payload.get("total_queries", 0)) == 240),
+        "v2_probe_slots_164": bool(int(payload.get("probe_slots", 0)) == 164),
         "v2_reachable_1": bool(float(mcp.get("reachable_accuracy", 0.0) or 0.0) == 1.0),
         "v2_hallucination_0": bool(mcp.get("hallucination_rate") == 0.0),
         "v2_zero_query_reads": bool(int(mcp.get("query_file_reads", -1)) == 0),
@@ -445,7 +445,16 @@ def main() -> int:
         "v4": ("v4_live_holon_plugin.json", stage_v4),
         "v5": ("v5_full_closure_ledger.json", stage_v5),
     }
-    aggregate: Dict[str, object] = {"cycle": "V", "head": pc._git_head(), "stages": {}}
+    existing: Dict[str, object] = {}
+    aggregate_path = directory / "v_cycle.json"
+    if aggregate_path.exists():
+        try:
+            existing = json.loads(aggregate_path.read_text(encoding="utf-8"))
+        except Exception:  # noqa: BLE001
+            existing = {}
+    kept = {key: value for key, value in (existing.get("stages") or {}).items()
+            if key not in {token.strip().lower() for token in str(args.stages).split(",")}}
+    aggregate: Dict[str, object] = {"cycle": "V", "head": pc._git_head(), "stages": dict(kept)}
     exit_code = 0
     for stage in stages:
         if stage not in runners:
