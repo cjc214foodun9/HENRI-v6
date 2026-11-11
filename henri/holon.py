@@ -296,8 +296,19 @@ class HolonGraph:
         if not self.docs.exists():
             return {"ok": False, "receipts": 0, "referenced": 0, "missing": []}
         text = self.docs.read_text(encoding="utf-8")
+        # Directive T1: the receipt index lives beside the receipts, not in
+        # the protocol document. docs/HOLARCH.md is part of the language
+        # corpus; a dense filename block there moves the held-out byte split
+        # without adding any engineering information. The consistency check
+        # reads both files, so a receipt is still documented exactly once.
+        index_path = self.receipts / "RECEIPT_INDEX.md"
+        index_text = (
+            index_path.read_text(encoding="utf-8") if index_path.exists() else ""
+        )
         receipts = sorted(self.receipts.glob("*.json")) if self.receipts.exists() else []
-        missing = [path.name for path in receipts if path.name not in text]
+        missing = [
+            path.name for path in receipts if path.name not in text and path.name not in index_text
+        ]
         return {
             "ok": not missing and bool(receipts),
             "receipts": len(receipts),

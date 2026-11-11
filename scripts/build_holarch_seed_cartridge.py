@@ -16,6 +16,12 @@ The K1 cartridge is a declared selection, not a search:
    of the deterministic reference store is the partition being ratified;
 2. every tier-3 axiomatic row in all four task blocks, because those are the
    class prototypes and the boundary-axiom source;
+2b. Directive N3: the action rows the three Cul-de-Sac trap arms actually read
+   (the k = 4 context window of the masked, depth-1 and unmasked arms on all
+   eight traps) are stored at full int16 phase plus uint8 amplitude, so their
+   hydrated waves are the reference waves. The wider 202-row candidate pool is
+   recorded, but the byte ceiling does not carry a duplicate packed copy of
+   every candidate; the read window is the decision-relevant subset.
 3. per-task support engrams: the rows the task's validation and test
    families actually retrieve, ranked by retrieval count, up to the declared
    quota. This is the trajectory-critical cover, so a clean-room query reads
@@ -202,10 +208,25 @@ def build(workdir: Path, limit: int = SEED_ENGRAM_LIMIT) -> Dict[str, object]:
         cover_counts[task] = int(sum(counter.values()))
 
     traps = build_cul_de_sac_traps()
-    lookahead = LatentActionLookahead(
-        model, None, rotor=getattr(model, "action_rotor", None), transition="rotor",
-        lookahead_depth=2, gamma_look=0.02,
-    )
+    rotor = getattr(model, "action_rotor", None)
+    # Directive N3: the candidate pool that J1 reads is the union of the
+    # engrams the wall-masked depth-2 arm, the depth-1 arm and the unmasked
+    # depth-2 arm fetch on the eight Cul-de-Sac traps. Those rows are stored
+    # at full int16-phase / uint8-amplitude precision; a 12-bit neighbour
+    # nudged one unmasked control from trapped to escaped in Cycle M.
+    arms: Dict[str, LatentActionLookahead] = {
+        "masked": LatentActionLookahead(
+            model, None, rotor=rotor, transition="rotor",
+            lookahead_depth=2, gamma_look=0.02,
+        ),
+        "depth1": LatentActionLookahead(
+            model, None, rotor=rotor, transition="rotor", lookahead_depth=1,
+        ),
+        "unmasked": LatentActionLookahead(
+            model, None, rotor=rotor, transition="rotor",
+            lookahead_depth=2, gamma_look=0.02, mask_lookahead=False,
+        ),
+    }
     trap_pool: set = set()
     original_fetch = memory._fetch
 
@@ -213,38 +234,55 @@ def build(workdir: Path, limit: int = SEED_ENGRAM_LIMIT) -> Dict[str, object]:
         trap_pool.update(int(item) for item in ids)
         return original_fetch(ids, *args, **kwargs)
 
-    memory._fetch = recording_fetch
-    trap_actions: List[Dict[str, object]] = []
-    for trap in traps:
-        choice = lookahead.choose(trap["observation"], [])
-        trap_actions.append(
-            {
-                "id": str(trap["id"]),
-                "action": int(choice["action"]),
-                "bypass": int(trap["bypass_action"]),
-                "correct": bool(int(choice["action"]) == int(trap["bypass_action"])),
-            }
-        )
-    memory._fetch = original_fetch
-
-    hits: collections.Counter = collections.Counter()
+    trap_hits: set = set()
     original_query = memory.query
 
     def recording_query(wave, **kwargs):
         read = original_query(wave, **kwargs)
         for hit in read.hits:
+            trap_hits.add(int(hit.engram_id))
+        return read
+
+    memory._fetch = recording_fetch
+    memory.query = recording_query
+    trap_actions: List[Dict[str, object]] = []
+    for trap in traps:
+        actions: Dict[str, int] = {}
+        for name, arm in arms.items():
+            actions[name] = int(arm.choose(trap["observation"], [])["action"])
+        trap_actions.append(
+            {
+                "id": str(trap["id"]),
+                "action": int(actions["masked"]),
+                "bypass": int(trap["bypass_action"]),
+                "correct": bool(int(actions["masked"]) == int(trap["bypass_action"])),
+                "depth1_action": int(actions["depth1"]),
+                "unmasked_action": int(actions["unmasked"]),
+                "depth1_correct": bool(int(actions["depth1"]) == int(trap["bypass_action"])),
+                "unmasked_correct": bool(
+                    int(actions["unmasked"]) == int(trap["bypass_action"])
+                ),
+            }
+        )
+    memory._fetch = original_fetch
+    memory.query = original_query
+
+    hits: collections.Counter = collections.Counter()
+
+    def counting_query(wave, **kwargs):
+        read = original_query(wave, **kwargs)
+        for hit in read.hits:
             hits[int(hit.engram_id)] += 1
         return read
 
-    exact_ids: List[int] = []
-    if len(traps) >= 6:
-        trap_observation = torch.as_tensor(
-            np.asarray(traps[5]["observation"], dtype=np.float32)
-        ).reshape(1, -1)
-        trap_wave = model.encode("action", trap_observation).detach().numpy()[0]
-        trap_read = memory.query(trap_wave, k=6, task="action")
-        exact_ids = [int(hit.engram_id) for hit in trap_read.hits]
-    memory.query = recording_query
+    action_lo, action_hi = task_label_block("action")
+    exact_ids: List[int] = sorted(
+        int(engram)
+        for engram in trap_hits
+        if int(engram) in meta
+        and int(action_lo) <= int(meta[int(engram)][0]) < int(action_hi)
+    )
+    memory.query = counting_query
     task = tasks["action"]
     closed = evaluate_closed_loop_action(
         model, task, episodes=48, rotor=getattr(model, "action_rotor", None),
@@ -357,6 +395,14 @@ def build(workdir: Path, limit: int = SEED_ENGRAM_LIMIT) -> Dict[str, object]:
             "rows": int(len(action_ids)),
             "tier3": int(sum(1 for engram in action_ids if meta[engram][1] == 3)),
             "trap_pool": int(len(trap_pool)),
+            "trap_exact_rows": int(len(exact_ids)),
+            "trap_masked_correct": int(sum(1 for row in trap_actions if row["correct"])),
+            "trap_depth1_correct": int(
+                sum(1 for row in trap_actions if row["depth1_correct"])
+            ),
+            "trap_unmasked_correct": int(
+                sum(1 for row in trap_actions if row["unmasked_correct"])
+            ),
             "retrieved": int(len(hits)),
             "retrieved_total_hits": int(sum(hits.values())),
         },

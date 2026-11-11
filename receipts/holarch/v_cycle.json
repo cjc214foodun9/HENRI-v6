@@ -1,0 +1,88 @@
+{
+  "cycle": "V",
+  "head": "7d3522e3f55a999ff1edb84dbb44db2b3e2b6fdd",
+  "stages": {
+    "v1": {
+      "receipt": "receipts\\holarch\\v1_factored_turing_closure.json",
+      "sha256": "4533f9a9d1ca4074bce1ae79758a37e00f3cdf19db5eff4f6a436d9d4596fc99",
+      "passed": true,
+      "gate": {
+        "v1_capacity_exact_long": true,
+        "v1_margin_ge_0_40": true,
+        "v1_crosstalk_zero": true,
+        "v1_solved_ge_10": true,
+        "v1_generalized_ge_10": true,
+        "v1_length_generalized_ge_10": true,
+        "v1_zero_text_tokens": true,
+        "v1_contradictions_4": true,
+        "v1_two_cell_uncounted": true,
+        "v1_node_budget_respected": true,
+        "passed": true
+      },
+      "wall_seconds": 37.20309960003942
+    },
+    "v2": {
+      "receipt": "receipts\\holarch\\v2_fast_gauntlet.json",
+      "sha256": "c07e64b8e31bfeccac8f754c2bdbd384e53d98dbf7c1f991e3c46a7652231d3e",
+      "passed": false,
+      "gate": {
+        "v2_queries_224": true,
+        "v2_probe_slots_148": true,
+        "v2_reachable_1": false,
+        "v2_hallucination_0": true,
+        "v2_zero_query_reads": true,
+        "v2_receipt_chain_valid": true,
+        "v2_wall_seconds_le_180": true,
+        "v2_sweep_receipts_valid": true,
+        "v2_gauntlet_gate": false,
+        "passed": false
+      },
+      "wall_seconds": 0.0030809000600129366
+    },
+    "v3": {
+      "receipt": "receipts\\holarch\\v3_live_aaii_v5_arms.json",
+      "sha256": "35ec9b6daa95fb2e0f3b26e4fcd9bb962d418cff60217a59751a7754639fce1f",
+      "passed": false,
+      "gate": {
+        "v3_credential_resolved": true,
+        "v3_live_provider_roundtrip": true,
+        "v3_env_leaks_zero": true,
+        "v3_secret_in_receipt_false": true,
+        "v3_three_arm_suite_executed": false,
+        "passed": false
+      },
+      "wall_seconds": 5.404091799980961
+    },
+    "v4": {
+      "receipt": "receipts\\holarch\\v4_live_holon_plugin.json",
+      "sha256": "22b7f08159a486cf6b1f4e884346457d442ef9c1dd628ccbe2060dfb929c842c",
+      "passed": true,
+      "gate": {
+        "v4_runner_exit_zero": true,
+        "v4_seeds_accepted": true,
+        "v4_traps_refused": true,
+        "v4_zero_residue": true,
+        "v4_plan_store_committed": true,
+        "v4_accepted_plans_digested": true,
+        "v4_tier1_sheaf_live": true,
+        "passed": true
+      },
+      "wall_seconds": 12.50216310005635
+    },
+    "v5": {
+      "receipt": "receipts\\holarch\\v5_full_closure_ledger.json",
+      "sha256": "933661d2f671b0edb22edbf39b328329fe47d11ca0e8da02aa3bc11385c32cb1",
+      "passed": false,
+      "gate": {
+        "v5_t_cycle_passed": true,
+        "v5_u_cycle_passed": false,
+        "v5_consistency_exit_zero": true,
+        "v5_pytest_exit_zero": false,
+        "v5_per_command_ledger": true,
+        "passed": false
+      },
+      "wall_seconds": 505.4069374999963
+    }
+  },
+  "passed": false
+}

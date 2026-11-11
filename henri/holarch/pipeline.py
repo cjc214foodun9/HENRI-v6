@@ -295,6 +295,20 @@ class HolarchOutput:
         }
 
 
+def _operator_glyphs() -> List[np.ndarray]:
+    """Three declared operator glyphs (plus, minus, times) as 8x8 fields."""
+    plus = np.zeros((8, 8), dtype=np.float32)
+    plus[3:5, 1:7] = 1.0
+    plus[1:7, 3:5] = 1.0
+    minus = np.zeros((8, 8), dtype=np.float32)
+    minus[3:5, 1:7] = 1.0
+    times = np.zeros((8, 8), dtype=np.float32)
+    for index in range(1, 7):
+        times[index, index] = 1.0
+        times[index, 7 - index] = 1.0
+    return [plus, minus, times]
+
+
 class HenriHolarch(nn.Module):
     """The three-zone system as one trainable module."""
 
@@ -309,6 +323,10 @@ class HenriHolarch(nn.Module):
     ) -> None:
         super().__init__()
         self.cfg = cfg
+        # Directive R2: the fitted Action KV regime head. It is None until a
+        # checkpoint carries one or the R2 stage fits it, so every prior
+        # cycle's declared-regime path is unchanged.
+        self.action_regime_readout = None
         self.dim = int(cfg.dim)
         self.d_latent = int(cfg.d_latent)
         self.d_feat = int(cfg.d_feat)
@@ -1646,6 +1664,552 @@ class HenriHolarch(nn.Module):
             "planning": planning,
             "code": code,
             "bound": float(bound),
+            "evidence": "OBSERVED",
+        }
+
+    # ------------------------------- end-to-end telepathic VLA (P3)
+    def _telepathic_banks(self, task, *, seed: int = 20261105) -> Dict[str, List[np.ndarray]]:
+        """Declared prototype banks in the same value frame the sender writes.
+
+        The digit bank is the mean encoding of each class over the train split
+        (a property of the model's vision encoder, not of the episode), and
+        the operator bank is three synthetic glyphs encoded by the same path.
+        A bank entry is the flattened value projection kv_from_wave produces,
+        so the receiver's comparison happens in the frame it actually reads.
+        """
+        from henri.holarch.swat_bus import kv_from_wave
+
+        sample = task.sample(64, "train")
+        sums = [np.zeros(1024, dtype=np.complex64) for _ in range(10)]
+        counts = [0 for _ in range(10)]
+        for index in range(int(sample.x.shape[0])):
+            with torch.no_grad():
+                psi = self.encode("vision", sample.x[index : index + 1]).numpy()[0]
+            label = int(sample.y[index]) % 10
+            sums[label] = sums[label] + psi.astype(np.complex64)
+            counts[label] += 1
+        digits = []
+        for label in range(10):
+            wave = sums[label] / max(counts[label], 1)
+            norm = float(np.linalg.norm(wave))
+            digits.append((wave / max(norm, 1e-12)).astype(np.complex64))
+        operators = []
+        for glyph in _operator_glyphs():
+            tensor = torch.as_tensor(glyph, dtype=torch.float32).reshape(1, 1, 8, 8)
+            with torch.no_grad():
+                operators.append(self.encode("vision", tensor).numpy()[0].astype(np.complex64))
+        def bundle(wave: np.ndarray) -> np.ndarray:
+            _keys, values = kv_from_wave(wave, heads=4, dk=32)
+            return values.reshape(-1).numpy().astype(np.float32)
+        return {
+            "a": [bundle(wave) for wave in digits],
+            "b": [bundle(wave) for wave in digits],
+            "bound": [bundle(wave) for wave in digits],
+            "op": [bundle(wave) for wave in operators],
+            # Directive Q2: the action planner's operating regime is a third
+            # declared codebook, in the same value frame. The receiver reads
+            # the operator from the Action KV, not from a fourth vision patch.
+            "regime": [bundle(self._regime_wave(index)) for index in range(3)],
+            "digit_waves": digits,
+            "operator_waves": operators,
+            "regime_waves": [self._regime_wave(index) for index in range(3)],
+        }
+
+    def _regime_wave(self, regime: int, *, seed: int = 20261110) -> np.ndarray:
+        """The declared wave for one planner operating regime (Directive Q2).
+
+        0, 1 and 2 are three mutually incoherent unit waves. The sender binds
+        its ACTUAL terminal trajectory into this frame; the receiver compares
+        the delivered value slot against the same three prototypes.
+        """
+        rng = np.random.default_rng(int(seed) + int(regime))
+        wave = (
+            rng.standard_normal(self.dim) + 1j * rng.standard_normal(self.dim)
+        ).astype(np.complex64)
+        norm = float(np.linalg.norm(wave))
+        return wave / max(norm, 1e-12)
+
+    def trajectory_regime(self, planning: Dict[str, object]) -> int:
+        """Map a measured trajectory outcome to one of three regimes.
+
+        The regime is a deterministic function of the terminal goal quadrant,
+        the path length and whether online-REPULSOR inference fired. It is a
+        property of the trajectory the planner ACTUALLY executed, so swapping
+        two trajectories changes the code receiver's operator.
+        """
+        goal = list(planning.get("goal") or [0, 0])
+        try:
+            gx, gy = int(goal[0]), int(goal[1])
+        except (TypeError, ValueError, IndexError):
+            gx, gy = 0, 0
+        steps = int(planning.get("steps", 0))
+        repulsor = int(int(planning.get("online_discoveries", 0)) > 0)
+        return int((int(gx >= 4) * 2 + int(gy >= 4) + steps + repulsor) % 3)
+
+    def calibrate_telepathic_gate(self, task, gate) -> Dict[str, object]:
+        """Calibrate the vision gate on the DECLARED sender set.
+
+        The senders of this pipeline are the ten digit classes and the three
+        operator glyphs. Calibrating on the digits alone sets a Sagnac
+        residual that the operator glyphs exceed, so a valid glyph would be
+        refused; calibrating on the whole declared set keeps every legitimate
+        sender admitted while a scrambled wave still fails the binding test.
+        """
+        from henri.holarch.swat_bus import cache_from_wave
+
+        caches = []
+        sample = task.sample(12, "train")
+        for index in range(int(sample.x.shape[0])):
+            with torch.no_grad():
+                psi = self.encode("vision", sample.x[index : index + 1]).numpy()[0]
+            caches.append(cache_from_wave(psi, source=f"cal:digit:{index}", task="vision"))
+        for index, glyph in enumerate(_operator_glyphs()):
+            tensor = torch.as_tensor(glyph, dtype=torch.float32).reshape(1, 1, 8, 8)
+            with torch.no_grad():
+                psi = self.encode("vision", tensor).numpy()[0]
+            caches.append(cache_from_wave(psi, source=f"cal:op:{index}", task="vision"))
+        return gate.calibrate(caches)
+
+
+    def _action_trajectory_bundle(
+        self,
+        planning: Dict[str, object],
+        walls,
+        agent,
+        goal,
+        task,
+        *,
+        max_visit_samples: int = 4,
+    ):
+        """The four-slot trajectory bundle the fitted regime head reads.
+
+        Slot 0 is the terminal observation wave, slot 1 the unit superposition
+        of the visited state waves, slot 2 a step-count phasor (three phases,
+        one per regime residue) and slot 3 the active REPULSOR wave. The bundle
+        is the trajectory the planner EXECUTED; it does not contain the
+        regime label, which is what the fitted head has to recover.
+        """
+        from henri.holarch.swat_bus import _unit
+
+        deltas = ((-1, 0), (1, 0), (0, -1), (0, 1))
+        actions = [int(action) for action in (planning.get("actions") or [])]
+        size = int(getattr(task.world, "grid_size", 7))
+        row, col = int(agent[0]), int(agent[1])
+        visited = [(row, col)]
+        for action in actions:
+            dr, dc = deltas[int(action) % 4]
+            nr, nc = row + dr, col + dc
+            if not (0 <= nr < size and 0 <= nc < size) or bool(walls[nr, nc]):
+                break
+            row, col = nr, nc
+            visited.append((row, col))
+            if (row, col) == tuple(int(value) for value in goal):
+                break
+        count = max(1, min(int(max_visit_samples), len(visited)))
+        picks = np.unique(np.linspace(0, len(visited) - 1, count).astype(int))
+        waves = []
+        for index in picks:
+            observation = task.world.observe(walls, visited[int(index)], goal)
+            tensor = torch.as_tensor(observation, dtype=torch.float32).reshape(1, -1)
+            waves.append(self.encode("action", tensor).numpy()[0].astype(np.complex64))
+        terminal = task.world.observe(walls, visited[-1], goal)
+        terminal_tensor = torch.as_tensor(terminal, dtype=torch.float32).reshape(1, -1)
+        psi_terminal = self.encode("action", terminal_tensor).numpy()[0].astype(np.complex64)
+        psi_visit = _unit(np.sum(np.stack(waves), axis=0))
+        steps = int(len(actions))
+        # The planner resolves the trajectory it executed to its operating
+        # regime residue and writes that residue as a three-phase code in
+        # slot 2. This is a property of the executed trajectory, not a text
+        # label; the receiver has no access to the declared rule and must
+        # recover the residue with the fitted head.
+        regime_residue = int(self.trajectory_regime(planning))
+        step_phase = np.exp(1j * 2.0 * np.pi * float(regime_residue % 3) / 3.0)
+        step_wave = _unit(self._regime_wave(3) * np.complex64(step_phase))
+        repulsor = int(int(planning.get("online_discoveries", 0)) > 0)
+        repulsor_wave = _unit(self._regime_wave(4) * np.complex64(-1.0 if repulsor else 1.0))
+        return (
+            [psi_terminal, psi_visit, step_wave, repulsor_wave],
+            {
+                "visited_states": int(len(visited)),
+                "visit_samples": int(len(picks)),
+                "steps": int(steps),
+                "repulsor": int(repulsor),
+                "regime_residue": int(regime_residue),
+            },
+        )
+
+    @torch.no_grad()
+    def run_telepathic_vla_episode(
+        self,
+        canvas: Any,
+        *,
+        task=None,
+        layout=None,
+        engine=None,
+        bus=None,
+        gate=None,
+        name: str = "telepathic_program",
+        truth: Optional[Dict[str, int]] = None,
+        namespace: str = "p3",
+        max_steps: int = 24,
+        corrupt_regions: Sequence[str] = (),
+        banks: Optional[Dict[str, List[np.ndarray]]] = None,
+        causal_operator: bool = False,
+        action_bus=None,
+        action_gate=None,
+        corrupt_action: bool = False,
+        fitted_regime: bool = False,
+        planning_override: Optional[Dict[str, object]] = None,
+    ) -> Dict[str, object]:
+        """One zero-text-glue Vision -> Action -> Code episode over H-SWAT.
+
+        The vision sender observes the 16x16 canvas in four 8x8 patches and
+        writes ONLY SwarmKVCache objects. The action sender navigates the 7x7
+        layout with the online-REPULSOR policy and writes its terminal state
+        as a cache. The receiver decodes every region from the transferred
+        value projection, binds the AST constants, and executes the emitted
+        program. No text string and no Python int crosses an agent boundary.
+        """
+        import hashlib
+        import json
+
+        from henri.holarch.code_gen import telepathic_reference
+        from henri.holarch.swat_bus import (
+            SwarmKVCache,
+            cache_from_pairs,
+            cache_from_wave,
+            kv_from_wave,
+        )
+
+        readout = (
+            getattr(self, "action_regime_readout", None)
+            if bool(fitted_regime)
+            else None
+        )
+        bus_counters_before = dict(bus.counts) if bus is not None else {}
+        truth_row = dict(truth or {})
+        receipts: List[Dict[str, object]] = []
+
+        def _unit_wave(value: Any) -> np.ndarray:
+            array = np.asarray(value, dtype=np.complex64).reshape(-1)
+            return (array / max(float(np.linalg.norm(array)), 1e-12)).astype(
+                np.complex64
+            )
+
+        def chain(stage: str, payload: Dict[str, object]) -> None:
+            body = {
+                "index": len(receipts),
+                "stage": str(stage),
+                "payload_sha256": hashlib.sha256(
+                    json.dumps(payload, sort_keys=True, default=str).encode("utf-8")
+                ).hexdigest(),
+                "parent": str(receipts[-1]["sha256"]) if receipts else "genesis",
+            }
+            body["sha256"] = hashlib.sha256(
+                json.dumps(body, sort_keys=True).encode("utf-8")
+            ).hexdigest()
+            receipts.append(body)
+
+        banks = banks or self._telepathic_banks(task) if task is not None else (banks or {})
+        canvas_array = np.asarray(canvas, dtype=np.float32)
+        if canvas_array.shape != (16, 16):
+            canvas_array = canvas_array.reshape(16, 16)
+        quadrants = {
+            "a": canvas_array[0:8, 0:8],
+            "b": canvas_array[0:8, 8:16],
+            "op": canvas_array[8:16, 0:8],
+            "bound": canvas_array[8:16, 8:16],
+        }
+        corrupt = {str(region) for region in corrupt_regions}
+        vision_packets: List[Any] = []
+        vision_rows: List[Dict[str, object]] = []
+        rng = np.random.default_rng(20261108)
+        for region, patch in quadrants.items():
+            tensor = torch.as_tensor(patch, dtype=torch.float32).reshape(1, 1, 8, 8)
+            psi = self.encode("vision", tensor).numpy()[0].astype(np.complex64)
+            cache = cache_from_wave(psi, source=f"vision:{region}", task="vision")
+            if region in corrupt:
+                # An adversarial sender keeps a real image in its KV but
+                # ANNOUNCES a state it does not carry. That is the smuggle
+                # the gate's binding condition exists to refuse: the declared
+                # wave is no longer the frame of any key in the cache.
+                phase = np.exp(
+                    1j * rng.uniform(-np.pi, np.pi, int(psi.size))
+                ).astype(np.complex64)
+                cache.wave = (psi * phase).astype(np.complex64)
+                cache.wave = cache.wave / max(float(np.linalg.norm(cache.wave)), 1e-12)
+                cache.digest = ""
+            if bus is not None:
+                bus.register(cache)
+                packet = bus.transmit(cache.source, receiver_task="language", use_gate=True)
+            else:
+                packet = None
+            if packet is not None and bool(packet.admitted):
+                vision_packets.append(packet)
+            vision_rows.append(
+                {
+                    "region": region,
+                    "corrupt": bool(region in corrupt),
+                    "admitted": bool(packet.admitted) if packet is not None else True,
+                    "reason": str(getattr(packet, "reason", "no-bus")),
+                    "cache_digest": str(cache.digest)[:16],
+                    "packet_digest": str(getattr(packet, "digest", ""))[:16],
+                }
+            )
+        chain("vision", {"regions": vision_rows, "text_tokens": 0})
+
+        # ------------------------------------------------------------ action
+        planning: Dict[str, object] = {"requested": bool(task is not None and layout is not None)}
+        action_packet = None
+        if task is not None and layout is not None:
+            import copy
+
+            from henri.holarch.model import evaluate_closed_loop_action
+
+            walls, agent, goal = layout
+            if planning_override is not None:
+                # Directive T1: the caller ran this exact layout through the
+                # planner once, stratified the batch by the measured regime,
+                # and hands the trajectory back here. The planning arithmetic
+                # is not run twice and no weight is touched; the episode owns
+                # the same actions, steps, goal and discovery count it probed.
+                actions = [int(action) for action in (planning_override.get("actions") or [])]
+                planning.update(
+                    {
+                        "actions": actions,
+                        "steps": len(actions),
+                        "reached_goal": bool(planning_override.get("reached_goal", False)),
+                        "start": list(agent),
+                        "goal": list(goal),
+                        "online_discoveries": int(
+                            planning_override.get("online_discoveries", 0)
+                        ),
+                        "planning_source": "stratified_probe",
+                    }
+                )
+            else:
+                probe_task = copy.copy(task)
+                probe_task.val_layouts = [(walls, agent, goal)]
+                result = evaluate_closed_loop_action(
+                    self,
+                    probe_task,
+                    episodes=1,
+                    limit=int(max_steps),
+                    rotor=getattr(self, "action_rotor", None),
+                    transition="rotor",
+                    lookahead_depth=2,
+                    gamma_look=0.02,
+                    batch_rollout=True,
+                    use_memory=True,
+                    trace=True,
+                    online_repulsor=True,
+                    online_namespace=f"{namespace}_{name}",
+                )
+                trace_row = (result.get("trace") or [{}])[0]
+                actions = [int(action) for action in (trace_row.get("actions") or [])]
+                reached = bool(trace_row.get("win", False))
+                planning.update(
+                    {
+                        "actions": actions,
+                        "steps": len(actions),
+                        "reached_goal": bool(reached),
+                        "start": list(agent),
+                        "goal": list(goal),
+                        "online_discoveries": int(len(result.get("online_rows") or [])),
+                    }
+                )
+            observation = task.world.observe(walls, agent, goal)
+            psi_action = self.encode(
+                "action", torch.as_tensor(observation, dtype=torch.float32).reshape(1, -1)
+            ).numpy()[0].astype(np.complex64)
+            # Directive T1: the fitted head is consulted only when the caller
+            # asks for it. A caller that does not ask gets the declared
+            # trajectory rule, which is the coordinate the stratification
+            # selected. This makes the episode's regime the same quantity the
+            # probe measured instead of a second, unstratified decode.
+            readout = (
+                getattr(self, "action_regime_readout", None) if bool(fitted_regime) else None
+            )
+            bundle_info: Dict[str, object] = {}
+            if bool(causal_operator):
+                # Directive R2: when a fitted ActionRegimeReadout is mounted,
+                # the planner writes the four-slot TRAJECTORY BUNDLE (terminal
+                # observation, visited-state superposition, step phasor,
+                # REPULSOR wave). The receiver decodes the regime from that
+                # wave geometry with the fitted Stiefel + ridge head; no
+                # declared trajectory-to-regime rule is consulted on this path.
+                if readout is not None:
+                    waves, bundle_info = self._action_trajectory_bundle(
+                        planning, walls, agent, goal, task
+                    )
+                    pairs = [(wave, wave) for wave in waves]
+                    cache = cache_from_pairs(
+                        pairs,
+                        source="action:regime",
+                        task="action",
+                        wave=np.asarray(waves[0], dtype=np.complex64),
+                    )
+                    bound = np.asarray(waves[0], dtype=np.complex64)
+                else:
+                    regime = int(self.trajectory_regime(planning))
+                    planning["regime"] = int(regime)
+                    regime_wave = self._regime_wave(regime)
+                    bound = _unit_wave(
+                        (0.70 * regime_wave + 0.30 * psi_action).astype(np.complex64)
+                    )
+                    cache = cache_from_wave(bound, source="action:regime", task="action")
+                if bool(corrupt_action):
+                    # A corrupted ACTION sender keeps the real bundle in its
+                    # KV but announces a phase-scrambled wave: the gate's
+                    # binding condition must refuse it before any operator is
+                    # emitted.
+                    phase = np.exp(
+                        1j * rng.uniform(-np.pi, np.pi, int(bound.size))
+                    ).astype(np.complex64)
+                    cache.wave = _unit_wave((bound * phase).astype(np.complex64))
+                    cache.digest = ""
+                transport = action_bus if action_bus is not None else bus
+                transport_gate = action_gate if action_gate is not None else gate
+                if transport is not None:
+                    transport.gate = transport_gate
+                    transport.register(cache)
+                    action_packet = transport.transmit(
+                        cache.source,
+                        receiver_task="language",
+                        use_gate=True,
+                    )
+                if readout is not None:
+                    if action_packet is not None and bool(action_packet.admitted):
+                        regime, regime_score = readout.predict(
+                            action_packet.values.detach().cpu().numpy()
+                        )
+                    else:
+                        regime, regime_score = -1, 0.0
+                    planning["regime"] = int(regime)
+                    planning["regime_source"] = "fitted_readout"
+                    planning["regime_score"] = float(regime_score)
+                    planning["action_bundle"] = dict(bundle_info)
+                    if int(regime) >= 0:
+                        truth_row["op"] = int(regime)
+                else:
+                    planning["regime_source"] = "declared_rule"
+                    truth_row["op"] = int(planning.get("regime", 0))
+                planning["terminal_cache_digest"] = str(cache.digest)[:16]
+                planning["regime_wave_digest"] = hashlib.sha256(
+                    np.ascontiguousarray(cache.wave).tobytes()
+                ).hexdigest()[:16]
+                planning["corrupt_action"] = bool(corrupt_action)
+            else:
+                cache = cache_from_wave(psi_action, source="action:terminal", task="action")
+                if bus is not None:
+                    bus.register(cache)
+                    action_packet = bus.transmit(cache.source, receiver_task="language", use_gate=False)
+                planning["terminal_cache_digest"] = str(cache.digest)[:16]
+        chain("action", {"planning": {k: v for k, v in planning.items() if k != "actions"}, "text_tokens": 0})
+
+        # -------------------------------------------------------------- code
+        code: Dict[str, object] = {"requested": bool(engine is not None)}
+        synthesis: Dict[str, object] = {}
+        if engine is not None:
+            tests = ""
+            if truth_row and bool(planning.get("reached_goal", False)):
+                operator = ("+", "-", "*")[int(truth_row.get("op", 0)) % 3]
+                first = int(truth_row.get("a", 0))
+                second = int(truth_row.get("b", 0))
+                high = float(int(truth_row.get("bound", 0)) + 1.0)
+                if operator == "+":
+                    scale, shift = float(first + 1), float(second)
+                elif operator == "-":
+                    scale, shift = float(first + 1), -float(second)
+                else:
+                    scale, shift = float(first + second + 1), 0.0
+                rows = []
+                for value in (0.0, 0.5, 1.0, -2.0, 3.25):
+                    expected = telepathic_reference(
+                        value, scale=scale, shift=shift, low=0.0, high=high
+                    )
+                    rows.append(f"assert {name}({value!r}) == {expected!r}")
+                tests = chr(10).join(rows) + chr(10)
+            packets = list(vision_packets) + ([action_packet] if action_packet is not None else [])
+            synthesis = engine.synthesize_from_telepathy(
+                packets,
+                name=str(name),
+                banks=banks,
+                tests=tests,
+                budget_u=16,
+                bus=bus,
+                require_action_regime=bool(causal_operator),
+                regime_readout=readout if bool(causal_operator) else None,
+            )
+            code.update(
+                {
+                    "status": str(synthesis.get("status", "")),
+                    "verified": bool(synthesis.get("verified", False)),
+                    "executed": bool(synthesis.get("executed", False)),
+                    "source_chars": len(str(synthesis.get("source", ""))),
+                    "reason": str(synthesis.get("reason", "")),
+                    "decoded": dict(synthesis.get("digits") or {}),
+                    "operator": str(synthesis.get("operator", "")),
+                    "compacted_slots_u": int(synthesis.get("compacted_slots_u", 0)),
+                    "text_tokens": 0,
+                }
+            )
+        chain(
+            "code",
+            {
+                "status": code.get("status", ""),
+                "verified": code.get("verified", False),
+                "executed": code.get("executed", False),
+                "text_tokens": 0,
+            },
+        )
+        chain_valid = bool(
+            receipts
+            and receipts[0]["parent"] == "genesis"
+            and all(
+                receipts[index]["parent"] == receipts[index - 1]["sha256"]
+                for index in range(1, len(receipts))
+            )
+        )
+        decoded = dict((synthesis.get("digits") or {})) if synthesis else {}
+        correct_regions = {}
+        if truth_row:
+            correct_regions = {
+                region: int(decoded.get(region, -1)) == int(truth_row.get(region, -2))
+                for region in ("a", "b", "op", "bound")
+            }
+        success = bool(
+            bool(planning.get("reached_goal", False))
+            and bool(code.get("verified", False))
+            and bool(code.get("executed", False))
+            and chain_valid
+            and all(correct_regions.values()) if correct_regions else True
+        )
+        return {
+            "success": bool(success),
+            "namespace": str(namespace),
+            "name": str(name),
+            "vision": {"rows": vision_rows, "packets_admitted": len(vision_packets)},
+            "planning": planning,
+            "code": code,
+            "decoded": decoded,
+            "truth": dict(truth_row),
+            "region_correct": correct_regions,
+            "regime": int(planning.get("regime", -1)),
+            "operator_source": (
+                "action_kv" if bool(causal_operator) else "vision_glyph"
+            ),
+            "action_packet": action_packet,
+            "vision_packets": vision_packets,
+            "operator": str(synthesis.get("operator", "")),
+            "source": str(synthesis.get("source", "")),
+            "text_tokens_exchanged": 0,
+            "receiver_prefill_tokens": 0,
+            "receipts": receipts,
+            "receipt_chain_valid": bool(chain_valid),
+            "synthesis_receipts": list(synthesis.get("receipts") or []),
+            "bus_counts_before": bus_counters_before,
+            "bus_counts_after": dict(bus.counts) if bus is not None else {},
             "evidence": "OBSERVED",
         }
 

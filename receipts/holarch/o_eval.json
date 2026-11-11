@@ -1,0 +1,18 @@
+{
+  "stage": "EVAL",
+  "receipt": {
+    "path": "receipts\\holarch\\agent_eval.json",
+    "sha256": "bd6dee60cfb79a13eec99b1220f7f9e4871fb228970a0124e1b9d5f9ce9b2f53",
+    "bytes": 238130
+  },
+  "total_queries": 176,
+  "returncode": 0,
+  "gate": {
+    "queries_128": true,
+    "gates_passed": true,
+    "exit_zero": true,
+    "passed": true
+  },
+  "wall_seconds": 614.7829486998962,
+  "evidence": "OBSERVED"
+}

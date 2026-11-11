@@ -170,9 +170,27 @@ def seed_engram_payload(
     stacked = np.stack(waves).astype(np.complex64)
     dim = int(stacked.shape[1])
     label_array = np.asarray(labels, dtype=np.int64)
-    action_index = np.flatnonzero((label_array >= 106) & (label_array < 110)).astype(np.int64)
+    # Directive N3: the trap-critical rows are stored once, at full precision.
+    # They are removed from the delta-packed action block and the int8 support
+    # block before those blocks are assembled, so the cartridge pays one copy
+    # of each row rather than one packed copy plus one exact copy.
+    exact_set = {int(value) for value in exact_ids}
+    exact_index = np.asarray(
+        [
+            position
+            for position, row in enumerate(rows)
+            if int(row.get("engram_id", -1)) in exact_set
+        ],
+        dtype=np.int64,
+    )
+    exact_lookup = np.zeros(len(rows), dtype=bool)
+    if int(exact_index.size):
+        exact_lookup[exact_index] = True
+    action_index = np.flatnonzero(
+        (label_array >= 106) & (label_array < 110) & (~exact_lookup)
+    ).astype(np.int64)
     support_index = np.flatnonzero(
-        ~((label_array >= 106) & (label_array < 110))
+        ~((label_array >= 106) & (label_array < 110)) & (~exact_lookup)
     ).astype(np.int64)
 
     action_payload = b""
@@ -244,15 +262,6 @@ def seed_engram_payload(
             9,
         )
 
-    exact_set = {int(value) for value in exact_ids}
-    exact_index = np.asarray(
-        [
-            position
-            for position, row in enumerate(rows)
-            if int(row.get("engram_id", -1)) in exact_set
-        ],
-        dtype=np.int64,
-    )
     exact_payload = b""
     if int(exact_index.size):
         exact_waves = stacked[exact_index]
@@ -298,9 +307,11 @@ def seed_engram_payload(
         "dim": int(stacked.shape[1]),
         "namespace": namespaces[0] if namespaces else "default",
         "source_sha256": str(rows[0].get("source_sha256", "")) if rows else "",
-        "dtype": "v3-action-int12-sqrt4-support-int8-zlib9",
+        "dtype": "v3-action-int12-sqrt4-support-int8-exact16-zlib9",
         "compression": "zlib-9",
-        "action_rows": int(action_index.size),
+        "action_rows": int(np.count_nonzero((label_array >= 106) & (label_array < 110))),
+        "action_packed_rows": int(action_index.size),
+        "action_exact_rows": int(exact_index.size),
         "action_proto_count": int(action_proto_labels.size),
         "support_rows": int(support_index.size),
     }
@@ -733,6 +744,20 @@ def load_checkpoint(
         model.action_rotor = rotor
     except Exception:  # pragma: no cover - a frozen module is not expected
         pass
+    # Directive R2: restore the fitted Action KV regime head. It is a plain
+    # numpy readout carried beside the weights, so the checkpoint stays a
+    # tensor-only payload for torch.load(weights_only=True).
+    try:
+        from henri.holarch.code_gen import ActionRegimeReadout
+
+        readout_state = payload.get("action_regime_readout")
+        model.action_regime_readout = (
+            ActionRegimeReadout.from_state(readout_state)
+            if readout_state
+            else None
+        )
+    except Exception:  # pragma: no cover - an older checkpoint has none
+        model.action_regime_readout = None
     # Directive J1: the checkpoint carries its own Zone C context chart. A
     # mount into a store that holds zero rows hydrates the distilled engrams
     # into the default namespace, so the planner's psi_fused wave is the wave
@@ -748,7 +773,7 @@ def load_checkpoint(
     metadata = {
         key: value
         for key, value in payload.items()
-        if key not in {"state_dict", "rotor", "seed_engrams"}
+        if key not in {"state_dict", "rotor", "seed_engrams", "action_regime_readout"}
     }
     metadata["rotor"] = dict(getattr(rotor, "state", lambda: {})()) if rotor is not None else None
     metadata["seed_engrams"] = {

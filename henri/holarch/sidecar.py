@@ -29,7 +29,7 @@ import tempfile
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional, Sequence, Tuple
+from typing import Callable, Dict, Iterable, List, Optional, Sequence, Tuple
 
 import numpy as np
 import torch
@@ -107,6 +107,10 @@ class EpistemicSidecar:
         # impact and code verification now select by namespace.
         self._indexers: Dict[str, CodeGraphIndexer] = {}
         self._engine = None
+        # Directive Q4: one warm engine per (root, namespace). A discovery
+        # tick must not refit the corpus; the entry is invalidated only when
+        # the state epoch advances on a code or vocabulary mutation.
+        self._engines: Dict[Tuple[str, str], Dict[str, object]] = {}
         path = memory_path or str(
             Path(tempfile.gettempdir()) / f"henri_sidecar_{int(time.time())}.sqlite3"
         )
@@ -117,6 +121,48 @@ class EpistemicSidecar:
         self.decoder = SymbolicDecoder()
         self.playbooks: Dict[str, Playbook] = {}
         self.index_report: Dict[str, float] = {}
+        # Directive N1: one monotonic state epoch per sidecar. Every method
+        # that changes what a read would answer advances it, and the service
+        # cache key includes it, so a direct sidecar mutation (for example
+        # the delta ingest the gauntlet calls without the service wrapper)
+        # cannot leave a stale read behind.
+        self.state_epoch: int = 0
+        # The resident synthesis engine depends on the corpus and the locked
+        # vocabulary, not on Zone C rows. A memory write must not force a
+        # corpus re-parse; a code or vocabulary ingest still does.
+        self._engine_epoch: int = 0
+        self._state_listeners: List[Callable[[], None]] = []
+
+    # ------------------------------------------------------- state epoch
+    def add_state_listener(self, listener: Callable[[], None]) -> None:
+        """Register a callback that runs after every state mutation."""
+        if listener not in self._state_listeners:
+            self._state_listeners.append(listener)
+
+    def note_state_change(self, invalidate_engines: bool = False) -> None:
+        """Advance the epoch, then tell every registered cache to drop."""
+        self.state_epoch = int(self.state_epoch) + 1
+        # Directive O2: the shared database epoch is what a sibling lane
+        # reads, so a mutation in this process invalidates every lane.
+        memory = getattr(self.model, "memory", None)
+        bumper = getattr(memory, "bump_state_epoch", None)
+        if bumper is not None:
+            try:
+                bumper()
+            except Exception:
+                pass
+        # A code or vocabulary mutation invalidates every warm resident
+        # engine: the tokenizer, the projector and the plan store are all
+        # properties of the corpus the epoch just moved. A Zone C write does
+        # not, so it leaves the engine resident.
+        if invalidate_engines:
+            self._engines.clear()
+            self._engine_epoch = int(self._engine_epoch) + 1
+        for listener in list(self._state_listeners):
+            try:
+                listener()
+            except Exception:
+                continue
 
     # ------------------------------------------------------- 1. structural
     def ingest_edges(
@@ -142,6 +188,7 @@ class EpistemicSidecar:
         }
         if calibrate and edges:
             report.update(self.solver.calibrate(edges, namespace=str(namespace)))
+        self.note_state_change()
         return report
 
     def ingest_code(
@@ -181,6 +228,7 @@ class EpistemicSidecar:
             self.index_report["delta"] = 1.0
             self.index_report["delta_seconds"] = float(report.seconds)
             self.index_report["delta_updated"] = float(len(report.updated))
+            self.note_state_change(invalidate_engines=True)
             return dict(self.index_report)
         indexer = CodeGraphIndexer(
             self.model.memory, namespace=str(namespace), symbol_codebook=self.codebook
@@ -191,6 +239,7 @@ class EpistemicSidecar:
         graph_edges = list(indexer.graph.edges)
         ingest = self.ingest_edges(graph_edges, namespace=str(namespace))
         self._absorb_index_report(report)
+        self.note_state_change(invalidate_engines=True)
         return {**self.index_report, **ingest}
 
     def mount_indexer(self, indexer, namespace: str = "default") -> Dict[str, object]:
@@ -203,6 +252,7 @@ class EpistemicSidecar:
         self._indexers[str(namespace)] = indexer
         if self.indexer is None:
             self.indexer = indexer
+        self.note_state_change(invalidate_engines=True)
         return {
             "namespace": str(namespace),
             "files": int(getattr(indexer.report, "files", 0)),
@@ -232,6 +282,10 @@ class EpistemicSidecar:
         indexer = self._indexers.get(str(namespace)) or self.indexer
         if indexer is None:
             indexer = CodeGraphIndexer.from_memory(self.model.memory, str(namespace))
+            if indexer is not None:
+                # Memoise the restored index. A sibling-lane mutation clears
+                # it on the next read, so the memo cannot outlive the graph.
+                self._indexers[str(namespace)] = indexer
         if indexer is None:
             raise ValueError("no code index in memory for this namespace")
         result = indexer.impact(target, hops=int(hops))
@@ -328,6 +382,7 @@ class EpistemicSidecar:
             namespace=str(namespace),
         )
         self.playbooks[name] = Playbook(name=name, steps=merged, version=version)
+        self.note_state_change()
         return {
             "steps": float(len(merged)),
             "version": float(version),
@@ -403,6 +458,7 @@ class EpistemicSidecar:
             output = self.model(task, x, training=False, rule_id=rule_id)
             gate = self.model.plasticity_gate(output)
             self.model.fast_learn(output, y.long(), lr=float(lr))
+        self.note_state_change()
         return {
             "gate_mean": float(gate.mean()),
             "surprise_mean": float(
@@ -432,25 +488,43 @@ class EpistemicSidecar:
         return result
 
     def _ensure_engine(self, namespace: str = "default"):
-        """Build the synthesis stack once, using this tenant's code index."""
-        if self._engine is None:
-            from henri.holarch.code_gen import build_synthesis_engine
+        """Return the WARM resident synthesis stack for one tenant (Q4).
 
-            symbols = set()
-            signatures = {}
-            indexer = self._indexers.get(str(namespace)) or self.indexer
-            if indexer is not None:
-                symbols |= indexer.symbol_names()
-                signatures = dict(indexer.signatures)
-            engine, stats = build_synthesis_engine(
-                self.root,
-                self.model.memory,
-                namespace=str(namespace),
-                symbol_table=symbols,
-                signatures=signatures,
-            )
-            self._engine = engine
-            self._engine_stats = stats
+        Directive Q4. The old method kept one slot and ignored the namespace,
+        so a second tenant silently replaced the first, and a caller with no
+        warm slot paid a corpus fit inside the request. The cache is keyed by
+        (resolved root, namespace) and stamped with the state epoch; a code or
+        vocabulary mutation clears it, and every other read is a dictionary
+        hit.
+        """
+        key = (str(self.root.resolve()), str(namespace))
+        cached = self._engines.get(key)
+        if cached is not None and int(cached.get("epoch", -1)) == int(self._engine_epoch):
+            self._engine = cached["engine"]
+            self._engine_stats = cached["stats"]
+            return self._engine
+        from henri.holarch.code_gen import build_synthesis_engine
+
+        symbols = set()
+        signatures = {}
+        indexer = self._indexers.get(str(namespace)) or self.indexer
+        if indexer is not None:
+            symbols |= indexer.symbol_names()
+            signatures = dict(indexer.signatures)
+        engine, stats = build_synthesis_engine(
+            self.root,
+            self.model.memory,
+            namespace=str(namespace),
+            symbol_table=symbols,
+            signatures=signatures,
+        )
+        self._engines[key] = {
+            "engine": engine,
+            "stats": stats,
+            "epoch": int(self._engine_epoch),
+        }
+        self._engine = engine
+        self._engine_stats = stats
         return self._engine
 
     def _verify_vocabulary_claim(self, text: str, namespace: str = "default") -> Dict[str, object]:
@@ -524,7 +598,9 @@ class EpistemicSidecar:
             self.synthesize("warmup", kind="text", namespace=namespace)
         self._engine.namespace = str(namespace)
         self._engine.plans.namespace = str(namespace)
-        return self._engine.adapt(intent, corrected_source, name, kind=str(kind))
+        result = self._engine.adapt(intent, corrected_source, name, kind=str(kind))
+        self.note_state_change()
+        return result
 
     # ------------------------------------------- planner + claim guard (H3)
     def _action_rotor(self, transition: str):
@@ -535,6 +611,45 @@ class EpistemicSidecar:
                 "mount a Cycle H checkpoint or use transition='shift'"
             )
         return rotor
+
+    def plan_choice(
+        self,
+        observation: Sequence[float],
+        history_waves: Optional[Sequence[Sequence[float]]] = None,
+        transition: str = "rotor",
+        lookahead_depth: int = 2,
+        gamma_look: float = 0.02,
+        batch_rollout: bool = True,
+        recent_waves: Optional[Sequence[torch.Tensor]] = None,
+    ):
+        """Return (lookahead, choice, recent) for the stateful API planner.
+
+        Directive O2. The service keeps one episode trajectory per
+        (namespace, episode_id); it calls this method so a cycle detection
+        reads the same wave and the same legal mask the one-shot plan uses.
+        When recent_waves is given it is used verbatim (already tensors);
+        otherwise history_waves is decoded as before.
+        """
+        from henri.holarch.model import LatentActionLookahead
+
+        rotor = self._action_rotor(transition)
+        lookahead = LatentActionLookahead(
+            self.model,
+            None,
+            rotor=rotor,
+            transition=str(transition),
+            lookahead_depth=int(lookahead_depth),
+            gamma_look=float(gamma_look),
+            batch_rollout=bool(batch_rollout),
+        )
+        if recent_waves is not None:
+            recent = list(recent_waves)[-int(lookahead.history) :]
+        else:
+            recent = []
+            for wave in list(history_waves or [])[-int(lookahead.history) :]:
+                recent.append(_wave_tensor(wave, int(self.cfg.dim)))
+        choice = lookahead.choose(observation, recent)
+        return lookahead, choice, recent
 
     def plan(
         self,
@@ -552,22 +667,16 @@ class EpistemicSidecar:
         measured with; it is now callable, and the rotor comes from the
         checkpoint rather than being refitted per request.
         """
-        from henri.holarch.model import ACTION_NAMES, LatentActionLookahead
+        from henri.holarch.model import ACTION_NAMES
 
-        rotor = self._action_rotor(transition)
-        lookahead = LatentActionLookahead(
-            self.model,
-            None,
-            rotor=rotor,
-            transition=str(transition),
-            lookahead_depth=int(lookahead_depth),
-            gamma_look=float(gamma_look),
-            batch_rollout=bool(batch_rollout),
+        lookahead, choice, recent = self.plan_choice(
+            observation,
+            history_waves=history_waves,
+            transition=transition,
+            lookahead_depth=lookahead_depth,
+            gamma_look=gamma_look,
+            batch_rollout=batch_rollout,
         )
-        recent: List[torch.Tensor] = []
-        for wave in list(history_waves or [])[-int(lookahead.history) :]:
-            recent.append(_wave_tensor(wave, int(self.cfg.dim)))
-        choice = lookahead.choose(observation, recent)
         action = int(choice["action"])
         scores = choice["scores"]
         return {
@@ -660,11 +769,12 @@ class EpistemicSidecar:
         gate = ASTGate(symbols)
         for node in ast.walk(tree):
             if isinstance(node, ast.Call):
-                name = ""
-                if isinstance(node.func, ast.Name):
-                    name = node.func.id
-                elif isinstance(node.func, ast.Attribute):
-                    name = node.func.attr
+                # A method call (obj.method()) is not a global symbol. The
+                # code index cannot enumerate every builtin container method,
+                # and treating an Attribute callee as an unknown function
+                # rejected valid solutions (Directive R4 co-processor audit).
+                # Only a free Name callee is a claim about the module scope.
+                name = node.func.id if isinstance(node.func, ast.Name) else ""
                 if name and gate.symbol_veto(name):
                     missing_terms.append(name)
         if missing_terms:

@@ -1,0 +1,107 @@
+{
+  "cycle": "U",
+  "head": "7d3522e3f55a999ff1edb84dbb44db2b3e2b6fdd",
+  "stages": {
+    "u1": {
+      "receipt": "receipts\\holarch\\u1_fast_closure_and_hygiene.json",
+      "sha256": "60d9ce1900cf7354e32b11b3dcb009b9cf5843f8d61dc4e8cc94419fd0b7c20e",
+      "passed": false,
+      "gate": {
+        "u1_docs_monotonic": true,
+        "u1_docs_sections_1_to_37": true,
+        "u1_receipt_index_outside_docs": true,
+        "u1_sidecar_parity_100": true,
+        "u1_no_undocumented_receipts": true,
+        "u1_gauntlet_224": true,
+        "u1_gauntlet_passed": false,
+        "u1_zero_query_reads": true,
+        "u1_reachable_1": false,
+        "u1_hallucination_0": true,
+        "u1_receipt_chain_valid": true,
+        "u1_wall_seconds_le_180": true,
+        "u1_r3_streaming_le_1_2200": true,
+        "u1_r3_static_le_1_4200": true,
+        "passed": false
+      },
+      "wall_seconds": 0.06112500000745058
+    },
+    "u2": {
+      "receipt": "receipts\\holarch\\u2_condensed_riemannian_atlas.json",
+      "sha256": "c1e5b2a38e34901b31cd14e73e7fb79cdbacca7524b8ebe51cd4de3feb4b85a6",
+      "passed": true,
+      "gate": {
+        "u2_parity_1": true,
+        "u2_grounded_1": true,
+        "u2_drift_zero": true,
+        "u2_ood_abstain_1": true,
+        "u2_hallucination_0": true,
+        "u2_online_recall_1": true,
+        "u2_births_le_32": true,
+        "u2_candidates_le_0_085": true,
+        "u2_speedup_ge_1_65": true,
+        "passed": true
+      },
+      "wall_seconds": 47.15800080006011
+    },
+    "u3": {
+      "receipt": "receipts\\holarch\\u3_inductive_turing_audit.json",
+      "sha256": "e164062ed91311f2298442c7305a190faf0a4d16492eaf502df9b5c102ed4c1b",
+      "passed": true,
+      "gate": {
+        "u3_capacity_exact_long": true,
+        "u3_margin_ge_0_40": true,
+        "u3_margin_invariant": true,
+        "u3_crosstalk_zero": true,
+        "u3_solved_ge_10": true,
+        "u3_generalized_ge_10": true,
+        "u3_v1_length_generalized_ge_10": true,
+        "u3_zero_text_tokens": true,
+        "u3_contradictions_4": true,
+        "u3_two_cell_uncounted": true,
+        "passed": true
+      },
+      "wall_seconds": 37.26110829995014
+    },
+    "u4": {
+      "receipt": "receipts\\holarch\\t4_sovereign_ccg_and_repo_sheaf.json",
+      "sha256": "1f75e9d6461263d64300323b300758c13a95741a28cb3ca2f059da2c8990ae22",
+      "passed": true,
+      "gate": {
+        "u4_parse_ge_30": true,
+        "u4_pairs_8": true,
+        "u4_reversals_3": true,
+        "u4_contradictions_6": true,
+        "u4_packages_6": true,
+        "u4_unannotated_caught_24": true,
+        "u4_polymorphic_accepted_12": true,
+        "u4_kappa_le_50": true,
+        "passed": true
+      },
+      "wall_seconds": 6.923090099939145
+    },
+    "u5": {
+      "receipt": "receipts\\holarch\\u5_live_coprocessor_aaii_harness.json",
+      "sha256": "7c95ca8e0b95c807cc45afe8647f4ce49752aea5d416343a980119b5f210fa7a",
+      "passed": true,
+      "gate": {
+        "u5_receipt_present": true,
+        "u5_sidecar_valid": true,
+        "u5_receipt_passed": true,
+        "u5_sandbox_12": true,
+        "u5_env_leaks_0": true,
+        "u5_timeout_kill": true,
+        "u5_tasks_12": true,
+        "u5_frame_4096": true,
+        "u5_compression_3": true,
+        "u5_no_error_loops": true,
+        "u5_no_ungrounded": true,
+        "u5_omni_lift": true,
+        "u5_quarantine_clean": true,
+        "u5_live_honest": true,
+        "passed": true
+      },
+      "wall_seconds": 0.0009485000045970082
+    }
+  },
+  "passed": false
+}

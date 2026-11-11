@@ -22,6 +22,10 @@
     "rows": 604,
     "tier3": 4,
     "trap_pool": 202,
+    "trap_exact_rows": 27,
+    "trap_masked_correct": 8,
+    "trap_depth1_correct": 0,
+    "trap_unmasked_correct": 0,
     "retrieved": 414,
     "retrieved_total_hits": 4548
   },
@@ -50,13 +54,13 @@
   },
   "cartridge": {
     "count": 1349,
-    "bytes": 2609132,
+    "bytes": 2617069,
     "raw_bytes": 0,
     "dim": 1024,
-    "dtype": "v3-action-int12-sqrt4-support-int8-zlib9",
+    "dtype": "v3-action-int12-sqrt4-support-int8-exact16-zlib9",
     "compression": "zlib-9",
     "limit": 1536,
-    "sha256": "ccf823bf9c420bd3eef82f48058b53224f8f34a45f074c84282149f269302cc2",
+    "sha256": "5ca328b2ef76f844ac5bdf97ae440d20e2eea173a137f1e2d6f55c7efedc4083",
     "rows_by_task": {
       "vision": 610,
       "language": 63,
@@ -66,7 +70,7 @@
     "tier3_rows": 67,
     "within_budget": true,
     "reconstruction_coherence_min": 0.997283399105072,
-    "reconstruction_coherence_mean": 0.9991033673286438
+    "reconstruction_coherence_mean": 0.9991343021392822
   },
   "reference_measurement": {
     "closed_loop_wins": 38,
@@ -842,49 +846,81 @@
         "id": "trap01",
         "action": 1,
         "bypass": 1,
-        "correct": true
+        "correct": true,
+        "depth1_action": 3,
+        "unmasked_action": 3,
+        "depth1_correct": false,
+        "unmasked_correct": false
       },
       {
         "id": "trap02",
         "action": 2,
         "bypass": 2,
-        "correct": true
+        "correct": true,
+        "depth1_action": 1,
+        "unmasked_action": 1,
+        "depth1_correct": false,
+        "unmasked_correct": false
       },
       {
         "id": "trap03",
         "action": 2,
         "bypass": 2,
-        "correct": true
+        "correct": true,
+        "depth1_action": 1,
+        "unmasked_action": 1,
+        "depth1_correct": false,
+        "unmasked_correct": false
       },
       {
         "id": "trap04",
         "action": 1,
         "bypass": 1,
-        "correct": true
+        "correct": true,
+        "depth1_action": 3,
+        "unmasked_action": 3,
+        "depth1_correct": false,
+        "unmasked_correct": false
       },
       {
         "id": "trap05",
         "action": 0,
         "bypass": 0,
-        "correct": true
+        "correct": true,
+        "depth1_action": 3,
+        "unmasked_action": 3,
+        "depth1_correct": false,
+        "unmasked_correct": false
       },
       {
         "id": "trap06",
         "action": 3,
         "bypass": 3,
-        "correct": true
+        "correct": true,
+        "depth1_action": 0,
+        "unmasked_action": 0,
+        "depth1_correct": false,
+        "unmasked_correct": false
       },
       {
         "id": "trap07",
         "action": 3,
         "bypass": 3,
-        "correct": true
+        "correct": true,
+        "depth1_action": 0,
+        "unmasked_action": 0,
+        "depth1_correct": false,
+        "unmasked_correct": false
       },
       {
         "id": "trap08",
         "action": 0,
         "bypass": 0,
-        "correct": true
+        "correct": true,
+        "depth1_action": 2,
+        "unmasked_action": 2,
+        "depth1_correct": false,
+        "unmasked_correct": false
       }
     ],
     "accuracy": {
@@ -904,9 +940,9 @@
   },
   "checkpoint": {
     "path": "receipts\\holarch\\holarch_medium.pt",
-    "sha256": "ccf823bf9c420bd3eef82f48058b53224f8f34a45f074c84282149f269302cc2",
-    "bytes": 7854979
+    "sha256": "5ca328b2ef76f844ac5bdf97ae440d20e2eea173a137f1e2d6f55c7efedc4083",
+    "bytes": 7910227
   },
-  "wall_seconds": 97.17948610000894,
+  "wall_seconds": 77.37289590004366,
   "evidence": "OBSERVED"
 }

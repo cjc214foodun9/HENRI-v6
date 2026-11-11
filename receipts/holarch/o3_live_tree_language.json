@@ -1,0 +1,47 @@
+{
+  "stage": "O3",
+  "tier1": {
+    "locked_identifiers": 965,
+    "shifts": 0,
+    "elastic_vocabulary": 4096,
+    "elastic_cap": 4096,
+    "tier2_ids": 2048
+  },
+  "pinned_locked": {
+    "top1": 0.5763003789183603,
+    "bits_per_char": 1.10502569775011,
+    "beta": 0.02,
+    "corpus_revision": "67e9b25"
+  },
+  "live_tree_elastic": {
+    "top1": 0.5670588235294117,
+    "bits_per_char": 1.2735599219987657,
+    "beta": 0.05,
+    "corpus": {
+      "source": "git_revision",
+      "revision": "67e9b25",
+      "files": 21
+    },
+    "note": "the protocol corpus (commit 67e9b25) is held fixed so the live elastic Tier-2 vocabulary is the only variable"
+  },
+  "live_corpus": {
+    "top1": 0.5405042016806723,
+    "bits_per_char": 1.5754755610096558,
+    "legacy_l3_top1": 0.5405042016806723,
+    "legacy_l3_bits_per_char": 1.541750777090479,
+    "char96_accuracy": 0.1943359375
+  },
+  "gate": {
+    "o3_tier1_shifts_zero": true,
+    "o3_pinned_locked_top1_0_55": true,
+    "o3_pinned_locked_bpc_1_30": true,
+    "o3_elastic_top1_0_55": true,
+    "o3_elastic_bpc_1_31": true,
+    "o3_live_l3_recorded": true,
+    "o3_char96_recorded": true,
+    "passed": true
+  },
+  "wall_seconds": 337.9687826000154,
+  "evidence": "OBSERVED",
+  "passed": true
+}

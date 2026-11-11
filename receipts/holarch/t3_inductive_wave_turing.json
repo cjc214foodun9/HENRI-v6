@@ -1,0 +1,1044 @@
+{
+  "stage": "T3",
+  "tasks": [
+    {
+      "name": "bit_flip",
+      "status": "INDUCED",
+      "reason": "",
+      "rules": {
+        "q0|0": [
+          "1",
+          1,
+          "q0"
+        ],
+        "q0|1": [
+          "0",
+          1,
+          "q1"
+        ],
+        "q0|_": [
+          "_",
+          1,
+          "q0"
+        ],
+        "q1|0": [
+          "1",
+          1,
+          "q1"
+        ],
+        "q1|1": [
+          "0",
+          1,
+          "q1"
+        ],
+        "q1|_": [
+          "_",
+          0,
+          "qh"
+        ]
+      },
+      "rule_count": 6,
+      "nodes": 14,
+      "repulsors": 7,
+      "repulsor_keys": [
+        "q0|1|0|0|qh",
+        "q0|1|0|1|q0",
+        "q0|1|0|-1|q0",
+        "q0|1|0|0|q0",
+        "q1|1|0|1|q0",
+        "q1|0|1|0|qh",
+        "q1|0|1|1|q0"
+      ],
+      "train_exact": true,
+      "test_exact": true,
+      "test_rows": [
+        {
+          "tape_in": "101100",
+          "tape_out": "010011",
+          "wave_tape": "010011",
+          "halted": true,
+          "exact": true,
+          "steps": 14,
+          "veto_reason": "",
+          "text_tokens": 0
+        },
+        {
+          "tape_in": "1011001",
+          "tape_out": "0100110",
+          "wave_tape": "0100110",
+          "halted": true,
+          "exact": true,
+          "steps": 15,
+          "veto_reason": "",
+          "text_tokens": 0
+        },
+        {
+          "tape_in": "101100101",
+          "tape_out": "010011010",
+          "wave_tape": "010011010",
+          "halted": true,
+          "exact": true,
+          "steps": 17,
+          "veto_reason": "",
+          "text_tokens": 0
+        },
+        {
+          "tape_in": "101100101011",
+          "tape_out": "010011010100",
+          "wave_tape": "010011010100",
+          "halted": true,
+          "exact": true,
+          "steps": 20,
+          "veto_reason": "",
+          "text_tokens": 0
+        }
+      ],
+      "text_tokens": 0,
+      "crystallized": true,
+      "engram_id": 8,
+      "receipt": "0de2d72a21327969bcb82cf6e5624e0e65608bbec645f56d5263efe18e677619",
+      "wall_seconds": 0.012413999997079372,
+      "train_examples": 4,
+      "test_examples": 4
+    },
+    {
+      "name": "unary_increment",
+      "status": "INDUCED",
+      "reason": "",
+      "rules": {
+        "q0|_": [
+          "_",
+          1,
+          "q0"
+        ],
+        "q0||": [
+          "|",
+          1,
+          "q1"
+        ],
+        "q1|_": [
+          "|",
+          0,
+          "qh"
+        ],
+        "q1||": [
+          "|",
+          1,
+          "q1"
+        ]
+      },
+      "rule_count": 4,
+      "nodes": 9,
+      "repulsors": 4,
+      "repulsor_keys": [
+        "q0|||||1|q0",
+        "q0|||||-1|q0",
+        "q0|||||0|q0",
+        "q1|||||1|q0"
+      ],
+      "train_exact": true,
+      "test_exact": true,
+      "test_rows": [
+        {
+          "tape_in": "||||||",
+          "tape_out": "|||||||",
+          "wave_tape": "|||||||",
+          "halted": true,
+          "exact": true,
+          "steps": 14,
+          "veto_reason": "",
+          "text_tokens": 0
+        },
+        {
+          "tape_in": "|||||||",
+          "tape_out": "||||||||",
+          "wave_tape": "||||||||",
+          "halted": true,
+          "exact": true,
+          "steps": 15,
+          "veto_reason": "",
+          "text_tokens": 0
+        },
+        {
+          "tape_in": "|||||||||",
+          "tape_out": "||||||||||",
+          "wave_tape": "||||||||||",
+          "halted": true,
+          "exact": true,
+          "steps": 17,
+          "veto_reason": "",
+          "text_tokens": 0
+        },
+        {
+          "tape_in": "||||||||||||",
+          "tape_out": "|||||||||||||",
+          "wave_tape": "|||||||||||||",
+          "halted": true,
+          "exact": true,
+          "steps": 20,
+          "veto_reason": "",
+          "text_tokens": 0
+        }
+      ],
+      "text_tokens": 0,
+      "crystallized": true,
+      "engram_id": 13,
+      "receipt": "464f506318d096fd3d9dbe6e8a66b120dd7386e1bbc599b7e0cc137106cd83c6",
+      "wall_seconds": 0.008618200081400573,
+      "train_examples": 4,
+      "test_examples": 4
+    },
+    {
+      "name": "unary_decrement",
+      "status": "INDUCED",
+      "reason": "",
+      "rules": {
+        "q0|_": [
+          "_",
+          1,
+          "q0"
+        ],
+        "q0||": [
+          "|",
+          1,
+          "q1"
+        ],
+        "q1|_": [
+          "_",
+          -1,
+          "q2"
+        ],
+        "q1||": [
+          "_",
+          1,
+          "q1"
+        ],
+        "q2|_": [
+          "|",
+          -1,
+          "q2"
+        ],
+        "q2||": [
+          "_",
+          0,
+          "qh"
+        ]
+      },
+      "rule_count": 6,
+      "nodes": 234,
+      "repulsors": 64,
+      "repulsor_keys": [
+        "q0|||||1|q0",
+        "q0|||||-1|q0",
+        "q0|||||0|q0",
+        "q1|||_|0|qh",
+        "q1|||_|1|q0",
+        "q1|_|_|0|qh",
+        "q1|_|_|-1|q0",
+        "q1|_|_|-1|q1",
+        "q1|_|=|0|qh",
+        "q1|_|_|0|q0",
+        "q1|_|_|0|q1",
+        "q1|_|_|1|q0",
+        "q1|_|_|1|q1",
+        "q2|_|_|0|qh",
+        "q2|||||0|qh",
+        "q2|||||1|q0",
+        "q2|||||1|q1",
+        "q2|||||1|q2",
+        "q2|||=|0|qh",
+        "q2|||||-1|q0",
+        "q2|||||-1|q1",
+        "q2|||||-1|q2",
+        "q2|||||0|q0",
+        "q2|||||0|q1",
+        "q2|||||0|q2",
+        "q2|||=|1|q0",
+        "q2|||=|1|q1",
+        "q2|||=|1|q2",
+        "q2|||=|-1|q0",
+        "q2|||=|-1|q1",
+        "q2|||=|-1|q2",
+        "q2|||=|0|q0",
+        "q2|||=|0|q1",
+        "q2|||=|0|q2",
+        "q2|||_|1|q0",
+        "q2|||_|1|q1",
+        "q2|||_|1|q2",
+        "q2|||_|-1|q0",
+        "q2|||_|-1|q1",
+        "q2|||_|-1|q2",
+        "q2|||_|0|q0",
+        "q2|||_|0|q1",
+        "q2|||_|0|q2",
+        "q2|_|_|-1|q0",
+        "q2|_|_|-1|q1",
+        "q2|_|_|-1|q2",
+        "q2|_|=|0|qh",
+        "q2|_|_|0|q0",
+        "q2|_|_|0|q1",
+        "q2|_|_|0|q2",
+        "q2|_|_|1|q0",
+        "q2|_|_|1|q1",
+        "q2|_|_|1|q2",
+        "q2|_|=|-1|q0",
+        "q2|_|=|-1|q1",
+        "q2|_|=|-1|q2",
+        "q2|_|=|0|q0",
+        "q2|_|=|0|q1",
+        "q2|_|=|0|q2",
+        "q2|_|=|1|q0",
+        "q2|_|=|1|q1",
+        "q2|_|=|1|q2",
+        "q2|_|||-1|q0",
+        "q2|_|||-1|q1"
+      ],
+      "train_exact": true,
+      "test_exact": true,
+      "test_rows": [
+        {
+          "tape_in": "||||||",
+          "tape_out": "|||||_",
+          "wave_tape": "|||||",
+          "halted": true,
+          "exact": true,
+          "steps": 20,
+          "veto_reason": "",
+          "text_tokens": 0
+        },
+        {
+          "tape_in": "|||||||",
+          "tape_out": "||||||_",
+          "wave_tape": "||||||",
+          "halted": true,
+          "exact": true,
+          "steps": 22,
+          "veto_reason": "",
+          "text_tokens": 0
+        },
+        {
+          "tape_in": "|||||||||",
+          "tape_out": "||||||||_",
+          "wave_tape": "||||||||",
+          "halted": true,
+          "exact": true,
+          "steps": 26,
+          "veto_reason": "",
+          "text_tokens": 0
+        },
+        {
+          "tape_in": "||||||||||||",
+          "tape_out": "|||||||||||_",
+          "wave_tape": "|||||||||||",
+          "halted": true,
+          "exact": true,
+          "steps": 32,
+          "veto_reason": "",
+          "text_tokens": 0
+        }
+      ],
+      "text_tokens": 0,
+      "crystallized": true,
+      "engram_id": 78,
+      "receipt": "45b8659a537f98a60e3fd3f4bd6e68b0a4b1fc82c8c32928a95eea2ce68220a2",
+      "wall_seconds": 0.035821500001475215,
+      "train_examples": 4,
+      "test_examples": 4
+    },
+    {
+      "name": "strip_leading_zeros",
+      "status": "INDUCED",
+      "reason": "",
+      "rules": {
+        "q0|0": [
+          "_",
+          1,
+          "q1"
+        ],
+        "q0|_": [
+          "_",
+          1,
+          "q0"
+        ],
+        "q1|0": [
+          "_",
+          1,
+          "q1"
+        ],
+        "q1|1": [
+          "1",
+          0,
+          "qh"
+        ],
+        "q1|_": [
+          "_",
+          0,
+          "qh"
+        ]
+      },
+      "rule_count": 5,
+      "nodes": 11,
+      "repulsors": 5,
+      "repulsor_keys": [
+        "q0|0|_|1|q0",
+        "q0|0|_|-1|q0",
+        "q0|0|_|0|q0",
+        "q1|0|_|0|qh",
+        "q1|0|_|1|q0"
+      ],
+      "train_exact": true,
+      "test_exact": true,
+      "test_rows": [
+        {
+          "tape_in": "001100",
+          "tape_out": "__1100",
+          "wave_tape": "1100",
+          "halted": true,
+          "exact": true,
+          "steps": 10,
+          "veto_reason": "",
+          "text_tokens": 0
+        },
+        {
+          "tape_in": "0001100",
+          "tape_out": "___1100",
+          "wave_tape": "1100",
+          "halted": true,
+          "exact": true,
+          "steps": 11,
+          "veto_reason": "",
+          "text_tokens": 0
+        },
+        {
+          "tape_in": "001011001",
+          "tape_out": "__1011001",
+          "wave_tape": "1011001",
+          "halted": true,
+          "exact": true,
+          "steps": 10,
+          "veto_reason": "",
+          "text_tokens": 0
+        },
+        {
+          "tape_in": "010110010101",
+          "tape_out": "_10110010101",
+          "wave_tape": "10110010101",
+          "halted": true,
+          "exact": true,
+          "steps": 9,
+          "veto_reason": "",
+          "text_tokens": 0
+        }
+      ],
+      "text_tokens": 0,
+      "crystallized": true,
+      "engram_id": 84,
+      "receipt": "33add7eacc9c5c6eba10a1db81e46a390afbdfefdbc4422d6856cf36e4bef145",
+      "wall_seconds": 0.0066862000385299325,
+      "train_examples": 4,
+      "test_examples": 4
+    },
+    {
+      "name": "find_first_1",
+      "status": "INDUCED",
+      "reason": "",
+      "rules": {
+        "q0|0": [
+          "0",
+          1,
+          "q0"
+        ],
+        "q0|1": [
+          "X",
+          0,
+          "qh"
+        ],
+        "q0|_": [
+          "_",
+          1,
+          "q0"
+        ]
+      },
+      "rule_count": 3,
+      "nodes": 4,
+      "repulsors": 0,
+      "repulsor_keys": [],
+      "train_exact": true,
+      "test_exact": true,
+      "test_rows": [
+        {
+          "tape_in": "101100",
+          "tape_out": "X01100",
+          "wave_tape": "X01100",
+          "halted": true,
+          "exact": true,
+          "steps": 8,
+          "veto_reason": "",
+          "text_tokens": 0
+        },
+        {
+          "tape_in": "1011001",
+          "tape_out": "X011001",
+          "wave_tape": "X011001",
+          "halted": true,
+          "exact": true,
+          "steps": 8,
+          "veto_reason": "",
+          "text_tokens": 0
+        },
+        {
+          "tape_in": "101100101",
+          "tape_out": "X01100101",
+          "wave_tape": "X01100101",
+          "halted": true,
+          "exact": true,
+          "steps": 8,
+          "veto_reason": "",
+          "text_tokens": 0
+        },
+        {
+          "tape_in": "101100101011",
+          "tape_out": "X01100101011",
+          "wave_tape": "X01100101011",
+          "halted": true,
+          "exact": true,
+          "steps": 8,
+          "veto_reason": "",
+          "text_tokens": 0
+        }
+      ],
+      "text_tokens": 0,
+      "crystallized": true,
+      "engram_id": 85,
+      "receipt": "57d38f6460f58ce299438c53cfe30e0088a0606defc8c30d7857bebfe1d48683",
+      "wall_seconds": 0.004152399953454733,
+      "train_examples": 4,
+      "test_examples": 4
+    },
+    {
+      "name": "binary_increment",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: node budget exhausted",
+      "rules": {},
+      "rule_count": 0,
+      "nodes": 40232,
+      "repulsors": 64,
+      "repulsor_keys": [
+        "q0|1|1|1|q0",
+        "q0|1|1|-1|q0",
+        "q0|1|1|0|q0",
+        "q1|1|0|1|q0",
+        "q0|0|1|0|qh",
+        "q0|0|1|1|q0",
+        "q0|0|1|1|q1",
+        "q0|0|1|-1|q0",
+        "q0|0|1|-1|q1",
+        "q0|0|1|0|q0",
+        "q0|0|1|0|q1",
+        "q2|_|_|0|qh",
+        "q2|_|_|-1|q0",
+        "q2|_|_|-1|q1",
+        "q2|1|1|0|qh",
+        "q2|1|1|1|q0",
+        "q2|1|1|1|q1",
+        "q2|1|1|1|q2",
+        "q2|1|1|-1|q0",
+        "q2|1|1|-1|q1",
+        "q2|0|0|0|qh",
+        "q2|0|0|1|q0",
+        "q2|0|0|1|q1",
+        "q2|0|0|1|q2",
+        "q2|0|0|-1|q0",
+        "q2|0|0|-1|q1",
+        "q2|0|0|-1|q2",
+        "q2|0|0|0|q0",
+        "q2|0|0|0|q1",
+        "q2|0|0|0|q2",
+        "q2|0|=|0|qh",
+        "q2|0|=|1|q0",
+        "q2|0|=|1|q1",
+        "q2|0|=|1|q2",
+        "q2|0|=|-1|q0",
+        "q2|0|=|-1|q1",
+        "q2|0|=|-1|q2",
+        "q2|0|=|0|q0",
+        "q2|0|=|0|q1",
+        "q2|0|=|0|q2",
+        "q2|0|1|1|q0",
+        "q2|0|1|1|q1",
+        "q2|0|1|1|q2",
+        "q2|0|_|1|q0",
+        "q2|0|_|1|q1",
+        "q2|0|_|1|q2",
+        "q2|0|1|-1|q0",
+        "q2|0|1|-1|q1",
+        "q2|0|1|-1|q2",
+        "q2|0|1|0|q0",
+        "q2|0|1|0|q1",
+        "q2|0|1|0|q2",
+        "q2|0|_|-1|q0",
+        "q2|0|_|-1|q1",
+        "q2|0|_|-1|q2",
+        "q2|0|_|0|q0",
+        "q2|0|_|0|q1",
+        "q2|0|_|0|q2",
+        "q2|1|1|-1|q2",
+        "q2|1|1|0|q0",
+        "q2|1|1|0|q1",
+        "q2|1|1|0|q2",
+        "q2|1|=|0|qh",
+        "q2|1|=|1|q0"
+      ],
+      "train_exact": false,
+      "test_exact": false,
+      "test_rows": [],
+      "text_tokens": 0,
+      "crystallized": false,
+      "engram_id": -1,
+      "receipt": "028459de4bf94fb3a585e902c8f41d8384695728bfffe556ca0936759fec6bf4",
+      "wall_seconds": 0.7964376999298111,
+      "train_examples": 4,
+      "test_examples": 4
+    },
+    {
+      "name": "append_marker",
+      "status": "INDUCED",
+      "reason": "",
+      "rules": {
+        "q0|0": [
+          "0",
+          1,
+          "q0"
+        ],
+        "q0|1": [
+          "1",
+          1,
+          "q1"
+        ],
+        "q0|_": [
+          "_",
+          1,
+          "q0"
+        ],
+        "q1|0": [
+          "0",
+          1,
+          "q1"
+        ],
+        "q1|1": [
+          "1",
+          1,
+          "q1"
+        ],
+        "q1|_": [
+          "#",
+          0,
+          "qh"
+        ]
+      },
+      "rule_count": 6,
+      "nodes": 12,
+      "repulsors": 5,
+      "repulsor_keys": [
+        "q0|1|1|1|q0",
+        "q0|1|1|-1|q0",
+        "q0|1|1|0|q0",
+        "q1|1|1|1|q0",
+        "q1|0|0|1|q0"
+      ],
+      "train_exact": true,
+      "test_exact": true,
+      "test_rows": [
+        {
+          "tape_in": "101100",
+          "tape_out": "101100#",
+          "wave_tape": "101100#",
+          "halted": true,
+          "exact": true,
+          "steps": 14,
+          "veto_reason": "",
+          "text_tokens": 0
+        },
+        {
+          "tape_in": "1011001",
+          "tape_out": "1011001#",
+          "wave_tape": "1011001#",
+          "halted": true,
+          "exact": true,
+          "steps": 15,
+          "veto_reason": "",
+          "text_tokens": 0
+        },
+        {
+          "tape_in": "101100101",
+          "tape_out": "101100101#",
+          "wave_tape": "101100101#",
+          "halted": true,
+          "exact": true,
+          "steps": 17,
+          "veto_reason": "",
+          "text_tokens": 0
+        },
+        {
+          "tape_in": "101100101011",
+          "tape_out": "101100101011#",
+          "wave_tape": "101100101011#",
+          "halted": true,
+          "exact": true,
+          "steps": 20,
+          "veto_reason": "",
+          "text_tokens": 0
+        }
+      ],
+      "text_tokens": 0,
+      "crystallized": true,
+      "engram_id": 155,
+      "receipt": "125f4bf7ced55ebab81b0741f10a85153f4f7d4f6bf1bacd42495b80d0676168",
+      "wall_seconds": 0.009552499977871776,
+      "train_examples": 4,
+      "test_examples": 4
+    },
+    {
+      "name": "parity_accept_reject",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: node budget exhausted",
+      "rules": {},
+      "rule_count": 0,
+      "nodes": 40210,
+      "repulsors": 64,
+      "repulsor_keys": [
+        "q0|1|_|1|q0",
+        "q0|1|_|-1|q0",
+        "q0|1|_|0|q0",
+        "q1|1|_|0|qh",
+        "q1|1|_|1|q0",
+        "q1|0|_|1|q0",
+        "q1|_|0|0|qh",
+        "q1|_|0|1|q0",
+        "q1|_|0|1|q1",
+        "q1|_|0|-1|q0",
+        "q1|_|0|-1|q1",
+        "q1|_|0|0|q0",
+        "q1|_|0|0|q1",
+        "q2|_|_|0|qh",
+        "q2|_|_|-1|q0",
+        "q2|_|_|-1|q1",
+        "q2|0|0|0|qh",
+        "q2|0|0|1|q0",
+        "q2|0|0|1|q1",
+        "q2|0|0|1|q2",
+        "q2|0|0|-1|q0",
+        "q2|0|0|-1|q1",
+        "q2|0|0|-1|q2",
+        "q2|0|0|0|q0",
+        "q2|0|0|0|q1",
+        "q2|0|0|0|q2",
+        "q2|0|=|0|qh",
+        "q2|0|=|1|q0",
+        "q2|0|=|1|q1",
+        "q2|0|=|1|q2",
+        "q2|0|=|-1|q0",
+        "q2|0|=|-1|q1",
+        "q2|0|=|-1|q2",
+        "q2|0|=|0|q0",
+        "q2|0|=|0|q1",
+        "q2|0|=|0|q2",
+        "q2|0|1|1|q0",
+        "q2|0|1|1|q1",
+        "q2|1|0|0|qh",
+        "q2|1|0|1|q0",
+        "q2|1|0|1|q1",
+        "q2|1|0|1|q2",
+        "q2|1|0|-1|q0",
+        "q2|1|0|-1|q1",
+        "q2|1|0|-1|q2",
+        "q2|1|0|0|q0",
+        "q2|1|0|0|q1",
+        "q2|1|0|0|q2",
+        "q2|1|=|1|q0",
+        "q2|1|=|1|q1",
+        "q2|1|=|1|q2",
+        "q2|1|1|1|q0",
+        "q2|1|1|1|q1",
+        "q2|1|1|1|q2",
+        "q2|1|_|1|q0",
+        "q2|1|_|1|q1",
+        "q2|1|_|1|q2",
+        "q2|1|=|-1|q0",
+        "q2|1|=|-1|q1",
+        "q2|1|=|-1|q2",
+        "q2|1|=|0|q0",
+        "q2|1|=|0|q1",
+        "q2|1|=|0|q2",
+        "q2|1|1|-1|q0"
+      ],
+      "train_exact": false,
+      "test_exact": false,
+      "test_rows": [],
+      "text_tokens": 0,
+      "crystallized": false,
+      "engram_id": -1,
+      "receipt": "d567830fb7cc5e87473aaf1e4307eb58d76b1120a3727909946f83bf64dd89c4",
+      "wall_seconds": 0.7010858999565244,
+      "train_examples": 4,
+      "test_examples": 4
+    },
+    {
+      "name": "two_symbol_replace",
+      "status": "INDUCED",
+      "reason": "",
+      "rules": {
+        "q0|_": [
+          "_",
+          1,
+          "q0"
+        ],
+        "q0|a": [
+          "b",
+          1,
+          "q0"
+        ],
+        "q0|b": [
+          "a",
+          1,
+          "q1"
+        ],
+        "q1|_": [
+          "_",
+          0,
+          "qh"
+        ],
+        "q1|a": [
+          "b",
+          1,
+          "q1"
+        ],
+        "q1|b": [
+          "a",
+          1,
+          "q1"
+        ]
+      },
+      "rule_count": 6,
+      "nodes": 14,
+      "repulsors": 7,
+      "repulsor_keys": [
+        "q0|b|a|0|qh",
+        "q0|b|a|1|q0",
+        "q0|b|a|-1|q0",
+        "q0|b|a|0|q0",
+        "q1|b|a|1|q0",
+        "q1|a|b|0|qh",
+        "q1|a|b|1|q0"
+      ],
+      "train_exact": true,
+      "test_exact": true,
+      "test_rows": [
+        {
+          "tape_in": "ababab",
+          "tape_out": "bababa",
+          "wave_tape": "bababa",
+          "halted": true,
+          "exact": true,
+          "steps": 14,
+          "veto_reason": "",
+          "text_tokens": 0
+        },
+        {
+          "tape_in": "aabbaab",
+          "tape_out": "bbaabba",
+          "wave_tape": "bbaabba",
+          "halted": true,
+          "exact": true,
+          "steps": 15,
+          "veto_reason": "",
+          "text_tokens": 0
+        },
+        {
+          "tape_in": "abbaababa",
+          "tape_out": "baabbabab",
+          "wave_tape": "baabbabab",
+          "halted": true,
+          "exact": true,
+          "steps": 17,
+          "veto_reason": "",
+          "text_tokens": 0
+        },
+        {
+          "tape_in": "abababaabbab",
+          "tape_out": "babababbaaba",
+          "wave_tape": "babababbaaba",
+          "halted": true,
+          "exact": true,
+          "steps": 20,
+          "veto_reason": "",
+          "text_tokens": 0
+        }
+      ],
+      "text_tokens": 0,
+      "crystallized": true,
+      "engram_id": 227,
+      "receipt": "7c970d51aeab00c35c003e82e8099eccaeee2c17008ea804dd13559ca98c964d",
+      "wall_seconds": 0.010748300002887845,
+      "train_examples": 4,
+      "test_examples": 4
+    },
+    {
+      "name": "unary_add_one_and_halt",
+      "status": "INDUCED",
+      "reason": "",
+      "rules": {
+        "q0|1": [
+          "1",
+          1,
+          "q1"
+        ],
+        "q0|_": [
+          "_",
+          1,
+          "q0"
+        ],
+        "q1|1": [
+          "1",
+          1,
+          "q1"
+        ],
+        "q1|_": [
+          "1",
+          0,
+          "qh"
+        ]
+      },
+      "rule_count": 4,
+      "nodes": 9,
+      "repulsors": 4,
+      "repulsor_keys": [
+        "q0|1|1|1|q0",
+        "q0|1|1|-1|q0",
+        "q0|1|1|0|q0",
+        "q1|1|1|1|q0"
+      ],
+      "train_exact": true,
+      "test_exact": true,
+      "test_rows": [
+        {
+          "tape_in": "111111",
+          "tape_out": "1111111",
+          "wave_tape": "1111111",
+          "halted": true,
+          "exact": true,
+          "steps": 14,
+          "veto_reason": "",
+          "text_tokens": 0
+        },
+        {
+          "tape_in": "1111111",
+          "tape_out": "11111111",
+          "wave_tape": "11111111",
+          "halted": true,
+          "exact": true,
+          "steps": 15,
+          "veto_reason": "",
+          "text_tokens": 0
+        },
+        {
+          "tape_in": "111111111",
+          "tape_out": "1111111111",
+          "wave_tape": "1111111111",
+          "halted": true,
+          "exact": true,
+          "steps": 17,
+          "veto_reason": "",
+          "text_tokens": 0
+        },
+        {
+          "tape_in": "111111111111",
+          "tape_out": "1111111111111",
+          "wave_tape": "1111111111111",
+          "halted": true,
+          "exact": true,
+          "steps": 20,
+          "veto_reason": "",
+          "text_tokens": 0
+        }
+      ],
+      "text_tokens": 0,
+      "crystallized": true,
+      "engram_id": 232,
+      "receipt": "ac0af9df15b5e51ed9e463dc870750c6284d5397778345af9c08e2512ab9c832",
+      "wall_seconds": 0.008634199970401824,
+      "train_examples": 4,
+      "test_examples": 4
+    }
+  ],
+  "contradictions": [
+    {
+      "name": "contradiction_0",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: unsatisfiable specification",
+      "exact_reason": true,
+      "nodes": 0
+    },
+    {
+      "name": "contradiction_1",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: unsatisfiable specification",
+      "exact_reason": true,
+      "nodes": 0
+    },
+    {
+      "name": "contradiction_2",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: unsatisfiable specification",
+      "exact_reason": true,
+      "nodes": 0
+    },
+    {
+      "name": "contradiction_3",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: unsatisfiable specification",
+      "exact_reason": true,
+      "nodes": 0
+    }
+  ],
+  "metrics": {
+    "tasks": 10,
+    "induced": 8,
+    "generalized_exact": 8,
+    "induced_rate": 0.8,
+    "generalization_rate": 0.8,
+    "text_tokens": 0,
+    "contradictions_failed_closed": 4
+  },
+  "memory": {
+    "charts": 9,
+    "chart_capacity": 64,
+    "engrams": 232,
+    "largest_chart": 47,
+    "smallest_chart": 7,
+    "mean_chart": 25.77777777777778,
+    "zone_c": "tier-3 crystallized tables and REPULSOR axioms"
+  },
+  "api": {
+    "service_status": "INDUCED",
+    "http_status_code": 200,
+    "http_status": "INDUCED",
+    "mcp_status": "INDUCED",
+    "service_rule_count": 6,
+    "text_tokens": 0
+  },
+  "gate": {
+    "t3_tasks_10": true,
+    "t3_induced_ge_8": true,
+    "t3_generalized_ge_8": true,
+    "t3_zero_text_tokens": true,
+    "t3_contradictions_4": true,
+    "t3_contradictions_fail_closed": true,
+    "t3_api_induce": true,
+    "t3_memory_tier3": true,
+    "passed": true
+  },
+  "wall_seconds": 2.3491799000184983,
+  "evidence": "OBSERVED",
+  "passed": true
+}

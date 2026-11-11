@@ -55,6 +55,7 @@ from typing import Dict, Iterable, List, Optional, Protocol, Sequence, Tuple
 
 import numpy as np
 
+from henri.holarch.centered_charts import CenteredChartIndex
 from henri.qfhrr import coherence, pbind
 
 DEFAULT_DSN = os.environ.get(
@@ -783,6 +784,21 @@ class MemoryRead:
     """
     top_wave: Optional[np.ndarray] = None
     """Full wave of the best exact-coherence hit, or None."""
+    scanned: int = 0
+    """Resident rows this read scored before the exact-wave rescoring.
+
+    With use_charts=False this is the whole store. With chart routing it is
+    the union of the winning charts, which is the candidate fraction Gate T1b
+    and Gate T2 bound. It is a measurement, not an estimate.
+    """
+    probed_charts: int = 0
+    """Chart count the router probed on this read (0 on a flat scan)."""
+    centered: bool = False
+    """True when the T2 mean-centered, whitened atlas chose the rows."""
+    atlas: bool = False
+    """True when the Riemannian tangent-space atlas chose the rows."""
+    routing_margin: float = 0.0
+    """Top-1 minus top-2 centered centroid margin on a centered read."""
 
     @property
     def labels(self) -> List[int]:
@@ -865,6 +881,31 @@ class ZoneCMemory:
         self._next_id = 1
         self._size = 0
         self._capacity = 0
+        # Directive S3: the two-tier spherical chart index. Charts partition the
+        # resident Gram vectors into groups of at most chart_capacity engrams
+        # with a unit centroid, so a query scores K centroids instead of N
+        # rows and then rescans only the winning charts.
+        self.chart_capacity = int(getattr(cfg, "chart_capacity", 256) or 256)
+        self.chart_affinity = float(getattr(cfg, "chart_affinity", 0.10))
+        self.top_charts_default = int(getattr(cfg, "top_charts", 4) or 4)
+        self.charts: List[Dict[str, object]] = []
+        # Directive T2: the mean-centered, whitened routing atlas. It is None
+        # until build_centered_index is called for a namespace, so every
+        # pre-T2 path is byte-identical. When it is synchronized and the store
+        # holds at least 1024 rows, a query that does not name use_charts uses
+        # it automatically.
+        self.centered_index: Optional[CenteredChartIndex] = None
+        self.auto_centered_threshold = 1024
+        # Sovereign T2: the Riemannian tangent-space atlas. It is None until
+        # build_riemannian_atlas is called; an online write can then spawn a
+        # new chart without touching an existing chart frame.
+        self.riemannian_atlas = None
+        self.atlas_online_charts = 0
+        self._centroid_matrix: Optional[np.ndarray] = None
+        self._chart_of = np.full(64, -1, dtype=np.int32)
+        self.chart_queries = 0
+        self.chart_scanned = 0
+        self.flat_scanned = 0
         self._ensure(64)
         self._load()
 
@@ -894,6 +935,8 @@ class ZoneCMemory:
             "_weight": np.ones(capacity, dtype=np.float32),
             "_labels": np.full(capacity, -1, dtype=np.int64),
             "_ns": np.zeros(capacity, dtype=np.int16),
+            "_chart_of": np.full(capacity, -1, dtype=np.int32),
+            "_gram_norms": np.zeros(capacity, dtype=np.float64),
         }
         size = self._size
         for name, array in grown.items():
@@ -921,6 +964,7 @@ class ZoneCMemory:
             self._ts[index] = float(ts)
             self._labels[index] = int(label)
             self._grams[index] = gram
+            self._gram_norms[index] = float(np.linalg.norm(gram))
             self._tier[index] = int(tier)
             self._weight[index] = float(weight)
             self._ns[index] = self._ns_code(namespace)
@@ -928,6 +972,7 @@ class ZoneCMemory:
         self._next_id = highest + 1
         for engram_id in self._ids[: self._size]:
             self._prefetched.add(int(engram_id))
+        self.rebuild_charts()
 
     # ---------------------------------------------------------------- write
     def write(
@@ -971,10 +1016,12 @@ class ZoneCMemory:
             self._ts[index] = stamp
             self._labels[index] = int(label)
             self._grams[index] = gram
+            self._gram_norms[index] = float(np.linalg.norm(gram))
             self._tier[index] = int(tier)
             self._weight[index] = 1.0
             self._ns[index] = self._ns_code(namespace)
             self._size += 1
+            self._chart_insert(index, gram)
             # Holographic superposition: a running boundary wave, normalised.
             self.boundary = _unit(self.boundary + wave)
             key = np.exp(1j * np.angle(wave)).astype(np.complex64)
@@ -988,6 +1035,304 @@ class ZoneCMemory:
             self.write(wave, int(label), tier=tier)
             count += 1
         return count
+
+    # -------------------------------------------------------- chart index (S3)
+    def _chart_insert(self, index: int, gram: np.ndarray) -> None:
+        """Assign one resident row to a chart, creating one when needed.
+
+        A row joins the chart whose unit centroid is most coherent with it,
+        provided the chart still has capacity and the coherence clears
+        chart_affinity; otherwise a new chart is opened. Assignment is O(K) in
+        the number of charts, never O(N).
+        """
+        unit = np.asarray(gram, dtype=np.complex64)
+        unit = unit / max(float(np.linalg.norm(unit)), _EPS)
+        best = -1.0
+        best_id = -1
+        for chart_id, chart in enumerate(self.charts):
+            if int(chart["size"]) >= int(self.chart_capacity):
+                continue
+            similarity = float(np.real(np.vdot(chart["centroid"], unit)))
+            if similarity > best:
+                best = similarity
+                best_id = chart_id
+        if best_id < 0 or best < float(self.chart_affinity):
+            chart = {
+                "rows": [],
+                "sum": np.zeros(self.gram_dims, dtype=np.complex64),
+                "centroid": unit.astype(np.complex64),
+                "namespace": str(self.namespaces[int(self._ns[index])]),
+                "size": 0,
+            }
+            self.charts.append(chart)
+            best_id = len(self.charts) - 1
+        chart = self.charts[best_id]
+        chart["rows"].append(int(index))
+        chart["sum"] = np.asarray(chart["sum"]) + unit
+        chart["centroid"] = _unit(np.asarray(chart["sum"])).astype(np.complex64)
+        chart["size"] = int(chart["size"]) + 1
+        chart["row_array"] = None
+        self._chart_of[index] = int(best_id)
+        self._centroid_matrix = None
+
+    def rebuild_charts(self) -> Dict[str, int]:
+        """Re-partition every resident row. Used after a load or a delete."""
+        self.charts = []
+        self._chart_of[: self._capacity] = -1
+        for index in range(int(self._size)):
+            self._chart_insert(index, self._grams[index])
+        return self.chart_stats()
+
+    def chart_stats(self) -> Dict[str, object]:
+        sizes = [int(chart["size"]) for chart in self.charts]
+        return {
+            "charts": int(len(self.charts)),
+            "chart_capacity": int(self.chart_capacity),
+            "engrams": int(self._size),
+            "largest_chart": int(max(sizes) if sizes else 0),
+            "smallest_chart": int(min(sizes) if sizes else 0),
+            "mean_chart": float(np.mean(sizes) if sizes else 0.0),
+        }
+
+    def build_centered_index(
+        self,
+        namespace: Optional[str] = "default",
+        *,
+        capacity: Optional[int] = None,
+        tau_boundary: Optional[float] = None,
+        top_charts: int = 4,
+        top_charts_max: int = 6,
+        calibration_sample: int = 256,
+        replication: int = 1,
+        eps: float = 1e-3,
+    ) -> Dict[str, object]:
+        """Fit the T2 mean-centered atlas over one namespace's resident rows.
+
+        The fit reads the CURRENT Gram rows; it writes no wave and changes no
+        retrieval arithmetic. A caller can therefore rebuild it, compare it
+        against the flat scan, and only then let the automatic policy use it.
+        """
+        with self._lock:
+            size = int(self._size)
+            if namespace is None:
+                rows = np.arange(size, dtype=np.int64)
+            else:
+                code = self._ns_index.get(str(namespace))
+                if code is None:
+                    raise KeyError(f"namespace {namespace!r} has no resident rows")
+                rows = np.flatnonzero(self._ns[:size] == int(code)).astype(np.int64)
+            if rows.size == 0:
+                raise KeyError(f"namespace {namespace!r} has no resident rows")
+            grams = np.asarray(self._grams[rows], dtype=np.complex128)
+        index = CenteredChartIndex(
+            capacity=int(self.chart_capacity if capacity is None else capacity),
+            affinity=float(self.chart_affinity),
+            tau_boundary=float(0.10 if tau_boundary is None else tau_boundary),
+            top_charts=int(top_charts),
+            top_charts_max=int(top_charts_max),
+            namespace=None if namespace is None else str(namespace),
+            replication=int(replication),
+            eps=float(eps),
+        )
+        stats = index.build(grams, rows=rows, namespace=namespace)
+        margin = index.calibrate_margin(grams, sample=int(calibration_sample))
+        if tau_boundary is not None:
+            index.tau_boundary = float(tau_boundary)
+            margin["tau_boundary"] = float(tau_boundary)
+        with self._lock:
+            self.centered_index = index
+        return {
+            **stats,
+            "namespace": None if namespace is None else str(namespace),
+            "margin": margin,
+            "auto_threshold": int(self.auto_centered_threshold),
+        }
+
+    def build_riemannian_atlas(
+        self,
+        namespace: Optional[str] = "default",
+        *,
+        rank: int = 8,
+        capacity: Optional[int] = None,
+        tau_orth: float = 0.55,
+        tau_cap: float = 0.35,
+        top_charts: int = 2,
+        top_charts_max: int = 6,
+    ) -> Dict[str, object]:
+        """Fit the Sovereign T2 tangent-space atlas over one namespace."""
+        from henri.holarch.riemannian_atlas import RiemannianChartAtlas
+
+        with self._lock:
+            size = int(self._size)
+            if namespace is None:
+                rows = np.arange(size, dtype=np.int64)
+            else:
+                code = self._ns_index.get(str(namespace))
+                if code is None:
+                    raise KeyError(f"namespace {namespace!r} has no resident rows")
+                rows = np.flatnonzero(self._ns[:size] == int(code)).astype(np.int64)
+            if rows.size == 0:
+                raise KeyError(f"namespace {namespace!r} has no resident rows")
+            grams = np.asarray(self._grams[rows], dtype=np.complex128)
+        atlas = RiemannianChartAtlas(
+            rank=int(rank),
+            capacity=int(self.chart_capacity if capacity is None else capacity),
+            tau_orth=float(tau_orth),
+            tau_cap=float(tau_cap),
+            top_charts=int(top_charts),
+            top_charts_max=int(top_charts_max),
+        )
+        stats = atlas.build(grams, rows, namespace=None if namespace is None else str(namespace))
+        with self._lock:
+            self.riemannian_atlas = atlas
+        return {
+            **stats,
+            "namespace": None if namespace is None else str(namespace),
+        }
+
+    def observe_riemannian(
+        self, gram: np.ndarray, row: int, namespace: str = "online"
+    ) -> Dict[str, object]:
+        """Absorb or spawn a chart for one online write."""
+        if self.riemannian_atlas is None:
+            raise RuntimeError("build_riemannian_atlas must run before observe_riemannian")
+        result = self.riemannian_atlas.observe(gram, int(row), namespace=str(namespace))
+        if str(result.get("action")) == "spawn":
+            self.atlas_online_charts += 1
+        return result
+
+    def _centered_for(self, namespace: Optional[str]) -> Optional[CenteredChartIndex]:
+        """The atlas that may serve this namespace, or None."""
+        index = self.centered_index
+        if index is None or not index.synchronized:
+            return None
+        wanted = None if namespace is None else str(namespace)
+        if index.namespace is not None and index.namespace != wanted:
+            return None
+        return index
+
+    def _chart_selection(
+        self, query_gram: np.ndarray, top_charts: int
+    ) -> Tuple[np.ndarray, List[int]]:
+        """Rows of the winning charts, and the chart ids that won."""
+        size = int(self._size)
+        if not self.charts or int(top_charts) <= 0:
+            return np.arange(size, dtype=np.int64), []
+        centroids = self._centroid_matrix
+        if centroids is None or int(centroids.shape[0]) != len(self.charts):
+            centroids = np.stack([np.asarray(chart["centroid"]) for chart in self.charts])
+            centroids = centroids.astype(np.complex64)
+            self._centroid_matrix = centroids
+        unit = np.asarray(query_gram, dtype=np.complex64)
+        unit = unit / max(float(np.linalg.norm(unit)), _EPS)
+        coherence = np.real(centroids.conj() @ unit)
+        take = int(min(max(int(top_charts), 1), len(self.charts)))
+        winners = np.argsort(-coherence, kind="stable")[:take]
+        rows: List[np.ndarray] = []
+        for chart_id in winners:
+            chart = self.charts[int(chart_id)]
+            cached = chart.get("row_array")
+            if cached is None or int(np.asarray(cached).size) != int(chart["size"]):
+                cached = np.asarray(chart["rows"], dtype=np.int64)
+                chart["row_array"] = cached
+            rows.append(np.asarray(cached, dtype=np.int64))
+        selected = np.concatenate(rows) if rows else np.zeros(0, dtype=np.int64)
+        return selected, [int(chart_id) for chart_id in winners]
+
+    def orthogonalize_chart(
+        self,
+        chart_id: int,
+        tau_crosstalk: float = 0.12,
+        eta: float = 0.5,
+        rounds: int = 8,
+    ) -> Dict[str, object]:
+        """Reduce intra-chart Gram crosstalk by a Stiefel retraction (S3).
+
+        The chart's Gram block W is retracted toward its polar factor
+        U V^dagger, which is the closest matrix with orthogonal rows in the
+        Frobenius sense. Because m rows can exceed d columns, the polar factor
+        is only a partial isometry; a bounded number of pairwise deflations on
+        the most coherent pair then finishes the job. The waves themselves are
+        untouched - only the chart's routing projection moves - so the exact
+        coherence rescoring at egress still ranks the same neighbours.
+        """
+        if not 0 <= int(chart_id) < len(self.charts):
+            raise KeyError(f"chart {chart_id} does not exist")
+        chart = self.charts[int(chart_id)]
+        rows = np.asarray(chart["rows"], dtype=np.int64)
+        if rows.size < 2:
+            return {"chart": int(chart_id), "rows": int(rows.size), "applied": False}
+        gram = np.asarray(self._grams[rows], dtype=np.complex128)
+        norms = np.linalg.norm(gram, axis=1)
+        keep = norms > _EPS
+        rows = rows[keep]
+        gram = gram[keep]
+        norms = norms[keep]
+        if rows.size < 2:
+            return {"chart": int(chart_id), "rows": int(rows.size), "applied": False}
+        unit = gram / norms[:, None]
+
+        def crosstalk(matrix: np.ndarray) -> float:
+            squared = np.abs(matrix @ matrix.conj().T) ** 2
+            np.fill_diagonal(squared, 0.0)
+            return float(np.sqrt(squared.max())) if squared.size else 0.0
+
+        before = crosstalk(unit)
+        if before <= float(tau_crosstalk):
+            return {
+                "chart": int(chart_id),
+                "rows": int(rows.size),
+                "applied": False,
+                "crosstalk_before": float(before),
+                "crosstalk_after": float(before),
+                "tau_crosstalk": float(tau_crosstalk),
+            }
+        left, singular, right = np.linalg.svd(gram, full_matrices=False)
+        polar = left @ right
+        retracted = (1.0 - float(eta)) * gram + float(eta) * polar
+        retracted = retracted * (norms[:, None] / np.maximum(
+            np.linalg.norm(retracted, axis=1)[:, None], _EPS
+        ))
+        unit = retracted / np.maximum(np.linalg.norm(retracted, axis=1)[:, None], _EPS)
+        for _ in range(max(int(rounds), 0)):
+            coherence = np.abs(unit @ unit.conj().T) ** 2
+            np.fill_diagonal(coherence, 0.0)
+            pair = np.unravel_index(int(np.argmax(coherence)), coherence.shape)
+            i, j = int(pair[0]), int(pair[1])
+            overlap = np.vdot(unit[i], unit[j])
+            if abs(overlap) <= float(tau_crosstalk):
+                break
+            unit[j] = unit[j] - overlap * unit[i]
+            unit[j] = unit[j] / max(float(np.linalg.norm(unit[j])), _EPS)
+            retracted[j] = unit[j] * float(norms[j])
+        after = crosstalk(unit)
+        with self._lock:
+            self._grams[rows] = retracted.astype(np.complex64)
+            chart["sum"] = np.asarray(unit.sum(axis=0), dtype=np.complex64)
+            chart["centroid"] = _unit(np.asarray(chart["sum"])).astype(np.complex64)
+            for row, engram_id in zip(rows.tolist(), self._ids[rows].tolist()):
+                wave = None
+                cached = self._cache.get(int(engram_id))
+                if cached is not None:
+                    wave = cached
+                if wave is None:
+                    continue
+                try:
+                    self.store.replace_wave(
+                        int(engram_id), wave, self._grams[int(row)]
+                    )
+                except Exception:
+                    pass
+        return {
+            "chart": int(chart_id),
+            "rows": int(rows.size),
+            "applied": True,
+            "crosstalk_before": float(before),
+            "crosstalk_after": float(after),
+            "reduced": bool(after < before),
+            "tau_crosstalk": float(tau_crosstalk),
+            "eta": float(eta),
+        }
 
     # ----------------------------------------------------------------- read
     def _put_cache(self, engram_id: int, wave: np.ndarray) -> None:
@@ -1003,20 +1348,33 @@ class ZoneCMemory:
         the cache. A candidate set larger than the cache capacity would evict
         its own earlier members between the store fetch and the read.
         """
-        resolved: Dict[int, np.ndarray] = {}
+        ids = [int(i) for i in ids]
+        # Directive N2: the resident LRU snapshot is read under the short lock,
+        # then released. A miss pages the store on the store's own connection
+        # lock, not on the memory lock, so sixteen readers do not queue behind
+        # one disk read. The cache is re-acquired only to insert the fetched
+        # rows and bump the two counters.
         with self._lock:
-            for engram_id in ids:
-                if engram_id in self._cache:
-                    resolved[int(engram_id)] = self._cache[int(engram_id)]
-            missing = [int(i) for i in ids if int(i) not in resolved]
-            if missing:
-                for record in self.store.fetch(missing):
-                    resolved[record.engram_id] = record.wave
+            resolved: Dict[int, np.ndarray] = {
+                engram_id: self._cache[engram_id]
+                for engram_id in ids
+                if engram_id in self._cache
+            }
+        missing = [i for i in ids if i not in resolved]
+        if missing:
+            fetched = list(self.store.fetch(missing))
+            for record in fetched:
+                resolved[int(record.engram_id)] = record.wave
+            with self._lock:
+                for record in fetched:
                     self._put_cache(record.engram_id, record.wave)
                 self._cache_misses += len(missing)
-            if len(missing) < len(ids):
-                self._cache_hits += len(ids) - len(missing)
-            return [resolved[int(i)] for i in ids if int(i) in resolved]
+                if len(missing) < len(ids):
+                    self._cache_hits += len(ids) - len(missing)
+        else:
+            with self._lock:
+                self._cache_hits += len(ids)
+        return [resolved[int(i)] for i in ids if int(i) in resolved]
 
     def query(
         self,
@@ -1026,6 +1384,9 @@ class ZoneCMemory:
         candidate_multiplier: int = 6,
         task: Optional[str] = None,
         namespace: Optional[str] = "default",
+        use_charts: Optional[bool] = None,
+        top_charts: Optional[int] = None,
+        use_riemannian: bool = False,
     ) -> MemoryRead:
         """Retrieve the k best engrams and fuse them into one context wave.
 
@@ -1041,7 +1402,9 @@ class ZoneCMemory:
         """
         start = time.perf_counter()
         query_wave = _unit(wave)
-        query_gram = (self.projection @ query_wave).astype(np.complex64)
+        query_gram = self.projection @ query_wave
+        query_norm = float(np.linalg.norm(query_gram))
+        wave_norm = float(np.linalg.norm(query_wave))
         # Directive M2: capture an immutable snapshot under the lock, then
         # release it. A writer appends at index size or reallocates the arrays;
         # both leave this captured view intact, so the matrix-vector scoring
@@ -1059,19 +1422,83 @@ class ZoneCMemory:
             ts_all = self._ts
             tier_all = self._tier
             ns_code = self._ns_index.get(str(namespace)) if namespace is not None else None
-        grams = grams_all[:size]
-        ids = ids_all[:size]
-        labels = labels_all[:size]
+        # Directive S3: two-tier chart routing. The query scores the K chart
+        # centroids, then rescans only the winning charts' rows. With
+        # use_charts=False the scan is the flat O(N) reference, so the two arms
+        # of the gate are directly comparable on the same query.
+        winners: List[int] = []
+        centered_used = False
+        atlas_used = False
+        routing_margin = 0.0
+        centered_index = self._centered_for(namespace)
+        if bool(use_riemannian) and self.riemannian_atlas is not None:
+            selected, routing = self.riemannian_atlas.select(
+                query_gram,
+                namespace=None if namespace is None else str(namespace),
+                top_charts=top_charts,
+            )
+            self.chart_queries += 1
+            self.chart_scanned += int(selected.size)
+            winners = [int(value) for value in routing.get("charts") or []]
+            routing_margin = float(routing.get("margin", 0.0))
+            if selected.size:
+                row_index = selected
+                atlas_used = True
+            else:
+                row_index = np.arange(size, dtype=np.int64)
+        if use_charts is None:
+            # Directive T2: automatic only when a synchronized centered atlas
+            # exists for this namespace AND the namespace holds at least 1024
+            # rows. Otherwise the historical flat read is unchanged.
+            use_charts = bool(
+                centered_index is not None
+                and int(centered_index.size) >= int(self.auto_centered_threshold)
+            )
+        if atlas_used:
+            pass
+        elif bool(use_charts) and centered_index is not None:
+            selected, routing = centered_index.select(query_gram, top_charts=top_charts)
+            self.chart_queries += 1
+            self.chart_scanned += int(selected.size)
+            winners = [int(value) for value in routing.get("charts") or []]
+            routing_margin = float(routing.get("margin", 0.0))
+            if selected.size:
+                row_index = selected
+                centered_used = True
+            else:
+                row_index = np.arange(size, dtype=np.int64)
+        elif bool(use_charts) and self.charts:
+            take = int(self.top_charts_default if top_charts is None else top_charts)
+            selected, winners = self._chart_selection(query_gram, take)
+            self.chart_queries += 1
+            self.chart_scanned += int(selected.size)
+            row_index = selected if selected.size else np.arange(size, dtype=np.int64)
+        else:
+            row_index = np.arange(size, dtype=np.int64)
+            self.flat_scanned += int(size)
+        grams = grams_all[row_index]
+        ids = ids_all[row_index]
+        labels = labels_all[row_index]
+        ns_vec = ns_all[row_index]
+        ts_vec = ts_all[row_index]
+        tier_vec = tier_all[row_index]
+        size = int(row_index.size)
+        # The batched norm, not a per-row cached one: the two differ in the
+        # last ulp, and a cartridge selection or a Cul-de-Sac trap can turn on
+        # a near tie. The deployed arithmetic is preserved bit for bit.
         norms = np.linalg.norm(grams, axis=1)
+        # The arithmetic is the deployed one: divide by (norms * norm(query)),
+        # in that order. A reciprocal-multiply rewrites the last bits of every
+        # score, and a Cul-de-Sac trap is decided by a near tie.
         scores = np.real(grams @ np.conj(query_gram)) / np.maximum(
-            norms * (float(np.linalg.norm(query_gram)) + _EPS), _EPS
+            norms * (query_norm + _EPS), _EPS
         )
         scores = np.nan_to_num(scores, nan=-1.0, posinf=-1.0, neginf=-1.0)
         if namespace is not None:
             allowed_ns = (
                 np.zeros(size, dtype=bool)
                 if ns_code is None
-                else (ns_all[:size] == int(ns_code))
+                else (ns_vec == int(ns_code))
             )
             if not bool(allowed_ns.any()):
                 self._last_query = query_wave
@@ -1115,16 +1542,37 @@ class ZoneCMemory:
         candidate_ids = [int(ids[i]) for i in order]
         candidate_scores = {int(ids[i]): float(scores[i]) for i in order}
         candidate_meta = {
-            int(ids[i]): (int(labels[i]), float(ts_all[i]), int(tier_all[i]))
+            int(ids[i]): (int(labels[i]), float(ts_vec[i]), int(tier_vec[i]))
             for i in order
         }
         waves = self._fetch(candidate_ids)
         by_id = dict(zip(candidate_ids, waves))
-        exact = []
-        for engram_id in candidate_ids:
-            if engram_id not in by_id:
-                continue
-            exact.append((engram_id, coherence(query_wave, by_id[engram_id])))
+        # Directive N2: one vectorised exact-coherence product over the
+        # candidate pool replaces the per-candidate Python loop. The
+        # arithmetic is the same normalised Hermitian inner product, but it
+        # runs as one C contraction, so the read path spends its time in
+        # NumPy rather than in the interpreter.
+        keep_ids = [engram_id for engram_id in candidate_ids if engram_id in by_id]
+        if keep_ids:
+            # complex64 keeps the rescoring product on the same precision as
+            # the stored waves and halves the bytes the egress path moves.
+            candidate_matrix = np.stack([by_id[engram_id] for engram_id in keep_ids]).astype(
+                np.complex128
+            )
+            query_vector = np.asarray(query_wave, dtype=np.complex128).reshape(-1)
+            # The wave norm was already computed at ingress. Recomputing it
+            # here was a second D-length norm on every read; the arithmetic is
+            # the same normalised Hermitian product.
+            denominator = np.linalg.norm(candidate_matrix, axis=1) * (
+                wave_norm + _EPS
+            )
+            exact_scores = np.real(candidate_matrix @ np.conj(query_vector)) / denominator
+            exact = [
+                (int(engram_id), float(score))
+                for engram_id, score in zip(keep_ids, exact_scores)
+            ]
+        else:
+            exact = []
         exact.sort(key=lambda pair: (-pair[1], pair[0]))
         top = exact[: int(k)]
         hits = [
@@ -1168,6 +1616,11 @@ class ZoneCMemory:
             used_boundary=False,
             s_max=float(s_max),
             top_wave=(by_id[top[0][0]] if top else None),
+            scanned=int(row_index.size),
+            probed_charts=int(len(winners)),
+            centered=bool(centered_used),
+            atlas=bool(atlas_used),
+            routing_margin=float(routing_margin),
         )
 
     def fetch_wave(self, engram_id: int) -> np.ndarray:
@@ -1369,6 +1822,43 @@ class ZoneCMemory:
         if getter is None:
             return []
         return list(getter())
+
+    # ------------------------------------------------------- global epoch (O2)
+    STATE_EPOCH_NAMESPACE = "__system__"
+    STATE_EPOCH_KIND = "sync"
+    STATE_EPOCH_KEY = "state_epoch"
+
+    def state_epoch(self) -> int:
+        """Read the database-backed mutation epoch shared by every lane.
+
+        Directive O2. The value lives in engram_meta, so eight SidecarService
+        processes that open the same store see one monotonic counter. A read
+        of an absent table returns 0, which is the pre-Cycle-O state.
+        """
+        rows = self.get_meta(self.STATE_EPOCH_NAMESPACE, self.STATE_EPOCH_KIND, self.STATE_EPOCH_KEY)
+        if not rows:
+            return 0
+        try:
+            return int(dict(rows[0][1]).get("epoch", 0))
+        except Exception:
+            return 0
+
+    def bump_state_epoch(self) -> int:
+        """Advance the shared epoch and return the new value.
+
+        The read-modify-write is serialised by the memory lock inside one
+        process and by SQLite's own write lock across processes. The epoch is
+        metadata, not an engram, so it changes no retrieval result.
+        """
+        with self._lock:
+            epoch = int(self.state_epoch()) + 1
+            self.put_meta(
+                self.STATE_EPOCH_NAMESPACE,
+                self.STATE_EPOCH_KIND,
+                self.STATE_EPOCH_KEY,
+                {"epoch": epoch, "updated_ts": float(time.time())},
+            )
+            return epoch
 
     # ------------------------------------------------------- boundary axioms
     def register_axiom(

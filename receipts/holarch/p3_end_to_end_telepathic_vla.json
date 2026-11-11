@@ -1,0 +1,457 @@
+{
+  "stage": "P3",
+  "episodes": {
+    "count": 12,
+    "goals_reached": 12,
+    "code_executed": 12,
+    "text_tokens_exchanged": 0,
+    "receiver_prefill_tokens": 0,
+    "receipt_chain_valid": 12,
+    "rows": [
+      {
+        "episode": 0,
+        "truth": {
+          "a": 3,
+          "b": 4,
+          "op": 0,
+          "bound": 2
+        },
+        "decoded": {
+          "a": 3,
+          "b": 4,
+          "op": 0,
+          "bound": 2,
+          "terminal": 0
+        },
+        "region_correct": {
+          "a": true,
+          "b": true,
+          "op": true,
+          "bound": true
+        },
+        "reached_goal": true,
+        "steps": 14,
+        "code_status": "verified",
+        "code_executed": true,
+        "operator": "+",
+        "slots_u": 20,
+        "text_tokens": 0,
+        "receipts": 3,
+        "chain_valid": true
+      },
+      {
+        "episode": 1,
+        "truth": {
+          "a": 4,
+          "b": 4,
+          "op": 1,
+          "bound": 7
+        },
+        "decoded": {
+          "a": 4,
+          "b": 4,
+          "op": 1,
+          "bound": 7,
+          "terminal": 0
+        },
+        "region_correct": {
+          "a": true,
+          "b": true,
+          "op": true,
+          "bound": true
+        },
+        "reached_goal": true,
+        "steps": 18,
+        "code_status": "verified",
+        "code_executed": true,
+        "operator": "-",
+        "slots_u": 20,
+        "text_tokens": 0,
+        "receipts": 3,
+        "chain_valid": true
+      },
+      {
+        "episode": 2,
+        "truth": {
+          "a": 2,
+          "b": 4,
+          "op": 2,
+          "bound": 0
+        },
+        "decoded": {
+          "a": 2,
+          "b": 4,
+          "op": 2,
+          "bound": 0,
+          "terminal": 0
+        },
+        "region_correct": {
+          "a": true,
+          "b": true,
+          "op": true,
+          "bound": true
+        },
+        "reached_goal": true,
+        "steps": 12,
+        "code_status": "verified",
+        "code_executed": true,
+        "operator": "*",
+        "slots_u": 20,
+        "text_tokens": 0,
+        "receipts": 3,
+        "chain_valid": true
+      },
+      {
+        "episode": 3,
+        "truth": {
+          "a": 4,
+          "b": 0,
+          "op": 0,
+          "bound": 0
+        },
+        "decoded": {
+          "a": 4,
+          "b": 0,
+          "op": 0,
+          "bound": 0,
+          "terminal": 0
+        },
+        "region_correct": {
+          "a": true,
+          "b": true,
+          "op": true,
+          "bound": true
+        },
+        "reached_goal": true,
+        "steps": 21,
+        "code_status": "verified",
+        "code_executed": true,
+        "operator": "+",
+        "slots_u": 20,
+        "text_tokens": 0,
+        "receipts": 3,
+        "chain_valid": true
+      },
+      {
+        "episode": 4,
+        "truth": {
+          "a": 4,
+          "b": 2,
+          "op": 1,
+          "bound": 5
+        },
+        "decoded": {
+          "a": 4,
+          "b": 2,
+          "op": 1,
+          "bound": 5,
+          "terminal": 0
+        },
+        "region_correct": {
+          "a": true,
+          "b": true,
+          "op": true,
+          "bound": true
+        },
+        "reached_goal": true,
+        "steps": 13,
+        "code_status": "verified",
+        "code_executed": true,
+        "operator": "-",
+        "slots_u": 20,
+        "text_tokens": 0,
+        "receipts": 3,
+        "chain_valid": true
+      },
+      {
+        "episode": 5,
+        "truth": {
+          "a": 4,
+          "b": 7,
+          "op": 2,
+          "bound": 3
+        },
+        "decoded": {
+          "a": 4,
+          "b": 7,
+          "op": 2,
+          "bound": 3,
+          "terminal": 0
+        },
+        "region_correct": {
+          "a": true,
+          "b": true,
+          "op": true,
+          "bound": true
+        },
+        "reached_goal": true,
+        "steps": 9,
+        "code_status": "verified",
+        "code_executed": true,
+        "operator": "*",
+        "slots_u": 20,
+        "text_tokens": 0,
+        "receipts": 3,
+        "chain_valid": true
+      },
+      {
+        "episode": 6,
+        "truth": {
+          "a": 0,
+          "b": 0,
+          "op": 0,
+          "bound": 4
+        },
+        "decoded": {
+          "a": 0,
+          "b": 0,
+          "op": 0,
+          "bound": 4,
+          "terminal": 0
+        },
+        "region_correct": {
+          "a": true,
+          "b": true,
+          "op": true,
+          "bound": true
+        },
+        "reached_goal": true,
+        "steps": 5,
+        "code_status": "verified",
+        "code_executed": true,
+        "operator": "+",
+        "slots_u": 20,
+        "text_tokens": 0,
+        "receipts": 3,
+        "chain_valid": true
+      },
+      {
+        "episode": 7,
+        "truth": {
+          "a": 2,
+          "b": 0,
+          "op": 1,
+          "bound": 2
+        },
+        "decoded": {
+          "a": 2,
+          "b": 0,
+          "op": 1,
+          "bound": 2,
+          "terminal": 0
+        },
+        "region_correct": {
+          "a": true,
+          "b": true,
+          "op": true,
+          "bound": true
+        },
+        "reached_goal": true,
+        "steps": 6,
+        "code_status": "verified",
+        "code_executed": true,
+        "operator": "-",
+        "slots_u": 20,
+        "text_tokens": 0,
+        "receipts": 3,
+        "chain_valid": true
+      },
+      {
+        "episode": 8,
+        "truth": {
+          "a": 7,
+          "b": 5,
+          "op": 2,
+          "bound": 4
+        },
+        "decoded": {
+          "a": 7,
+          "b": 5,
+          "op": 2,
+          "bound": 4,
+          "terminal": 0
+        },
+        "region_correct": {
+          "a": true,
+          "b": true,
+          "op": true,
+          "bound": true
+        },
+        "reached_goal": true,
+        "steps": 6,
+        "code_status": "verified",
+        "code_executed": true,
+        "operator": "*",
+        "slots_u": 20,
+        "text_tokens": 0,
+        "receipts": 3,
+        "chain_valid": true
+      },
+      {
+        "episode": 9,
+        "truth": {
+          "a": 0,
+          "b": 3,
+          "op": 0,
+          "bound": 4
+        },
+        "decoded": {
+          "a": 0,
+          "b": 3,
+          "op": 0,
+          "bound": 4,
+          "terminal": 0
+        },
+        "region_correct": {
+          "a": true,
+          "b": true,
+          "op": true,
+          "bound": true
+        },
+        "reached_goal": true,
+        "steps": 5,
+        "code_status": "verified",
+        "code_executed": true,
+        "operator": "+",
+        "slots_u": 20,
+        "text_tokens": 0,
+        "receipts": 3,
+        "chain_valid": true
+      },
+      {
+        "episode": 10,
+        "truth": {
+          "a": 0,
+          "b": 4,
+          "op": 1,
+          "bound": 4
+        },
+        "decoded": {
+          "a": 0,
+          "b": 4,
+          "op": 1,
+          "bound": 4,
+          "terminal": 0
+        },
+        "region_correct": {
+          "a": true,
+          "b": true,
+          "op": true,
+          "bound": true
+        },
+        "reached_goal": true,
+        "steps": 7,
+        "code_status": "verified",
+        "code_executed": true,
+        "operator": "-",
+        "slots_u": 20,
+        "text_tokens": 0,
+        "receipts": 3,
+        "chain_valid": true
+      },
+      {
+        "episode": 11,
+        "truth": {
+          "a": 5,
+          "b": 2,
+          "op": 2,
+          "bound": 0
+        },
+        "decoded": {
+          "a": 5,
+          "b": 2,
+          "op": 2,
+          "bound": 0,
+          "terminal": 0
+        },
+        "region_correct": {
+          "a": true,
+          "b": true,
+          "op": true,
+          "bound": true
+        },
+        "reached_goal": true,
+        "steps": 7,
+        "code_status": "verified",
+        "code_executed": true,
+        "operator": "*",
+        "slots_u": 20,
+        "text_tokens": 0,
+        "receipts": 3,
+        "chain_valid": true
+      }
+    ]
+  },
+  "adversarial": {
+    "episodes": 4,
+    "vetoed_and_refused": 4,
+    "hallucinated_sources": 0,
+    "rows": [
+      {
+        "episode": 0,
+        "vision_admitted": false,
+        "veto_reason": "binding",
+        "code_status": "refused",
+        "refused": true,
+        "source_chars": 0
+      },
+      {
+        "episode": 1,
+        "vision_admitted": false,
+        "veto_reason": "binding",
+        "code_status": "refused",
+        "refused": true,
+        "source_chars": 0
+      },
+      {
+        "episode": 2,
+        "vision_admitted": false,
+        "veto_reason": "binding",
+        "code_status": "refused",
+        "refused": true,
+        "source_chars": 0
+      },
+      {
+        "episode": 3,
+        "vision_admitted": false,
+        "veto_reason": "binding",
+        "code_status": "refused",
+        "refused": true,
+        "source_chars": 0
+      }
+    ],
+    "gate_calibration": {
+      "rows": 15,
+      "tau_chance": 0.2682977765798569,
+      "tau_residual": 1.0474179363250733,
+      "s_max_min": 0.31564444303512573,
+      "s_max_median": 0.8179979920387268,
+      "delta_max": 0.9880170822143555,
+      "delta_median": 0.2205510139465332
+    }
+  },
+  "engine": {
+    "corpus_digest": "b734d46bf79ecd88",
+    "vocabulary_size": 2048,
+    "vocabulary_digest": "d5a64f73b97c6aab",
+    "tokens": 688596,
+    "files": 25,
+    "vocab_locked": true,
+    "vocab_ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
+    "vocab_lock_path": "C:\\Users\\chan\\Desktop\\HENRI v6\\receipts\\holarch\\vocab_lock.json"
+  },
+  "gate": {
+    "p3_episodes_12": true,
+    "p3_goals_12": true,
+    "p3_code_executed_12": true,
+    "p3_zero_text_glue": true,
+    "p3_zero_receiver_prefill": true,
+    "p3_chain_valid_12": true,
+    "p3_corrupted_4_vetoed": true,
+    "p3_zero_hallucination": true,
+    "passed": true
+  },
+  "wall_seconds": 92.85355909995269,
+  "evidence": "OBSERVED",
+  "passed": true
+}

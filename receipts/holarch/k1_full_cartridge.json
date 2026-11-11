@@ -2,25 +2,25 @@
   "stage": "K1",
   "checkpoint": {
     "path": "receipts\\holarch\\holarch_medium.pt",
-    "sha256": "f06642dcaf37dd6553dc311f8a7d506628c9998f57bfaabbe6e34ffd7659d9bd",
-    "bytes": 7756571,
+    "sha256": "5ca328b2ef76f844ac5bdf97ae440d20e2eea173a137f1e2d6f55c7efedc4083",
+    "bytes": 7910227,
     "seed_engrams": {
-      "count": 845,
-      "bytes": 2512125,
-      "dtype": "int16-phase-uint8-amplitude-zlib9",
+      "count": 1349,
+      "bytes": 2617069,
+      "dtype": "v3-action-int12-sqrt4-support-int8-exact16-zlib9",
       "rows_by_task": {
-        "vision": 106,
+        "vision": 610,
         "language": 63,
         "action": 604,
         "relational": 72
       },
-      "reconstruction_coherence_min": 0.9999657273292542
+      "reconstruction_coherence_min": 0.997283399105072
     }
   },
   "clean_room": {
     "pre_mount_rows": 0,
-    "post_mount_rows": 845,
-    "hydrated": 845,
+    "post_mount_rows": 1349,
+    "hydrated": 1349,
     "source_fixture_copied": false
   },
   "reference_store": {
@@ -1609,7 +1609,7 @@
   },
   "multi_task": {
     "test": {
-      "vision": 0.9764309764309764,
+      "vision": 0.9797979797979798,
       "language": 0.1943359375,
       "action": 0.7875,
       "relational": 0.7746478873239436
@@ -1621,9 +1621,9 @@
       "relational": 0.7746478873239436
     },
     "veto_rates": {
-      "vision": 0.05723905723905724,
-      "language": 0.19580078125,
-      "action": 0.0,
+      "vision": 0.003367003367003367,
+      "language": 0.1904296875,
+      "action": 0.025,
       "relational": 0.09859154929577464
     },
     "empty_store_veto": {
@@ -1648,6 +1648,6 @@
     "empty_store_veto_zero": true,
     "passed": true
   },
-  "wall_seconds": 172.13702240001294,
+  "wall_seconds": 121.78574690001551,
   "evidence": "OBSERVED"
 }

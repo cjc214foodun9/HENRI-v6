@@ -1,0 +1,3795 @@
+{
+  "stage": "O4",
+  "synthesis": {
+    "prior_total": 84,
+    "prior_passed": 84,
+    "holonic_accepted": 4,
+    "holonic_traps_refused": 4,
+    "total": 92,
+    "passed": 92,
+    "discoveries": [
+      {
+        "id": "holon_len",
+        "status": "accepted",
+        "accepted": [
+          "split_identifiers",
+          "unique_count",
+          "clamp_unit"
+        ],
+        "source": "def holon_len(text):\n    _s0_cleaned = text.replace('(', ' ').replace(')', ' ').replace(',', ' ')\n    step_1 = [_s0_token for _s0_token in _s0_cleaned.split() if _s0_token.isidentifier()]\n    step_2 = len(set(step_1))\n    _s2_low = 0.0\n    _s2_high = 2.5\n    _s2_result = step_2 if step_2 > _s2_low else _s2_low\n    return _s2_result if _s2_result < _s2_high else _s2_high\n",
+        "intent": "Write a function holon_len that takes argument text and returns the number of tokens in a token list after splitting the text, then clips the result into the closed interval 0.0 to 2.5.",
+        "attempts": 146,
+        "type_refused": 124,
+        "exec_refused": 21,
+        "stage_order": [
+          "split_identifiers",
+          "exceeds_tau",
+          "invert_index",
+          "clamp_unit",
+          "strip_comments",
+          "join_csv",
+          "max_or_zero",
+          "running_deltas",
+          "mean_of",
+          "normalize_scores",
+          "abs_values",
+          "sorted_keys",
+          "unique_count",
+          "sequence_length",
+          "caller_names"
+        ],
+        "stage_coherence": [
+          {
+            "stage": "split_identifiers",
+            "coherence": 0.20441187918186188
+          },
+          {
+            "stage": "exceeds_tau",
+            "coherence": 0.20192602276802063
+          },
+          {
+            "stage": "invert_index",
+            "coherence": 0.16652026772499084
+          },
+          {
+            "stage": "clamp_unit",
+            "coherence": 0.15571030974388123
+          },
+          {
+            "stage": "strip_comments",
+            "coherence": 0.13735239207744598
+          },
+          {
+            "stage": "join_csv",
+            "coherence": 0.11333895474672318
+          },
+          {
+            "stage": "max_or_zero",
+            "coherence": 0.039663445204496384
+          },
+          {
+            "stage": "running_deltas",
+            "coherence": 0.030599799007177353
+          },
+          {
+            "stage": "mean_of",
+            "coherence": 0.030473385006189346
+          },
+          {
+            "stage": "normalize_scores",
+            "coherence": 0.026294581592082977
+          },
+          {
+            "stage": "abs_values",
+            "coherence": 0.025124287232756615
+          },
+          {
+            "stage": "sorted_keys",
+            "coherence": 0.020507309585809708
+          },
+          {
+            "stage": "unique_count",
+            "coherence": 0.01135663315653801
+          },
+          {
+            "stage": "sequence_length",
+            "coherence": 0.0036147572100162506
+          },
+          {
+            "stage": "caller_names",
+            "coherence": -0.0007506893016397953
+          }
+        ],
+        "candidates": 15,
+        "effects_total": 145,
+        "effects": [
+          {
+            "chain": [
+              "split_identifiers",
+              "normalize_scores",
+              "sorted_keys"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind sorted_keys.index ['mapping']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "normalize_scores",
+              "unique_count"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind unique_count.items ['sequence']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "normalize_scores",
+              "sequence_length"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind sequence_length.items ['sequence']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "normalize_scores",
+              "caller_names"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind caller_names.text ['text']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "abs_values",
+              "exceeds_tau"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: abs_values.returns ['numeric_sequence'] cannot bind exceeds_tau.value ['numeric']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "abs_values",
+              "invert_index"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: abs_values.returns ['numeric_sequence'] cannot bind invert_index.index ['mapping']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "abs_values",
+              "clamp_unit"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: abs_values.returns ['numeric_sequence'] cannot bind clamp_unit.value ['numeric']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "abs_values",
+              "strip_comments"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: abs_values.returns ['numeric_sequence'] cannot bind strip_comments.text ['text']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "abs_values",
+              "join_csv"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: abs_values.returns ['numeric_sequence'] cannot bind join_csv.items ['sequence']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "abs_values",
+              "max_or_zero"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "TypeError: bad operand type for abs(): 'str'"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "abs_values",
+              "running_deltas"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "TypeError: bad operand type for abs(): 'str'"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "abs_values",
+              "mean_of"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "TypeError: bad operand type for abs(): 'str'"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "abs_values",
+              "normalize_scores"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "TypeError: bad operand type for abs(): 'str'"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "abs_values",
+              "sorted_keys"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: abs_values.returns ['numeric_sequence'] cannot bind sorted_keys.index ['mapping']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "abs_values",
+              "unique_count"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: abs_values.returns ['numeric_sequence'] cannot bind unique_count.items ['sequence']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "abs_values",
+              "sequence_length"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: abs_values.returns ['numeric_sequence'] cannot bind sequence_length.items ['sequence']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "abs_values",
+              "caller_names"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: abs_values.returns ['numeric_sequence'] cannot bind caller_names.text ['text']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "sorted_keys",
+              "exceeds_tau"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: split_identifiers.returns ['sequence'] cannot bind sorted_keys.index ['mapping']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "sorted_keys",
+              "invert_index"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: split_identifiers.returns ['sequence'] cannot bind sorted_keys.index ['mapping']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "sorted_keys",
+              "clamp_unit"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: split_identifiers.returns ['sequence'] cannot bind sorted_keys.index ['mapping']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "sorted_keys",
+              "strip_comments"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: split_identifiers.returns ['sequence'] cannot bind sorted_keys.index ['mapping']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "sorted_keys",
+              "join_csv"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: split_identifiers.returns ['sequence'] cannot bind sorted_keys.index ['mapping']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "sorted_keys",
+              "max_or_zero"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: split_identifiers.returns ['sequence'] cannot bind sorted_keys.index ['mapping']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "sorted_keys",
+              "running_deltas"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: split_identifiers.returns ['sequence'] cannot bind sorted_keys.index ['mapping']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "sorted_keys",
+              "mean_of"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: split_identifiers.returns ['sequence'] cannot bind sorted_keys.index ['mapping']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "sorted_keys",
+              "normalize_scores"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: split_identifiers.returns ['sequence'] cannot bind sorted_keys.index ['mapping']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "sorted_keys",
+              "abs_values"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: split_identifiers.returns ['sequence'] cannot bind sorted_keys.index ['mapping']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "sorted_keys",
+              "unique_count"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: split_identifiers.returns ['sequence'] cannot bind sorted_keys.index ['mapping']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "sorted_keys",
+              "sequence_length"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: split_identifiers.returns ['sequence'] cannot bind sorted_keys.index ['mapping']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "sorted_keys",
+              "caller_names"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: split_identifiers.returns ['sequence'] cannot bind sorted_keys.index ['mapping']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "unique_count",
+              "exceeds_tau"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "AssertionError: "
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "unique_count",
+              "invert_index"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: unique_count.returns ['numeric'] cannot bind invert_index.index ['mapping']"
+          }
+        ],
+        "plans_before": 0,
+        "plan": "holonic_holon_len",
+        "plan_digest": "02a37a5ecd03a537aa1ff34dc144d463dd3b84599139a864f824318d47d49f2f",
+        "engram_id": 1350,
+        "verified": true,
+        "residual_state": 0,
+        "plans_after": 1,
+        "reverted": 0
+      },
+      {
+        "id": "holon_keys",
+        "status": "accepted",
+        "accepted": [
+          "invert_index",
+          "sorted_keys",
+          "max_or_zero"
+        ],
+        "source": "def holon_keys(index):\n    _s0_inverted = {}\n    for _s0_key, _s0_value in index.items():\n        _s0_inverted.setdefault(_s0_value, []).append(_s0_key)\n    step_1 = _s0_inverted\n    step_2 = sorted(step_1.keys())\n    _s2_floor = 0.0\n    _s2_peak = max(step_2) if step_2 else _s2_floor\n    return _s2_peak if _s2_peak > _s2_floor else _s2_floor\n",
+        "intent": "Write a function holon_keys that takes argument index and returns the sorted keys of a mapping, then returns the number of tokens in that result, then clips it into 0.0 to 2.5.",
+        "attempts": 449,
+        "type_refused": 422,
+        "exec_refused": 26,
+        "stage_order": [
+          "exceeds_tau",
+          "split_identifiers",
+          "invert_index",
+          "clamp_unit",
+          "strip_comments",
+          "running_deltas",
+          "join_csv",
+          "sorted_keys",
+          "max_or_zero",
+          "sequence_length",
+          "abs_values",
+          "caller_names",
+          "unique_count",
+          "normalize_scores",
+          "mean_of"
+        ],
+        "stage_coherence": [
+          {
+            "stage": "exceeds_tau",
+            "coherence": 0.1881566047668457
+          },
+          {
+            "stage": "split_identifiers",
+            "coherence": 0.1737367957830429
+          },
+          {
+            "stage": "invert_index",
+            "coherence": 0.17161616683006287
+          },
+          {
+            "stage": "clamp_unit",
+            "coherence": 0.15168830752372742
+          },
+          {
+            "stage": "strip_comments",
+            "coherence": 0.1037312000989914
+          },
+          {
+            "stage": "running_deltas",
+            "coherence": 0.1021815687417984
+          },
+          {
+            "stage": "join_csv",
+            "coherence": 0.08655857294797897
+          },
+          {
+            "stage": "sorted_keys",
+            "coherence": 0.08549559116363525
+          },
+          {
+            "stage": "max_or_zero",
+            "coherence": 0.06878656148910522
+          },
+          {
+            "stage": "sequence_length",
+            "coherence": 0.03669891133904457
+          },
+          {
+            "stage": "abs_values",
+            "coherence": 0.033940985798835754
+          },
+          {
+            "stage": "caller_names",
+            "coherence": 0.0273110531270504
+          },
+          {
+            "stage": "unique_count",
+            "coherence": 0.025301309302449226
+          },
+          {
+            "stage": "normalize_scores",
+            "coherence": 0.018154483288526535
+          },
+          {
+            "stage": "mean_of",
+            "coherence": 0.011166064068675041
+          }
+        ],
+        "candidates": 15,
+        "effects_total": 448,
+        "effects": [
+          {
+            "chain": [
+              "invert_index",
+              "running_deltas",
+              "exceeds_tau"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: invert_index.returns ['mapping'] cannot bind running_deltas.values ['numeric_sequence']"
+          },
+          {
+            "chain": [
+              "invert_index",
+              "running_deltas",
+              "split_identifiers"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: invert_index.returns ['mapping'] cannot bind running_deltas.values ['numeric_sequence']"
+          },
+          {
+            "chain": [
+              "invert_index",
+              "running_deltas",
+              "clamp_unit"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: invert_index.returns ['mapping'] cannot bind running_deltas.values ['numeric_sequence']"
+          },
+          {
+            "chain": [
+              "invert_index",
+              "running_deltas",
+              "strip_comments"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: invert_index.returns ['mapping'] cannot bind running_deltas.values ['numeric_sequence']"
+          },
+          {
+            "chain": [
+              "invert_index",
+              "running_deltas",
+              "join_csv"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: invert_index.returns ['mapping'] cannot bind running_deltas.values ['numeric_sequence']"
+          },
+          {
+            "chain": [
+              "invert_index",
+              "running_deltas",
+              "sorted_keys"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: invert_index.returns ['mapping'] cannot bind running_deltas.values ['numeric_sequence']"
+          },
+          {
+            "chain": [
+              "invert_index",
+              "running_deltas",
+              "max_or_zero"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: invert_index.returns ['mapping'] cannot bind running_deltas.values ['numeric_sequence']"
+          },
+          {
+            "chain": [
+              "invert_index",
+              "running_deltas",
+              "sequence_length"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: invert_index.returns ['mapping'] cannot bind running_deltas.values ['numeric_sequence']"
+          },
+          {
+            "chain": [
+              "invert_index",
+              "running_deltas",
+              "abs_values"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: invert_index.returns ['mapping'] cannot bind running_deltas.values ['numeric_sequence']"
+          },
+          {
+            "chain": [
+              "invert_index",
+              "running_deltas",
+              "caller_names"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: invert_index.returns ['mapping'] cannot bind running_deltas.values ['numeric_sequence']"
+          },
+          {
+            "chain": [
+              "invert_index",
+              "running_deltas",
+              "unique_count"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: invert_index.returns ['mapping'] cannot bind running_deltas.values ['numeric_sequence']"
+          },
+          {
+            "chain": [
+              "invert_index",
+              "running_deltas",
+              "normalize_scores"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: invert_index.returns ['mapping'] cannot bind running_deltas.values ['numeric_sequence']"
+          },
+          {
+            "chain": [
+              "invert_index",
+              "running_deltas",
+              "mean_of"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: invert_index.returns ['mapping'] cannot bind running_deltas.values ['numeric_sequence']"
+          },
+          {
+            "chain": [
+              "invert_index",
+              "join_csv",
+              "exceeds_tau"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: invert_index.returns ['mapping'] cannot bind join_csv.items ['sequence']"
+          },
+          {
+            "chain": [
+              "invert_index",
+              "join_csv",
+              "split_identifiers"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: invert_index.returns ['mapping'] cannot bind join_csv.items ['sequence']"
+          },
+          {
+            "chain": [
+              "invert_index",
+              "join_csv",
+              "clamp_unit"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: invert_index.returns ['mapping'] cannot bind join_csv.items ['sequence']"
+          },
+          {
+            "chain": [
+              "invert_index",
+              "join_csv",
+              "strip_comments"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: invert_index.returns ['mapping'] cannot bind join_csv.items ['sequence']"
+          },
+          {
+            "chain": [
+              "invert_index",
+              "join_csv",
+              "running_deltas"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: invert_index.returns ['mapping'] cannot bind join_csv.items ['sequence']"
+          },
+          {
+            "chain": [
+              "invert_index",
+              "join_csv",
+              "sorted_keys"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: invert_index.returns ['mapping'] cannot bind join_csv.items ['sequence']"
+          },
+          {
+            "chain": [
+              "invert_index",
+              "join_csv",
+              "max_or_zero"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: invert_index.returns ['mapping'] cannot bind join_csv.items ['sequence']"
+          },
+          {
+            "chain": [
+              "invert_index",
+              "join_csv",
+              "sequence_length"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: invert_index.returns ['mapping'] cannot bind join_csv.items ['sequence']"
+          },
+          {
+            "chain": [
+              "invert_index",
+              "join_csv",
+              "abs_values"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: invert_index.returns ['mapping'] cannot bind join_csv.items ['sequence']"
+          },
+          {
+            "chain": [
+              "invert_index",
+              "join_csv",
+              "caller_names"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: invert_index.returns ['mapping'] cannot bind join_csv.items ['sequence']"
+          },
+          {
+            "chain": [
+              "invert_index",
+              "join_csv",
+              "unique_count"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: invert_index.returns ['mapping'] cannot bind join_csv.items ['sequence']"
+          },
+          {
+            "chain": [
+              "invert_index",
+              "join_csv",
+              "normalize_scores"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: invert_index.returns ['mapping'] cannot bind join_csv.items ['sequence']"
+          },
+          {
+            "chain": [
+              "invert_index",
+              "join_csv",
+              "mean_of"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: invert_index.returns ['mapping'] cannot bind join_csv.items ['sequence']"
+          },
+          {
+            "chain": [
+              "invert_index",
+              "sorted_keys",
+              "exceeds_tau"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: sorted_keys.returns ['sequence'] cannot bind exceeds_tau.value ['numeric']"
+          },
+          {
+            "chain": [
+              "invert_index",
+              "sorted_keys",
+              "split_identifiers"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: sorted_keys.returns ['sequence'] cannot bind split_identifiers.text ['text']"
+          },
+          {
+            "chain": [
+              "invert_index",
+              "sorted_keys",
+              "clamp_unit"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: sorted_keys.returns ['sequence'] cannot bind clamp_unit.value ['numeric']"
+          },
+          {
+            "chain": [
+              "invert_index",
+              "sorted_keys",
+              "strip_comments"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: sorted_keys.returns ['sequence'] cannot bind strip_comments.text ['text']"
+          },
+          {
+            "chain": [
+              "invert_index",
+              "sorted_keys",
+              "running_deltas"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "TypeError: 'float' object cannot be interpreted as an integer"
+          },
+          {
+            "chain": [
+              "invert_index",
+              "sorted_keys",
+              "join_csv"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "AssertionError: "
+          }
+        ],
+        "plans_before": 1,
+        "plan": "holonic_holon_keys",
+        "plan_digest": "97287c3dac9fdb0b72384d66fe7c2b785f27ff8e2c2a9c667403ed9f9da5e54f",
+        "engram_id": 1351,
+        "verified": true,
+        "residual_state": 0,
+        "plans_after": 2,
+        "reverted": 0
+      },
+      {
+        "id": "holon_bound",
+        "status": "accepted",
+        "accepted": [
+          "abs_values",
+          "max_or_zero",
+          "clamp_unit"
+        ],
+        "source": "def holon_bound(values):\n    step_1 = [abs(_s0_value) for _s0_value in values]\n    _s1_floor = 0.0\n    _s1_peak = max(step_1) if step_1 else _s1_floor\n    step_2 = _s1_peak if _s1_peak > _s1_floor else _s1_floor\n    _s2_low = 0.0\n    _s2_high = 2.5\n    _s2_result = step_2 if step_2 > _s2_low else _s2_low\n    return _s2_result if _s2_result < _s2_high else _s2_high\n",
+        "intent": "Write a function holon_bound that takes argument values and returns the absolute values of a numeric sequence, then returns the maximum value, then clips it into the closed interval 0.0 to 2.5.",
+        "attempts": 1928,
+        "type_refused": 1806,
+        "exec_refused": 121,
+        "stage_order": [
+          "exceeds_tau",
+          "split_identifiers",
+          "invert_index",
+          "clamp_unit",
+          "strip_comments",
+          "join_csv",
+          "mean_of",
+          "running_deltas",
+          "max_or_zero",
+          "sorted_keys",
+          "abs_values",
+          "sequence_length",
+          "caller_names",
+          "normalize_scores",
+          "unique_count"
+        ],
+        "stage_coherence": [
+          {
+            "stage": "exceeds_tau",
+            "coherence": 0.20398050546646118
+          },
+          {
+            "stage": "split_identifiers",
+            "coherence": 0.19107027351856232
+          },
+          {
+            "stage": "invert_index",
+            "coherence": 0.19065216183662415
+          },
+          {
+            "stage": "clamp_unit",
+            "coherence": 0.13849563896656036
+          },
+          {
+            "stage": "strip_comments",
+            "coherence": 0.11577947437763214
+          },
+          {
+            "stage": "join_csv",
+            "coherence": 0.08689926564693451
+          },
+          {
+            "stage": "mean_of",
+            "coherence": 0.04400637373328209
+          },
+          {
+            "stage": "running_deltas",
+            "coherence": 0.04055476188659668
+          },
+          {
+            "stage": "max_or_zero",
+            "coherence": 0.028069790452718735
+          },
+          {
+            "stage": "sorted_keys",
+            "coherence": 0.018835000693798065
+          },
+          {
+            "stage": "abs_values",
+            "coherence": 0.014810238033533096
+          },
+          {
+            "stage": "sequence_length",
+            "coherence": -0.0052132755517959595
+          },
+          {
+            "stage": "caller_names",
+            "coherence": -0.01278788410127163
+          },
+          {
+            "stage": "normalize_scores",
+            "coherence": -0.028414858505129814
+          },
+          {
+            "stage": "unique_count",
+            "coherence": -0.031234346330165863
+          }
+        ],
+        "candidates": 15,
+        "effects_total": 1927,
+        "effects": [
+          {
+            "chain": [
+              "abs_values",
+              "join_csv",
+              "caller_names"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: abs_values.returns ['numeric_sequence'] cannot bind join_csv.items ['sequence']"
+          },
+          {
+            "chain": [
+              "abs_values",
+              "join_csv",
+              "normalize_scores"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: abs_values.returns ['numeric_sequence'] cannot bind join_csv.items ['sequence']"
+          },
+          {
+            "chain": [
+              "abs_values",
+              "join_csv",
+              "unique_count"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: abs_values.returns ['numeric_sequence'] cannot bind join_csv.items ['sequence']"
+          },
+          {
+            "chain": [
+              "abs_values",
+              "mean_of",
+              "exceeds_tau"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "AssertionError: "
+          },
+          {
+            "chain": [
+              "abs_values",
+              "mean_of",
+              "split_identifiers"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: mean_of.returns ['numeric'] cannot bind split_identifiers.text ['text']"
+          },
+          {
+            "chain": [
+              "abs_values",
+              "mean_of",
+              "invert_index"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: mean_of.returns ['numeric'] cannot bind invert_index.index ['mapping']"
+          },
+          {
+            "chain": [
+              "abs_values",
+              "mean_of",
+              "clamp_unit"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "AssertionError: "
+          },
+          {
+            "chain": [
+              "abs_values",
+              "mean_of",
+              "strip_comments"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: mean_of.returns ['numeric'] cannot bind strip_comments.text ['text']"
+          },
+          {
+            "chain": [
+              "abs_values",
+              "mean_of",
+              "join_csv"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: mean_of.returns ['numeric'] cannot bind join_csv.items ['sequence']"
+          },
+          {
+            "chain": [
+              "abs_values",
+              "mean_of",
+              "running_deltas"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: mean_of.returns ['numeric'] cannot bind running_deltas.values ['numeric_sequence']"
+          },
+          {
+            "chain": [
+              "abs_values",
+              "mean_of",
+              "max_or_zero"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: mean_of.returns ['numeric'] cannot bind max_or_zero.values ['numeric_sequence']"
+          },
+          {
+            "chain": [
+              "abs_values",
+              "mean_of",
+              "sorted_keys"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: mean_of.returns ['numeric'] cannot bind sorted_keys.index ['mapping']"
+          },
+          {
+            "chain": [
+              "abs_values",
+              "mean_of",
+              "sequence_length"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: mean_of.returns ['numeric'] cannot bind sequence_length.items ['sequence']"
+          },
+          {
+            "chain": [
+              "abs_values",
+              "mean_of",
+              "caller_names"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: mean_of.returns ['numeric'] cannot bind caller_names.text ['text']"
+          },
+          {
+            "chain": [
+              "abs_values",
+              "mean_of",
+              "normalize_scores"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: mean_of.returns ['numeric'] cannot bind normalize_scores.values ['numeric_sequence']"
+          },
+          {
+            "chain": [
+              "abs_values",
+              "mean_of",
+              "unique_count"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: mean_of.returns ['numeric'] cannot bind unique_count.items ['sequence']"
+          },
+          {
+            "chain": [
+              "abs_values",
+              "running_deltas",
+              "exceeds_tau"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: running_deltas.returns ['numeric_sequence'] cannot bind exceeds_tau.value ['numeric']"
+          },
+          {
+            "chain": [
+              "abs_values",
+              "running_deltas",
+              "split_identifiers"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: running_deltas.returns ['numeric_sequence'] cannot bind split_identifiers.text ['text']"
+          },
+          {
+            "chain": [
+              "abs_values",
+              "running_deltas",
+              "invert_index"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: running_deltas.returns ['numeric_sequence'] cannot bind invert_index.index ['mapping']"
+          },
+          {
+            "chain": [
+              "abs_values",
+              "running_deltas",
+              "clamp_unit"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: running_deltas.returns ['numeric_sequence'] cannot bind clamp_unit.value ['numeric']"
+          },
+          {
+            "chain": [
+              "abs_values",
+              "running_deltas",
+              "strip_comments"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: running_deltas.returns ['numeric_sequence'] cannot bind strip_comments.text ['text']"
+          },
+          {
+            "chain": [
+              "abs_values",
+              "running_deltas",
+              "join_csv"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: running_deltas.returns ['numeric_sequence'] cannot bind join_csv.items ['sequence']"
+          },
+          {
+            "chain": [
+              "abs_values",
+              "running_deltas",
+              "mean_of"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "AssertionError: "
+          },
+          {
+            "chain": [
+              "abs_values",
+              "running_deltas",
+              "max_or_zero"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "AssertionError: "
+          },
+          {
+            "chain": [
+              "abs_values",
+              "running_deltas",
+              "sorted_keys"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: running_deltas.returns ['numeric_sequence'] cannot bind sorted_keys.index ['mapping']"
+          },
+          {
+            "chain": [
+              "abs_values",
+              "running_deltas",
+              "sequence_length"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: running_deltas.returns ['numeric_sequence'] cannot bind sequence_length.items ['sequence']"
+          },
+          {
+            "chain": [
+              "abs_values",
+              "running_deltas",
+              "caller_names"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: running_deltas.returns ['numeric_sequence'] cannot bind caller_names.text ['text']"
+          },
+          {
+            "chain": [
+              "abs_values",
+              "running_deltas",
+              "normalize_scores"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "AssertionError: "
+          },
+          {
+            "chain": [
+              "abs_values",
+              "running_deltas",
+              "unique_count"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: running_deltas.returns ['numeric_sequence'] cannot bind unique_count.items ['sequence']"
+          },
+          {
+            "chain": [
+              "abs_values",
+              "max_or_zero",
+              "exceeds_tau"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "AssertionError: "
+          },
+          {
+            "chain": [
+              "abs_values",
+              "max_or_zero",
+              "split_identifiers"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: max_or_zero.returns ['numeric'] cannot bind split_identifiers.text ['text']"
+          },
+          {
+            "chain": [
+              "abs_values",
+              "max_or_zero",
+              "invert_index"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: max_or_zero.returns ['numeric'] cannot bind invert_index.index ['mapping']"
+          }
+        ],
+        "plans_before": 2,
+        "plan": "holonic_holon_bound",
+        "plan_digest": "a43ffd35f369806460755ccc14381365c2ae717ce27ed98b6ac418b51306f7c0",
+        "engram_id": 1352,
+        "verified": true,
+        "residual_state": 0,
+        "plans_after": 3,
+        "reverted": 0
+      },
+      {
+        "id": "holon_caller",
+        "status": "accepted",
+        "accepted": [
+          "split_identifiers",
+          "sequence_length",
+          "clamp_unit"
+        ],
+        "source": "def holon_caller(text):\n    _s0_cleaned = text.replace('(', ' ').replace(')', ' ').replace(',', ' ')\n    step_1 = [_s0_token for _s0_token in _s0_cleaned.split() if _s0_token.isidentifier()]\n    step_2 = len(step_1)\n    _s2_low = 0.0\n    _s2_high = 2.5\n    _s2_result = step_2 if step_2 > _s2_low else _s2_low\n    return _s2_result if _s2_result < _s2_high else _s2_high\n",
+        "intent": "Write a function holon_caller that takes argument text and returns the non-empty lines of a text as a list, then returns the number of tokens in that list, then clips it into the closed interval 0.0 to 2.5.",
+        "attempts": 147,
+        "type_refused": 125,
+        "exec_refused": 21,
+        "stage_order": [
+          "split_identifiers",
+          "invert_index",
+          "strip_comments",
+          "exceeds_tau",
+          "clamp_unit",
+          "join_csv",
+          "max_or_zero",
+          "running_deltas",
+          "sorted_keys",
+          "mean_of",
+          "abs_values",
+          "normalize_scores",
+          "sequence_length",
+          "caller_names",
+          "unique_count"
+        ],
+        "stage_coherence": [
+          {
+            "stage": "split_identifiers",
+            "coherence": 0.23542968928813934
+          },
+          {
+            "stage": "invert_index",
+            "coherence": 0.18943235278129578
+          },
+          {
+            "stage": "strip_comments",
+            "coherence": 0.18042655289173126
+          },
+          {
+            "stage": "exceeds_tau",
+            "coherence": 0.1737673282623291
+          },
+          {
+            "stage": "clamp_unit",
+            "coherence": 0.16988927125930786
+          },
+          {
+            "stage": "join_csv",
+            "coherence": 0.12898430228233337
+          },
+          {
+            "stage": "max_or_zero",
+            "coherence": 0.062401678413152695
+          },
+          {
+            "stage": "running_deltas",
+            "coherence": 0.05952101945877075
+          },
+          {
+            "stage": "sorted_keys",
+            "coherence": 0.03782763332128525
+          },
+          {
+            "stage": "mean_of",
+            "coherence": 0.02995241805911064
+          },
+          {
+            "stage": "abs_values",
+            "coherence": 0.0183744914829731
+          },
+          {
+            "stage": "normalize_scores",
+            "coherence": -0.0008322075009346008
+          },
+          {
+            "stage": "sequence_length",
+            "coherence": -0.009257311001420021
+          },
+          {
+            "stage": "caller_names",
+            "coherence": -0.010233335196971893
+          },
+          {
+            "stage": "unique_count",
+            "coherence": -0.03287900239229202
+          }
+        ],
+        "candidates": 15,
+        "effects_total": 146,
+        "effects": [
+          {
+            "chain": [
+              "split_identifiers",
+              "mean_of",
+              "sequence_length"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: mean_of.returns ['numeric'] cannot bind sequence_length.items ['sequence']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "mean_of",
+              "caller_names"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: mean_of.returns ['numeric'] cannot bind caller_names.text ['text']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "mean_of",
+              "unique_count"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: mean_of.returns ['numeric'] cannot bind unique_count.items ['sequence']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "abs_values",
+              "invert_index"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: abs_values.returns ['numeric_sequence'] cannot bind invert_index.index ['mapping']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "abs_values",
+              "strip_comments"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: abs_values.returns ['numeric_sequence'] cannot bind strip_comments.text ['text']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "abs_values",
+              "exceeds_tau"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: abs_values.returns ['numeric_sequence'] cannot bind exceeds_tau.value ['numeric']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "abs_values",
+              "clamp_unit"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: abs_values.returns ['numeric_sequence'] cannot bind clamp_unit.value ['numeric']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "abs_values",
+              "join_csv"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: abs_values.returns ['numeric_sequence'] cannot bind join_csv.items ['sequence']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "abs_values",
+              "max_or_zero"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "TypeError: bad operand type for abs(): 'str'"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "abs_values",
+              "running_deltas"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "TypeError: bad operand type for abs(): 'str'"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "abs_values",
+              "sorted_keys"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: abs_values.returns ['numeric_sequence'] cannot bind sorted_keys.index ['mapping']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "abs_values",
+              "mean_of"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "TypeError: bad operand type for abs(): 'str'"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "abs_values",
+              "normalize_scores"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "TypeError: bad operand type for abs(): 'str'"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "abs_values",
+              "sequence_length"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: abs_values.returns ['numeric_sequence'] cannot bind sequence_length.items ['sequence']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "abs_values",
+              "caller_names"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: abs_values.returns ['numeric_sequence'] cannot bind caller_names.text ['text']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "abs_values",
+              "unique_count"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: abs_values.returns ['numeric_sequence'] cannot bind unique_count.items ['sequence']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "normalize_scores",
+              "invert_index"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind invert_index.index ['mapping']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "normalize_scores",
+              "strip_comments"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind strip_comments.text ['text']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "normalize_scores",
+              "exceeds_tau"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind exceeds_tau.value ['numeric']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "normalize_scores",
+              "clamp_unit"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind clamp_unit.value ['numeric']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "normalize_scores",
+              "join_csv"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind join_csv.items ['sequence']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "normalize_scores",
+              "max_or_zero"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "TypeError: unsupported operand type(s) for +: 'int' and 'str'"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "normalize_scores",
+              "running_deltas"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "TypeError: unsupported operand type(s) for +: 'int' and 'str'"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "normalize_scores",
+              "sorted_keys"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind sorted_keys.index ['mapping']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "normalize_scores",
+              "mean_of"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "TypeError: unsupported operand type(s) for +: 'int' and 'str'"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "normalize_scores",
+              "abs_values"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "TypeError: unsupported operand type(s) for +: 'int' and 'str'"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "normalize_scores",
+              "sequence_length"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind sequence_length.items ['sequence']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "normalize_scores",
+              "caller_names"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind caller_names.text ['text']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "normalize_scores",
+              "unique_count"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind unique_count.items ['sequence']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "sequence_length",
+              "invert_index"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: sequence_length.returns ['numeric'] cannot bind invert_index.index ['mapping']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "sequence_length",
+              "strip_comments"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: sequence_length.returns ['numeric'] cannot bind strip_comments.text ['text']"
+          },
+          {
+            "chain": [
+              "split_identifiers",
+              "sequence_length",
+              "exceeds_tau"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "AssertionError: "
+          }
+        ],
+        "plans_before": 3,
+        "plan": "holonic_holon_caller",
+        "plan_digest": "934b8e656b929cd13aa98616aabf11ecf1c189d109e35830fc29134beb555f18",
+        "engram_id": 1353,
+        "verified": true,
+        "residual_state": 0,
+        "plans_after": 4,
+        "reverted": 0
+      }
+    ],
+    "traps": [
+      {
+        "id": "trap_value",
+        "status": "refused",
+        "accepted": [],
+        "source": "",
+        "intent": "Write a function trap_value that returns the number 12345 for every input.",
+        "attempts": 2730,
+        "type_refused": 2569,
+        "exec_refused": 161,
+        "stage_order": [
+          "exceeds_tau",
+          "invert_index",
+          "split_identifiers",
+          "strip_comments",
+          "clamp_unit",
+          "join_csv",
+          "running_deltas",
+          "sorted_keys",
+          "max_or_zero",
+          "unique_count",
+          "mean_of",
+          "abs_values",
+          "normalize_scores",
+          "sequence_length",
+          "caller_names"
+        ],
+        "stage_coherence": [
+          {
+            "stage": "exceeds_tau",
+            "coherence": 0.21206703782081604
+          },
+          {
+            "stage": "invert_index",
+            "coherence": 0.19692671298980713
+          },
+          {
+            "stage": "split_identifiers",
+            "coherence": 0.15326020121574402
+          },
+          {
+            "stage": "strip_comments",
+            "coherence": 0.1216602474451065
+          },
+          {
+            "stage": "clamp_unit",
+            "coherence": 0.10947242379188538
+          },
+          {
+            "stage": "join_csv",
+            "coherence": 0.0929955542087555
+          },
+          {
+            "stage": "running_deltas",
+            "coherence": 0.05871737375855446
+          },
+          {
+            "stage": "sorted_keys",
+            "coherence": 0.03147043287754059
+          },
+          {
+            "stage": "max_or_zero",
+            "coherence": 0.03076481819152832
+          },
+          {
+            "stage": "unique_count",
+            "coherence": 0.004381678998470306
+          },
+          {
+            "stage": "mean_of",
+            "coherence": 0.004266442731022835
+          },
+          {
+            "stage": "abs_values",
+            "coherence": -0.007855981588363647
+          },
+          {
+            "stage": "normalize_scores",
+            "coherence": -0.010225260630249977
+          },
+          {
+            "stage": "sequence_length",
+            "coherence": -0.012263413518667221
+          },
+          {
+            "stage": "caller_names",
+            "coherence": -0.013824502937495708
+          }
+        ],
+        "candidates": 15,
+        "effects_total": 2730,
+        "effects": [
+          {
+            "chain": [
+              "caller_names",
+              "abs_values",
+              "sorted_keys"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: abs_values.returns ['numeric_sequence'] cannot bind sorted_keys.index ['mapping']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "abs_values",
+              "max_or_zero"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "TypeError: bad operand type for abs(): 'str'"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "abs_values",
+              "unique_count"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: abs_values.returns ['numeric_sequence'] cannot bind unique_count.items ['sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "abs_values",
+              "mean_of"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "TypeError: bad operand type for abs(): 'str'"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "abs_values",
+              "normalize_scores"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "TypeError: bad operand type for abs(): 'str'"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "abs_values",
+              "sequence_length"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: abs_values.returns ['numeric_sequence'] cannot bind sequence_length.items ['sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "normalize_scores",
+              "exceeds_tau"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind exceeds_tau.value ['numeric']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "normalize_scores",
+              "invert_index"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind invert_index.index ['mapping']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "normalize_scores",
+              "split_identifiers"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind split_identifiers.text ['text']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "normalize_scores",
+              "strip_comments"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind strip_comments.text ['text']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "normalize_scores",
+              "clamp_unit"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind clamp_unit.value ['numeric']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "normalize_scores",
+              "join_csv"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind join_csv.items ['sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "normalize_scores",
+              "running_deltas"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "TypeError: unsupported operand type(s) for +: 'int' and 'str'"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "normalize_scores",
+              "sorted_keys"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind sorted_keys.index ['mapping']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "normalize_scores",
+              "max_or_zero"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "TypeError: unsupported operand type(s) for +: 'int' and 'str'"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "normalize_scores",
+              "unique_count"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind unique_count.items ['sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "normalize_scores",
+              "mean_of"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "TypeError: unsupported operand type(s) for +: 'int' and 'str'"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "normalize_scores",
+              "abs_values"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "TypeError: unsupported operand type(s) for +: 'int' and 'str'"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "normalize_scores",
+              "sequence_length"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind sequence_length.items ['sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "sequence_length",
+              "exceeds_tau"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "AssertionError: "
+          },
+          {
+            "chain": [
+              "caller_names",
+              "sequence_length",
+              "invert_index"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: sequence_length.returns ['numeric'] cannot bind invert_index.index ['mapping']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "sequence_length",
+              "split_identifiers"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: sequence_length.returns ['numeric'] cannot bind split_identifiers.text ['text']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "sequence_length",
+              "strip_comments"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: sequence_length.returns ['numeric'] cannot bind strip_comments.text ['text']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "sequence_length",
+              "clamp_unit"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "AssertionError: "
+          },
+          {
+            "chain": [
+              "caller_names",
+              "sequence_length",
+              "join_csv"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: sequence_length.returns ['numeric'] cannot bind join_csv.items ['sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "sequence_length",
+              "running_deltas"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: sequence_length.returns ['numeric'] cannot bind running_deltas.values ['numeric_sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "sequence_length",
+              "sorted_keys"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: sequence_length.returns ['numeric'] cannot bind sorted_keys.index ['mapping']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "sequence_length",
+              "max_or_zero"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: sequence_length.returns ['numeric'] cannot bind max_or_zero.values ['numeric_sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "sequence_length",
+              "unique_count"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: sequence_length.returns ['numeric'] cannot bind unique_count.items ['sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "sequence_length",
+              "mean_of"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: sequence_length.returns ['numeric'] cannot bind mean_of.values ['numeric_sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "sequence_length",
+              "abs_values"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: sequence_length.returns ['numeric'] cannot bind abs_values.values ['numeric_sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "sequence_length",
+              "normalize_scores"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: sequence_length.returns ['numeric'] cannot bind normalize_scores.values ['numeric_sequence']"
+          }
+        ],
+        "plans_before": 4,
+        "verified": false,
+        "reason": "no type-compatible triplet passed the reference tests",
+        "plans_after": 4,
+        "residual_state": 0,
+        "reverted": 1
+      },
+      {
+        "id": "trap_type",
+        "status": "refused",
+        "accepted": [],
+        "source": "",
+        "intent": "Write a function trap_type that turns a mapping into a callable object.",
+        "attempts": 2730,
+        "type_refused": 2569,
+        "exec_refused": 161,
+        "stage_order": [
+          "invert_index",
+          "exceeds_tau",
+          "split_identifiers",
+          "clamp_unit",
+          "strip_comments",
+          "join_csv",
+          "max_or_zero",
+          "sorted_keys",
+          "running_deltas",
+          "abs_values",
+          "mean_of",
+          "normalize_scores",
+          "unique_count",
+          "sequence_length",
+          "caller_names"
+        ],
+        "stage_coherence": [
+          {
+            "stage": "invert_index",
+            "coherence": 0.21270652115345
+          },
+          {
+            "stage": "exceeds_tau",
+            "coherence": 0.21262507140636444
+          },
+          {
+            "stage": "split_identifiers",
+            "coherence": 0.16154202818870544
+          },
+          {
+            "stage": "clamp_unit",
+            "coherence": 0.14785799384117126
+          },
+          {
+            "stage": "strip_comments",
+            "coherence": 0.1253640204668045
+          },
+          {
+            "stage": "join_csv",
+            "coherence": 0.12237885594367981
+          },
+          {
+            "stage": "max_or_zero",
+            "coherence": 0.09850567579269409
+          },
+          {
+            "stage": "sorted_keys",
+            "coherence": 0.09399019181728363
+          },
+          {
+            "stage": "running_deltas",
+            "coherence": 0.04977542534470558
+          },
+          {
+            "stage": "abs_values",
+            "coherence": 0.02681940607726574
+          },
+          {
+            "stage": "mean_of",
+            "coherence": 0.025945279747247696
+          },
+          {
+            "stage": "normalize_scores",
+            "coherence": 0.02385772578418255
+          },
+          {
+            "stage": "unique_count",
+            "coherence": 0.02382044307887554
+          },
+          {
+            "stage": "sequence_length",
+            "coherence": 0.01654369756579399
+          },
+          {
+            "stage": "caller_names",
+            "coherence": 0.01220002956688404
+          }
+        ],
+        "candidates": 15,
+        "effects_total": 2730,
+        "effects": [
+          {
+            "chain": [
+              "caller_names",
+              "normalize_scores",
+              "sorted_keys"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind sorted_keys.index ['mapping']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "normalize_scores",
+              "running_deltas"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "AttributeError: 'dict' object has no attribute 'splitlines'"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "normalize_scores",
+              "abs_values"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "AttributeError: 'dict' object has no attribute 'splitlines'"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "normalize_scores",
+              "mean_of"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "AttributeError: 'dict' object has no attribute 'splitlines'"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "normalize_scores",
+              "unique_count"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind unique_count.items ['sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "normalize_scores",
+              "sequence_length"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind sequence_length.items ['sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "unique_count",
+              "invert_index"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: unique_count.returns ['numeric'] cannot bind invert_index.index ['mapping']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "unique_count",
+              "exceeds_tau"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "AttributeError: 'dict' object has no attribute 'splitlines'"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "unique_count",
+              "split_identifiers"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: unique_count.returns ['numeric'] cannot bind split_identifiers.text ['text']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "unique_count",
+              "clamp_unit"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "AttributeError: 'dict' object has no attribute 'splitlines'"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "unique_count",
+              "strip_comments"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: unique_count.returns ['numeric'] cannot bind strip_comments.text ['text']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "unique_count",
+              "join_csv"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: unique_count.returns ['numeric'] cannot bind join_csv.items ['sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "unique_count",
+              "max_or_zero"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: unique_count.returns ['numeric'] cannot bind max_or_zero.values ['numeric_sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "unique_count",
+              "sorted_keys"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: unique_count.returns ['numeric'] cannot bind sorted_keys.index ['mapping']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "unique_count",
+              "running_deltas"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: unique_count.returns ['numeric'] cannot bind running_deltas.values ['numeric_sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "unique_count",
+              "abs_values"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: unique_count.returns ['numeric'] cannot bind abs_values.values ['numeric_sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "unique_count",
+              "mean_of"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: unique_count.returns ['numeric'] cannot bind mean_of.values ['numeric_sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "unique_count",
+              "normalize_scores"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: unique_count.returns ['numeric'] cannot bind normalize_scores.values ['numeric_sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "unique_count",
+              "sequence_length"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: unique_count.returns ['numeric'] cannot bind sequence_length.items ['sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "sequence_length",
+              "invert_index"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: sequence_length.returns ['numeric'] cannot bind invert_index.index ['mapping']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "sequence_length",
+              "exceeds_tau"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "AttributeError: 'dict' object has no attribute 'splitlines'"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "sequence_length",
+              "split_identifiers"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: sequence_length.returns ['numeric'] cannot bind split_identifiers.text ['text']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "sequence_length",
+              "clamp_unit"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "AttributeError: 'dict' object has no attribute 'splitlines'"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "sequence_length",
+              "strip_comments"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: sequence_length.returns ['numeric'] cannot bind strip_comments.text ['text']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "sequence_length",
+              "join_csv"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: sequence_length.returns ['numeric'] cannot bind join_csv.items ['sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "sequence_length",
+              "max_or_zero"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: sequence_length.returns ['numeric'] cannot bind max_or_zero.values ['numeric_sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "sequence_length",
+              "sorted_keys"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: sequence_length.returns ['numeric'] cannot bind sorted_keys.index ['mapping']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "sequence_length",
+              "running_deltas"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: sequence_length.returns ['numeric'] cannot bind running_deltas.values ['numeric_sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "sequence_length",
+              "abs_values"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: sequence_length.returns ['numeric'] cannot bind abs_values.values ['numeric_sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "sequence_length",
+              "mean_of"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: sequence_length.returns ['numeric'] cannot bind mean_of.values ['numeric_sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "sequence_length",
+              "normalize_scores"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: sequence_length.returns ['numeric'] cannot bind normalize_scores.values ['numeric_sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "sequence_length",
+              "unique_count"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: sequence_length.returns ['numeric'] cannot bind unique_count.items ['sequence']"
+          }
+        ],
+        "plans_before": 4,
+        "verified": false,
+        "reason": "no type-compatible triplet passed the reference tests",
+        "plans_after": 4,
+        "residual_state": 0,
+        "reverted": 1
+      },
+      {
+        "id": "trap_arity",
+        "status": "refused",
+        "accepted": [],
+        "source": "",
+        "intent": "Write a function trap_arity that takes two numbers and returns their product.",
+        "attempts": 2730,
+        "type_refused": 2569,
+        "exec_refused": 161,
+        "stage_order": [
+          "exceeds_tau",
+          "invert_index",
+          "split_identifiers",
+          "strip_comments",
+          "clamp_unit",
+          "join_csv",
+          "max_or_zero",
+          "sorted_keys",
+          "running_deltas",
+          "unique_count",
+          "abs_values",
+          "mean_of",
+          "normalize_scores",
+          "sequence_length",
+          "caller_names"
+        ],
+        "stage_coherence": [
+          {
+            "stage": "exceeds_tau",
+            "coherence": 0.21833489835262299
+          },
+          {
+            "stage": "invert_index",
+            "coherence": 0.20748937129974365
+          },
+          {
+            "stage": "split_identifiers",
+            "coherence": 0.2026279866695404
+          },
+          {
+            "stage": "strip_comments",
+            "coherence": 0.1505470722913742
+          },
+          {
+            "stage": "clamp_unit",
+            "coherence": 0.14523091912269592
+          },
+          {
+            "stage": "join_csv",
+            "coherence": 0.1107664480805397
+          },
+          {
+            "stage": "max_or_zero",
+            "coherence": 0.07442320883274078
+          },
+          {
+            "stage": "sorted_keys",
+            "coherence": 0.06685321778059006
+          },
+          {
+            "stage": "running_deltas",
+            "coherence": 0.04454796388745308
+          },
+          {
+            "stage": "unique_count",
+            "coherence": 0.031150557100772858
+          },
+          {
+            "stage": "abs_values",
+            "coherence": 0.028124887496232986
+          },
+          {
+            "stage": "mean_of",
+            "coherence": 0.021666204556822777
+          },
+          {
+            "stage": "normalize_scores",
+            "coherence": 0.01848558336496353
+          },
+          {
+            "stage": "sequence_length",
+            "coherence": 0.00772782601416111
+          },
+          {
+            "stage": "caller_names",
+            "coherence": 0.006759375333786011
+          }
+        ],
+        "candidates": 15,
+        "effects_total": 2730,
+        "effects": [
+          {
+            "chain": [
+              "caller_names",
+              "mean_of",
+              "sorted_keys"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: mean_of.returns ['numeric'] cannot bind sorted_keys.index ['mapping']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "mean_of",
+              "running_deltas"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: mean_of.returns ['numeric'] cannot bind running_deltas.values ['numeric_sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "mean_of",
+              "unique_count"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: mean_of.returns ['numeric'] cannot bind unique_count.items ['sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "mean_of",
+              "abs_values"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: mean_of.returns ['numeric'] cannot bind abs_values.values ['numeric_sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "mean_of",
+              "normalize_scores"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: mean_of.returns ['numeric'] cannot bind normalize_scores.values ['numeric_sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "mean_of",
+              "sequence_length"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: mean_of.returns ['numeric'] cannot bind sequence_length.items ['sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "normalize_scores",
+              "exceeds_tau"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind exceeds_tau.value ['numeric']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "normalize_scores",
+              "invert_index"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind invert_index.index ['mapping']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "normalize_scores",
+              "split_identifiers"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind split_identifiers.text ['text']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "normalize_scores",
+              "strip_comments"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind strip_comments.text ['text']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "normalize_scores",
+              "clamp_unit"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind clamp_unit.value ['numeric']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "normalize_scores",
+              "join_csv"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind join_csv.items ['sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "normalize_scores",
+              "max_or_zero"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "AttributeError: 'float' object has no attribute 'splitlines'"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "normalize_scores",
+              "sorted_keys"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind sorted_keys.index ['mapping']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "normalize_scores",
+              "running_deltas"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "AttributeError: 'float' object has no attribute 'splitlines'"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "normalize_scores",
+              "unique_count"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind unique_count.items ['sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "normalize_scores",
+              "abs_values"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "AttributeError: 'float' object has no attribute 'splitlines'"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "normalize_scores",
+              "mean_of"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "AttributeError: 'float' object has no attribute 'splitlines'"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "normalize_scores",
+              "sequence_length"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind sequence_length.items ['sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "sequence_length",
+              "exceeds_tau"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "AttributeError: 'float' object has no attribute 'splitlines'"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "sequence_length",
+              "invert_index"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: sequence_length.returns ['numeric'] cannot bind invert_index.index ['mapping']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "sequence_length",
+              "split_identifiers"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: sequence_length.returns ['numeric'] cannot bind split_identifiers.text ['text']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "sequence_length",
+              "strip_comments"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: sequence_length.returns ['numeric'] cannot bind strip_comments.text ['text']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "sequence_length",
+              "clamp_unit"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "AttributeError: 'float' object has no attribute 'splitlines'"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "sequence_length",
+              "join_csv"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: sequence_length.returns ['numeric'] cannot bind join_csv.items ['sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "sequence_length",
+              "max_or_zero"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: sequence_length.returns ['numeric'] cannot bind max_or_zero.values ['numeric_sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "sequence_length",
+              "sorted_keys"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: sequence_length.returns ['numeric'] cannot bind sorted_keys.index ['mapping']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "sequence_length",
+              "running_deltas"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: sequence_length.returns ['numeric'] cannot bind running_deltas.values ['numeric_sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "sequence_length",
+              "unique_count"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: sequence_length.returns ['numeric'] cannot bind unique_count.items ['sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "sequence_length",
+              "abs_values"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: sequence_length.returns ['numeric'] cannot bind abs_values.values ['numeric_sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "sequence_length",
+              "mean_of"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: sequence_length.returns ['numeric'] cannot bind mean_of.values ['numeric_sequence']"
+          },
+          {
+            "chain": [
+              "caller_names",
+              "sequence_length",
+              "normalize_scores"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: sequence_length.returns ['numeric'] cannot bind normalize_scores.values ['numeric_sequence']"
+          }
+        ],
+        "plans_before": 4,
+        "verified": false,
+        "reason": "no type-compatible triplet passed the reference tests",
+        "plans_after": 4,
+        "residual_state": 0,
+        "reverted": 1
+      },
+      {
+        "id": "trap_string",
+        "status": "refused",
+        "accepted": [],
+        "source": "",
+        "intent": "Write a function trap_string that returns the exact string impossible_token.",
+        "attempts": 2730,
+        "type_refused": 2569,
+        "exec_refused": 161,
+        "stage_order": [
+          "exceeds_tau",
+          "invert_index",
+          "split_identifiers",
+          "strip_comments",
+          "join_csv",
+          "max_or_zero",
+          "clamp_unit",
+          "sorted_keys",
+          "running_deltas",
+          "unique_count",
+          "mean_of",
+          "abs_values",
+          "sequence_length",
+          "caller_names",
+          "normalize_scores"
+        ],
+        "stage_coherence": [
+          {
+            "stage": "exceeds_tau",
+            "coherence": 0.19274592399597168
+          },
+          {
+            "stage": "invert_index",
+            "coherence": 0.18463408946990967
+          },
+          {
+            "stage": "split_identifiers",
+            "coherence": 0.17417216300964355
+          },
+          {
+            "stage": "strip_comments",
+            "coherence": 0.11653896421194077
+          },
+          {
+            "stage": "join_csv",
+            "coherence": 0.07934479415416718
+          },
+          {
+            "stage": "max_or_zero",
+            "coherence": 0.05545565485954285
+          },
+          {
+            "stage": "clamp_unit",
+            "coherence": 0.053665243089199066
+          },
+          {
+            "stage": "sorted_keys",
+            "coherence": 0.044375792145729065
+          },
+          {
+            "stage": "running_deltas",
+            "coherence": 0.029217379167675972
+          },
+          {
+            "stage": "unique_count",
+            "coherence": 0.02204657904803753
+          },
+          {
+            "stage": "mean_of",
+            "coherence": 0.005849876441061497
+          },
+          {
+            "stage": "abs_values",
+            "coherence": 0.0021459804847836494
+          },
+          {
+            "stage": "sequence_length",
+            "coherence": -0.0031783119775354862
+          },
+          {
+            "stage": "caller_names",
+            "coherence": -0.005408317781984806
+          },
+          {
+            "stage": "normalize_scores",
+            "coherence": -0.007319290190935135
+          }
+        ],
+        "candidates": 15,
+        "effects_total": 2730,
+        "effects": [
+          {
+            "chain": [
+              "normalize_scores",
+              "abs_values",
+              "sorted_keys"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: abs_values.returns ['numeric_sequence'] cannot bind sorted_keys.index ['mapping']"
+          },
+          {
+            "chain": [
+              "normalize_scores",
+              "abs_values",
+              "running_deltas"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "TypeError: unsupported operand type(s) for +: 'int' and 'str'"
+          },
+          {
+            "chain": [
+              "normalize_scores",
+              "abs_values",
+              "unique_count"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: abs_values.returns ['numeric_sequence'] cannot bind unique_count.items ['sequence']"
+          },
+          {
+            "chain": [
+              "normalize_scores",
+              "abs_values",
+              "mean_of"
+            ],
+            "stage": "tier2_execution_critic",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "TypeError: unsupported operand type(s) for +: 'int' and 'str'"
+          },
+          {
+            "chain": [
+              "normalize_scores",
+              "abs_values",
+              "sequence_length"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: abs_values.returns ['numeric_sequence'] cannot bind sequence_length.items ['sequence']"
+          },
+          {
+            "chain": [
+              "normalize_scores",
+              "abs_values",
+              "caller_names"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: abs_values.returns ['numeric_sequence'] cannot bind caller_names.text ['text']"
+          },
+          {
+            "chain": [
+              "normalize_scores",
+              "sequence_length",
+              "exceeds_tau"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind sequence_length.items ['sequence']"
+          },
+          {
+            "chain": [
+              "normalize_scores",
+              "sequence_length",
+              "invert_index"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind sequence_length.items ['sequence']"
+          },
+          {
+            "chain": [
+              "normalize_scores",
+              "sequence_length",
+              "split_identifiers"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind sequence_length.items ['sequence']"
+          },
+          {
+            "chain": [
+              "normalize_scores",
+              "sequence_length",
+              "strip_comments"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind sequence_length.items ['sequence']"
+          },
+          {
+            "chain": [
+              "normalize_scores",
+              "sequence_length",
+              "join_csv"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind sequence_length.items ['sequence']"
+          },
+          {
+            "chain": [
+              "normalize_scores",
+              "sequence_length",
+              "max_or_zero"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind sequence_length.items ['sequence']"
+          },
+          {
+            "chain": [
+              "normalize_scores",
+              "sequence_length",
+              "clamp_unit"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind sequence_length.items ['sequence']"
+          },
+          {
+            "chain": [
+              "normalize_scores",
+              "sequence_length",
+              "sorted_keys"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind sequence_length.items ['sequence']"
+          },
+          {
+            "chain": [
+              "normalize_scores",
+              "sequence_length",
+              "running_deltas"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind sequence_length.items ['sequence']"
+          },
+          {
+            "chain": [
+              "normalize_scores",
+              "sequence_length",
+              "unique_count"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind sequence_length.items ['sequence']"
+          },
+          {
+            "chain": [
+              "normalize_scores",
+              "sequence_length",
+              "mean_of"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind sequence_length.items ['sequence']"
+          },
+          {
+            "chain": [
+              "normalize_scores",
+              "sequence_length",
+              "abs_values"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind sequence_length.items ['sequence']"
+          },
+          {
+            "chain": [
+              "normalize_scores",
+              "sequence_length",
+              "caller_names"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind sequence_length.items ['sequence']"
+          },
+          {
+            "chain": [
+              "normalize_scores",
+              "caller_names",
+              "exceeds_tau"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind caller_names.text ['text']"
+          },
+          {
+            "chain": [
+              "normalize_scores",
+              "caller_names",
+              "invert_index"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind caller_names.text ['text']"
+          },
+          {
+            "chain": [
+              "normalize_scores",
+              "caller_names",
+              "split_identifiers"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind caller_names.text ['text']"
+          },
+          {
+            "chain": [
+              "normalize_scores",
+              "caller_names",
+              "strip_comments"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind caller_names.text ['text']"
+          },
+          {
+            "chain": [
+              "normalize_scores",
+              "caller_names",
+              "join_csv"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind caller_names.text ['text']"
+          },
+          {
+            "chain": [
+              "normalize_scores",
+              "caller_names",
+              "max_or_zero"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind caller_names.text ['text']"
+          },
+          {
+            "chain": [
+              "normalize_scores",
+              "caller_names",
+              "clamp_unit"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind caller_names.text ['text']"
+          },
+          {
+            "chain": [
+              "normalize_scores",
+              "caller_names",
+              "sorted_keys"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind caller_names.text ['text']"
+          },
+          {
+            "chain": [
+              "normalize_scores",
+              "caller_names",
+              "running_deltas"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind caller_names.text ['text']"
+          },
+          {
+            "chain": [
+              "normalize_scores",
+              "caller_names",
+              "unique_count"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind caller_names.text ['text']"
+          },
+          {
+            "chain": [
+              "normalize_scores",
+              "caller_names",
+              "mean_of"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind caller_names.text ['text']"
+          },
+          {
+            "chain": [
+              "normalize_scores",
+              "caller_names",
+              "abs_values"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind caller_names.text ['text']"
+          },
+          {
+            "chain": [
+              "normalize_scores",
+              "caller_names",
+              "sequence_length"
+            ],
+            "stage": "tier1_type_gate",
+            "accepted": false,
+            "rolled_back": true,
+            "reason": "type mismatch: normalize_scores.returns ['numeric_sequence'] cannot bind caller_names.text ['text']"
+          }
+        ],
+        "plans_before": 4,
+        "verified": false,
+        "reason": "no type-compatible triplet passed the reference tests",
+        "plans_after": 4,
+        "residual_state": 0,
+        "reverted": 1
+      }
+    ]
+  },
+  "gauntlet": {
+    "total_queries": 176,
+    "returncode": 0,
+    "receipt": "receipts\\holarch\\agent_eval.json",
+    "gate": {
+      "mcp_zero_query_reads": true,
+      "mcp_reachable_at_least_0_98": true,
+      "mcp_hallucination_zero": true,
+      "mcp_playbook_exact": true,
+      "composite_mcp_at_least_0_90": true,
+      "composite_traps_refused": true,
+      "receipt_chain_valid": true,
+      "impact_mcp_at_least_0_98": true,
+      "impact_traps_refused": true,
+      "impact_queries_present": true,
+      "queries_76": true,
+      "receipt_chain_76": true,
+      "planning_controls_separated": true,
+      "dag_three_plan_and_traps": true,
+      "agent_step_cross_package": true,
+      "vocab_lock_verified": true,
+      "planning_mcp_perfect": true,
+      "verification_mcp_perfect": true,
+      "synthesis_multiplan_verified": true,
+      "delta_blast_radius_perfect": true,
+      "j1_trap_thread_parity": true,
+      "j1_closed_loop_thread_parity": true,
+      "j1_seed_cartridge_and_empty_store": true,
+      "j1_store_rows_equal_seed_count": true,
+      "j2_elastic_tenant_vocab": true,
+      "j2_ledger_restore_from_zone_c": true,
+      "j3_three_stage_f1": true,
+      "j3_three_stage_f2": true,
+      "j3_three_stage_f3": true,
+      "j3_new_type_conflict_refused": true,
+      "j4_chat_verify": true,
+      "j4_chat_plan": true,
+      "k1_vision_cleanroom": true,
+      "k1_relational_cleanroom": true,
+      "k1_empty_store_veto_zero": true,
+      "k1_cartridge_multitask_budget": true,
+      "k2_spatial_discovery": true,
+      "k2_symbolic_discovery": true,
+      "k3_multistatement_dag": true,
+      "k3_alpha_rename_no_collision": true,
+      "k4_cross_tenant_rebase": true,
+      "k4_vectorised_bm25": true,
+      "k4_concurrent_reads_128": true,
+      "k4_tenant_bundle": true,
+      "m1_online_escape_8_of_8": true,
+      "m1_closed_loop_lift": true,
+      "m1_vla_goal_reach_11": true,
+      "m2_batched_context_tensor": true,
+      "m2_concurrent_p50_120ms": true,
+      "m2_concurrent_receipt_chain": true,
+      "m3_full_reference_cartridge": true,
+      "m3_vision_equals_reference": true,
+      "m3_bochner_language": true,
+      "m4_guard_pipeline": true,
+      "m4_84_task_suite": true,
+      "m4_midloop_refused": true,
+      "o1_swat_prefill_free_transfer": true,
+      "o1_attention_matching_mass": true,
+      "o1_sagnac_veto_16": true,
+      "o1_cross_modal_kv_digit": true,
+      "o2_api_online_repulsor": true,
+      "o2_api_reactive_control": true,
+      "o2_global_epoch_sync": true,
+      "o2_delta_blast_radius_pair": true,
+      "o3_tier1_zero_shifts": true,
+      "o3_pinned_locked_language": true,
+      "o3_elastic_tier2_language": true,
+      "o3_legacy_arms_recorded": true,
+      "o4_holonic_discovery_accept": true,
+      "o4_holonic_trap_refused": true,
+      "o4_plan_store_compiled": true,
+      "o4_synthesis_92": true,
+      "p1_live_elastic_top1": true,
+      "p1_live_elastic_bpc": true,
+      "p1_pinned_arms_hold": true,
+      "p2_telepathy_three_hop": true,
+      "p2_telepathy_veto": true,
+      "p2_telepathy_zero_prefill": true,
+      "p3_telepathy_goal": true,
+      "p3_telepathy_code": true,
+      "p3_telepathy_zero_text": true,
+      "p4_discover_accept": true,
+      "p4_discover_rollback": true,
+      "p4_plan_store_integrity": true,
+      "q1_query_agnostic_ingest": true,
+      "q1_post_ingest_unseen_query": true,
+      "q1_fact_veto_and_latency": true,
+      "q2_causal_operator": true,
+      "q2_action_kv_counterfactual": true,
+      "q2_action_veto": true,
+      "q3_disjoint_splits": true,
+      "q3_pinned_bars": true,
+      "q3_full_decile": true,
+      "q4_warm_daemon": true,
+      "q4_aaii_mmlu_omniscience": true,
+      "q4_aaii_briefcase": true,
+      "r1_unstructured_ingest": true,
+      "r1_static_fact_phase_veto": true,
+      "r1_bridge_latency": true,
+      "r2_fitted_readout": true,
+      "r2_balanced_matrix": true,
+      "r2_veto_zero_source": true,
+      "r3_static_full_decile": true,
+      "r3_streaming_full_decile": true,
+      "r3_role_recency": true,
+      "r4_aaii_pillar_a": true,
+      "r4_aaii_pillar_b": true,
+      "r4_aaii_pillar_c": true,
+      "s1_suffix_purity": true,
+      "s1_suffix_order_six": true,
+      "s1_r3_static_full_decile": true,
+      "s2_wave_turing_16": true,
+      "s2_turing_traps_4": true,
+      "s2_zero_text_tokens": true,
+      "s3_charts_12": true,
+      "s3_charted_latency": true,
+      "s3_stiefel_retraction": true,
+      "s4_four_pillars": true,
+      "s4_pillar_d_wave": true,
+      "s4_omniscience_scale": true,
+      "queries_176": true,
+      "probes_100_present": true,
+      "passed": true
+    },
+    "stdout_tail": " true,\n  \"k1_empty_store_veto_zero\": true,\n  \"k1_cartridge_multitask_budget\": true,\n  \"k2_spatial_discovery\": true,\n  \"k2_symbolic_discovery\": true,\n  \"k3_multistatement_dag\": true,\n  \"k3_alpha_rename_no_collision\": true,\n  \"k4_cross_tenant_rebase\": true,\n  \"k4_vectorised_bm25\": true,\n  \"k4_concurrent_reads_128\": true,\n  \"k4_tenant_bundle\": true,\n  \"m1_online_escape_8_of_8\": true,\n  \"m1_closed_loop_lift\": true,\n  \"m1_vla_goal_reach_11\": true,\n  \"m2_batched_context_tensor\": true,\n  \"m2_concurrent_p50_120ms\": true,\n  \"m2_concurrent_receipt_chain\": true,\n  \"m3_full_reference_cartridge\": true,\n  \"m3_vision_equals_reference\": true,\n  \"m3_bochner_language\": true,\n  \"m4_guard_pipeline\": true,\n  \"m4_84_task_suite\": true,\n  \"m4_midloop_refused\": true,\n  \"o1_swat_prefill_free_transfer\": true,\n  \"o1_attention_matching_mass\": true,\n  \"o1_sagnac_veto_16\": true,\n  \"o1_cross_modal_kv_digit\": true,\n  \"o2_api_online_repulsor\": true,\n  \"o2_api_reactive_control\": true,\n  \"o2_global_epoch_sync\": true,\n  \"o2_delta_blast_radius_pair\": true,\n  \"o3_tier1_zero_shifts\": true,\n  \"o3_pinned_locked_language\": true,\n  \"o3_elastic_tier2_language\": true,\n  \"o3_legacy_arms_recorded\": true,\n  \"o4_holonic_discovery_accept\": true,\n  \"o4_holonic_trap_refused\": true,\n  \"o4_plan_store_compiled\": true,\n  \"o4_synthesis_92\": true,\n  \"p1_live_elastic_top1\": true,\n  \"p1_live_elastic_bpc\": true,\n  \"p1_pinned_arms_hold\": true,\n  \"p2_telepathy_three_hop\": true,\n  \"p2_telepathy_veto\": true,\n  \"p2_telepathy_zero_prefill\": true,\n  \"p3_telepathy_goal\": true,\n  \"p3_telepathy_code\": true,\n  \"p3_telepathy_zero_text\": true,\n  \"p4_discover_accept\": true,\n  \"p4_discover_rollback\": true,\n  \"p4_plan_store_integrity\": true,\n  \"q1_query_agnostic_ingest\": true,\n  \"q1_post_ingest_unseen_query\": true,\n  \"q1_fact_veto_and_latency\": true,\n  \"q2_causal_operator\": true,\n  \"q2_action_kv_counterfactual\": true,\n  \"q2_action_veto\": true,\n  \"q3_disjoint_splits\": true,\n  \"q3_pinned_bars\": true,\n  \"q3_full_decile\": true,\n  \"q4_warm_daemon\": true,\n  \"q4_aaii_mmlu_omniscience\": true,\n  \"q4_aaii_briefcase\": true,\n  \"r1_unstructured_ingest\": true,\n  \"r1_static_fact_phase_veto\": true,\n  \"r1_bridge_latency\": true,\n  \"r2_fitted_readout\": true,\n  \"r2_balanced_matrix\": true,\n  \"r2_veto_zero_source\": true,\n  \"r3_static_full_decile\": true,\n  \"r3_streaming_full_decile\": true,\n  \"r3_role_recency\": true,\n  \"r4_aaii_pillar_a\": true,\n  \"r4_aaii_pillar_b\": true,\n  \"r4_aaii_pillar_c\": true,\n  \"s1_suffix_purity\": true,\n  \"s1_suffix_order_six\": true,\n  \"s1_r3_static_full_decile\": true,\n  \"s2_wave_turing_16\": true,\n  \"s2_turing_traps_4\": true,\n  \"s2_zero_text_tokens\": true,\n  \"s3_charts_12\": true,\n  \"s3_charted_latency\": true,\n  \"s3_stiefel_retraction\": true,\n  \"s4_four_pillars\": true,\n  \"s4_pillar_d_wave\": true,\n  \"s4_omniscience_scale\": true,\n  \"queries_176\": true,\n  \"probes_100_present\": true,\n  \"passed\": true\n}\nbaseline reads=384 bytes=21181744 acc=0.533 hall=0.993\nholarch_mcp reads=0 bytes=0 acc=1.000 hall=0.000 receipts=76 chain=True\n",
+    "stderr_tail": ""
+  },
+  "gate": {
+    "o4_prior_84": true,
+    "o4_discovery_4": true,
+    "o4_traps_refused_4": true,
+    "o4_synthesis_92": true,
+    "o4_queries_128": true,
+    "o4_gauntlet_passed": true,
+    "o4_exit_zero": true,
+    "o4_zero_reads": true,
+    "o4_reachable_1": true,
+    "o4_hallucination_0": true,
+    "passed": true
+  },
+  "wall_seconds": 648.7361419999506,
+  "evidence": "OBSERVED",
+  "passed": true
+}

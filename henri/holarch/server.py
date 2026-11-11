@@ -659,6 +659,7 @@ class SidecarService:
         rate_limit_burst: float = 100.0,
         clock: Optional[Callable[[], float]] = None,
         pin_threads: bool = False,
+        cache_enabled: bool = True,
     ) -> None:
         # Directive E2: mount the converged checkpoint and its calibrated
         # prototype bank by default. A fresh bootstrap is the explicit
@@ -701,15 +702,35 @@ class SidecarService:
         # serialises its readers on it any more.
         self.rw = RWLock()
         self.lock = threading.RLock()
-        # Directive M2: when more than one reader is active, PyTorch's
-        # intra-op pool is pinned to one thread. Sixteen callers times eight
-        # OpenMP workers is 128 threads fighting for the same cores; one
-        # intra-op thread per caller lets the operating system schedule the
-        # sixteen readers instead. The pin is released when the last reader
-        # leaves, so a serial call still uses the configured pool.
+        # Directive N2: a reader never touches the process-global OpenMP
+        # pool. The Cycle M path pinned torch.set_num_threads(1) whenever a
+        # second reader arrived, which reset a process-global C++ pool inside
+        # a live request and starved the J4 planners. The pool is now fixed
+        # once at construction (pin_threads) or left at the interpreter
+        # default, and the read scope does not mutate it.
         self._reader_lock = threading.Lock()
         self._cache_lock = threading.Lock()
         self._response_cache: Dict[str, Any] = {}
+        # Directive N1: the epoch is part of every cache key. A mutating call
+        # advances it and drops the response cache, so a delta index, a
+        # playbook compile or an adaptation cannot be answered from a stale
+        # pre-mutation entry. The sidecar carries its own epoch, so a direct
+        # sidecar.ingest_code call (the gauntlet delta probe) invalidates the
+        # service cache through the listener registered below.
+        self._state_epoch: int = 0
+        self._cache_enabled: bool = bool(cache_enabled)
+        # Directive O2: the shared Zone C epoch and the per-episode planner
+        # trajectory live on the service, not on the request.
+        self._seen_global_epoch: int = -1
+        self._episodes: Dict[Any, Dict[str, Any]] = {}
+        self._swat_bus = None
+        self._swat_gate = None
+        # Directive P2: the long-horizon telepathy surface. One bus, one
+        # calibrated language gate, and a session registry keyed by id.
+        self._lh_bus = None
+        self._lh_gate_calibration: Dict[str, Any] = {}
+        self._telepathy_sessions: Dict[str, Any] = {}
+        self._lh_wave_cache: Dict[str, Any] = {}
         self._active_readers = 0
         self._pinned_threads = False
         self._saved_threads = int(torch.get_num_threads())
@@ -730,11 +751,18 @@ class SidecarService:
         # Decision D4: the composite atlas is attached to the service, so a
         # REST or MCP caller can register and resolve multi-arity rules.
         self.composite = CompositeSolver(self.sidecar.model.memory, self.sidecar.codebook)
+        self.sidecar.add_state_listener(self._invalidate_state)
 
     # ------------------------------------------------------------- plumbing
     @contextmanager
     def _read_scope(self) -> Iterator[None]:
-        """Read lock plus the M2 intra-op thread guard."""
+        """Shared read lock for one endpoint call.
+
+        Directive N2: no OpenMP thread mutation happens here. The old M2
+        path called torch.set_num_threads(1) inside the request, which
+        resets the process-global pool and starved the J4 planners. The
+        intra-op pool is set once at construction, never per request.
+        """
         with self._reader_lock:
             self._active_readers += 1
         try:
@@ -746,14 +774,31 @@ class SidecarService:
 
     def _cache_key(self, endpoint: str, request: Any) -> str:
         return hashlib.sha256(
-            json.dumps([endpoint, request], sort_keys=True, default=str).encode("utf-8")
+            json.dumps(
+                [
+                    int(self._state_epoch),
+                    int(getattr(self.sidecar, "state_epoch", 0)),
+                    str(endpoint),
+                    request,
+                ],
+                sort_keys=True,
+                default=str,
+            ).encode("utf-8")
         ).hexdigest()
 
     def _cache_get(self, endpoint: str, request: Any) -> Optional[Any]:
+        # Directive O2: a sibling lane may have mutated the shared store since
+        # this process last read. The check runs even when the cache is off,
+        # because it also drops a stale code index before an impact read.
+        self._sync_global_epoch()
+        if not self._cache_enabled:
+            return None
         with self._cache_lock:
             return self._response_cache.get(self._cache_key(endpoint, request))
 
     def _cache_put(self, endpoint: str, request: Any, result: Any) -> None:
+        if not self._cache_enabled:
+            return
         with self._cache_lock:
             if len(self._response_cache) > 512:
                 self._response_cache.clear()
@@ -762,6 +807,48 @@ class SidecarService:
     def _cache_clear(self) -> None:
         with self._cache_lock:
             self._response_cache.clear()
+
+    def _invalidate_state(self) -> None:
+        """Advance the epoch and drop every memoised read (Directive N1)."""
+        with self._cache_lock:
+            self._state_epoch = int(self._state_epoch) + 1
+            self._response_cache.clear()
+
+    def _mark_state(self) -> None:
+        """Public spelling used by service-level mutators."""
+        memory = getattr(self.sidecar.model, "memory", None)
+        bumper = getattr(memory, "bump_state_epoch", None)
+        if bumper is not None:
+            try:
+                bumper()
+            except Exception:
+                pass
+        self._invalidate_state()
+
+    def _sync_global_epoch(self) -> None:
+        """Drop this lane's cache and index when a sibling lane mutated.
+
+        Directive O2. The epoch lives in engram_meta, so the comparison is a
+        short SQLite read. A changed value clears the response cache and the
+        per-process code index; the next impact read rebuilds the index from
+        the persisted graph the writer lane left behind.
+        """
+        memory = getattr(self.sidecar.model, "memory", None)
+        reader = getattr(memory, "state_epoch", None)
+        if reader is None:
+            return
+        try:
+            epoch = int(reader())
+        except Exception:
+            return
+        if epoch != int(self._seen_global_epoch):
+            self._seen_global_epoch = epoch
+            self._invalidate_state()
+            try:
+                self.sidecar._indexers.clear()
+                self.sidecar.indexer = None
+            except Exception:
+                pass
 
     def _envelope(self, endpoint: str, request: Any, result: Any) -> Dict[str, Any]:
         receipt = self.ledger.issue(
@@ -844,10 +931,765 @@ class SidecarService:
                 source_text=source_text,
             )
             result["mode"] = str(mode)
-            self._cache_clear()
+            self._mark_state()
             return self._envelope("/v1/holarch/ingest_code", request, result)
 
+    # ------------------------------------- telepathy API + long horizon (P2)
+    def _long_horizon_bus(self):
+        """The H-SWAT bus used by the public telepathy surface (Directive P2).
+
+        It is separate from the planner's bus: the planner hands over an
+        action wave under the action gate, while a telepathy session carries
+        document states under a language gate calibrated on real token waves.
+        """
+        if getattr(self, "_lh_bus", None) is None:
+            from henri.holarch.swat_bus import (
+                SagnacKVGate,
+                SwarmTelepathyBus,
+                SwarmTelepathyMapper,
+                cache_from_wave,
+            )
+
+            mapper = SwarmTelepathyMapper(dim=int(self.cfg.dim))
+            mapper.set_shared_frame()
+            gate = SagnacKVGate(self.sidecar.model, self.sidecar.model.memory, task="language")
+            engine = self.sidecar._ensure_engine("default")
+            projector, tokenizer = engine.projector, engine.tokenizer
+            calibration = []
+            # Calibrate on the SAME encoding the session's names use. A name
+            # is a short token sequence, not one vocabulary slot, so a
+            # single-token calibration would set a chance floor above the
+            # waves the session actually sends.
+            for index in range(16):
+                wave = self._identity_wave(f"ref{index:02d}")
+                calibration.append(
+                    cache_from_wave(wave, source=f"calib:{index}", task="language")
+                )
+            gate.calibrate(calibration)
+            bus = SwarmTelepathyBus(mapper, gate=gate, budget_u=32, dim=int(self.cfg.dim))
+            self._lh_bus = bus
+            self._lh_gate_calibration = dict(gate.calibration)
+        return self._lh_bus
+
+    def _identity_wave(self, name: str) -> np.ndarray:
+        """A deterministic, mutually incoherent identity code for one name.
+
+        The projector's sequence wave is a SEMANTIC code: two short names can
+        share most of their phase (measured: cos(pm1, pm2) = 0.82), which is
+        right for language and wrong for a key-value registry, where two
+        symbols must be distinguishable. The identity code is a unit vector in
+        the same C^D space derived from a SHA-256 of the name, so every symbol
+        has its own phase and the read is exact.
+        """
+        cache = getattr(self, "_lh_identity_cache", None)
+        if cache is None:
+            cache = {}
+            self._lh_identity_cache = cache
+        key = str(name)
+        cached = cache.get(key)
+        if cached is not None:
+            return cached
+        seed = int(hashlib.sha256(key.encode("utf-8")).hexdigest()[:8], 16)
+        rng = np.random.default_rng(seed)
+        dim = int(self.cfg.dim)
+        wave = (
+            rng.standard_normal(dim) + 1j * rng.standard_normal(dim)
+        ).astype(np.complex64)
+        wave = wave / max(float(np.linalg.norm(wave)), 1e-12)
+        if len(cache) < 16384:
+            cache[key] = wave
+        return wave
+
+    def _name_wave(self, name: str, projector, tokenizer) -> np.ndarray:
+        cache = getattr(self, "_lh_wave_cache", None)
+        if cache is None:
+            cache = {}
+            self._lh_wave_cache = cache
+        key = str(name)
+        if key in cache:
+            return cache[key]
+        tokens = list(tokenizer.encode(str(name)))[:8]
+        wave = (
+            projector.sequence_wave(tokens, tokenizer)
+            if tokens
+            else projector.slot_wave(0, tokenizer)
+        )
+        if len(cache) < 8192:
+            cache[key] = wave
+        return wave
+
+    def _value_vector(self, wave: np.ndarray) -> np.ndarray:
+        """The frame a fact VALUE is written in: slot 0 of its key projection.
+
+        cache_from_pairs writes each fact as (key slot 0, value slot 0), so
+        the receiver's candidate table must live in exactly that frame.
+        """
+        from henri.holarch.swat_bus import kv_from_wave
+
+        # cache_from_pairs writes a fact VALUE from the value half of
+        # kv_from_wave, so the receiver's candidate table must live in exactly
+        # that half. Reading the key half here compared two decorrelated
+        # projections and made every answer a coin flip.
+        _keys, values = kv_from_wave(wave, heads=4, dk=32)
+        return values[0].reshape(-1).numpy().astype(np.float32)
+
+    def telepathy(
+        self,
+        mode: str = "ingest_chunks",
+        session_id: Optional[str] = None,
+        namespace: str = "default",
+        chunks: Optional[Sequence[Any]] = None,
+        query: Optional[str] = None,
+        budget_u: int = 32,
+        per_chunk_u: int = 8,
+        hops: int = 3,
+        top_k: int = 1,
+        reset: bool = False,
+        reference_facts: Optional[Sequence[Sequence[str]]] = None,
+        raw_documents: Optional[Sequence[Any]] = None,
+        fact_string_rule: bool = True,
+    ) -> Dict[str, Any]:
+        """SWAT Appendix F over REST/MCP: ingest C chunks, then query them.
+
+        Directive P2 accepted a query at ingest and walked the bridges inside
+        the sender. Directive Q1 removes that restriction: when query is None
+        the service gates and compacts every chunk ONCE against its own mean
+        key, indexes the cross-chunk fact bindings, and stores the index. A
+        later mode="query" call with an unseen query walks that index and
+        composes the terminal binding into the receiver cache in under a
+        millisecond, with zero receiver text prefill tokens.
+        """
+        import time as _time
+
+        from henri.holarch.swat_bus import cache_from_pairs
+
+        from henri.holarch.swat_bus import DocumentFactExtractor
+
+        mode = str(mode or "ingest_chunks").strip().lower()
+        bus = self._long_horizon_bus()
+        projectors = self.sidecar._ensure_engine(namespace)
+        projector, tokenizer = projectors.projector, projectors.tokenizer
+        sessions = getattr(self, "_telepathy_sessions", None)
+        if sessions is None:
+            sessions = {}
+            self._telepathy_sessions = sessions
+        if mode in {"ingest", "ingest_chunks", "encode"}:
+            raw_chunks = list(chunks or [])
+            raw_documents = list(raw_documents or [])
+            if not raw_chunks and not raw_documents:
+                raise ValueError("ingest_chunks needs at least one chunk or raw document")
+            # ------------------------------------------------ parse (Q1/R1)
+            parsed: List[Dict[str, Any]] = []
+            extraction: Dict[str, Any] = {}
+            if raw_documents:
+                # Directive R1: the documents arrive as raw text. The
+                # deterministic extractor parses Markdown tables, config and
+                # JSON lines, Python AST assignments and prose link sentences
+                # into normalised triples. The reference law is built by
+                # corroboration across the documents themselves: no caller
+                # supplied fact_registry is consulted on this path.
+                extractor = DocumentFactExtractor()
+                extraction = extractor.extract_documents(raw_documents)
+                for document in extraction["documents"]:
+                    meta = dict(document.get("meta") or {})
+                    facts = [
+                        [str(fact.get("key") or fact["subject"]), str(fact["value"])]
+                        for fact in document["facts"]
+                    ]
+                    parsed.append(
+                        {
+                            "index": int(document["index"]),
+                            "facts": facts,
+                            "source": str(document["source"]),
+                            "corrupt": False,
+                            "fabricated": bool(meta.get("fabricated", False)),
+                            "fabricated_mode": str(meta.get("fabricated_mode", "mismatch")),
+                            "ood": not bool(document["connected"]),
+                            "raw": True,
+                            "triples": list(document["facts"]),
+                            "names": list(document.get("names") or ()),
+                        }
+                    )
+            else:
+                for index, spec in enumerate(raw_chunks):
+                    if not isinstance(spec, dict):
+                        spec = {"facts": spec}
+                    facts = [list(pair) for pair in (spec.get("facts") or [])]
+                    text = str(spec.get("text") or "")
+                    if not facts and text:
+                        for line in text.replace(";", chr(10)).splitlines():
+                            if "=" in line:
+                                left, _, right = line.partition("=")
+                                if left.strip() and right.strip():
+                                    facts.append([left.strip(), right.strip()])
+                    parsed.append(
+                        {
+                            "index": int(index),
+                            "facts": facts,
+                            "source": str(spec.get("source") or spec.get("id") or f"chunk{index}"),
+                            "corrupt": bool(spec.get("corrupt", False)),
+                            "fabricated": bool(spec.get("fabricated", False)),
+                            "fabricated_mode": str(spec.get("fabricated_mode", "mismatch")),
+                            "ood": bool(spec.get("ood", False)),
+                            "raw": False,
+                        }
+                    )
+            # The reference registry is the session's ground truth. On the raw
+            # path it is the corroborated law the extractor built; on the
+            # legacy path it is every fact of an honest content chunk.
+            reference: Dict[str, str] = {}
+            if extraction:
+                reference.update(
+                    {str(key): str(value) for key, value in (extraction.get("registry") or {}).items()}
+                )
+            else:
+                for row in parsed:
+                    if row["corrupt"] or row["fabricated"]:
+                        continue
+                    for key, value in row["facts"]:
+                        reference.setdefault(str(key), str(value))
+            # A caller may declare the Tier-3 reference bindings explicitly
+            # (the Briefcase audit does), so a fabricated chunk can be tested
+            # against a law that is not itself one of the content chunks.
+            for pair in list(reference_facts or ()):
+                if len(pair) >= 2:
+                    reference.setdefault(str(pair[0]), str(pair[1]))
+            gate = getattr(bus, "gate", None)
+            if gate is not None:
+                gate.fact_registry = dict(reference)
+                gate.wave_of = self._identity_wave
+                gate.enforce_string_rule = bool(fact_string_rule)
+            caches: List[Any] = []
+            chunk_rows: List[Dict[str, Any]] = []
+            candidates: Dict[str, np.ndarray] = {}
+            for row in parsed:
+                facts = row["facts"]
+                if not facts:
+                    continue
+                fact_waves = None
+                if bool(row["corrupt"]):
+                    # A corrupted state is a REAL wave with its phase scrambled:
+                    # the payload still looks like a KV state, but its retrieval
+                    # coherence collapses, which is what the Sagnac gate tests.
+                    rng = np.random.default_rng(20261108 + int(row["index"]))
+                    pairs = [
+                        (self._identity_wave(str(a)), self._identity_wave(str(b)))
+                        for a, b in facts
+                    ]
+                    topic = np.asarray(pairs[0][0], dtype=np.complex64)
+                    topic = topic / max(float(np.linalg.norm(topic)), 1e-12)
+                    phase = np.exp(
+                        1j * rng.uniform(-np.pi, np.pi, int(self.cfg.dim))
+                    ).astype(np.complex64)
+                    wave = topic * phase
+                    fact_waves = [(a, b) for a, b in pairs]
+                elif bool(row["fabricated"]):
+                    # An ON-TOPIC fabricated chunk announces a valid topic
+                    # wave (frame binding 1.0) but carries a contradicted
+                    # value. Two modes are exercised: a substituted value and
+                    # a phase-inverted value. The gate's fourth condition must
+                    # refuse both.
+                    pairs = []
+                    fact_waves = []
+                    for key, value in facts:
+                        key = str(key)
+                        expected = reference.get(key)
+                        key_wave = self._identity_wave(key)
+                        if row["fabricated_mode"] == "anti_phase" and expected is not None:
+                            value_wave = -self._identity_wave(str(expected))
+                        else:
+                            value_wave = self._identity_wave(str(value))
+                        pairs.append((key_wave, value_wave))
+                        fact_waves.append((key_wave, value_wave))
+                    topic = np.asarray(self._identity_wave(str(facts[0][0])), dtype=np.complex64)
+                    wave = topic / max(float(np.linalg.norm(topic)), 1e-12)
+                else:
+                    pairs = [
+                        (self._identity_wave(str(a)), self._identity_wave(str(b)))
+                        for a, b in facts
+                    ]
+                    wave = np.asarray(pairs[0][0], dtype=np.complex64)
+                    wave = wave / max(float(np.linalg.norm(wave)), 1e-12)
+                    fact_waves = [(a, b) for a, b in pairs]
+                if not pairs:
+                    continue
+                cache = cache_from_pairs(
+                    pairs,
+                    source=row["source"],
+                    task="language",
+                    wave=np.asarray(wave, dtype=np.complex64),
+                    facts=[[str(a), str(b)] for a, b in facts],
+                )
+                if fact_waves is not None:
+                    cache.meta["fact_waves"] = fact_waves
+                if bool(row.get("ood", False)):
+                    # Directive R1: a document that shares no entity with any
+                    # other document is off-topic for this session. The
+                    # connectivity test is measured in the identity code
+                    # (shared name -> coherence 1.0), and the document is
+                    # refused before it can contribute a bridge slot.
+                    cache.meta["ood"] = True
+                caches.append(cache)
+                if not row["corrupt"] and not row["fabricated"] and not row.get("ood", False):
+                    for key, value in facts:
+                        candidates[str(value)] = self._value_vector(
+                            self._identity_wave(str(value))
+                        )
+                        candidates.setdefault(
+                            str(key),
+                            self._value_vector(self._identity_wave(str(key))),
+                        )
+                chunk_rows.append(
+                    {
+                        "source": row["source"],
+                        "facts": len(facts),
+                        "digest": cache.digest,
+                        "fabricated": bool(row["fabricated"]),
+                        "corrupt": bool(row["corrupt"]),
+                        "ood": bool(row.get("ood", False)),
+                    }
+                )
+            query_agnostic = query is None
+            sid = str(session_id or f"telepathy-{len(sessions) + 1}-{int(_time.time())}")
+            if reset:
+                sessions.pop(sid, None)
+            if query_agnostic:
+                # ------------------------- Q1: ingest once, no query in hand
+                ingest_started = _time.perf_counter()
+                gate = getattr(bus, "gate", None)
+                gate_rows: List[Dict[str, Any]] = []
+                admitted_caches: List[Any] = []
+                vetoed: List[str] = []
+                for cache in caches:
+                    if bool(cache.meta.get("ood", False)):
+                        row = {
+                            "admitted": False,
+                            "reason": "coherence",
+                            "ood": True,
+                            "topic_connectivity": 0.0,
+                        }
+                    else:
+                        row = (
+                            gate.check(cache)
+                            if gate is not None
+                            else {"admitted": True, "reason": "gate-disabled"}
+                        )
+                    gate_rows.append(
+                        {"source": str(cache.source), "digest": str(cache.digest), **row}
+                    )
+                    if bool(row.get("admitted", True)):
+                        admitted_caches.append(cache)
+                    else:
+                        vetoed.append(str(cache.source))
+                        bus.counts["vetoed"] = int(bus.counts["vetoed"]) + 1
+                index = bus.build_bridge_index(
+                    admitted_caches, per_chunk_u=int(per_chunk_u)
+                )
+                compacted = int(
+                    sum(int(row["keys"].shape[0]) for row in index["per_chunk"])
+                )
+                digest = hashlib.sha256(
+                    ("q1:" + "|".join(str(row["digest"]) for row in chunk_rows)).encode(
+                        "utf-8"
+                    )
+                ).hexdigest()
+                sessions[sid] = {
+                    "agnostic": True,
+                    "query": "",
+                    "index": index,
+                    "reference_facts": int(len(reference)),
+                    "candidates": candidates,
+                    "chunks": chunk_rows,
+                    "gate_rows": gate_rows,
+                    "vetoed": list(vetoed),
+                    "digest": digest,
+                    "budget_u": int(budget_u),
+                    "per_chunk_u": int(per_chunk_u),
+                    "hops": int(hops),
+                    "namespace": str(namespace),
+                }
+                ingest_ms = (_time.perf_counter() - ingest_started) * 1e3
+                return {
+                    "mode": "ingest_chunks",
+                    "session_id": sid,
+                    "namespace": str(namespace),
+                    "query_agnostic": True,
+                    "chunks": int(len(caches)),
+                    "admitted_chunks": int(len(admitted_caches)),
+                    "vetoed_chunks": list(vetoed),
+                    "compacted_slots_u": int(compacted),
+                    "per_chunk_u": int(per_chunk_u),
+                    "total_budget_u": int(budget_u),
+                    "hops": int(hops),
+                    "bridge_slots": int(len(index["bridge_value_names"])),
+                    "cross_chunk_bridges": int(len(index["bridge_value_names"])),
+                    "reference_facts": int(len(reference)),
+                    "receiver_prefill_tokens": 0,
+                    "swat_kv_digest": str(digest),
+                    "gate_calibration": dict(getattr(self, "_lh_gate_calibration", {})),
+                    "ttft_ms": float(ingest_ms),
+                    "chunk_rows": chunk_rows,
+                    "gate_rows": gate_rows,
+                }
+            # ------------------------------- P2 path: the query is in hand
+            def resolver(context: np.ndarray):
+                best = (-2.0, "")
+                norm = float(np.linalg.norm(context))
+                ranked: List[Tuple[float, str]] = []
+                for name, vector in candidates.items():
+                    cosine = float(
+                        np.dot(context, vector)
+                        / max(norm * float(np.linalg.norm(vector)), 1e-12)
+                    )
+                    ranked.append((cosine, name))
+                    if cosine > best[0]:
+                        best = (cosine, name)
+                ranked.sort(key=lambda pair: -pair[0])
+                self._lh_resolver_trace = ranked[:5]
+                if not best[1]:
+                    return None
+                return self._identity_wave(best[1]), best[1]
+
+            query_wave = self._identity_wave(str(query)) if query else None
+            if query_wave is None:
+                query_wave = np.asarray(caches[0].wave, dtype=np.complex64)
+            started = _time.perf_counter()
+            report = bus.compact_long_horizon(
+                caches,
+                query_wave,
+                per_chunk_u=int(per_chunk_u),
+                total_budget_u=int(budget_u),
+                hops=int(hops),
+                resolver=resolver if query else None,
+                session_id=sid,
+                use_gate=True,
+                compose=True,
+            )
+            ttft_ms = (_time.perf_counter() - started) * 1e3
+            names = list(candidates.keys())
+            matrix = (
+                np.stack([candidates[name] for name in names]).astype(np.float32)
+                if names
+                else np.zeros((0, 4 * 32), dtype=np.float32)
+            )
+            sessions[sid] = {
+                "agnostic": False,
+                "query": str(query or ""),
+                "query_wave": query_wave,
+                "candidates": candidates,
+                "candidate_names": names,
+                "candidate_matrix": matrix,
+                "candidate_norms": np.linalg.norm(matrix, axis=1) if names else np.zeros(0),
+                "cache": report["cache"],
+                "chunks": chunk_rows,
+                "vetoed": list(report["vetoed_chunks"]),
+                "chain": list(report["chain"]),
+                "digest": str(report["swat_kv_digest"]),
+                "budget_u": int(budget_u),
+                "compacted_slots_u": int(report["compacted_slots_u"]),
+                "namespace": str(namespace),
+                "hops": int(hops),
+            }
+            return {
+                "mode": "ingest_chunks",
+                "session_id": sid,
+                "namespace": str(namespace),
+                "query_agnostic": False,
+                "chunks": int(len(caches)),
+                "admitted_chunks": int(report["admitted_chunks"]),
+                "vetoed_chunks": list(report["vetoed_chunks"]),
+                "compacted_slots_u": int(report["compacted_slots_u"]),
+                "per_chunk_u": int(per_chunk_u),
+                "total_budget_u": int(budget_u),
+                "hops": int(hops),
+                "chain": list(report["chain"]),
+                "cross_chunk_bridges": int(report.get("cross_chunk_bridges", 0)),
+                "answer_label": str(report.get("answer_label", "")),
+                "receiver_prefill_tokens": 0,
+                "swat_kv_digest": str(report["swat_kv_digest"]),
+                "gate_calibration": dict(getattr(self, "_lh_gate_calibration", {})),
+                "ttft_ms": float(ttft_ms),
+                "chunk_rows": chunk_rows,
+                "gate_rows": list(report.get("chunks") or []),
+            }
+        if mode == "query":
+            sid = str(session_id or "")
+            session = sessions.get(sid)
+            if session is None:
+                raise KeyError(f"telepathy session {sid!r} is not on this service")
+            started = _time.perf_counter()
+            if bool(session.get("agnostic", False)):
+                # Directive Q1: an unseen query is resolved against the
+                # ingested bridge index and composed into the receiver cache
+                # here, at query time, with zero text prefill.
+                wave = self._identity_wave(str(query or ""))
+                resolve = bus.resolve_bridges(
+                    session["index"],
+                    wave,
+                    hops=int(session.get("hops", 3)),
+                    wave_of=self._identity_wave,
+                )
+                cache = bus.compose_bridge_cache(
+                    session["index"],
+                    wave,
+                    resolve["context"],
+                    budget_u=int(session.get("budget_u", 32)),
+                    source=str(sid),
+                )
+                ttft_ms = (_time.perf_counter() - started) * 1e3
+                answer = str(resolve.get("answer", ""))
+                trace = list(resolve.get("trace") or [])
+                # Fail closed: a terminal hop that does not actually match the
+                # indexed key (peak coherence below the declared abstention
+                # floor) is not an answer. A broken cross-chunk chain ends in
+                # ABSTAIN, never in the nearest unrelated slot.
+                abstained = bool(
+                    not trace
+                    or float(trace[-1].get("peak", 0.0)) < 0.50
+                    or int(resolve.get("resolved_hops", 0)) < int(session.get("hops", 3))
+                )
+                if abstained:
+                    answer = ""
+                session["last"] = {
+                    "query": str(query or ""),
+                    "answer": answer,
+                    "cache_digest": str(cache.digest),
+                    "ttft_ms": float(ttft_ms),
+                }
+                return {
+                    "mode": "query",
+                    "session_id": sid,
+                    "query_agnostic": True,
+                    "query": str(query or ""),
+                    "answer": answer,
+                    "abstained": bool(abstained),
+                    "abstain_reason": (
+                        "terminal bridge coherence below 0.50"
+                        if abstained
+                        else ""
+                    ),
+                    "top_k": [
+                        {"name": str(row["value"]), "score": float(row["peak"])}
+                        for row in trace[: max(1, int(top_k))]
+                    ],
+                    "score": float(trace[-1]["peak"]) if trace else 0.0,
+                    "compacted_slots_u": int(cache.keys.shape[0]),
+                    "bridge_slots": int(len(session["index"]["bridge_value_names"])),
+                    "cross_chunk_bridges": int(max(0, len(trace) - 1)),
+                    "resolve_hops": int(resolve.get("resolved_hops", 0)),
+                    "receiver_prefill_tokens": 0,
+                    "swat_kv_digest": str(cache.digest),
+                    "session_digest": str(session.get("digest", "")),
+                    "ttft_ms": float(ttft_ms),
+                    "trace": trace,
+                }
+            wave = self._identity_wave(str(query or session["query"]))
+            query_key = bus._query_keys(wave)
+            cache = session["cache"]
+            context, weights = bus._read_values(cache.keys, cache.values, query_key)
+            matrix = session["candidate_matrix"]
+            names = session["candidate_names"]
+            context_np = context.numpy().astype(np.float32)
+            norm = float(np.linalg.norm(context_np))
+            if matrix.shape[0]:
+                scores = (matrix @ context_np) / np.maximum(
+                    session["candidate_norms"] * norm, 1e-12
+                )
+                order = np.argsort(-scores)[: max(1, int(top_k))]
+                ranked = [(float(scores[index]), str(names[index])) for index in order]
+            else:
+                ranked = []
+            ttft_ms = (_time.perf_counter() - started) * 1e3
+            answer = ranked[0][1] if ranked else ""
+            return {
+                "mode": "query",
+                "session_id": sid,
+                "query_agnostic": False,
+                "query": str(query or session["query"]),
+                "answer": str(answer),
+                "top_k": [{"name": name, "score": float(score)} for score, name in ranked[: max(1, int(top_k))]],
+                "score": float(ranked[0][0]) if ranked else 0.0,
+                "compacted_slots_u": int(cache.keys.shape[0]),
+                "receiver_prefill_tokens": 0,
+                "swat_kv_digest": str(session["digest"]),
+                "ttft_ms": float(ttft_ms),
+                "chain": list(session["chain"]),
+            }
+        raise ValueError("mode must be one of ingest_chunks or query")
+
     # ------------------------------------------------ planner + guard (H3)
+    def _telepathy_bus(self):
+        """Lazy H-SWAT bus for telepathic handoff of a plan wave (O2)."""
+        if self._swat_bus is None:
+            from henri.holarch.swat_bus import (
+                SagnacKVGate,
+                SwarmTelepathyBus,
+                SwarmTelepathyMapper,
+            )
+
+            mapper = SwarmTelepathyMapper(dim=int(self.cfg.dim))
+            mapper.set_shared_frame()
+            self._swat_gate = SagnacKVGate(
+                self.sidecar.model, self.sidecar.model.memory, task="action"
+            )
+            self._swat_bus = SwarmTelepathyBus(
+                mapper, gate=self._swat_gate, budget_u=8, dim=int(self.cfg.dim)
+            )
+        return self._swat_bus
+
+    def _plan_episode(
+        self,
+        observation: Any,
+        history_waves: Optional[Sequence[Any]],
+        transition: str,
+        lookahead_depth: int,
+        gamma_look: float,
+        namespace: str,
+        batch_rollout: bool,
+        episode_id: str,
+        reset_episode: bool,
+        emit_swat_kv: bool,
+        online_repulsor: bool = True,
+    ) -> Dict[str, Any]:
+        """Stateful online-REPULSOR planning for one episode (Directive O2).
+
+        The trigger is the offline evaluator's rule: a non-adjacent revisit
+        (coherence > 0.98), a dead end, or a five-step goal-distance stall.
+        A second signal is the depth-1 / depth-2 disagreement that defines a
+        discriminating trap; on that signal the escape search runs with a
+        model-predicted next wave. The escape itself is
+        PhotonicCore.relax_discovery, so a repulsor axiom is written to Zone C
+        and the settled action is returned with its receipt.
+        """
+        from henri.holarch.model import ACTION_NAMES, LatentActionLookahead
+
+        key = (str(namespace), str(episode_id or "default"))
+        if bool(reset_episode) or key not in self._episodes:
+            self._episodes[key] = {
+                "waves": [],
+                "actions": [],
+                "distances": [],
+                "repulsors": 0,
+            }
+        state = self._episodes[key]
+        # The lookahead's cycle penalty decays by position, so the newest
+        # wave must be index 0 (the order evaluate_closed_loop_action uses).
+        recent_tensors = list(reversed(state["waves"][-4:])) or None
+        lookahead, choice, recent = self.sidecar.plan_choice(
+            observation,
+            history_waves=history_waves,
+            transition=str(transition),
+            lookahead_depth=int(lookahead_depth),
+            gamma_look=float(gamma_look),
+            batch_rollout=bool(batch_rollout),
+            recent_waves=recent_tensors,
+        )
+        psi = choice["psi"].detach().reshape(-1)
+        action = int(choice["action"])
+        distance = int(lookahead.goal_distance(psi))
+        triggered = False
+        escape_action = None
+        if bool(online_repulsor):
+            stalled = bool(
+                len(state["distances"]) >= 5
+                and min(state["distances"][-4:]) >= state["distances"][-5]
+            )
+            trapped = bool(
+                lookahead.cycle_score(psi, state["waves"][-12:]) > 0.98
+                or lookahead.dead_end(psi)
+                or stalled
+            )
+            single = LatentActionLookahead(
+                self.sidecar.model,
+                None,
+                rotor=getattr(self.sidecar.model, "action_rotor", None),
+                transition=str(transition),
+                lookahead_depth=1,
+            )
+            control = single.choose(observation, [])
+            disagreement = int(control["action"]) != action
+        else:
+            trapped = False
+            disagreement = False
+            control = None
+        if bool(online_repulsor) and (trapped or disagreement):
+            if disagreement and not trapped:
+                predicted = lookahead.predict(psi, int(control["action"])).detach().reshape(-1)
+                basis = [predicted, psi]
+                prior = control["scores"]
+                distance_first = True
+                avoid_reverse = True
+            else:
+                basis = list(state["waves"][-4:]) or list(recent)
+                prior = choice["scores"]
+                distance_first = False
+                avoid_reverse = False
+            escape = lookahead.discover_escape(
+                psi,
+                basis,
+                choice["legal"],
+                int(state["actions"][-1]) if state["actions"] else None,
+                self.sidecar.model.memory,
+                namespace=f"api_{namespace}_{episode_id or 'default'}",
+                visited=list(state["waves"][-12:]) or list(recent),
+                prior_scores=prior,
+                distance_first=distance_first,
+                avoid_reverse=avoid_reverse,
+            )
+            escape_action = int(escape["action"])
+            action = escape_action
+            triggered = True
+            state["repulsors"] = int(state["repulsors"]) + int(
+                bool((escape.get("axiom") or {}).get("registered", False))
+            )
+        state["waves"].append(psi)
+        state["waves"] = state["waves"][-24:]
+        state["actions"].append(action)
+        state["actions"] = state["actions"][-24:]
+        state["distances"].append(distance)
+        state["distances"] = state["distances"][-24:]
+        swat_digest = ""
+        if bool(emit_swat_kv):
+            from henri.holarch.swat_bus import cache_from_wave
+
+            bus = self._telepathy_bus()
+            cache = cache_from_wave(
+                psi.detach().cpu().numpy(),
+                source=f"plan:{namespace}:{episode_id or 'default'}",
+                task="action",
+            )
+            bus.register(cache)
+            packet = bus.transmit(cache.source, receiver_task="language")
+            swat_digest = str(packet.digest)
+        scores = choice["scores"]
+        result: Dict[str, Any] = {
+            "action": int(action),
+            "action_name": ACTION_NAMES[int(action) % len(ACTION_NAMES)],
+            "scores": [float(value) for value in scores],
+            "alignment": [float(value) for value in choice["alignment"]],
+            "penalty": [float(value) for value in choice["penalty"]],
+            "lookahead": (
+                [float(value) for value in choice["lookahead"]]
+                if int(lookahead_depth) == 2
+                else []
+            ),
+            "legal_mask": [bool(value) for value in choice["legal"]],
+            "transition": str(transition),
+            "lookahead_depth": int(lookahead_depth),
+            "gamma_look": float(gamma_look),
+            "history_waves": int(len(recent)),
+            "batch_rollout": bool(batch_rollout),
+            "namespace": str(namespace),
+            "episode_id": str(episode_id or ""),
+            "online_repulsor": bool(online_repulsor),
+            "repulsor_triggered": bool(triggered),
+            "escape_action": None if escape_action is None else int(escape_action),
+            "active_repulsors": int(state["repulsors"]),
+            "goal_distance": int(distance),
+            "swat_kv_digest": swat_digest,
+        }
+        return result
+
     def plan(
         self,
         observation: Any,
@@ -857,8 +1699,19 @@ class SidecarService:
         gamma_look: float = 0.02,
         namespace: str = "default",
         batch_rollout: bool = True,
+        episode_id: Optional[str] = None,
+        online_repulsor: bool = False,
+        reset_episode: bool = False,
+        emit_swat_kv: bool = False,
     ) -> Dict[str, Any]:
-        """Depth-2 wall-masked rotor planning over the mounted checkpoint."""
+        """Depth-2 wall-masked rotor planning over the mounted checkpoint.
+
+        Directive O2 adds an optional stateful episode: with online_repulsor
+        the service keeps the visit/goal-distance trajectory per
+        (namespace, episode_id), registers a REPULSOR axiom when the policy
+        repeats, dead-ends or stalls, and returns the escape action plus the
+        telepathic KV digest. A stateless call is unchanged and cacheable.
+        """
         request = {
             "observation": _clean(observation),
             "history_waves": 0 if not history_waves else len(list(history_waves)),
@@ -867,21 +1720,42 @@ class SidecarService:
             "gamma_look": float(gamma_look),
             "batch_rollout": bool(batch_rollout),
             "namespace": str(namespace),
+            "episode_id": None if episode_id is None else str(episode_id),
+            "online_repulsor": bool(online_repulsor),
+            "reset_episode": bool(reset_episode),
+            "emit_swat_kv": bool(emit_swat_kv),
         }
-        cached = self._cache_get("/v1/holarch/plan", request)
-        if cached is not None:
-            return self._envelope("/v1/holarch/plan", request, cached)
+        stateful = bool(episode_id)
+        if not stateful:
+            cached = self._cache_get("/v1/holarch/plan", request)
+            if cached is not None:
+                return self._envelope("/v1/holarch/plan", request, cached)
         with self._read_scope():
-            result = self.sidecar.plan(
-                observation,
-                history_waves=history_waves,
-                transition=str(transition),
-                lookahead_depth=int(lookahead_depth),
-                gamma_look=float(gamma_look),
-                namespace=str(namespace),
-                batch_rollout=bool(batch_rollout),
-            )
-            self._cache_put("/v1/holarch/plan", request, result)
+            if stateful:
+                result = self._plan_episode(
+                    observation,
+                    history_waves,
+                    transition,
+                    lookahead_depth,
+                    gamma_look,
+                    namespace,
+                    batch_rollout,
+                    str(episode_id),
+                    reset_episode,
+                    emit_swat_kv,
+                    bool(online_repulsor),
+                )
+            else:
+                result = self.sidecar.plan(
+                    observation,
+                    history_waves=history_waves,
+                    transition=str(transition),
+                    lookahead_depth=int(lookahead_depth),
+                    gamma_look=float(gamma_look),
+                    namespace=str(namespace),
+                    batch_rollout=bool(batch_rollout),
+                )
+                self._cache_put("/v1/holarch/plan", request, result)
             return self._envelope("/v1/holarch/plan", request, result)
 
     def verify(
@@ -920,7 +1794,7 @@ class SidecarService:
                 for edge in edges
             ]
             result = self.sidecar.ingest_edges(parsed, namespace=str(namespace))
-            self._cache_clear()
+            self._mark_state()
             return self._envelope("/v1/holarch/ingest_edges", request, result)
 
     def solve(
@@ -967,6 +1841,7 @@ class SidecarService:
                 result = self.sidecar.compile_playbook(
                     name, list(steps), merge=bool(merge), namespace=str(namespace)
                 )
+                self._mark_state()
                 action = "compile"
         else:
             with self._read_scope():
@@ -997,6 +1872,7 @@ class SidecarService:
             result = self.sidecar.adapt_rule(
                 task, tensor, labels, rule_id=rule_id, lr=float(lr)
             )
+            self._mark_state()
             return self._envelope("/v1/holarch/adapt_rule", request, result)
 
 
@@ -1080,6 +1956,7 @@ class SidecarService:
                     rows.append(((operand_a, operator, operand_b), result))
                 written = self.composite.ingest(rows, namespace=str(namespace))
                 calibration = self.composite.calibrate(rows, namespace=str(namespace))
+                self._mark_state()
                 result = {
                     "mode": "ingest",
                     "rules_ingested": float(written),
@@ -1148,6 +2025,219 @@ class SidecarService:
             result = {**result, "status": str(result.get("status", ""))}
             return self._envelope("/v1/holarch/synthesize", request, result)
 
+    def discover(
+        self,
+        intent: str,
+        tests: str = "",
+        request: Optional[Dict[str, Any]] = None,
+        namespace: str = "default",
+        library: Optional[Dict[str, str]] = None,
+    ) -> Dict[str, Any]:
+        """Real holonic playbook discovery over the public surface (P4).
+
+        One tick is Ideation -> Tier-1 JEV/AST/type gate -> Tier-2 sandbox
+        execution critic -> Tier-3 PlanStore compilation. A refused tick
+        compiles nothing, so the store is revertible by construction; the
+        envelope reports the store sizes so the caller can verify that.
+        """
+        engine = self.sidecar._ensure_engine(namespace)
+        engine.namespace = str(namespace)
+        engine.plans.namespace = str(namespace)
+        body = {
+            "intent": str(intent),
+            "tests": str(tests),
+            "request": dict(request or {}),
+            "namespace": str(namespace),
+            "library": None if library is None else sorted(library),
+        }
+        started = time.perf_counter()
+        report = engine.holonic_discover(
+            str(intent), str(tests), dict(request or {}), library=library
+        )
+        elapsed = (time.perf_counter() - started) * 1e3
+        result = {
+            **report,
+            "namespace": str(namespace),
+            "elapsed_ms": float(elapsed),
+            "plan_store_size": int(len(engine.plans.plans)),
+            "integrity": bool(
+                int(report.get("residual_state", 0)) == 0
+                and int(report.get("plans_before", 0))
+                + (1 if bool(report.get("verified")) else 0)
+                == int(report.get("plans_after", 0))
+            ),
+        }
+        payload = self._envelope("/v1/holarch/discover", body, result)
+        return payload
+
+    # ------------------------------------------------- wave Turing (S2)
+    def turing(
+        self,
+        mode: str = "list",
+        program: str = "binary_increment",
+        tape: Optional[Sequence[Any]] = None,
+        max_steps: int = 0,
+        namespace: str = "default",
+        examples: Optional[Sequence[Any]] = None,
+        alphabet: Optional[Sequence[str]] = None,
+        name: str = "induction",
+    ) -> Dict[str, Any]:
+        """Execute a deterministic program in the 4-slot wave manifold (S2).
+
+        mode="list"   the sixteen programs and their expectations
+        mode="run"    one program, tape recovered from the wave
+        mode="suite"  all sixteen plus the four adversarial traps, scored
+        mode="traps"  the four traps alone
+
+        Every executed step reads the tape by unbinding slot 2 and writes it by
+        a linear holographic delta. No step passes through the tokenizer, so the
+        receipt records text_tokens = 0.
+        """
+        from .symbolic import (
+            WaveTuringMachine,
+            reference_turing_run,
+            turing_program,
+            turing_programs,
+            turing_traps,
+        )
+
+        mode = str(mode or "list").strip().lower()
+        machine = WaveTuringMachine()
+        if mode == "list":
+            result = {
+                "mode": mode,
+                "programs": [
+                    {
+                        "name": item.name,
+                        "tape": "".join(item.tape).strip("_"),
+                        "expectation": item.expectation,
+                        "rules": int(len(item.rules)),
+                    }
+                    for item in turing_programs()
+                ],
+                "count": len(turing_programs()),
+                "slots": int(machine.SLOTS),
+                "dim": int(machine.dim),
+            }
+        elif mode == "run":
+            item = turing_program(program)
+            if tape is not None:
+                cells = [str(symbol) for symbol in tape]
+                item = type(item)(
+                    name=item.name,
+                    tape=cells + ["_"] * 8,
+                    alphabet=sorted(set(item.alphabet) | set(cells)),
+                    rules=dict(item.rules),
+                    start=item.start,
+                    halt=item.halt,
+                    expectation="".join(cells).strip("_"),
+                    description=item.description,
+                    head=1,
+                    max_steps=int(max_steps or item.max_steps),
+                )
+            result = machine.run(item)
+            result["reference"] = reference_turing_run(item)
+            result["mode"] = mode
+        elif mode in {"suite", "traps"}:
+            rows: List[Dict[str, Any]] = []
+            programs = [] if mode == "traps" else list(turing_programs())
+            for item in programs:
+                run = machine.run(item)
+                reference = reference_turing_run(item)
+                rows.append(
+                    {
+                        "name": item.name,
+                        "kind": "program",
+                        "halted": bool(run["halted"]),
+                        "exact": bool(run["exact"]),
+                        "wave_tape": run["final_tape"],
+                        "reference_tape": reference.get("tape_text", ""),
+                        "expected": item.expectation,
+                        "steps": int(run["steps"]),
+                        "step_ms_mean": float(run["step_ms_mean"]),
+                        "text_tokens": int(run["text_tokens"]),
+                        "atlas_rules": int(run["atlas_rules"]),
+                    }
+                )
+            traps: List[Dict[str, Any]] = []
+            for trap in turing_traps():
+                run = machine.run(trap["program"], tamper=trap.get("tamper"))
+                traps.append(
+                    {
+                        "name": trap["name"],
+                        "kind": trap["kind"],
+                        "vetoed": bool(run["vetoed"]),
+                        "veto_reason": str(run["veto_reason"]),
+                        "steps": int(run["steps"]),
+                        "cycle_coherence_max": float(run["cycle_coherence_max"]),
+                        "read_score_min": float(run["read_snr_min"]),
+                    }
+                )
+            solved = sum(1 for row in rows if row["exact"] and row["halted"])
+            latencies = [float(row["step_ms_mean"]) for row in rows if row["steps"] > 0]
+            result = {
+                "mode": mode,
+                "programs": rows,
+                "traps": traps,
+                "solved": int(solved),
+                "program_count": int(len(rows)),
+                "exact_rate": float(solved / max(len(rows), 1)),
+                "traps_vetoed": int(sum(1 for row in traps if row["vetoed"])),
+                "trap_count": int(len(traps)),
+                "false_accepts": int(sum(1 for row in traps if not row["vetoed"])),
+                "step_ms_mean": float(np.mean(latencies)) if latencies else 0.0,
+                "text_tokens": 0,
+                "slots": int(machine.SLOTS),
+                "dim": int(machine.dim),
+            }
+        elif mode == "induce":
+            from .induction import InductionSpec, WaveProgramInducer
+
+            pairs = []
+            for item in list(examples or []):
+                if isinstance(item, dict):
+                    pairs.append((str(item.get("tape_in", "")), str(item.get("tape_out", ""))))
+                else:
+                    values = list(item or [])
+                    if len(values) < 2:
+                        raise ValueError("each induction example needs tape_in and tape_out")
+                    pairs.append((str(values[0]), str(values[1])))
+            if not pairs:
+                raise ValueError("mode=induce needs at least one example")
+            symbols = {str(symbol) for symbol in (alphabet or [])}
+            if not symbols:
+                symbols = {
+                    char
+                    for tape_in, tape_out in pairs
+                    for char in str(tape_in) + str(tape_out)
+                    if char != "_"
+                }
+            spec = InductionSpec(
+                name=str(name or "induction"),
+                alphabet=sorted(symbols),
+                examples=pairs,
+                max_steps=int(max_steps or 96),
+            )
+            inducer = WaveProgramInducer(
+                memory=self.sidecar.model.memory,
+                namespace=f"induce_{namespace}",
+            )
+            outcome = inducer.induce(spec)
+            result = {"mode": mode, "examples": int(len(pairs)), **outcome.as_dict()}
+            result["evidence"] = "OBSERVED"
+        else:
+            raise ValueError("mode must be list, run, suite, traps or induce")
+        request = {
+            "mode": mode,
+            "program": str(program),
+            "tape": None if tape is None else [str(symbol) for symbol in tape],
+            "namespace": str(namespace),
+            "examples": None if examples is None else [list(pair) for pair in examples],
+            "alphabet": None if alphabet is None else [str(symbol) for symbol in alphabet],
+            "name": str(name),
+        }
+        return self._envelope("/v1/holarch/turing", request, _clean(result))
+
     def adapt_synthesis(
         self,
         intent: str,
@@ -1166,6 +2256,7 @@ class SidecarService:
             result = self.sidecar.adapt_synthesis(
                 intent, corrected_source, name, kind=str(kind), namespace=str(namespace)
             )
+            self._mark_state()
             return self._envelope("/v1/holarch/adapt_rule", request, result)
 
     # ------------------------------------------------- agent turn (I4)
@@ -1185,7 +2276,10 @@ class SidecarService:
         action = str(action or "").strip().lower()
         body = dict(payload or {})
         request = {"action": action, "payload": _clean(body), "namespace": str(namespace)}
-        mutating = action == "composite" and str(body.get("mode", "query")) == "ingest"
+        mutating = bool(
+            (action == "composite" and str(body.get("mode", "query")) == "ingest")
+            or action == "discover"
+        )
         lock = self.rw.write_locked() if mutating else self.rw.read_locked()
         with lock:
             if action == "verify":
@@ -1221,14 +2315,32 @@ class SidecarService:
                 abstained = not bool(output.get("resolved", True))
                 status = "abstained" if abstained else "ok"
             elif action == "plan":
-                output = self.sidecar.plan(
-                    body.get("observation"),
-                    history_waves=body.get("history_waves"),
-                    transition=str(body.get("transition", "rotor")),
-                    lookahead_depth=int(body.get("lookahead_depth", 2)),
-                    gamma_look=float(body.get("gamma_look", 0.02)),
-                    namespace=str(namespace),
-                )
+                # Call the planner directly: agent_step issues exactly one
+                # receipt for the turn, so an inner envelope would break the
+                # contiguous 76-query chain.
+                if body.get("episode_id"):
+                    output = self._plan_episode(
+                        body.get("observation"),
+                        body.get("history_waves"),
+                        str(body.get("transition", "rotor")),
+                        int(body.get("lookahead_depth", 2)),
+                        float(body.get("gamma_look", 0.02)),
+                        str(namespace),
+                        True,
+                        str(body.get("episode_id")),
+                        bool(body.get("reset_episode", False)),
+                        bool(body.get("emit_swat_kv", False)),
+                        bool(body.get("online_repulsor", False)),
+                    )
+                else:
+                    output = self.sidecar.plan(
+                        body.get("observation"),
+                        history_waves=body.get("history_waves"),
+                        transition=str(body.get("transition", "rotor")),
+                        lookahead_depth=int(body.get("lookahead_depth", 2)),
+                        gamma_look=float(body.get("gamma_look", 0.02)),
+                        namespace=str(namespace),
+                    )
                 abstained = False
                 status = "ok"
             elif action == "synthesize":
@@ -1261,10 +2373,64 @@ class SidecarService:
                 output = self.sidecar.veto_check(task, tensor)
                 abstained = False
                 status = "ok"
+            elif action == "telepathy":
+                # Directive P2: the same two modes the REST route serves.
+                output = self.telepathy(
+                    mode=str(body.get("mode", "ingest_chunks")),
+                    session_id=body.get("session_id"),
+                    namespace=str(namespace),
+                    chunks=body.get("chunks"),
+                    query=body.get("query"),
+                    budget_u=int(body.get("budget_u", 32)),
+                    per_chunk_u=int(body.get("per_chunk_u", 8)),
+                    hops=int(body.get("hops", 3)),
+                    top_k=int(body.get("top_k", 1)),
+                    reset=bool(body.get("reset", False)),
+                )
+                if str(body.get("mode", "ingest_chunks")).startswith("query"):
+                    abstained = not bool(output.get("answer"))
+                    status = "answered" if not abstained else "abstained"
+                else:
+                    abstained = int(output.get("admitted_chunks", 0)) == 0
+                    status = "ok" if not abstained else "abstained"
+            elif action == "turing":
+                # Directive S2: one wave-space program execution per turn. The
+                # inner call is issued without its own receipt so the turn keeps
+                # exactly one link in the chain.
+                output = self.turing(
+                    mode=str(body.get("mode", "run")),
+                    program=str(body.get("program", "binary_increment")),
+                    tape=body.get("tape"),
+                    max_steps=int(body.get("max_steps", 0)),
+                    namespace=str(namespace),
+                    examples=body.get("examples"),
+                    alphabet=body.get("alphabet"),
+                    name=str(body.get("name", "induction")),
+                )
+                inner = dict(output.get("result") or {})
+                output = inner
+                abstained = bool(inner.get("vetoed", False)) or (
+                    str(body.get("mode", "run")) == "run" and not inner.get("halted", False)
+                )
+                status = "abstained" if abstained else "ok"
+            elif action == "discover":
+                # Directive P4: a real discovery tick, no envelope inside the
+                # turn (agent_step issues exactly one receipt).
+                engine = self.sidecar._ensure_engine(str(namespace))
+                engine.namespace = str(namespace)
+                engine.plans.namespace = str(namespace)
+                output = engine.holonic_discover(
+                    str(body.get("intent", "")),
+                    str(body.get("tests", "")),
+                    dict(body.get("request") or {}),
+                    library=body.get("library"),
+                )
+                abstained = not bool(output.get("verified", False))
+                status = "accepted" if not abstained else "refused"
             else:
                 raise ValueError(
                     "action must be one of verify, solve, impact, plan, "
-                    "synthesize, composite, veto"
+                    "synthesize, composite, veto, telepathy, discover, turing"
                 )
             result = {
                 "status": status,
@@ -1312,6 +2478,9 @@ class SidecarService:
             payload.setdefault("mode", "query")
         elif action == "veto":
             payload.setdefault("task", "vision")
+        elif action == "turing":
+            payload.setdefault("mode", "run")
+            payload.setdefault("program", "binary_increment")
         return payload
 
     def chat_completion(
@@ -1462,6 +2631,7 @@ class SidecarService:
             ),
             "plans": [str(key) for key, _payload in plans],
         }
+        self._mark_state()
         return self._envelope("/v1/holarch/bundle", {"src": source, "dst": dest}, result)
 
     def health(self) -> Dict[str, Any]:
@@ -1552,6 +2722,43 @@ class SynthesizeRequest(BaseModel):
     max_tokens: int = 320
 
 
+class TelepathyRequest(BaseModel):
+    mode: str = "ingest_chunks"
+    session_id: Optional[str] = None
+    namespace: str = "default"
+    chunks: Optional[List[Any]] = None
+    # Directive R1: raw unstructured documents (Markdown, prose, config,
+    # Python) are parsed by DocumentFactExtractor when no fact list is given.
+    raw_documents: Optional[List[Any]] = None
+    query: Optional[str] = None
+    budget_u: int = 32
+    per_chunk_u: int = 8
+    hops: int = 3
+    top_k: int = 1
+    reset: bool = False
+
+
+class TuringRequest(BaseModel):
+    mode: str = Field("list", description="list, run, suite, traps or induce")
+    program: str = Field("binary_increment", description="the program name for mode=run")
+    tape: Optional[List[Any]] = Field(None, description="optional initial tape cells")
+    max_steps: int = 0
+    namespace: str = "default"
+    examples: Optional[List[Any]] = Field(
+        None, description="mode=induce: input/output tape pairs, no rules"
+    )
+    alphabet: Optional[List[str]] = Field(None, description="mode=induce: optional symbols")
+    name: str = Field("induction", description="mode=induce: task name")
+
+
+class DiscoverRequest(BaseModel):
+    intent: str
+    tests: str = ""
+    request: Dict[str, Any] = Field(default_factory=dict)
+    namespace: str = "default"
+    library: Optional[Dict[str, str]] = None
+
+
 class PlanRequest(BaseModel):
     observation: Any = Field(..., description="the 79-value sensor observation")
     history_waves: Optional[List[Any]] = Field(
@@ -1562,6 +2769,11 @@ class PlanRequest(BaseModel):
     gamma_look: float = 0.02
     batch_rollout: bool = True
     namespace: str = "default"
+    # Directive O2: the stateful online-REPULSOR surface.
+    episode_id: Optional[str] = Field(None, description="one trajectory; reset to start over")
+    online_repulsor: bool = False
+    reset_episode: bool = False
+    emit_swat_kv: bool = False
 
 
 class VerifyRequest(BaseModel):
@@ -1829,6 +3041,10 @@ def build_app(
                 request.gamma_look,
                 request.namespace,
                 request.batch_rollout,
+                request.episode_id,
+                request.online_repulsor,
+                request.reset_episode,
+                request.emit_swat_kv,
             )
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc))
@@ -1854,6 +3070,58 @@ def build_app(
         return get_service().synthesize(
             request.intent, request.kind, request.namespace, request.max_tokens
         )
+
+    @app.post("/v1/holarch/telepathy")
+    def telepathy(request: TelepathyRequest):
+        try:
+            return get_service().telepathy(
+                mode=request.mode,
+                session_id=request.session_id,
+                namespace=request.namespace,
+                chunks=request.chunks,
+                query=request.query,
+                budget_u=request.budget_u,
+                per_chunk_u=request.per_chunk_u,
+                hops=request.hops,
+                top_k=request.top_k,
+                reset=request.reset,
+                raw_documents=request.raw_documents,
+            )
+        except KeyError as exc:
+            raise HTTPException(status_code=404, detail=str(exc))
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+
+    @app.post("/v1/holarch/turing")
+    def turing(request: TuringRequest):
+        try:
+            return get_service().turing(
+                request.mode,
+                request.program,
+                request.tape,
+                request.max_steps,
+                request.namespace,
+                request.examples,
+                request.alphabet,
+                request.name,
+            )
+        except KeyError as exc:
+            raise HTTPException(status_code=404, detail=str(exc))
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+
+    @app.post("/v1/holarch/discover")
+    def discover(request: DiscoverRequest):
+        try:
+            return get_service().discover(
+                request.intent,
+                request.tests,
+                request.request,
+                request.namespace,
+                request.library,
+            )
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
 
     @app.post("/v1/holarch/playbook")
     def playbook(request: PlaybookRequest):

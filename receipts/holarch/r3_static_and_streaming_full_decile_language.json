@@ -1,0 +1,1341 @@
+{
+  "stage": "R3",
+  "tier1": {
+    "identifiers": 965,
+    "shifts": 0
+  },
+  "arms": {
+    "pinned_locked": {
+      "split": "tail",
+      "split_byte_offset": 307149,
+      "top1": 0.5763003789183603,
+      "bits_per_char": 1.10502569775011,
+      "perplexity": 7.103878684790943,
+      "base_top1": 0.5763003789183603,
+      "base_bits_per_char": 1.10502569775011,
+      "base_perplexity": 7.103878684790943,
+      "beta": 0.02,
+      "beta_gate": {
+        "beta_low": 0.01,
+        "beta_high": 0.02,
+        "tau_h": 3.0,
+        "tau_order": 4.0
+      },
+      "beta_best_loss": 2.153071403503418,
+      "beta_floor_loss": 2.154029130935669,
+      "weights": {
+        "order_weights": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "skip_weight": 1.0,
+        "gamma": 0.8,
+        "validation_loss": 2.2642511807360126,
+        "probe_beta": 0.12
+      },
+      "count_weights": [
+        0.02,
+        0.05,
+        0.1,
+        0.2,
+        0.3,
+        0.25,
+        0.1
+      ],
+      "count_weight_loss": 2.308833876408949,
+      "count_weight_floor_loss": 2.3203689071835227,
+      "blend": {
+        "photonic_gain": 0.0,
+        "beta_lang": 0.0,
+        "validation_loss": 2.4554583113046244,
+        "grid": [
+          {
+            "photonic_gain": 0.0,
+            "beta_lang": 0.0,
+            "validation_loss": 2.4554583113046244
+          },
+          {
+            "photonic_gain": 0.15,
+            "beta_lang": 0.0,
+            "validation_loss": 2.458154993521858
+          },
+          {
+            "photonic_gain": 0.3,
+            "beta_lang": 0.0,
+            "validation_loss": 2.4707549644544695
+          },
+          {
+            "photonic_gain": 0.0,
+            "beta_lang": 0.5,
+            "validation_loss": 2.456055104366514
+          },
+          {
+            "photonic_gain": 0.15,
+            "beta_lang": 0.5,
+            "validation_loss": 2.4587631954514406
+          },
+          {
+            "photonic_gain": 0.3,
+            "beta_lang": 0.5,
+            "validation_loss": 2.4713213296517433
+          },
+          {
+            "photonic_gain": 0.0,
+            "beta_lang": 1.0,
+            "validation_loss": 2.4569591213106645
+          },
+          {
+            "photonic_gain": 0.15,
+            "beta_lang": 1.0,
+            "validation_loss": 2.4596703578296233
+          },
+          {
+            "photonic_gain": 0.3,
+            "beta_lang": 1.0,
+            "validation_loss": 2.4721920770101113
+          }
+        ],
+        "floor_row": {
+          "photonic_gain": 0.0,
+          "beta_lang": 1.0,
+          "validation_loss": 2.4569591213106645
+        }
+      },
+      "mode_guard": true,
+      "held_out_tokens": 4500,
+      "train_tokens": 307149,
+      "scored_tokens": 2903,
+      "vocabulary_size": 2048,
+      "elastic_cap": 2048,
+      "tier2_ids": 0,
+      "locked": true,
+      "photonic_contexts": 3635,
+      "static_top1": 0.5638994143988977,
+      "static_bits_per_char": 1.2451823387984409,
+      "static_perplexity": 9.109520491920975,
+      "kn_mix": 0.3,
+      "stream_weight": 0.2,
+      "kn": {
+        "order": 6,
+        "discount": 0.7,
+        "continuation_unigram_types": 1848,
+        "raw_last_contexts": 159905,
+        "lower_buckets": 205241
+      },
+      "role_discounts": {
+        "roles": {},
+        "global_discount": 0.7,
+        "rows": [],
+        "base": {},
+        "note": "tail arms keep the Q3 global discount"
+      },
+      "suffix_floor": {
+        "weight": 0.0,
+        "window": 0,
+        "is_static_inductive": true,
+        "state_bytes_across_calls": 0,
+        "note": "tail arms keep the Q3/R3 protocol (no suffix floor)"
+      },
+      "suffix_stats": {
+        "calls": 0.0,
+        "matched": 0.0,
+        "order_sum": 0.0
+      },
+      "recency": {
+        "weight": 0.0,
+        "window": 96,
+        "is_static_inductive": true,
+        "state_bytes_across_calls": 0,
+        "note": "tail arms keep the Q3 protocol"
+      },
+      "document_prior": {
+        "weight": 0.0,
+        "rows": [],
+        "fixed_snapshot": true
+      },
+      "document_weight": 0.0,
+      "is_static_inductive": true,
+      "recency_window_tokens": 96,
+      "recency_state_bytes_across_calls": 0,
+      "floor_calibration": {
+        "base": {
+          "nll": 2.227156234936296,
+          "top1": 0.5733618233618234,
+          "bits_per_char": 1.3167549873380768,
+          "tokens": 1404
+        },
+        "static": {
+          "nll": 2.1581937169086105,
+          "top1": 0.5790598290598291,
+          "bits_per_char": 1.2759824819664705,
+          "tokens": 1404
+        },
+        "kn_grid": [
+          {
+            "kn_mix": 0.0,
+            "nll": 2.227156234936296,
+            "top1": 0.5733618233618234,
+            "bits_per_char": 1.3167549873380768,
+            "tokens": 1404
+          },
+          {
+            "kn_mix": 0.3,
+            "nll": 2.1581937169086105,
+            "top1": 0.5790598290598291,
+            "bits_per_char": 1.2759824819664705,
+            "tokens": 1404
+          },
+          {
+            "kn_mix": 0.5,
+            "nll": 2.127454405095934,
+            "top1": 0.5754985754985755,
+            "bits_per_char": 1.2578085696464667,
+            "tokens": 1404
+          },
+          {
+            "kn_mix": 0.7,
+            "nll": 2.1051527216852453,
+            "top1": 0.5776353276353277,
+            "bits_per_char": 1.244623211387171,
+            "tokens": 1404
+          },
+          {
+            "kn_mix": 1.0,
+            "nll": 2.090985483081079,
+            "top1": 0.5747863247863247,
+            "bits_per_char": 1.2362471568490043,
+            "tokens": 1404
+          }
+        ],
+        "stream_grid": [
+          {
+            "stream_weight": 0.0,
+            "nll": 2.1581937169086105,
+            "top1": 0.5790598290598291,
+            "bits_per_char": 1.2759824819664705,
+            "tokens": 1404
+          },
+          {
+            "stream_weight": 0.1,
+            "nll": 2.0616123497925285,
+            "top1": 0.5847578347578347,
+            "bits_per_char": 1.2188809662132802,
+            "tokens": 1404
+          },
+          {
+            "stream_weight": 0.2,
+            "nll": 2.0702666235535343,
+            "top1": 0.5883190883190883,
+            "bits_per_char": 1.223997606868227,
+            "tokens": 1404
+          },
+          {
+            "stream_weight": 0.3,
+            "nll": 2.1027840664904116,
+            "top1": 0.5876068376068376,
+            "bits_per_char": 1.243222798388677,
+            "tokens": 1404
+          },
+          {
+            "stream_weight": 0.4,
+            "nll": 2.153079486649439,
+            "top1": 0.5883190883190883,
+            "bits_per_char": 1.272958810750898,
+            "tokens": 1404
+          }
+        ]
+      },
+      "stream_report": {
+        "streaming": 1.0,
+        "stream_weight": 0.2,
+        "stream_tokens": 4403.0,
+        "prior_tokens": 1500.0
+      },
+      "calibration_test_overlap_tokens": 0,
+      "calibration_disjoint": true,
+      "corpus": {
+        "source": "git_revision",
+        "revision": "67e9b25",
+        "files": 21
+      }
+    },
+    "pinned_elastic": {
+      "split": "tail",
+      "split_byte_offset": 287348,
+      "top1": 0.5918015845676886,
+      "bits_per_char": 1.0828467630776455,
+      "perplexity": 7.44191154230475,
+      "base_top1": 0.5918015845676886,
+      "base_bits_per_char": 1.0828467630776457,
+      "base_perplexity": 7.44191154230475,
+      "beta": 0.0,
+      "beta_gate": {
+        "beta_low": 0.0,
+        "beta_high": 0.0,
+        "tau_h": 0.0,
+        "tau_order": 3.0
+      },
+      "beta_best_loss": 0.0,
+      "beta_floor_loss": 0.0,
+      "weights": {
+        "order_weights": [
+          0.5,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "skip_weight": 3.0,
+        "gamma": 0.8,
+        "validation_loss": 2.474714797640345,
+        "probe_beta": 0.12
+      },
+      "count_weights": [
+        0.02,
+        0.05,
+        0.1,
+        0.2,
+        0.3,
+        0.25,
+        0.1
+      ],
+      "count_weight_loss": 2.472638005512156,
+      "count_weight_floor_loss": 2.49250383565591,
+      "blend": {
+        "photonic_gain": 0.0,
+        "beta_lang": 0.0,
+        "validation_loss": 2.2278799960135953,
+        "grid": [
+          {
+            "photonic_gain": 0.0,
+            "beta_lang": 0.0,
+            "validation_loss": 2.2278799960135953
+          },
+          {
+            "photonic_gain": 0.15,
+            "beta_lang": 0.0,
+            "validation_loss": 2.2331600487705336
+          },
+          {
+            "photonic_gain": 0.3,
+            "beta_lang": 0.0,
+            "validation_loss": 2.2483195765360233
+          },
+          {
+            "photonic_gain": 0.0,
+            "beta_lang": 0.5,
+            "validation_loss": 2.2278799960135953
+          },
+          {
+            "photonic_gain": 0.15,
+            "beta_lang": 0.5,
+            "validation_loss": 2.2331600487705336
+          },
+          {
+            "photonic_gain": 0.3,
+            "beta_lang": 0.5,
+            "validation_loss": 2.2483195765360233
+          },
+          {
+            "photonic_gain": 0.0,
+            "beta_lang": 1.0,
+            "validation_loss": 2.2278799960135953
+          },
+          {
+            "photonic_gain": 0.15,
+            "beta_lang": 1.0,
+            "validation_loss": 2.2331600487705336
+          },
+          {
+            "photonic_gain": 0.3,
+            "beta_lang": 1.0,
+            "validation_loss": 2.2483195765360233
+          }
+        ],
+        "floor_row": {
+          "photonic_gain": 0.0,
+          "beta_lang": 1.0,
+          "validation_loss": 2.2278799960135953
+        }
+      },
+      "mode_guard": true,
+      "held_out_tokens": 4500,
+      "train_tokens": 287348,
+      "scored_tokens": 2903,
+      "vocabulary_size": 2965,
+      "elastic_cap": 4096,
+      "tier2_ids": 917,
+      "locked": true,
+      "photonic_contexts": 3635,
+      "static_top1": 0.5766448501550121,
+      "static_bits_per_char": 1.193731058451155,
+      "static_perplexity": 9.13998809514889,
+      "kn_mix": 0.7,
+      "stream_weight": 0.3,
+      "kn": {
+        "order": 6,
+        "discount": 0.7,
+        "continuation_unigram_types": 2758,
+        "raw_last_contexts": 155526,
+        "lower_buckets": 210416
+      },
+      "role_discounts": {
+        "roles": {},
+        "global_discount": 0.7,
+        "rows": [],
+        "base": {},
+        "note": "tail arms keep the Q3 global discount"
+      },
+      "suffix_floor": {
+        "weight": 0.0,
+        "window": 0,
+        "is_static_inductive": true,
+        "state_bytes_across_calls": 0,
+        "note": "tail arms keep the Q3/R3 protocol (no suffix floor)"
+      },
+      "suffix_stats": {
+        "calls": 0.0,
+        "matched": 0.0,
+        "order_sum": 0.0
+      },
+      "recency": {
+        "weight": 0.0,
+        "window": 96,
+        "is_static_inductive": true,
+        "state_bytes_across_calls": 0,
+        "note": "tail arms keep the Q3 protocol"
+      },
+      "document_prior": {
+        "weight": 0.0,
+        "rows": [],
+        "fixed_snapshot": true
+      },
+      "document_weight": 0.0,
+      "is_static_inductive": true,
+      "recency_window_tokens": 96,
+      "recency_state_bytes_across_calls": 0,
+      "floor_calibration": {
+        "base": {
+          "nll": 2.627274989606719,
+          "top1": 0.5356125356125356,
+          "bits_per_char": 1.3912838338233549,
+          "tokens": 1404
+        },
+        "static": {
+          "nll": 2.483827217404016,
+          "top1": 0.5434472934472935,
+          "bits_per_char": 1.3153205002350916,
+          "tokens": 1404
+        },
+        "kn_grid": [
+          {
+            "kn_mix": 0.0,
+            "nll": 2.627274989606719,
+            "top1": 0.5356125356125356,
+            "bits_per_char": 1.3912838338233549,
+            "tokens": 1404
+          },
+          {
+            "kn_mix": 0.3,
+            "nll": 2.543641259456573,
+            "top1": 0.5413105413105413,
+            "bits_per_char": 1.3469952621357522,
+            "tokens": 1404
+          },
+          {
+            "kn_mix": 0.5,
+            "nll": 2.508001023446112,
+            "top1": 0.5413105413105413,
+            "bits_per_char": 1.3281218345763377,
+            "tokens": 1404
+          },
+          {
+            "kn_mix": 0.7,
+            "nll": 2.483827217404016,
+            "top1": 0.5434472934472935,
+            "bits_per_char": 1.3153205002350916,
+            "tokens": 1404
+          },
+          {
+            "kn_mix": 1.0,
+            "nll": 2.563050334924132,
+            "top1": 0.5405982905982906,
+            "bits_per_char": 1.3572734146071517,
+            "tokens": 1404
+          }
+        ],
+        "stream_grid": [
+          {
+            "stream_weight": 0.0,
+            "nll": 2.483827217404016,
+            "top1": 0.5434472934472935,
+            "bits_per_char": 1.3153205002350916,
+            "tokens": 1404
+          },
+          {
+            "stream_weight": 0.1,
+            "nll": 2.316876073439453,
+            "top1": 0.5470085470085471,
+            "bits_per_char": 1.2269108634231558,
+            "tokens": 1404
+          },
+          {
+            "stream_weight": 0.2,
+            "nll": 2.306447331931283,
+            "top1": 0.5527065527065527,
+            "bits_per_char": 1.2213882822221633,
+            "tokens": 1404
+          },
+          {
+            "stream_weight": 0.3,
+            "nll": 2.3234719903732386,
+            "top1": 0.5626780626780626,
+            "bits_per_char": 1.2304037572525115,
+            "tokens": 1404
+          },
+          {
+            "stream_weight": 0.4,
+            "nll": 2.3592169853298848,
+            "top1": 0.5598290598290598,
+            "bits_per_char": 1.2493326603250916,
+            "tokens": 1404
+          }
+        ]
+      },
+      "stream_report": {
+        "streaming": 1.0,
+        "stream_weight": 0.3,
+        "stream_tokens": 4403.0,
+        "prior_tokens": 1500.0
+      },
+      "calibration_test_overlap_tokens": 0,
+      "calibration_disjoint": true,
+      "corpus": {
+        "source": "git_revision",
+        "revision": "67e9b25",
+        "files": 21
+      }
+    },
+    "live_elastic": {
+      "split": "tail",
+      "split_byte_offset": 645151,
+      "top1": 0.6038580778504995,
+      "bits_per_char": 1.0486466077633267,
+      "perplexity": 7.007566573636187,
+      "base_top1": 0.6038580778504995,
+      "base_bits_per_char": 1.0531454847473232,
+      "base_perplexity": 7.066345426444402,
+      "beta": 0.02,
+      "beta_gate": {
+        "beta_low": 0.01,
+        "beta_high": 0.02,
+        "tau_h": 3.0,
+        "tau_order": 4.0
+      },
+      "beta_best_loss": 2.4095494747161865,
+      "beta_floor_loss": 2.41036319732666,
+      "weights": {
+        "order_weights": [
+          0.5,
+          1.0,
+          1.0,
+          0.5
+        ],
+        "skip_weight": 2.0,
+        "gamma": 0.8,
+        "validation_loss": 2.4176109015188247,
+        "probe_beta": 0.12
+      },
+      "count_weights": [
+        0.02,
+        0.05,
+        0.1,
+        0.2,
+        0.3,
+        0.25,
+        0.1
+      ],
+      "count_weight_loss": 2.477076739973625,
+      "count_weight_floor_loss": 2.4915654964468543,
+      "blend": {
+        "photonic_gain": 0.0,
+        "beta_lang": 1.0,
+        "validation_loss": 1.9673689952591022,
+        "grid": [
+          {
+            "photonic_gain": 0.0,
+            "beta_lang": 0.0,
+            "validation_loss": 1.975649703102708
+          },
+          {
+            "photonic_gain": 0.15,
+            "beta_lang": 0.0,
+            "validation_loss": 1.9783677993309696
+          },
+          {
+            "photonic_gain": 0.3,
+            "beta_lang": 0.0,
+            "validation_loss": 1.9945222006691965
+          },
+          {
+            "photonic_gain": 0.0,
+            "beta_lang": 0.5,
+            "validation_loss": 1.971291373892507
+          },
+          {
+            "photonic_gain": 0.15,
+            "beta_lang": 0.5,
+            "validation_loss": 1.9741771320327428
+          },
+          {
+            "photonic_gain": 0.3,
+            "beta_lang": 0.5,
+            "validation_loss": 1.990314830935206
+          },
+          {
+            "photonic_gain": 0.0,
+            "beta_lang": 1.0,
+            "validation_loss": 1.9673689952591022
+          },
+          {
+            "photonic_gain": 0.15,
+            "beta_lang": 1.0,
+            "validation_loss": 1.9704142449677946
+          },
+          {
+            "photonic_gain": 0.3,
+            "beta_lang": 1.0,
+            "validation_loss": 1.986333435609271
+          }
+        ],
+        "floor_row": {
+          "photonic_gain": 0.0,
+          "beta_lang": 1.0,
+          "validation_loss": 1.9673689952591022
+        }
+      },
+      "mode_guard": true,
+      "held_out_tokens": 4500,
+      "train_tokens": 645151,
+      "scored_tokens": 2903,
+      "vocabulary_size": 4096,
+      "elastic_cap": 4096,
+      "tier2_ids": 2048,
+      "locked": true,
+      "photonic_contexts": 3635,
+      "static_top1": 0.5904236996210817,
+      "static_bits_per_char": 1.1423325944059315,
+      "static_perplexity": 8.338926140426983,
+      "kn_mix": 0.5,
+      "stream_weight": 0.4,
+      "kn": {
+        "order": 6,
+        "discount": 0.7,
+        "continuation_unigram_types": 3893,
+        "raw_last_contexts": 310137,
+        "lower_buckets": 386328
+      },
+      "role_discounts": {
+        "roles": {},
+        "global_discount": 0.7,
+        "rows": [],
+        "base": {},
+        "note": "tail arms keep the Q3 global discount"
+      },
+      "suffix_floor": {
+        "weight": 0.0,
+        "window": 0,
+        "is_static_inductive": true,
+        "state_bytes_across_calls": 0,
+        "note": "tail arms keep the Q3/R3 protocol (no suffix floor)"
+      },
+      "suffix_stats": {
+        "calls": 0.0,
+        "matched": 0.0,
+        "order_sum": 0.0
+      },
+      "recency": {
+        "weight": 0.0,
+        "window": 96,
+        "is_static_inductive": true,
+        "state_bytes_across_calls": 0,
+        "note": "tail arms keep the Q3 protocol"
+      },
+      "document_prior": {
+        "weight": 0.0,
+        "rows": [],
+        "fixed_snapshot": true
+      },
+      "document_weight": 0.0,
+      "is_static_inductive": true,
+      "recency_window_tokens": 96,
+      "recency_state_bytes_across_calls": 0,
+      "floor_calibration": {
+        "base": {
+          "nll": 2.545894290426368,
+          "top1": 0.5427350427350427,
+          "bits_per_char": 1.3321675253592378,
+          "tokens": 1404
+        },
+        "static": {
+          "nll": 2.420909381090452,
+          "top1": 0.5498575498575499,
+          "bits_per_char": 1.2667677803645656,
+          "tokens": 1404
+        },
+        "kn_grid": [
+          {
+            "kn_mix": 0.0,
+            "nll": 2.545894290426368,
+            "top1": 0.5427350427350427,
+            "bits_per_char": 1.3321675253592378,
+            "tokens": 1404
+          },
+          {
+            "kn_mix": 0.3,
+            "nll": 2.458810240906633,
+            "top1": 0.5462962962962963,
+            "bits_per_char": 1.2865998271310688,
+            "tokens": 1404
+          },
+          {
+            "kn_mix": 0.5,
+            "nll": 2.420909381090452,
+            "top1": 0.5498575498575499,
+            "bits_per_char": 1.2667677803645656,
+            "tokens": 1404
+          },
+          {
+            "kn_mix": 0.7,
+            "nll": 2.3936100377302956,
+            "top1": 0.5470085470085471,
+            "bits_per_char": 1.2524830950872596,
+            "tokens": 1404
+          },
+          {
+            "kn_mix": 1.0,
+            "nll": 2.40782468742366,
+            "top1": 0.5441595441595442,
+            "bits_per_char": 1.2599210687600337,
+            "tokens": 1404
+          }
+        ],
+        "stream_grid": [
+          {
+            "stream_weight": 0.0,
+            "nll": 2.420909381090452,
+            "top1": 0.5498575498575499,
+            "bits_per_char": 1.2667677803645656,
+            "tokens": 1404
+          },
+          {
+            "stream_weight": 0.1,
+            "nll": 2.279250297219197,
+            "top1": 0.5512820512820513,
+            "bits_per_char": 1.1926430879470256,
+            "tokens": 1404
+          },
+          {
+            "stream_weight": 0.2,
+            "nll": 2.2781074381043105,
+            "top1": 0.5527065527065527,
+            "bits_per_char": 1.192045074194201,
+            "tokens": 1404
+          },
+          {
+            "stream_weight": 0.3,
+            "nll": 2.302467645187678,
+            "top1": 0.5569800569800569,
+            "bits_per_char": 1.2047918236996775,
+            "tokens": 1404
+          },
+          {
+            "stream_weight": 0.4,
+            "nll": 2.3448792891914865,
+            "top1": 0.5598290598290598,
+            "bits_per_char": 1.2269841885010884,
+            "tokens": 1404
+          }
+        ]
+      },
+      "stream_report": {
+        "streaming": 1.0,
+        "stream_weight": 0.4,
+        "stream_tokens": 4403.0,
+        "prior_tokens": 1500.0
+      },
+      "calibration_test_overlap_tokens": 0,
+      "calibration_disjoint": true,
+      "corpus": {
+        "source": "live_tree",
+        "files": 28,
+        "digest": "a7c83cbb01bed875",
+        "revision": "7d3522e"
+      }
+    }
+  },
+  "full_decile": {
+    "split": "decile",
+    "split_byte_offset": 584685,
+    "top1": 0.5885992477652767,
+    "bits_per_char": 1.1660408493237004,
+    "perplexity": 8.802004566939651,
+    "base_top1": 0.5885992477652767,
+    "base_bits_per_char": 1.1682896093810107,
+    "base_perplexity": 8.839002482770828,
+    "beta": 0.02,
+    "beta_gate": {
+      "beta_low": 0.01,
+      "beta_high": 0.02,
+      "tau_h": 1.0,
+      "tau_order": 4.0
+    },
+    "beta_best_loss": 2.3409907817840576,
+    "beta_floor_loss": 2.3422343730926514,
+    "weights": {
+      "order_weights": [
+        0.5,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "skip_weight": 3.0,
+      "gamma": 0.8,
+      "validation_loss": 2.3636206338728076,
+      "probe_beta": 0.12
+    },
+    "count_weights": [
+      0.02,
+      0.05,
+      0.1,
+      0.2,
+      0.3,
+      0.25,
+      0.1
+    ],
+    "count_weight_loss": 2.515277621778464,
+    "count_weight_floor_loss": 2.5343082648988657,
+    "blend": {
+      "photonic_gain": 0.0,
+      "beta_lang": 1.0,
+      "validation_loss": 2.4449066551193535,
+      "grid": [
+        {
+          "photonic_gain": 0.0,
+          "beta_lang": 0.0,
+          "validation_loss": 2.4470722524989434
+        },
+        {
+          "photonic_gain": 0.15,
+          "beta_lang": 0.0,
+          "validation_loss": 2.4505887777208963
+        },
+        {
+          "photonic_gain": 0.3,
+          "beta_lang": 0.0,
+          "validation_loss": 2.4653869638656696
+        },
+        {
+          "photonic_gain": 0.0,
+          "beta_lang": 0.5,
+          "validation_loss": 2.445484350285017
+        },
+        {
+          "photonic_gain": 0.15,
+          "beta_lang": 0.5,
+          "validation_loss": 2.4488868781986297
+        },
+        {
+          "photonic_gain": 0.3,
+          "beta_lang": 0.5,
+          "validation_loss": 2.463156518662077
+        },
+        {
+          "photonic_gain": 0.0,
+          "beta_lang": 1.0,
+          "validation_loss": 2.4449066551193535
+        },
+        {
+          "photonic_gain": 0.15,
+          "beta_lang": 1.0,
+          "validation_loss": 2.4481590879203927
+        },
+        {
+          "photonic_gain": 0.3,
+          "beta_lang": 1.0,
+          "validation_loss": 2.4620303539571924
+        }
+      ],
+      "floor_row": {
+        "photonic_gain": 0.0,
+        "beta_lang": 1.0,
+        "validation_loss": 2.4449066551193535
+      }
+    },
+    "mode_guard": true,
+    "held_out_tokens": 64966,
+    "train_tokens": 584685,
+    "scored_tokens": 61417,
+    "vocabulary_size": 4096,
+    "elastic_cap": 4096,
+    "tier2_ids": 2048,
+    "locked": true,
+    "photonic_contexts": 737,
+    "static_top1": 0.5778693195695003,
+    "static_bits_per_char": 1.223678623665999,
+    "static_perplexity": 9.801049022599535,
+    "kn_mix": 0.3,
+    "stream_weight": 0.2,
+    "kn": {
+      "order": 6,
+      "discount": 0.7,
+      "continuation_unigram_types": 3730,
+      "raw_last_contexts": 284695,
+      "lower_buckets": 357656
+    },
+    "role_discounts": {
+      "roles": {
+        "scope": 0.9,
+        "literal": 0.9,
+        "other": 0.9
+      },
+      "global_discount": 0.7,
+      "rows": [
+        {
+          "discount": 0.3,
+          "roles": {
+            "scope": {
+              "nll": 2.9904938483465298,
+              "top1": 0.515695067264574
+            },
+            "name": {
+              "nll": 1.5231001019605812,
+              "top1": 0.6910569105691057
+            },
+            "literal": {
+              "nll": 3.564120304471777,
+              "top1": 0.45
+            },
+            "other": {
+              "nll": 3.088014823705945,
+              "top1": 0.456575682382134
+            }
+          }
+        },
+        {
+          "discount": 0.5,
+          "roles": {
+            "scope": {
+              "nll": 2.9541718275018978,
+              "top1": 0.515695067264574
+            },
+            "name": {
+              "nll": 1.5006048597722552,
+              "top1": 0.6910569105691057
+            },
+            "literal": {
+              "nll": 3.52313600513021,
+              "top1": 0.45
+            },
+            "other": {
+              "nll": 3.0559107403394186,
+              "top1": 0.456575682382134
+            }
+          }
+        },
+        {
+          "discount": 0.7,
+          "roles": {
+            "scope": {
+              "nll": 2.914957673000333,
+              "top1": 0.5201793721973094
+            },
+            "name": {
+              "nll": 1.4834295108895657,
+              "top1": 0.6910569105691057
+            },
+            "literal": {
+              "nll": 3.479760456343071,
+              "top1": 0.44166666666666665
+            },
+            "other": {
+              "nll": 3.017041847459387,
+              "top1": 0.456575682382134
+            }
+          }
+        },
+        {
+          "discount": 0.9,
+          "roles": {
+            "scope": {
+              "nll": 2.8788728601920863,
+              "top1": 0.5246636771300448
+            },
+            "name": {
+              "nll": 1.4755816138387425,
+              "top1": 0.6883468834688347
+            },
+            "literal": {
+              "nll": 3.443613844681373,
+              "top1": 0.44166666666666665
+            },
+            "other": {
+              "nll": 2.9777681694869056,
+              "top1": 0.456575682382134
+            }
+          }
+        }
+      ],
+      "base": {
+        "scope": {
+          "nll": 2.914957673000333,
+          "top1": 0.5201793721973094,
+          "tokens": 223
+        },
+        "name": {
+          "nll": 1.4834295108895657,
+          "top1": 0.6910569105691057,
+          "tokens": 369
+        },
+        "literal": {
+          "nll": 3.479760456343071,
+          "top1": 0.44166666666666665,
+          "tokens": 120
+        },
+        "other": {
+          "nll": 3.017041847459387,
+          "top1": 0.456575682382134,
+          "tokens": 403
+        }
+      }
+    },
+    "suffix_floor": {
+      "weight": 1.25,
+      "base_nll": 2.8621784157940593,
+      "base_top1": 0.5073684210526316,
+      "selected_nll": 2.5927186560825364,
+      "selected_top1": 0.5536842105263158,
+      "grid": [
+        0.0,
+        0.25,
+        0.5,
+        0.75,
+        1.0,
+        1.25,
+        1.5
+      ],
+      "rows": [
+        {
+          "weight": 0.0,
+          "nll": 2.8621784157940593,
+          "top1": 0.5073684210526316
+        },
+        {
+          "weight": 0.25,
+          "nll": 2.675835514788885,
+          "top1": 0.5178947368421053
+        },
+        {
+          "weight": 0.5,
+          "nll": 2.6329738828521827,
+          "top1": 0.5242105263157895
+        },
+        {
+          "weight": 0.75,
+          "nll": 2.6096184247419427,
+          "top1": 0.5368421052631579
+        },
+        {
+          "weight": 1.0,
+          "nll": 2.5970490211451494,
+          "top1": 0.5536842105263158
+        },
+        {
+          "weight": 1.25,
+          "nll": 2.5927186560825364,
+          "top1": 0.5536842105263158
+        },
+        {
+          "weight": 1.5,
+          "nll": 2.596534734456103,
+          "top1": 0.5578947368421052
+        }
+      ],
+      "window": 2048,
+      "orders": 6,
+      "alpha": {
+        "1": 0.05,
+        "2": 0.15,
+        "3": 0.4,
+        "4": 0.55,
+        "5": 0.65,
+        "6": 0.7
+      },
+      "alpha_schedule": "depth-conditioned, count-saturated",
+      "count_saturation": 1.0,
+      "is_static_inductive": true,
+      "state_bytes_across_calls": 0,
+      "reads_target_token": false
+    },
+    "suffix_stats": {
+      "calls": 135919.0,
+      "matched": 123876.0,
+      "order_sum": 367855.0
+    },
+    "recency": {
+      "weight": 0.5,
+      "base_nll": 2.826479514665857,
+      "base_top1": 0.5073684210526316,
+      "selected_nll": 2.783750119303783,
+      "selected_top1": 0.5221052631578947,
+      "rows": [
+        {
+          "weight": 0.0,
+          "nll": 2.826479514665857,
+          "top1": 0.5073684210526316
+        },
+        {
+          "weight": 0.25,
+          "nll": 2.797860954807566,
+          "top1": 0.5136842105263157
+        },
+        {
+          "weight": 0.5,
+          "nll": 2.783750119303783,
+          "top1": 0.5221052631578947
+        },
+        {
+          "weight": 0.75,
+          "nll": 2.7843846448162597,
+          "top1": 0.5242105263157895
+        },
+        {
+          "weight": 1.0,
+          "nll": 2.800259411555412,
+          "top1": 0.5157894736842106
+        },
+        {
+          "weight": 1.5,
+          "nll": 2.8810840575615106,
+          "top1": 0.5052631578947369
+        },
+        {
+          "weight": 2.0,
+          "nll": 3.0346608601748195,
+          "top1": 0.48210526315789476
+        },
+        {
+          "weight": 2.5,
+          "nll": 3.2687838717467548,
+          "top1": 0.4421052631578947
+        },
+        {
+          "weight": 3.0,
+          "nll": 3.5852788671340243,
+          "top1": 0.4063157894736842
+        }
+      ],
+      "window": 2048,
+      "decay": 0.995,
+      "gain": 2.0,
+      "is_static_inductive": true,
+      "state_bytes_across_calls": 0
+    },
+    "document_prior": {
+      "weight": 0.0,
+      "base_nll": 2.847728974094746,
+      "base_top1": 0.4986301369863014,
+      "selected_nll": 2.847728974094746,
+      "rows": [
+        {
+          "weight": 0.0,
+          "nll": 2.847728974094746,
+          "top1": 0.4986301369863014
+        },
+        {
+          "weight": 0.1,
+          "nll": 2.980241576337598,
+          "top1": 0.4849315068493151
+        },
+        {
+          "weight": 0.2,
+          "nll": 3.378298752358855,
+          "top1": 0.4712328767123288
+        },
+        {
+          "weight": 0.3,
+          "nll": 3.844206247590579,
+          "top1": 0.4657534246575342
+        },
+        {
+          "weight": 0.5,
+          "nll": 4.835627488092763,
+          "top1": 0.4657534246575342
+        },
+        {
+          "weight": 0.75,
+          "nll": 6.125174587433637,
+          "top1": 0.4328767123287671
+        },
+        {
+          "weight": 1.0,
+          "nll": 6.996535277757499,
+          "top1": 0.3972602739726027
+        }
+      ],
+      "fixed_snapshot": true
+    },
+    "document_weight": 0.0,
+    "is_static_inductive": true,
+    "recency_window_tokens": 2048,
+    "recency_state_bytes_across_calls": 0,
+    "floor_calibration": {
+      "base": {
+        "nll": 2.5726600561251685,
+        "top1": 0.532051282051282,
+        "bits_per_char": 1.4034569680663407,
+        "tokens": 1404
+      },
+      "static": {
+        "nll": 2.5077614657978295,
+        "top1": 0.5341880341880342,
+        "bits_per_char": 1.3680529983130378,
+        "tokens": 1404
+      },
+      "kn_grid": [
+        {
+          "kn_mix": 0.0,
+          "nll": 2.5726600561251685,
+          "top1": 0.532051282051282,
+          "bits_per_char": 1.4034569680663407,
+          "tokens": 1404
+        },
+        {
+          "kn_mix": 0.3,
+          "nll": 2.5077614657978295,
+          "top1": 0.5341880341880342,
+          "bits_per_char": 1.3680529983130378,
+          "tokens": 1404
+        },
+        {
+          "kn_mix": 0.5,
+          "nll": 2.4839484156559903,
+          "top1": 0.532051282051282,
+          "bits_per_char": 1.3550623231272871,
+          "tokens": 1404
+        },
+        {
+          "kn_mix": 0.7,
+          "nll": 2.472548480525015,
+          "top1": 0.5306267806267806,
+          "bits_per_char": 1.3488433443092427,
+          "tokens": 1404
+        },
+        {
+          "kn_mix": 1.0,
+          "nll": 2.5723842128388847,
+          "top1": 0.5313390313390314,
+          "bits_per_char": 1.4033064879509025,
+          "tokens": 1404
+        }
+      ],
+      "stream_grid": [
+        {
+          "stream_weight": 0.0,
+          "nll": 2.5646412877339007,
+          "top1": 0.5525210084033614,
+          "bits_per_char": 1.3695161332169867,
+          "tokens": 476
+        },
+        {
+          "stream_weight": 0.1,
+          "nll": 2.5313398114195693,
+          "top1": 0.5630252100840336,
+          "bits_per_char": 1.3517331749176924,
+          "tokens": 476
+        },
+        {
+          "stream_weight": 0.2,
+          "nll": 2.533521555923957,
+          "top1": 0.5651260504201681,
+          "bits_per_char": 1.3528982245141437,
+          "tokens": 476
+        },
+        {
+          "stream_weight": 0.3,
+          "nll": 2.551955804965817,
+          "top1": 0.5609243697478992,
+          "bits_per_char": 1.3627420968667077,
+          "tokens": 476
+        },
+        {
+          "stream_weight": 0.4,
+          "nll": 2.5840721351203415,
+          "top1": 0.5441176470588235,
+          "bits_per_char": 1.3798921881861872,
+          "tokens": 476
+        }
+      ]
+    },
+    "stream_report": {
+      "streaming": 1.0,
+      "stream_weight": 0.2,
+      "stream_tokens": 62917.0,
+      "prior_tokens": 1500.0
+    },
+    "calibration_test_overlap_tokens": 0,
+    "calibration_disjoint": true,
+    "corpus": {
+      "source": "live_tree",
+      "files": 28,
+      "digest": "a7c83cbb01bed875",
+      "revision": "7d3522e"
+    },
+    "target_top1": 0.525,
+    "target_bits_per_char": 1.42,
+    "target_met": true
+  },
+  "protocol": {
+    "pinned_split": "tail-anchored: final 3,000 tokens, calibration = 1,500 immediately before",
+    "live_tail_split": "tail-anchored: final 3,000 tokens, calibration = 1,500 immediately before",
+    "full_decile_split": "first 90% train, next 1,500 calibration, every remaining held-out token scored",
+    "calibration_test_overlap_tokens": 0,
+    "continuation": "modified Kneser-Ney order 6, role-conditioned discount",
+    "recency": "window-local exact-token recurrence over context[-384:], zero state across calls",
+    "suffix_floor": "stateless m = 1..6 suffix continuation counts over context[-W:], mixed INSIDE the count floor before the decision-preserving projection",
+    "is_static_inductive": true
+  },
+  "gate": {
+    "r3_tier1_id_shifts_zero": true,
+    "r3_locked_overlap_zero": true,
+    "r3_elastic_overlap_zero": true,
+    "r3_live_overlap_zero": true,
+    "r3_full_overlap_zero": true,
+    "r3_locked_static_top1_ge_0_5600": true,
+    "r3_locked_static_bpc_le_1_2800": true,
+    "r3_elastic_static_top1_ge_0_5750": true,
+    "r3_elastic_static_bpc_le_1_2200": true,
+    "r3_live_static_top1_ge_0_5750": true,
+    "r3_live_static_bpc_le_1_2000": true,
+    "r3_full_static_top1_ge_0_5250": true,
+    "r3_full_static_bpc_le_1_4200": true,
+    "r3_full_stream_top1_ge_0_5600": true,
+    "r3_full_stream_bpc_le_1_2200": true,
+    "r3_full_scored_ge_50000": true,
+    "r3_recency_selected": true,
+    "r3_recency_static_inductive": true,
+    "r3_recency_zero_state": true,
+    "r3_suffix_selected": true,
+    "r3_suffix_orders_six": true,
+    "r3_suffix_static_inductive": true,
+    "r3_suffix_zero_state": true,
+    "r3_suffix_reads_no_target": true,
+    "r3_role_discounts_selected": true,
+    "r3_kn_mix_selected": true,
+    "passed": true
+  },
+  "wall_seconds": 659.6807521999581,
+  "evidence": "OBSERVED",
+  "passed": true
+}

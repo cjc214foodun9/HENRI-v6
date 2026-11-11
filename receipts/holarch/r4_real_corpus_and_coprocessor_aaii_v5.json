@@ -1,0 +1,153 @@
+{
+  "stage": "R4",
+  "aaii": {
+    "receipt": "receipts/holarch/aaii_v5_eval.json",
+    "sha256": "56f6b340f1148f04a4f2b3a4ffa57cda34a7dce07bd545ff155e654b06828a3c",
+    "returncode": 0,
+    "passed": true,
+    "metrics": {
+      "a_grounded_accuracy": 1.0,
+      "a_non_hallucination": 1.0,
+      "a_hallucination_rate": 0.0,
+      "a_ood_abstain_rate": 1.0,
+      "a_omni_index": 100.0,
+      "a_omni_index_all_queries": 50.0,
+      "a_omni_delta": 132.0,
+      "b_rubric_pass_rate": 1.0,
+      "b_abstain_rate": 1.0,
+      "c_pass_at_1_rate": 1.0,
+      "c_hallucinated_rejected": 8,
+      "c_buggy_rejected": 8,
+      "c_false_acceptance": 0,
+      "d_solved": 16,
+      "d_traps_vetoed": 4,
+      "d_text_tokens": 0,
+      "d_step_ms_mean": 0.746476168994977,
+      "a_scale_grounded": 1.0,
+      "a_scale_ood_abstain": 1.0,
+      "a_scale_hallucination": 0.0,
+      "a_scale_omni_index": 100.0,
+      "a_scale_ingested": 2500
+    },
+    "stdout_tail": "AAII v5.0 R4 A=1.0000/1.0000 Omni=+100.0 B=1.0000 abstain=1.0000 C=1.0000 co-processor hall/bug=8/8 false=0 passed=True\nS4 D solved=16/16 traps=4 text_tokens=0 A_scale grounded=1.0000 ood=1.0000 hall=0.0000 omni=+100.0 ingested=2500\nreceipt receipts\\holarch\\aaii_v5_eval.json 56f6b340f1148f04a4f2b3a4ffa57cda34a7dce07bd545ff155e654b06828a3c\n",
+    "stderr_tail": ""
+  },
+  "pillars": {
+    "A": {
+      "dataset": {
+        "path": "data\\official_benchmarks\\canonical\\mmlu\\mmlu.csv",
+        "rows_on_disk": 14042,
+        "ingested_facts": 500,
+        "grounded_subjects": [
+          "elementary_mathematics",
+          "high_school_macroeconomics",
+          "high_school_psychology",
+          "miscellaneous",
+          "moral_disputes",
+          "moral_scenarios",
+          "professional_law",
+          "professional_psychology"
+        ],
+        "ood_subjects": [
+          "high_school_biology",
+          "nutrition",
+          "philosophy",
+          "prehistory"
+        ],
+        "grounded_queries": 100,
+        "ood_queries": 100,
+        "total_queries": 200
+      },
+      "metrics": {
+        "grounded_accuracy": 1.0,
+        "ood_abstain_rate": 1.0,
+        "non_hallucination_rate": 1.0,
+        "hallucination_rate": 0.0,
+        "henri_correct": 100,
+        "henri_incorrect": 0,
+        "henri_abstain": 100,
+        "baseline_correct": 63,
+        "baseline_incorrect": 137,
+        "omni_index": 100.0,
+        "omni_index_all_queries": 50.0,
+        "omni_index_baseline": -32.0,
+        "omni_delta": 132.0,
+        "omni_index_formula": "answered-index: 100/N_grounded * sum(correct - hallucinated) over the 100 ingested-subject queries; OOD abstention is measured separately",
+        "matched_coherence_min": 0.9999999999989984
+      },
+      "passed": true
+    },
+    "B": {
+      "dataset": {
+        "workspaces": 24,
+        "valid": 16,
+        "corrupt": 4,
+        "impossible": 4,
+        "documents_per_workspace": 6,
+        "parser": "DocumentFactExtractor",
+        "query_agnostic_ingest": true
+      },
+      "metrics": {
+        "rubric_pass": 16,
+        "rubric_pass_rate": 1.0,
+        "abstain_pass": 8,
+        "abstain_rate": 1.0,
+        "ttft_p50_ms": 0.702700053807348
+      },
+      "baselines": {
+        "truncation_accuracy": 0.0,
+        "t2t_accuracy": 0.0
+      },
+      "passed": true
+    },
+    "C": {
+      "dataset": {
+        "tasks": 32,
+        "format": "declared HumanEval/MBPP-format algorithmic tasks",
+        "official_items": 0,
+        "co_processor_candidates": 32
+      },
+      "metrics": {
+        "pass_at_1": 32,
+        "pass_at_1_rate": 1.0,
+        "correct_candidates": 16,
+        "hallucinated_rejected": 8,
+        "buggy_rejected": 8,
+        "false_acceptance": 0
+      },
+      "co_processor": {
+        "correct_accepted": 16,
+        "hallucinated_rejected": 8,
+        "buggy_rejected": 8,
+        "false_acceptance": 0
+      },
+      "passed": true
+    }
+  },
+  "gate": {
+    "r4_aaii_exit_zero": true,
+    "r4_aaii_passed": true,
+    "r4_pillar_a_passed": true,
+    "r4_pillar_b_passed": true,
+    "r4_pillar_c_passed": true,
+    "r4_cycle_q_regression": true,
+    "r4_a_ingested_500": true,
+    "r4_a_grounded_ge_0_95": true,
+    "r4_a_ood_abstain_ge_0_98": true,
+    "r4_a_hallucination_le_0_02": true,
+    "r4_a_omni_ge_60": true,
+    "r4_a_omni_delta_ge_100": true,
+    "r4_b_rubric_16": true,
+    "r4_b_abstain_8": true,
+    "r4_b_truncation_le_0_25": true,
+    "r4_b_t2t_le_0_25": true,
+    "r4_c_pass_at_1_ge_30": true,
+    "r4_c_hallucinated_rejected_8": true,
+    "r4_c_buggy_rejected_8": true,
+    "r4_c_false_acceptance_zero": true,
+    "passed": true
+  },
+  "wall_seconds": 100.15727800002787,
+  "evidence": "OBSERVED",
+  "passed": true
+}

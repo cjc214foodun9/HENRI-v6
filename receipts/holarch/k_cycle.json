@@ -1,10 +1,10 @@
 {
   "cycle": "K",
-  "head": "1b287219a7580b9c67b8d096c092f2fa651d64d2",
+  "head": "7d3522e3f55a999ff1edb84dbb44db2b3e2b6fdd",
   "stages": {
     "k1": {
       "receipt": "receipts\\holarch\\k1_full_cartridge.json",
-      "sha256": "5ce754d89633b25dc9432d8485d070a43515fd4214686d97d6fe6ffec8ae8165",
+      "sha256": "0eee64e482f7402bcc3b402d7f07af008d5154a050a9f6a8b0d09d388dcd8217",
       "passed": true,
       "gate": {
         "clean_room_zero_rows": true,
@@ -22,11 +22,11 @@
         "empty_store_veto_zero": true,
         "passed": true
       },
-      "wall_seconds": 172.13702240001294
+      "wall_seconds": 121.78574690001551
     },
     "k2": {
       "receipt": "receipts\\holarch\\k2_boundary_discovery.json",
-      "sha256": "3ff72ca8ac68198862c594b03465b00875d6544a09f00ef09ef1fbeb45228713",
+      "sha256": "073132bbf46e9c524df0eb953bb044f362526d2dc37d9662eca9f03ca6165daf",
       "passed": true,
       "gate": {
         "spatial_4_of_4": true,
@@ -37,11 +37,11 @@
         "zero_weight_updates": true,
         "passed": true
       },
-      "wall_seconds": 1.7284002999949735
+      "wall_seconds": 1.6558078000089154
     },
     "k3": {
       "receipt": "receipts\\holarch\\k3_unified_vla_and_dag.json",
-      "sha256": "c9f372baf8b35e795a5efa6c282bc69b32f1df131a4b65b4cdf2d1359cf6d4d8",
+      "sha256": "bb3418f5cec00f20fdd61732e38bc81584db17415a1328a8ba710015cfb1a022",
       "passed": true,
       "gate": {
         "synthesis_72_of_72": true,
@@ -55,11 +55,11 @@
         "photonic_generation_active": true,
         "passed": true
       },
-      "wall_seconds": 21.202856600022642
+      "wall_seconds": 72.44634090003092
     },
     "k4": {
       "receipt": "receipts\\holarch\\k4_rebase_and_concurrency.json",
-      "sha256": "12d1b6545ba0ce27235b00a06eb20e3957a2bf665d6d9e468938a7f2c9c117ac",
+      "sha256": "ff09f86e5a9db5499147a6c4e17fbaba53cf04312d805062f6accd390b5cfc7d",
       "passed": true,
       "gate": {
         "rebase_zero_tier1_shifts": true,
@@ -73,19 +73,19 @@
         "bundle_copied": true,
         "passed": true
       },
-      "wall_seconds": 8.802215100004105
+      "wall_seconds": 4.340329200029373
     },
     "eval": {
       "receipt": "receipts\\holarch\\k_eval.json",
-      "sha256": "766ea209e057259e5ab8c445ff81c6c3e1e6614b0baafafcefff077100135a7c",
+      "sha256": "fd9e1bb4b51ae2a80eb52700569ef367134affa3f984b3f125bf448c02fa6c8b",
       "passed": true,
       "gate": {
-        "queries_100": true,
+        "queries_128": true,
         "gates_passed": true,
         "exit_zero": true,
         "passed": true
       },
-      "wall_seconds": 117.03753649999271
+      "wall_seconds": 582.3391569999512
     }
   },
   "passed": true

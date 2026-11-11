@@ -1,0 +1,1317 @@
+{
+  "stage": "U4",
+  "ccg": {
+    "corpus_total": 32,
+    "parsed_exact": 32,
+    "rows": [
+      {
+        "text": "the parser validates the schema",
+        "kind": "active",
+        "status": "PARSED",
+        "exact": true,
+        "dag": {
+          "entity": [
+            "parser"
+          ],
+          "morphism": [
+            "validate"
+          ],
+          "object": [
+            "schema"
+          ],
+          "law": []
+        }
+      },
+      {
+        "text": "the schema is validated by the parser",
+        "kind": "passive",
+        "status": "PARSED",
+        "exact": true,
+        "dag": {
+          "entity": [
+            "parser"
+          ],
+          "morphism": [
+            "validate"
+          ],
+          "object": [
+            "schema"
+          ],
+          "law": []
+        }
+      },
+      {
+        "text": "the writer stores the record",
+        "kind": "active",
+        "status": "PARSED",
+        "exact": true,
+        "dag": {
+          "entity": [
+            "writer"
+          ],
+          "morphism": [
+            "store"
+          ],
+          "object": [
+            "record"
+          ],
+          "law": []
+        }
+      },
+      {
+        "text": "the record is stored by the writer",
+        "kind": "passive",
+        "status": "PARSED",
+        "exact": true,
+        "dag": {
+          "entity": [
+            "writer"
+          ],
+          "morphism": [
+            "store"
+          ],
+          "object": [
+            "record"
+          ],
+          "law": []
+        }
+      },
+      {
+        "text": "the reader loads the table",
+        "kind": "active",
+        "status": "PARSED",
+        "exact": true,
+        "dag": {
+          "entity": [
+            "reader"
+          ],
+          "morphism": [
+            "load"
+          ],
+          "object": [
+            "table"
+          ],
+          "law": []
+        }
+      },
+      {
+        "text": "the table is loaded by the reader",
+        "kind": "passive",
+        "status": "PARSED",
+        "exact": true,
+        "dag": {
+          "entity": [
+            "reader"
+          ],
+          "morphism": [
+            "load"
+          ],
+          "object": [
+            "table"
+          ],
+          "law": []
+        }
+      },
+      {
+        "text": "the service verifies the request",
+        "kind": "active",
+        "status": "PARSED",
+        "exact": true,
+        "dag": {
+          "entity": [
+            "service"
+          ],
+          "morphism": [
+            "verify"
+          ],
+          "object": [
+            "request"
+          ],
+          "law": []
+        }
+      },
+      {
+        "text": "the request is verified by the service",
+        "kind": "passive",
+        "status": "PARSED",
+        "exact": true,
+        "dag": {
+          "entity": [
+            "service"
+          ],
+          "morphism": [
+            "verify"
+          ],
+          "object": [
+            "request"
+          ],
+          "law": []
+        }
+      },
+      {
+        "text": "the worker parses the response",
+        "kind": "active",
+        "status": "PARSED",
+        "exact": true,
+        "dag": {
+          "entity": [
+            "worker"
+          ],
+          "morphism": [
+            "parse"
+          ],
+          "object": [
+            "response"
+          ],
+          "law": []
+        }
+      },
+      {
+        "text": "the response is parsed by the worker",
+        "kind": "passive",
+        "status": "PARSED",
+        "exact": true,
+        "dag": {
+          "entity": [
+            "worker"
+          ],
+          "morphism": [
+            "parse"
+          ],
+          "object": [
+            "response"
+          ],
+          "law": []
+        }
+      },
+      {
+        "text": "the module checks the field",
+        "kind": "active",
+        "status": "PARSED",
+        "exact": true,
+        "dag": {
+          "entity": [
+            "module"
+          ],
+          "morphism": [
+            "check"
+          ],
+          "object": [
+            "field"
+          ],
+          "law": []
+        }
+      },
+      {
+        "text": "the field is checked by the module",
+        "kind": "passive",
+        "status": "PARSED",
+        "exact": true,
+        "dag": {
+          "entity": [
+            "module"
+          ],
+          "morphism": [
+            "check"
+          ],
+          "object": [
+            "field"
+          ],
+          "law": []
+        }
+      },
+      {
+        "text": "the loader copies the buffer",
+        "kind": "active",
+        "status": "PARSED",
+        "exact": true,
+        "dag": {
+          "entity": [
+            "loader"
+          ],
+          "morphism": [
+            "copy"
+          ],
+          "object": [
+            "buffer"
+          ],
+          "law": []
+        }
+      },
+      {
+        "text": "the buffer is copied by the loader",
+        "kind": "passive",
+        "status": "PARSED",
+        "exact": true,
+        "dag": {
+          "entity": [
+            "loader"
+          ],
+          "morphism": [
+            "copy"
+          ],
+          "object": [
+            "buffer"
+          ],
+          "law": []
+        }
+      },
+      {
+        "text": "the index sorts the list",
+        "kind": "active",
+        "status": "PARSED",
+        "exact": true,
+        "dag": {
+          "entity": [
+            "index"
+          ],
+          "morphism": [
+            "sort"
+          ],
+          "object": [
+            "list"
+          ],
+          "law": []
+        }
+      },
+      {
+        "text": "the list is sorted by the index",
+        "kind": "passive",
+        "status": "PARSED",
+        "exact": true,
+        "dag": {
+          "entity": [
+            "index"
+          ],
+          "morphism": [
+            "sort"
+          ],
+          "object": [
+            "list"
+          ],
+          "law": []
+        }
+      },
+      {
+        "text": "the queue emits the event",
+        "kind": "active",
+        "status": "PARSED",
+        "exact": true,
+        "dag": {
+          "entity": [
+            "queue"
+          ],
+          "morphism": [
+            "emit"
+          ],
+          "object": [
+            "event"
+          ],
+          "law": []
+        }
+      },
+      {
+        "text": "the event is emitted by the queue",
+        "kind": "passive",
+        "status": "PARSED",
+        "exact": true,
+        "dag": {
+          "entity": [
+            "queue"
+          ],
+          "morphism": [
+            "emit"
+          ],
+          "object": [
+            "event"
+          ],
+          "law": []
+        }
+      },
+      {
+        "text": "the counter increments the value",
+        "kind": "active",
+        "status": "PARSED",
+        "exact": true,
+        "dag": {
+          "entity": [
+            "counter"
+          ],
+          "morphism": [
+            "increment"
+          ],
+          "object": [
+            "value"
+          ],
+          "law": []
+        }
+      },
+      {
+        "text": "the value is incremented by the counter",
+        "kind": "passive",
+        "status": "PARSED",
+        "exact": true,
+        "dag": {
+          "entity": [
+            "counter"
+          ],
+          "morphism": [
+            "increment"
+          ],
+          "object": [
+            "value"
+          ],
+          "law": []
+        }
+      },
+      {
+        "text": "if the cache reads the table then the writer stores the record",
+        "kind": "conditional",
+        "status": "PARSED",
+        "exact": true,
+        "dag": {
+          "entity": [
+            "cache",
+            "writer"
+          ],
+          "morphism": [
+            "read",
+            "store"
+          ],
+          "object": [
+            "record",
+            "table"
+          ],
+          "law": [
+            "conditional"
+          ]
+        }
+      },
+      {
+        "text": "if the parser validates the schema then the service verifies the request",
+        "kind": "conditional",
+        "status": "PARSED",
+        "exact": true,
+        "dag": {
+          "entity": [
+            "parser",
+            "service"
+          ],
+          "morphism": [
+            "validate",
+            "verify"
+          ],
+          "object": [
+            "request",
+            "schema"
+          ],
+          "law": [
+            "conditional"
+          ]
+        }
+      },
+      {
+        "text": "if the worker parses the response then the index sorts the list",
+        "kind": "conditional",
+        "status": "PARSED",
+        "exact": true,
+        "dag": {
+          "entity": [
+            "index",
+            "worker"
+          ],
+          "morphism": [
+            "parse",
+            "sort"
+          ],
+          "object": [
+            "list",
+            "response"
+          ],
+          "law": [
+            "conditional"
+          ]
+        }
+      },
+      {
+        "text": "if the reader loads the buffer then the module checks the field",
+        "kind": "conditional",
+        "status": "PARSED",
+        "exact": true,
+        "dag": {
+          "entity": [
+            "module",
+            "reader"
+          ],
+          "morphism": [
+            "check",
+            "load"
+          ],
+          "object": [
+            "buffer",
+            "field"
+          ],
+          "law": [
+            "conditional"
+          ]
+        }
+      },
+      {
+        "text": "if the loader copies the buffer then the queue emits the event",
+        "kind": "conditional",
+        "status": "PARSED",
+        "exact": true,
+        "dag": {
+          "entity": [
+            "loader",
+            "queue"
+          ],
+          "morphism": [
+            "copy",
+            "emit"
+          ],
+          "object": [
+            "buffer",
+            "event"
+          ],
+          "law": [
+            "conditional"
+          ]
+        }
+      },
+      {
+        "text": "the parser validates the schema and validates the record",
+        "kind": "coordination",
+        "status": "PARSED",
+        "exact": true,
+        "dag": {
+          "entity": [
+            "parser"
+          ],
+          "morphism": [
+            "validate"
+          ],
+          "object": [
+            "record",
+            "schema"
+          ],
+          "law": []
+        }
+      },
+      {
+        "text": "the writer stores the record and stores the buffer",
+        "kind": "coordination",
+        "status": "PARSED",
+        "exact": true,
+        "dag": {
+          "entity": [
+            "writer"
+          ],
+          "morphism": [
+            "store"
+          ],
+          "object": [
+            "buffer",
+            "record"
+          ],
+          "law": []
+        }
+      },
+      {
+        "text": "the index sorts the list and sorts the table",
+        "kind": "coordination",
+        "status": "PARSED",
+        "exact": true,
+        "dag": {
+          "entity": [
+            "index"
+          ],
+          "morphism": [
+            "sort"
+          ],
+          "object": [
+            "list",
+            "table"
+          ],
+          "law": []
+        }
+      },
+      {
+        "text": "the service checks the request and checks the response",
+        "kind": "coordination",
+        "status": "PARSED",
+        "exact": true,
+        "dag": {
+          "entity": [
+            "service"
+          ],
+          "morphism": [
+            "check"
+          ],
+          "object": [
+            "request",
+            "response"
+          ],
+          "law": []
+        }
+      },
+      {
+        "text": "the worker parses the input and parses the output",
+        "kind": "coordination",
+        "status": "PARSED",
+        "exact": true,
+        "dag": {
+          "entity": [
+            "worker"
+          ],
+          "morphism": [
+            "parse"
+          ],
+          "object": [
+            "input",
+            "output"
+          ],
+          "law": []
+        }
+      },
+      {
+        "text": "the reader loads the table and loads the index",
+        "kind": "coordination",
+        "status": "PARSED",
+        "exact": true,
+        "dag": {
+          "entity": [
+            "reader"
+          ],
+          "morphism": [
+            "load"
+          ],
+          "object": [
+            "index",
+            "table"
+          ],
+          "law": []
+        }
+      },
+      {
+        "text": "the loader copies the buffer and copies the record",
+        "kind": "coordination",
+        "status": "PARSED",
+        "exact": true,
+        "dag": {
+          "entity": [
+            "loader"
+          ],
+          "morphism": [
+            "copy"
+          ],
+          "object": [
+            "buffer",
+            "record"
+          ],
+          "law": []
+        }
+      }
+    ],
+    "pairs": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "reversals": [
+      0.3815289295144688,
+      0.3083916310418846,
+      0.3286646328403562
+    ],
+    "contradictions": [
+      {
+        "text": "the parser validates the schema and the parser never validates the schema",
+        "status": "ABSTAIN: ccg type residual",
+        "sagnac_delta": 0.8,
+        "vetoed": true
+      },
+      {
+        "text": "the threshold equals 12 and the threshold equals 16",
+        "status": "ABSTAIN: ccg type residual",
+        "sagnac_delta": 0.45,
+        "vetoed": true
+      },
+      {
+        "text": "the cache never reads the table and the cache reads the table",
+        "status": "ABSTAIN: ccg type residual",
+        "sagnac_delta": 0.8,
+        "vetoed": true
+      },
+      {
+        "text": "the writer must store the record and the writer never stores the record",
+        "status": "ABSTAIN: ccg type residual",
+        "sagnac_delta": 0.8,
+        "vetoed": true
+      },
+      {
+        "text": "the node exceeds the edge and the edge exceeds the node",
+        "status": "ABSTAIN: ccg type residual",
+        "sagnac_delta": 0.45,
+        "vetoed": true
+      },
+      {
+        "text": "the cache reads the cache",
+        "status": "ABSTAIN: ccg type residual",
+        "sagnac_delta": 0.45,
+        "vetoed": true
+      }
+    ]
+  },
+  "sheaf": {
+    "mismatch": [
+      {
+        "name": "str_to_sum_0",
+        "family": "str_to_sum",
+        "energy": 1.0,
+        "caught": true,
+        "violations": [
+          {
+            "caller": "api",
+            "callee": "storage",
+            "function": "total",
+            "missing": [
+              "CAP_ELEM_NUM"
+            ],
+            "energy": 1.0,
+            "kind": "capability"
+          }
+        ]
+      },
+      {
+        "name": "str_to_sum_1",
+        "family": "str_to_sum",
+        "energy": 1.0,
+        "caught": true,
+        "violations": [
+          {
+            "caller": "api",
+            "callee": "storage",
+            "function": "total",
+            "missing": [
+              "CAP_ELEM_NUM"
+            ],
+            "energy": 1.0,
+            "kind": "capability"
+          }
+        ]
+      },
+      {
+        "name": "str_to_sum_2",
+        "family": "str_to_sum",
+        "energy": 1.0,
+        "caught": true,
+        "violations": [
+          {
+            "caller": "api",
+            "callee": "storage",
+            "function": "total",
+            "missing": [
+              "CAP_ELEM_NUM"
+            ],
+            "energy": 1.0,
+            "kind": "capability"
+          }
+        ]
+      },
+      {
+        "name": "int_to_len_0",
+        "family": "int_to_len",
+        "energy": 1.0,
+        "caught": true,
+        "violations": [
+          {
+            "caller": "api",
+            "callee": "storage",
+            "function": "size",
+            "missing": [
+              "CAP_SIZED"
+            ],
+            "energy": 1.0,
+            "kind": "capability"
+          }
+        ]
+      },
+      {
+        "name": "int_to_len_1",
+        "family": "int_to_len",
+        "energy": 1.0,
+        "caught": true,
+        "violations": [
+          {
+            "caller": "api",
+            "callee": "storage",
+            "function": "size",
+            "missing": [
+              "CAP_SIZED"
+            ],
+            "energy": 1.0,
+            "kind": "capability"
+          }
+        ]
+      },
+      {
+        "name": "int_to_len_2",
+        "family": "int_to_len",
+        "energy": 1.0,
+        "caught": true,
+        "violations": [
+          {
+            "caller": "api",
+            "callee": "storage",
+            "function": "size",
+            "missing": [
+              "CAP_SIZED"
+            ],
+            "energy": 1.0,
+            "kind": "capability"
+          }
+        ]
+      },
+      {
+        "name": "list_to_map_0",
+        "family": "list_to_map",
+        "energy": 1.0,
+        "caught": true,
+        "violations": [
+          {
+            "caller": "api",
+            "callee": "storage",
+            "function": "lookup",
+            "missing": [
+              "CAP_MAP_READ"
+            ],
+            "energy": 1.0,
+            "kind": "capability"
+          }
+        ]
+      },
+      {
+        "name": "list_to_map_1",
+        "family": "list_to_map",
+        "energy": 1.0,
+        "caught": true,
+        "violations": [
+          {
+            "caller": "api",
+            "callee": "storage",
+            "function": "lookup",
+            "missing": [
+              "CAP_MAP_READ"
+            ],
+            "energy": 1.0,
+            "kind": "capability"
+          }
+        ]
+      },
+      {
+        "name": "list_to_map_2",
+        "family": "list_to_map",
+        "energy": 1.0,
+        "caught": true,
+        "violations": [
+          {
+            "caller": "api",
+            "callee": "storage",
+            "function": "lookup",
+            "missing": [
+              "CAP_MAP_READ"
+            ],
+            "energy": 1.0,
+            "kind": "capability"
+          }
+        ]
+      },
+      {
+        "name": "tuple_to_append_0",
+        "family": "tuple_to_append",
+        "energy": 1.0,
+        "caught": true,
+        "violations": [
+          {
+            "caller": "api",
+            "callee": "storage",
+            "function": "push",
+            "missing": [
+              "CAP_SEQ_MUT"
+            ],
+            "energy": 1.0,
+            "kind": "capability"
+          }
+        ]
+      },
+      {
+        "name": "tuple_to_append_1",
+        "family": "tuple_to_append",
+        "energy": 1.0,
+        "caught": true,
+        "violations": [
+          {
+            "caller": "api",
+            "callee": "storage",
+            "function": "push",
+            "missing": [
+              "CAP_SEQ_MUT"
+            ],
+            "energy": 1.0,
+            "kind": "capability"
+          }
+        ]
+      },
+      {
+        "name": "tuple_to_append_2",
+        "family": "tuple_to_append",
+        "energy": 1.0,
+        "caught": true,
+        "violations": [
+          {
+            "caller": "api",
+            "callee": "storage",
+            "function": "push",
+            "missing": [
+              "CAP_SEQ_MUT"
+            ],
+            "energy": 1.0,
+            "kind": "capability"
+          }
+        ]
+      },
+      {
+        "name": "list_as_key_0",
+        "family": "list_as_key",
+        "energy": 1.0,
+        "caught": true,
+        "violations": [
+          {
+            "caller": "api",
+            "callee": "storage",
+            "function": "keyed",
+            "missing": [
+              "CAP_HASHABLE"
+            ],
+            "energy": 1.0,
+            "kind": "capability"
+          }
+        ]
+      },
+      {
+        "name": "list_as_key_1",
+        "family": "list_as_key",
+        "energy": 1.0,
+        "caught": true,
+        "violations": [
+          {
+            "caller": "api",
+            "callee": "storage",
+            "function": "keyed",
+            "missing": [
+              "CAP_HASHABLE"
+            ],
+            "energy": 1.0,
+            "kind": "capability"
+          }
+        ]
+      },
+      {
+        "name": "list_as_key_2",
+        "family": "list_as_key",
+        "energy": 1.0,
+        "caught": true,
+        "violations": [
+          {
+            "caller": "api",
+            "callee": "storage",
+            "function": "keyed",
+            "missing": [
+              "CAP_HASHABLE"
+            ],
+            "energy": 1.0,
+            "kind": "capability"
+          }
+        ]
+      },
+      {
+        "name": "none_to_strip_0",
+        "family": "none_to_strip",
+        "energy": 2.0,
+        "caught": true,
+        "violations": [
+          {
+            "caller": "api",
+            "callee": "storage",
+            "function": "clean",
+            "missing": [
+              "CAP_TEXT_OPS",
+              "CAP_NON_NONE"
+            ],
+            "energy": 2.0,
+            "kind": "capability"
+          }
+        ]
+      },
+      {
+        "name": "none_to_strip_1",
+        "family": "none_to_strip",
+        "energy": 2.0,
+        "caught": true,
+        "violations": [
+          {
+            "caller": "api",
+            "callee": "storage",
+            "function": "clean",
+            "missing": [
+              "CAP_TEXT_OPS",
+              "CAP_NON_NONE"
+            ],
+            "energy": 2.0,
+            "kind": "capability"
+          }
+        ]
+      },
+      {
+        "name": "none_to_strip_2",
+        "family": "none_to_strip",
+        "energy": 2.0,
+        "caught": true,
+        "violations": [
+          {
+            "caller": "api",
+            "callee": "storage",
+            "function": "clean",
+            "missing": [
+              "CAP_TEXT_OPS",
+              "CAP_NON_NONE"
+            ],
+            "energy": 2.0,
+            "kind": "capability"
+          }
+        ]
+      },
+      {
+        "name": "transitive_three_0",
+        "family": "transitive_three",
+        "energy": 3.0,
+        "caught": true,
+        "violations": [
+          {
+            "caller": "service",
+            "callee": "storage",
+            "function": "save",
+            "missing": [
+              "CAP_SEQ_MUT",
+              "CAP_NON_NONE"
+            ],
+            "energy": 2.0,
+            "kind": "capability"
+          },
+          {
+            "caller": "api",
+            "callee": "service",
+            "function": "relay",
+            "missing": [
+              "CAP_SEQ_MUT"
+            ],
+            "energy": 1.0,
+            "kind": "capability"
+          }
+        ]
+      },
+      {
+        "name": "transitive_three_1",
+        "family": "transitive_three",
+        "energy": 3.0,
+        "caught": true,
+        "violations": [
+          {
+            "caller": "service",
+            "callee": "storage",
+            "function": "save",
+            "missing": [
+              "CAP_SEQ_MUT",
+              "CAP_NON_NONE"
+            ],
+            "energy": 2.0,
+            "kind": "capability"
+          },
+          {
+            "caller": "api",
+            "callee": "service",
+            "function": "relay",
+            "missing": [
+              "CAP_SEQ_MUT"
+            ],
+            "energy": 1.0,
+            "kind": "capability"
+          }
+        ]
+      },
+      {
+        "name": "transitive_three_2",
+        "family": "transitive_three",
+        "energy": 3.0,
+        "caught": true,
+        "violations": [
+          {
+            "caller": "service",
+            "callee": "storage",
+            "function": "save",
+            "missing": [
+              "CAP_SEQ_MUT",
+              "CAP_NON_NONE"
+            ],
+            "energy": 2.0,
+            "kind": "capability"
+          },
+          {
+            "caller": "api",
+            "callee": "service",
+            "function": "relay",
+            "missing": [
+              "CAP_SEQ_MUT"
+            ],
+            "energy": 1.0,
+            "kind": "capability"
+          }
+        ]
+      },
+      {
+        "name": "dynamic_unknown_0",
+        "family": "dynamic_unknown",
+        "energy": 2.0,
+        "caught": true,
+        "violations": [
+          {
+            "caller": "api",
+            "callee": "storage",
+            "function": "store",
+            "missing": [
+              "CAP_SEQ_MUT",
+              "CAP_NON_NONE"
+            ],
+            "energy": 2.0,
+            "kind": "capability"
+          }
+        ]
+      },
+      {
+        "name": "dynamic_unknown_1",
+        "family": "dynamic_unknown",
+        "energy": 2.0,
+        "caught": true,
+        "violations": [
+          {
+            "caller": "api",
+            "callee": "storage",
+            "function": "store",
+            "missing": [
+              "CAP_SEQ_MUT",
+              "CAP_NON_NONE"
+            ],
+            "energy": 2.0,
+            "kind": "capability"
+          }
+        ]
+      },
+      {
+        "name": "dynamic_unknown_2",
+        "family": "dynamic_unknown",
+        "energy": 2.0,
+        "caught": true,
+        "violations": [
+          {
+            "caller": "api",
+            "callee": "storage",
+            "function": "store",
+            "missing": [
+              "CAP_SEQ_MUT",
+              "CAP_NON_NONE"
+            ],
+            "energy": 2.0,
+            "kind": "capability"
+          }
+        ]
+      }
+    ],
+    "mismatch_caught": 24,
+    "polymorphic": [
+      {
+        "name": "poly_sized_0",
+        "energy": 0.0,
+        "accepted": true,
+        "kappa_plus": 1.0
+      },
+      {
+        "name": "poly_sized_1",
+        "energy": 0.0,
+        "accepted": true,
+        "kappa_plus": 1.0
+      },
+      {
+        "name": "poly_sized_2",
+        "energy": 0.0,
+        "accepted": true,
+        "kappa_plus": 1.0
+      },
+      {
+        "name": "poly_numeric_0",
+        "energy": 0.0,
+        "accepted": true,
+        "kappa_plus": 1.0
+      },
+      {
+        "name": "poly_numeric_1",
+        "energy": 0.0,
+        "accepted": true,
+        "kappa_plus": 1.0
+      },
+      {
+        "name": "poly_count_0",
+        "energy": 0.0,
+        "accepted": true,
+        "kappa_plus": 1.0
+      },
+      {
+        "name": "poly_count_1",
+        "energy": 0.0,
+        "accepted": true,
+        "kappa_plus": 1.0
+      },
+      {
+        "name": "poly_count_2",
+        "energy": 0.0,
+        "accepted": true,
+        "kappa_plus": 1.0
+      },
+      {
+        "name": "poly_guarded_none",
+        "energy": 0.0,
+        "accepted": true,
+        "kappa_plus": 1.0
+      },
+      {
+        "name": "poly_guarded_text",
+        "energy": 0.0,
+        "accepted": true,
+        "kappa_plus": 1.0
+      },
+      {
+        "name": "poly_guarded_tuple",
+        "energy": 0.0,
+        "accepted": true,
+        "kappa_plus": 1.0
+      },
+      {
+        "name": "poly_guarded_list",
+        "energy": 0.0,
+        "accepted": true,
+        "kappa_plus": 1.0
+      }
+    ],
+    "polymorphic_accepted": 12,
+    "kappa_plus": 1.0,
+    "naive_wildcard_control_false_accept_rate": 1.0
+  },
+  "packages": [
+    {
+      "name": "pkg1",
+      "energy": 0.0,
+      "pytest_passed": true,
+      "modules": [
+        "api.py",
+        "core.py",
+        "models.py",
+        "storage.py",
+        "test_suite.py"
+      ],
+      "pytest_tail": "..                                                                       [100%]\n"
+    },
+    {
+      "name": "pkg2",
+      "energy": 0.0,
+      "pytest_passed": true,
+      "modules": [
+        "api.py",
+        "core.py",
+        "models.py",
+        "storage.py",
+        "test_suite.py"
+      ],
+      "pytest_tail": "..                                                                       [100%]\n"
+    },
+    {
+      "name": "pkg3",
+      "energy": 0.0,
+      "pytest_passed": true,
+      "modules": [
+        "api.py",
+        "core.py",
+        "models.py",
+        "storage.py",
+        "test_suite.py"
+      ],
+      "pytest_tail": "..                                                                       [100%]\n"
+    },
+    {
+      "name": "pkg4",
+      "energy": 0.0,
+      "pytest_passed": true,
+      "modules": [
+        "api.py",
+        "core.py",
+        "models.py",
+        "storage.py",
+        "test_suite.py"
+      ],
+      "pytest_tail": "..                                                                       [100%]\n"
+    },
+    {
+      "name": "pkg5",
+      "energy": 0.0,
+      "pytest_passed": true,
+      "modules": [
+        "api.py",
+        "core.py",
+        "models.py",
+        "storage.py",
+        "test_suite.py"
+      ],
+      "pytest_tail": "..                                                                       [100%]\n"
+    },
+    {
+      "name": "pkg6",
+      "energy": 0.0,
+      "pytest_passed": true,
+      "modules": [
+        "api.py",
+        "core.py",
+        "models.py",
+        "storage.py",
+        "test_suite.py"
+      ],
+      "pytest_tail": "..                                                                       [100%]\n"
+    }
+  ],
+  "gate": {
+    "u4_parse_ge_30": true,
+    "u4_pairs_8": true,
+    "u4_reversals_3": true,
+    "u4_contradictions_6": true,
+    "u4_packages_6": true,
+    "u4_unannotated_caught_24": true,
+    "u4_polymorphic_accepted_12": true,
+    "u4_kappa_le_50": true,
+    "passed": true
+  },
+  "wall_seconds": 6.923090099939145,
+  "evidence": "OBSERVED",
+  "passed": true
+}

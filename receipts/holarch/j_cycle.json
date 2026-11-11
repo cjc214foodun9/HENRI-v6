@@ -1,11 +1,11 @@
 {
   "cycle": "J",
-  "head": "a6813af729048c7440fc72efeb209f28baa745e0",
+  "head": "7d3522e3f55a999ff1edb84dbb44db2b3e2b6fdd",
   "stages": {
     "j1": {
       "receipt": "receipts\\holarch\\j1_cleanroom_planner.json",
-      "sha256": "086d2907d7f8fc6a882d68ce97a51f87bb14361c5feefb94201735db47bb555e",
-      "passed": false,
+      "sha256": "c8e41c148bc52fc502ffe66b96904364ed30d8aebb5718d11b824aeecd8fe51c",
+      "passed": true,
       "gate": {
         "clean_room_zero_rows": true,
         "seed_cartridge_present": true,
@@ -14,20 +14,20 @@
         "hydrated_rows_match_block": true,
         "cul_de_sac_8_of_8": true,
         "depth1_at_most_2": true,
-        "unmasked_at_most_2": false,
+        "unmasked_at_most_2": true,
         "closed_loop_matches_deterministic_reference": true,
         "cleanroom_episode_parity_with_reference": true,
         "one_step_action_at_least_0_78": true,
         "thread_episode_parity_48_of_48": true,
         "thread_trap_parity_8_of_8": true,
         "thread_score_delta_under_1e_6": true,
-        "passed": false
+        "passed": true
       },
-      "wall_seconds": 155.1369521000015
+      "wall_seconds": 96.48276169993915
     },
     "j2": {
       "receipt": "receipts\\holarch\\j2_elastic_vocab.json",
-      "sha256": "1bb519fad4c8b7cefff5c79e6a4d359d9bf307f05288d8da8bb99d90c67aa984",
+      "sha256": "c5c64a34f341bb916fd0bf6b0627f8b87a094dac1f1949ea96bb19e238856b61",
       "passed": true,
       "gate": {
         "tier1_zero_shifts": true,
@@ -42,11 +42,11 @@
         "tier2_waves_distinct": true,
         "passed": true
       },
-      "wall_seconds": 5.66922819998581
+      "wall_seconds": 4.599792499910109
     },
     "j3": {
       "receipt": "receipts\\holarch\\j3_diverse_dag.json",
-      "sha256": "692cee7342953e82831a44acb8e65223031e338e87aba067408fb13db2e70ba5",
+      "sha256": "30b2d1b14682740b4c526f21a15db237e23ec0ff0136d12b54d0763a1a9fe6a4",
       "passed": true,
       "gate": {
         "base_24_of_24": true,
@@ -59,12 +59,12 @@
         "stationary_drift_zero": true,
         "passed": true
       },
-      "wall_seconds": 0.047071500011952594
+      "wall_seconds": 0.02990470000077039
     },
     "j4": {
       "receipt": "receipts\\holarch\\j4_api_v1.json",
-      "sha256": "14cc528936b52864329ce60cbcebfcc92c530d06eb787a12472d9ebe1f17e64e",
-      "passed": false,
+      "sha256": "cef1e57e1f1a13c18e3cb379f20b1dd3ec4065ba6d231540883ae4a684d51166",
+      "passed": true,
       "gate": {
         "healthz_public": true,
         "missing_token_401": true,
@@ -75,15 +75,27 @@
         "concurrency_zero_errors": true,
         "receipt_chain_valid": true,
         "readers_overlap": true,
-        "throughput_not_collapsed": false,
+        "throughput_not_collapsed": true,
         "openai_verify": true,
         "openai_plan": true,
         "openai_impact": true,
         "openai_synthesize": true,
-        "passed": false
+        "passed": true
       },
-      "wall_seconds": 12.751781600003596
+      "wall_seconds": 24.13687710009981
+    },
+    "eval": {
+      "receipt": "receipts\\holarch\\j_eval.json",
+      "sha256": "2f172553e977b8f3ae94c8fc488e8f61ca07920a015132db1c1dd15799d1d5e3",
+      "passed": true,
+      "gate": {
+        "queries_128": true,
+        "gates_passed": true,
+        "exit_zero": true,
+        "passed": true
+      },
+      "wall_seconds": 580.9245270000538
     }
   },
-  "passed": false
+  "passed": true
 }

@@ -1,0 +1,91 @@
+{
+  "cycle": "O",
+  "head": "7d3522e3f55a999ff1edb84dbb44db2b3e2b6fdd",
+  "stages": {
+    "o1": {
+      "receipt": "receipts\\holarch\\o1_swat_telepathy.json",
+      "sha256": "7081c701077ff43d1ecaedb4408b3e20843eef1f37eebc1713361e2c9a910826",
+      "passed": true,
+      "gate": {
+        "o1a_24_queries": true,
+        "o1a_swat_at_least_0_55": true,
+        "o1a_delta_at_least_15_points": true,
+        "o1a_ttft_at_least_4x": true,
+        "o1a_zero_receiver_prefill_tokens": true,
+        "o1b_vla_12_completed": true,
+        "o1b_vla_goals_12": true,
+        "o1b_cross_modal_digit_12": true,
+        "o1c_corrupted_16": true,
+        "o1c_veto_16_of_16": true,
+        "o1c_zero_hallucination": true,
+        "passed": true
+      },
+      "wall_seconds": 82.55755440006033
+    },
+    "o2": {
+      "receipt": "receipts\\holarch\\o2_api_repulsor_and_linearizable_lanes.json",
+      "sha256": "2167709be900acf68949fcc3a7034b0708ae29f807ac8c6aaec2ab4d06ec023c",
+      "passed": true,
+      "gate": {
+        "o2_traps_8": true,
+        "o2_online_escape_8": true,
+        "o2_reactive_control_0": true,
+        "o2_episodes_online_at_least_44": true,
+        "o2_episodes_baseline_38": true,
+        "o2_lanes_8_fresh": true,
+        "o2_bench_p50_at_most_120": true,
+        "o2_bench_ratio_at_least_2_5": true,
+        "passed": true
+      },
+      "wall_seconds": 76.02125420002267
+    },
+    "o3": {
+      "receipt": "receipts\\holarch\\o3_live_tree_language.json",
+      "sha256": "4fd12abe75b863e2698dc61f3e107a4c175442c6e0f0717a657da88761978be9",
+      "passed": true,
+      "gate": {
+        "o3_tier1_shifts_zero": true,
+        "o3_pinned_locked_top1_0_55": true,
+        "o3_pinned_locked_bpc_1_30": true,
+        "o3_elastic_top1_0_55": true,
+        "o3_elastic_bpc_1_31": true,
+        "o3_live_l3_recorded": true,
+        "o3_char96_recorded": true,
+        "passed": true
+      },
+      "wall_seconds": 337.9687826000154
+    },
+    "o4": {
+      "receipt": "receipts\\holarch\\o4_holonic_and_gauntlet_128.json",
+      "sha256": "0dc394595f77b19d30f1d0c563ace19507d696f63384ae79643a64203e4ed409",
+      "passed": true,
+      "gate": {
+        "o4_prior_84": true,
+        "o4_discovery_4": true,
+        "o4_traps_refused_4": true,
+        "o4_synthesis_92": true,
+        "o4_queries_128": true,
+        "o4_gauntlet_passed": true,
+        "o4_exit_zero": true,
+        "o4_zero_reads": true,
+        "o4_reachable_1": true,
+        "o4_hallucination_0": true,
+        "passed": true
+      },
+      "wall_seconds": 648.7361419999506
+    },
+    "eval": {
+      "receipt": "receipts\\holarch\\o_eval.json",
+      "sha256": "484f3ca8bfd5dddfddfa23b0b150f145fd7397b66cbd60c9d86f0ca3105bce66",
+      "passed": true,
+      "gate": {
+        "queries_128": true,
+        "gates_passed": true,
+        "exit_zero": true,
+        "passed": true
+      },
+      "wall_seconds": 614.7829486998962
+    }
+  },
+  "passed": true
+}

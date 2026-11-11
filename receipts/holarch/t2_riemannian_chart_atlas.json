@@ -1,0 +1,117 @@
+{
+  "stage": "T2",
+  "mechanism": {
+    "rank": 8,
+    "capacity": 64,
+    "tau_orth": 0.55,
+    "tau_cap": 0.35,
+    "whitening": "Woodbury O(r*d), no dense inverse",
+    "spawn_policy": "out-of-subspace dark-energy chart birth",
+    "update": "streaming rank-1 Oja-Welford"
+  },
+  "dataset": {
+    "path": "data\\official_benchmarks\\canonical\\mmlu\\mmlu.csv",
+    "sha256": "15b6785d49e0012602e089558a7a0dfb916baf97e9295aa25b48062f13c6afbb",
+    "subjects": [
+      "clinical_knowledge",
+      "elementary_mathematics",
+      "high_school_biology",
+      "high_school_macroeconomics",
+      "high_school_mathematics",
+      "high_school_psychology",
+      "miscellaneous",
+      "moral_disputes",
+      "moral_scenarios",
+      "nutrition"
+    ],
+    "ood_subject": "philosophy",
+    "ingested": 2500,
+    "grounded_queries": 100,
+    "ood_queries": 100
+  },
+  "atlas": {
+    "charts": 40,
+    "rows": 2500,
+    "rank": 8,
+    "capacity": 64,
+    "tau_orth": 0.55,
+    "tau_cap": 0.35,
+    "top_charts": 1,
+    "top_charts_max": 6,
+    "spawns": 0,
+    "absorbs": 0,
+    "staged_writes": 0,
+    "staged_now": 0,
+    "condensations": 0,
+    "condensed_charts": 0,
+    "condensed_rows": 0,
+    "b_stage": 64,
+    "k_condense": 2,
+    "min_cluster": 8,
+    "largest_chart": 166,
+    "mean_chart": 62.5,
+    "digest": "47e4cb844350b5ef",
+    "namespace": "mmlu",
+    "build_seconds": 0.04048640001565218,
+    "write_seconds": 32.07785320002586,
+    "engine": {
+      "corpus_digest": "4cfdee6f4ee2d0d6",
+      "vocabulary_size": 2048,
+      "vocabulary_digest": "d5a64f73b97c6aab",
+      "tokens": 834791,
+      "files": 33,
+      "vocab_locked": true,
+      "vocab_ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
+      "vocab_lock_path": "C:\\Users\\chan\\Desktop\\HENRI v6\\receipts\\holarch\\vocab_lock.json"
+    },
+    "online_spawn_examples": []
+  },
+  "online": {
+    "writes": 1000,
+    "python_ast": 500,
+    "physics_pde": 500,
+    "spawns": 0,
+    "seconds": 3.9366687000729144,
+    "recall": 1.0,
+    "recall_rows": 100
+  },
+  "recall": {
+    "top1_parity": 1.0,
+    "drift": 0.0,
+    "drift_count": 0,
+    "before_after_rows": 200,
+    "online_recall": 1.0
+  },
+  "metrics": {
+    "grounded_accuracy": 1.0,
+    "ood_abstain_rate": 1.0,
+    "hallucination_rate": 0.0,
+    "abstained": 100
+  },
+  "latency": {
+    "charted_p50_ms": 0.45410008169710636,
+    "flat_p50_ms": 0.9875000105239451,
+    "speedup": 2.1746307704534327,
+    "mean_evaluated_ratio": 0.08685999999999999,
+    "max_evaluated_ratio": 0.2216,
+    "namespace_engrams": 2500,
+    "total_store_engrams": 4849,
+    "top_charts": 1,
+    "top_charts_max": 6
+  },
+  "gate": {
+    "t2_mmlu_parity_ge_0_995": true,
+    "t2_grounded_ge_0_99": true,
+    "t2_drift_zero": true,
+    "t2_ood_abstain_1": true,
+    "t2_hallucination_zero": true,
+    "t2_candidates_le_0_35": true,
+    "t2_speedup_ge_1_40": true,
+    "t2_online_recall_ge_0_99": true,
+    "t2_atlas_synchronized": true,
+    "passed": true
+  },
+  "wall_seconds": 47.620625799987465,
+  "evidence": "OBSERVED",
+  "passed": true
+}

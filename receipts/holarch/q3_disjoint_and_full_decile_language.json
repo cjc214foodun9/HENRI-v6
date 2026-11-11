@@ -1,0 +1,1327 @@
+{
+  "stage": "Q3",
+  "tier1": {
+    "identifiers": 965,
+    "shifts": 0
+  },
+  "arms": {
+    "pinned_locked": {
+      "split": "tail",
+      "split_byte_offset": 307149,
+      "top1": 0.5763003789183603,
+      "bits_per_char": 1.10502569775011,
+      "perplexity": 7.103878684790943,
+      "base_top1": 0.5763003789183603,
+      "base_bits_per_char": 1.10502569775011,
+      "base_perplexity": 7.103878684790943,
+      "beta": 0.02,
+      "beta_gate": {
+        "beta_low": 0.01,
+        "beta_high": 0.02,
+        "tau_h": 3.0,
+        "tau_order": 4.0
+      },
+      "beta_best_loss": 2.153071403503418,
+      "beta_floor_loss": 2.154029130935669,
+      "weights": {
+        "order_weights": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "skip_weight": 1.0,
+        "gamma": 0.8,
+        "validation_loss": 2.2642511807360126,
+        "probe_beta": 0.12
+      },
+      "count_weights": [
+        0.02,
+        0.05,
+        0.1,
+        0.2,
+        0.3,
+        0.25,
+        0.1
+      ],
+      "count_weight_loss": 2.308833876408949,
+      "count_weight_floor_loss": 2.3203689071835227,
+      "blend": {
+        "photonic_gain": 0.0,
+        "beta_lang": 0.0,
+        "validation_loss": 2.4554583113046244,
+        "grid": [
+          {
+            "photonic_gain": 0.0,
+            "beta_lang": 0.0,
+            "validation_loss": 2.4554583113046244
+          },
+          {
+            "photonic_gain": 0.15,
+            "beta_lang": 0.0,
+            "validation_loss": 2.458154993521858
+          },
+          {
+            "photonic_gain": 0.3,
+            "beta_lang": 0.0,
+            "validation_loss": 2.4707549644544695
+          },
+          {
+            "photonic_gain": 0.0,
+            "beta_lang": 0.5,
+            "validation_loss": 2.456055104366514
+          },
+          {
+            "photonic_gain": 0.15,
+            "beta_lang": 0.5,
+            "validation_loss": 2.4587631954514406
+          },
+          {
+            "photonic_gain": 0.3,
+            "beta_lang": 0.5,
+            "validation_loss": 2.4713213296517433
+          },
+          {
+            "photonic_gain": 0.0,
+            "beta_lang": 1.0,
+            "validation_loss": 2.4569591213106645
+          },
+          {
+            "photonic_gain": 0.15,
+            "beta_lang": 1.0,
+            "validation_loss": 2.4596703578296233
+          },
+          {
+            "photonic_gain": 0.3,
+            "beta_lang": 1.0,
+            "validation_loss": 2.4721920770101113
+          }
+        ],
+        "floor_row": {
+          "photonic_gain": 0.0,
+          "beta_lang": 1.0,
+          "validation_loss": 2.4569591213106645
+        }
+      },
+      "mode_guard": true,
+      "held_out_tokens": 4500,
+      "train_tokens": 307149,
+      "scored_tokens": 2903,
+      "vocabulary_size": 2048,
+      "elastic_cap": 2048,
+      "tier2_ids": 0,
+      "locked": true,
+      "photonic_contexts": 3635,
+      "static_top1": 0.5638994143988977,
+      "static_bits_per_char": 1.2451823387984409,
+      "static_perplexity": 9.109520491920975,
+      "kn_mix": 0.3,
+      "stream_weight": 0.2,
+      "kn": {
+        "order": 6,
+        "discount": 0.7,
+        "continuation_unigram_types": 1848,
+        "raw_last_contexts": 159905,
+        "lower_buckets": 205241
+      },
+      "role_discounts": {
+        "roles": {},
+        "global_discount": 0.7,
+        "rows": [],
+        "base": {},
+        "note": "tail arms keep the Q3 global discount"
+      },
+      "suffix_floor": {
+        "weight": 0.0,
+        "window": 0,
+        "is_static_inductive": true,
+        "state_bytes_across_calls": 0,
+        "note": "tail arms keep the Q3/R3 protocol (no suffix floor)"
+      },
+      "suffix_stats": {
+        "calls": 0.0,
+        "matched": 0.0,
+        "order_sum": 0.0
+      },
+      "recency": {
+        "weight": 0.0,
+        "window": 96,
+        "is_static_inductive": true,
+        "state_bytes_across_calls": 0,
+        "note": "tail arms keep the Q3 protocol"
+      },
+      "document_prior": {
+        "weight": 0.0,
+        "rows": [],
+        "fixed_snapshot": true
+      },
+      "document_weight": 0.0,
+      "is_static_inductive": true,
+      "recency_window_tokens": 96,
+      "recency_state_bytes_across_calls": 0,
+      "floor_calibration": {
+        "base": {
+          "nll": 2.227156234936296,
+          "top1": 0.5733618233618234,
+          "bits_per_char": 1.3167549873380768,
+          "tokens": 1404
+        },
+        "static": {
+          "nll": 2.1581937169086105,
+          "top1": 0.5790598290598291,
+          "bits_per_char": 1.2759824819664705,
+          "tokens": 1404
+        },
+        "kn_grid": [
+          {
+            "kn_mix": 0.0,
+            "nll": 2.227156234936296,
+            "top1": 0.5733618233618234,
+            "bits_per_char": 1.3167549873380768,
+            "tokens": 1404
+          },
+          {
+            "kn_mix": 0.3,
+            "nll": 2.1581937169086105,
+            "top1": 0.5790598290598291,
+            "bits_per_char": 1.2759824819664705,
+            "tokens": 1404
+          },
+          {
+            "kn_mix": 0.5,
+            "nll": 2.127454405095934,
+            "top1": 0.5754985754985755,
+            "bits_per_char": 1.2578085696464667,
+            "tokens": 1404
+          },
+          {
+            "kn_mix": 0.7,
+            "nll": 2.1051527216852453,
+            "top1": 0.5776353276353277,
+            "bits_per_char": 1.244623211387171,
+            "tokens": 1404
+          },
+          {
+            "kn_mix": 1.0,
+            "nll": 2.090985483081079,
+            "top1": 0.5747863247863247,
+            "bits_per_char": 1.2362471568490043,
+            "tokens": 1404
+          }
+        ],
+        "stream_grid": [
+          {
+            "stream_weight": 0.0,
+            "nll": 2.1581937169086105,
+            "top1": 0.5790598290598291,
+            "bits_per_char": 1.2759824819664705,
+            "tokens": 1404
+          },
+          {
+            "stream_weight": 0.1,
+            "nll": 2.0616123497925285,
+            "top1": 0.5847578347578347,
+            "bits_per_char": 1.2188809662132802,
+            "tokens": 1404
+          },
+          {
+            "stream_weight": 0.2,
+            "nll": 2.0702666235535343,
+            "top1": 0.5883190883190883,
+            "bits_per_char": 1.223997606868227,
+            "tokens": 1404
+          },
+          {
+            "stream_weight": 0.3,
+            "nll": 2.1027840664904116,
+            "top1": 0.5876068376068376,
+            "bits_per_char": 1.243222798388677,
+            "tokens": 1404
+          },
+          {
+            "stream_weight": 0.4,
+            "nll": 2.153079486649439,
+            "top1": 0.5883190883190883,
+            "bits_per_char": 1.272958810750898,
+            "tokens": 1404
+          }
+        ]
+      },
+      "stream_report": {
+        "streaming": 1.0,
+        "stream_weight": 0.2,
+        "stream_tokens": 4403.0,
+        "prior_tokens": 1500.0
+      },
+      "calibration_test_overlap_tokens": 0,
+      "calibration_disjoint": true,
+      "corpus": {
+        "source": "git_revision",
+        "revision": "67e9b25",
+        "files": 21
+      }
+    },
+    "pinned_elastic": {
+      "split": "tail",
+      "split_byte_offset": 287348,
+      "top1": 0.5918015845676886,
+      "bits_per_char": 1.0828467630776455,
+      "perplexity": 7.44191154230475,
+      "base_top1": 0.5918015845676886,
+      "base_bits_per_char": 1.0828467630776457,
+      "base_perplexity": 7.44191154230475,
+      "beta": 0.0,
+      "beta_gate": {
+        "beta_low": 0.0,
+        "beta_high": 0.0,
+        "tau_h": 0.0,
+        "tau_order": 3.0
+      },
+      "beta_best_loss": 0.0,
+      "beta_floor_loss": 0.0,
+      "weights": {
+        "order_weights": [
+          0.5,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "skip_weight": 3.0,
+        "gamma": 0.8,
+        "validation_loss": 2.474714797640345,
+        "probe_beta": 0.12
+      },
+      "count_weights": [
+        0.02,
+        0.05,
+        0.1,
+        0.2,
+        0.3,
+        0.25,
+        0.1
+      ],
+      "count_weight_loss": 2.472638005512156,
+      "count_weight_floor_loss": 2.49250383565591,
+      "blend": {
+        "photonic_gain": 0.0,
+        "beta_lang": 0.0,
+        "validation_loss": 2.2278799960135953,
+        "grid": [
+          {
+            "photonic_gain": 0.0,
+            "beta_lang": 0.0,
+            "validation_loss": 2.2278799960135953
+          },
+          {
+            "photonic_gain": 0.15,
+            "beta_lang": 0.0,
+            "validation_loss": 2.2331600487705336
+          },
+          {
+            "photonic_gain": 0.3,
+            "beta_lang": 0.0,
+            "validation_loss": 2.2483195765360233
+          },
+          {
+            "photonic_gain": 0.0,
+            "beta_lang": 0.5,
+            "validation_loss": 2.2278799960135953
+          },
+          {
+            "photonic_gain": 0.15,
+            "beta_lang": 0.5,
+            "validation_loss": 2.2331600487705336
+          },
+          {
+            "photonic_gain": 0.3,
+            "beta_lang": 0.5,
+            "validation_loss": 2.2483195765360233
+          },
+          {
+            "photonic_gain": 0.0,
+            "beta_lang": 1.0,
+            "validation_loss": 2.2278799960135953
+          },
+          {
+            "photonic_gain": 0.15,
+            "beta_lang": 1.0,
+            "validation_loss": 2.2331600487705336
+          },
+          {
+            "photonic_gain": 0.3,
+            "beta_lang": 1.0,
+            "validation_loss": 2.2483195765360233
+          }
+        ],
+        "floor_row": {
+          "photonic_gain": 0.0,
+          "beta_lang": 1.0,
+          "validation_loss": 2.2278799960135953
+        }
+      },
+      "mode_guard": true,
+      "held_out_tokens": 4500,
+      "train_tokens": 287348,
+      "scored_tokens": 2903,
+      "vocabulary_size": 2965,
+      "elastic_cap": 4096,
+      "tier2_ids": 917,
+      "locked": true,
+      "photonic_contexts": 3635,
+      "static_top1": 0.5766448501550121,
+      "static_bits_per_char": 1.193731058451155,
+      "static_perplexity": 9.13998809514889,
+      "kn_mix": 0.7,
+      "stream_weight": 0.3,
+      "kn": {
+        "order": 6,
+        "discount": 0.7,
+        "continuation_unigram_types": 2758,
+        "raw_last_contexts": 155526,
+        "lower_buckets": 210416
+      },
+      "role_discounts": {
+        "roles": {},
+        "global_discount": 0.7,
+        "rows": [],
+        "base": {},
+        "note": "tail arms keep the Q3 global discount"
+      },
+      "suffix_floor": {
+        "weight": 0.0,
+        "window": 0,
+        "is_static_inductive": true,
+        "state_bytes_across_calls": 0,
+        "note": "tail arms keep the Q3/R3 protocol (no suffix floor)"
+      },
+      "suffix_stats": {
+        "calls": 0.0,
+        "matched": 0.0,
+        "order_sum": 0.0
+      },
+      "recency": {
+        "weight": 0.0,
+        "window": 96,
+        "is_static_inductive": true,
+        "state_bytes_across_calls": 0,
+        "note": "tail arms keep the Q3 protocol"
+      },
+      "document_prior": {
+        "weight": 0.0,
+        "rows": [],
+        "fixed_snapshot": true
+      },
+      "document_weight": 0.0,
+      "is_static_inductive": true,
+      "recency_window_tokens": 96,
+      "recency_state_bytes_across_calls": 0,
+      "floor_calibration": {
+        "base": {
+          "nll": 2.627274989606719,
+          "top1": 0.5356125356125356,
+          "bits_per_char": 1.3912838338233549,
+          "tokens": 1404
+        },
+        "static": {
+          "nll": 2.483827217404016,
+          "top1": 0.5434472934472935,
+          "bits_per_char": 1.3153205002350916,
+          "tokens": 1404
+        },
+        "kn_grid": [
+          {
+            "kn_mix": 0.0,
+            "nll": 2.627274989606719,
+            "top1": 0.5356125356125356,
+            "bits_per_char": 1.3912838338233549,
+            "tokens": 1404
+          },
+          {
+            "kn_mix": 0.3,
+            "nll": 2.543641259456573,
+            "top1": 0.5413105413105413,
+            "bits_per_char": 1.3469952621357522,
+            "tokens": 1404
+          },
+          {
+            "kn_mix": 0.5,
+            "nll": 2.508001023446112,
+            "top1": 0.5413105413105413,
+            "bits_per_char": 1.3281218345763377,
+            "tokens": 1404
+          },
+          {
+            "kn_mix": 0.7,
+            "nll": 2.483827217404016,
+            "top1": 0.5434472934472935,
+            "bits_per_char": 1.3153205002350916,
+            "tokens": 1404
+          },
+          {
+            "kn_mix": 1.0,
+            "nll": 2.563050334924132,
+            "top1": 0.5405982905982906,
+            "bits_per_char": 1.3572734146071517,
+            "tokens": 1404
+          }
+        ],
+        "stream_grid": [
+          {
+            "stream_weight": 0.0,
+            "nll": 2.483827217404016,
+            "top1": 0.5434472934472935,
+            "bits_per_char": 1.3153205002350916,
+            "tokens": 1404
+          },
+          {
+            "stream_weight": 0.1,
+            "nll": 2.316876073439453,
+            "top1": 0.5470085470085471,
+            "bits_per_char": 1.2269108634231558,
+            "tokens": 1404
+          },
+          {
+            "stream_weight": 0.2,
+            "nll": 2.306447331931283,
+            "top1": 0.5527065527065527,
+            "bits_per_char": 1.2213882822221633,
+            "tokens": 1404
+          },
+          {
+            "stream_weight": 0.3,
+            "nll": 2.3234719903732386,
+            "top1": 0.5626780626780626,
+            "bits_per_char": 1.2304037572525115,
+            "tokens": 1404
+          },
+          {
+            "stream_weight": 0.4,
+            "nll": 2.3592169853298848,
+            "top1": 0.5598290598290598,
+            "bits_per_char": 1.2493326603250916,
+            "tokens": 1404
+          }
+        ]
+      },
+      "stream_report": {
+        "streaming": 1.0,
+        "stream_weight": 0.3,
+        "stream_tokens": 4403.0,
+        "prior_tokens": 1500.0
+      },
+      "calibration_test_overlap_tokens": 0,
+      "calibration_disjoint": true,
+      "corpus": {
+        "source": "git_revision",
+        "revision": "67e9b25",
+        "files": 21
+      }
+    },
+    "live_elastic": {
+      "split": "tail",
+      "split_byte_offset": 600473,
+      "top1": 0.600413365483982,
+      "bits_per_char": 1.0475450876698646,
+      "perplexity": 7.017780831930239,
+      "base_top1": 0.600413365483982,
+      "base_bits_per_char": 1.04480947647986,
+      "base_perplexity": 6.982163152585089,
+      "beta": 0.02,
+      "beta_gate": {
+        "beta_low": 0.0,
+        "beta_high": 0.02,
+        "tau_h": 3.0,
+        "tau_order": 4.0
+      },
+      "beta_best_loss": 2.4088480472564697,
+      "beta_floor_loss": 2.4099645614624023,
+      "weights": {
+        "order_weights": [
+          0.5,
+          1.0,
+          1.0,
+          0.5
+        ],
+        "skip_weight": 2.0,
+        "gamma": 0.8,
+        "validation_loss": 2.4392974269953482,
+        "probe_beta": 0.12
+      },
+      "count_weights": [
+        0.05,
+        0.1,
+        0.2,
+        0.3,
+        0.35,
+        0.0,
+        0.0
+      ],
+      "count_weight_loss": 2.5441798649921346,
+      "count_weight_floor_loss": 2.5441798649921346,
+      "blend": {
+        "photonic_gain": 0.15,
+        "beta_lang": 1.0,
+        "validation_loss": 2.705608902366411,
+        "grid": [
+          {
+            "photonic_gain": 0.0,
+            "beta_lang": 0.0,
+            "validation_loss": 2.707446533147445
+          },
+          {
+            "photonic_gain": 0.15,
+            "beta_lang": 0.0,
+            "validation_loss": 2.706190791850704
+          },
+          {
+            "photonic_gain": 0.3,
+            "beta_lang": 0.0,
+            "validation_loss": 2.716067870901246
+          },
+          {
+            "photonic_gain": 0.0,
+            "beta_lang": 0.5,
+            "validation_loss": 2.707054100903095
+          },
+          {
+            "photonic_gain": 0.15,
+            "beta_lang": 0.5,
+            "validation_loss": 2.7057476305807566
+          },
+          {
+            "photonic_gain": 0.3,
+            "beta_lang": 0.5,
+            "validation_loss": 2.715780665407451
+          },
+          {
+            "photonic_gain": 0.0,
+            "beta_lang": 1.0,
+            "validation_loss": 2.7070410973794297
+          },
+          {
+            "photonic_gain": 0.15,
+            "beta_lang": 1.0,
+            "validation_loss": 2.705608902366411
+          },
+          {
+            "photonic_gain": 0.3,
+            "beta_lang": 1.0,
+            "validation_loss": 2.715667279023936
+          }
+        ],
+        "floor_row": {
+          "photonic_gain": 0.0,
+          "beta_lang": 1.0,
+          "validation_loss": 2.7070410973794297
+        }
+      },
+      "mode_guard": true,
+      "held_out_tokens": 4500,
+      "train_tokens": 600473,
+      "scored_tokens": 2903,
+      "vocabulary_size": 4096,
+      "elastic_cap": 4096,
+      "tier2_ids": 2048,
+      "locked": true,
+      "photonic_contexts": 3635,
+      "static_top1": 0.5859455735446091,
+      "static_bits_per_char": 1.1711657789785035,
+      "static_perplexity": 8.83201412606502,
+      "kn_mix": 1.0,
+      "stream_weight": 0.3,
+      "kn": {
+        "order": 6,
+        "discount": 0.7,
+        "continuation_unigram_types": 3892,
+        "raw_last_contexts": 292542,
+        "lower_buckets": 368706
+      },
+      "role_discounts": {
+        "roles": {},
+        "global_discount": 0.7,
+        "rows": [],
+        "base": {},
+        "note": "tail arms keep the Q3 global discount"
+      },
+      "suffix_floor": {
+        "weight": 0.0,
+        "window": 0,
+        "is_static_inductive": true,
+        "state_bytes_across_calls": 0,
+        "note": "tail arms keep the Q3/R3 protocol (no suffix floor)"
+      },
+      "suffix_stats": {
+        "calls": 0.0,
+        "matched": 0.0,
+        "order_sum": 0.0
+      },
+      "recency": {
+        "weight": 0.0,
+        "window": 96,
+        "is_static_inductive": true,
+        "state_bytes_across_calls": 0,
+        "note": "tail arms keep the Q3 protocol"
+      },
+      "document_prior": {
+        "weight": 0.0,
+        "rows": [],
+        "fixed_snapshot": true
+      },
+      "document_weight": 0.0,
+      "is_static_inductive": true,
+      "recency_window_tokens": 96,
+      "recency_state_bytes_across_calls": 0,
+      "floor_calibration": {
+        "base": {
+          "nll": 2.536920677171103,
+          "top1": 0.5349002849002849,
+          "bits_per_char": 1.328845110844873,
+          "tokens": 1404
+        },
+        "static": {
+          "nll": 2.4149093315238543,
+          "top1": 0.5484330484330484,
+          "bits_per_char": 1.264935276536713,
+          "tokens": 1404
+        },
+        "kn_grid": [
+          {
+            "kn_mix": 0.0,
+            "nll": 2.536920677171103,
+            "top1": 0.5349002849002849,
+            "bits_per_char": 1.328845110844873,
+            "tokens": 1404
+          },
+          {
+            "kn_mix": 0.3,
+            "nll": 2.4396777588346175,
+            "top1": 0.5455840455840456,
+            "bits_per_char": 1.277909037928388,
+            "tokens": 1404
+          },
+          {
+            "kn_mix": 0.5,
+            "nll": 2.399925212457506,
+            "top1": 0.5470085470085471,
+            "bits_per_char": 1.2570865591760116,
+            "tokens": 1404
+          },
+          {
+            "kn_mix": 0.7,
+            "nll": 2.37328997836919,
+            "top1": 0.5448717948717948,
+            "bits_per_char": 1.243134959934866,
+            "tokens": 1404
+          },
+          {
+            "kn_mix": 1.0,
+            "nll": 2.4149093315238543,
+            "top1": 0.5484330484330484,
+            "bits_per_char": 1.264935276536713,
+            "tokens": 1404
+          }
+        ],
+        "stream_grid": [
+          {
+            "stream_weight": 0.0,
+            "nll": 2.4149093315238543,
+            "top1": 0.5484330484330484,
+            "bits_per_char": 1.264935276536713,
+            "tokens": 1404
+          },
+          {
+            "stream_weight": 0.1,
+            "nll": 2.246250874080585,
+            "top1": 0.551994301994302,
+            "bits_per_char": 1.1765915736401598,
+            "tokens": 1404
+          },
+          {
+            "stream_weight": 0.2,
+            "nll": 2.2513531067681885,
+            "top1": 0.5576923076923077,
+            "bits_per_char": 1.1792641353100324,
+            "tokens": 1404
+          },
+          {
+            "stream_weight": 0.3,
+            "nll": 2.280937457475593,
+            "top1": 0.5591168091168092,
+            "bits_per_char": 1.1947604888810444,
+            "tokens": 1404
+          },
+          {
+            "stream_weight": 0.4,
+            "nll": 2.3282157638228678,
+            "top1": 0.5584045584045584,
+            "bits_per_char": 1.2195249786831686,
+            "tokens": 1404
+          }
+        ]
+      },
+      "stream_report": {
+        "streaming": 1.0,
+        "stream_weight": 0.3,
+        "stream_tokens": 4403.0,
+        "prior_tokens": 1500.0
+      },
+      "calibration_test_overlap_tokens": 0,
+      "calibration_disjoint": true,
+      "corpus": {
+        "source": "live_tree",
+        "files": 25,
+        "digest": "b734d46bf79ecd88",
+        "revision": "7d3522e"
+      }
+    }
+  },
+  "full_decile": {
+    "split": "decile",
+    "split_byte_offset": 544475,
+    "top1": 0.5762875555321428,
+    "bits_per_char": 1.2027957462845102,
+    "perplexity": 9.493014720713774,
+    "base_top1": 0.5762875555321428,
+    "base_bits_per_char": 1.20279574628451,
+    "base_perplexity": 9.493014720713765,
+    "beta": 0.0,
+    "beta_gate": {
+      "beta_low": 0.0,
+      "beta_high": 0.0,
+      "tau_h": 0.0,
+      "tau_order": 3.0
+    },
+    "beta_best_loss": 0.0,
+    "beta_floor_loss": 0.0,
+    "weights": {
+      "order_weights": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "skip_weight": 1.0,
+      "gamma": 0.8,
+      "validation_loss": 2.6794366627756445,
+      "probe_beta": 0.12
+    },
+    "count_weights": [
+      0.05,
+      0.1,
+      0.2,
+      0.3,
+      0.35,
+      0.0,
+      0.0
+    ],
+    "count_weight_loss": 2.7873314760622696,
+    "count_weight_floor_loss": 2.7873314760622696,
+    "blend": {
+      "photonic_gain": 0.0,
+      "beta_lang": 0.0,
+      "validation_loss": 2.6344980778819655,
+      "grid": [
+        {
+          "photonic_gain": 0.0,
+          "beta_lang": 0.0,
+          "validation_loss": 2.6344980778819655
+        },
+        {
+          "photonic_gain": 0.15,
+          "beta_lang": 0.0,
+          "validation_loss": 2.638905513515758
+        },
+        {
+          "photonic_gain": 0.3,
+          "beta_lang": 0.0,
+          "validation_loss": 2.65494304034213
+        },
+        {
+          "photonic_gain": 0.0,
+          "beta_lang": 0.5,
+          "validation_loss": 2.6344980778819655
+        },
+        {
+          "photonic_gain": 0.15,
+          "beta_lang": 0.5,
+          "validation_loss": 2.638905513515758
+        },
+        {
+          "photonic_gain": 0.3,
+          "beta_lang": 0.5,
+          "validation_loss": 2.65494304034213
+        },
+        {
+          "photonic_gain": 0.0,
+          "beta_lang": 1.0,
+          "validation_loss": 2.6344980778819655
+        },
+        {
+          "photonic_gain": 0.15,
+          "beta_lang": 1.0,
+          "validation_loss": 2.638905513515758
+        },
+        {
+          "photonic_gain": 0.3,
+          "beta_lang": 1.0,
+          "validation_loss": 2.65494304034213
+        }
+      ],
+      "floor_row": {
+        "photonic_gain": 0.0,
+        "beta_lang": 1.0,
+        "validation_loss": 2.6344980778819655
+      }
+    },
+    "mode_guard": true,
+    "held_out_tokens": 60498,
+    "train_tokens": 544475,
+    "scored_tokens": 56949,
+    "vocabulary_size": 4096,
+    "elastic_cap": 4096,
+    "tier2_ids": 2048,
+    "locked": true,
+    "photonic_contexts": 738,
+    "static_top1": 0.5639080580870603,
+    "static_bits_per_char": 1.2813553031044265,
+    "static_perplexity": 10.996195577869958,
+    "kn_mix": 1.0,
+    "stream_weight": 0.1,
+    "kn": {
+      "order": 6,
+      "discount": 0.7,
+      "continuation_unigram_types": 3727,
+      "raw_last_contexts": 268562,
+      "lower_buckets": 341238
+    },
+    "role_discounts": {
+      "roles": {
+        "scope": 0.9,
+        "name": 0.9
+      },
+      "global_discount": 0.7,
+      "rows": [
+        {
+          "discount": 0.3,
+          "roles": {
+            "scope": {
+              "nll": 2.0081420834654047,
+              "top1": 0.6271186440677966
+            },
+            "name": {
+              "nll": 1.5824269421231254,
+              "top1": 0.6613672496025437
+            },
+            "literal": {
+              "nll": 1.6524030649042696,
+              "top1": 0.5384615384615384
+            },
+            "other": {
+              "nll": 6.387323059215139,
+              "top1": 0.22514619883040934
+            }
+          }
+        },
+        {
+          "discount": 0.5,
+          "roles": {
+            "scope": {
+              "nll": 1.859812951184894,
+              "top1": 0.635593220338983
+            },
+            "name": {
+              "nll": 1.4273773142938684,
+              "top1": 0.6613672496025437
+            },
+            "literal": {
+              "nll": 1.521394644930601,
+              "top1": 0.5384615384615384
+            },
+            "other": {
+              "nll": 5.6884507762710115,
+              "top1": 0.22514619883040934
+            }
+          }
+        },
+        {
+          "discount": 0.7,
+          "roles": {
+            "scope": {
+              "nll": 1.7783027635812931,
+              "top1": 0.635593220338983
+            },
+            "name": {
+              "nll": 1.3507320864503318,
+              "top1": 0.6645468998410174
+            },
+            "literal": {
+              "nll": 1.4677996111959264,
+              "top1": 0.5384615384615384
+            },
+            "other": {
+              "nll": 5.25925053826124,
+              "top1": 0.22514619883040934
+            }
+          }
+        },
+        {
+          "discount": 0.9,
+          "roles": {
+            "scope": {
+              "nll": 1.7471536096975633,
+              "top1": 0.652542372881356
+            },
+            "name": {
+              "nll": 1.339256208415992,
+              "top1": 0.6645468998410174
+            },
+            "literal": {
+              "nll": 1.5030533001978699,
+              "top1": 0.5384615384615384
+            },
+            "other": {
+              "nll": 5.000715012359229,
+              "top1": 0.2222222222222222
+            }
+          }
+        }
+      ],
+      "base": {
+        "scope": {
+          "nll": 1.7783027635812931,
+          "top1": 0.635593220338983,
+          "tokens": 118
+        },
+        "name": {
+          "nll": 1.3507320864503318,
+          "top1": 0.6645468998410174,
+          "tokens": 629
+        },
+        "literal": {
+          "nll": 1.4677996111959264,
+          "top1": 0.5384615384615384,
+          "tokens": 26
+        },
+        "other": {
+          "nll": 5.25925053826124,
+          "top1": 0.22514619883040934,
+          "tokens": 342
+        }
+      }
+    },
+    "suffix_floor": {
+      "weight": 0.75,
+      "base_nll": 2.533737325752456,
+      "base_top1": 0.5221052631578947,
+      "selected_nll": 2.4687255971620834,
+      "selected_top1": 0.5347368421052632,
+      "grid": [
+        0.0,
+        0.25,
+        0.5,
+        0.75,
+        1.0,
+        1.25,
+        1.5
+      ],
+      "rows": [
+        {
+          "weight": 0.0,
+          "nll": 2.533737325752456,
+          "top1": 0.5221052631578947
+        },
+        {
+          "weight": 0.25,
+          "nll": 2.4849723797380405,
+          "top1": 0.5242105263157895
+        },
+        {
+          "weight": 0.5,
+          "nll": 2.47283940519584,
+          "top1": 0.5242105263157895
+        },
+        {
+          "weight": 0.75,
+          "nll": 2.4687255971620834,
+          "top1": 0.5347368421052632
+        },
+        {
+          "weight": 1.0,
+          "nll": 2.469607483600447,
+          "top1": 0.5389473684210526
+        },
+        {
+          "weight": 1.25,
+          "nll": 2.4744443394195,
+          "top1": 0.5389473684210526
+        },
+        {
+          "weight": 1.5,
+          "nll": 2.4829606052291253,
+          "top1": 0.5326315789473685
+        }
+      ],
+      "window": 2048,
+      "orders": 6,
+      "alpha": {
+        "1": 0.05,
+        "2": 0.15,
+        "3": 0.4,
+        "4": 0.55,
+        "5": 0.65,
+        "6": 0.7
+      },
+      "alpha_schedule": "depth-conditioned, count-saturated",
+      "count_saturation": 1.0,
+      "is_static_inductive": true,
+      "state_bytes_across_calls": 0,
+      "reads_target_token": false
+    },
+    "suffix_stats": {
+      "calls": 126983.0,
+      "matched": 114912.0,
+      "order_sum": 341078.0
+    },
+    "recency": {
+      "weight": 0.0,
+      "base_nll": 2.5253988792072004,
+      "base_top1": 0.5242105263157895,
+      "selected_nll": 2.5253988792072004,
+      "selected_top1": 0.5242105263157895,
+      "rows": [
+        {
+          "weight": 0.0,
+          "nll": 2.5253988792072004,
+          "top1": 0.5242105263157895
+        },
+        {
+          "weight": 0.25,
+          "nll": 2.5117469275593476,
+          "top1": 0.5221052631578947
+        },
+        {
+          "weight": 0.5,
+          "nll": 2.509555970883374,
+          "top1": 0.5221052631578947
+        },
+        {
+          "weight": 0.75,
+          "nll": 2.518928668017122,
+          "top1": 0.5178947368421053
+        },
+        {
+          "weight": 1.0,
+          "nll": 2.5401169351919597,
+          "top1": 0.5178947368421053
+        },
+        {
+          "weight": 1.5,
+          "nll": 2.620069192192845,
+          "top1": 0.5010526315789474
+        },
+        {
+          "weight": 2.0,
+          "nll": 2.7559526229513907,
+          "top1": 0.4968421052631579
+        },
+        {
+          "weight": 2.5,
+          "nll": 2.9569249398627426,
+          "top1": 0.4631578947368421
+        },
+        {
+          "weight": 3.0,
+          "nll": 3.2323019035052534,
+          "top1": 0.4189473684210526
+        }
+      ],
+      "window": 2048,
+      "decay": 0.995,
+      "gain": 2.0,
+      "is_static_inductive": true,
+      "state_bytes_across_calls": 0
+    },
+    "document_prior": {
+      "weight": 0.0,
+      "base_nll": 2.5975406006169806,
+      "base_top1": 0.5178082191780822,
+      "selected_nll": 2.5975406006169806,
+      "rows": [
+        {
+          "weight": 0.0,
+          "nll": 2.5975406006169806,
+          "top1": 0.5178082191780822
+        },
+        {
+          "weight": 0.1,
+          "nll": 2.7233795798659113,
+          "top1": 0.5205479452054794
+        },
+        {
+          "weight": 0.2,
+          "nll": 3.104393654567943,
+          "top1": 0.5095890410958904
+        },
+        {
+          "weight": 0.3,
+          "nll": 3.5754157534998616,
+          "top1": 0.4904109589041096
+        },
+        {
+          "weight": 0.5,
+          "nll": 4.603953649569191,
+          "top1": 0.4821917808219178
+        },
+        {
+          "weight": 0.75,
+          "nll": 5.931143736486231,
+          "top1": 0.4657534246575342
+        },
+        {
+          "weight": 1.0,
+          "nll": 6.95510802781581,
+          "top1": 0.44931506849315067
+        }
+      ],
+      "fixed_snapshot": true
+    },
+    "document_weight": 0.0,
+    "is_static_inductive": true,
+    "recency_window_tokens": 2048,
+    "recency_state_bytes_across_calls": 0,
+    "floor_calibration": {
+      "base": {
+        "nll": 2.775105345207689,
+        "top1": 0.5135327635327636,
+        "bits_per_char": 1.9048110912042444,
+        "tokens": 1404
+      },
+      "static": {
+        "nll": 2.618774010696881,
+        "top1": 0.5349002849002849,
+        "bits_per_char": 1.79750645846546,
+        "tokens": 1404
+      },
+      "kn_grid": [
+        {
+          "kn_mix": 0.0,
+          "nll": 2.775105345207689,
+          "top1": 0.5135327635327636,
+          "bits_per_char": 1.9048110912042444,
+          "tokens": 1404
+        },
+        {
+          "kn_mix": 0.3,
+          "nll": 2.6744669603369395,
+          "top1": 0.5249287749287749,
+          "bits_per_char": 1.8357336732843355,
+          "tokens": 1404
+        },
+        {
+          "kn_mix": 0.5,
+          "nll": 2.630141643523241,
+          "top1": 0.5306267806267806,
+          "bits_per_char": 1.8053091147234581,
+          "tokens": 1404
+        },
+        {
+          "kn_mix": 0.7,
+          "nll": 2.599160842626979,
+          "top1": 0.5313390313390314,
+          "bits_per_char": 1.7840441298595509,
+          "tokens": 1404
+        },
+        {
+          "kn_mix": 1.0,
+          "nll": 2.618774010696881,
+          "top1": 0.5349002849002849,
+          "bits_per_char": 1.79750645846546,
+          "tokens": 1404
+        }
+      ],
+      "stream_grid": [
+        {
+          "stream_weight": 0.0,
+          "nll": 2.4655651931336364,
+          "top1": 0.5357142857142857,
+          "bits_per_char": 1.6697829687477634,
+          "tokens": 476
+        },
+        {
+          "stream_weight": 0.1,
+          "nll": 2.4496603752458386,
+          "top1": 0.5378151260504201,
+          "bits_per_char": 1.6590115666757195,
+          "tokens": 476
+        },
+        {
+          "stream_weight": 0.2,
+          "nll": 2.466116730557649,
+          "top1": 0.5378151260504201,
+          "bits_per_char": 1.670156492757515,
+          "tokens": 476
+        },
+        {
+          "stream_weight": 0.3,
+          "nll": 2.499823948582504,
+          "top1": 0.542016806722689,
+          "bits_per_char": 1.6929844182727338,
+          "tokens": 476
+        },
+        {
+          "stream_weight": 0.4,
+          "nll": 2.5484106979163217,
+          "top1": 0.5294117647058824,
+          "bits_per_char": 1.7258893792814156,
+          "tokens": 476
+        }
+      ]
+    },
+    "stream_report": {
+      "streaming": 1.0,
+      "stream_weight": 0.1,
+      "stream_tokens": 58449.0,
+      "prior_tokens": 1500.0
+    },
+    "calibration_test_overlap_tokens": 0,
+    "calibration_disjoint": true,
+    "corpus": {
+      "source": "live_tree",
+      "files": 25,
+      "digest": "b734d46bf79ecd88",
+      "revision": "7d3522e"
+    },
+    "target_top1": 0.525,
+    "target_bits_per_char": 1.42,
+    "target_met": true
+  },
+  "protocol": {
+    "pinned_split": "tail-anchored: final 3,000 tokens, calibration = 1,500 immediately before",
+    "live_tail_split": "tail-anchored: final 3,000 tokens, calibration = 1,500 immediately before",
+    "full_decile_split": "first 90% train, next 1,500 calibration, every remaining held-out token scored",
+    "calibration_test_overlap_tokens": 0,
+    "continuation": "modified Kneser-Ney order 6, discount 0.70, mixed with Jelinek-Mercer",
+    "streaming": "adaptive n-gram cache of already-decoded tokens; target observed only after scoring"
+  },
+  "gate": {
+    "q3_tier1_id_shifts_zero": true,
+    "q3_locked_overlap_zero": true,
+    "q3_elastic_overlap_zero": true,
+    "q3_live_overlap_zero": true,
+    "q3_locked_top1_ge_0_5600": true,
+    "q3_locked_bpc_le_1_3000": true,
+    "q3_elastic_top1_ge_0_5650": true,
+    "q3_elastic_bpc_le_1_2700": true,
+    "q3_live_tail_top1_ge_0_5750": true,
+    "q3_live_tail_bpc_le_1_2400": true,
+    "q3_full_decile_top1_ge_0_5250": true,
+    "q3_full_decile_bpc_le_1_4200": true,
+    "q3_full_decile_target_met": true,
+    "q3_continuation_selected": true,
+    "q3_streaming_selected": true,
+    "passed": true
+  },
+  "wall_seconds": 484.7804275000235,
+  "evidence": "OBSERVED",
+  "passed": true
+}

@@ -183,6 +183,183 @@
       ]
     },
     {
+      "id": "trap02_0",
+      "walls": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "agent": [
+        1,
+        3
+      ],
+      "goal": [
+        5,
+        2
+      ],
+      "observation": [
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.6666666865348816,
+        -0.1666666716337204,
+        0.1666666716337204,
+        0.5
+      ],
+      "trap_action": 1,
+      "bypass_action": 2,
+      "depth1_action": 1,
+      "depth2_action": 2,
+      "escape_action": 2,
+      "legal_bypass": true,
+      "greedy_enters_trap": true,
+      "discriminating": true,
+      "escape_correct": true,
+      "control_correct": false,
+      "axiom": {
+        "registered": true,
+        "engram_id": 1351
+      },
+      "coherence": [
+        0.6647469997406006,
+        0.8229815363883972,
+        0.7679973840713501,
+        0.7653753757476807
+      ]
+    },
+    {
       "id": "trap03_0",
       "walls": [
         [
@@ -350,7 +527,7 @@
       "control_correct": false,
       "axiom": {
         "registered": true,
-        "engram_id": 1351
+        "engram_id": 1352
       },
       "coherence": [
         0.6656947731971741,
@@ -527,7 +704,7 @@
       "control_correct": false,
       "axiom": {
         "registered": true,
-        "engram_id": 1352
+        "engram_id": 1354
       },
       "coherence": [
         0.759341835975647,
@@ -704,7 +881,7 @@
       "control_correct": false,
       "axiom": {
         "registered": true,
-        "engram_id": 1353
+        "engram_id": 1355
       },
       "coherence": [
         0.6647469997406006,
@@ -881,7 +1058,7 @@
       "control_correct": false,
       "axiom": {
         "registered": true,
-        "engram_id": 1354
+        "engram_id": 1356
       },
       "coherence": [
         0.7593902945518494,
@@ -1058,7 +1235,7 @@
       "control_correct": false,
       "axiom": {
         "registered": true,
-        "engram_id": 1355
+        "engram_id": 1357
       },
       "coherence": [
         0.7593916654586792,
@@ -1068,7 +1245,7 @@
       ]
     },
     {
-      "id": "trap06_6",
+      "id": "trap06_0",
       "walls": [
         [
           0,
@@ -1090,33 +1267,15 @@
         ],
         [
           0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0
-        ],
-        [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0
-        ],
-        [
-          0,
-          0,
-          0,
           1,
           0,
           0,
+          0,
+          0,
           0
         ],
         [
-          0,
+          1,
           0,
           1,
           0,
@@ -1128,198 +1287,78 @@
           0,
           0,
           0,
-          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
           0,
           0,
           0
         ]
       ],
       "agent": [
-        5,
-        4
-      ],
-      "goal": [
-        3,
+        4,
         1
-      ],
-      "observation": [
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        1.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        1.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        1.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        1.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        1.0,
-        0.0,
-        0.0,
-        1.0,
-        0.0,
-        0.0,
-        1.0,
-        0.0,
-        0.0,
-        1.0,
-        0.0,
-        0.0,
-        1.0,
-        0.0,
-        0.0,
-        -0.3333333432674408,
-        -0.5,
-        0.8333333134651184,
-        0.6666666865348816
-      ],
-      "trap_action": 2,
-      "bypass_action": 0,
-      "depth1_action": 2,
-      "depth2_action": 0,
-      "escape_action": 0,
-      "legal_bypass": true,
-      "greedy_enters_trap": true,
-      "discriminating": true,
-      "escape_correct": true,
-      "control_correct": false,
-      "axiom": {
-        "registered": true,
-        "engram_id": 1356
-      },
-      "coherence": [
-        0.6733863353729248,
-        0.6621474027633667,
-        0.9213472604751587,
-        0.7841837406158447
-      ]
-    },
-    {
-      "id": "trap07_0",
-      "walls": [
-        [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0
-        ],
-        [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0
-        ],
-        [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0
-        ],
-        [
-          0,
-          0,
-          1,
-          0,
-          0,
-          0,
-          0
-        ],
-        [
-          0,
-          1,
-          0,
-          1,
-          0,
-          0,
-          0
-        ],
-        [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0
-        ],
-        [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0
-        ]
-      ],
-      "agent": [
-        5,
-        2
       ],
       "goal": [
         1,
-        5
+        3
       ],
       "observation": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
         0.0,
         0.0,
         0.0,
@@ -1338,23 +1377,6 @@
         0.0,
         0.0,
         0.0,
-        1.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        1.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
         0.0,
         0.0,
         0.0,
@@ -1373,32 +1395,10 @@
         0.0,
         0.0,
         0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        1.0,
-        0.0,
-        0.0,
-        1.0,
-        0.0,
-        0.0,
-        1.0,
-        0.0,
-        0.0,
-        1.0,
-        0.0,
-        0.0,
-        1.0,
-        0.0,
-        0.0,
-        -0.6666666865348816,
-        0.5,
-        0.8333333134651184,
-        0.3333333432674408
+        -0.5,
+        0.3333333432674408,
+        0.6666666865348816,
+        0.1666666716337204
       ],
       "trap_action": 0,
       "bypass_action": 3,
@@ -1412,18 +1412,18 @@
       "control_correct": false,
       "axiom": {
         "registered": true,
-        "engram_id": 1357
+        "engram_id": 1358
       },
       "coherence": [
-        0.8394889831542969,
-        0.6584481596946716,
-        0.7679981589317322,
-        0.765378475189209
+        0.9236247539520264,
+        0.7873833179473877,
+        0.6873836517333984,
+        0.6897042393684387
       ]
     }
   ],
   "trap_selection": {
-    "tested": 49,
+    "tested": 41,
     "selected": 8,
     "order": "8 Cul-de-Sac traps x 8 dihedral transforms, first 8 qualifying"
   },
@@ -2915,7 +2915,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1358
+          "engram_id": 1359
         }
       },
       {
@@ -2927,7 +2927,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1359
+          "engram_id": 1360
         }
       },
       {
@@ -2939,7 +2939,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1360
+          "engram_id": 1361
         }
       },
       {
@@ -2951,7 +2951,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1361
+          "engram_id": 1362
         }
       },
       {
@@ -2963,7 +2963,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1362
+          "engram_id": 1363
         }
       },
       {
@@ -2975,7 +2975,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1363
+          "engram_id": 1364
         }
       },
       {
@@ -2987,7 +2987,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1364
+          "engram_id": 1365
         }
       },
       {
@@ -2999,7 +2999,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1365
+          "engram_id": 1366
         }
       },
       {
@@ -3011,7 +3011,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1366
+          "engram_id": 1367
         }
       },
       {
@@ -3023,7 +3023,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1367
+          "engram_id": 1368
         }
       },
       {
@@ -3035,7 +3035,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1368
+          "engram_id": 1369
         }
       },
       {
@@ -3047,7 +3047,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1369
+          "engram_id": 1370
         }
       },
       {
@@ -3059,7 +3059,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1370
+          "engram_id": 1371
         }
       },
       {
@@ -3071,7 +3071,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1371
+          "engram_id": 1372
         }
       },
       {
@@ -3083,7 +3083,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1372
+          "engram_id": 1373
         }
       },
       {
@@ -3095,7 +3095,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1373
+          "engram_id": 1374
         }
       },
       {
@@ -3107,7 +3107,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1374
+          "engram_id": 1375
         }
       },
       {
@@ -3119,7 +3119,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1375
+          "engram_id": 1376
         }
       },
       {
@@ -3131,7 +3131,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1376
+          "engram_id": 1377
         }
       },
       {
@@ -3143,7 +3143,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1377
+          "engram_id": 1378
         }
       },
       {
@@ -3155,7 +3155,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1378
+          "engram_id": 1379
         }
       },
       {
@@ -3167,7 +3167,7 @@
         "dead_end": true,
         "axiom": {
           "registered": true,
-          "engram_id": 1379
+          "engram_id": 1380
         }
       },
       {
@@ -3179,7 +3179,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1380
+          "engram_id": 1381
         }
       },
       {
@@ -3191,7 +3191,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1381
+          "engram_id": 1382
         }
       },
       {
@@ -3203,7 +3203,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1382
+          "engram_id": 1383
         }
       },
       {
@@ -3215,7 +3215,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1383
+          "engram_id": 1384
         }
       },
       {
@@ -3227,7 +3227,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1384
+          "engram_id": 1385
         }
       },
       {
@@ -3239,7 +3239,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1385
+          "engram_id": 1386
         }
       },
       {
@@ -3251,7 +3251,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1386
+          "engram_id": 1387
         }
       },
       {
@@ -3263,7 +3263,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1387
+          "engram_id": 1388
         }
       },
       {
@@ -3275,7 +3275,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1388
+          "engram_id": 1389
         }
       },
       {
@@ -3287,7 +3287,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1389
+          "engram_id": 1390
         }
       },
       {
@@ -3299,7 +3299,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1390
+          "engram_id": 1391
         }
       },
       {
@@ -3311,7 +3311,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1391
+          "engram_id": 1392
         }
       },
       {
@@ -3323,7 +3323,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1392
+          "engram_id": 1393
         }
       },
       {
@@ -3335,7 +3335,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1393
+          "engram_id": 1394
         }
       },
       {
@@ -3347,7 +3347,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1394
+          "engram_id": 1395
         }
       },
       {
@@ -3359,7 +3359,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1395
+          "engram_id": 1396
         }
       },
       {
@@ -3371,7 +3371,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1396
+          "engram_id": 1397
         }
       },
       {
@@ -3383,7 +3383,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1397
+          "engram_id": 1398
         }
       },
       {
@@ -3395,7 +3395,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1398
+          "engram_id": 1399
         }
       },
       {
@@ -3407,7 +3407,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1399
+          "engram_id": 1400
         }
       },
       {
@@ -3419,7 +3419,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1400
+          "engram_id": 1401
         }
       },
       {
@@ -3431,7 +3431,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1401
+          "engram_id": 1402
         }
       },
       {
@@ -3443,7 +3443,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1402
+          "engram_id": 1403
         }
       },
       {
@@ -3455,7 +3455,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1403
+          "engram_id": 1404
         }
       },
       {
@@ -3467,7 +3467,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1404
+          "engram_id": 1405
         }
       },
       {
@@ -3479,7 +3479,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1405
+          "engram_id": 1406
         }
       },
       {
@@ -3491,7 +3491,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1406
+          "engram_id": 1407
         }
       },
       {
@@ -3503,7 +3503,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1407
+          "engram_id": 1408
         }
       },
       {
@@ -3515,7 +3515,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1408
+          "engram_id": 1409
         }
       },
       {
@@ -3527,7 +3527,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1409
+          "engram_id": 1410
         }
       },
       {
@@ -3539,7 +3539,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1410
+          "engram_id": 1411
         }
       },
       {
@@ -3551,7 +3551,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1411
+          "engram_id": 1412
         }
       },
       {
@@ -3563,7 +3563,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1412
+          "engram_id": 1413
         }
       },
       {
@@ -3575,7 +3575,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1413
+          "engram_id": 1414
         }
       },
       {
@@ -3587,7 +3587,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1414
+          "engram_id": 1415
         }
       },
       {
@@ -3599,7 +3599,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1415
+          "engram_id": 1416
         }
       },
       {
@@ -3611,7 +3611,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1416
+          "engram_id": 1417
         }
       },
       {
@@ -3623,7 +3623,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1417
+          "engram_id": 1418
         }
       },
       {
@@ -3635,7 +3635,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1418
+          "engram_id": 1419
         }
       },
       {
@@ -3647,7 +3647,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1419
+          "engram_id": 1420
         }
       },
       {
@@ -3659,7 +3659,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1420
+          "engram_id": 1421
         }
       },
       {
@@ -3671,7 +3671,7 @@
         "dead_end": true,
         "axiom": {
           "registered": true,
-          "engram_id": 1421
+          "engram_id": 1422
         }
       },
       {
@@ -3683,7 +3683,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1422
+          "engram_id": 1423
         }
       },
       {
@@ -3695,7 +3695,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1423
+          "engram_id": 1424
         }
       },
       {
@@ -3707,7 +3707,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1424
+          "engram_id": 1425
         }
       },
       {
@@ -3719,7 +3719,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1425
+          "engram_id": 1426
         }
       },
       {
@@ -3731,7 +3731,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1426
+          "engram_id": 1427
         }
       },
       {
@@ -3743,7 +3743,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1427
+          "engram_id": 1428
         }
       },
       {
@@ -3755,7 +3755,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1428
+          "engram_id": 1429
         }
       },
       {
@@ -3767,7 +3767,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1429
+          "engram_id": 1430
         }
       },
       {
@@ -3779,7 +3779,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1430
+          "engram_id": 1431
         }
       },
       {
@@ -3791,7 +3791,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1431
+          "engram_id": 1432
         }
       },
       {
@@ -3803,7 +3803,7 @@
         "dead_end": true,
         "axiom": {
           "registered": true,
-          "engram_id": 1432
+          "engram_id": 1433
         }
       },
       {
@@ -3815,7 +3815,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1433
+          "engram_id": 1434
         }
       },
       {
@@ -3827,7 +3827,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1434
+          "engram_id": 1435
         }
       },
       {
@@ -3839,7 +3839,7 @@
         "dead_end": true,
         "axiom": {
           "registered": true,
-          "engram_id": 1435
+          "engram_id": 1436
         }
       },
       {
@@ -3851,7 +3851,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1436
+          "engram_id": 1437
         }
       },
       {
@@ -3863,7 +3863,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1437
+          "engram_id": 1438
         }
       },
       {
@@ -3875,7 +3875,7 @@
         "dead_end": false,
         "axiom": {
           "registered": true,
-          "engram_id": 1438
+          "engram_id": 1439
         }
       }
     ]
@@ -3886,7 +3886,7 @@
     "completion_rate": 1.0,
     "hallucination_rate": 0.0,
     "goals_reached": 12,
-    "total_receipts": 161,
+    "total_receipts": 159,
     "rows": [
       {
         "index": 0,
@@ -4282,8 +4282,6 @@
         "digit": 0,
         "bound": 1.0,
         "actions": [
-          0,
-          1,
           3,
           3,
           0,
@@ -4295,12 +4293,10 @@
         "code_verified": true,
         "code_executed": true,
         "receipt_chain_valid": true,
-        "receipt_links": 10,
+        "receipt_links": 8,
         "tokens": [
           "vision:digit=0",
           "relational:bound_from_digit=1.0",
-          "action:up",
-          "action:down",
           "action:right",
           "action:right",
           "action:up",
@@ -4355,8 +4351,8 @@
           0,
           2,
           2,
-          1,
-          2
+          2,
+          1
         ],
         "reached_goal": true,
         "code_status": "verified",
@@ -4372,8 +4368,8 @@
           "action:up",
           "action:left",
           "action:left",
-          "action:down",
           "action:left",
+          "action:down",
           "code:core08+shift11+core11"
         ],
         "success": true
@@ -4394,7 +4390,7 @@
     "zero_weight_updates": true,
     "passed": true
   },
-  "wall_seconds": 245.59247149998555,
+  "wall_seconds": 193.35755570000038,
   "evidence": "OBSERVED",
   "passed": true
 }

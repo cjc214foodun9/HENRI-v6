@@ -1,0 +1,514 @@
+{
+  "stage": "R2",
+  "readout": {
+    "fit": {
+      "rows": 19,
+      "features": 1921,
+      "classes": 3,
+      "ridge": 0.01,
+      "lambda": 0.0005080354383277864,
+      "stiefel_rank": 3,
+      "train_accuracy": 1.0,
+      "singular_values": [
+        0.8019346797345103,
+        0.6689944722781297,
+        0.4329198903109079
+      ],
+      "feature_slots": 4,
+      "feature_width": 128
+    },
+    "train_accuracy": 1.0,
+    "heldout_accuracy": 1.0,
+    "heldout_rows": 8,
+    "digest": "be663a474287fbe0f898fe4eeae9fb6f2793e3a4c07f5b6c2b97d6a44ab22d43",
+    "persisted": {
+      "path": "receipts\\holarch\\holarch_medium.pt",
+      "sha256": "5ca328b2ef76f844ac5bdf97ae440d20e2eea173a137f1e2d6f55c7efedc4083",
+      "bytes": 7910227,
+      "readout_digest": "be663a474287fbe0f898fe4eeae9fb6f2793e3a4c07f5b6c2b97d6a44ab22d43"
+    },
+    "operator_source": "fitted_stiefel_ridge"
+  },
+  "episodes": {
+    "count": 12,
+    "goals_reached": 12,
+    "executed": 12,
+    "text_tokens_exchanged": 0,
+    "receiver_prefill_tokens": 0,
+    "rows": [
+      {
+        "index": 0,
+        "regime": 0,
+        "reached_goal": true,
+        "executed": true,
+        "operator_source": "action_kv"
+      },
+      {
+        "index": 1,
+        "regime": 0,
+        "reached_goal": true,
+        "executed": true,
+        "operator_source": "action_kv"
+      },
+      {
+        "index": 2,
+        "regime": 0,
+        "reached_goal": true,
+        "executed": true,
+        "operator_source": "action_kv"
+      },
+      {
+        "index": 3,
+        "regime": 0,
+        "reached_goal": true,
+        "executed": true,
+        "operator_source": "action_kv"
+      },
+      {
+        "index": 4,
+        "regime": 1,
+        "reached_goal": true,
+        "executed": true,
+        "operator_source": "action_kv"
+      },
+      {
+        "index": 5,
+        "regime": 0,
+        "reached_goal": true,
+        "executed": true,
+        "operator_source": "action_kv"
+      },
+      {
+        "index": 6,
+        "regime": 0,
+        "reached_goal": true,
+        "executed": true,
+        "operator_source": "action_kv"
+      },
+      {
+        "index": 7,
+        "regime": 0,
+        "reached_goal": true,
+        "executed": true,
+        "operator_source": "action_kv"
+      },
+      {
+        "index": 8,
+        "regime": 0,
+        "reached_goal": true,
+        "executed": true,
+        "operator_source": "action_kv"
+      },
+      {
+        "index": 9,
+        "regime": 0,
+        "reached_goal": true,
+        "executed": true,
+        "operator_source": "action_kv"
+      },
+      {
+        "index": 10,
+        "regime": 0,
+        "reached_goal": true,
+        "executed": true,
+        "operator_source": "action_kv"
+      },
+      {
+        "index": 11,
+        "regime": 0,
+        "reached_goal": true,
+        "executed": true,
+        "operator_source": "action_kv"
+      }
+    ]
+  },
+  "counterfactual": {
+    "transitions": [
+      "0->1",
+      "0->2",
+      "1->0",
+      "1->2",
+      "2->0",
+      "2->1"
+    ],
+    "pairs": 18,
+    "correct": 18,
+    "per_transition": {
+      "0->1": 3,
+      "0->2": 3,
+      "1->0": 3,
+      "1->2": 3,
+      "2->0": 3,
+      "2->1": 3
+    },
+    "rows": [
+      {
+        "from_regime": 0,
+        "to_regime": 1,
+        "repeat": 0,
+        "base_index": 0,
+        "donor_index": 4,
+        "decoded_regime": 1,
+        "operator_source": "action_kv",
+        "from_operator": "",
+        "to_operator": "-",
+        "source_changed": true,
+        "structural_change": true,
+        "compiled": true,
+        "executed": true,
+        "correct": true
+      },
+      {
+        "from_regime": 0,
+        "to_regime": 1,
+        "repeat": 1,
+        "base_index": 1,
+        "donor_index": 18,
+        "decoded_regime": 1,
+        "operator_source": "action_kv",
+        "from_operator": "",
+        "to_operator": "-",
+        "source_changed": true,
+        "structural_change": true,
+        "compiled": true,
+        "executed": true,
+        "correct": true
+      },
+      {
+        "from_regime": 0,
+        "to_regime": 1,
+        "repeat": 2,
+        "base_index": 2,
+        "donor_index": 4,
+        "decoded_regime": 1,
+        "operator_source": "action_kv",
+        "from_operator": "",
+        "to_operator": "-",
+        "source_changed": true,
+        "structural_change": true,
+        "compiled": true,
+        "executed": true,
+        "correct": true
+      },
+      {
+        "from_regime": 0,
+        "to_regime": 2,
+        "repeat": 0,
+        "base_index": 0,
+        "donor_index": 12,
+        "decoded_regime": 2,
+        "operator_source": "action_kv",
+        "from_operator": "",
+        "to_operator": "*",
+        "source_changed": true,
+        "structural_change": true,
+        "compiled": true,
+        "executed": true,
+        "correct": true
+      },
+      {
+        "from_regime": 0,
+        "to_regime": 2,
+        "repeat": 1,
+        "base_index": 1,
+        "donor_index": 12,
+        "decoded_regime": 2,
+        "operator_source": "action_kv",
+        "from_operator": "",
+        "to_operator": "*",
+        "source_changed": true,
+        "structural_change": true,
+        "compiled": true,
+        "executed": true,
+        "correct": true
+      },
+      {
+        "from_regime": 0,
+        "to_regime": 2,
+        "repeat": 2,
+        "base_index": 2,
+        "donor_index": 12,
+        "decoded_regime": 2,
+        "operator_source": "action_kv",
+        "from_operator": "",
+        "to_operator": "*",
+        "source_changed": true,
+        "structural_change": true,
+        "compiled": true,
+        "executed": true,
+        "correct": true
+      },
+      {
+        "from_regime": 1,
+        "to_regime": 0,
+        "repeat": 0,
+        "base_index": 4,
+        "donor_index": 0,
+        "decoded_regime": 0,
+        "operator_source": "action_kv",
+        "from_operator": "",
+        "to_operator": "+",
+        "source_changed": true,
+        "structural_change": true,
+        "compiled": true,
+        "executed": true,
+        "correct": true
+      },
+      {
+        "from_regime": 1,
+        "to_regime": 0,
+        "repeat": 1,
+        "base_index": 18,
+        "donor_index": 1,
+        "decoded_regime": 0,
+        "operator_source": "action_kv",
+        "from_operator": "",
+        "to_operator": "+",
+        "source_changed": true,
+        "structural_change": true,
+        "compiled": true,
+        "executed": true,
+        "correct": true
+      },
+      {
+        "from_regime": 1,
+        "to_regime": 0,
+        "repeat": 2,
+        "base_index": 4,
+        "donor_index": 2,
+        "decoded_regime": 0,
+        "operator_source": "action_kv",
+        "from_operator": "",
+        "to_operator": "+",
+        "source_changed": true,
+        "structural_change": true,
+        "compiled": true,
+        "executed": true,
+        "correct": true
+      },
+      {
+        "from_regime": 1,
+        "to_regime": 2,
+        "repeat": 0,
+        "base_index": 4,
+        "donor_index": 12,
+        "decoded_regime": 2,
+        "operator_source": "action_kv",
+        "from_operator": "",
+        "to_operator": "*",
+        "source_changed": true,
+        "structural_change": true,
+        "compiled": true,
+        "executed": true,
+        "correct": true
+      },
+      {
+        "from_regime": 1,
+        "to_regime": 2,
+        "repeat": 1,
+        "base_index": 18,
+        "donor_index": 12,
+        "decoded_regime": 2,
+        "operator_source": "action_kv",
+        "from_operator": "",
+        "to_operator": "*",
+        "source_changed": true,
+        "structural_change": true,
+        "compiled": true,
+        "executed": true,
+        "correct": true
+      },
+      {
+        "from_regime": 1,
+        "to_regime": 2,
+        "repeat": 2,
+        "base_index": 4,
+        "donor_index": 12,
+        "decoded_regime": 2,
+        "operator_source": "action_kv",
+        "from_operator": "",
+        "to_operator": "*",
+        "source_changed": true,
+        "structural_change": true,
+        "compiled": true,
+        "executed": true,
+        "correct": true
+      },
+      {
+        "from_regime": 2,
+        "to_regime": 0,
+        "repeat": 0,
+        "base_index": 12,
+        "donor_index": 0,
+        "decoded_regime": 0,
+        "operator_source": "action_kv",
+        "from_operator": "",
+        "to_operator": "+",
+        "source_changed": true,
+        "structural_change": true,
+        "compiled": true,
+        "executed": true,
+        "correct": true
+      },
+      {
+        "from_regime": 2,
+        "to_regime": 0,
+        "repeat": 1,
+        "base_index": 12,
+        "donor_index": 1,
+        "decoded_regime": 0,
+        "operator_source": "action_kv",
+        "from_operator": "",
+        "to_operator": "+",
+        "source_changed": true,
+        "structural_change": true,
+        "compiled": true,
+        "executed": true,
+        "correct": true
+      },
+      {
+        "from_regime": 2,
+        "to_regime": 0,
+        "repeat": 2,
+        "base_index": 12,
+        "donor_index": 2,
+        "decoded_regime": 0,
+        "operator_source": "action_kv",
+        "from_operator": "",
+        "to_operator": "+",
+        "source_changed": true,
+        "structural_change": true,
+        "compiled": true,
+        "executed": true,
+        "correct": true
+      },
+      {
+        "from_regime": 2,
+        "to_regime": 1,
+        "repeat": 0,
+        "base_index": 12,
+        "donor_index": 4,
+        "decoded_regime": 1,
+        "operator_source": "action_kv",
+        "from_operator": "",
+        "to_operator": "-",
+        "source_changed": true,
+        "structural_change": true,
+        "compiled": true,
+        "executed": true,
+        "correct": true
+      },
+      {
+        "from_regime": 2,
+        "to_regime": 1,
+        "repeat": 1,
+        "base_index": 12,
+        "donor_index": 18,
+        "decoded_regime": 1,
+        "operator_source": "action_kv",
+        "from_operator": "",
+        "to_operator": "-",
+        "source_changed": true,
+        "structural_change": true,
+        "compiled": true,
+        "executed": true,
+        "correct": true
+      },
+      {
+        "from_regime": 2,
+        "to_regime": 1,
+        "repeat": 2,
+        "base_index": 12,
+        "donor_index": 4,
+        "decoded_regime": 1,
+        "operator_source": "action_kv",
+        "from_operator": "",
+        "to_operator": "-",
+        "source_changed": true,
+        "structural_change": true,
+        "compiled": true,
+        "executed": true,
+        "correct": true
+      }
+    ]
+  },
+  "adversarial": {
+    "vision_vetoes": 4,
+    "action_vetoes": 4,
+    "hallucinated_sources": 0,
+    "rows": [
+      {
+        "kind": "vision",
+        "index": 0,
+        "refused": true
+      },
+      {
+        "kind": "vision",
+        "index": 1,
+        "refused": true
+      },
+      {
+        "kind": "vision",
+        "index": 2,
+        "refused": true
+      },
+      {
+        "kind": "vision",
+        "index": 3,
+        "refused": true
+      },
+      {
+        "kind": "action",
+        "index": 0,
+        "refused": true
+      },
+      {
+        "kind": "action",
+        "index": 1,
+        "refused": true
+      },
+      {
+        "kind": "action",
+        "index": 2,
+        "refused": true
+      },
+      {
+        "kind": "action",
+        "index": 3,
+        "refused": true
+      }
+    ]
+  },
+  "engine": {
+    "corpus_digest": "b734d46bf79ecd88",
+    "vocabulary_size": 2048,
+    "vocabulary_digest": "d5a64f73b97c6aab",
+    "tokens": 688596,
+    "files": 25,
+    "vocab_locked": true,
+    "vocab_ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
+    "vocab_lock_path": "C:\\Users\\chan\\Desktop\\HENRI v6\\receipts\\holarch\\vocab_lock.json"
+  },
+  "gate": {
+    "r2_readout_fitted": true,
+    "r2_readout_persisted": true,
+    "r2_readout_heldout_ge_0_80": true,
+    "r2_goals_12": true,
+    "r2_executed_12": true,
+    "r2_zero_text_glue": true,
+    "r2_zero_receiver_prefill": true,
+    "r2_pairs_18": true,
+    "r2_transitions_6": true,
+    "r2_pairs_per_transition_3": true,
+    "r2_operator_source_action_kv": true,
+    "r2_regime_switch": true,
+    "r2_source_structural": true,
+    "r2_vision_veto_4": true,
+    "r2_action_veto_4": true,
+    "r2_zero_hallucination": true,
+    "passed": true
+  },
+  "wall_seconds": 300.312991600018,
+  "evidence": "OBSERVED",
+  "passed": true
+}

@@ -1,0 +1,74 @@
+{
+  "cycle": "S",
+  "head": "7d3522e3f55a999ff1edb84dbb44db2b3e2b6fdd",
+  "stages": {
+    "s1": {
+      "receipt": "receipts\\holarch\\s1_language_closure.json",
+      "sha256": "69f0ae65c969b647f3e35c88b223a7013ec8b9df01976eae902c084214b110f7",
+      "passed": true,
+      "gate": {
+        "s1_r3_receipt_fresh": true,
+        "s1_r3_rerun_exit_zero": true,
+        "s1_static_top1_ge_0_5250": true,
+        "s1_static_bpc_le_1_4200": true,
+        "s1_stream_top1_ge_0_5600": true,
+        "s1_stream_bpc_le_1_2200": true,
+        "s1_full_scored_ge_50000": true,
+        "s1_calibration_overlap_zero": true,
+        "s1_is_static_inductive": true,
+        "s1_suffix_selected": true,
+        "s1_suffix_orders_six": true,
+        "s1_suffix_zero_state": true,
+        "s1_call_order_invariant": true,
+        "s1_recency_static": true,
+        "s1_r3_gate_passed": true,
+        "s1_r3_stage_passed": true,
+        "passed": true
+      },
+      "wall_seconds": 3.7648709999630228
+    },
+    "s2": {
+      "receipt": "receipts\\holarch\\s2_latent_wave_turing_machine.json",
+      "sha256": "32de578ba037241c95f6dbbaf8f7b190d3d497350c3bc36f0c66c27581ca1fd7",
+      "passed": true,
+      "gate": {
+        "s2_programs_16": true,
+        "s2_exact_16": true,
+        "s2_zero_text_tokens": true,
+        "s2_step_ms_le_1": true,
+        "s2_traps_4": true,
+        "s2_traps_vetoed_4": true,
+        "s2_false_accepts_zero": true,
+        "s2_slots_4": true,
+        "s2_dim_8192": true,
+        "passed": true
+      },
+      "wall_seconds": 1.0174853999633342
+    },
+    "s3": {
+      "receipt": "receipts\\holarch\\s3_hierarchical_charts_and_sandboxed_browser.json",
+      "sha256": "baf4eb4d28748ec8e67a773caab8ffe089bf0fc5249dfaca876b23577e76f297",
+      "passed": true,
+      "gate": {
+        "s3_engrams_ge_2500": true,
+        "s3_charts_ge_12": true,
+        "s3_chart_capacity_256": true,
+        "s3_latency_clock_invariant": true,
+        "s3_speedup_ge_1_40": true,
+        "s3_evaluated_candidates_le_0_40": true,
+        "s3_charted_faster_than_flat": true,
+        "s3_recall_parity_ge_0_99": true,
+        "s3_exact_top1_ge_0_99": true,
+        "s3_crosstalk_reduced": true,
+        "s3_browser_probes_12": true,
+        "s3_browser_grounded_12": true,
+        "s3_browser_envelope_4": true,
+        "s3_browser_traps_blocked_4": true,
+        "s3_browser_zero_refusals_in_probes": true,
+        "passed": true
+      },
+      "wall_seconds": 2.242540100007318
+    }
+  },
+  "passed": true
+}

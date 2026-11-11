@@ -1,0 +1,1629 @@
+{
+  "stage": "U3",
+  "capacity": {
+    "rows": [
+      {
+        "length": 16,
+        "reverse_exact": true,
+        "palindrome_exact": true,
+        "binary_add_exact": true,
+        "min_read_margin": 0.7419232035399916,
+        "intra_page_crosstalk": 0.0
+      },
+      {
+        "length": 64,
+        "reverse_exact": true,
+        "palindrome_exact": true,
+        "binary_add_exact": true,
+        "min_read_margin": 0.7419232009154493,
+        "intra_page_crosstalk": 0.0
+      },
+      {
+        "length": 128,
+        "reverse_exact": true,
+        "palindrome_exact": true,
+        "binary_add_exact": true,
+        "min_read_margin": 0.7419232009154493,
+        "intra_page_crosstalk": 0.0
+      },
+      {
+        "length": 256,
+        "reverse_exact": true,
+        "palindrome_exact": true,
+        "binary_add_exact": true,
+        "min_read_margin": 0.7419232009154493,
+        "intra_page_crosstalk": 0.0
+      }
+    ],
+    "margin_16": 0.7419232035399916,
+    "margin_256": 0.7419232009154493
+  },
+  "induction": {
+    "tasks": [
+      {
+        "name": "bit_flip",
+        "mechanism_used": "factored_direct",
+        "state_count_q": 16,
+        "nodes_evaluated": 0,
+        "status": "INDUCED",
+        "reason": "",
+        "test_rows": [
+          {
+            "tape_in": "101100",
+            "tape_out": "010011",
+            "status": "ok",
+            "exact": true,
+            "steps": 14
+          },
+          {
+            "tape_in": "1011001",
+            "tape_out": "0100110",
+            "status": "ok",
+            "exact": true,
+            "steps": 15
+          },
+          {
+            "tape_in": "101100101",
+            "tape_out": "010011010",
+            "status": "ok",
+            "exact": true,
+            "steps": 19
+          },
+          {
+            "tape_in": "101100101011",
+            "tape_out": "010011010100",
+            "status": "ok",
+            "exact": true,
+            "steps": 26
+          }
+        ],
+        "attempts": [
+          {
+            "mechanism": "factored_direct",
+            "status": "INDUCED",
+            "nodes": 0,
+            "rows": 80,
+            "train_exact": true,
+            "test_exact": 4,
+            "test_total": 4
+          }
+        ],
+        "test_exact": true,
+        "mechanism_detail": {
+          "nodes": 0,
+          "states": 16,
+          "status": "INDUCED",
+          "qctrl": 4,
+          "moves": [
+            "R",
+            "L",
+            "R",
+            "R"
+          ],
+          "skeletons_tried": [
+            {
+              "qctrl": 4,
+              "moves": [
+                "R",
+                "L",
+                "R",
+                "R"
+              ],
+              "nodes": 0,
+              "found": true,
+              "direct": [
+                {
+                  "memory_write": "=",
+                  "register": "read",
+                  "rows": 25,
+                  "conflicts": 0,
+                  "accepted": true
+                }
+              ]
+            }
+          ],
+          "marks": false,
+          "rows": 120
+        },
+        "train_examples": 4,
+        "test_examples": 4,
+        "text_tokens": 0,
+        "table_rules": 80,
+        "v1_tests": [
+          {
+            "tape_in": "010010001000",
+            "tape_out": "101101110111",
+            "status": "ok",
+            "exact": true,
+            "steps": 26
+          },
+          {
+            "tape_in": "01111011000011100",
+            "tape_out": "10000100111100011",
+            "status": "ok",
+            "exact": true,
+            "steps": 35
+          },
+          {
+            "tape_in": "000111001110010111101010",
+            "tape_out": "111000110001101000010101",
+            "status": "ok",
+            "exact": true,
+            "steps": 50
+          },
+          {
+            "tape_in": "01100110010010110000010011011111",
+            "tape_out": "10011001101101001111101100100000",
+            "status": "ok",
+            "exact": true,
+            "steps": 66
+          }
+        ],
+        "v1_exact": 4,
+        "v1_total": 4,
+        "v1_generalized": true
+      },
+      {
+        "name": "unary_increment",
+        "mechanism_used": "factored_direct",
+        "state_count_q": 12,
+        "nodes_evaluated": 0,
+        "status": "INDUCED",
+        "reason": "",
+        "test_rows": [
+          {
+            "tape_in": "||||||",
+            "tape_out": "|||||||",
+            "status": "ok",
+            "exact": true,
+            "steps": 14
+          },
+          {
+            "tape_in": "|||||||",
+            "tape_out": "||||||||",
+            "status": "ok",
+            "exact": true,
+            "steps": 15
+          },
+          {
+            "tape_in": "|||||||||",
+            "tape_out": "||||||||||",
+            "status": "ok",
+            "exact": true,
+            "steps": 19
+          },
+          {
+            "tape_in": "||||||||||||",
+            "tape_out": "|||||||||||||",
+            "status": "ok",
+            "exact": true,
+            "steps": 26
+          }
+        ],
+        "attempts": [
+          {
+            "mechanism": "factored_direct",
+            "status": "INDUCED",
+            "nodes": 0,
+            "rows": 36,
+            "train_exact": true,
+            "test_exact": 4,
+            "test_total": 4
+          }
+        ],
+        "test_exact": true,
+        "mechanism_detail": {
+          "nodes": 0,
+          "states": 12,
+          "status": "INDUCED",
+          "qctrl": 4,
+          "moves": [
+            "R",
+            "L",
+            "R",
+            "R"
+          ],
+          "skeletons_tried": [
+            {
+              "qctrl": 4,
+              "moves": [
+                "R",
+                "L",
+                "R",
+                "R"
+              ],
+              "nodes": 0,
+              "found": true,
+              "direct": [
+                {
+                  "memory_write": "=",
+                  "register": "read",
+                  "rows": 11,
+                  "conflicts": 0,
+                  "accepted": true
+                }
+              ]
+            }
+          ],
+          "marks": false,
+          "rows": 48
+        },
+        "train_examples": 4,
+        "test_examples": 4,
+        "text_tokens": 0,
+        "table_rules": 36,
+        "v1_tests": [
+          {
+            "tape_in": "||||||||||||",
+            "tape_out": "|||||||||||||",
+            "status": "ok",
+            "exact": true,
+            "steps": 26
+          },
+          {
+            "tape_in": "|||||||||||||||||",
+            "tape_out": "||||||||||||||||||",
+            "status": "ok",
+            "exact": true,
+            "steps": 35
+          },
+          {
+            "tape_in": "||||||||||||||||||||||||",
+            "tape_out": "|||||||||||||||||||||||||",
+            "status": "ok",
+            "exact": true,
+            "steps": 50
+          },
+          {
+            "tape_in": "||||||||||||||||||||||||||||||||",
+            "tape_out": "|||||||||||||||||||||||||||||||||",
+            "status": "ok",
+            "exact": true,
+            "steps": 66
+          }
+        ],
+        "v1_exact": 4,
+        "v1_total": 4,
+        "v1_generalized": true
+      },
+      {
+        "name": "unary_decrement",
+        "mechanism_used": "factored_direct",
+        "state_count_q": 9,
+        "nodes_evaluated": 0,
+        "status": "INDUCED",
+        "reason": "",
+        "test_rows": [
+          {
+            "tape_in": "||||||",
+            "tape_out": "|||||_",
+            "status": "ok",
+            "exact": true,
+            "steps": 20
+          },
+          {
+            "tape_in": "|||||||",
+            "tape_out": "||||||_",
+            "status": "ok",
+            "exact": true,
+            "steps": 23
+          },
+          {
+            "tape_in": "|||||||||",
+            "tape_out": "||||||||_",
+            "status": "ok",
+            "exact": true,
+            "steps": 29
+          },
+          {
+            "tape_in": "||||||||||||",
+            "tape_out": "|||||||||||_",
+            "status": "ok",
+            "exact": true,
+            "steps": 38
+          }
+        ],
+        "attempts": [
+          {
+            "mechanism": "factored_direct",
+            "status": "INDUCED",
+            "nodes": 0,
+            "rows": 27,
+            "train_exact": true,
+            "test_exact": 4,
+            "test_total": 4
+          }
+        ],
+        "test_exact": true,
+        "mechanism_detail": {
+          "nodes": 0,
+          "states": 9,
+          "status": "INDUCED",
+          "qctrl": 3,
+          "moves": [
+            "R",
+            "L",
+            "R"
+          ],
+          "skeletons_tried": [
+            {
+              "qctrl": 4,
+              "moves": [
+                "R",
+                "L",
+                "R",
+                "R"
+              ],
+              "nodes": 0,
+              "found": false,
+              "direct": [
+                {
+                  "memory_write": "=",
+                  "register": "read",
+                  "rows": 0,
+                  "conflicts": 1,
+                  "accepted": false
+                },
+                {
+                  "memory_write": "=",
+                  "register": "keep",
+                  "rows": 0,
+                  "conflicts": 1,
+                  "accepted": false
+                },
+                {
+                  "memory_write": "mark",
+                  "register": "read",
+                  "rows": 0,
+                  "conflicts": 1,
+                  "accepted": false
+                },
+                {
+                  "memory_write": "mark",
+                  "register": "keep",
+                  "rows": 0,
+                  "conflicts": 1,
+                  "accepted": false
+                }
+              ]
+            },
+            {
+              "qctrl": 4,
+              "moves": [
+                "R",
+                "R",
+                "L",
+                "R"
+              ],
+              "nodes": 0,
+              "found": false,
+              "direct": [
+                {
+                  "memory_write": "=",
+                  "register": "read",
+                  "rows": 0,
+                  "conflicts": 1,
+                  "accepted": false
+                },
+                {
+                  "memory_write": "=",
+                  "register": "keep",
+                  "rows": 0,
+                  "conflicts": 1,
+                  "accepted": false
+                },
+                {
+                  "memory_write": "mark",
+                  "register": "read",
+                  "rows": 0,
+                  "conflicts": 1,
+                  "accepted": false
+                },
+                {
+                  "memory_write": "mark",
+                  "register": "keep",
+                  "rows": 0,
+                  "conflicts": 1,
+                  "accepted": false
+                }
+              ]
+            },
+            {
+              "qctrl": 4,
+              "moves": [
+                "L",
+                "R",
+                "R",
+                "R"
+              ],
+              "nodes": 0,
+              "found": false,
+              "direct": [
+                {
+                  "memory_write": "=",
+                  "register": "read",
+                  "rows": 0,
+                  "conflicts": 1,
+                  "accepted": false
+                },
+                {
+                  "memory_write": "=",
+                  "register": "keep",
+                  "rows": 0,
+                  "conflicts": 1,
+                  "accepted": false
+                },
+                {
+                  "memory_write": "mark",
+                  "register": "read",
+                  "rows": 0,
+                  "conflicts": 1,
+                  "accepted": false
+                },
+                {
+                  "memory_write": "mark",
+                  "register": "keep",
+                  "rows": 0,
+                  "conflicts": 1,
+                  "accepted": false
+                }
+              ]
+            },
+            {
+              "qctrl": 4,
+              "moves": [
+                "R",
+                "R",
+                "R",
+                "L"
+              ],
+              "nodes": 0,
+              "found": false,
+              "direct": [
+                {
+                  "memory_write": "=",
+                  "register": "read",
+                  "rows": 0,
+                  "conflicts": 1,
+                  "accepted": false
+                },
+                {
+                  "memory_write": "=",
+                  "register": "keep",
+                  "rows": 0,
+                  "conflicts": 1,
+                  "accepted": false
+                },
+                {
+                  "memory_write": "mark",
+                  "register": "read",
+                  "rows": 0,
+                  "conflicts": 1,
+                  "accepted": false
+                },
+                {
+                  "memory_write": "mark",
+                  "register": "keep",
+                  "rows": 0,
+                  "conflicts": 1,
+                  "accepted": false
+                }
+              ]
+            },
+            {
+              "qctrl": 3,
+              "moves": [
+                "R",
+                "L",
+                "R"
+              ],
+              "nodes": 0,
+              "found": true,
+              "direct": [
+                {
+                  "memory_write": "=",
+                  "register": "read",
+                  "rows": 9,
+                  "conflicts": 0,
+                  "accepted": true
+                }
+              ]
+            }
+          ],
+          "marks": false,
+          "rows": 36
+        },
+        "train_examples": 4,
+        "test_examples": 4,
+        "text_tokens": 0,
+        "table_rules": 27,
+        "v1_tests": [
+          {
+            "tape_in": "||||||||||||",
+            "tape_out": "|||||||||||_",
+            "status": "ok",
+            "exact": true,
+            "steps": 38
+          },
+          {
+            "tape_in": "|||||||||||||||||",
+            "tape_out": "||||||||||||||||_",
+            "status": "ok",
+            "exact": true,
+            "steps": 53
+          },
+          {
+            "tape_in": "||||||||||||||||||||||||",
+            "tape_out": "|||||||||||||||||||||||_",
+            "status": "ok",
+            "exact": true,
+            "steps": 74
+          },
+          {
+            "tape_in": "||||||||||||||||||||||||||||||||",
+            "tape_out": "|||||||||||||||||||||||||||||||_",
+            "status": "ok",
+            "exact": true,
+            "steps": 98
+          }
+        ],
+        "v1_exact": 4,
+        "v1_total": 4,
+        "v1_generalized": true
+      },
+      {
+        "name": "strip_leading_zeros",
+        "mechanism_used": "cegis_1cell",
+        "state_count_q": 1,
+        "nodes_evaluated": 12004,
+        "status": "INDUCED",
+        "reason": "",
+        "test_rows": [
+          {
+            "tape_in": "001100",
+            "tape_out": "__1100",
+            "status": "ok",
+            "exact": true,
+            "steps": 2
+          },
+          {
+            "tape_in": "0001100",
+            "tape_out": "___1100",
+            "status": "ok",
+            "exact": true,
+            "steps": 3
+          },
+          {
+            "tape_in": "001011001",
+            "tape_out": "__1011001",
+            "status": "ok",
+            "exact": true,
+            "steps": 2
+          },
+          {
+            "tape_in": "010110010101",
+            "tape_out": "_10110010101",
+            "status": "ok",
+            "exact": true,
+            "steps": 1
+          }
+        ],
+        "attempts": [
+          {
+            "mechanism": "factored_direct",
+            "status": "ABSTAIN",
+            "nodes": 0,
+            "rows": 0,
+            "train_exact": false,
+            "test_exact": 0,
+            "test_total": 4
+          },
+          {
+            "mechanism": "factored_class",
+            "status": "ABSTAIN",
+            "nodes": 12000,
+            "rows": 0,
+            "train_exact": false,
+            "test_exact": 0,
+            "test_total": 4
+          },
+          {
+            "mechanism": "macro_fixpoint",
+            "status": "ABSTAIN",
+            "nodes": 0,
+            "rows": 0,
+            "train_exact": false,
+            "test_exact": 0,
+            "test_total": 4
+          },
+          {
+            "mechanism": "cegis_1cell",
+            "status": "INDUCED",
+            "nodes": 4,
+            "rows": 3,
+            "train_exact": true,
+            "test_exact": 4,
+            "test_total": 4
+          }
+        ],
+        "test_exact": true,
+        "mechanism_detail": {
+          "nodes": 4,
+          "states": 1,
+          "repulsors": 0,
+          "status": "INDUCED"
+        },
+        "train_examples": 4,
+        "test_examples": 4,
+        "text_tokens": 0,
+        "table_rules": 3,
+        "v1_tests": [
+          {
+            "tape_in": "000110111110",
+            "tape_out": "___110111110",
+            "status": "ok",
+            "exact": true,
+            "steps": 3
+          },
+          {
+            "tape_in": "00001100000011101",
+            "tape_out": "____1100000011101",
+            "status": "ok",
+            "exact": true,
+            "steps": 4
+          },
+          {
+            "tape_in": "000111001011010111100110",
+            "tape_out": "___111001011010111100110",
+            "status": "ok",
+            "exact": true,
+            "steps": 3
+          },
+          {
+            "tape_in": "00001100101011010011000011100010",
+            "tape_out": "____1100101011010011000011100010",
+            "status": "ok",
+            "exact": true,
+            "steps": 4
+          }
+        ],
+        "v1_exact": 4,
+        "v1_total": 4,
+        "v1_generalized": true
+      },
+      {
+        "name": "find_first_1",
+        "mechanism_used": "cegis_1cell",
+        "state_count_q": 1,
+        "nodes_evaluated": 12003,
+        "status": "INDUCED",
+        "reason": "",
+        "test_rows": [
+          {
+            "tape_in": "101100",
+            "tape_out": "X01100",
+            "status": "ok",
+            "exact": true,
+            "steps": 0
+          },
+          {
+            "tape_in": "1011001",
+            "tape_out": "X011001",
+            "status": "ok",
+            "exact": true,
+            "steps": 0
+          },
+          {
+            "tape_in": "101100101",
+            "tape_out": "X01100101",
+            "status": "ok",
+            "exact": true,
+            "steps": 0
+          },
+          {
+            "tape_in": "101100101011",
+            "tape_out": "X01100101011",
+            "status": "ok",
+            "exact": true,
+            "steps": 0
+          }
+        ],
+        "attempts": [
+          {
+            "mechanism": "factored_direct",
+            "status": "INDUCED",
+            "nodes": 0,
+            "rows": 168,
+            "train_exact": true,
+            "test_exact": 0,
+            "test_total": 4
+          },
+          {
+            "mechanism": "factored_class",
+            "status": "ABSTAIN",
+            "nodes": 12000,
+            "rows": 0,
+            "train_exact": false,
+            "test_exact": 0,
+            "test_total": 4
+          },
+          {
+            "mechanism": "macro_fixpoint",
+            "status": "ABSTAIN",
+            "nodes": 0,
+            "rows": 0,
+            "train_exact": false,
+            "test_exact": 0,
+            "test_total": 4
+          },
+          {
+            "mechanism": "cegis_1cell",
+            "status": "INDUCED",
+            "nodes": 3,
+            "rows": 2,
+            "train_exact": true,
+            "test_exact": 4,
+            "test_total": 4
+          }
+        ],
+        "test_exact": true,
+        "mechanism_detail": {
+          "nodes": 3,
+          "states": 1,
+          "repulsors": 0,
+          "status": "INDUCED"
+        },
+        "train_examples": 4,
+        "test_examples": 4,
+        "text_tokens": 0,
+        "table_rules": 2,
+        "v1_tests": [
+          {
+            "tape_in": "000011011110",
+            "tape_out": "0000X1011110",
+            "status": "ok",
+            "exact": true,
+            "steps": 4
+          },
+          {
+            "tape_in": "00000100001011011",
+            "tape_out": "00000X00001011011",
+            "status": "ok",
+            "exact": true,
+            "steps": 5
+          },
+          {
+            "tape_in": "000000001100001111111101",
+            "tape_out": "00000000X100001111111101",
+            "status": "ok",
+            "exact": true,
+            "steps": 8
+          },
+          {
+            "tape_in": "00000000001001010111001101010101",
+            "tape_out": "0000000000X001010111001101010101",
+            "status": "ok",
+            "exact": true,
+            "steps": 10
+          }
+        ],
+        "v1_exact": 4,
+        "v1_total": 4,
+        "v1_generalized": true
+      },
+      {
+        "name": "append_marker",
+        "mechanism_used": "factored_direct",
+        "state_count_q": 16,
+        "nodes_evaluated": 0,
+        "status": "INDUCED",
+        "reason": "",
+        "test_rows": [
+          {
+            "tape_in": "101100",
+            "tape_out": "101100#",
+            "status": "ok",
+            "exact": true,
+            "steps": 14
+          },
+          {
+            "tape_in": "1011001",
+            "tape_out": "1011001#",
+            "status": "ok",
+            "exact": true,
+            "steps": 15
+          },
+          {
+            "tape_in": "101100101",
+            "tape_out": "101100101#",
+            "status": "ok",
+            "exact": true,
+            "steps": 19
+          },
+          {
+            "tape_in": "101100101011",
+            "tape_out": "101100101011#",
+            "status": "ok",
+            "exact": true,
+            "steps": 26
+          }
+        ],
+        "attempts": [
+          {
+            "mechanism": "factored_direct",
+            "status": "INDUCED",
+            "nodes": 0,
+            "rows": 96,
+            "train_exact": true,
+            "test_exact": 4,
+            "test_total": 4
+          }
+        ],
+        "test_exact": true,
+        "mechanism_detail": {
+          "nodes": 0,
+          "states": 16,
+          "status": "INDUCED",
+          "qctrl": 4,
+          "moves": [
+            "R",
+            "L",
+            "R",
+            "R"
+          ],
+          "skeletons_tried": [
+            {
+              "qctrl": 4,
+              "moves": [
+                "R",
+                "L",
+                "R",
+                "R"
+              ],
+              "nodes": 0,
+              "found": true,
+              "direct": [
+                {
+                  "memory_write": "=",
+                  "register": "read",
+                  "rows": 25,
+                  "conflicts": 0,
+                  "accepted": true
+                }
+              ]
+            }
+          ],
+          "marks": false,
+          "rows": 168
+        },
+        "train_examples": 4,
+        "test_examples": 4,
+        "text_tokens": 0,
+        "table_rules": 96,
+        "v1_tests": [
+          {
+            "tape_in": "100000110110",
+            "tape_out": "100000110110#",
+            "status": "ok",
+            "exact": true,
+            "steps": 26
+          },
+          {
+            "tape_in": "01000010111011100",
+            "tape_out": "01000010111011100#",
+            "status": "ok",
+            "exact": true,
+            "steps": 35
+          },
+          {
+            "tape_in": "110010101111010011110000",
+            "tape_out": "110010101111010011110000#",
+            "status": "ok",
+            "exact": true,
+            "steps": 50
+          },
+          {
+            "tape_in": "10101110010101100110010111111110",
+            "tape_out": "10101110010101100110010111111110#",
+            "status": "ok",
+            "exact": true,
+            "steps": 66
+          }
+        ],
+        "v1_exact": 4,
+        "v1_total": 4,
+        "v1_generalized": true
+      },
+      {
+        "name": "two_symbol_replace",
+        "mechanism_used": "cegis_1cell",
+        "state_count_q": 1,
+        "nodes_evaluated": 12006,
+        "status": "INDUCED",
+        "reason": "",
+        "test_rows": [
+          {
+            "tape_in": "ababab",
+            "tape_out": "bababa",
+            "status": "ok",
+            "exact": true,
+            "steps": 6
+          },
+          {
+            "tape_in": "aabbaab",
+            "tape_out": "bbaabba",
+            "status": "ok",
+            "exact": true,
+            "steps": 7
+          },
+          {
+            "tape_in": "abbaababa",
+            "tape_out": "baabbabab",
+            "status": "ok",
+            "exact": true,
+            "steps": 9
+          },
+          {
+            "tape_in": "abababaabbab",
+            "tape_out": "babababbaaba",
+            "status": "ok",
+            "exact": true,
+            "steps": 12
+          }
+        ],
+        "attempts": [
+          {
+            "mechanism": "factored_direct",
+            "status": "INDUCED",
+            "nodes": 0,
+            "rows": 80,
+            "train_exact": true,
+            "test_exact": 2,
+            "test_total": 4
+          },
+          {
+            "mechanism": "factored_class",
+            "status": "ABSTAIN",
+            "nodes": 12000,
+            "rows": 0,
+            "train_exact": false,
+            "test_exact": 0,
+            "test_total": 4
+          },
+          {
+            "mechanism": "macro_fixpoint",
+            "status": "ABSTAIN",
+            "nodes": 0,
+            "rows": 0,
+            "train_exact": false,
+            "test_exact": 0,
+            "test_total": 4
+          },
+          {
+            "mechanism": "cegis_1cell",
+            "status": "INDUCED",
+            "nodes": 6,
+            "rows": 3,
+            "train_exact": true,
+            "test_exact": 4,
+            "test_total": 4
+          }
+        ],
+        "test_exact": true,
+        "mechanism_detail": {
+          "nodes": 6,
+          "states": 1,
+          "repulsors": 0,
+          "status": "INDUCED"
+        },
+        "train_examples": 4,
+        "test_examples": 4,
+        "text_tokens": 0,
+        "table_rules": 3,
+        "v1_tests": [
+          {
+            "tape_in": "aaaabbaabbaa",
+            "tape_out": "bbbbaabbaabb",
+            "status": "ok",
+            "exact": true,
+            "steps": 12
+          },
+          {
+            "tape_in": "baababaabbaabbbba",
+            "tape_out": "abbababbaabbaaaab",
+            "status": "ok",
+            "exact": true,
+            "steps": 17
+          },
+          {
+            "tape_in": "aaabbababbababbabababaaa",
+            "tape_out": "bbbaababaababaababababbb",
+            "status": "ok",
+            "exact": true,
+            "steps": 24
+          },
+          {
+            "tape_in": "ababaaababaabaaabbabbaaaaabbbaaa",
+            "tape_out": "bababbbababbabbbaabaabbbbbaaabbb",
+            "status": "ok",
+            "exact": true,
+            "steps": 32
+          }
+        ],
+        "v1_exact": 4,
+        "v1_total": 4,
+        "v1_generalized": true
+      },
+      {
+        "name": "unary_add_one_and_halt",
+        "mechanism_used": "factored_direct",
+        "state_count_q": 12,
+        "nodes_evaluated": 0,
+        "status": "INDUCED",
+        "reason": "",
+        "test_rows": [
+          {
+            "tape_in": "111111",
+            "tape_out": "1111111",
+            "status": "ok",
+            "exact": true,
+            "steps": 14
+          },
+          {
+            "tape_in": "1111111",
+            "tape_out": "11111111",
+            "status": "ok",
+            "exact": true,
+            "steps": 15
+          },
+          {
+            "tape_in": "111111111",
+            "tape_out": "1111111111",
+            "status": "ok",
+            "exact": true,
+            "steps": 19
+          },
+          {
+            "tape_in": "111111111111",
+            "tape_out": "1111111111111",
+            "status": "ok",
+            "exact": true,
+            "steps": 26
+          }
+        ],
+        "attempts": [
+          {
+            "mechanism": "factored_direct",
+            "status": "INDUCED",
+            "nodes": 0,
+            "rows": 36,
+            "train_exact": true,
+            "test_exact": 4,
+            "test_total": 4
+          }
+        ],
+        "test_exact": true,
+        "mechanism_detail": {
+          "nodes": 0,
+          "states": 12,
+          "status": "INDUCED",
+          "qctrl": 4,
+          "moves": [
+            "R",
+            "L",
+            "R",
+            "R"
+          ],
+          "skeletons_tried": [
+            {
+              "qctrl": 4,
+              "moves": [
+                "R",
+                "L",
+                "R",
+                "R"
+              ],
+              "nodes": 0,
+              "found": true,
+              "direct": [
+                {
+                  "memory_write": "=",
+                  "register": "read",
+                  "rows": 11,
+                  "conflicts": 0,
+                  "accepted": true
+                }
+              ]
+            }
+          ],
+          "marks": false,
+          "rows": 48
+        },
+        "train_examples": 4,
+        "test_examples": 4,
+        "text_tokens": 0,
+        "table_rules": 36,
+        "v1_tests": [
+          {
+            "tape_in": "111111111111",
+            "tape_out": "1111111111111",
+            "status": "ok",
+            "exact": true,
+            "steps": 26
+          },
+          {
+            "tape_in": "11111111111111111",
+            "tape_out": "111111111111111111",
+            "status": "ok",
+            "exact": true,
+            "steps": 35
+          },
+          {
+            "tape_in": "111111111111111111111111",
+            "tape_out": "1111111111111111111111111",
+            "status": "ok",
+            "exact": true,
+            "steps": 50
+          },
+          {
+            "tape_in": "11111111111111111111111111111111",
+            "tape_out": "111111111111111111111111111111111",
+            "status": "ok",
+            "exact": true,
+            "steps": 66
+          }
+        ],
+        "v1_exact": 4,
+        "v1_total": 4,
+        "v1_generalized": true
+      },
+      {
+        "name": "adjacent_swap_pass",
+        "mechanism_used": "factored_direct",
+        "state_count_q": 16,
+        "nodes_evaluated": 0,
+        "status": "INDUCED",
+        "reason": "",
+        "test_rows": [
+          {
+            "tape_in": "10110010",
+            "tape_out": "01110001",
+            "status": "ok",
+            "exact": true,
+            "steps": 18
+          },
+          {
+            "tape_in": "101100101",
+            "tape_out": "011100011",
+            "status": "ok",
+            "exact": true,
+            "steps": 19
+          },
+          {
+            "tape_in": "101100101011",
+            "tape_out": "011100010111",
+            "status": "ok",
+            "exact": true,
+            "steps": 26
+          },
+          {
+            "tape_in": "1011001010110010",
+            "tape_out": "0111000101110001",
+            "status": "ok",
+            "exact": true,
+            "steps": 34
+          }
+        ],
+        "attempts": [
+          {
+            "mechanism": "factored_direct",
+            "status": "INDUCED",
+            "nodes": 0,
+            "rows": 80,
+            "train_exact": true,
+            "test_exact": 4,
+            "test_total": 4
+          }
+        ],
+        "test_exact": true,
+        "mechanism_detail": {
+          "nodes": 0,
+          "states": 16,
+          "status": "INDUCED",
+          "qctrl": 4,
+          "moves": [
+            "R",
+            "L",
+            "R",
+            "R"
+          ],
+          "skeletons_tried": [
+            {
+              "qctrl": 4,
+              "moves": [
+                "R",
+                "L",
+                "R",
+                "R"
+              ],
+              "nodes": 0,
+              "found": true,
+              "direct": [
+                {
+                  "memory_write": "=",
+                  "register": "read",
+                  "rows": 25,
+                  "conflicts": 0,
+                  "accepted": true
+                }
+              ]
+            }
+          ],
+          "marks": false,
+          "rows": 120
+        },
+        "train_examples": 4,
+        "test_examples": 4,
+        "text_tokens": 0,
+        "table_rules": 80,
+        "v1_tests": [
+          {
+            "tape_in": "010111011100",
+            "tape_out": "101011101100",
+            "status": "ok",
+            "exact": true,
+            "steps": 26
+          },
+          {
+            "tape_in": "10000101010000001",
+            "tape_out": "01001010100000001",
+            "status": "ok",
+            "exact": true,
+            "steps": 35
+          },
+          {
+            "tape_in": "100100100001101000101011",
+            "tape_out": "011000010010010100010111",
+            "status": "ok",
+            "exact": true,
+            "steps": 50
+          },
+          {
+            "tape_in": "01011100010001101000101000000111",
+            "tape_out": "10101100100010010100010100001011",
+            "status": "ok",
+            "exact": true,
+            "steps": 66
+          }
+        ],
+        "v1_exact": 4,
+        "v1_total": 4,
+        "v1_generalized": true
+      },
+      {
+        "name": "zero_one_partition_sort",
+        "mechanism_used": "macro_fixpoint",
+        "state_count_q": 16,
+        "nodes_evaluated": 12000,
+        "status": "INDUCED",
+        "reason": "",
+        "test_rows": [
+          {
+            "tape_in": "10110010",
+            "tape_out": "00001111",
+            "status": "halt",
+            "exact": true,
+            "steps": 4
+          },
+          {
+            "tape_in": "101100101",
+            "tape_out": "000011111",
+            "status": "halt",
+            "exact": true,
+            "steps": 4
+          },
+          {
+            "tape_in": "101100101011",
+            "tape_out": "000001111111",
+            "status": "halt",
+            "exact": true,
+            "steps": 5
+          },
+          {
+            "tape_in": "1011001010110010",
+            "tape_out": "0000000011111111",
+            "status": "halt",
+            "exact": true,
+            "steps": 6
+          }
+        ],
+        "attempts": [
+          {
+            "mechanism": "factored_direct",
+            "status": "INDUCED",
+            "nodes": 0,
+            "rows": 80,
+            "train_exact": true,
+            "test_exact": 0,
+            "test_total": 4
+          },
+          {
+            "mechanism": "factored_class",
+            "status": "ABSTAIN",
+            "nodes": 12000,
+            "rows": 0,
+            "train_exact": false,
+            "test_exact": 0,
+            "test_total": 4
+          },
+          {
+            "mechanism": "macro_fixpoint",
+            "status": "INDUCED",
+            "nodes": 0,
+            "rows": 80,
+            "train_exact": true,
+            "test_exact": 4,
+            "test_total": 4
+          }
+        ],
+        "test_exact": true,
+        "mechanism_detail": {
+          "status": "INDUCED",
+          "nodes": 0,
+          "states": 16,
+          "qctrl": 4,
+          "moves": [
+            "R",
+            "L",
+            "R",
+            "R"
+          ],
+          "rounds": 2,
+          "inner_task": "zero_one_partition_sort_inversion_pass"
+        },
+        "train_examples": 4,
+        "test_examples": 4,
+        "text_tokens": 0,
+        "table_rules": 80,
+        "v1_tests": [
+          {
+            "tape_in": "101010101010",
+            "tape_out": "000000111111",
+            "status": "halt",
+            "text": "000000111111",
+            "rounds": 4,
+            "exact": true
+          },
+          {
+            "tape_in": "11001101101110110",
+            "tape_out": "00000011111111111",
+            "status": "halt",
+            "text": "00000011111111111",
+            "rounds": 7,
+            "exact": true
+          },
+          {
+            "tape_in": "101010101010101010101010",
+            "tape_out": "000000000000111111111111",
+            "status": "halt",
+            "text": "000000000000111111111111",
+            "rounds": 7,
+            "exact": true
+          },
+          {
+            "tape_in": "10101010101010101010101010101010",
+            "tape_out": "00000000000000001111111111111111",
+            "status": "halt",
+            "text": "00000000000000001111111111111111",
+            "rounds": 9,
+            "exact": true
+          }
+        ],
+        "v1_exact": 4,
+        "v1_total": 4,
+        "v1_generalized": true
+      },
+      {
+        "name": "two_bit_carry_add",
+        "mechanism_used": "",
+        "state_count_q": 0,
+        "nodes_evaluated": 320000,
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no consistent one-cell table",
+        "test_rows": [],
+        "attempts": [
+          {
+            "mechanism": "factored_direct",
+            "status": "ABSTAIN",
+            "nodes": 0,
+            "rows": 0,
+            "train_exact": false,
+            "test_exact": 0,
+            "test_total": 4
+          },
+          {
+            "mechanism": "factored_class",
+            "status": "ABSTAIN",
+            "nodes": 12000,
+            "rows": 0,
+            "train_exact": false,
+            "test_exact": 0,
+            "test_total": 4
+          },
+          {
+            "mechanism": "macro_fixpoint",
+            "status": "ABSTAIN",
+            "nodes": 0,
+            "rows": 0,
+            "train_exact": false,
+            "test_exact": 0,
+            "test_total": 4
+          },
+          {
+            "mechanism": "cegis_1cell",
+            "status": "ABSTAIN",
+            "nodes": 308000,
+            "rows": 0,
+            "train_exact": false,
+            "test_exact": 0,
+            "test_total": 4
+          }
+        ],
+        "train_examples": 4,
+        "test_examples": 4,
+        "text_tokens": 0,
+        "table_rules": 0,
+        "v1_tests": [],
+        "v1_exact": 0,
+        "v1_total": 4,
+        "v1_generalized": false
+      },
+      {
+        "name": "delimiter_bounded_copy",
+        "mechanism_used": "",
+        "state_count_q": 0,
+        "nodes_evaluated": 320000,
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no consistent one-cell table",
+        "test_rows": [],
+        "attempts": [
+          {
+            "mechanism": "factored_direct",
+            "status": "ABSTAIN",
+            "nodes": 0,
+            "rows": 0,
+            "train_exact": false,
+            "test_exact": 0,
+            "test_total": 4
+          },
+          {
+            "mechanism": "factored_class",
+            "status": "ABSTAIN",
+            "nodes": 12000,
+            "rows": 0,
+            "train_exact": false,
+            "test_exact": 0,
+            "test_total": 4
+          },
+          {
+            "mechanism": "macro_fixpoint",
+            "status": "ABSTAIN",
+            "nodes": 0,
+            "rows": 0,
+            "train_exact": false,
+            "test_exact": 0,
+            "test_total": 4
+          },
+          {
+            "mechanism": "cegis_1cell",
+            "status": "ABSTAIN",
+            "nodes": 308000,
+            "rows": 0,
+            "train_exact": false,
+            "test_exact": 0,
+            "test_total": 4
+          }
+        ],
+        "train_examples": 4,
+        "test_examples": 4,
+        "text_tokens": 0,
+        "table_rules": 0,
+        "v1_tests": [],
+        "v1_exact": 0,
+        "v1_total": 4,
+        "v1_generalized": false
+      }
+    ],
+    "solved": 10,
+    "generalized": 10,
+    "v1_length_generalized": 10,
+    "v1_lengths": [
+      12,
+      17,
+      24,
+      32
+    ],
+    "node_budget": 320000,
+    "mechanisms": [
+      "",
+      "cegis_1cell",
+      "factored_direct",
+      "macro_fixpoint"
+    ],
+    "text_tokens": 0,
+    "contradictions": [
+      {
+        "name": "contradiction_0",
+        "reason": "ABSTAIN: unsatisfiable specification",
+        "exact_reason": true,
+        "nodes": 0
+      },
+      {
+        "name": "contradiction_1",
+        "reason": "ABSTAIN: unsatisfiable specification",
+        "exact_reason": true,
+        "nodes": 0
+      },
+      {
+        "name": "contradiction_2",
+        "reason": "ABSTAIN: unsatisfiable specification",
+        "exact_reason": true,
+        "nodes": 0
+      },
+      {
+        "name": "contradiction_3",
+        "reason": "ABSTAIN: unsatisfiable specification",
+        "exact_reason": true,
+        "nodes": 0
+      }
+    ],
+    "contradictions_failed_closed": 4,
+    "foveated_2cell_ablation": [
+      {
+        "counted_toward_t3b_gate": false,
+        "status": "DIAGNOSTIC",
+        "states_q2": 1,
+        "note": "2-channel lookahead collapses swap to a memoryless map",
+        "task": "adjacent_swap_pass"
+      },
+      {
+        "counted_toward_t3b_gate": false,
+        "status": "DIAGNOSTIC",
+        "states_q2": 1,
+        "note": "2-channel lookahead collapses swap to a memoryless map",
+        "task": "zero_one_partition_sort"
+      },
+      {
+        "counted_toward_t3b_gate": false,
+        "status": "DIAGNOSTIC",
+        "states_q2": 1,
+        "note": "2-channel lookahead collapses swap to a memoryless map",
+        "task": "two_bit_carry_add"
+      },
+      {
+        "counted_toward_t3b_gate": false,
+        "status": "DIAGNOSTIC",
+        "states_q2": 1,
+        "note": "2-channel lookahead collapses swap to a memoryless map",
+        "task": "delimiter_bounded_copy"
+      }
+    ],
+    "foveated_counted_toward_gate": false
+  },
+  "gate": {
+    "u3_capacity_exact_long": true,
+    "u3_margin_ge_0_40": true,
+    "u3_margin_invariant": true,
+    "u3_crosstalk_zero": true,
+    "u3_solved_ge_10": true,
+    "u3_generalized_ge_10": true,
+    "u3_v1_length_generalized_ge_10": true,
+    "u3_zero_text_tokens": true,
+    "u3_contradictions_4": true,
+    "u3_two_cell_uncounted": true,
+    "passed": true
+  },
+  "wall_seconds": 37.26110829995014,
+  "evidence": "OBSERVED",
+  "passed": true
+}

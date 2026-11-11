@@ -16,13 +16,13 @@
       200,
       200,
       200,
-      429,
+      200,
       429,
       429,
       429
     ],
-    "ok_count": 4,
-    "limited_count": 4,
+    "ok_count": 5,
+    "limited_count": 3,
     "healthz_statuses": [
       200,
       200,
@@ -41,17 +41,17 @@
     "errors": [],
     "ok": 64,
     "all_valid": true,
-    "concurrent_seconds": 0.5909846000140533,
-    "serial_seconds": 0.18816449999576434,
-    "concurrent_rate": 108.29385401663278,
-    "serial_rate": 340.12791999256325,
-    "throughput_ratio": 0.3183915452133438,
+    "concurrent_seconds": 1.4849254000000656,
+    "serial_seconds": 1.4850087000522763,
+    "concurrent_rate": 43.099808246257474,
+    "serial_rate": 43.0973906063628,
+    "throughput_ratio": 1.000056097129331,
     "lock_stats": {
       "readers": 0,
       "writer": 0,
       "waiting_writers": 0,
-      "peak_readers": 5,
-      "total_reads": 8,
+      "peak_readers": 8,
+      "total_reads": 130,
       "total_writes": 1
     },
     "chain_valid": true,
@@ -79,7 +79,7 @@
     "impact": {
       "status_code": 200,
       "object": "chat.completion",
-      "content": "impact solve: 3 caller(s): mcp_server:holarch_solve, server:agent_step, zone_b:matrix",
+      "content": "impact solve: 6 caller(s): code_gen:fit, mcp_server:holarch_solve, server:agent_step, swat_bus:compact, swat_bus:fit_stage1, zone_b:matrix",
       "abstained": false,
       "action": "impact",
       "receipt_valid": true,
@@ -88,15 +88,15 @@
     "synthesize": {
       "status_code": 200,
       "object": "chat.completion",
-      "content": "def chat_edge_scale(edges):\n    step_1 = sorted({_s0_edge.source for _s0_edge in edges})\n    step_2 = int(len(step_1))\n    return max(2.0, min(5.0, float(step_2)))\n",
-      "abstained": false,
+      "content": "ABSTAIN",
+      "abstained": true,
       "action": "synthesize",
       "receipt_valid": true,
       "ok": true,
       "compiled_playbooks": 24,
-      "status": "verified",
-      "composed_stages": 1,
-      "source_chars": 164
+      "status": "rejected",
+      "composed_stages": 0,
+      "source_chars": 373
     }
   },
   "gate": {
@@ -109,13 +109,13 @@
     "concurrency_zero_errors": true,
     "receipt_chain_valid": true,
     "readers_overlap": true,
-    "throughput_not_collapsed": false,
+    "throughput_not_collapsed": true,
     "openai_verify": true,
     "openai_plan": true,
     "openai_impact": true,
     "openai_synthesize": true,
-    "passed": false
+    "passed": true
   },
-  "wall_seconds": 12.751781600003596,
+  "wall_seconds": 24.13687710009981,
   "evidence": "OBSERVED"
 }

@@ -241,7 +241,13 @@ def test_context_tensor_batch_matches_per_row(cfg, memory):
         assert np.allclose(prefix[index].reshape(-1), single.reshape(-1), atol=1e-5)
 
 
-def test_reader_scope_pins_intra_op_threads_under_concurrency(cfg, tmp_path):
+def test_reader_scope_never_mutates_the_intra_op_pool(cfg, tmp_path):
+    """Directive N2: a reader must not touch the process-global OpenMP pool.
+
+    Cycle M pinned torch.set_num_threads(1) inside the read scope. That call
+    resets a process-global C++ pool and starved the J4 planners, so the read
+    scope now leaves the pool exactly as the deployment configured it.
+    """
     service = SidecarService(
         cfg=cfg, backend="sqlite", memory_path=str(tmp_path / "guard.sqlite3"),
         autoload=False, rate_limit_rps=1000.0, rate_limit_burst=1000.0,
@@ -261,7 +267,7 @@ def test_reader_scope_pins_intra_op_threads_under_concurrency(cfg, tmp_path):
             thread.start()
         for thread in threads:
             thread.join()
-        assert observed and max(observed) == 1
+        assert observed and all(value == original for value in observed)
         assert int(torch.get_num_threads()) == original
     finally:
         service.close()

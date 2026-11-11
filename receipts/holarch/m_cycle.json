@@ -1,10 +1,49 @@
 {
   "cycle": "M",
-  "head": "a6813af729048c7440fc72efeb209f28baa745e0",
+  "head": "7d3522e3f55a999ff1edb84dbb44db2b3e2b6fdd",
   "stages": {
+    "m1": {
+      "receipt": "receipts\\holarch\\m1_online_repulsor_vla.json",
+      "sha256": "120abd5d0b9edc832acc93d1fef2e09f76408a807f32c0101306852850e8868a",
+      "passed": true,
+      "gate": {
+        "eight_traps_scored": true,
+        "steered_escape_8_of_8": true,
+        "control_0_of_8": true,
+        "closed_loop_online_at_least_41": true,
+        "closed_loop_baseline_38": true,
+        "online_delta_at_least_3": true,
+        "vla_12_of_12_completed": true,
+        "vla_zero_hallucination": true,
+        "vla_goal_reach_at_least_11": true,
+        "zero_weight_updates": true,
+        "passed": true
+      },
+      "wall_seconds": 193.35755570000038
+    },
+    "m2": {
+      "receipt": "receipts\\holarch\\m2_low_latency_concurrency.json",
+      "sha256": "f2d82bdee391dfc4e3723017714a2592cbcc64d732a7979288d558ffd8bfa78f",
+      "passed": true,
+      "gate": {
+        "cold_requests_128": true,
+        "cold_zero_errors": true,
+        "cold_all_ok_and_receipts": true,
+        "cold_receipt_chains_valid": true,
+        "uncached_p50_at_most_120ms": true,
+        "uncached_p95_at_most_350ms": true,
+        "throughput_at_least_1_5x": true,
+        "warm_requests_128": true,
+        "warm_all_ok_and_receipts": true,
+        "warm_receipt_chain_valid": true,
+        "warm_ratio_reported": true,
+        "passed": true
+      },
+      "wall_seconds": 9.251022899989039
+    },
     "m3": {
       "receipt": "receipts\\holarch\\m3_full_reference_cartridge.json",
-      "sha256": "2d84cb466e2fc8554e82d8fa490698587a3691a9ee8be0ce78b6890b7173297c",
+      "sha256": "0106538ed6487b357a77983caee2ad490ca0447236d9884b11a66e875c09da1e",
       "passed": true,
       "gate": {
         "hydrated_at_least_1349": true,
@@ -17,9 +56,39 @@
         "thread_episode_parity_48": true,
         "traps_8_of_8": true,
         "bochner_language_recorded": true,
+        "bochner_l3_recorded": true,
+        "bochner_locked_top1_at_least_0_55": true,
+        "bochner_locked_bpc_at_most_1_31": true,
+        "bochner_language_target_met": true,
         "passed": true
       },
-      "wall_seconds": 214.71743140000035
+      "wall_seconds": 359.91488539997954
+    },
+    "m4": {
+      "receipt": "receipts\\holarch\\m4_guard_ast_and_eval.json",
+      "sha256": "6a0ac0f675223311a218354b10910cde860219f42908a452b86c097a306b46ae",
+      "passed": true,
+      "gate": {
+        "synthesis_84_of_84": true,
+        "guards_6_of_6": true,
+        "guard_traps_6_of_6": true,
+        "prior_72_preserved": true,
+        "stationary_drift_zero": true,
+        "passed": true
+      },
+      "wall_seconds": 0.03907780000008643
+    },
+    "eval": {
+      "receipt": "receipts\\holarch\\m_eval.json",
+      "sha256": "11af0df7023736f43761ab47ec63c2b958e619e95537fbc0b2d6041ae095b472",
+      "passed": true,
+      "gate": {
+        "queries_128": true,
+        "gates_passed": true,
+        "exit_zero": true,
+        "passed": true
+      },
+      "wall_seconds": 628.307682499988
     }
   },
   "passed": true

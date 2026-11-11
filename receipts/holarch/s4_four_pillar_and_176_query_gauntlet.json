@@ -1,0 +1,134 @@
+{
+  "stage": "S4",
+  "aaii": {
+    "returncode": 0,
+    "passed": true,
+    "sha256": "c20b07eb4851e510488a90161340c4177ac929adbc966e79719e5871e7dea160",
+    "stdout_tail": "AAII v5.0 R4 A=1.0000/1.0000 Omni=+100.0 B=1.0000 abstain=1.0000 C=1.0000 co-processor hall/bug=8/8 false=0 passed=True\nS4 D solved=16/16 traps=4 text_tokens=0 A_scale grounded=1.0000 ood=1.0000 hall=0.0000 omni=+100.0 ingested=2500\nreceipt receipts\\holarch\\aaii_v5_eval.json c20b07eb4851e510488a90161340c4177ac929adbc966e79719e5871e7dea160\n",
+    "stderr_tail": ""
+  },
+  "gauntlet": {
+    "returncode": 0,
+    "total_queries": 176,
+    "categories": 32,
+    "reachable_accuracy": 1.0,
+    "hallucination_rate": 0.0,
+    "query_file_reads": 0,
+    "stdout_tail": "rue,\n  \"p3_telepathy_goal\": true,\n  \"p3_telepathy_code\": true,\n  \"p3_telepathy_zero_text\": true,\n  \"p4_discover_accept\": true,\n  \"p4_discover_rollback\": true,\n  \"p4_plan_store_integrity\": true,\n  \"q1_query_agnostic_ingest\": true,\n  \"q1_post_ingest_unseen_query\": true,\n  \"q1_fact_veto_and_latency\": true,\n  \"q2_causal_operator\": true,\n  \"q2_action_kv_counterfactual\": true,\n  \"q2_action_veto\": true,\n  \"q3_disjoint_splits\": true,\n  \"q3_pinned_bars\": true,\n  \"q3_full_decile\": true,\n  \"q4_warm_daemon\": true,\n  \"q4_aaii_mmlu_omniscience\": true,\n  \"q4_aaii_briefcase\": true,\n  \"r1_unstructured_ingest\": true,\n  \"r1_static_fact_phase_veto\": true,\n  \"r1_bridge_latency\": true,\n  \"r2_fitted_readout\": true,\n  \"r2_balanced_matrix\": true,\n  \"r2_veto_zero_source\": true,\n  \"r3_static_full_decile\": true,\n  \"r3_streaming_full_decile\": true,\n  \"r3_role_recency\": true,\n  \"r4_aaii_pillar_a\": true,\n  \"r4_aaii_pillar_b\": true,\n  \"r4_aaii_pillar_c\": true,\n  \"s1_suffix_purity\": true,\n  \"s1_suffix_order_six\": true,\n  \"s1_r3_static_full_decile\": true,\n  \"s2_wave_turing_16\": true,\n  \"s2_turing_traps_4\": true,\n  \"s2_zero_text_tokens\": true,\n  \"s3_charts_12\": true,\n  \"s3_charted_latency\": true,\n  \"s3_stiefel_retraction\": true,\n  \"s4_four_pillars\": true,\n  \"s4_pillar_d_wave\": true,\n  \"s4_omniscience_scale\": true,\n  \"queries_176\": true,\n  \"probes_100_present\": true,\n  \"passed\": true\n}\nbaseline reads=384 bytes=21181744 acc=0.533 hall=0.993\nholarch_mcp reads=0 bytes=0 acc=1.000 hall=0.000 receipts=76 chain=True\n",
+    "stderr_tail": ""
+  },
+  "pillars": {
+    "A": {
+      "metrics": {
+        "grounded_accuracy": 1.0,
+        "ood_abstain_rate": 1.0,
+        "non_hallucination_rate": 1.0,
+        "hallucination_rate": 0.0,
+        "henri_correct": 100,
+        "henri_incorrect": 0,
+        "henri_abstain": 100,
+        "baseline_correct": 63,
+        "baseline_incorrect": 137,
+        "omni_index": 100.0,
+        "omni_index_all_queries": 50.0,
+        "omni_index_baseline": -32.0,
+        "omni_delta": 132.0,
+        "omni_index_formula": "answered-index: 100/N_grounded * sum(correct - hallucinated) over the 100 ingested-subject queries; OOD abstention is measured separately",
+        "matched_coherence_min": 0.9999999999989984
+      },
+      "dataset": {
+        "path": "data\\official_benchmarks\\canonical\\mmlu\\mmlu.csv",
+        "rows_on_disk": 14042,
+        "ingested_facts": 500,
+        "grounded_subjects": [
+          "elementary_mathematics",
+          "high_school_macroeconomics",
+          "high_school_psychology",
+          "miscellaneous",
+          "moral_disputes",
+          "moral_scenarios",
+          "professional_law",
+          "professional_psychology"
+        ],
+        "ood_subjects": [
+          "high_school_biology",
+          "nutrition",
+          "philosophy",
+          "prehistory"
+        ],
+        "grounded_queries": 100,
+        "ood_queries": 100,
+        "total_queries": 200
+      },
+      "passed": true
+    },
+    "B": {
+      "metrics": {
+        "rubric_pass": 16,
+        "rubric_pass_rate": 1.0,
+        "abstain_pass": 8,
+        "abstain_rate": 1.0,
+        "ttft_p50_ms": 0.6783500430174172
+      },
+      "passed": true
+    },
+    "C": {
+      "metrics": {
+        "pass_at_1": 32,
+        "pass_at_1_rate": 1.0,
+        "correct_candidates": 16,
+        "hallucinated_rejected": 8,
+        "buggy_rejected": 8,
+        "false_acceptance": 0
+      },
+      "passed": true
+    },
+    "D": {
+      "metrics": {
+        "solved": 16,
+        "programs": 16,
+        "traps_vetoed": 4,
+        "traps": 4,
+        "false_accepts": 0,
+        "text_tokens": 0,
+        "step_ms_mean": 0.7246855137113737,
+        "slots": 4,
+        "dim": 8192
+      },
+      "passed": true
+    }
+  },
+  "gate": {
+    "s4_aaii_exit_zero": true,
+    "s4_agent_exit_zero": true,
+    "s4_aaii_passed": true,
+    "s4_pillar_a_passed": true,
+    "s4_pillar_b_passed": true,
+    "s4_pillar_c_passed": true,
+    "s4_pillar_d_passed": true,
+    "s4_a_ingested_2500": true,
+    "s4_a_subjects_10": true,
+    "s4_a_grounded_ge_0_98": true,
+    "s4_a_ood_ge_0_99": true,
+    "s4_a_hallucination_le_0_01": true,
+    "s4_a_omni_ge_96": true,
+    "s4_a_scale_passed": true,
+    "s4_b_rubric_16": true,
+    "s4_b_abstain_8": true,
+    "s4_c_pass_32": true,
+    "s4_c_veto_16": true,
+    "s4_c_false_accept_zero": true,
+    "s4_d_solved_16": true,
+    "s4_d_traps_4": true,
+    "s4_queries_176": true,
+    "s4_categories_32": true,
+    "s4_reachable_1": true,
+    "s4_hallucination_0": true,
+    "s4_zero_reads": true,
+    "s4_chain_valid": true,
+    "passed": true
+  },
+  "wall_seconds": 692.5649201000342,
+  "evidence": "OBSERVED",
+  "passed": true
+}

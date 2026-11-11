@@ -16,23 +16,23 @@
   "bm25": {
     "claims": 10,
     "top4_parity": 10,
-    "matrix_p50_ms": 0.1712500088615343,
-    "matrix_p95_ms": 0.22676999069517476,
-    "python_p50_ms": 1.1035999923478812,
-    "python_p95_ms": 1.236319991585333,
-    "speedup_p50": 6.444379183887849,
-    "speedup_p95": 5.451867717572912,
-    "passages": 848,
-    "vocabulary": 3109
+    "matrix_p50_ms": 0.16295001842081547,
+    "matrix_p95_ms": 0.20745994988828897,
+    "python_p50_ms": 1.4463000115938485,
+    "python_p95_ms": 1.5375599381513894,
+    "speedup_p50": 8.87572781893651,
+    "speedup_p95": 7.4113578981356145,
+    "passages": 1081,
+    "vocabulary": 3611
   },
   "concurrency": {
     "threads": 16,
     "requests": 128,
     "errors": [],
     "ok": 128,
-    "seconds": 7.8311091999930795,
-    "p50_ms": 748.7088000198128,
-    "p95_ms": 2269.7603299922775,
+    "seconds": 2.879832800012082,
+    "p50_ms": 1.8992500263266265,
+    "p95_ms": 2836.2305650196504,
     "receipt_chain_valid": true,
     "gil_enabled": true
   },
@@ -61,6 +61,6 @@
     "bundle_copied": true,
     "passed": true
   },
-  "wall_seconds": 8.802215100004105,
+  "wall_seconds": 4.340329200029373,
   "evidence": "OBSERVED"
 }

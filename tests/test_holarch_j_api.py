@@ -369,9 +369,12 @@ def _run_threads(fn, per_thread: int, threads: int):
 
 
 def test_sixteen_concurrent_reads_valid_receipts_and_throughput(tmp_path):
-    service = _service(tmp_path)
+    # Directive N2: the response cache is off for this probe. A cached read
+    # returns before the reader lock, so it cannot show reader overlap; the
+    # benchmark measures the execution path, not the memo table.
+    service = _service(tmp_path, cache_enabled=False)
     try:
-        service.veto("vision", PIXELS)  # warm caches outside the measurement
+        service.veto("vision", PIXELS)  # one warm call outside the measurement
         threads, per_thread = 16, 8
 
         def serialized_call():

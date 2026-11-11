@@ -350,16 +350,37 @@ class StiefelSlotPool(nn.Module):
         if self.mode == "fixed":
             self.weight_real.requires_grad_(False)
             self.weight_imag.requires_grad_(False)
+        # Directive N2: the Stiefel frame is a function of the weights only.
+        # At inference the weights do not move, so the QR retraction is
+        # computed once and reused. Training keeps the per-pass retraction so
+        # the basis tracks the update.
+        self._basis_cache: Optional[torch.Tensor] = None
 
     def basis(self) -> torch.Tensor:
         if self.mode == "fixed":
             return self.fixed_basis
+        if (
+            not self.training
+            and not torch.is_grad_enabled()
+            and self._basis_cache is not None
+        ):
+            return self._basis_cache
         weight = torch.complex(self.weight_real, self.weight_imag)
         q, r = torch.linalg.qr(weight.transpose(-1, -2))
         diagonal = torch.diagonal(r, dim1=-2, dim2=-1).real
         sign = torch.where(diagonal >= 0.0, torch.ones_like(diagonal), -torch.ones_like(diagonal))
         q = q * torch.complex(sign, torch.zeros_like(sign)).unsqueeze(-2)
-        return q.transpose(-1, -2).contiguous()
+        basis = q.transpose(-1, -2).contiguous()
+        if not self.training and not torch.is_grad_enabled():
+            # Only a grad-free frame may be cached: a tensor that still owns a
+            # graph cannot be reused by a second backward pass.
+            self._basis_cache = basis.detach()
+        return basis
+
+    def _load_from_state_dict(self, *args, **kwargs):
+        # A reloaded weight invalidates the inference-time frame cache.
+        self._basis_cache = None
+        return super()._load_from_state_dict(*args, **kwargs)
 
     def forward(self, slots: torch.Tensor) -> torch.Tensor:
         # Directive J1: one two-dimensional product per slot with a float64

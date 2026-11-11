@@ -1,0 +1,1827 @@
+{
+  "stage": "T2",
+  "dataset": {
+    "path": "data\\official_benchmarks\\canonical\\mmlu\\mmlu.csv",
+    "sha256": "15b6785d49e0012602e089558a7a0dfb916baf97e9295aa25b48062f13c6afbb",
+    "subjects": [
+      "clinical_knowledge",
+      "elementary_mathematics",
+      "high_school_biology",
+      "high_school_macroeconomics",
+      "high_school_mathematics",
+      "high_school_psychology",
+      "miscellaneous",
+      "moral_disputes",
+      "moral_scenarios",
+      "nutrition"
+    ],
+    "ood_subject": "philosophy",
+    "ingested": 2500,
+    "total_engrams_with_seed_cartridge": 3849,
+    "per_subject": 250,
+    "grounded_queries": 100,
+    "ood_queries": 100
+  },
+  "index": {
+    "legacy": {
+      "charts": 63,
+      "chart_capacity": 64,
+      "engrams": 3849,
+      "largest_chart": 64,
+      "smallest_chart": 2,
+      "mean_chart": 61.095238095238095
+    },
+    "centered": {
+      "rows": 2500,
+      "charts": 40,
+      "capacity": 64,
+      "affinity": 0.1,
+      "tau_boundary": 0.1,
+      "top_charts": 1,
+      "top_charts_max": 6,
+      "replication": 1,
+      "largest_chart": 181,
+      "mean_chart": 62.5,
+      "eigen_min": 0.00038821608542667,
+      "eigen_max": 0.003010920673169456,
+      "digest": "f9ad6ac19204c6f4",
+      "synchronized": true,
+      "namespace": "t2_mmlu",
+      "margin": {
+        "tau_boundary": 0.03707917454427787,
+        "samples": 278,
+        "margin_p10": 0.03707917454427787,
+        "margin_p50": 0.10967378288017302,
+        "margin_p90": 0.22994030055347792
+      },
+      "auto_threshold": 1024
+    },
+    "build_seconds": 0.029502499965019524,
+    "write_seconds": 31.514168999972753,
+    "engine": {
+      "corpus_digest": "b9d9c6084cf67975",
+      "vocabulary_size": 2048,
+      "vocabulary_digest": "d5a64f73b97c6aab",
+      "tokens": 864011,
+      "files": 34,
+      "vocab_locked": true,
+      "vocab_ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
+      "vocab_lock_path": "C:\\Users\\chan\\Desktop\\HENRI v6\\receipts\\holarch\\vocab_lock.json"
+    },
+    "auto_threshold": 1024
+  },
+  "latency": {
+    "charted_p50_ms": 0.37570000858977437,
+    "flat_p50_ms": 0.5931000341661274,
+    "speedup": 1.5786532355758647,
+    "mean_evaluated_ratio": 0.053106,
+    "max_evaluated_ratio": 0.202,
+    "expanded_queries": 44,
+    "queries": 200,
+    "k": 8,
+    "candidate_multiplier": 2,
+    "top_charts": 1,
+    "top_charts_max": 6,
+    "cache_preloaded": true,
+    "namespace_engrams": 2500
+  },
+  "recall": {
+    "top1_parity": 1.0,
+    "exact_top1_grounded": 1.0,
+    "all_query_agreement": 0.705,
+    "ood_agreement": 0.41,
+    "tau_coherence": 0.7499999671995438
+  },
+  "metrics": {
+    "grounded_accuracy": 1.0,
+    "ood_abstain_rate": 1.0,
+    "hallucination_rate": 0.0,
+    "answered": 100,
+    "abstained": 100
+  },
+  "auto_policy": {
+    "threshold": 1024,
+    "centered_used_without_flag": true,
+    "synchronized": true
+  },
+  "grounded_answers": [
+    {
+      "index": "521",
+      "subject": "clinical_knowledge",
+      "expected": "B",
+      "predicted": "B",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.000000006221722
+    },
+    {
+      "index": "672",
+      "subject": "clinical_knowledge",
+      "expected": "D",
+      "predicted": "D",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000655896062
+    },
+    {
+      "index": "617",
+      "subject": "clinical_knowledge",
+      "expected": "A",
+      "predicted": "A",
+      "binding": true,
+      "correct": true,
+      "coherence": 0.9999999898015357
+    },
+    {
+      "index": "541",
+      "subject": "clinical_knowledge",
+      "expected": "D",
+      "predicted": "D",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000288897768
+    },
+    {
+      "index": "638",
+      "subject": "clinical_knowledge",
+      "expected": "A",
+      "predicted": "A",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000577531603
+    },
+    {
+      "index": "663",
+      "subject": "clinical_knowledge",
+      "expected": "C",
+      "predicted": "C",
+      "binding": true,
+      "correct": true,
+      "coherence": 0.9999999762218872
+    },
+    {
+      "index": "503",
+      "subject": "clinical_knowledge",
+      "expected": "D",
+      "predicted": "D",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000582825912
+    },
+    {
+      "index": "687",
+      "subject": "clinical_knowledge",
+      "expected": "D",
+      "predicted": "D",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000066803758
+    },
+    {
+      "index": "643",
+      "subject": "clinical_knowledge",
+      "expected": "D",
+      "predicted": "D",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000272237821
+    },
+    {
+      "index": "619",
+      "subject": "clinical_knowledge",
+      "expected": "D",
+      "predicted": "D",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000205090187
+    },
+    {
+      "index": "2117",
+      "subject": "elementary_mathematics",
+      "expected": "B",
+      "predicted": "B",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000691286013
+    },
+    {
+      "index": "2109",
+      "subject": "elementary_mathematics",
+      "expected": "D",
+      "predicted": "D",
+      "binding": true,
+      "correct": true,
+      "coherence": 0.9999999679945929
+    },
+    {
+      "index": "2251",
+      "subject": "elementary_mathematics",
+      "expected": "D",
+      "predicted": "D",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.000000000686026
+    },
+    {
+      "index": "2073",
+      "subject": "elementary_mathematics",
+      "expected": "D",
+      "predicted": "D",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000139888583
+    },
+    {
+      "index": "2147",
+      "subject": "elementary_mathematics",
+      "expected": "D",
+      "predicted": "D",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000372346374
+    },
+    {
+      "index": "2093",
+      "subject": "elementary_mathematics",
+      "expected": "A",
+      "predicted": "A",
+      "binding": true,
+      "correct": true,
+      "coherence": 0.9999999702765727
+    },
+    {
+      "index": "2087",
+      "subject": "elementary_mathematics",
+      "expected": "A",
+      "predicted": "A",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000167670335
+    },
+    {
+      "index": "2261",
+      "subject": "elementary_mathematics",
+      "expected": "B",
+      "predicted": "B",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.000000006300597
+    },
+    {
+      "index": "2105",
+      "subject": "elementary_mathematics",
+      "expected": "B",
+      "predicted": "B",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.000000025177539
+    },
+    {
+      "index": "2131",
+      "subject": "elementary_mathematics",
+      "expected": "D",
+      "predicted": "D",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000441808639
+    },
+    {
+      "index": "2781",
+      "subject": "high_school_biology",
+      "expected": "D",
+      "predicted": "D",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.000000096218008
+    },
+    {
+      "index": "2777",
+      "subject": "high_school_biology",
+      "expected": "B",
+      "predicted": "B",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000032548955
+    },
+    {
+      "index": "2866",
+      "subject": "high_school_biology",
+      "expected": "A",
+      "predicted": "A",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000622814198
+    },
+    {
+      "index": "2776",
+      "subject": "high_school_biology",
+      "expected": "C",
+      "predicted": "C",
+      "binding": true,
+      "correct": true,
+      "coherence": 0.9999999694497127
+    },
+    {
+      "index": "2875",
+      "subject": "high_school_biology",
+      "expected": "D",
+      "predicted": "D",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000714210473
+    },
+    {
+      "index": "2803",
+      "subject": "high_school_biology",
+      "expected": "B",
+      "predicted": "B",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000627587797
+    },
+    {
+      "index": "2706",
+      "subject": "high_school_biology",
+      "expected": "D",
+      "predicted": "D",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000324768994
+    },
+    {
+      "index": "2701",
+      "subject": "high_school_biology",
+      "expected": "C",
+      "predicted": "C",
+      "binding": true,
+      "correct": true,
+      "coherence": 0.9999999686266212
+    },
+    {
+      "index": "2874",
+      "subject": "high_school_biology",
+      "expected": "A",
+      "predicted": "A",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.000000026698912
+    },
+    {
+      "index": "2686",
+      "subject": "high_school_biology",
+      "expected": "B",
+      "predicted": "B",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.000000066662059
+    },
+    {
+      "index": "3947",
+      "subject": "high_school_macroeconomics",
+      "expected": "C",
+      "predicted": "C",
+      "binding": true,
+      "correct": true,
+      "coherence": 0.9999999777543708
+    },
+    {
+      "index": "3985",
+      "subject": "high_school_macroeconomics",
+      "expected": "A",
+      "predicted": "A",
+      "binding": true,
+      "correct": true,
+      "coherence": 0.9999999797168198
+    },
+    {
+      "index": "4062",
+      "subject": "high_school_macroeconomics",
+      "expected": "D",
+      "predicted": "D",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000273208876
+    },
+    {
+      "index": "4023",
+      "subject": "high_school_macroeconomics",
+      "expected": "D",
+      "predicted": "D",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000486719627
+    },
+    {
+      "index": "4084",
+      "subject": "high_school_macroeconomics",
+      "expected": "D",
+      "predicted": "D",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.000000007463584
+    },
+    {
+      "index": "4073",
+      "subject": "high_school_macroeconomics",
+      "expected": "B",
+      "predicted": "B",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000071335222
+    },
+    {
+      "index": "3930",
+      "subject": "high_school_macroeconomics",
+      "expected": "C",
+      "predicted": "C",
+      "binding": true,
+      "correct": true,
+      "coherence": 0.9999999704277597
+    },
+    {
+      "index": "4079",
+      "subject": "high_school_macroeconomics",
+      "expected": "B",
+      "predicted": "B",
+      "binding": true,
+      "correct": true,
+      "coherence": 0.9999999583338737
+    },
+    {
+      "index": "3871",
+      "subject": "high_school_macroeconomics",
+      "expected": "D",
+      "predicted": "D",
+      "binding": true,
+      "correct": true,
+      "coherence": 0.999999963313888
+    },
+    {
+      "index": "3864",
+      "subject": "high_school_macroeconomics",
+      "expected": "D",
+      "predicted": "D",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000177693664
+    },
+    {
+      "index": "4245",
+      "subject": "high_school_mathematics",
+      "expected": "B",
+      "predicted": "B",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.000000036473023
+    },
+    {
+      "index": "4303",
+      "subject": "high_school_mathematics",
+      "expected": "D",
+      "predicted": "D",
+      "binding": true,
+      "correct": true,
+      "coherence": 0.9999999893249013
+    },
+    {
+      "index": "4252",
+      "subject": "high_school_mathematics",
+      "expected": "A",
+      "predicted": "A",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.000000067756147
+    },
+    {
+      "index": "4353",
+      "subject": "high_school_mathematics",
+      "expected": "D",
+      "predicted": "D",
+      "binding": true,
+      "correct": true,
+      "coherence": 0.9999999981173879
+    },
+    {
+      "index": "4455",
+      "subject": "high_school_mathematics",
+      "expected": "B",
+      "predicted": "B",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000030572405
+    },
+    {
+      "index": "4357",
+      "subject": "high_school_mathematics",
+      "expected": "B",
+      "predicted": "B",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.000000012485787
+    },
+    {
+      "index": "4233",
+      "subject": "high_school_mathematics",
+      "expected": "B",
+      "predicted": "B",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000765370842
+    },
+    {
+      "index": "4286",
+      "subject": "high_school_mathematics",
+      "expected": "B",
+      "predicted": "B",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000798054898
+    },
+    {
+      "index": "4383",
+      "subject": "high_school_mathematics",
+      "expected": "C",
+      "predicted": "C",
+      "binding": true,
+      "correct": true,
+      "coherence": 0.9999999608929702
+    },
+    {
+      "index": "4234",
+      "subject": "high_school_mathematics",
+      "expected": "C",
+      "predicted": "C",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000590831268
+    },
+    {
+      "index": "4924",
+      "subject": "high_school_psychology",
+      "expected": "B",
+      "predicted": "B",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000768379438
+    },
+    {
+      "index": "4898",
+      "subject": "high_school_psychology",
+      "expected": "C",
+      "predicted": "C",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.000000031445068
+    },
+    {
+      "index": "4931",
+      "subject": "high_school_psychology",
+      "expected": "D",
+      "predicted": "D",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000766473671
+    },
+    {
+      "index": "4925",
+      "subject": "high_school_psychology",
+      "expected": "C",
+      "predicted": "C",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000127551703
+    },
+    {
+      "index": "5067",
+      "subject": "high_school_psychology",
+      "expected": "B",
+      "predicted": "B",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000241407427
+    },
+    {
+      "index": "5033",
+      "subject": "high_school_psychology",
+      "expected": "D",
+      "predicted": "D",
+      "binding": true,
+      "correct": true,
+      "coherence": 0.9999999562660583
+    },
+    {
+      "index": "4904",
+      "subject": "high_school_psychology",
+      "expected": "A",
+      "predicted": "A",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000549013994
+    },
+    {
+      "index": "5007",
+      "subject": "high_school_psychology",
+      "expected": "C",
+      "predicted": "C",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.000000083085916
+    },
+    {
+      "index": "4948",
+      "subject": "high_school_psychology",
+      "expected": "A",
+      "predicted": "A",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000701066991
+    },
+    {
+      "index": "5116",
+      "subject": "high_school_psychology",
+      "expected": "D",
+      "predicted": "D",
+      "binding": true,
+      "correct": true,
+      "coherence": 0.9999999948477551
+    },
+    {
+      "index": "7409",
+      "subject": "miscellaneous",
+      "expected": "C",
+      "predicted": "C",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000477858657
+    },
+    {
+      "index": "7517",
+      "subject": "miscellaneous",
+      "expected": "C",
+      "predicted": "C",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.000000051685281
+    },
+    {
+      "index": "7509",
+      "subject": "miscellaneous",
+      "expected": "C",
+      "predicted": "C",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000132875337
+    },
+    {
+      "index": "7498",
+      "subject": "miscellaneous",
+      "expected": "D",
+      "predicted": "D",
+      "binding": true,
+      "correct": true,
+      "coherence": 0.9999999705247286
+    },
+    {
+      "index": "7525",
+      "subject": "miscellaneous",
+      "expected": "C",
+      "predicted": "C",
+      "binding": true,
+      "correct": true,
+      "coherence": 0.999999972301659
+    },
+    {
+      "index": "7503",
+      "subject": "miscellaneous",
+      "expected": "B",
+      "predicted": "B",
+      "binding": true,
+      "correct": true,
+      "coherence": 0.9999999963371833
+    },
+    {
+      "index": "7538",
+      "subject": "miscellaneous",
+      "expected": "B",
+      "predicted": "B",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000560982263
+    },
+    {
+      "index": "7546",
+      "subject": "miscellaneous",
+      "expected": "A",
+      "predicted": "A",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000080195663
+    },
+    {
+      "index": "7414",
+      "subject": "miscellaneous",
+      "expected": "D",
+      "predicted": "D",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000436502174
+    },
+    {
+      "index": "7626",
+      "subject": "miscellaneous",
+      "expected": "D",
+      "predicted": "D",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000282619979
+    },
+    {
+      "index": "8202",
+      "subject": "moral_disputes",
+      "expected": "A",
+      "predicted": "A",
+      "binding": true,
+      "correct": true,
+      "coherence": 0.9999999777848249
+    },
+    {
+      "index": "8176",
+      "subject": "moral_disputes",
+      "expected": "D",
+      "predicted": "D",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000278756171
+    },
+    {
+      "index": "8353",
+      "subject": "moral_disputes",
+      "expected": "C",
+      "predicted": "C",
+      "binding": true,
+      "correct": true,
+      "coherence": 0.9999999904596212
+    },
+    {
+      "index": "8179",
+      "subject": "moral_disputes",
+      "expected": "B",
+      "predicted": "B",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000547410213
+    },
+    {
+      "index": "8188",
+      "subject": "moral_disputes",
+      "expected": "B",
+      "predicted": "B",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000877824258
+    },
+    {
+      "index": "8270",
+      "subject": "moral_disputes",
+      "expected": "D",
+      "predicted": "D",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000020687647
+    },
+    {
+      "index": "8271",
+      "subject": "moral_disputes",
+      "expected": "D",
+      "predicted": "D",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000295257567
+    },
+    {
+      "index": "8242",
+      "subject": "moral_disputes",
+      "expected": "D",
+      "predicted": "D",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000594496656
+    },
+    {
+      "index": "8182",
+      "subject": "moral_disputes",
+      "expected": "C",
+      "predicted": "C",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.000000046154682
+    },
+    {
+      "index": "8201",
+      "subject": "moral_disputes",
+      "expected": "B",
+      "predicted": "B",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000502800979
+    },
+    {
+      "index": "8653",
+      "subject": "moral_scenarios",
+      "expected": "D",
+      "predicted": "D",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000452296778
+    },
+    {
+      "index": "8610",
+      "subject": "moral_scenarios",
+      "expected": "B",
+      "predicted": "B",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000675589298
+    },
+    {
+      "index": "8569",
+      "subject": "moral_scenarios",
+      "expected": "A",
+      "predicted": "A",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000616807203
+    },
+    {
+      "index": "8672",
+      "subject": "moral_scenarios",
+      "expected": "A",
+      "predicted": "A",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000141831977
+    },
+    {
+      "index": "8724",
+      "subject": "moral_scenarios",
+      "expected": "D",
+      "predicted": "D",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000154778927
+    },
+    {
+      "index": "8616",
+      "subject": "moral_scenarios",
+      "expected": "B",
+      "predicted": "B",
+      "binding": true,
+      "correct": true,
+      "coherence": 0.9999999836871575
+    },
+    {
+      "index": "8746",
+      "subject": "moral_scenarios",
+      "expected": "D",
+      "predicted": "D",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000546004826
+    },
+    {
+      "index": "8586",
+      "subject": "moral_scenarios",
+      "expected": "B",
+      "predicted": "B",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.000000050812307
+    },
+    {
+      "index": "8681",
+      "subject": "moral_scenarios",
+      "expected": "B",
+      "predicted": "B",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000352099365
+    },
+    {
+      "index": "8551",
+      "subject": "moral_scenarios",
+      "expected": "A",
+      "predicted": "A",
+      "binding": true,
+      "correct": true,
+      "coherence": 0.9999999953563665
+    },
+    {
+      "index": "9612",
+      "subject": "nutrition",
+      "expected": "C",
+      "predicted": "C",
+      "binding": true,
+      "correct": true,
+      "coherence": 0.9999999715173029
+    },
+    {
+      "index": "9458",
+      "subject": "nutrition",
+      "expected": "C",
+      "predicted": "C",
+      "binding": true,
+      "correct": true,
+      "coherence": 0.9999999892892637
+    },
+    {
+      "index": "9562",
+      "subject": "nutrition",
+      "expected": "A",
+      "predicted": "A",
+      "binding": true,
+      "correct": true,
+      "coherence": 0.9999999759300778
+    },
+    {
+      "index": "9423",
+      "subject": "nutrition",
+      "expected": "B",
+      "predicted": "B",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000020101134
+    },
+    {
+      "index": "9435",
+      "subject": "nutrition",
+      "expected": "D",
+      "predicted": "D",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000084148235
+    },
+    {
+      "index": "9628",
+      "subject": "nutrition",
+      "expected": "D",
+      "predicted": "D",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.00000002049785
+    },
+    {
+      "index": "9411",
+      "subject": "nutrition",
+      "expected": "A",
+      "predicted": "A",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000523771166
+    },
+    {
+      "index": "9603",
+      "subject": "nutrition",
+      "expected": "A",
+      "predicted": "A",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000451722442
+    },
+    {
+      "index": "9584",
+      "subject": "nutrition",
+      "expected": "D",
+      "predicted": "D",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000219201863
+    },
+    {
+      "index": "9440",
+      "subject": "nutrition",
+      "expected": "C",
+      "predicted": "C",
+      "binding": true,
+      "correct": true,
+      "coherence": 1.0000000185943494
+    }
+  ],
+  "ood_answers": [
+    {
+      "index": "9860",
+      "subject": "philosophy",
+      "expected": "D",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9879",
+      "subject": "philosophy",
+      "expected": "D",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9732",
+      "subject": "philosophy",
+      "expected": "A",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9864",
+      "subject": "philosophy",
+      "expected": "D",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9767",
+      "subject": "philosophy",
+      "expected": "C",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9768",
+      "subject": "philosophy",
+      "expected": "B",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9836",
+      "subject": "philosophy",
+      "expected": "C",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9847",
+      "subject": "philosophy",
+      "expected": "D",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9944",
+      "subject": "philosophy",
+      "expected": "B",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9876",
+      "subject": "philosophy",
+      "expected": "A",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9832",
+      "subject": "philosophy",
+      "expected": "C",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9791",
+      "subject": "philosophy",
+      "expected": "B",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9739",
+      "subject": "philosophy",
+      "expected": "B",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9989",
+      "subject": "philosophy",
+      "expected": "D",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9823",
+      "subject": "philosophy",
+      "expected": "C",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9831",
+      "subject": "philosophy",
+      "expected": "D",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9731",
+      "subject": "philosophy",
+      "expected": "D",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9852",
+      "subject": "philosophy",
+      "expected": "B",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9892",
+      "subject": "philosophy",
+      "expected": "C",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9950",
+      "subject": "philosophy",
+      "expected": "A",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9816",
+      "subject": "philosophy",
+      "expected": "C",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9952",
+      "subject": "philosophy",
+      "expected": "A",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9959",
+      "subject": "philosophy",
+      "expected": "B",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9840",
+      "subject": "philosophy",
+      "expected": "B",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9912",
+      "subject": "philosophy",
+      "expected": "B",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9900",
+      "subject": "philosophy",
+      "expected": "B",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "10000",
+      "subject": "philosophy",
+      "expected": "A",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9790",
+      "subject": "philosophy",
+      "expected": "D",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9837",
+      "subject": "philosophy",
+      "expected": "D",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9720",
+      "subject": "philosophy",
+      "expected": "C",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9981",
+      "subject": "philosophy",
+      "expected": "B",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9780",
+      "subject": "philosophy",
+      "expected": "C",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9856",
+      "subject": "philosophy",
+      "expected": "B",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9972",
+      "subject": "philosophy",
+      "expected": "A",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9742",
+      "subject": "philosophy",
+      "expected": "B",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9751",
+      "subject": "philosophy",
+      "expected": "C",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9976",
+      "subject": "philosophy",
+      "expected": "C",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9994",
+      "subject": "philosophy",
+      "expected": "D",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9833",
+      "subject": "philosophy",
+      "expected": "B",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9721",
+      "subject": "philosophy",
+      "expected": "D",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9882",
+      "subject": "philosophy",
+      "expected": "D",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9754",
+      "subject": "philosophy",
+      "expected": "C",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9838",
+      "subject": "philosophy",
+      "expected": "B",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9774",
+      "subject": "philosophy",
+      "expected": "B",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9775",
+      "subject": "philosophy",
+      "expected": "D",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9920",
+      "subject": "philosophy",
+      "expected": "A",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9940",
+      "subject": "philosophy",
+      "expected": "D",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9777",
+      "subject": "philosophy",
+      "expected": "D",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "10015",
+      "subject": "philosophy",
+      "expected": "D",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9824",
+      "subject": "philosophy",
+      "expected": "B",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9740",
+      "subject": "philosophy",
+      "expected": "A",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9927",
+      "subject": "philosophy",
+      "expected": "D",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9979",
+      "subject": "philosophy",
+      "expected": "D",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9859",
+      "subject": "philosophy",
+      "expected": "D",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9799",
+      "subject": "philosophy",
+      "expected": "C",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9915",
+      "subject": "philosophy",
+      "expected": "A",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9806",
+      "subject": "philosophy",
+      "expected": "B",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9894",
+      "subject": "philosophy",
+      "expected": "A",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9883",
+      "subject": "philosophy",
+      "expected": "A",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9931",
+      "subject": "philosophy",
+      "expected": "B",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9795",
+      "subject": "philosophy",
+      "expected": "C",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9901",
+      "subject": "philosophy",
+      "expected": "A",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9762",
+      "subject": "philosophy",
+      "expected": "B",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9872",
+      "subject": "philosophy",
+      "expected": "D",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9818",
+      "subject": "philosophy",
+      "expected": "B",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9744",
+      "subject": "philosophy",
+      "expected": "A",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9827",
+      "subject": "philosophy",
+      "expected": "B",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9773",
+      "subject": "philosophy",
+      "expected": "C",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9815",
+      "subject": "philosophy",
+      "expected": "C",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9887",
+      "subject": "philosophy",
+      "expected": "C",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9781",
+      "subject": "philosophy",
+      "expected": "C",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9899",
+      "subject": "philosophy",
+      "expected": "C",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9851",
+      "subject": "philosophy",
+      "expected": "B",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9786",
+      "subject": "philosophy",
+      "expected": "D",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9819",
+      "subject": "philosophy",
+      "expected": "C",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9878",
+      "subject": "philosophy",
+      "expected": "B",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9723",
+      "subject": "philosophy",
+      "expected": "B",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9821",
+      "subject": "philosophy",
+      "expected": "B",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9829",
+      "subject": "philosophy",
+      "expected": "A",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9984",
+      "subject": "philosophy",
+      "expected": "C",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9913",
+      "subject": "philosophy",
+      "expected": "B",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9936",
+      "subject": "philosophy",
+      "expected": "D",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "10005",
+      "subject": "philosophy",
+      "expected": "B",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9850",
+      "subject": "philosophy",
+      "expected": "C",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9727",
+      "subject": "philosophy",
+      "expected": "A",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9776",
+      "subject": "philosophy",
+      "expected": "A",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9865",
+      "subject": "philosophy",
+      "expected": "D",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9855",
+      "subject": "philosophy",
+      "expected": "A",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9968",
+      "subject": "philosophy",
+      "expected": "D",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9814",
+      "subject": "philosophy",
+      "expected": "B",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9811",
+      "subject": "philosophy",
+      "expected": "A",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9971",
+      "subject": "philosophy",
+      "expected": "B",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9743",
+      "subject": "philosophy",
+      "expected": "D",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "10022",
+      "subject": "philosophy",
+      "expected": "D",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9862",
+      "subject": "philosophy",
+      "expected": "B",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9992",
+      "subject": "philosophy",
+      "expected": "C",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9846",
+      "subject": "philosophy",
+      "expected": "D",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9998",
+      "subject": "philosophy",
+      "expected": "C",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "9891",
+      "subject": "philosophy",
+      "expected": "D",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    },
+    {
+      "index": "10020",
+      "subject": "philosophy",
+      "expected": "D",
+      "predicted": "ABSTAIN",
+      "binding": false,
+      "correct": false
+    }
+  ],
+  "gate": {
+    "t2_store_2500": true,
+    "t2_subjects_10": true,
+    "t2_index_synchronized": true,
+    "t2_parity_ge_0_99": true,
+    "t2_grounded_ge_0_99": true,
+    "t2_ood_abstain_1": true,
+    "t2_hallucination_0": true,
+    "t2_candidates_le_0_40": true,
+    "t2_speedup_ge_1_35": true,
+    "t2_auto_centered": true,
+    "passed": true
+  },
+  "wall_seconds": 43.234724599984474,
+  "evidence": "OBSERVED",
+  "passed": true
+}

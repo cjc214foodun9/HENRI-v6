@@ -131,8 +131,17 @@ def test_agent_eval_contract(tmp_path):
     assert payload["per_category"]["code_call_flow"]["mcp_correct"] > 0
     # Cycle I expanded the gauntlet from 64 to 76 slots; Cycle J added twelve
     # clean-room, elastic-vocabulary, diverse-DAG and OpenAI probes; Cycle K
-    # added twelve multi-task, discovery, multi-statement and rebase probes.
-    assert payload["queries_total"] == 112
+    # added twelve multi-task, discovery, multi-statement and rebase probes;
+    # Cycle M added twelve online-REPULSOR, latency, cartridge and guard
+    # probes; Cycle O added sixteen H-SWAT, API epoch, language and holonic
+    # probes; Cycle P added twelve live-language, telepathy, telepathic-VLA and
+    # discovery probes; Cycle Q added twelve query-agnostic telepathy, causal
+    # Action-KV VLA, disjoint-language and external-AAII probes; Cycle R added
+    # twelve unstructured-ingest, fitted-VLA, static-language and real-corpus
+    # AAII probes; Cycle S added twelve suffix-floor, wave-Turing, chart-index
+    # and four-pillar probes; Cycle T added sixteen hygiene, centered-chart,
+    # induction and co-processor probes. The total is 76 + 116 = 192.
+    assert payload["queries_total"] == 192
     assert payload["composite"]["mcp_accuracy"] >= 0.90
     assert payload["composite"]["mcp_refused"] == payload["composite"]["traps_total"]
     assert set(payload["per_category"]) == {
@@ -164,6 +173,30 @@ def test_agent_eval_contract(tmp_path):
         "m2_low_latency",
         "m3_full_reference",
         "m4_guard_ast",
+        "o1_swat",
+        "o2_api_epoch",
+        "o3_language",
+        "o4_holonic",
+        "p1_language",
+        "p2_telepathy",
+        "p3_telepathic_vla",
+        "p4_holon",
+        "q1_telepathy",
+        "q2_causal_vla",
+        "q3_language",
+        "q4_aaii",
+        "r1_telepathy",
+        "r2_causal_vla",
+        "r3_language",
+        "r4_aaii",
+        "s1_language",
+        "s2_turing",
+        "s3_charts",
+        "s4_suite",
+        "t1_hygiene",
+        "t2_centered_charts",
+        "t3_induction",
+        "t4_coprocessor",
     }
     # The legacy 76-receipt chain is still contiguous; the twelve J probes add
     # their own receipts on top of it.

@@ -1,0 +1,31 @@
+{
+  "stage": "EVAL",
+  "receipt": {
+    "path": "receipts\\holarch\\agent_eval.json",
+    "sha256": "5913e79c33e5313309e13ec5d59a5f15612bfb42191a634a505f499156b34ab7",
+    "bytes": 238457
+  },
+  "total_queries": 176,
+  "categories": 32,
+  "sidecars": {
+    "checked": 103,
+    "invalid": [],
+    "missing": []
+  },
+  "returncode": 0,
+  "gate": {
+    "queries_152": true,
+    "categories_24": true,
+    "gates_passed": true,
+    "exit_zero": true,
+    "reachable_1": true,
+    "hallucination_0": true,
+    "zero_reads": true,
+    "chain_valid": true,
+    "sidecars_valid": true,
+    "passed": true
+  },
+  "wall_seconds": 608.333383899997,
+  "evidence": "OBSERVED",
+  "passed": true
+}

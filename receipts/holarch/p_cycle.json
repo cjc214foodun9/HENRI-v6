@@ -1,0 +1,105 @@
+{
+  "cycle": "P",
+  "head": "7d3522e3f55a999ff1edb84dbb44db2b3e2b6fdd",
+  "stages": {
+    "p1": {
+      "receipt": "receipts\\holarch\\p1_live_corpus_language_closure.json",
+      "sha256": "e42f59636ce961cb2c5e83babc33b58c3e4c0e50fce5629e338cba63a945a288",
+      "passed": true,
+      "gate": {
+        "p1_tier1_shifts_zero": true,
+        "p1_pinned_locked_top1_ge_0_5600": true,
+        "p1_pinned_locked_bpc_le_1_3000": true,
+        "p1_pinned_elastic_top1_ge_0_5650": true,
+        "p1_pinned_elastic_bpc_le_1_2700": true,
+        "p1_live_elastic_top1_ge_0_5550": true,
+        "p1_live_elastic_bpc_le_1_3100": true,
+        "p1_live_corpus_target_met": true,
+        "p1_full_split_fit": true,
+        "p1_no_fit_cap": true,
+        "p1_tail_anchored_window": true,
+        "p1_historical_arms_recorded": true,
+        "passed": true
+      },
+      "wall_seconds": 286.9671016000211
+    },
+    "p2": {
+      "receipt": "receipts\\holarch\\p2_beyond_context_telepathy_api.json",
+      "sha256": "8e983d2ef6f16d6c931deafca3ff8ea6ab8f40393f0ce288c63cfbab678a990b",
+      "passed": true,
+      "gate": {
+        "p2_24_queries": true,
+        "p2_swat_24_of_24": true,
+        "p2_truncation_le_0_25": true,
+        "p2_bm25_le_0_55": true,
+        "p2_ttft_at_least_5x": true,
+        "p2_zero_receiver_prefill": true,
+        "p2_veto_4_of_4": true,
+        "p2_api_rest": true,
+        "passed": true
+      },
+      "wall_seconds": 28.81898340000771
+    },
+    "p3": {
+      "receipt": "receipts\\holarch\\p3_end_to_end_telepathic_vla.json",
+      "sha256": "504d9b5d3d5b0ce3e4df1d4f887b3333e477cf8df932323fc89f3a74dac23641",
+      "passed": true,
+      "gate": {
+        "p3_episodes_12": true,
+        "p3_goals_12": true,
+        "p3_code_executed_12": true,
+        "p3_zero_text_glue": true,
+        "p3_zero_receiver_prefill": true,
+        "p3_chain_valid_12": true,
+        "p3_corrupted_4_vetoed": true,
+        "p3_zero_hallucination": true,
+        "passed": true
+      },
+      "wall_seconds": 92.85355909995269
+    },
+    "p4": {
+      "receipt": "receipts\\holarch\\p4_henri_holon_and_gauntlet_140.json",
+      "sha256": "2b81f985ab81ffd0c5ba9962ac9f90eef05d0abb69acd05d65aa1a797086b5b1",
+      "passed": true,
+      "gate": {
+        "p4_battery_84": true,
+        "p4_prior_8_no_drift": true,
+        "p4_new_8": true,
+        "p4_synthesis_100": true,
+        "p4_stationary_drift_zero": true,
+        "p4_residual_state_zero": true,
+        "p4_plugin_seeds_4": true,
+        "p4_plugin_accepted_4": true,
+        "p4_plugin_refused_4": true,
+        "p4_plugin_residual_zero": true,
+        "p4_plugin_exit_zero": true,
+        "p4_queries_140": true,
+        "p4_probe_categories_20": true,
+        "p4_gauntlet_passed": true,
+        "p4_exit_zero": true,
+        "p4_zero_reads": true,
+        "p4_reachable_1": true,
+        "p4_hallucination_0": true,
+        "passed": true
+      },
+      "wall_seconds": 648.8419116999721
+    },
+    "eval": {
+      "receipt": "receipts\\holarch\\p_eval.json",
+      "sha256": "7e35f51ab1e6b9cd778658932950bdd0a57f3c54e9f613f92521ab48b0aaf51b",
+      "passed": true,
+      "gate": {
+        "queries_140": true,
+        "gates_passed": true,
+        "exit_zero": true,
+        "reachable_1": true,
+        "hallucination_0": true,
+        "zero_reads": true,
+        "chain_valid": true,
+        "passed": true
+      },
+      "wall_seconds": 637.4512502000434
+    }
+  },
+  "passed": true
+}

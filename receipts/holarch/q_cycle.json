@@ -1,0 +1,25 @@
+{
+  "cycle": "Q",
+  "head": "7d3522e3f55a999ff1edb84dbb44db2b3e2b6fdd",
+  "stages": {
+    "q2": {
+      "receipt": "receipts\\holarch\\q2_causal_trimodal_telepathic_vla.json",
+      "sha256": "9c83dee6652fe8b1e22b18f3a214b68bf00e286a2049f0d81babea2aedd0364f",
+      "passed": true,
+      "gate": {
+        "q2_goals_12": true,
+        "q2_executed_12": true,
+        "q2_zero_text_glue": true,
+        "q2_zero_receiver_prefill": true,
+        "q2_regimes_3": true,
+        "q2_counterfactual_12": true,
+        "q2_vision_veto_4": true,
+        "q2_action_veto_4": true,
+        "q2_zero_hallucination": true,
+        "passed": true
+      },
+      "wall_seconds": 157.01846470008604
+    }
+  },
+  "passed": true
+}

@@ -1,0 +1,86 @@
+{
+  "cycle": "T",
+  "head": "7d3522e3f55a999ff1edb84dbb44db2b3e2b6fdd",
+  "stages": {
+    "t1": {
+      "receipt": "receipts\\holarch\\t1_hygiene_and_determinism.json",
+      "sha256": "f70d1e8a4ef03d48fdc745cca167bb20b84f6734f567501a4db7f99f133f197e",
+      "passed": true,
+      "gate": {
+        "t1_docs_monotonic": true,
+        "t1_docs_no_duplicates": true,
+        "t1_docs_sections_1_to_37": true,
+        "t1_docs_receipts_referenced": true,
+        "t1_q2_passed": true,
+        "t1_q2_goals_12": true,
+        "t1_q2_text_tokens_zero": true,
+        "t1_q2_pairs_ge_12": true,
+        "t1_q2_accuracy_1": true,
+        "t1_q2_regimes_3": true,
+        "t1_s3_passed": true,
+        "t1_s3_parity_1": true,
+        "t1_s3_speedup_ge_1_40": true,
+        "t1_s3_evaluated_ratio_le_0_40": true,
+        "t1_s3_latency_clock_invariant": true,
+        "passed": true
+      },
+      "wall_seconds": 0.005758799961768091
+    },
+    "t2": {
+      "receipt": "receipts\\holarch\\t2_centered_charts_mmlu.json",
+      "sha256": "d7df6557f04abfccaeafc16ec47960f4bb390ae554f6978a3a2017a58c7ef4dd",
+      "passed": true,
+      "gate": {
+        "t2_store_2500": true,
+        "t2_subjects_10": true,
+        "t2_index_synchronized": true,
+        "t2_parity_ge_0_99": true,
+        "t2_grounded_ge_0_99": true,
+        "t2_ood_abstain_1": true,
+        "t2_hallucination_0": true,
+        "t2_candidates_le_0_40": true,
+        "t2_speedup_ge_1_35": true,
+        "t2_auto_centered": true,
+        "passed": true
+      },
+      "wall_seconds": 43.234724599984474
+    },
+    "t3": {
+      "receipt": "receipts\\holarch\\t3_inductive_wave_turing.json",
+      "sha256": "32fc56b35ab72d7191da099e5dad5df07b4e1dac348b852cbee758c4c6e1569f",
+      "passed": true,
+      "gate": {
+        "t3_tasks_10": true,
+        "t3_induced_ge_8": true,
+        "t3_generalized_ge_8": true,
+        "t3_zero_text_tokens": true,
+        "t3_contradictions_4": true,
+        "t3_contradictions_fail_closed": true,
+        "t3_api_induce": true,
+        "t3_memory_tier3": true,
+        "passed": true
+      },
+      "wall_seconds": 2.3491799000184983
+    },
+    "t4": {
+      "receipt": "receipts\\holarch\\t4_coprocessor_and_substrate.json",
+      "sha256": "4a4980e4df2b70456ac39254ab8faac979d1b42c41f021bcbdcc6ded7721efc3",
+      "passed": true,
+      "gate": {
+        "t4_scenarios_16": true,
+        "t4_solvable_12_exact": true,
+        "t4_impossible_4_abandoned": true,
+        "t4_zero_fabricated": true,
+        "t4_zero_repeated_loops": true,
+        "t4_repulsor_verified": true,
+        "t4_chain_contiguous": true,
+        "t4_missing_evidence_exact": true,
+        "t4_hardware_probe": true,
+        "t4_no_fabricated_gpu": true,
+        "passed": true
+      },
+      "wall_seconds": 0.10361709992866963
+    }
+  },
+  "passed": true
+}

@@ -241,10 +241,14 @@ def test_multistatement_extra_argument_binds_by_name():
 
 
 def test_early_return_stage_is_refused():
+    # Directive M4 accepts a LEADING guard clause. This function opens with a
+    # non-guard statement, so the return inside the following branch is an
+    # early exit of the body and the stage is still refused.
     definition = _function_definition(
         "def early(items: list) -> list:\n"
-        "    if items:\n"
-        "        return items\n"
+        "    seen = list(items)\n"
+        "    if seen:\n"
+        "        return seen\n"
         "    return []\n"
     )
     assert _composable_body(definition) is None

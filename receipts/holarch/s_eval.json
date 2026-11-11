@@ -1,0 +1,46 @@
+{
+  "stage": "EVAL",
+  "stages": [
+    {
+      "receipt": "s1_language_closure.json",
+      "passed": true,
+      "gates": 16,
+      "wall_seconds": 3.483846199931577
+    },
+    {
+      "receipt": "s2_latent_wave_turing_machine.json",
+      "passed": true,
+      "gates": 9,
+      "wall_seconds": 0.9455496999435127
+    },
+    {
+      "receipt": "s3_hierarchical_charts_and_sandboxed_browser.json",
+      "passed": false,
+      "gates": 13,
+      "wall_seconds": 2.0366437999764457
+    },
+    {
+      "receipt": "s4_four_pillar_and_176_query_gauntlet.json",
+      "passed": true,
+      "gates": 27,
+      "wall_seconds": 692.5649201000342
+    }
+  ],
+  "sidecars": {
+    "checked": 103,
+    "invalid": [],
+    "missing": []
+  },
+  "gate": {
+    "eval_s1_passed": true,
+    "eval_s2_passed": true,
+    "eval_s3_passed": false,
+    "eval_s4_passed": true,
+    "eval_sidecars_valid": true,
+    "eval_sidecars_complete": true,
+    "passed": false
+  },
+  "wall_seconds": 0.02774020005017519,
+  "evidence": "OBSERVED",
+  "passed": false
+}

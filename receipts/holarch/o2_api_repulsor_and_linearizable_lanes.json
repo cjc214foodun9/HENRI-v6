@@ -1,0 +1,208 @@
+{
+  "stage": "O2",
+  "api_traps": {
+    "selected": 8,
+    "online_escape": 8,
+    "reactive_control": 0,
+    "deployed_depth2": 8,
+    "rows": [
+      {
+        "id": "trap01_0",
+        "truth": 1,
+        "online": 1,
+        "reactive": 3,
+        "deployed": 1,
+        "repulsor_triggered": true,
+        "active_repulsors": 1,
+        "swat_kv_digest": "582e7e41eee9e99dd2e256f340bc91a0"
+      },
+      {
+        "id": "trap02_0",
+        "truth": 2,
+        "online": 2,
+        "reactive": 1,
+        "deployed": 2,
+        "repulsor_triggered": true,
+        "active_repulsors": 1,
+        "swat_kv_digest": "da43724ce9cd0ef8c330d2c50645ce66"
+      },
+      {
+        "id": "trap03_0",
+        "truth": 2,
+        "online": 2,
+        "reactive": 1,
+        "deployed": 2,
+        "repulsor_triggered": true,
+        "active_repulsors": 1,
+        "swat_kv_digest": "8388851e5149bf3cba79f9f60b75807a"
+      },
+      {
+        "id": "trap04_0",
+        "truth": 1,
+        "online": 1,
+        "reactive": 3,
+        "deployed": 1,
+        "repulsor_triggered": true,
+        "active_repulsors": 1,
+        "swat_kv_digest": "e26c82004bf25a9b8ea63956692df400"
+      },
+      {
+        "id": "trap04_5",
+        "truth": 2,
+        "online": 2,
+        "reactive": 1,
+        "deployed": 2,
+        "repulsor_triggered": true,
+        "active_repulsors": 1,
+        "swat_kv_digest": "2b332262b608683fb74072347d507c25"
+      },
+      {
+        "id": "trap05_0",
+        "truth": 0,
+        "online": 0,
+        "reactive": 3,
+        "deployed": 0,
+        "repulsor_triggered": true,
+        "active_repulsors": 1,
+        "swat_kv_digest": "c45ce3d47c4a41dc9cfe9d7e48597391"
+      },
+      {
+        "id": "trap05_3",
+        "truth": 1,
+        "online": 1,
+        "reactive": 2,
+        "deployed": 1,
+        "repulsor_triggered": true,
+        "active_repulsors": 1,
+        "swat_kv_digest": "e025016afbe01246021d7d53026189c1"
+      },
+      {
+        "id": "trap06_0",
+        "truth": 3,
+        "online": 3,
+        "reactive": 0,
+        "deployed": 3,
+        "repulsor_triggered": true,
+        "active_repulsors": 1,
+        "swat_kv_digest": "9223c02d56456288b9a0b967a6383d18"
+      }
+    ]
+  },
+  "episodes": {
+    "online_wins": 45,
+    "baseline_wins": 38,
+    "delta": 7,
+    "online_rate": 0.9375
+  },
+  "lanes": {
+    "count": 8,
+    "fresh": 8,
+    "expected_after": [],
+    "rows": [
+      {
+        "lane": 0,
+        "before": [
+          "alpha:alpha"
+        ],
+        "after": [],
+        "fresh": true
+      },
+      {
+        "lane": 1,
+        "before": [
+          "alpha:alpha"
+        ],
+        "after": [],
+        "fresh": true
+      },
+      {
+        "lane": 2,
+        "before": [
+          "alpha:alpha"
+        ],
+        "after": [],
+        "fresh": true
+      },
+      {
+        "lane": 3,
+        "before": [
+          "alpha:alpha"
+        ],
+        "after": [],
+        "fresh": true
+      },
+      {
+        "lane": 4,
+        "before": [
+          "alpha:alpha"
+        ],
+        "after": [],
+        "fresh": true
+      },
+      {
+        "lane": 5,
+        "before": [
+          "alpha:alpha"
+        ],
+        "after": [],
+        "fresh": true
+      },
+      {
+        "lane": 6,
+        "before": [
+          "alpha:alpha"
+        ],
+        "after": [],
+        "fresh": true
+      },
+      {
+        "lane": 7,
+        "before": [
+          "alpha:alpha"
+        ],
+        "after": [],
+        "fresh": true
+      }
+    ]
+  },
+  "benchmark_128": {
+    "cache_enabled": false,
+    "threads": 16,
+    "lanes": 8,
+    "process_model": "16 client threads over 8 SidecarService lane processes; each lane fixes torch intra-op threads to 1 at startup (never per request). CPython 3.14 holds the GIL for the Python-orchestrated forward, so the lane pool is the deployment that overlaps the read path.",
+    "requests": 128,
+    "errors": [],
+    "p50_ms": 52.35700006596744,
+    "p95_ms": 175.4906700574792,
+    "service_p50_ms": 38.91120001208037,
+    "service_p95_ms": 75.47694997047074,
+    "concurrent_seconds": 0.8481352999806404,
+    "serial_seconds": 2.5214270999422297,
+    "concurrent_rate": 150.91931676811674,
+    "serial_rate": 50.764902147253316,
+    "throughput_ratio": 2.972906681280432,
+    "serial_p50_ms": 18.85554997716099,
+    "serial_p95_ms": 40.03225498017855,
+    "serial_requests": 128,
+    "serial_chain_valid": true,
+    "lane_chains_valid": true,
+    "lanes_reported": 8,
+    "gil_enabled": true,
+    "torch_threads_serial": 1,
+    "torch_threads_lane": 1
+  },
+  "gate": {
+    "o2_traps_8": true,
+    "o2_online_escape_8": true,
+    "o2_reactive_control_0": true,
+    "o2_episodes_online_at_least_44": true,
+    "o2_episodes_baseline_38": true,
+    "o2_lanes_8_fresh": true,
+    "o2_bench_p50_at_most_120": true,
+    "o2_bench_ratio_at_least_2_5": true,
+    "passed": true
+  },
+  "wall_seconds": 76.02125420002267,
+  "evidence": "OBSERVED",
+  "passed": true
+}

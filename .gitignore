@@ -63,3 +63,22 @@ receipts/holarch/_work/
 
 # Vendored checkouts: reference code, not part of this repository
 vendor/
+
+# Cycle V scratch and worker directories. These hold console dumps, ad-hoc
+# probe scripts, and multi-megabyte SQLite scratch stores; none of them is
+# evidence, and a secret must never be able to land in a commit through them.
+.pwork/
+u_work/
+henri_tmp_j/
+cmd_mkdir_700/
+manual_dir_700/
+probe_tmp_eval/
+scratch_*.py
+scratch_*.md
+scratch_*.sqlite
+scratch_*.sqlite-*
+final_log.txt
+rerun_log.txt
+verification_log.txt
+*.sqlite3-wal
+*.sqlite3-shm

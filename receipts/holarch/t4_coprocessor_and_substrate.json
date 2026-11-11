@@ -1,0 +1,314 @@
+{
+  "stage": "T4",
+  "scenarios": [
+    {
+      "name": "sales_sum",
+      "kind": "solvable",
+      "status": "finished",
+      "turns": 3,
+      "exact": true,
+      "deliverable": {
+        "units": 63
+      },
+      "abandon_reason": "",
+      "repulsor_blocks": 0,
+      "failures": [],
+      "abandoned_missing": [],
+      "chain_valid": true
+    },
+    {
+      "name": "sales_max_price",
+      "kind": "solvable",
+      "status": "finished",
+      "turns": 3,
+      "exact": true,
+      "deliverable": {
+        "max_price": 4.0
+      },
+      "abandon_reason": "",
+      "repulsor_blocks": 0,
+      "failures": [],
+      "abandoned_missing": [],
+      "chain_valid": true
+    },
+    {
+      "name": "sales_mean_price",
+      "kind": "solvable",
+      "status": "finished",
+      "turns": 3,
+      "exact": true,
+      "deliverable": {
+        "mean_price": 2.75
+      },
+      "abandon_reason": "",
+      "repulsor_blocks": 0,
+      "failures": [],
+      "abandoned_missing": [],
+      "chain_valid": true
+    },
+    {
+      "name": "inventory_total",
+      "kind": "solvable",
+      "status": "finished",
+      "turns": 3,
+      "exact": true,
+      "deliverable": {
+        "total_qty": 840
+      },
+      "abandon_reason": "",
+      "repulsor_blocks": 0,
+      "failures": [],
+      "abandoned_missing": [],
+      "chain_valid": true
+    },
+    {
+      "name": "inventory_top_item",
+      "kind": "solvable",
+      "status": "finished",
+      "turns": 3,
+      "exact": true,
+      "deliverable": {
+        "item": "nut"
+      },
+      "abandon_reason": "",
+      "repulsor_blocks": 0,
+      "failures": [],
+      "abandoned_missing": [],
+      "chain_valid": true
+    },
+    {
+      "name": "config_threshold",
+      "kind": "solvable",
+      "status": "finished",
+      "turns": 4,
+      "exact": true,
+      "deliverable": {
+        "threshold": 12
+      },
+      "abandon_reason": "",
+      "repulsor_blocks": 0,
+      "failures": [],
+      "abandoned_missing": [],
+      "chain_valid": true
+    },
+    {
+      "name": "config_product",
+      "kind": "solvable",
+      "status": "finished",
+      "turns": 3,
+      "exact": true,
+      "deliverable": {
+        "product": 36
+      },
+      "abandon_reason": "",
+      "repulsor_blocks": 0,
+      "failures": [],
+      "abandoned_missing": [],
+      "chain_valid": true
+    },
+    {
+      "name": "notes_alpha",
+      "kind": "solvable",
+      "status": "finished",
+      "turns": 3,
+      "exact": true,
+      "deliverable": {
+        "alpha": 17
+      },
+      "abandon_reason": "",
+      "repulsor_blocks": 0,
+      "failures": [],
+      "abandoned_missing": [],
+      "chain_valid": true
+    },
+    {
+      "name": "package_functions",
+      "kind": "solvable",
+      "status": "finished",
+      "turns": 3,
+      "exact": true,
+      "deliverable": {
+        "functions": 3
+      },
+      "abandon_reason": "",
+      "repulsor_blocks": 0,
+      "failures": [],
+      "abandoned_missing": [],
+      "chain_valid": true
+    },
+    {
+      "name": "metrics_mean",
+      "kind": "solvable",
+      "status": "finished",
+      "turns": 3,
+      "exact": true,
+      "deliverable": {
+        "mean": 12.0
+      },
+      "abandon_reason": "",
+      "repulsor_blocks": 0,
+      "failures": [],
+      "abandoned_missing": [],
+      "chain_valid": true
+    },
+    {
+      "name": "two_file_join",
+      "kind": "solvable",
+      "status": "finished",
+      "turns": 4,
+      "exact": true,
+      "deliverable": {
+        "delta": 0
+      },
+      "abandon_reason": "",
+      "repulsor_blocks": 0,
+      "failures": [],
+      "abandoned_missing": [],
+      "chain_valid": true
+    },
+    {
+      "name": "fault_recovery",
+      "kind": "solvable",
+      "status": "finished",
+      "turns": 5,
+      "exact": true,
+      "deliverable": {
+        "errors": 2
+      },
+      "abandon_reason": "",
+      "repulsor_blocks": 1,
+      "failures": [
+        "KeyError: 'missing'"
+      ],
+      "abandoned_missing": [],
+      "chain_valid": true
+    },
+    {
+      "name": "missing_audit",
+      "kind": "impossible",
+      "status": "abandoned",
+      "turns": 3,
+      "exact": true,
+      "deliverable": null,
+      "abandon_reason": "audit.csv",
+      "repulsor_blocks": 1,
+      "failures": [],
+      "abandoned_missing": [
+        "audit.csv"
+      ],
+      "chain_valid": true
+    },
+    {
+      "name": "missing_ledger",
+      "kind": "impossible",
+      "status": "abandoned",
+      "turns": 3,
+      "exact": true,
+      "deliverable": null,
+      "abandon_reason": "ledger.md",
+      "repulsor_blocks": 1,
+      "failures": [],
+      "abandoned_missing": [
+        "ledger.md"
+      ],
+      "chain_valid": true
+    },
+    {
+      "name": "missing_forecast",
+      "kind": "impossible",
+      "status": "abandoned",
+      "turns": 3,
+      "exact": true,
+      "deliverable": null,
+      "abandon_reason": "forecast.json",
+      "repulsor_blocks": 1,
+      "failures": [],
+      "abandoned_missing": [
+        "forecast.json"
+      ],
+      "chain_valid": true
+    },
+    {
+      "name": "corrupted_broken_csv",
+      "kind": "impossible",
+      "status": "abandoned",
+      "turns": 4,
+      "exact": true,
+      "deliverable": null,
+      "abandon_reason": "broken.csv",
+      "repulsor_blocks": 1,
+      "failures": [
+        "Error: unexpected end of data"
+      ],
+      "abandoned_missing": [
+        "broken.csv"
+      ],
+      "chain_valid": true
+    }
+  ],
+  "metrics": {
+    "scenarios": 16,
+    "solvable_exact": 12,
+    "abandoned_exact": 4,
+    "fabricated_deliverables": 0,
+    "repeated_error_loops": 0,
+    "repulsor_blocks": 5,
+    "receipts": 53,
+    "chain_valid": true,
+    "intermediate_text_tokens": 0
+  },
+  "substrate": {
+    "cuda_state": "BLOCKED",
+    "cuda_available": false,
+    "platform": "Windows-11-10.0.26300-SP0",
+    "probe": {
+      "platform": "Windows-11-10.0.26300-SP0",
+      "torch_version": "2.11.0+cu128",
+      "cuda_compiled_version": "12.8",
+      "torch_cuda_available": false,
+      "torch_device_count": 0,
+      "cuda_visible_devices": "",
+      "cuda_visible_devices_set": false,
+      "cuda_home": "",
+      "cuda_path_set": false,
+      "nvidia_smi_path": "C:\\WINDOWS\\system32\\nvidia-smi.EXE",
+      "nvidia_smi_reachable": true,
+      "nvidia_smi_devices": [],
+      "nvidia_smi_driver_version": "",
+      "nvidia_smi_error": "",
+      "driver_libraries": {
+        "C:\\Windows\\System32\\nvcuda.dll": true,
+        "C:\\Windows\\SysWOW64\\nvcuda.dll": true,
+        "C:\\Program Files\\NVIDIA Corporation\\NVSMI\\nvidia-smi.exe": false
+      },
+      "nvcuda_present": true,
+      "libcuda_present": false,
+      "driver_files_found": 2,
+      "on_windows": true,
+      "root_cause": "nvidia-smi ran but listed no device",
+      "verdict": "BLOCKED",
+      "evidence": "OBSERVED"
+    },
+    "budget": {
+      "executed": false
+    },
+    "wsl2_dxg": false,
+    "wsl2": false
+  },
+  "gate": {
+    "t4_scenarios_16": true,
+    "t4_solvable_12_exact": true,
+    "t4_impossible_4_abandoned": true,
+    "t4_zero_fabricated": true,
+    "t4_zero_repeated_loops": true,
+    "t4_repulsor_verified": true,
+    "t4_chain_contiguous": true,
+    "t4_missing_evidence_exact": true,
+    "t4_hardware_probe": true,
+    "t4_no_fabricated_gpu": true,
+    "passed": true
+  },
+  "wall_seconds": 0.10361709992866963,
+  "evidence": "OBSERVED",
+  "passed": true
+}

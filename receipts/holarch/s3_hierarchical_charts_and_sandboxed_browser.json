@@ -1,0 +1,232 @@
+{
+  "stage": "S3",
+  "vault": {
+    "charts": 12,
+    "chart_capacity": 256,
+    "engrams": 2880,
+    "largest_chart": 256,
+    "smallest_chart": 208,
+    "mean_chart": 240.0,
+    "namespace": "world",
+    "engrams_written": 2880,
+    "write_seconds": 1.293691899976693
+  },
+  "latency": {
+    "charted_p50_ms": 0.9466999908909202,
+    "charted_p90_ms": 1.3031300157308578,
+    "flat_p50_ms": 1.4682500041089952,
+    "flat_p90_ms": 1.8056800006888807,
+    "speedup": 1.5509137194849394,
+    "t_ref_ms": 0.1314000692218542,
+    "t_ref_shape": [
+      256,
+      1024
+    ],
+    "t_ref_iterations": 25,
+    "t_ref_warm_iterations": 5,
+    "charted_over_t_ref": 7.2047145522619465,
+    "compute_ratio_bound": 20.0,
+    "clock_normalized": true,
+    "absolute_bar_ms": 0.45,
+    "absolute_bar_met": false,
+    "evaluated_candidates_mean_ratio": 0.17009027777777777,
+    "evaluated_candidates_max_ratio": 0.17777777777777778,
+    "charts_probed_mean": 2.0,
+    "queries": 250,
+    "k": 4,
+    "candidate_multiplier": 2,
+    "top_charts": 2,
+    "warmup_queries": 40
+  },
+  "recall": {
+    "top1_parity": 1.0,
+    "exact_top1": 1.0
+  },
+  "orthogonalization": {
+    "chart": 0,
+    "rows": 256,
+    "applied": true,
+    "crosstalk_before": 0.9838889069808106,
+    "crosstalk_after": 0.4352820742868779,
+    "reduced": true,
+    "tau_crosstalk": 0.12,
+    "eta": 0.5
+  },
+  "browser_probes": [
+    {
+      "domain": "physics",
+      "query": "what is the melting_point of tungsten",
+      "grounded": true,
+      "answer": "The melting_point of tungsten in physics is recorded as 3422 K.",
+      "expected_value": "3422 K",
+      "correct": true,
+      "written": 2,
+      "receipt": "c428cc20820a669d"
+    },
+    {
+      "domain": "mathematics",
+      "query": "what is the value of euler_identity",
+      "grounded": true,
+      "answer": "The value of euler_identity in mathematics is recorded as 0.",
+      "expected_value": "0",
+      "correct": true,
+      "written": 2,
+      "receipt": "d96397116e38b183"
+    },
+    {
+      "domain": "computer_science",
+      "query": "what is the invented of turing_machine",
+      "grounded": true,
+      "answer": "The invented of turing_machine in computer_science is recorded as 1936.",
+      "expected_value": "1936",
+      "correct": true,
+      "written": 2,
+      "receipt": "62fe1257ae011617"
+    },
+    {
+      "domain": "biology",
+      "query": "what is the bases of dna",
+      "grounded": true,
+      "answer": "The bases of dna in biology is recorded as 4.",
+      "expected_value": "4",
+      "correct": true,
+      "written": 2,
+      "receipt": "52b107930aed2f21"
+    },
+    {
+      "domain": "chemistry",
+      "query": "what is the formula of water",
+      "grounded": true,
+      "answer": "The formula of water in chemistry is recorded as H2O.",
+      "expected_value": "H2O",
+      "correct": true,
+      "written": 4,
+      "receipt": "447b208c5306d580"
+    },
+    {
+      "domain": "history",
+      "query": "what is the year of printing_press",
+      "grounded": true,
+      "answer": "The year of printing_press in history is recorded as 1440.",
+      "expected_value": "1440",
+      "correct": true,
+      "written": 2,
+      "receipt": "2d9004087763bea2"
+    },
+    {
+      "domain": "law",
+      "query": "what is the origin of habeas_corpus",
+      "grounded": true,
+      "answer": "The origin of habeas_corpus in law is recorded as 1215.",
+      "expected_value": "1215",
+      "correct": true,
+      "written": 3,
+      "receipt": "07fb7f8cde460800"
+    },
+    {
+      "domain": "medicine",
+      "query": "what is the target of aspirin",
+      "grounded": true,
+      "answer": "The target of aspirin in medicine is recorded as COX.",
+      "expected_value": "COX",
+      "correct": true,
+      "written": 2,
+      "receipt": "fd3ff8232332d16d"
+    },
+    {
+      "domain": "astronomy",
+      "query": "what is the mass of sun",
+      "grounded": true,
+      "answer": "The mass of sun in astronomy is recorded as 1.989e30 kg.",
+      "expected_value": "1.989e30 kg",
+      "correct": true,
+      "written": 2,
+      "receipt": "2385a17e9ad1b8a5"
+    },
+    {
+      "domain": "geology",
+      "query": "what is the height of everest",
+      "grounded": true,
+      "answer": "The height of everest in geology is recorded as 8849 m.",
+      "expected_value": "8849 m",
+      "correct": true,
+      "written": 3,
+      "receipt": "f9f3eadfffc31cb0"
+    },
+    {
+      "domain": "economics",
+      "query": "what is the definition of gdp",
+      "grounded": true,
+      "answer": "The definition of gdp in economics is recorded as final goods.",
+      "expected_value": "final goods",
+      "correct": true,
+      "written": 2,
+      "receipt": "a04c8b3bc86fa35a"
+    },
+    {
+      "domain": "linguistics",
+      "query": "what is the unit of phoneme",
+      "grounded": true,
+      "answer": "The unit of phoneme in linguistics is recorded as sound.",
+      "expected_value": "sound",
+      "correct": true,
+      "written": 2,
+      "receipt": "1d84f094eb9525c8"
+    }
+  ],
+  "browser_traps": [
+    {
+      "name": "path_traversal",
+      "blocked": true,
+      "reason": "refused path traversal: '..' component"
+    },
+    {
+      "name": "network_scheme",
+      "blocked": true,
+      "reason": "refused scheme: https://"
+    },
+    {
+      "name": "outside_allow_list",
+      "blocked": true,
+      "reason": "refused path outside the allow-list: C:\\Users\\chan\\Desktop\\HENRI v6\\README.md"
+    },
+    {
+      "name": "ungrounded_query",
+      "blocked": true,
+      "reason": "no-grounded-passage"
+    }
+  ],
+  "browser_report": {
+    "roots": [
+      "C:\\Users\\chan\\Desktop\\HENRI v6\\receipts\\holarch\\_work\\s3\\corpus"
+    ],
+    "files_visible": 12,
+    "reads": 156,
+    "writes": 28,
+    "refusals": 3,
+    "grounded_calls": 12,
+    "chain_length": 13,
+    "head": "1d84f094eb9525c877a4b2a91c8d4780bc8601ee5014509d83ca278a8dc6f92f"
+  },
+  "gate": {
+    "s3_engrams_ge_2500": true,
+    "s3_charts_ge_12": true,
+    "s3_chart_capacity_256": true,
+    "s3_latency_clock_invariant": true,
+    "s3_speedup_ge_1_40": true,
+    "s3_evaluated_candidates_le_0_40": true,
+    "s3_charted_faster_than_flat": true,
+    "s3_recall_parity_ge_0_99": true,
+    "s3_exact_top1_ge_0_99": true,
+    "s3_crosstalk_reduced": true,
+    "s3_browser_probes_12": true,
+    "s3_browser_grounded_12": true,
+    "s3_browser_envelope_4": true,
+    "s3_browser_traps_blocked_4": true,
+    "s3_browser_zero_refusals_in_probes": true,
+    "passed": true
+  },
+  "wall_seconds": 2.242540100007318,
+  "evidence": "OBSERVED",
+  "passed": true
+}

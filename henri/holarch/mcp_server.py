@@ -110,17 +110,32 @@ def holarch_plan(
     lookahead_depth: int = 2,
     gamma_look: float = 0.02,
     namespace: str = "default",
+    episode_id: Optional[str] = None,
+    online_repulsor: bool = False,
+    reset_episode: bool = False,
+    emit_swat_kv: bool = False,
 ) -> Dict[str, Any]:
     """Depth-2 wall-masked rotor planning on the mounted checkpoint.
 
     Expects the 79-value sensor observation (5x5x3 local view plus four
     relative coordinates). history_waves optionally carries recent waves
-    for the cycle penalty. Returns the action, its name, all four scores,
-    the goal alignment, the second-step lookahead values, the cycle
-    penalty, the legal-move mask, and a SHA-256 receipt.
+    for the cycle penalty. Directive O2 adds a stateful episode: with
+    online_repulsor=True the service detects a revisit, dead end or stall,
+    writes a test-time REPULSOR axiom, settles the escape through Zone B and
+    returns repulsor_triggered, active_repulsors and swat_kv_digest.
     """
     return service().plan(
-        observation, history_waves, transition, lookahead_depth, gamma_look, namespace
+        observation,
+        history_waves,
+        transition,
+        lookahead_depth,
+        gamma_look,
+        namespace,
+        True,
+        episode_id,
+        online_repulsor,
+        reset_episode,
+        emit_swat_kv,
     )
 
 
@@ -234,7 +249,7 @@ def holarch_agent_step(
     namespace: str = "default",
 ) -> Dict[str, Any]:
     """One unified agent turn: verify, solve, impact, plan, synthesize,
-    composite or veto, dispatched under the service lock.
+    composite, veto, telepathy or discover, dispatched under the service lock.
 
     The response is uniform ({status, abstained, output, epistemic_receipt}),
     so an MCP client can bind every verb as the same tool shape. Each call
@@ -242,6 +257,88 @@ def holarch_agent_step(
     receipt records the mounted checkpoint digest.
     """
     return service().agent_step(action, payload or {}, namespace)
+
+
+@mcp.tool()
+def holarch_telepathy(
+    mode: str = "ingest_chunks",
+    session_id: Optional[str] = None,
+    chunks: Optional[List[Any]] = None,
+    query: Optional[str] = None,
+    raw_documents: Optional[List[Any]] = None,
+    namespace: str = "default",
+    budget_u: int = 32,
+    per_chunk_u: int = 8,
+    hops: int = 3,
+    top_k: int = 1,
+    reset: bool = False,
+) -> Dict[str, Any]:
+    """H-SWAT beyond-context telepathy: ingest chunks, then query them.
+
+    mode="ingest_chunks" gates every chunk with SagnacKVGate, compacts it to
+    u = U / C Attention-Matching slots, walks the cross-chunk bridges inside
+    the sender, and stores the assembled receiver cache under session_id.
+    mode="query" resolves the multi-hop answer from that cache with ZERO
+    receiver text prefill. A corrupted chunk is vetoed and reported.
+    """
+    return service().telepathy(
+        mode=mode,
+        session_id=session_id,
+        namespace=namespace,
+        chunks=chunks,
+        query=query,
+        raw_documents=raw_documents,
+        budget_u=budget_u,
+        per_chunk_u=per_chunk_u,
+        hops=hops,
+        top_k=top_k,
+        reset=reset,
+    )
+
+
+@mcp.tool()
+def holarch_turing(
+    mode: str = "list",
+    program: str = "binary_increment",
+    tape: Optional[List[Any]] = None,
+    max_steps: int = 0,
+    namespace: str = "default",
+    examples: Optional[List[Any]] = None,
+    alphabet: Optional[List[str]] = None,
+    name: str = "induction",
+) -> Dict[str, Any]:
+    """Execute a deterministic Turing program inside the 4-slot wave manifold.
+
+    mode="list" returns the sixteen programs; mode="run" executes one and
+    returns the tape RECOVERED FROM THE WAVE; mode="suite" runs all sixteen
+    plus the four adversarial traps and reports exact_rate, traps_vetoed and
+    false_accepts; mode="traps" runs the traps alone. The tape is read by
+    unbinding slot 2 at the head phase and written by a linear holographic
+    delta, so no step uses the tokenizer: text_tokens is always 0.
+    """
+    return service().turing(
+        mode, program, tape, max_steps, namespace, examples, alphabet, name
+    )
+
+
+@mcp.tool()
+def holarch_discover(
+    intent: str,
+    tests: str = "",
+    request: Optional[Dict[str, Any]] = None,
+    namespace: str = "default",
+    library: Optional[Dict[str, str]] = None,
+) -> Dict[str, Any]:
+    """Run one real holonic playbook discovery tick.
+
+    Ideation ranks the primitive library, the type gate refuses an ill-typed
+    triplet before any splice, the sandbox executes the composed source
+    against the tests, and only an accepted chain is compiled into the
+    PlanStore. A refused tick compiles nothing and reports residual_state=0.
+    """
+    return service().discover(
+        intent, tests, request or {}, namespace, library
+    )
 
 
 @mcp.tool()

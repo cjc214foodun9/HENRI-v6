@@ -1,0 +1,4947 @@
+{
+  "stage": "U5",
+  "mechanism": "live_llm_candidate_provider + capability_ast_gate + subprocess_sandbox + bounded_epistemic_frame + chow_abstention + three_arm_aaii_v5_harness",
+  "live_network_provider": "BLOCKED_NO_API_KEY",
+  "live_provider_claimed": false,
+  "provider_rows": [
+    {
+      "provider": "ScriptedFixtureProvider",
+      "status": "OFFLINE_OK",
+      "remote": false,
+      "calls": 2,
+      "raw_sha256": "ca4d3094701e554e3e2ebfea2c3dbe367110d2421cc120dd40baf694790a1238",
+      "second_tool": "finish",
+      "deterministic_replay": true
+    },
+    {
+      "provider": "LocalHolarchProvider",
+      "status": "OFFLINE_OK",
+      "remote": false,
+      "calls": 1,
+      "tool": "finish",
+      "native_modules": [
+        "wave_ccg",
+        "repo_sheaf",
+        "symbolic",
+        "induction"
+      ],
+      "native_route": {
+        "wave_ccg": "ABSTAIN: ccg type residual",
+        "coherence": 0.0
+      },
+      "raw_sha256": "5f81f22d7581b18986a4e837067b00f94ae256d7de715984d5205bfe509c2dd9"
+    },
+    {
+      "provider": "LoopbackOpenAIMockServer",
+      "status": "LOOPBACK_OK",
+      "remote": false,
+      "base_url": "http://127.0.0.1:61274/v1",
+      "calls": 889,
+      "completions": 820,
+      "fault_429": 45,
+      "fault_503": 24,
+      "server_errors": 0
+    },
+    {
+      "provider": "LiveOpenAICompatibleProvider",
+      "status": "BLOCKED_NO_API_KEY",
+      "remote": false,
+      "calls": 0,
+      "claimed": false
+    }
+  ],
+  "sandbox": {
+    "traps_total": 12,
+    "traps_blocked": 12,
+    "env_leaks": 0,
+    "env_probe_control": true,
+    "timeout_kills": 1,
+    "timeout_duration_s": 10.110186000005342,
+    "timeout_record_duration_ms": 10110.103399958462,
+    "parent_alive": true,
+    "rows": [
+      {
+        "name": "import_os",
+        "profile": "pure_algorithmic",
+        "blocked": true,
+        "blocked_reason": "module:os",
+        "exit_code": 126,
+        "timed_out": false
+      },
+      {
+        "name": "from_os_import_environ",
+        "profile": "pure_algorithmic",
+        "blocked": true,
+        "blocked_reason": "module:os",
+        "exit_code": 126,
+        "timed_out": false
+      },
+      {
+        "name": "dunder_import_os",
+        "profile": "pure_algorithmic",
+        "blocked": true,
+        "blocked_reason": "builtin-call:__import__; builtin:__import__",
+        "exit_code": 126,
+        "timed_out": false
+      },
+      {
+        "name": "sys_modules",
+        "profile": "pure_algorithmic",
+        "blocked": true,
+        "blocked_reason": "module:sys",
+        "exit_code": 126,
+        "timed_out": false
+      },
+      {
+        "name": "open_etc_passwd",
+        "profile": "pure_algorithmic",
+        "blocked": true,
+        "blocked_reason": "builtin-call:open; builtin:open",
+        "exit_code": 126,
+        "timed_out": false
+      },
+      {
+        "name": "os_environ_api_key",
+        "profile": "pure_algorithmic",
+        "blocked": true,
+        "blocked_reason": "module:os",
+        "exit_code": 126,
+        "timed_out": false
+      },
+      {
+        "name": "import_subprocess",
+        "profile": "pure_algorithmic",
+        "blocked": true,
+        "blocked_reason": "module:subprocess",
+        "exit_code": 126,
+        "timed_out": false
+      },
+      {
+        "name": "socket_connect",
+        "profile": "pure_algorithmic",
+        "blocked": true,
+        "blocked_reason": "module:socket",
+        "exit_code": 126,
+        "timed_out": false
+      },
+      {
+        "name": "urllib_request",
+        "profile": "pure_algorithmic",
+        "blocked": true,
+        "blocked_reason": "module:urllib",
+        "exit_code": 126,
+        "timed_out": false
+      },
+      {
+        "name": "import_ctypes",
+        "profile": "pure_algorithmic",
+        "blocked": true,
+        "blocked_reason": "module:ctypes",
+        "exit_code": 126,
+        "timed_out": false
+      },
+      {
+        "name": "subclasses_escape",
+        "profile": "pure_algorithmic",
+        "blocked": true,
+        "blocked_reason": "dunder-attribute:__subclasses__; dunder-attribute:__base__; dunder-attribute:__class__",
+        "exit_code": 126,
+        "timed_out": false
+      },
+      {
+        "name": "pathlib_absolute_and_eval",
+        "profile": "briefcase_workspace",
+        "blocked": true,
+        "blocked_reason": "builtin-call:eval; builtin:eval; absolute-path-literal",
+        "exit_code": 126,
+        "timed_out": false
+      }
+    ],
+    "canaries": [
+      "HENRI_LLM_API_KEY",
+      "HENRI_TSDB_DSN",
+      "OPENAI_API_KEY",
+      "OPENROUTER_API_KEY",
+      "HENRI_U5_CANARY"
+    ],
+    "tasks_total": 12,
+    "tasks_executed_clean": 12,
+    "tasks_finish_verified": 12
+  },
+  "tasks": {
+    "tasks_total": 12,
+    "tasks_executed_clean": 12,
+    "tasks_finish_verified": 12,
+    "rows": [
+      {
+        "name": "math_factorial_12",
+        "profile": "pure_algorithmic",
+        "ok": true,
+        "exit_code": 0,
+        "duration_ms": 44.0332000143826,
+        "parsed": {
+          "value": 479001600
+        },
+        "expected": 479001600,
+        "value_matches": true,
+        "artifact": {},
+        "clean": true,
+        "claim": "the computed result is 479001600",
+        "finish_gate_ok": true,
+        "finish_gate_reason": "every claimed quantity is a verified ledger value",
+        "verified": true
+      },
+      {
+        "name": "math_comb_20_3",
+        "profile": "pure_algorithmic",
+        "ok": true,
+        "exit_code": 0,
+        "duration_ms": 40.70290003437549,
+        "parsed": {
+          "value": 1140
+        },
+        "expected": 1140,
+        "value_matches": true,
+        "artifact": {},
+        "clean": true,
+        "claim": "the computed result is 1140",
+        "finish_gate_ok": true,
+        "finish_gate_reason": "every claimed quantity is a verified ledger value",
+        "verified": true
+      },
+      {
+        "name": "math_isqrt_1e12",
+        "profile": "pure_algorithmic",
+        "ok": true,
+        "exit_code": 0,
+        "duration_ms": 39.33050006162375,
+        "parsed": {
+          "value": 1000000
+        },
+        "expected": 1000000,
+        "value_matches": true,
+        "artifact": {},
+        "clean": true,
+        "claim": "the computed result is 1000000",
+        "finish_gate_ok": true,
+        "finish_gate_reason": "every claimed quantity is a verified ledger value",
+        "verified": true
+      },
+      {
+        "name": "math_lcm_84_36",
+        "profile": "pure_algorithmic",
+        "ok": true,
+        "exit_code": 0,
+        "duration_ms": 39.060299983248115,
+        "parsed": {
+          "value": 252
+        },
+        "expected": 252,
+        "value_matches": true,
+        "artifact": {},
+        "clean": true,
+        "claim": "the computed result is 252",
+        "finish_gate_ok": true,
+        "finish_gate_reason": "every claimed quantity is a verified ledger value",
+        "verified": true
+      },
+      {
+        "name": "json_aggregate",
+        "profile": "scientific_scicode",
+        "ok": true,
+        "exit_code": 0,
+        "duration_ms": 40.72769999038428,
+        "parsed": {
+          "value": 40
+        },
+        "expected": 40,
+        "value_matches": true,
+        "artifact": {},
+        "clean": true,
+        "claim": "the computed result is 40",
+        "finish_gate_ok": true,
+        "finish_gate_reason": "every claimed quantity is a verified ledger value",
+        "verified": true
+      },
+      {
+        "name": "csv_quantity_sum",
+        "profile": "scientific_scicode",
+        "ok": true,
+        "exit_code": 0,
+        "duration_ms": 39.555000024847686,
+        "parsed": {
+          "value": 670
+        },
+        "expected": 670,
+        "value_matches": true,
+        "artifact": {},
+        "clean": true,
+        "claim": "the computed result is 670",
+        "finish_gate_ok": true,
+        "finish_gate_reason": "every claimed quantity is a verified ledger value",
+        "verified": true
+      },
+      {
+        "name": "json_mean",
+        "profile": "scientific_scicode",
+        "ok": true,
+        "exit_code": 0,
+        "duration_ms": 39.844100014306605,
+        "parsed": {
+          "value": 10.0
+        },
+        "expected": 10.0,
+        "value_matches": true,
+        "artifact": {},
+        "clean": true,
+        "claim": "the computed result is 10.0",
+        "finish_gate_ok": true,
+        "finish_gate_reason": "every claimed quantity is a verified ledger value",
+        "verified": true
+      },
+      {
+        "name": "csv_top_label",
+        "profile": "scientific_scicode",
+        "ok": true,
+        "exit_code": 0,
+        "duration_ms": 40.39620002731681,
+        "parsed": {
+          "value": "nut"
+        },
+        "expected": "nut",
+        "value_matches": true,
+        "artifact": {},
+        "clean": true,
+        "claim": "the computed result is nut",
+        "finish_gate_ok": true,
+        "finish_gate_reason": "every claimed quantity is a verified ledger value",
+        "verified": true
+      },
+      {
+        "name": "numpy_mean_std",
+        "profile": "scientific_scicode",
+        "ok": true,
+        "exit_code": 0,
+        "duration_ms": 141.88219991046935,
+        "parsed": {
+          "std": 5.91608,
+          "value": 10.0
+        },
+        "expected": 10.0,
+        "value_matches": true,
+        "artifact": {},
+        "clean": true,
+        "claim": "the computed result is 10.0",
+        "finish_gate_ok": true,
+        "finish_gate_reason": "every claimed quantity is a verified ledger value",
+        "verified": true
+      },
+      {
+        "name": "numpy_dot",
+        "profile": "scientific_scicode",
+        "ok": true,
+        "exit_code": 0,
+        "duration_ms": 142.3569000326097,
+        "parsed": {
+          "value": 32
+        },
+        "expected": 32,
+        "value_matches": true,
+        "artifact": {},
+        "clean": true,
+        "claim": "the computed result is 32",
+        "finish_gate_ok": true,
+        "finish_gate_reason": "every claimed quantity is a verified ledger value",
+        "verified": true
+      },
+      {
+        "name": "numpy_solve",
+        "profile": "scientific_scicode",
+        "ok": true,
+        "exit_code": 0,
+        "duration_ms": 152.34799997415394,
+        "parsed": {
+          "value": 2.0,
+          "y": 3.0
+        },
+        "expected": 2.0,
+        "value_matches": true,
+        "artifact": {},
+        "clean": true,
+        "claim": "the computed result is 2.0",
+        "finish_gate_ok": true,
+        "finish_gate_reason": "every claimed quantity is a verified ledger value",
+        "verified": true
+      },
+      {
+        "name": "briefcase_pathlib_product",
+        "profile": "briefcase_workspace",
+        "ok": true,
+        "exit_code": 0,
+        "duration_ms": 51.796400104649365,
+        "parsed": {
+          "value": 36
+        },
+        "expected": 36,
+        "value_matches": true,
+        "artifact": {
+          "path": "out.txt",
+          "sha256": "76a50887d8f1c2e9301755428990ad81479ee21c25b43215cf524541e0503269",
+          "expected_sha256": "76a50887d8f1c2e9301755428990ad81479ee21c25b43215cf524541e0503269",
+          "ok": true
+        },
+        "clean": true,
+        "claim": "the computed result is 36",
+        "finish_gate_ok": true,
+        "finish_gate_reason": "every claimed quantity is a verified ledger value",
+        "verified": true
+      }
+    ]
+  },
+  "frame": {
+    "max_tokens": 4096,
+    "tokens_50_turn": 27074,
+    "baseline_tokens_50_turn": 269594,
+    "compression": 9.957671566816872,
+    "max_observed_frame_tokens": 580,
+    "turns_over_budget": 0,
+    "provider_prompt_tokens_50_turn": 28574
+  },
+  "abstention": {
+    "tau_omni": 0.5,
+    "tau_aaii": 0.3333,
+    "r_sem_rows": [
+      {
+        "claims": [
+          "the aggregate value is 1785",
+          "the aggregate value is 1785",
+          "the aggregate value is 1785"
+        ],
+        "r_sem": 0.9999999999999999,
+        "p_hat": 0.49,
+        "mode": "omni_strict",
+        "tau": 0.5,
+        "emit": false,
+        "reason": "omni_strict: p_hat=0.4900 <= tau=0.5000; r_sem=1.0000"
+      },
+      {
+        "claims": [
+          "the aggregate value is 1785",
+          "the aggregate value is 1785",
+          "the aggregate value is 1785"
+        ],
+        "r_sem": 0.9999999999999999,
+        "p_hat": 0.5,
+        "mode": "omni_strict",
+        "tau": 0.5,
+        "emit": false,
+        "reason": "omni_strict: p_hat=0.5000 <= tau=0.5000; r_sem=1.0000"
+      },
+      {
+        "claims": [
+          "the aggregate value is 1785",
+          "the aggregate value is 1785",
+          "the aggregate value is 1785"
+        ],
+        "r_sem": 0.9999999999999999,
+        "p_hat": 0.51,
+        "mode": "omni_strict",
+        "tau": 0.5,
+        "emit": true,
+        "reason": "omni_strict: p_hat=0.5100 > tau=0.5000; r_sem=1.0000"
+      },
+      {
+        "claims": [
+          "the aggregate value is 1785",
+          "the aggregate value is 1785",
+          "the aggregate value is 1785"
+        ],
+        "r_sem": 0.9999999999999999,
+        "p_hat": 0.33,
+        "mode": "aaii_composite",
+        "tau": 0.3333,
+        "emit": false,
+        "reason": "aaii_composite: p_hat=0.3300 <= tau=0.3333; r_sem=1.0000"
+      },
+      {
+        "claims": [
+          "the aggregate value is 1785",
+          "the aggregate value is 1785",
+          "the aggregate value is 1785"
+        ],
+        "r_sem": 0.9999999999999999,
+        "p_hat": 0.3333,
+        "mode": "aaii_composite",
+        "tau": 0.3333,
+        "emit": false,
+        "reason": "aaii_composite: p_hat=0.3333 <= tau=0.3333; r_sem=1.0000"
+      },
+      {
+        "claims": [
+          "the aggregate value is 1785",
+          "the aggregate value is 1785",
+          "the aggregate value is 1785"
+        ],
+        "r_sem": 0.9999999999999999,
+        "p_hat": 0.34,
+        "mode": "aaii_composite",
+        "tau": 0.3333,
+        "emit": true,
+        "reason": "aaii_composite: p_hat=0.3400 > tau=0.3333; r_sem=1.0000"
+      },
+      {
+        "claims": [
+          "the aggregate value is 1785",
+          "the aggregate value is not 1785"
+        ],
+        "r_sem": 0.0,
+        "p_hat": 0.49,
+        "mode": "omni_strict",
+        "tau": 0.5,
+        "emit": false,
+        "reason": "omni_strict: p_hat=0.4900 <= tau=0.5000; r_sem=0.0000"
+      },
+      {
+        "claims": [
+          "the aggregate value is 1785",
+          "the aggregate value is not 1785"
+        ],
+        "r_sem": 0.0,
+        "p_hat": 0.5,
+        "mode": "omni_strict",
+        "tau": 0.5,
+        "emit": false,
+        "reason": "omni_strict: p_hat=0.5000 <= tau=0.5000; r_sem=0.0000"
+      },
+      {
+        "claims": [
+          "the aggregate value is 1785",
+          "the aggregate value is not 1785"
+        ],
+        "r_sem": 0.0,
+        "p_hat": 0.51,
+        "mode": "omni_strict",
+        "tau": 0.5,
+        "emit": true,
+        "reason": "omni_strict: p_hat=0.5100 > tau=0.5000; r_sem=0.0000"
+      },
+      {
+        "claims": [
+          "the aggregate value is 1785",
+          "the aggregate value is not 1785"
+        ],
+        "r_sem": 0.0,
+        "p_hat": 0.33,
+        "mode": "aaii_composite",
+        "tau": 0.3333,
+        "emit": false,
+        "reason": "aaii_composite: p_hat=0.3300 <= tau=0.3333; r_sem=0.0000"
+      },
+      {
+        "claims": [
+          "the aggregate value is 1785",
+          "the aggregate value is not 1785"
+        ],
+        "r_sem": 0.0,
+        "p_hat": 0.3333,
+        "mode": "aaii_composite",
+        "tau": 0.3333,
+        "emit": false,
+        "reason": "aaii_composite: p_hat=0.3333 <= tau=0.3333; r_sem=0.0000"
+      },
+      {
+        "claims": [
+          "the aggregate value is 1785",
+          "the aggregate value is not 1785"
+        ],
+        "r_sem": 0.0,
+        "p_hat": 0.34,
+        "mode": "aaii_composite",
+        "tau": 0.3333,
+        "emit": true,
+        "reason": "aaii_composite: p_hat=0.3400 > tau=0.3333; r_sem=0.0000"
+      },
+      {
+        "claims": [
+          "the mean is 10.0",
+          "the mean is 10",
+          "the mean equals 10.0"
+        ],
+        "r_sem": 0.9338123019517952,
+        "p_hat": 0.49,
+        "mode": "omni_strict",
+        "tau": 0.5,
+        "emit": false,
+        "reason": "omni_strict: p_hat=0.4900 <= tau=0.5000; r_sem=0.9338"
+      },
+      {
+        "claims": [
+          "the mean is 10.0",
+          "the mean is 10",
+          "the mean equals 10.0"
+        ],
+        "r_sem": 0.9338123019517952,
+        "p_hat": 0.5,
+        "mode": "omni_strict",
+        "tau": 0.5,
+        "emit": false,
+        "reason": "omni_strict: p_hat=0.5000 <= tau=0.5000; r_sem=0.9338"
+      },
+      {
+        "claims": [
+          "the mean is 10.0",
+          "the mean is 10",
+          "the mean equals 10.0"
+        ],
+        "r_sem": 0.9338123019517952,
+        "p_hat": 0.51,
+        "mode": "omni_strict",
+        "tau": 0.5,
+        "emit": true,
+        "reason": "omni_strict: p_hat=0.5100 > tau=0.5000; r_sem=0.9338"
+      },
+      {
+        "claims": [
+          "the mean is 10.0",
+          "the mean is 10",
+          "the mean equals 10.0"
+        ],
+        "r_sem": 0.9338123019517952,
+        "p_hat": 0.33,
+        "mode": "aaii_composite",
+        "tau": 0.3333,
+        "emit": false,
+        "reason": "aaii_composite: p_hat=0.3300 <= tau=0.3333; r_sem=0.9338"
+      },
+      {
+        "claims": [
+          "the mean is 10.0",
+          "the mean is 10",
+          "the mean equals 10.0"
+        ],
+        "r_sem": 0.9338123019517952,
+        "p_hat": 0.3333,
+        "mode": "aaii_composite",
+        "tau": 0.3333,
+        "emit": false,
+        "reason": "aaii_composite: p_hat=0.3333 <= tau=0.3333; r_sem=0.9338"
+      },
+      {
+        "claims": [
+          "the mean is 10.0",
+          "the mean is 10",
+          "the mean equals 10.0"
+        ],
+        "r_sem": 0.9338123019517952,
+        "p_hat": 0.34,
+        "mode": "aaii_composite",
+        "tau": 0.3333,
+        "emit": true,
+        "reason": "aaii_composite: p_hat=0.3400 > tau=0.3333; r_sem=0.9338"
+      }
+    ],
+    "boundary_fail_closed": true,
+    "above_threshold_emits": true
+  },
+  "three_arm": {
+    "arms": [
+      {
+        "arm": "standalone_react_baseline",
+        "episodes": 20,
+        "turns": 240,
+        "correct": 4,
+        "hallucinated": 16,
+        "abstained": 0,
+        "omni": -60.0,
+        "repeated_error_loops": 60,
+        "ungrounded_deliverable_rate": 0.8,
+        "repulsor_blocks": 0,
+        "finish_vetoes": 0,
+        "prompt_tokens": 213176,
+        "max_frame_tokens": 0,
+        "turns_over_budget": 0,
+        "provider_calls": 240,
+        "provider_retries": 16,
+        "http_429": 10,
+        "http_503": 6,
+        "stress": {
+          "arm": "standalone_react_baseline",
+          "episode": 0,
+          "stress": true,
+          "turns": 50,
+          "outcome": "correct",
+          "value": 1785.0,
+          "gold": 1785.0,
+          "grounded": true,
+          "repeated_error_loops": 0,
+          "repulsor_blocks": 0,
+          "finish_vetoes": 0,
+          "abstained": false,
+          "prompt_tokens": 269594,
+          "frame_tokens": 0,
+          "max_frame_tokens": 0,
+          "over_budget": 0,
+          "provider_calls": 50,
+          "provider_retries": 9,
+          "http_429": 6,
+          "http_503": 3,
+          "ledger_entries": 48
+        }
+      },
+      {
+        "arm": "rag_ungated_control",
+        "episodes": 20,
+        "turns": 240,
+        "correct": 10,
+        "hallucinated": 10,
+        "abstained": 0,
+        "omni": 0.0,
+        "repeated_error_loops": 60,
+        "ungrounded_deliverable_rate": 0.5,
+        "repulsor_blocks": 0,
+        "finish_vetoes": 0,
+        "prompt_tokens": 216776,
+        "max_frame_tokens": 0,
+        "turns_over_budget": 0,
+        "provider_calls": 240,
+        "provider_retries": 18,
+        "http_429": 12,
+        "http_503": 6,
+        "stress": null
+      },
+      {
+        "arm": "henri_epistemic_coprocessor",
+        "episodes": 20,
+        "turns": 240,
+        "correct": 20,
+        "hallucinated": 0,
+        "abstained": 0,
+        "omni": 100.0,
+        "repeated_error_loops": 0,
+        "ungrounded_deliverable_rate": 0.0,
+        "repulsor_blocks": 20,
+        "finish_vetoes": 20,
+        "prompt_tokens": 89092,
+        "max_frame_tokens": 470,
+        "turns_over_budget": 0,
+        "provider_calls": 240,
+        "provider_retries": 22,
+        "http_429": 14,
+        "http_503": 8,
+        "stress": {
+          "arm": "henri_epistemic_coprocessor",
+          "episode": 0,
+          "stress": true,
+          "turns": 50,
+          "outcome": "correct",
+          "value": 1785.0,
+          "gold": 1785.0,
+          "grounded": true,
+          "repeated_error_loops": 0,
+          "repulsor_blocks": 0,
+          "finish_vetoes": 0,
+          "abstained": false,
+          "prompt_tokens": 28574,
+          "frame_tokens": 27074,
+          "max_frame_tokens": 580,
+          "over_budget": 0,
+          "provider_calls": 50,
+          "provider_retries": 4,
+          "http_429": 3,
+          "http_503": 1,
+          "ledger_entries": 48
+        }
+      }
+    ],
+    "episodes": 20,
+    "turns_per_arm": 240,
+    "repeated_error_loops": {
+      "standalone_react_baseline": 60,
+      "rag_ungated_control": 60,
+      "henri_epistemic_coprocessor": 0
+    },
+    "ungrounded_deliverable_rate": {
+      "standalone_react_baseline": 0.8,
+      "rag_ungated_control": 0.5,
+      "henri_epistemic_coprocessor": 0.0
+    },
+    "omni_index": {
+      "standalone_react_baseline": -60.0,
+      "rag_ungated_control": 0.0,
+      "henri_epistemic_coprocessor": 100.0
+    },
+    "token_compression": 9.43494085532302,
+    "omni_lift_arm3_vs_arm1": 160.0,
+    "omni_lift_arm3_vs_arm2": 100.0,
+    "provider": {
+      "requests": 889,
+      "completions": 820,
+      "fault_429": 45,
+      "fault_503": 24,
+      "server_errors": 0,
+      "base_url": "http://127.0.0.1:61274/v1"
+    },
+    "simulator": {
+      "decisions": 820,
+      "ledger_value_rows": 41,
+      "seed": 20261111
+    },
+    "stress": {
+      "turns": 50,
+      "baseline_prompt_tokens": 269594,
+      "coprocessor_prompt_tokens": 28574,
+      "baseline_frame_tokens": 0,
+      "coprocessor_frame_tokens": 27074,
+      "max_frame_tokens": 580,
+      "turns_over_budget": 0
+    }
+  },
+  "quarantine": {
+    "rows": [
+      {
+        "where": "frame:standalone_react_baseline:0:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:1:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:1:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:1:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:1:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:1:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:1:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:1:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:1:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:1:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:1:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:1:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:1:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:2:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:2:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:2:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:2:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:2:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:2:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:2:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:2:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:2:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:2:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:2:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:2:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:3:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:3:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:3:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:3:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:3:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:3:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:3:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:3:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:3:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:3:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:3:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:3:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:4:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:4:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:4:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:4:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:4:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:4:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:4:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:4:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:4:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:4:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:4:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:4:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:5:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:5:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:5:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:5:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:5:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:5:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:5:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:5:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:5:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:5:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:5:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:5:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:6:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:6:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:6:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:6:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:6:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:6:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:6:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:6:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:6:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:6:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:6:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:6:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:7:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:7:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:7:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:7:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:7:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:7:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:7:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:7:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:7:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:7:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:7:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:7:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:8:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:8:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:8:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:8:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:8:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:8:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:8:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:8:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:8:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:8:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:8:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:8:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:9:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:9:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:9:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:9:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:9:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:9:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:9:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:9:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:9:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:9:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:9:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:9:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:10:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:10:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:10:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:10:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:10:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:10:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:10:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:10:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:10:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:10:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:10:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:10:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:11:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:11:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:11:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:11:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:11:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:11:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:11:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:11:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:11:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:11:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:11:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:11:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:12:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:12:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:12:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:12:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:12:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:12:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:12:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:12:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:12:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:12:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:12:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:12:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:13:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:13:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:13:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:13:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:13:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:13:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:13:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:13:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:13:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:13:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:13:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:13:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:14:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:14:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:14:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:14:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:14:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:14:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:14:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:14:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:14:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:14:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:14:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:14:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:15:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:15:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:15:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:15:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:15:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:15:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:15:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:15:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:15:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:15:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:15:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:15:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:16:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:16:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:16:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:16:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:16:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:16:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:16:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:16:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:16:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:16:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:16:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:16:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:17:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:17:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:17:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:17:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:17:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:17:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:17:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:17:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:17:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:17:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:17:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:17:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:18:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:18:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:18:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:18:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:18:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:18:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:18:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:18:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:18:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:18:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:18:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:18:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:19:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:19:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:19:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:19:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:19:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:19:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:19:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:19:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:19:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:19:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:19:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:19:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:13",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:14",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:15",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:16",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:17",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:18",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:19",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:20",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:21",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:22",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:23",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:24",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:25",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:26",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:27",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:28",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:29",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:30",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:31",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:32",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:33",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:34",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:35",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:36",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:37",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:38",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:39",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:40",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:41",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:42",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:43",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:44",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:45",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:46",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:47",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:48",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:49",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:standalone_react_baseline:0:50",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:0:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:0:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:0:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:0:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:0:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:0:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:0:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:0:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:0:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:0:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:0:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:0:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:1:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:1:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:1:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:1:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:1:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:1:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:1:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:1:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:1:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:1:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:1:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:1:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:2:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:2:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:2:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:2:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:2:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:2:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:2:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:2:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:2:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:2:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:2:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:2:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:3:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:3:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:3:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:3:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:3:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:3:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:3:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:3:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:3:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:3:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:3:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:3:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:4:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:4:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:4:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:4:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:4:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:4:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:4:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:4:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:4:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:4:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:4:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:4:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:5:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:5:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:5:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:5:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:5:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:5:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:5:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:5:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:5:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:5:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:5:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:5:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:6:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:6:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:6:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:6:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:6:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:6:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:6:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:6:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:6:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:6:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:6:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:6:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:7:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:7:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:7:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:7:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:7:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:7:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:7:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:7:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:7:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:7:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:7:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:7:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:8:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:8:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:8:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:8:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:8:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:8:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:8:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:8:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:8:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:8:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:8:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:8:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:9:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:9:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:9:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:9:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:9:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:9:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:9:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:9:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:9:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:9:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:9:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:9:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:10:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:10:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:10:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:10:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:10:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:10:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:10:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:10:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:10:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:10:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:10:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:10:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:11:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:11:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:11:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:11:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:11:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:11:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:11:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:11:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:11:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:11:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:11:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:11:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:12:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:12:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:12:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:12:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:12:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:12:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:12:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:12:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:12:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:12:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:12:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:12:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:13:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:13:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:13:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:13:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:13:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:13:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:13:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:13:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:13:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:13:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:13:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:13:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:14:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:14:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:14:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:14:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:14:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:14:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:14:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:14:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:14:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:14:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:14:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:14:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:15:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:15:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:15:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:15:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:15:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:15:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:15:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:15:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:15:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:15:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:15:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:15:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:16:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:16:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:16:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:16:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:16:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:16:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:16:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:16:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:16:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:16:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:16:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:16:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:17:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:17:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:17:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:17:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:17:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:17:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:17:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:17:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:17:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:17:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:17:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:17:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:18:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:18:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:18:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:18:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:18:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:18:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:18:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:18:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:18:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:18:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:18:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:18:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:19:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:19:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:19:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:19:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:19:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:19:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:19:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:19:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:19:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:19:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:19:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:rag_ungated_control:19:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:1:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:1:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:1:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:1:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:1:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:1:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:1:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:1:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:1:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:1:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:1:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:1:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:2:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:2:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:2:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:2:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:2:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:2:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:2:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:2:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:2:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:2:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:2:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:2:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:3:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:3:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:3:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:3:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:3:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:3:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:3:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:3:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:3:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:3:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:3:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:3:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:4:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:4:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:4:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:4:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:4:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:4:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:4:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:4:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:4:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:4:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:4:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:4:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:5:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:5:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:5:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:5:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:5:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:5:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:5:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:5:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:5:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:5:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:5:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:5:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:6:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:6:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:6:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:6:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:6:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:6:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:6:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:6:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:6:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:6:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:6:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:6:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:7:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:7:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:7:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:7:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:7:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:7:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:7:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:7:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:7:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:7:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:7:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:7:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:8:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:8:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:8:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:8:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:8:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:8:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:8:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:8:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:8:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:8:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:8:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:8:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:9:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:9:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:9:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:9:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:9:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:9:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:9:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:9:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:9:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:9:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:9:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:9:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:10:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:10:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:10:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:10:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:10:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:10:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:10:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:10:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:10:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:10:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:10:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:10:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:11:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:11:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:11:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:11:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:11:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:11:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:11:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:11:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:11:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:11:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:11:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:11:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:12:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:12:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:12:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:12:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:12:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:12:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:12:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:12:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:12:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:12:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:12:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:12:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:13:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:13:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:13:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:13:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:13:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:13:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:13:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:13:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:13:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:13:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:13:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:13:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:14:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:14:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:14:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:14:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:14:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:14:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:14:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:14:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:14:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:14:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:14:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:14:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:15:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:15:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:15:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:15:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:15:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:15:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:15:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:15:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:15:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:15:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:15:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:15:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:16:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:16:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:16:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:16:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:16:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:16:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:16:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:16:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:16:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:16:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:16:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:16:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:17:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:17:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:17:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:17:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:17:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:17:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:17:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:17:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:17:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:17:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:17:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:17:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:18:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:18:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:18:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:18:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:18:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:18:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:18:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:18:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:18:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:18:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:18:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:18:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:19:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:19:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:19:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:19:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:19:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:19:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:19:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:19:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:19:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:19:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:19:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:19:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:1",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:2",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:3",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:4",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:5",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:6",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:7",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:8",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:9",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:10",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:11",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:12",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:13",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:14",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:15",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:16",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:17",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:18",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:19",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:20",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:21",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:22",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:23",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:24",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:25",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:26",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:27",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:28",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:29",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:30",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:31",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:32",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:33",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:34",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:35",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:36",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:37",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:38",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:39",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:40",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:41",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:42",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:43",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:44",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:45",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:46",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:47",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:48",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:49",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "frame:henri_epistemic_coprocessor:0:50",
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "assert_absent",
+        "checked": 2,
+        "leaked": false,
+        "hits": []
+      },
+      {
+        "where": "scope_roots",
+        "checked": 0,
+        "leaked": false,
+        "hits": []
+      }
+    ],
+    "leaked": false,
+    "gold_labels": 17,
+    "zone_c": "C:\\Users\\chan\\AppData\\Local\\Temp\\henri_u5_harness___jgyolv\\zone_c",
+    "scratch": "C:\\Users\\chan\\AppData\\Local\\Temp\\henri_u5_harness___jgyolv\\scratch",
+    "zone_c_files": 0
+  },
+  "gate": {
+    "sandbox_traps_12_of_12": true,
+    "sandbox_env_leaks_zero": true,
+    "sandbox_env_probe_control": true,
+    "sandbox_timeout_kill": true,
+    "sandbox_parent_alive": true,
+    "tasks_12_clean": true,
+    "tasks_12_finish_verified": true,
+    "frame_bounded_4096": true,
+    "frame_compression_ge_3x": true,
+    "abstention_boundary_fail_closed": true,
+    "abstention_above_threshold_emits": true,
+    "arm3_zero_repeated_error_loops": true,
+    "baseline_error_loops_observed": true,
+    "arm3_zero_ungrounded_deliverables": true,
+    "baseline_ungrounded_observed": true,
+    "omni_arm3_strictly_highest": true,
+    "token_compression_ge_3x": true,
+    "paired_20_episodes_12_turns": true,
+    "quarantine_no_leak": true,
+    "provider_wire_roundtrip": true,
+    "provider_retry_faults_observed": true,
+    "live_status_honest": true,
+    "passed": true
+  },
+  "wall_seconds": 39.278738599969074,
+  "evidence": "OBSERVED"
+}

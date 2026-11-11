@@ -1581,7 +1581,7 @@
     "stationary_drift_zero": true,
     "passed": true
   },
-  "wall_seconds": 0.07481639998150058,
+  "wall_seconds": 0.03907780000008643,
   "evidence": "OBSERVED",
   "passed": true
 }

@@ -1,0 +1,207 @@
+{
+  "stage": "O1",
+  "budgets": {
+    "8": {
+      "swat_correct": 24,
+      "t2t_correct": 0,
+      "queries": 24,
+      "swat_accuracy": 1.0,
+      "t2t_accuracy": 0.0,
+      "delta_points": 100.0,
+      "attention_mass": 0.9999995231628418,
+      "selected_slots": [
+        1,
+        3,
+        23,
+        53,
+        73,
+        93,
+        109,
+        142
+      ],
+      "receiver_prefill_tokens": 0
+    },
+    "16": {
+      "swat_correct": 24,
+      "t2t_correct": 0,
+      "queries": 24,
+      "swat_accuracy": 1.0,
+      "t2t_accuracy": 0.0,
+      "delta_points": 100.0,
+      "attention_mass": 0.9999995827674866,
+      "selected_slots": [
+        1,
+        3,
+        12,
+        23,
+        27,
+        39,
+        48,
+        53
+      ],
+      "receiver_prefill_tokens": 0
+    },
+    "32": {
+      "swat_correct": 24,
+      "t2t_correct": 0,
+      "queries": 24,
+      "swat_accuracy": 1.0,
+      "t2t_accuracy": 0.0,
+      "delta_points": 100.0,
+      "attention_mass": 0.9999998211860657,
+      "selected_slots": [
+        1,
+        3,
+        11,
+        12,
+        23,
+        27,
+        39,
+        47
+      ],
+      "receiver_prefill_tokens": 0
+    }
+  },
+  "telepathy": {
+    "ttft_swat_p50_ms": 0.8216999704018235,
+    "ttft_t2t_p50_ms": 7.521999999880791,
+    "ttft_ratio": 9.154192857281497,
+    "receiver_prefill_tokens": 0,
+    "document_tokens": 639,
+    "bus": {
+      "sent": 28,
+      "admitted": 12,
+      "vetoed": 16,
+      "entries": 28,
+      "packets": 28,
+      "chain_head": "d78c290de5c021bb7caf6547cfd4fd43bebd1fe826839b38341596733c1d6223",
+      "chain_valid": true,
+      "budget_u": 16
+    }
+  },
+  "vla": {
+    "completed": 12,
+    "goals_reached": 12,
+    "hallucination_rate": 0.0,
+    "vision_kv_rows": [
+      {
+        "episode": 0,
+        "predicted": 5,
+        "expected": 5,
+        "admitted": true,
+        "kv_digest": "9153ebd4f4bec704"
+      },
+      {
+        "episode": 1,
+        "predicted": 3,
+        "expected": 3,
+        "admitted": true,
+        "kv_digest": "6d17079b013c8323"
+      },
+      {
+        "episode": 2,
+        "predicted": 2,
+        "expected": 2,
+        "admitted": true,
+        "kv_digest": "6e467ea06394839c"
+      },
+      {
+        "episode": 3,
+        "predicted": 5,
+        "expected": 5,
+        "admitted": true,
+        "kv_digest": "daadde7437637e8e"
+      },
+      {
+        "episode": 4,
+        "predicted": 2,
+        "expected": 2,
+        "admitted": true,
+        "kv_digest": "8cb7abc9f6a2cc35"
+      },
+      {
+        "episode": 5,
+        "predicted": 9,
+        "expected": 9,
+        "admitted": true,
+        "kv_digest": "aa2e6e350a508a50"
+      },
+      {
+        "episode": 6,
+        "predicted": 1,
+        "expected": 1,
+        "admitted": true,
+        "kv_digest": "1d89350f903faf32"
+      },
+      {
+        "episode": 7,
+        "predicted": 4,
+        "expected": 4,
+        "admitted": true,
+        "kv_digest": "d67c7ff4e95ba7fe"
+      },
+      {
+        "episode": 8,
+        "predicted": 7,
+        "expected": 7,
+        "admitted": true,
+        "kv_digest": "00fac147999e7b54"
+      },
+      {
+        "episode": 9,
+        "predicted": 3,
+        "expected": 3,
+        "admitted": true,
+        "kv_digest": "4a0acb4d97648665"
+      },
+      {
+        "episode": 10,
+        "predicted": 7,
+        "expected": 7,
+        "admitted": true,
+        "kv_digest": "31f98f64039a537b"
+      },
+      {
+        "episode": 11,
+        "predicted": 5,
+        "expected": 5,
+        "admitted": true,
+        "kv_digest": "e1891a058845fb31"
+      }
+    ],
+    "digit_hits": 12,
+    "engine_vocabulary": 2048
+  },
+  "veto": {
+    "calibration": {
+      "rows": 8,
+      "tau_chance": 0.36237358450889584,
+      "tau_residual": 0.786782214641571,
+      "s_max_min": 0.4263218641281128,
+      "s_max_median": 0.47784458100795746,
+      "delta_max": 0.7397925853729248,
+      "delta_median": 0.6999155282974243
+    },
+    "corrupted": 16,
+    "vetoed": 16,
+    "admitted": 0,
+    "receiver_outputs": 0
+  },
+  "gate": {
+    "o1a_24_queries": true,
+    "o1a_swat_at_least_0_55": true,
+    "o1a_delta_at_least_15_points": true,
+    "o1a_ttft_at_least_4x": true,
+    "o1a_zero_receiver_prefill_tokens": true,
+    "o1b_vla_12_completed": true,
+    "o1b_vla_goals_12": true,
+    "o1b_cross_modal_digit_12": true,
+    "o1c_corrupted_16": true,
+    "o1c_veto_16_of_16": true,
+    "o1c_zero_hallucination": true,
+    "passed": true
+  },
+  "wall_seconds": 82.55755440006033,
+  "evidence": "OBSERVED",
+  "passed": true
+}

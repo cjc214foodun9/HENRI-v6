@@ -1,0 +1,42 @@
+{
+  "cycle": "R",
+  "head": "7d3522e3f55a999ff1edb84dbb44db2b3e2b6fdd",
+  "stages": {
+    "r3": {
+      "receipt": "receipts\\holarch\\r3_static_and_streaming_full_decile_language.json",
+      "sha256": "d074511d012f2d9dc11bbf04816200349c2d9381ffca5c693f6e6e96f9c683d5",
+      "passed": true,
+      "gate": {
+        "r3_tier1_id_shifts_zero": true,
+        "r3_locked_overlap_zero": true,
+        "r3_elastic_overlap_zero": true,
+        "r3_live_overlap_zero": true,
+        "r3_full_overlap_zero": true,
+        "r3_locked_static_top1_ge_0_5600": true,
+        "r3_locked_static_bpc_le_1_2800": true,
+        "r3_elastic_static_top1_ge_0_5750": true,
+        "r3_elastic_static_bpc_le_1_2200": true,
+        "r3_live_static_top1_ge_0_5750": true,
+        "r3_live_static_bpc_le_1_2000": true,
+        "r3_full_static_top1_ge_0_5250": true,
+        "r3_full_static_bpc_le_1_4200": true,
+        "r3_full_stream_top1_ge_0_5600": true,
+        "r3_full_stream_bpc_le_1_2200": true,
+        "r3_full_scored_ge_50000": true,
+        "r3_recency_selected": true,
+        "r3_recency_static_inductive": true,
+        "r3_recency_zero_state": true,
+        "r3_suffix_selected": true,
+        "r3_suffix_orders_six": true,
+        "r3_suffix_static_inductive": true,
+        "r3_suffix_zero_state": true,
+        "r3_suffix_reads_no_target": true,
+        "r3_role_discounts_selected": true,
+        "r3_kn_mix_selected": true,
+        "passed": true
+      },
+      "wall_seconds": 659.6807521999581
+    }
+  },
+  "passed": true
+}

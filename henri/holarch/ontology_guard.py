@@ -40,8 +40,10 @@ from __future__ import annotations
 
 import ast
 import hashlib
+import json
 import math
 import re
+import time
 
 import numpy as np
 from dataclasses import dataclass, field
@@ -662,3 +664,334 @@ def build_verifier(root: str | Path = ".", **kwargs) -> OntologyVerifier:
     verifier = OntologyVerifier(root=root, **kwargs)
     verifier.build()
     return verifier
+
+
+# =========================================================================
+# Directive S3: the TBAC-sandboxed exteroceptive corpus browser
+# =========================================================================
+class SandboxViolation(PermissionError):
+    """Raised when a browser request leaves the allow-listed envelope."""
+
+
+class SandboxedCorpusBrowser:
+    """Read-only local corpus access under an explicit directory allow-list.
+
+    The browser is the RUNTIME half of the two-tier grounding pipeline: when a
+    Zone C query returns the C1 empty-retrieval veto (or an ungrounded topic),
+    the caller asks the browser to read the allow-listed corpus, extract
+    verified triples, crystallise them into Zone C as Tier-2 engrams, and
+    answer from the passage that grounded them.
+
+    The envelope is fail-closed and checked BEFORE any file is opened: a URL
+    or scheme (http://, https://, file:, s3://) is refused, any '..' component
+    is refused (traversal), a resolved path outside every allowed root is
+    refused, and a non-file, a binary suffix or an oversized file is refused.
+
+    Every accepted call returns a chained SHA-256 receipt over the roots, the
+    query, the passages read and the engram ids written.
+    """
+
+    ALLOWED_SUFFIXES = (".md", ".txt", ".rst", ".json", ".csv", ".tsv", ".py", ".yaml", ".yml")
+    FORBIDDEN_SCHEMES = ("http://", "https://", "ftp://", "file:", "s3://", "gs://", "//")
+
+    def __init__(
+        self,
+        memory,
+        roots,
+        *,
+        namespace: str = "corpus",
+        max_file_bytes: int = 2_000_000,
+        max_files: int = 512,
+        extractor=None,
+    ) -> None:
+        resolved = []
+        for root in roots:
+            path = Path(root).expanduser().resolve()
+            if path.is_dir():
+                resolved.append(path)
+        if not resolved:
+            raise SandboxViolation("browser needs at least one existing allow-listed root")
+        self.memory = memory
+        self.roots = resolved
+        self.namespace = str(namespace)
+        self.max_file_bytes = int(max_file_bytes)
+        self.max_files = int(max_files)
+        self.extractor = extractor
+        self.history = []
+        self._previous = ""
+        self.reads = 0
+        self.writes = 0
+        self.refusals = 0
+
+    # ------------------------------------------------------------- envelope
+    def resolve(self, candidate, *, must_exist: bool = True) -> Path:
+        """Resolve one path inside the envelope, or raise SandboxViolation."""
+        text = str(candidate).strip()
+        lowered = text.lower()
+        for scheme in self.FORBIDDEN_SCHEMES:
+            if lowered.startswith(scheme):
+                self.refusals += 1
+                raise SandboxViolation(f"refused scheme: {scheme}")
+        raw = Path(text)
+        if ".." in raw.parts:
+            self.refusals += 1
+            raise SandboxViolation("refused path traversal: '..' component")
+        if raw.is_absolute():
+            resolved = raw.resolve()
+        else:
+            resolved = (self.roots[0] / raw).resolve()
+        if not any(self._inside(resolved, root) for root in self.roots):
+            self.refusals += 1
+            raise SandboxViolation(f"refused path outside the allow-list: {resolved}")
+        if must_exist and not resolved.exists():
+            self.refusals += 1
+            raise SandboxViolation(f"refused missing path: {resolved}")
+        if must_exist and not resolved.is_file():
+            self.refusals += 1
+            raise SandboxViolation(f"refused non-file path: {resolved}")
+        if must_exist and resolved.suffix.lower() not in self.ALLOWED_SUFFIXES:
+            self.refusals += 1
+            raise SandboxViolation(f"refused suffix: {resolved.suffix}")
+        if must_exist and resolved.stat().st_size > self.max_file_bytes:
+            self.refusals += 1
+            raise SandboxViolation(f"refused oversized file: {resolved.stat().st_size} bytes")
+        return resolved
+
+    @staticmethod
+    def _inside(path: Path, root: Path) -> bool:
+        try:
+            path.relative_to(root)
+        except ValueError:
+            return False
+        return True
+
+    def files(self):
+        found = []
+        for root in self.roots:
+            for path in sorted(root.rglob("*")):
+                if len(found) >= self.max_files:
+                    return found
+                if not path.is_file():
+                    continue
+                if path.suffix.lower() not in self.ALLOWED_SUFFIXES:
+                    continue
+                try:
+                    if path.stat().st_size > self.max_file_bytes:
+                        continue
+                except OSError:
+                    continue
+                found.append(path)
+        return found
+
+    # ------------------------------------------------------------- retrieval
+    @staticmethod
+    def _terms(text: str):
+        return [
+            token
+            for token in re.findall(r"[A-Za-z0-9_]+", str(text).lower())
+            if len(token) > 2
+        ]
+
+    def scan(self, query: str, *, limit: int = 6):
+        """Rank allow-listed passages against the query by term coverage."""
+        wanted = set(self._terms(query))
+        if not wanted:
+            return []
+        scored = []
+        for path in self.files():
+            try:
+                text = path.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                continue
+            self.reads += 1
+            offset = 0
+            for line in text.splitlines():
+                content = line.strip()
+                offset += 1
+                if not content:
+                    continue
+                terms = set(self._terms(content))
+                if not terms:
+                    continue
+                overlap = len(wanted & terms)
+                if overlap == 0:
+                    continue
+                scored.append(
+                    {
+                        "source": str(path),
+                        "line": int(offset),
+                        "text": content,
+                        "score": float(overlap) / float(len(wanted)),
+                        "overlap": int(overlap),
+                    }
+                )
+        scored.sort(key=lambda row: (-float(row["score"]), str(row["source"]), int(row["line"])))
+        # Keep at most two passages per source so one verbose file cannot fill
+        # the whole evidence set.
+        seen = {}
+        kept = []
+        for row in scored:
+            count = seen.get(str(row["source"]), 0)
+            if count >= 2:
+                continue
+            seen[str(row["source"])] = count + 1
+            kept.append(row)
+            if len(kept) >= int(limit):
+                break
+        return kept
+
+    # ---------------------------------------------------------- crystallise
+    def browse_and_crystallize(
+        self,
+        query: str,
+        namespace=None,
+        *,
+        path=None,
+        limit: int = 4,
+        min_score: float = 0.34,
+    ):
+        """Ground a query in the allow-listed corpus and crystallise it.
+
+        A query with no passage at or above min_score is NOT answered: it
+        returns grounded=False and writes nothing, which is the fail-closed
+        behaviour the C1 rule requires.
+        """
+        namespace = str(namespace or self.namespace)
+        started = time.perf_counter()
+        try:
+            if path is not None:
+                resolved = self.resolve(path)
+                passages = []
+                text = resolved.read_text(encoding="utf-8", errors="replace")
+                wanted = set(self._terms(query))
+                for offset, line in enumerate(text.splitlines(), start=1):
+                    terms = set(self._terms(line))
+                    if not terms or not wanted:
+                        continue
+                    overlap = len(wanted & terms)
+                    if overlap:
+                        passages.append(
+                            {
+                                "source": str(resolved),
+                                "line": int(offset),
+                                "text": line.strip(),
+                                "score": float(overlap) / float(len(wanted)),
+                                "overlap": int(overlap),
+                            }
+                        )
+                passages.sort(key=lambda row: -float(row["score"]))
+                passages = passages[: max(int(limit), 1)]
+            else:
+                passages = self.scan(query, limit=limit)
+        except SandboxViolation as error:
+            return {
+                "grounded": False,
+                "answered": False,
+                "refused": True,
+                "reason": str(error),
+                "query": str(query),
+                "written": 0,
+                "receipt": "",
+                "elapsed_ms": float((time.perf_counter() - started) * 1e3),
+            }
+        accepted = [row for row in passages if float(row["score"]) >= float(min_score)]
+        if not accepted:
+            self.history.append(
+                {"query": str(query), "grounded": False, "written": 0}
+            )
+            return {
+                "grounded": False,
+                "answered": False,
+                "refused": False,
+                "reason": "no-grounded-passage",
+                "query": str(query),
+                "written": 0,
+                "passages": passages,
+                "receipt": "",
+                "elapsed_ms": float((time.perf_counter() - started) * 1e3),
+            }
+        written_ids = []
+        triples = []
+        for row in accepted:
+            text = str(row["text"])
+            digest = hashlib.sha256(text.encode("utf-8")).hexdigest()
+            if self.memory is not None:
+                generator = np.random.default_rng(int(digest[:16], 16) % (2**63 - 1))
+                dim = int(getattr(self.memory, "dim", 1024))
+                raw = generator.standard_normal(dim) + 1j * generator.standard_normal(dim)
+                wave = (raw / max(float(np.linalg.norm(raw)), 1e-12)).astype(np.complex64)
+                record = self.memory.write(
+                    wave,
+                    label=int(digest[:6], 16) % 4096,
+                    tier=2,
+                    namespace=namespace,
+                )
+                written_ids.append(int(record.engram_id))
+                self.writes += 1
+            triples.extend(self._triples(str(row["source"]), int(row["line"]), text))
+        answer = str(accepted[0]["text"])
+        payload = {
+            "query": str(query),
+            "namespace": namespace,
+            "sources": [str(row["source"]) for row in accepted],
+            "lines": [int(row["line"]) for row in accepted],
+            "passage_sha256": [
+                hashlib.sha256(str(row["text"]).encode("utf-8")).hexdigest()
+                for row in accepted
+            ],
+            "written": len(written_ids),
+            "previous": self._previous,
+        }
+        receipt = hashlib.sha256(
+            json.dumps(payload, sort_keys=True).encode("utf-8")
+        ).hexdigest()
+        self._previous = receipt
+        self.history.append({"grounded": True, "receipt": receipt, **payload})
+        return {
+            "grounded": True,
+            "answered": True,
+            "refused": False,
+            "reason": "",
+            "query": str(query),
+            "answer": answer,
+            "passages": accepted,
+            "triples": triples[:32],
+            "engram_ids": written_ids,
+            "written": len(written_ids),
+            "receipt": receipt,
+            "chain_length": len(self.history),
+            "elapsed_ms": float((time.perf_counter() - started) * 1e3),
+        }
+
+    @staticmethod
+    def _triples(source: str, line: int, text: str):
+        """Deterministic (subject, relation, object) extraction from one line."""
+        out = []
+        separator = "=" if "=" in text and ":" not in text.split("=")[0] else ":"
+        if separator in text:
+            subject = text.split(separator, 1)[0].strip()
+            rest = text.split(separator, 1)[1].strip()
+            value = rest.split(",")[0].strip()
+            if subject and value:
+                out.append(
+                    {
+                        "subject": subject,
+                        "relation": "has_value",
+                        "object": value,
+                        "source": str(source),
+                        "line": str(int(line)),
+                    }
+                )
+        return out
+
+    def report(self):
+        return {
+            "roots": [str(root) for root in self.roots],
+            "files_visible": int(len(self.files())),
+            "reads": int(self.reads),
+            "writes": int(self.writes),
+            "refusals": int(self.refusals),
+            "grounded_calls": int(sum(1 for row in self.history if row.get("grounded"))),
+            "chain_length": int(len(self.history)),
+            "head": str(self._previous),
+        }
