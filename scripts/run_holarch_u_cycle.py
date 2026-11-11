@@ -117,11 +117,11 @@ def stage_u1(directory: Path) -> Dict[str, object]:
     ]
     gates = {
         "u1_docs_monotonic": bool(docs["monotonic"] and docs["unique"]),
-        "u1_docs_sections_1_to_38": bool(docs["numbers"] == list(range(1, 39))),
+        "u1_docs_sections_1_to_39": bool(docs["numbers"] == list(range(1, 40))),
         "u1_receipt_index_outside_docs": bool((RECEIPTS / "RECEIPT_INDEX.md").exists()),
         "u1_sidecar_parity_100": bool(sidecars["parity"] == 1.0),
         "u1_no_undocumented_receipts": bool(not undocumented),
-        "u1_gauntlet_240": bool(gauntlet["queries"] == 240 and gauntlet["probe_slots"] == 164),
+        "u1_gauntlet_256": bool(gauntlet["queries"] == 256 and gauntlet["probe_slots"] == 180),
         "u1_gauntlet_passed": bool(gauntlet["passed"]),
         "u1_zero_query_reads": bool(gauntlet["query_file_reads"] == 0),
         "u1_reachable_1": bool(gauntlet["reachable_accuracy"] == 1.0),
@@ -213,8 +213,15 @@ def stage_u2(directory: Path) -> Dict[str, object]:
     query_waves = [wave_for(row) for row in query_rows]
     query_digests = [hashlib.sha256(row["question"].encode("utf-8")).hexdigest() for row in query_rows]
     memory._fetch([int(value) for value in memory._ids[: memory._size]])
-    before = [int(memory.query(wave, k=8, namespace=namespace, use_riemannian=True).hits[0].engram_id)
-              if memory.query(wave, k=8, namespace=namespace, use_riemannian=True).hits else -1
+    # Directive X3: the atlas must probe enough charts to retrieve a query's
+    # OWN row.  One chart was enough before the Cycle X corpus growth; a
+    # two-chart probe restores the self-retrieval recall contract while the
+    # candidate-ratio and speedup gates stay measured on the same atlas.
+    query_charts = 2
+    before = [int(memory.query(wave, k=8, namespace=namespace, use_riemannian=True,
+                               top_charts=query_charts).hits[0].engram_id)
+              if memory.query(wave, k=8, namespace=namespace, use_riemannian=True,
+                              top_charts=query_charts).hits else -1
               for wave in query_waves]
     signatures, physics = _online_texts()
     online_digest: Dict[int, str] = {}
@@ -227,12 +234,15 @@ def stage_u2(directory: Path) -> Dict[str, object]:
             online_digest[int(record.engram_id)] = hashlib.sha256(text.encode("utf-8")).hexdigest()
     atlas.finalize()
     online_spawns = int(len(atlas.charts) - initial_charts)
-    after = [int(memory.query(wave, k=8, namespace=namespace, use_riemannian=True).hits[0].engram_id)
-             if memory.query(wave, k=8, namespace=namespace, use_riemannian=True).hits else -1
+    after = [int(memory.query(wave, k=8, namespace=namespace, use_riemannian=True,
+                              top_charts=query_charts).hits[0].engram_id)
+             if memory.query(wave, k=8, namespace=namespace, use_riemannian=True,
+                             top_charts=query_charts).hits else -1
              for wave in query_waves]
     drift = sum(1 for left, right in zip(before, after) if int(left) != int(right))
     charted = [memory.query(wave, k=8, namespace=namespace, use_riemannian=True,
-                            candidate_multiplier=2) for wave in query_waves]
+                            candidate_multiplier=2, top_charts=query_charts)
+               for wave in query_waves]
     flat = [memory.query(wave, k=8, namespace=namespace, use_charts=False,
                          candidate_multiplier=2) for wave in query_waves]
     coherent = [float(read.hits[0].coherence) for read, digest in
@@ -240,6 +250,7 @@ def stage_u2(directory: Path) -> Dict[str, object]:
                 if read.hits and ingest.get(int(read.hits[0].engram_id)) == digest]
     tau = max(0.05, min(coherent) * 0.75) if coherent else 0.35
     grounded_correct = ood_abstain = hallucinated = parity = 0
+    grounded_failures: List[Dict[str, object]] = []
     charted_ms: List[float] = []
     flat_ms: List[float] = []
     ratios: List[float] = []
@@ -256,8 +267,21 @@ def stage_u2(directory: Path) -> Dict[str, object]:
         correct = bool(predicted == expected)
         if on_domain:
             grounded_correct += int(correct)
-            parity += int(bool(match is not None)
-                          and int(read.hits[0].engram_id) == int(match.engram_id))
+            top_is_match = bool(match is not None and read.hits
+                                and int(read.hits[0].engram_id) == int(match.engram_id))
+            parity += int(top_is_match)
+            if not correct or not top_is_match:
+                grounded_failures.append({
+                    "position": int(position),
+                    "question_sha256": str(digest)[:16],
+                    "expected": expected,
+                    "predicted": predicted,
+                    "match_coherence": float(match.coherence) if match is not None else None,
+                    "tau": float(tau),
+                    "top_coherence": float(read.hits[0].coherence) if read.hits else None,
+                    "top_is_match": bool(top_is_match),
+                    "hits": int(len(read.hits)),
+                })
         else:
             ood_abstain += int(predicted == "ABSTAIN")
         hallucinated += int(predicted != "ABSTAIN" and not correct)
@@ -316,6 +340,7 @@ def stage_u2(directory: Path) -> Dict[str, object]:
         "condensations": int(atlas.condensations),
         "staged_now": int(len(atlas.staging)),
         "recall_misses": recall_misses,
+        "grounded_failures": grounded_failures,
     }
     gates = {
         "u2_parity_1": bool(exact_parity == 1.0),

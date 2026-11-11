@@ -246,6 +246,25 @@ class ActionRegimeReadout:
         row = self.features(values).reshape(1, -1)
         return (row @ self.Q @ self.calibration).reshape(-1).astype(np.float64)
 
+    def predict_batch(
+        self, rows: Sequence[Any]
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """Decode a batch of bundle rows in ONE matrix product (Directive X4).
+
+        The feature map and the fitted (Q, calibration) pair are the same ones
+        predict() uses, so a batched read cannot disagree with a single read.
+        """
+        if self.Q is None or self.calibration is None:
+            raise RuntimeError("ActionRegimeReadout is not fitted")
+        matrix = self._matrix(rows)
+        scores = matrix @ self.Q @ self.calibration
+        best = np.argmax(scores, axis=1).astype(np.int64)
+        shifted = scores - np.max(scores, axis=1, keepdims=True)
+        weight = np.exp(shifted)
+        probability = weight / np.maximum(weight.sum(axis=1, keepdims=True), 1e-12)
+        top = probability[np.arange(best.size), best]
+        return best, top.astype(np.float64), scores.astype(np.float64)
+
     def accuracy(self, rows: Sequence[Any], labels: Sequence[int]) -> float:
         if not rows:
             return 0.0
@@ -4226,6 +4245,35 @@ class SynthesisEngine:
         # mutation rebuilds the engine, so a stale entry cannot survive it.
         self._discover_cache: Dict[str, Dict[str, object]] = {}
 
+    @classmethod
+    def from_stem(
+        cls,
+        stem: "SharedCorpusStem",
+        memory,
+        namespace: str = "default",
+        *,
+        plan_offset: int = 20000,
+        signatures: Optional[Dict[str, object]] = None,
+    ) -> "SynthesisEngine":
+        """Mount a lightweight, zero-leakage arm over a shared stem (X1).
+
+        Only the PlanStore (bound to this Zone C namespace) and this arm's
+        delta-rule fast weight are new.  The tokenizer, projector, count
+        model, lexical bank, ontology verifier and repo sheaf are the stem's
+        read-only objects, so four arms cannot observe each other's writes.
+        """
+        generator = stem.mount_generator()
+        return cls(
+            generator,
+            stem.projector,
+            stem.tokenizer,
+            memory,
+            verifier=stem.verifier,
+            namespace=str(namespace),
+            plan_offset=int(plan_offset),
+            signatures=dict(signatures if signatures is not None else stem.signatures),
+        )
+
     # --------------------------------------------- holonic discovery (O4)
     def _sandbox(self, source: str, tests: str) -> Tuple[bool, str]:
         """Tier-2 screen: execute the composed source and its reference tests."""
@@ -5783,6 +5831,248 @@ def evaluate_bochner_language(
         **locked_compat,
         **l3_block,
     }
+
+
+@dataclass
+class SharedCorpusStem:
+    """The immutable per-process half of the synthesis stack (Directive X1).
+
+    The Cycle V/W four-arm suite stalled because four independent
+    SynthesisEngine instances parsed the corpus, fitted the PPMI-SVD stem,
+    indexed the AST sheaf and built the n-gram tables four times.  Every one
+    of those objects is READ-ONLY after construction, so one stem is built
+    once per process and each arm mounts only the state it owns:
+
+        PlanStore       per-arm, bound to one Zone C namespace
+        fast weights    per-arm, a fresh zero delta-rule array
+        BoundaryAxiom   per-arm, two typed axioms in the same namespace
+
+    The count model, the lexical bank, the projector, the tokenizer, the
+    ontology verifier, the call-graph indexer and the RepoSheaf are shared and
+    never mutated by a mount.  from_stem() therefore cannot leak one arm's
+    learned state into another.
+    """
+
+    root: Path
+    corpus: Any
+    tokenizer: Any
+    projector: Any
+    count_lm: Any
+    generator: Any
+    verifier: Any
+    signatures: Dict[str, object]
+    symbol_table: set
+    indexer: Any
+    sheaf: Any
+    stats: Dict[str, object]
+    build_ms: float
+    axiom_names: Tuple[str, ...] = ("exact_quantity_grounding", "hallucination_repulsor")
+    mounts: int = 0
+
+    # ------------------------------------------------------------- building
+    @classmethod
+    def build(
+        cls,
+        root: str | Path = ".",
+        *,
+        max_fit_tokens: int = 0,
+        vocab_lock: Optional[Any] = None,
+        build_index: bool = True,
+        package: str = "henri",
+    ) -> "SharedCorpusStem":
+        """Build the read-only stem once.  Every later mount is cheap."""
+        import time as _time
+
+        from henri.holarch.repo_sheaf import RepoSheaf
+        from henri.holarch.symbolic import CodeGraphIndexer
+
+        started = _time.perf_counter()
+        base = Path(root).resolve()
+        corpus = CodeTextCorpus.holarch(base)
+        lock_path = ""
+        if vocab_lock is None:
+            vocab_lock, lock_path = discover_vocabulary_lock(base)
+        elif isinstance(vocab_lock, (str, Path)):
+            lock_path = str(vocab_lock)
+            vocab_lock = VocabularyLedger.load(vocab_lock)
+        tokenizer = build_tokenizer(corpus, vocab_lock=vocab_lock)
+        projector = BochnerPhaseProjector(dim=1024, d_sem=64)
+        projector.fit(corpus, tokenizer)
+        ids: List[int] = []
+        for text in corpus.texts:
+            ids.extend(int(token) for token in tokenizer.encode(str(text)))
+        generator = WaveCodeTextGenerator(tokenizer, projector)
+        budget = int(len(ids) * 0.9) if int(max_fit_tokens) <= 0 else int(max_fit_tokens)
+        generator.fit(ids[:budget], max_fit_tokens=10**9)
+        generator.count_lm.fit(ids[:budget])
+        generator.lexical.build(ids[:budget])
+        verifier = build_verifier(base)
+        indexer = None
+        sheaf = RepoSheaf()
+        signatures: Dict[str, object] = {}
+        symbol_table: set = set()
+        index_block: Dict[str, object] = {"built": False}
+        if build_index:
+            indexer = CodeGraphIndexer(memory=None, namespace="shared_stem")
+            report = indexer.index(base / str(package), package=str(package))
+            signatures = dict(indexer.signatures)
+            for name in indexer.graph.nodes:
+                symbol_table.add(str(name))
+            symbol_table.update(str(name) for name in signatures)
+            index_block = {
+                "built": True,
+                "package": str(package),
+                "modules": int(len(report.modules)),
+                "functions": int(len(signatures)),
+                "edges": int(len(indexer.graph.edges)),
+                "nodes": int(len(symbol_table)),
+                "seconds": float(indexer.report.seconds),
+            }
+        stats = {
+            "corpus_digest": str(getattr(corpus, "digest", "")),
+            "files": int(len(corpus)),
+            "tokens": int(len(ids)),
+            "train_tokens": int(budget),
+            "vocabulary_size": int(len(tokenizer)),
+            "vocabulary_digest": str(tokenizer.spec.digest()),
+            "vocab_locked": bool(getattr(tokenizer, "locked", False)),
+            "vocab_lock_path": str(lock_path),
+            "verifier_passages": int(len(getattr(verifier, "passages", []) or [])),
+            "index": index_block,
+            "max_fit_tokens": int(max_fit_tokens),
+        }
+        return cls(
+            root=base,
+            corpus=corpus,
+            tokenizer=tokenizer,
+            projector=projector,
+            count_lm=generator.count_lm,
+            generator=generator,
+            verifier=verifier,
+            signatures=signatures,
+            symbol_table=symbol_table,
+            indexer=indexer,
+            sheaf=sheaf,
+            stats=stats,
+            build_ms=float((_time.perf_counter() - started) * 1e3),
+        )
+
+    # -------------------------------------------------------------- mounting
+    def mount_generator(self) -> "WaveCodeTextGenerator":
+        """A per-arm generator view: shared banks, fresh learned state."""
+        import copy
+
+        view = copy.copy(self.generator)
+        view.fast_weight = np.zeros(
+            (int(self.generator.vocab_size), int(self.generator.dim)), dtype=np.complex64
+        )
+        view.fast_gain = float(self.generator.fast_gain)
+        view._fast_active = False
+        view.fast_updates = 0
+        view.photonic_contexts = 0
+        view.photonic_cache_hits = 0
+        view._photonic_cache = {}
+        view.suffix_stats = {"calls": 0.0, "matched": 0.0, "order_sum": 0.0}
+        view.stream_cache = None
+        view.stream_weight = 0.0
+        view.stream_report = {}
+        # A per-arm AST gate: a mount can register a symbol without widening
+        # another arm's grammar.
+        view.gate = ASTGate(set(self.symbol_table))
+        return view
+
+    def install_boundary_axioms(self, memory, namespace: str) -> List[Dict[str, object]]:
+        """Register the two typed axioms of one arm namespace (Directive X1)."""
+        import hashlib as _hashlib
+
+        out: List[Dict[str, object]] = []
+        specs = (
+            ("LAW", "exact_quantity_grounding", (False, False, False, True)),
+            ("REPULSOR", "hallucination_repulsor", (True, True, True, True)),
+        )
+        dim = int(getattr(memory, "dim", 1024))
+        if dim % 2:
+            dim += 1
+        for polarity, name, mask in specs:
+            digest = _hashlib.sha256(f"{namespace}:{name}".encode("utf-8")).digest()
+            seed = int.from_bytes(digest[:8], "little")
+            raw = np.random.default_rng(seed).standard_normal(2 * dim).astype(np.float32)
+            wave = (raw[:dim] + 1j * raw[dim:]).astype(np.complex64)
+            wave = wave / max(float(np.linalg.norm(wave)), 1e-12)
+            record = memory.register_axiom(
+                wave,
+                name=str(name),
+                polarity=str(polarity),
+                source="human_heuristic",
+                slot_mask=mask,
+                namespace=str(namespace),
+                key=f"{namespace}:{polarity}:{name}",
+            )
+            out.append(
+                {
+                    "axiom_id": str(record.axiom_id),
+                    "name": str(record.name),
+                    "polarity": str(record.polarity),
+                    "namespace": str(record.namespace),
+                    "engram_id": int(record.engram_id),
+                }
+            )
+        return out
+
+    def mount(
+        self,
+        memory,
+        namespace: str = "default",
+        *,
+        plan_offset: int = 20000,
+        signatures: Optional[Dict[str, object]] = None,
+        register_axioms: bool = True,
+    ) -> Tuple["SynthesisEngine", Dict[str, object]]:
+        """Mount one lightweight arm over this stem."""
+        import time as _time
+
+        started = _time.perf_counter()
+        engine = SynthesisEngine.from_stem(
+            self,
+            memory,
+            namespace=namespace,
+            plan_offset=plan_offset,
+            signatures=signatures,
+        )
+        axioms = self.install_boundary_axioms(memory, namespace) if register_axioms else []
+        self.mounts += 1
+        return engine, {
+            "namespace": str(namespace),
+            "mount_ms": float((_time.perf_counter() - started) * 1e3),
+            "plans": int(len(engine.plans.plans)),
+            "boundary_axioms": axioms,
+            "fast_weight_bytes": int(engine.fast_weight.nbytes),
+            "shared": {
+                "tokenizer": "HolarchCodeTextTokenizer",
+                "projector": "BochnerPhaseProjector",
+                "count_lm": "CountLanguageModel",
+                "verifier": "OntologyVerifier",
+                "sheaf": "RepoSheaf",
+                "indexer": bool(self.indexer is not None),
+            },
+        }
+
+    def describe(self) -> Dict[str, object]:
+        return {
+            "root": str(self.root),
+            "build_ms": float(self.build_ms),
+            "mounts": int(self.mounts),
+            "stats": dict(self.stats),
+            "signatures": int(len(self.signatures)),
+            "symbol_table": int(len(self.symbol_table)),
+        }
+
+    def digest(self) -> str:
+        import json as _json
+
+        return hashlib.sha256(
+            _json.dumps(self.describe(), sort_keys=True, default=str).encode("utf-8")
+        ).hexdigest()
 
 
 def build_synthesis_engine(

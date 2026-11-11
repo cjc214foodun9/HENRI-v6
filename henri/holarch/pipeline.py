@@ -1564,6 +1564,10 @@ class HenriHolarch(nn.Module):
                 trace=True,
                 online_repulsor=bool(online_repulsor),
                 online_namespace=f"{namespace}_vla",
+                # Directive X4: the episode reads the trace only. The 80-pair
+                # one-step audit is a separate diagnostic and is not paid for
+                # on the episode path.
+                one_step_audit=False,
             )
             trace_row = (result.get("trace") or [{}])[0]
             actions = [int(action) for action in (trace_row.get("actions") or [])]
@@ -1839,6 +1843,115 @@ class HenriHolarch(nn.Module):
         )
 
     @torch.no_grad()
+    def classify_action_regime_batch(
+        self,
+        layouts: Sequence[Any],
+        *,
+        task=None,
+        readout=None,
+        observations: Optional[Sequence[Any]] = None,
+        steps: int = 1,
+    ) -> Dict[str, object]:
+        """Classify N layouts in ONE batched tensor call (Directive X4).
+
+        This is the Pass-0 pre-flight decode.  It reproduces the four-slot
+        trajectory bundle of a one-step probe without building N episode
+        harnesses: the initial observation of every layout is stacked into one
+        (N, observation_dim) matrix, passed through a single
+        self.encode("action", X) call, and the bundle geometry is assembled
+        from the batched wave.  The fitted ActionRegimeReadout is then read as
+        one (N, features) x (features, classes) product.
+
+        The only quantities taken from the planner are the step count of a
+        one-step probe (always 1) and the dead-end flag, which is computed from
+        the same in-bounds wall map the sensor wave carries.  The declared
+        trajectory rule then writes slot 2 exactly as it does on the episode
+        path, so the decoded regime is the same quantity.  Parity against a
+        real one-step episode is measured by the caller, not assumed.
+        """
+        from henri.holarch.swat_bus import _unit, cache_from_pairs
+
+        readout = readout if readout is not None else getattr(self, "action_regime_readout", None)
+        if readout is None:
+            raise RuntimeError("classify_action_regime_batch needs a fitted ActionRegimeReadout")
+        if task is None:
+            raise ValueError("classify_action_regime_batch needs the action task for observe()")
+        layout_list = [tuple(layout) for layout in layouts]
+        if not layout_list:
+            return {"count": 0, "regimes": [], "ms": 0.0, "encode_calls": 0}
+        started = time.perf_counter()
+        size = int(getattr(task.world, "grid_size", 7))
+        if observations is None:
+            observations = [
+                task.world.observe(walls, tuple(int(v) for v in agent), tuple(int(v) for v in goal))
+                for walls, agent, goal in layout_list
+            ]
+        matrix = np.stack(
+            [np.asarray(row, dtype=np.float32).reshape(-1) for row in observations]
+        )
+        # ONE batched tensor call for every candidate layout.
+        psi = self.encode("action", torch.as_tensor(matrix, dtype=torch.float32))
+        psi = psi.detach().cpu().numpy().astype(np.complex64)
+        deltas = ((-1, 0), (1, 0), (0, -1), (0, 1))
+        values: List[np.ndarray] = []
+        residues: List[int] = []
+        repulsors: List[int] = []
+        parity_rows: List[Dict[str, object]] = []
+        for index, (walls, agent, goal) in enumerate(layout_list):
+            row, col = int(agent[0]), int(agent[1])
+            legal = 0
+            for dr, dc in deltas:
+                nr, nc = row + dr, col + dc
+                if 0 <= nr < size and 0 <= nc < size and not bool(walls[nr, nc]):
+                    legal += 1
+            repulsor = int(legal <= 1)
+            planning = {
+                "goal": [int(v) for v in goal],
+                "steps": int(steps),
+                "online_discoveries": int(repulsor),
+            }
+            residue = int(self.trajectory_regime(planning))
+            step_wave = _unit(
+                self._regime_wave(3) * np.complex64(np.exp(1j * 2.0 * np.pi * float(residue % 3) / 3.0))
+            )
+            repulsor_wave = _unit(self._regime_wave(4) * np.complex64(-1.0 if repulsor else 1.0))
+            wave = np.asarray(psi[index], dtype=np.complex64)
+            waves = [wave, _unit(np.sum(np.stack([wave]), axis=0)), step_wave, repulsor_wave]
+            cache = cache_from_pairs(
+                [(item, item) for item in waves],
+                source="action:regime",
+                task="action",
+                wave=np.asarray(waves[0], dtype=np.complex64),
+            )
+            values.append(cache.values.detach().cpu().numpy().reshape(4, -1).astype(np.float64))
+            residues.append(int(residue))
+            repulsors.append(int(repulsor))
+            parity_rows.append(
+                {
+                    "index": int(index),
+                    "goal": [int(v) for v in goal],
+                    "legal_moves": int(legal),
+                    "declared_residue": int(residue),
+                }
+            )
+        rows = [row for row in values]
+        best, probability, scores = readout.predict_batch(rows)
+        elapsed_ms = (time.perf_counter() - started) * 1e3
+        return {
+            "count": int(len(layout_list)),
+            "regimes": [int(value) for value in best],
+            "probabilities": [float(value) for value in probability],
+            "scores": np.asarray(scores, dtype=np.float64),
+            "declared_residues": [int(value) for value in residues],
+            "repulsors": [int(value) for value in repulsors],
+            "layouts": parity_rows,
+            "encode_calls": 1,
+            "observation_matrix": [int(v) for v in matrix.shape],
+            "ms": float(elapsed_ms),
+            "readout": "fitted_stiefel_ridge_batch",
+        }
+
+    @torch.no_grad()
     def run_telepathic_vla_episode(
         self,
         canvas: Any,
@@ -2004,6 +2117,9 @@ class HenriHolarch(nn.Module):
                     trace=True,
                     online_repulsor=True,
                     online_namespace=f"{namespace}_{name}",
+                    # Directive X4: the episode consumes the trace, so it does
+                    # not pay for the unused 80-pair one-step audit.
+                    one_step_audit=False,
                 )
                 trace_row = (result.get("trace") or [{}])[0]
                 actions = [int(action) for action in (trace_row.get("actions") or [])]

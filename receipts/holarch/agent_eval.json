@@ -34,11 +34,11 @@
       }
     }
   },
-  "queries_total": 240,
-  "query_slots": 240,
-  "queries": 240,
-  "total_queries": 240,
-  "probe_slots": 164,
+  "queries_total": 256,
+  "query_slots": 256,
+  "queries": 256,
+  "total_queries": 256,
+  "probe_slots": 180,
   "ledger_receipts": 76,
   "query_mix": {
     "code_call_flow": 8,
@@ -101,18 +101,18 @@
     "setup_receipts": 2
   },
   "code_index": {
-    "seconds": 5.608644200023264,
-    "files": 33.0,
-    "lines": 39653.0,
-    "nodes": 1027.0,
-    "edges": 2505.0,
+    "seconds": 5.911988800042309,
+    "files": 34.0,
+    "lines": 41015.0,
+    "nodes": 1058.0,
+    "edges": 2583.0,
     "edges_ingested": 72.0
   },
   "baseline_unindexed": {
-    "query_file_reads": 528,
-    "bytes_read_at_query_time": 26700288,
+    "query_file_reads": 544,
+    "bytes_read_at_query_time": 27660576,
     "response_bytes": 870,
-    "latency_ms_total": 107.76860057376325,
+    "latency_ms_total": 111.80129984859377,
     "reachable_accuracy": 0.5333333333333333,
     "hallucination_rate": 0.9926470588235294,
     "playbook_exact": 0.0
@@ -120,8 +120,8 @@
   "holarch_mcp": {
     "query_file_reads": 0,
     "bytes_read_at_query_time": 0,
-    "response_bytes": 33120,
-    "latency_ms_total": 272.98399980645627,
+    "response_bytes": 33573,
+    "latency_ms_total": 368.1123001733795,
     "reachable_accuracy": 1.0,
     "hallucination_rate": 0.0,
     "playbook_exact": 1.0,
@@ -144,7 +144,7 @@
     },
     "memory_fixture": {
       "source": "data\\holarch\\zone_c.sqlite3",
-      "path": "C:\\Users\\chan\\AppData\\Local\\Temp\\henri_planner_memory_32000.sqlite3",
+      "path": "C:\\Users\\chan\\AppData\\Local\\Temp\\henri_planner_memory_19192.sqlite3",
       "sha256": "d0863a4179bb37dd1199a08dd8f1c5997cbd693161a32bfa439030bcf4064c80",
       "bytes": 21590016,
       "engrams": 2467,
@@ -179,7 +179,7 @@
         "trap": true,
         "strong_trap": true,
         "correct": true,
-        "receipt_sha256": "e68bfe635e047540b0b864968f7666fba43df9754b8620147ce501558ef4b2cc"
+        "receipt_sha256": "d14246fcc63fa7a1572b19211adfa25d4320477f962be98a9cd6a948a55d3d16"
       },
       {
         "id": "plan02",
@@ -200,7 +200,7 @@
         "trap": true,
         "strong_trap": true,
         "correct": true,
-        "receipt_sha256": "2a354acfe7e6f13a2ea769f3b69054228759c09857bbc428767225ce3a987992"
+        "receipt_sha256": "080197159dc15e16ea0f276d50499fa7296342a3e2f9f0748eacdb1b47728816"
       },
       {
         "id": "plan03",
@@ -221,7 +221,7 @@
         "trap": true,
         "strong_trap": true,
         "correct": true,
-        "receipt_sha256": "730a514f79967e11add9c8bbad1f41910f26bca638692c3b07ea6ed0f087107a"
+        "receipt_sha256": "cbbe301124d589ea949b43f0dc0187672bceefb8b39e117c6e316459699e4b47"
       },
       {
         "id": "plan04",
@@ -242,7 +242,7 @@
         "trap": true,
         "strong_trap": true,
         "correct": true,
-        "receipt_sha256": "2cc5c101bbb966c85d0dc3782c9cb269eb7d237602d30ada6b50273d122dc89b"
+        "receipt_sha256": "556b969436d4fdef358d4a94519180e54bba6a1d2ca6fc0575952acc54c1a292"
       }
     ]
   },
@@ -260,7 +260,7 @@
         "status": "supported",
         "reason": "all rare terms and all quantities present in evidence",
         "correct": true,
-        "receipt_sha256": "9fdba99306e5cb88723ea9061e78202e9f73581ae6c1ad34ba8c3ee80249d3b9"
+        "receipt_sha256": "3c2718fbe319a2860bd2fcbbabb115303b8c31fba67dd041fa1afbd37e65a28b"
       },
       {
         "id": "verify02",
@@ -270,7 +270,7 @@
         "status": "supported",
         "reason": "all rare terms and all quantities present in evidence",
         "correct": true,
-        "receipt_sha256": "79cbcca213f72f5597ba28bf7f58e2e9e8b18979655d3b43ef0d4945dd711f26"
+        "receipt_sha256": "f70a35296ccdc3408a38135df9a8a5bc4d836b8504f898d7841cd781d7bb8426"
       },
       {
         "id": "verify03",
@@ -280,7 +280,7 @@
         "status": "contradicted",
         "reason": "quantity 1020381 is stated differently in the evidence",
         "correct": true,
-        "receipt_sha256": "e1defee7af2e9728c1834941723553c614241e5fdd9c315fa144abeaa36a3bed"
+        "receipt_sha256": "935344a3dbf5adf834890d802a52d342adbb2ba7388d97f7bce3fcddb1f75dbb"
       },
       {
         "id": "verify04",
@@ -290,7 +290,7 @@
         "status": "unsupported",
         "reason": "signature: ZoneCMemory.query does not accept keyword 'widget'; declared parameters are ['self', 'wave', 'k', 'avoid_ids', 'candidate_multiplier', 'task', 'names",
         "correct": true,
-        "receipt_sha256": "a4206607374daf3d084723b3d38d16c1acd55c23d276689a4154ec5fe2cd0875"
+        "receipt_sha256": "b19b8be2365f36caf59ff505483463cccf3d1ef55c850af1ff1946ccbac331bc"
       }
     ]
   },
@@ -308,7 +308,7 @@
         "reason": "",
         "source": "def distinct_caller_count(links):\n    step_1 = sorted({_s0_edge.source for _s0_edge in links})\n    return int(len(step_1))\n",
         "correct": true,
-        "receipt_sha256": "66684878b22f3fab320ad47503acb8ac6c899dda22068563da68d058948ede7d"
+        "receipt_sha256": "da32b12d90e576d431b62eb4067378f9defed14c12cd090a368f402b55905ca4"
       },
       {
         "id": "synth02",
@@ -319,14 +319,14 @@
         "reason": "",
         "source": "def bounded_mean(sample):\n    step_1 = float(sum(sample) / max(len(sample), 1))\n    return max(0.0, min(2.5, float(step_1)))\n",
         "correct": true,
-        "receipt_sha256": "df0ff407bf4fbe5eac1fad5195dff362eff60ed886c7b2ef578f21e20850396b"
+        "receipt_sha256": "ad809c95544365482d1f3cd67b12ba6310272200171d060117b48c8a627ff92a"
       }
     ]
   },
   "delta": {
     "queries": 2,
     "correct": 2,
-    "max_ms": 0.26059988886117935,
+    "max_ms": 0.3112000413239002,
     "rows": [
       {
         "id": "delta01",
@@ -334,9 +334,9 @@
         "target": "beta",
         "truth": [],
         "callers": [],
-        "delta_ms": 0.2592999953776598,
+        "delta_ms": 0.3112000413239002,
         "correct": true,
-        "receipt_sha256": "0a511380719b8b2ae3aa4940095ac769adb5de26e719a3a59c894195da27968b"
+        "receipt_sha256": "20a55ac3d59adeca3171ebc09103ab0f727e79d3850d2f3d4d65274d24a4e05a"
       },
       {
         "id": "delta02",
@@ -348,9 +348,9 @@
         "callers": [
           "delta:delta"
         ],
-        "delta_ms": 0.26059988886117935,
+        "delta_ms": 0.2615000121295452,
         "correct": true,
-        "receipt_sha256": "c559f252eb6e027c2193142a14addd6429dc6984b093238f4313fbeadfbf884a"
+        "receipt_sha256": "aaedd551aa3581bc433c50563814954f03b9b552c371ce36240ac8a74a2aee88"
       }
     ]
   },
@@ -376,7 +376,7 @@
         "reason": "",
         "source": "def tri_agent(links):\n    step_1 = sorted({_s0_edge.source for _s0_edge in links})\n    step_2 = int(len(step_1))\n    return max(0.0, min(2.5, float(step_2)))\n",
         "correct": true,
-        "receipt_sha256": "77fad7583b354bb23d0f0ca38cb8ce03e5e78d13bba8a4f292708d9efd606c1f"
+        "receipt_sha256": "b92f5d21ae41418a11c7003b412e1c0435d2377fe6b648ce398aece5c1a952ee"
       },
       {
         "id": "dag02",
@@ -393,7 +393,7 @@
         "reason": "",
         "source": "def bounded_sources(edges):\n    step_1 = sorted({_s0_edge.source for _s0_edge in edges})\n    step_2 = int(len(step_1))\n    return max(0.0, min(1.0, float(step_2)))\n",
         "correct": true,
-        "receipt_sha256": "4976c00635500412df7fc249a12cf6618d6d5443adb96fe20b05e3087b9a77e0"
+        "receipt_sha256": "2e9ef603998cd180ac4f4ff7b32bdfea5b66b3c6886573cbc4bc089a60a5c720"
       },
       {
         "id": "dag03",
@@ -409,7 +409,7 @@
         "reason": "type mismatch: core04.returns ['text'] cannot bind core10.values ['numeric_sequence']",
         "note": "text -> numeric_sequence (mean of a list)",
         "correct": true,
-        "receipt_sha256": "2dc0a3c76f3c771299be4d5afbf387d53b6dcc29d454147a52b0bacea0a321d9"
+        "receipt_sha256": "3810b94c6b73180d3e135114ee53f68a9a951dfcd37b2d3c59e8d203022a1dad"
       },
       {
         "id": "dag04",
@@ -425,7 +425,7 @@
         "reason": "type mismatch: core10.returns ['numeric'] cannot bind core04.receipt ['mapping']",
         "note": "numeric -> mapping (a receipt field is subscripted)",
         "correct": true,
-        "receipt_sha256": "9a99615627850008d5bf0583f7c4e1b57e68ded82fbbd790c7267857871a5a34"
+        "receipt_sha256": "1f438ee74231e29fbcf09eadfc95352ab4e05f6c7dfc4b40046ab5bb1b976002"
       }
     ]
   },
@@ -433,10 +433,10 @@
     "queries": 4,
     "correct": 4,
     "workspace": {
-      "files": 265,
-      "nodes": 3284,
-      "edges": 10700,
-      "seconds": 1.5660741000901908
+      "files": 270,
+      "nodes": 3355,
+      "edges": 10969,
+      "seconds": 1.5352993999840692
     },
     "rows": [
       {
@@ -445,6 +445,7 @@
         "target": "build_tokenizer",
         "hops": 1,
         "truth": [
+          "henri.holarch.code_gen:build",
           "henri.holarch.code_gen:build_synthesis_engine",
           "henri.holarch.code_gen:evaluate_bochner_language",
           "henri.holarch.code_lang:fit",
@@ -460,6 +461,7 @@
           "scripts.run_holarch_r_cycle:stage_r3",
           "scripts.run_holarch_s_cycle:_suffix_inductiveness_probe",
           "scripts.run_holarch_w2_hygiene:measure_split",
+          "scripts.run_holarch_x2_wave_egress:measure",
           "tests.test_holarch_code_lang:tokenizer",
           "tests.test_holarch_g_decisions:tokenizer",
           "tests.test_holarch_h_decisions:tokenizer",
@@ -469,6 +471,7 @@
           "tests.test_holarch_s_cycle:generator"
         ],
         "callers": [
+          "henri.holarch.code_gen:build",
           "henri.holarch.code_gen:build_synthesis_engine",
           "henri.holarch.code_gen:evaluate_bochner_language",
           "henri.holarch.code_lang:fit",
@@ -484,6 +487,7 @@
           "scripts.run_holarch_r_cycle:stage_r3",
           "scripts.run_holarch_s_cycle:_suffix_inductiveness_probe",
           "scripts.run_holarch_w2_hygiene:measure_split",
+          "scripts.run_holarch_x2_wave_egress:measure",
           "tests.test_holarch_code_lang:tokenizer",
           "tests.test_holarch_g_decisions:tokenizer",
           "tests.test_holarch_h_decisions:tokenizer",
@@ -493,7 +497,7 @@
           "tests.test_holarch_s_cycle:generator"
         ],
         "correct": true,
-        "receipt_sha256": "73333508128fa3d29cb15f3f7cedc8d1c73a2db5ffb184af19f4ece4cb6df282"
+        "receipt_sha256": "f9a95b7690aaf771f141fd86da0e590bfc157534236e7c8a35e0da4c35096fcd"
       },
       {
         "id": "xp02",
@@ -543,7 +547,7 @@
           "tests.test_holarch_o_swat:test_holonic_discovery_accepts_one_and_refuses_one"
         ],
         "correct": true,
-        "receipt_sha256": "8de68928999689668308b94a8b2ad4b50c137e2c891322f4382e450a3ef3ca7e"
+        "receipt_sha256": "45b4939ffcd815f42066d71e08ac1f001cbf8375a2a90dbc79a87332ca8e18b1"
       },
       {
         "id": "xp03",
@@ -551,7 +555,7 @@
         "claim": "def use_locked_tokenizer(cfg):\n    return build_tokenizer(cfg)\n",
         "status": "supported",
         "correct": true,
-        "receipt_sha256": "b28259190dec03b8319b03d44cba3dffe94ebd73a2863f80cd4ecd4883ac9e5b"
+        "receipt_sha256": "43541b7717306e28ff3f7c72fdf5fa6c4bbd90753ad183df25175ca3bbcb7c6c"
       },
       {
         "id": "xp04",
@@ -560,7 +564,7 @@
         "action_chosen": 0,
         "truth": 0,
         "correct": true,
-        "receipt_sha256": "bbe3f8204680d70b53086991b9b730b5c33a21434dbab565fc7a758b3731f5f0"
+        "receipt_sha256": "c5a8f5fc322bdfd42d847a15f6040817bf2ca44659178c4af1f6378867cfa309"
       }
     ]
   },
@@ -577,7 +581,7 @@
         "returned_token_id": 1765,
         "ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
         "correct": true,
-        "receipt_sha256": "9c805e3cb28652c639060bc72708c7a1d250e716dc8db8dde09693ea94866e26"
+        "receipt_sha256": "353f54e515633e81cc8a9a37b33dc8c05ad474404dfe93664818c29c57dce93f"
       },
       {
         "id": "vocab02",
@@ -586,7 +590,7 @@
         "returned_token_id": 1373,
         "ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
         "correct": true,
-        "receipt_sha256": "351eac272b1fe7435b1ca262a9f359f76af07263b690a9745ca458b33fadc432"
+        "receipt_sha256": "adc7e721a3322d181209140759e85c6a314e40fc489d1c4c2799820b9ac2bfd3"
       },
       {
         "id": "vocab03",
@@ -595,7 +599,7 @@
         "returned_token_id": 1674,
         "ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
         "correct": true,
-        "receipt_sha256": "36fa6644b921337efdec13e810c7debe92acbfe7a9b0d1e8709af59219c0067c"
+        "receipt_sha256": "17181f2069d22f1ef8147fa8a6b1aeea02a03268ec5528ae5aeeb788dd3604a6"
       },
       {
         "id": "vocab04",
@@ -604,11 +608,11 @@
         "returned_token_id": null,
         "status": "unsupported",
         "correct": true,
-        "receipt_sha256": "b0927b310159c448fe4e560530801e8b67f03437bfd3a80e42835389d6874a13"
+        "receipt_sha256": "67510a4e823f1d21b217e5910cf2aff58bfac152699f1527508d25c65d5acf78"
       }
     ]
   },
-  "context_compression_ratio": 806.168115942029,
+  "context_compression_ratio": 823.8934858368332,
   "composite": {
     "ingested": 200.0,
     "tau_composite": 0.9799999573120018,
@@ -692,7 +696,7 @@
           "trap": true,
           "strong_trap": true,
           "correct": true,
-          "receipt_sha256": "e68bfe635e047540b0b864968f7666fba43df9754b8620147ce501558ef4b2cc"
+          "receipt_sha256": "d14246fcc63fa7a1572b19211adfa25d4320477f962be98a9cd6a948a55d3d16"
         },
         {
           "id": "plan02",
@@ -713,7 +717,7 @@
           "trap": true,
           "strong_trap": true,
           "correct": true,
-          "receipt_sha256": "2a354acfe7e6f13a2ea769f3b69054228759c09857bbc428767225ce3a987992"
+          "receipt_sha256": "080197159dc15e16ea0f276d50499fa7296342a3e2f9f0748eacdb1b47728816"
         },
         {
           "id": "plan03",
@@ -734,7 +738,7 @@
           "trap": true,
           "strong_trap": true,
           "correct": true,
-          "receipt_sha256": "730a514f79967e11add9c8bbad1f41910f26bca638692c3b07ea6ed0f087107a"
+          "receipt_sha256": "cbbe301124d589ea949b43f0dc0187672bceefb8b39e117c6e316459699e4b47"
         },
         {
           "id": "plan04",
@@ -755,7 +759,7 @@
           "trap": true,
           "strong_trap": true,
           "correct": true,
-          "receipt_sha256": "2cc5c101bbb966c85d0dc3782c9cb269eb7d237602d30ada6b50273d122dc89b"
+          "receipt_sha256": "556b969436d4fdef358d4a94519180e54bba6a1d2ca6fc0575952acc54c1a292"
         }
       ]
     },
@@ -772,7 +776,7 @@
           "status": "supported",
           "reason": "all rare terms and all quantities present in evidence",
           "correct": true,
-          "receipt_sha256": "9fdba99306e5cb88723ea9061e78202e9f73581ae6c1ad34ba8c3ee80249d3b9"
+          "receipt_sha256": "3c2718fbe319a2860bd2fcbbabb115303b8c31fba67dd041fa1afbd37e65a28b"
         },
         {
           "id": "verify02",
@@ -782,7 +786,7 @@
           "status": "supported",
           "reason": "all rare terms and all quantities present in evidence",
           "correct": true,
-          "receipt_sha256": "79cbcca213f72f5597ba28bf7f58e2e9e8b18979655d3b43ef0d4945dd711f26"
+          "receipt_sha256": "f70a35296ccdc3408a38135df9a8a5bc4d836b8504f898d7841cd781d7bb8426"
         },
         {
           "id": "verify03",
@@ -792,7 +796,7 @@
           "status": "contradicted",
           "reason": "quantity 1020381 is stated differently in the evidence",
           "correct": true,
-          "receipt_sha256": "e1defee7af2e9728c1834941723553c614241e5fdd9c315fa144abeaa36a3bed"
+          "receipt_sha256": "935344a3dbf5adf834890d802a52d342adbb2ba7388d97f7bce3fcddb1f75dbb"
         },
         {
           "id": "verify04",
@@ -802,7 +806,7 @@
           "status": "unsupported",
           "reason": "signature: ZoneCMemory.query does not accept keyword 'widget'; declared parameters are ['self', 'wave', 'k', 'avoid_ids', 'candidate_multiplier', 'task', 'names",
           "correct": true,
-          "receipt_sha256": "a4206607374daf3d084723b3d38d16c1acd55c23d276689a4154ec5fe2cd0875"
+          "receipt_sha256": "b19b8be2365f36caf59ff505483463cccf3d1ef55c850af1ff1946ccbac331bc"
         }
       ]
     },
@@ -820,7 +824,7 @@
           "reason": "",
           "source": "def distinct_caller_count(links):\n    step_1 = sorted({_s0_edge.source for _s0_edge in links})\n    return int(len(step_1))\n",
           "correct": true,
-          "receipt_sha256": "66684878b22f3fab320ad47503acb8ac6c899dda22068563da68d058948ede7d"
+          "receipt_sha256": "da32b12d90e576d431b62eb4067378f9defed14c12cd090a368f402b55905ca4"
         },
         {
           "id": "synth02",
@@ -831,7 +835,7 @@
           "reason": "",
           "source": "def bounded_mean(sample):\n    step_1 = float(sum(sample) / max(len(sample), 1))\n    return max(0.0, min(2.5, float(step_1)))\n",
           "correct": true,
-          "receipt_sha256": "df0ff407bf4fbe5eac1fad5195dff362eff60ed886c7b2ef578f21e20850396b"
+          "receipt_sha256": "ad809c95544365482d1f3cd67b12ba6310272200171d060117b48c8a627ff92a"
         }
       ]
     },
@@ -846,9 +850,9 @@
           "target": "beta",
           "truth": [],
           "callers": [],
-          "delta_ms": 0.2592999953776598,
+          "delta_ms": 0.3112000413239002,
           "correct": true,
-          "receipt_sha256": "0a511380719b8b2ae3aa4940095ac769adb5de26e719a3a59c894195da27968b"
+          "receipt_sha256": "20a55ac3d59adeca3171ebc09103ab0f727e79d3850d2f3d4d65274d24a4e05a"
         },
         {
           "id": "delta02",
@@ -860,9 +864,9 @@
           "callers": [
             "delta:delta"
           ],
-          "delta_ms": 0.26059988886117935,
+          "delta_ms": 0.2615000121295452,
           "correct": true,
-          "receipt_sha256": "c559f252eb6e027c2193142a14addd6429dc6984b093238f4313fbeadfbf884a"
+          "receipt_sha256": "aaedd551aa3581bc433c50563814954f03b9b552c371ce36240ac8a74a2aee88"
         }
       ]
     },
@@ -886,7 +890,7 @@
           "reason": "",
           "source": "def tri_agent(links):\n    step_1 = sorted({_s0_edge.source for _s0_edge in links})\n    step_2 = int(len(step_1))\n    return max(0.0, min(2.5, float(step_2)))\n",
           "correct": true,
-          "receipt_sha256": "77fad7583b354bb23d0f0ca38cb8ce03e5e78d13bba8a4f292708d9efd606c1f"
+          "receipt_sha256": "b92f5d21ae41418a11c7003b412e1c0435d2377fe6b648ce398aece5c1a952ee"
         },
         {
           "id": "dag02",
@@ -903,7 +907,7 @@
           "reason": "",
           "source": "def bounded_sources(edges):\n    step_1 = sorted({_s0_edge.source for _s0_edge in edges})\n    step_2 = int(len(step_1))\n    return max(0.0, min(1.0, float(step_2)))\n",
           "correct": true,
-          "receipt_sha256": "4976c00635500412df7fc249a12cf6618d6d5443adb96fe20b05e3087b9a77e0"
+          "receipt_sha256": "2e9ef603998cd180ac4f4ff7b32bdfea5b66b3c6886573cbc4bc089a60a5c720"
         },
         {
           "id": "dag03",
@@ -919,7 +923,7 @@
           "reason": "type mismatch: core04.returns ['text'] cannot bind core10.values ['numeric_sequence']",
           "note": "text -> numeric_sequence (mean of a list)",
           "correct": true,
-          "receipt_sha256": "2dc0a3c76f3c771299be4d5afbf387d53b6dcc29d454147a52b0bacea0a321d9"
+          "receipt_sha256": "3810b94c6b73180d3e135114ee53f68a9a951dfcd37b2d3c59e8d203022a1dad"
         },
         {
           "id": "dag04",
@@ -935,7 +939,7 @@
           "reason": "type mismatch: core10.returns ['numeric'] cannot bind core04.receipt ['mapping']",
           "note": "numeric -> mapping (a receipt field is subscripted)",
           "correct": true,
-          "receipt_sha256": "9a99615627850008d5bf0583f7c4e1b57e68ded82fbbd790c7267857871a5a34"
+          "receipt_sha256": "1f438ee74231e29fbcf09eadfc95352ab4e05f6c7dfc4b40046ab5bb1b976002"
         }
       ],
       "pipelines_executed": 2,
@@ -952,6 +956,7 @@
           "target": "build_tokenizer",
           "hops": 1,
           "truth": [
+            "henri.holarch.code_gen:build",
             "henri.holarch.code_gen:build_synthesis_engine",
             "henri.holarch.code_gen:evaluate_bochner_language",
             "henri.holarch.code_lang:fit",
@@ -967,6 +972,7 @@
             "scripts.run_holarch_r_cycle:stage_r3",
             "scripts.run_holarch_s_cycle:_suffix_inductiveness_probe",
             "scripts.run_holarch_w2_hygiene:measure_split",
+            "scripts.run_holarch_x2_wave_egress:measure",
             "tests.test_holarch_code_lang:tokenizer",
             "tests.test_holarch_g_decisions:tokenizer",
             "tests.test_holarch_h_decisions:tokenizer",
@@ -976,6 +982,7 @@
             "tests.test_holarch_s_cycle:generator"
           ],
           "callers": [
+            "henri.holarch.code_gen:build",
             "henri.holarch.code_gen:build_synthesis_engine",
             "henri.holarch.code_gen:evaluate_bochner_language",
             "henri.holarch.code_lang:fit",
@@ -991,6 +998,7 @@
             "scripts.run_holarch_r_cycle:stage_r3",
             "scripts.run_holarch_s_cycle:_suffix_inductiveness_probe",
             "scripts.run_holarch_w2_hygiene:measure_split",
+            "scripts.run_holarch_x2_wave_egress:measure",
             "tests.test_holarch_code_lang:tokenizer",
             "tests.test_holarch_g_decisions:tokenizer",
             "tests.test_holarch_h_decisions:tokenizer",
@@ -1000,7 +1008,7 @@
             "tests.test_holarch_s_cycle:generator"
           ],
           "correct": true,
-          "receipt_sha256": "73333508128fa3d29cb15f3f7cedc8d1c73a2db5ffb184af19f4ece4cb6df282"
+          "receipt_sha256": "f9a95b7690aaf771f141fd86da0e590bfc157534236e7c8a35e0da4c35096fcd"
         },
         {
           "id": "xp02",
@@ -1050,7 +1058,7 @@
             "tests.test_holarch_o_swat:test_holonic_discovery_accepts_one_and_refuses_one"
           ],
           "correct": true,
-          "receipt_sha256": "8de68928999689668308b94a8b2ad4b50c137e2c891322f4382e450a3ef3ca7e"
+          "receipt_sha256": "45b4939ffcd815f42066d71e08ac1f001cbf8375a2a90dbc79a87332ca8e18b1"
         },
         {
           "id": "xp03",
@@ -1058,7 +1066,7 @@
           "claim": "def use_locked_tokenizer(cfg):\n    return build_tokenizer(cfg)\n",
           "status": "supported",
           "correct": true,
-          "receipt_sha256": "b28259190dec03b8319b03d44cba3dffe94ebd73a2863f80cd4ecd4883ac9e5b"
+          "receipt_sha256": "43541b7717306e28ff3f7c72fdf5fa6c4bbd90753ad183df25175ca3bbcb7c6c"
         },
         {
           "id": "xp04",
@@ -1067,14 +1075,14 @@
           "action_chosen": 0,
           "truth": 0,
           "correct": true,
-          "receipt_sha256": "bbe3f8204680d70b53086991b9b730b5c33a21434dbab565fc7a758b3731f5f0"
+          "receipt_sha256": "c5a8f5fc322bdfd42d847a15f6040817bf2ca44659178c4af1f6378867cfa309"
         }
       ],
       "workspace": {
-        "files": 265,
-        "nodes": 3284,
-        "edges": 10700,
-        "seconds": 1.5660741000901908
+        "files": 270,
+        "nodes": 3355,
+        "edges": 10969,
+        "seconds": 1.5352993999840692
       }
     },
     "vocab_lock": {
@@ -1089,7 +1097,7 @@
           "returned_token_id": 1765,
           "ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
           "correct": true,
-          "receipt_sha256": "9c805e3cb28652c639060bc72708c7a1d250e716dc8db8dde09693ea94866e26"
+          "receipt_sha256": "353f54e515633e81cc8a9a37b33dc8c05ad474404dfe93664818c29c57dce93f"
         },
         {
           "id": "vocab02",
@@ -1098,7 +1106,7 @@
           "returned_token_id": 1373,
           "ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
           "correct": true,
-          "receipt_sha256": "351eac272b1fe7435b1ca262a9f359f76af07263b690a9745ca458b33fadc432"
+          "receipt_sha256": "adc7e721a3322d181209140759e85c6a314e40fc489d1c4c2799820b9ac2bfd3"
         },
         {
           "id": "vocab03",
@@ -1107,7 +1115,7 @@
           "returned_token_id": 1674,
           "ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
           "correct": true,
-          "receipt_sha256": "36fa6644b921337efdec13e810c7debe92acbfe7a9b0d1e8709af59219c0067c"
+          "receipt_sha256": "17181f2069d22f1ef8147fa8a6b1aeea02a03268ec5528ae5aeeb788dd3604a6"
         },
         {
           "id": "vocab04",
@@ -1116,7 +1124,7 @@
           "returned_token_id": null,
           "status": "unsupported",
           "correct": true,
-          "receipt_sha256": "b0927b310159c448fe4e560530801e8b67f03437bfd3a80e42835389d6874a13"
+          "receipt_sha256": "67510a4e823f1d21b217e5910cf2aff58bfac152699f1527508d25c65d5acf78"
         }
       ],
       "locked": true,
@@ -1167,7 +1175,7 @@
             "correct_thread8": 8
           },
           "correct": true,
-          "seconds": 1.2640089000342414,
+          "seconds": 1.2623824999900535,
           "evidence": "depth-2 wall-masked rotor planner on the clean-room store"
         },
         {
@@ -1194,7 +1202,7 @@
             ]
           },
           "correct": true,
-          "seconds": 13.054205199936405,
+          "seconds": 13.37977779994253,
           "evidence": "trace=True per-episode comparison; the 48-episode arm runs once"
         },
         {
@@ -1218,7 +1226,7 @@
             }
           },
           "correct": true,
-          "seconds": 1.0899966582655907e-05,
+          "seconds": 1.0200077667832375e-05,
           "evidence": "open_clean_room_memory created a new SQLite file; no fixture copy"
         },
         {
@@ -1232,7 +1240,7 @@
             "seed_limit": 1536
           },
           "correct": true,
-          "seconds": 2.600019797682762e-06,
+          "seconds": 2.500019036233425e-06,
           "evidence": "row count read from the clean-room Zone C store after the mount"
         }
       ]
@@ -1259,7 +1267,7 @@
             "ledger_digest": "1b1494fe28a29d7257e18c909105613988bdf7fe73432206bff47f1712385e72"
           },
           "correct": true,
-          "seconds": 0.047548200003802776,
+          "seconds": 0.06379309995099902,
           "evidence": "640 generated functions synced into the Zone C vocabulary metadata"
         },
         {
@@ -1277,7 +1285,7 @@
             "reingestion_calls": 0
           },
           "correct": true,
-          "seconds": 0.020749100018292665,
+          "seconds": 0.02599780005402863,
           "evidence": "fresh tokenizer restored from the Zone C vocab_ledger payload only"
         }
       ]
@@ -1309,7 +1317,7 @@
             "source_sha256": "ccfe1c63fcb06d387d581a2b369436bd1d491d98369183b39f9a3a3b67ed9749"
           },
           "correct": true,
-          "seconds": 0.03171200002543628,
+          "seconds": 0.02750440000090748,
           "evidence": "run_diverse_dag_battery three-stage row"
         },
         {
@@ -1359,7 +1367,7 @@
             "source_sha256": "0584a69430a2043dbd0caefe42a403eb71be80a56710ca7c1c9029913c639298"
           },
           "correct": true,
-          "seconds": 2.600019797682762e-06,
+          "seconds": 2.700020559132099e-06,
           "evidence": "run_diverse_dag_battery three-stage row"
         },
         {
@@ -1384,7 +1392,7 @@
             "battery_drift": 0.0
           },
           "correct": true,
-          "seconds": 0.000175400055013597,
+          "seconds": 0.0001759000588208437,
           "evidence": "compose_plan_dag refuses before splicing a single stage"
         }
       ]
@@ -1405,12 +1413,12 @@
             "status": "supported",
             "receipt_valid": true,
             "agent_receipt_valid": true,
-            "receipt_sha256": "9ab22b9e6d4415c5557a2ab51999a5a971106e381098289cb0a8aeed192b3868",
-            "agent_receipt_sha256": "bdc281eb07fb40052970ef6a7c96dc2b90efb56c7d4fad298c95018206a9ce89",
+            "receipt_sha256": "e81bc3bc216a930d394e22565671f8f7cc7ef9cda79d99baa1eb2866bb4b11d4",
+            "agent_receipt_sha256": "8874108714314568e2cd4709eb14b5c62ad8a15f99c03b0a6a3e6ddcb78eb72e",
             "error": ""
           },
           "correct": true,
-          "seconds": 0.4078864000039175,
+          "seconds": 0.33962889993563294,
           "evidence": "fastapi TestClient, bearer key agent-eval-j4"
         },
         {
@@ -1427,12 +1435,12 @@
             "matches_reference": true,
             "receipt_valid": true,
             "agent_receipt_valid": true,
-            "receipt_sha256": "34ea5f6099df79859b9c44e1924deda373361f77a4032bfba501314ec0369f32",
-            "agent_receipt_sha256": "a4d1a1b03eb3f827de418e2e2ce2f4856be682a18e3d0e4dee7ea9fe3f4921a1",
+            "receipt_sha256": "1676fe3cdc1dac3cb3363d112821c7e3bd5be6ec0dc663701bf5add9a31307d9",
+            "agent_receipt_sha256": "9133391006875a081447657cc537bfa901c298330dab7b2e0657d4126e6539f8",
             "error": ""
           },
           "correct": true,
-          "seconds": 8.399947546422482e-06,
+          "seconds": 8.699949830770493e-06,
           "evidence": "planner mounted on the clean-room store at 1 thread"
         }
       ]
@@ -1453,7 +1461,7 @@
             "pre_mount_rows": 0
           },
           "correct": true,
-          "seconds": 8.078601500019431,
+          "seconds": 8.250043600099161,
           "evidence": "evaluate(clean_model, tasks, 'test') on the hydrated cartridge"
         },
         {
@@ -1465,7 +1473,7 @@
             "relational_veto_rate": 0.09859154929577464
           },
           "correct": true,
-          "seconds": 8.999952115118504e-06,
+          "seconds": 7.0999376475811005e-06,
           "evidence": "evaluate(clean_model, tasks, 'test') on the hydrated cartridge"
         },
         {
@@ -1480,7 +1488,7 @@
             "total": 0
           },
           "correct": true,
-          "seconds": 5.900044925510883e-06,
+          "seconds": 4.500034265220165e-06,
           "evidence": "per-sample veto AND NOT memory_mask over the validation splits"
         },
         {
@@ -1499,7 +1507,7 @@
             "dtype": "v3-action-int12-sqrt4-support-int8-exact16-zlib9"
           },
           "correct": true,
-          "seconds": 0.00019729998894035816,
+          "seconds": 0.00015600002370774746,
           "evidence": "label histogram of the mounted seed block"
         }
       ]
@@ -1525,7 +1533,7 @@
             }
           },
           "correct": true,
-          "seconds": 1.2642092000460252,
+          "seconds": 1.27424559998326,
           "evidence": "Zone B relax_discovery under Zone C LAW/ATTRACTOR/REPULSOR axioms"
         },
         {
@@ -1538,7 +1546,7 @@
             "weight_updates": 0
           },
           "correct": true,
-          "seconds": 7.5999414548277855e-06,
+          "seconds": 8.399947546422482e-06,
           "evidence": "Zone B relax_discovery over type-compatible operator candidates"
         }
       ]
@@ -1560,7 +1568,7 @@
             "source_chars": 425
           },
           "correct": true,
-          "seconds": 0.0011740999761968851,
+          "seconds": 0.0011991000501438975,
           "evidence": "AST alpha-renaming + terminal-return splicing, then execution"
         },
         {
@@ -1573,7 +1581,7 @@
             "source_chars": 420
           },
           "correct": true,
-          "seconds": 0.0009701000526547432,
+          "seconds": 0.000980700016953051,
           "evidence": "scoped AST NodeTransformer rename"
         }
       ]
@@ -1595,7 +1603,7 @@
             "added_from_b": 300
           },
           "correct": true,
-          "seconds": 0.03963749995455146,
+          "seconds": 0.03897340002004057,
           "evidence": "rebase_tenant_vocabulary + id_map translation, decode equality"
         },
         {
@@ -1605,11 +1613,11 @@
           "measured": {
             "top4_parity": 4,
             "claims": 4,
-            "passages": 1921,
-            "vocabulary": 5515
+            "passages": 1973,
+            "vocabulary": 5579
           },
           "correct": true,
-          "seconds": 0.9069245000137016,
+          "seconds": 0.8918833999196067,
           "evidence": "matrix-vector product vs the retained per-passage loop"
         },
         {
@@ -1623,7 +1631,7 @@
             "chain_valid": true
           },
           "correct": true,
-          "seconds": 0.8442356999730691,
+          "seconds": 0.7647159000625834,
           "evidence": "16 threads x 8 mixed verify/plan/veto/solve requests"
         },
         {
@@ -1636,7 +1644,7 @@
             "tier2": 0
           },
           "correct": true,
-          "seconds": 0.0013142001116648316,
+          "seconds": 0.0013494999147951603,
           "evidence": "Zone C metadata copy, one envelope receipt"
         }
       ]
@@ -1737,7 +1745,7 @@
             "control_correct": 0
           },
           "correct": true,
-          "seconds": 1.0889004999771714,
+          "seconds": 1.1057548000244424,
           "evidence": "discover_escape with a test-time REPULSOR and goal attraction"
         },
         {
@@ -1751,7 +1759,7 @@
             "discoveries": 16
           },
           "correct": true,
-          "seconds": 21.920803699991666,
+          "seconds": 14.888041700003669,
           "evidence": "4-layout subset; the full 48-layout measurement is sealed in m1_online_repulsor_vla.json"
         },
         {
@@ -1764,7 +1772,7 @@
             "hallucination_rate": 0.0
           },
           "correct": true,
-          "seconds": 34.71099119994324,
+          "seconds": 20.375835999962874,
           "evidence": "online REPULSOR agents inside the unified VLA pipeline"
         }
       ]
@@ -1787,7 +1795,7 @@
             "rows": 4
           },
           "correct": true,
-          "seconds": 0.010965700028464198,
+          "seconds": 0.011935300077311695,
           "evidence": "one Gram product over four waves versus four per-row reads"
         },
         {
@@ -1797,11 +1805,11 @@
           "measured": {
             "requests": 64,
             "errors": [],
-            "p50_ms": 0.8088999893516302,
-            "p95_ms": 1831.18490006309
+            "p50_ms": 0.687449995893985,
+            "p95_ms": 1832.018479972612
           },
           "correct": true,
-          "seconds": 1.9248234999831766,
+          "seconds": 1.9665488000027835,
           "evidence": "reader thread guard plus the lock-free Zone C snapshot"
         },
         {
@@ -1813,7 +1821,7 @@
             "chain_valid": true
           },
           "correct": true,
-          "seconds": 0.03343640000093728,
+          "seconds": 0.03408090001903474,
           "evidence": "ReceiptLedger chain verification after the burst"
         }
       ]
@@ -1839,7 +1847,7 @@
             "format": "henri-seed-engrams-v3"
           },
           "correct": true,
-          "seconds": 0.0002175000263378024,
+          "seconds": 0.00021550001110881567,
           "evidence": "v3 prototype-residual action rows plus int8 support rows"
         },
         {
@@ -1850,7 +1858,7 @@
             "vision_accuracy": 0.9797979797979798
           },
           "correct": true,
-          "seconds": 4.00003045797348e-06,
+          "seconds": 4.199915565550327e-06,
           "evidence": "full 610-row vision block in the clean room"
         },
         {
@@ -3022,7 +3030,7 @@
             "live_dim": 1024
           },
           "correct": true,
-          "seconds": 0.0009357999078929424,
+          "seconds": 0.0010958000784739852,
           "evidence": "Zone-B-coupled generator on a held-out corpus slice"
         }
       ]
@@ -3043,7 +3051,7 @@
             "error": ""
           },
           "correct": true,
-          "seconds": 0.001065300079062581,
+          "seconds": 0.0010673999786376953,
           "evidence": "guard return rewritten to a step_i assignment inside if/else"
         },
         {
@@ -3066,7 +3074,7 @@
             "drift": 0.0
           },
           "correct": true,
-          "seconds": 0.053671699948608875,
+          "seconds": 0.054202200029976666,
           "evidence": "run_diverse_dag_battery(guard_pipelines=True)"
         },
         {
@@ -3078,7 +3086,7 @@
             "source_empty": true
           },
           "correct": true,
-          "seconds": 0.00012199999764561653,
+          "seconds": 0.00012240000069141388,
           "evidence": "fail-closed splicer contract retained"
         }
       ]
@@ -3104,7 +3112,7 @@
             "prefill_tokens": 0
           },
           "correct": true,
-          "seconds": 0.1559963000472635,
+          "seconds": 0.15544699993915856,
           "evidence": "SwarmTelepathyBus.transmit"
         },
         {
@@ -3122,7 +3130,7 @@
             "budget": 4
           },
           "correct": true,
-          "seconds": 0.0003858000272884965,
+          "seconds": 0.00038410001434385777,
           "evidence": "AttentionMatchingCompactor Eq. 8"
         },
         {
@@ -3142,7 +3150,7 @@
             }
           },
           "correct": true,
-          "seconds": 0.160179500002414,
+          "seconds": 0.15381950000301003,
           "evidence": "SagnacKVGate.check"
         },
         {
@@ -3154,7 +3162,7 @@
             "expected": 6
           },
           "correct": true,
-          "seconds": 0.0848015999654308,
+          "seconds": 0.07976959994994104,
           "evidence": "vision cache -> prototype read"
         }
       ]
@@ -3175,7 +3183,7 @@
             "digest": "c654cb6554486294"
           },
           "correct": true,
-          "seconds": 0.16068470000755042,
+          "seconds": 0.1582750000525266,
           "evidence": "SidecarService.plan(online_repulsor=True)"
         },
         {
@@ -3187,7 +3195,7 @@
             "deployed": 1
           },
           "correct": true,
-          "seconds": 0.10671630001161247,
+          "seconds": 0.08126300002913922,
           "evidence": "plan lookahead_depth arm"
         },
         {
@@ -3200,7 +3208,7 @@
             "seen": 38
           },
           "correct": true,
-          "seconds": 0.00017279991880059242,
+          "seconds": 0.0001463999506086111,
           "evidence": "ZoneCMemory.bump_state_epoch -> SidecarService._sync_global_epoch"
         },
         {
@@ -3228,7 +3236,7 @@
             ]
           },
           "correct": true,
-          "seconds": 9.900075383484364e-06,
+          "seconds": 8.399947546422482e-06,
           "evidence": "H4 delta path"
         }
       ]
@@ -3248,7 +3256,7 @@
             "elastic_cap": 4096
           },
           "correct": true,
-          "seconds": 0.4316864999709651,
+          "seconds": 0.37915990001056343,
           "evidence": "build_tokenizer(vocab_lock, elastic_cap=4096)"
         },
         {
@@ -3262,7 +3270,7 @@
             "corpus_revision": "67e9b25"
           },
           "correct": true,
-          "seconds": 0.00033329997677356005,
+          "seconds": 0.00028900010511279106,
           "evidence": "o3 receipt / evaluate_bochner_language"
         },
         {
@@ -3274,7 +3282,7 @@
             "bits_per_char": 1.2735599219987657
           },
           "correct": true,
-          "seconds": 4.900037311017513e-06,
+          "seconds": 4.799920134246349e-06,
           "evidence": "o3 receipt"
         },
         {
@@ -3286,7 +3294,7 @@
             "char96": 0.1943359375
           },
           "correct": true,
-          "seconds": 2.600019797682762e-06,
+          "seconds": 2.900022082030773e-06,
           "evidence": "o3 receipt"
         }
       ]
@@ -3304,13 +3312,13 @@
             "status": "accepted",
             "accepted": [
               "split_identifiers",
-              "unique_count",
+              "sequence_length",
               "clamp_unit"
             ],
             "plan": "holonic_holon_len"
           },
           "correct": true,
-          "seconds": 0.07077140000183135,
+          "seconds": 0.048158899997361004,
           "evidence": "SynthesisEngine.holonic_discover"
         },
         {
@@ -3322,7 +3330,7 @@
             "source": ""
           },
           "correct": true,
-          "seconds": 0.21014069998636842,
+          "seconds": 0.2057785999495536,
           "evidence": "holonic_discover refuses"
         },
         {
@@ -3334,7 +3342,7 @@
             "name": "holonic_holon_len"
           },
           "correct": true,
-          "seconds": 4.899920895695686e-06,
+          "seconds": 4.700035788118839e-06,
           "evidence": "PlanStore.compile"
         },
         {
@@ -3348,7 +3356,7 @@
             "refused": 4
           },
           "correct": true,
-          "seconds": 0.9829321000725031,
+          "seconds": 1.0830558000598103,
           "evidence": "run_diverse_dag_battery + holonic_discover"
         }
       ]
@@ -3368,7 +3376,7 @@
             "train_tokens": 600473
           },
           "correct": true,
-          "seconds": 3.999995533376932e-05,
+          "seconds": 4.7200010158121586e-05,
           "evidence": "evaluate_bochner_language live_elastic arm"
         },
         {
@@ -3381,7 +3389,7 @@
             "beta": 0.02
           },
           "correct": true,
-          "seconds": 3.500026650726795e-06,
+          "seconds": 3.3999094739556313e-06,
           "evidence": "evaluate_bochner_language live_elastic arm"
         },
         {
@@ -3395,7 +3403,7 @@
             "elastic_bpc": 1.0828467630776455
           },
           "correct": true,
-          "seconds": 2.500019036233425e-06,
+          "seconds": 2.900022082030773e-06,
           "evidence": "evaluate_bochner_language pinned arms"
         }
       ]
@@ -3416,7 +3424,7 @@
             "bridges": 2
           },
           "correct": true,
-          "seconds": 0.2276906999759376,
+          "seconds": 0.22858920006547123,
           "evidence": "POST /v1/holarch/telepathy equivalent"
         },
         {
@@ -3429,7 +3437,7 @@
             ]
           },
           "correct": true,
-          "seconds": 7.200054824352264e-06,
+          "seconds": 5.499925464391708e-06,
           "evidence": "SagnacKVGate.check"
         },
         {
@@ -3441,7 +3449,7 @@
             "slots_u": 6
           },
           "correct": true,
-          "seconds": 3.0999071896076202e-06,
+          "seconds": 2.400018274784088e-06,
           "evidence": "TelepathicReader read over the compacted cache"
         }
       ]
@@ -3460,7 +3468,7 @@
             "steps": 14
           },
           "correct": true,
-          "seconds": 5.843743300065398,
+          "seconds": 2.1672299000201747,
           "evidence": "online-REPULSOR closed loop"
         },
         {
@@ -3479,7 +3487,7 @@
             }
           },
           "correct": true,
-          "seconds": 5.899928510189056e-06,
+          "seconds": 4.600035026669502e-06,
           "evidence": "SynthesisEngine.synthesize_from_telepathy"
         },
         {
@@ -3491,7 +3499,7 @@
             "receiver_prefill_tokens": 0
           },
           "correct": true,
-          "seconds": 2.200016751885414e-06,
+          "seconds": 1.999898813664913e-06,
           "evidence": "SwarmKVCache handoff only"
         }
       ]
@@ -3511,7 +3519,7 @@
             "candidates": 15
           },
           "correct": true,
-          "seconds": 0.08619970001745969,
+          "seconds": 0.06930170010309666,
           "evidence": "SynthesisEngine.holonic_discover"
         },
         {
@@ -3524,7 +3532,7 @@
             "effects": 32
           },
           "correct": true,
-          "seconds": 0.2336615000385791,
+          "seconds": 0.23065299994777888,
           "evidence": "ctx.effect rollback"
         },
         {
@@ -3536,7 +3544,7 @@
             "plans_after": 29
           },
           "correct": true,
-          "seconds": 4.600035026669502e-06,
+          "seconds": 4.200031980872154e-06,
           "evidence": "PlanStore size before and after"
         }
       ]
@@ -3566,7 +3574,7 @@
             "bridge_slots": 125
           },
           "correct": true,
-          "seconds": 0.19917809998150915,
+          "seconds": 0.20071889995597303,
           "evidence": "POST /v1/holarch/telepathy mode=ingest_chunks with query=None"
         },
         {
@@ -3591,7 +3599,7 @@
             ]
           },
           "correct": true,
-          "seconds": 7.999944500625134e-06,
+          "seconds": 8.200062438845634e-06,
           "evidence": "bridge index resolved after ingest, zero re-ingest"
         },
         {
@@ -3614,12 +3622,12 @@
               "fact",
               "fact"
             ],
-            "resolve_p50_ms": 0.11239992454648018,
-            "ttft_p50_ms": 0.6283000111579895,
+            "resolve_p50_ms": 0.10679999832063913,
+            "ttft_p50_ms": 0.5621000891551375,
             "receiver_prefill_tokens": 0
           },
           "correct": true,
-          "seconds": 8.709996473044157e-05,
+          "seconds": 8.849997539073229e-05,
           "evidence": "SagnacKVGate fact_consistency + resolve_bridges"
         }
       ]
@@ -3647,7 +3655,7 @@
             "executed": true
           },
           "correct": true,
-          "seconds": 20.91329520009458,
+          "seconds": 2.5605366999516264,
           "evidence": "SynthesisEngine.synthesize_from_telepathy regime bank"
         },
         {
@@ -3655,25 +3663,57 @@
           "category": "q2_causal_vla",
           "expected": "holding the Vision KV fixed and swapping the Action KV changes the emitted operator",
           "measured": {
-            "pass0_strata": [
+            "pass0_count": 4,
+            "pass0_ms": 7.846100023016334,
+            "pass0_scan_ms": 601.7168000107631,
+            "pass0_regimes": [
+              0,
+              1
+            ],
+            "pass0_parity": [
               {
                 "index": 0,
-                "regime": 0
+                "predicted": 0,
+                "decoded": 0
               },
               {
                 "index": 1,
-                "regime": 0
+                "predicted": 1,
+                "decoded": 0
               },
               {
                 "index": 2,
-                "regime": 2
+                "predicted": 0,
+                "decoded": 2
               },
               {
                 "index": 3,
-                "regime": 0
+                "predicted": 0,
+                "decoded": 0
               }
             ],
-            "pass0_ms": 15211.505699902773,
+            "pass0_strata": [
+              {
+                "index": 0,
+                "regime": 0,
+                "predicted_regime": 0
+              },
+              {
+                "index": 1,
+                "regime": 0,
+                "predicted_regime": 1
+              },
+              {
+                "index": 2,
+                "regime": 2,
+                "predicted_regime": 0
+              },
+              {
+                "index": 3,
+                "regime": 0,
+                "predicted_regime": 0
+              }
+            ],
             "selected_index": 2,
             "from_regime": 0,
             "to_regime": 2,
@@ -3682,7 +3722,7 @@
             "status": "verified"
           },
           "correct": true,
-          "seconds": 0.0006277000065892935,
+          "seconds": 0.0004954000469297171,
           "evidence": "paired Action-KV counterfactual"
         },
         {
@@ -3695,7 +3735,7 @@
             "admitted": false
           },
           "correct": true,
-          "seconds": 5.0687923999503255,
+          "seconds": 1.374553499976173,
           "evidence": "SagnacKVGate binding condition on the action sender"
         }
       ]
@@ -3722,7 +3762,7 @@
             ]
           },
           "correct": true,
-          "seconds": 1.6000005416572094e-05,
+          "seconds": 1.2699980288743973e-05,
           "evidence": "calibration_test_overlap_tokens"
         },
         {
@@ -3736,7 +3776,7 @@
             "elastic_bpc": 1.0828467630776455
           },
           "correct": true,
-          "seconds": 5.700043402612209e-06,
+          "seconds": 3.900029696524143e-06,
           "evidence": "evaluate_bochner_language pinned tail arms"
         },
         {
@@ -3753,7 +3793,7 @@
             "receipt_present": true
           },
           "correct": true,
-          "seconds": 0.0006618999177590013,
+          "seconds": 0.0005245000356808305,
           "evidence": "Q3 receipt full decile, or the live arm's selected Q3 mechanism"
         }
       ]
@@ -3772,11 +3812,11 @@
             "accepted": 4,
             "traps": 4,
             "refused": 4,
-            "median_tick_ms": 0.024800014216452837,
+            "median_tick_ms": 0.026850029826164246,
             "residual_state": 0
           },
           "correct": true,
-          "seconds": 11.793421700014733,
+          "seconds": 11.834727599984035,
           "evidence": "henri_holon.HolonDaemon resident tick"
         },
         {
@@ -3791,7 +3831,7 @@
             "receipt_present": true
           },
           "correct": true,
-          "seconds": 0.0008671999676153064,
+          "seconds": 0.0009561999468132854,
           "evidence": "receipts/holarch/aaii_v5_eval.json Pillar A"
         },
         {
@@ -3804,7 +3844,7 @@
             "passed": true
           },
           "correct": true,
-          "seconds": 5.300040356814861e-06,
+          "seconds": 1.780001912266016e-05,
           "evidence": "receipts/holarch/aaii_v5_eval.json Pillar B"
         }
       ]
@@ -3836,7 +3876,7 @@
             "registry_facts": 562
           },
           "correct": true,
-          "seconds": 0.0002661000471562147,
+          "seconds": 0.0003296999493613839,
           "evidence": "receipts/holarch/r1_unstructured_telepathy_and_wave_fact_veto.json"
         },
         {
@@ -3849,7 +3889,7 @@
             "string_rule_enforced": false
           },
           "correct": true,
-          "seconds": 6.8999361246824265e-06,
+          "seconds": 7.70005863159895e-06,
           "evidence": "physical-only ingest, string belt disabled"
         },
         {
@@ -3863,7 +3903,7 @@
             "prefill": 0
           },
           "correct": true,
-          "seconds": 3.600027412176132e-06,
+          "seconds": 3.400025889277458e-06,
           "evidence": "resolve_bridges p50 and faithful T2T prefill ratio"
         }
       ]
@@ -3883,7 +3923,7 @@
             "persisted": true
           },
           "correct": true,
-          "seconds": 0.00018990004900842905,
+          "seconds": 0.00020709994714707136,
           "evidence": "ActionRegimeReadout fitted + checkpoint payload"
         },
         {
@@ -3903,7 +3943,7 @@
             }
           },
           "correct": true,
-          "seconds": 7.0999376475811005e-06,
+          "seconds": 7.300055585801601e-06,
           "evidence": "balanced 6 x 3 Action KV swaps"
         },
         {
@@ -3916,7 +3956,7 @@
             "hallucinated": 0
           },
           "correct": true,
-          "seconds": 2.200016751885414e-06,
+          "seconds": 2.300017513334751e-06,
           "evidence": "binding gate refusal before the AST binder"
         }
       ]
@@ -3937,7 +3977,7 @@
             "scored_tokens": 61417
           },
           "correct": true,
-          "seconds": 0.00033519999124109745,
+          "seconds": 0.00034579995553940535,
           "evidence": "receipts/holarch/r3_static_and_streaming_full_decile_language.json"
         },
         {
@@ -3950,7 +3990,7 @@
             "stream_weight": 0.2
           },
           "correct": true,
-          "seconds": 3.900029696524143e-06,
+          "seconds": 4.600035026669502e-06,
           "evidence": "deployed adaptive arm on the same scored decile"
         },
         {
@@ -3969,7 +4009,7 @@
             }
           },
           "correct": true,
-          "seconds": 3.600027412176132e-06,
+          "seconds": 3.5999109968543053e-06,
           "evidence": "CountLanguageModel role discounts + token_logits recency + suffix floor"
         }
       ]
@@ -3990,7 +4030,7 @@
             "omni": 100.0
           },
           "correct": true,
-          "seconds": 0.0008021999383345246,
+          "seconds": 0.0008550999918952584,
           "evidence": "real MMLU cartridge, 200 scored queries"
         },
         {
@@ -4004,7 +4044,7 @@
             "t2t": 0.0
           },
           "correct": true,
-          "seconds": 5.300040356814861e-06,
+          "seconds": 5.200039595365524e-06,
           "evidence": "DocumentFactExtractor ingest, query=None"
         },
         {
@@ -4018,7 +4058,7 @@
             "false_acceptance": 0
           },
           "correct": true,
-          "seconds": 3.100023604929447e-06,
+          "seconds": 3.00002284348011e-06,
           "evidence": "32-task synthesis + SidecarService.verify + sandbox critic"
         }
       ]
@@ -4137,11 +4177,36 @@
       "baseline_correct": 0,
       "mcp_correct": 3,
       "total": 3
+    },
+    "x1_shared_stem": {
+      "baseline_correct": 0,
+      "mcp_correct": 1,
+      "total": 1
+    },
+    "x1_four_arm": {
+      "baseline_correct": 0,
+      "mcp_correct": 3,
+      "total": 3
+    },
+    "x2_wave_egress": {
+      "baseline_correct": 0,
+      "mcp_correct": 4,
+      "total": 4
+    },
+    "x3_onecell": {
+      "baseline_correct": 0,
+      "mcp_correct": 4,
+      "total": 4
+    },
+    "x4_pass0_batch": {
+      "baseline_correct": 0,
+      "mcp_correct": 4,
+      "total": 4
     }
   },
   "probes": {
-    "queries": 164,
-    "correct": 164,
+    "queries": 180,
+    "correct": 180,
     "categories": [
       {
         "category": "j1_cleanroom",
@@ -4245,7 +4310,7 @@
           "correct_thread8": 8
         },
         "correct": true,
-        "seconds": 1.2640089000342414,
+        "seconds": 1.2623824999900535,
         "evidence": "depth-2 wall-masked rotor planner on the clean-room store"
       },
       {
@@ -4272,7 +4337,7 @@
           ]
         },
         "correct": true,
-        "seconds": 13.054205199936405,
+        "seconds": 13.37977779994253,
         "evidence": "trace=True per-episode comparison; the 48-episode arm runs once"
       },
       {
@@ -4296,7 +4361,7 @@
           }
         },
         "correct": true,
-        "seconds": 1.0899966582655907e-05,
+        "seconds": 1.0200077667832375e-05,
         "evidence": "open_clean_room_memory created a new SQLite file; no fixture copy"
       },
       {
@@ -4310,7 +4375,7 @@
           "seed_limit": 1536
         },
         "correct": true,
-        "seconds": 2.600019797682762e-06,
+        "seconds": 2.500019036233425e-06,
         "evidence": "row count read from the clean-room Zone C store after the mount"
       },
       {
@@ -4330,7 +4395,7 @@
           "ledger_digest": "1b1494fe28a29d7257e18c909105613988bdf7fe73432206bff47f1712385e72"
         },
         "correct": true,
-        "seconds": 0.047548200003802776,
+        "seconds": 0.06379309995099902,
         "evidence": "640 generated functions synced into the Zone C vocabulary metadata"
       },
       {
@@ -4348,7 +4413,7 @@
           "reingestion_calls": 0
         },
         "correct": true,
-        "seconds": 0.020749100018292665,
+        "seconds": 0.02599780005402863,
         "evidence": "fresh tokenizer restored from the Zone C vocab_ledger payload only"
       },
       {
@@ -4373,7 +4438,7 @@
           "source_sha256": "ccfe1c63fcb06d387d581a2b369436bd1d491d98369183b39f9a3a3b67ed9749"
         },
         "correct": true,
-        "seconds": 0.03171200002543628,
+        "seconds": 0.02750440000090748,
         "evidence": "run_diverse_dag_battery three-stage row"
       },
       {
@@ -4423,7 +4488,7 @@
           "source_sha256": "0584a69430a2043dbd0caefe42a403eb71be80a56710ca7c1c9029913c639298"
         },
         "correct": true,
-        "seconds": 2.600019797682762e-06,
+        "seconds": 2.700020559132099e-06,
         "evidence": "run_diverse_dag_battery three-stage row"
       },
       {
@@ -4448,7 +4513,7 @@
           "battery_drift": 0.0
         },
         "correct": true,
-        "seconds": 0.000175400055013597,
+        "seconds": 0.0001759000588208437,
         "evidence": "compose_plan_dag refuses before splicing a single stage"
       },
       {
@@ -4462,12 +4527,12 @@
           "status": "supported",
           "receipt_valid": true,
           "agent_receipt_valid": true,
-          "receipt_sha256": "9ab22b9e6d4415c5557a2ab51999a5a971106e381098289cb0a8aeed192b3868",
-          "agent_receipt_sha256": "bdc281eb07fb40052970ef6a7c96dc2b90efb56c7d4fad298c95018206a9ce89",
+          "receipt_sha256": "e81bc3bc216a930d394e22565671f8f7cc7ef9cda79d99baa1eb2866bb4b11d4",
+          "agent_receipt_sha256": "8874108714314568e2cd4709eb14b5c62ad8a15f99c03b0a6a3e6ddcb78eb72e",
           "error": ""
         },
         "correct": true,
-        "seconds": 0.4078864000039175,
+        "seconds": 0.33962889993563294,
         "evidence": "fastapi TestClient, bearer key agent-eval-j4"
       },
       {
@@ -4484,12 +4549,12 @@
           "matches_reference": true,
           "receipt_valid": true,
           "agent_receipt_valid": true,
-          "receipt_sha256": "34ea5f6099df79859b9c44e1924deda373361f77a4032bfba501314ec0369f32",
-          "agent_receipt_sha256": "a4d1a1b03eb3f827de418e2e2ce2f4856be682a18e3d0e4dee7ea9fe3f4921a1",
+          "receipt_sha256": "1676fe3cdc1dac3cb3363d112821c7e3bd5be6ec0dc663701bf5add9a31307d9",
+          "agent_receipt_sha256": "9133391006875a081447657cc537bfa901c298330dab7b2e0657d4126e6539f8",
           "error": ""
         },
         "correct": true,
-        "seconds": 8.399947546422482e-06,
+        "seconds": 8.699949830770493e-06,
         "evidence": "planner mounted on the clean-room store at 1 thread"
       },
       {
@@ -4503,7 +4568,7 @@
           "pre_mount_rows": 0
         },
         "correct": true,
-        "seconds": 8.078601500019431,
+        "seconds": 8.250043600099161,
         "evidence": "evaluate(clean_model, tasks, 'test') on the hydrated cartridge"
       },
       {
@@ -4515,7 +4580,7 @@
           "relational_veto_rate": 0.09859154929577464
         },
         "correct": true,
-        "seconds": 8.999952115118504e-06,
+        "seconds": 7.0999376475811005e-06,
         "evidence": "evaluate(clean_model, tasks, 'test') on the hydrated cartridge"
       },
       {
@@ -4530,7 +4595,7 @@
           "total": 0
         },
         "correct": true,
-        "seconds": 5.900044925510883e-06,
+        "seconds": 4.500034265220165e-06,
         "evidence": "per-sample veto AND NOT memory_mask over the validation splits"
       },
       {
@@ -4549,7 +4614,7 @@
           "dtype": "v3-action-int12-sqrt4-support-int8-exact16-zlib9"
         },
         "correct": true,
-        "seconds": 0.00019729998894035816,
+        "seconds": 0.00015600002370774746,
         "evidence": "label histogram of the mounted seed block"
       },
       {
@@ -4568,7 +4633,7 @@
           }
         },
         "correct": true,
-        "seconds": 1.2642092000460252,
+        "seconds": 1.27424559998326,
         "evidence": "Zone B relax_discovery under Zone C LAW/ATTRACTOR/REPULSOR axioms"
       },
       {
@@ -4581,7 +4646,7 @@
           "weight_updates": 0
         },
         "correct": true,
-        "seconds": 7.5999414548277855e-06,
+        "seconds": 8.399947546422482e-06,
         "evidence": "Zone B relax_discovery over type-compatible operator candidates"
       },
       {
@@ -4596,7 +4661,7 @@
           "source_chars": 425
         },
         "correct": true,
-        "seconds": 0.0011740999761968851,
+        "seconds": 0.0011991000501438975,
         "evidence": "AST alpha-renaming + terminal-return splicing, then execution"
       },
       {
@@ -4609,7 +4674,7 @@
           "source_chars": 420
         },
         "correct": true,
-        "seconds": 0.0009701000526547432,
+        "seconds": 0.000980700016953051,
         "evidence": "scoped AST NodeTransformer rename"
       },
       {
@@ -4624,7 +4689,7 @@
           "added_from_b": 300
         },
         "correct": true,
-        "seconds": 0.03963749995455146,
+        "seconds": 0.03897340002004057,
         "evidence": "rebase_tenant_vocabulary + id_map translation, decode equality"
       },
       {
@@ -4634,11 +4699,11 @@
         "measured": {
           "top4_parity": 4,
           "claims": 4,
-          "passages": 1921,
-          "vocabulary": 5515
+          "passages": 1973,
+          "vocabulary": 5579
         },
         "correct": true,
-        "seconds": 0.9069245000137016,
+        "seconds": 0.8918833999196067,
         "evidence": "matrix-vector product vs the retained per-passage loop"
       },
       {
@@ -4652,7 +4717,7 @@
           "chain_valid": true
         },
         "correct": true,
-        "seconds": 0.8442356999730691,
+        "seconds": 0.7647159000625834,
         "evidence": "16 threads x 8 mixed verify/plan/veto/solve requests"
       },
       {
@@ -4665,7 +4730,7 @@
           "tier2": 0
         },
         "correct": true,
-        "seconds": 0.0013142001116648316,
+        "seconds": 0.0013494999147951603,
         "evidence": "Zone C metadata copy, one envelope receipt"
       },
       {
@@ -4759,7 +4824,7 @@
           "control_correct": 0
         },
         "correct": true,
-        "seconds": 1.0889004999771714,
+        "seconds": 1.1057548000244424,
         "evidence": "discover_escape with a test-time REPULSOR and goal attraction"
       },
       {
@@ -4773,7 +4838,7 @@
           "discoveries": 16
         },
         "correct": true,
-        "seconds": 21.920803699991666,
+        "seconds": 14.888041700003669,
         "evidence": "4-layout subset; the full 48-layout measurement is sealed in m1_online_repulsor_vla.json"
       },
       {
@@ -4786,7 +4851,7 @@
           "hallucination_rate": 0.0
         },
         "correct": true,
-        "seconds": 34.71099119994324,
+        "seconds": 20.375835999962874,
         "evidence": "online REPULSOR agents inside the unified VLA pipeline"
       },
       {
@@ -4802,7 +4867,7 @@
           "rows": 4
         },
         "correct": true,
-        "seconds": 0.010965700028464198,
+        "seconds": 0.011935300077311695,
         "evidence": "one Gram product over four waves versus four per-row reads"
       },
       {
@@ -4812,11 +4877,11 @@
         "measured": {
           "requests": 64,
           "errors": [],
-          "p50_ms": 0.8088999893516302,
-          "p95_ms": 1831.18490006309
+          "p50_ms": 0.687449995893985,
+          "p95_ms": 1832.018479972612
         },
         "correct": true,
-        "seconds": 1.9248234999831766,
+        "seconds": 1.9665488000027835,
         "evidence": "reader thread guard plus the lock-free Zone C snapshot"
       },
       {
@@ -4828,7 +4893,7 @@
           "chain_valid": true
         },
         "correct": true,
-        "seconds": 0.03343640000093728,
+        "seconds": 0.03408090001903474,
         "evidence": "ReceiptLedger chain verification after the burst"
       },
       {
@@ -4847,7 +4912,7 @@
           "format": "henri-seed-engrams-v3"
         },
         "correct": true,
-        "seconds": 0.0002175000263378024,
+        "seconds": 0.00021550001110881567,
         "evidence": "v3 prototype-residual action rows plus int8 support rows"
       },
       {
@@ -4858,7 +4923,7 @@
           "vision_accuracy": 0.9797979797979798
         },
         "correct": true,
-        "seconds": 4.00003045797348e-06,
+        "seconds": 4.199915565550327e-06,
         "evidence": "full 610-row vision block in the clean room"
       },
       {
@@ -6030,7 +6095,7 @@
           "live_dim": 1024
         },
         "correct": true,
-        "seconds": 0.0009357999078929424,
+        "seconds": 0.0010958000784739852,
         "evidence": "Zone-B-coupled generator on a held-out corpus slice"
       },
       {
@@ -6044,7 +6109,7 @@
           "error": ""
         },
         "correct": true,
-        "seconds": 0.001065300079062581,
+        "seconds": 0.0010673999786376953,
         "evidence": "guard return rewritten to a step_i assignment inside if/else"
       },
       {
@@ -6067,7 +6132,7 @@
           "drift": 0.0
         },
         "correct": true,
-        "seconds": 0.053671699948608875,
+        "seconds": 0.054202200029976666,
         "evidence": "run_diverse_dag_battery(guard_pipelines=True)"
       },
       {
@@ -6079,7 +6144,7 @@
           "source_empty": true
         },
         "correct": true,
-        "seconds": 0.00012199999764561653,
+        "seconds": 0.00012240000069141388,
         "evidence": "fail-closed splicer contract retained"
       },
       {
@@ -6098,7 +6163,7 @@
           "prefill_tokens": 0
         },
         "correct": true,
-        "seconds": 0.1559963000472635,
+        "seconds": 0.15544699993915856,
         "evidence": "SwarmTelepathyBus.transmit"
       },
       {
@@ -6116,7 +6181,7 @@
           "budget": 4
         },
         "correct": true,
-        "seconds": 0.0003858000272884965,
+        "seconds": 0.00038410001434385777,
         "evidence": "AttentionMatchingCompactor Eq. 8"
       },
       {
@@ -6136,7 +6201,7 @@
           }
         },
         "correct": true,
-        "seconds": 0.160179500002414,
+        "seconds": 0.15381950000301003,
         "evidence": "SagnacKVGate.check"
       },
       {
@@ -6148,7 +6213,7 @@
           "expected": 6
         },
         "correct": true,
-        "seconds": 0.0848015999654308,
+        "seconds": 0.07976959994994104,
         "evidence": "vision cache -> prototype read"
       },
       {
@@ -6162,7 +6227,7 @@
           "digest": "c654cb6554486294"
         },
         "correct": true,
-        "seconds": 0.16068470000755042,
+        "seconds": 0.1582750000525266,
         "evidence": "SidecarService.plan(online_repulsor=True)"
       },
       {
@@ -6174,7 +6239,7 @@
           "deployed": 1
         },
         "correct": true,
-        "seconds": 0.10671630001161247,
+        "seconds": 0.08126300002913922,
         "evidence": "plan lookahead_depth arm"
       },
       {
@@ -6187,7 +6252,7 @@
           "seen": 38
         },
         "correct": true,
-        "seconds": 0.00017279991880059242,
+        "seconds": 0.0001463999506086111,
         "evidence": "ZoneCMemory.bump_state_epoch -> SidecarService._sync_global_epoch"
       },
       {
@@ -6215,7 +6280,7 @@
           ]
         },
         "correct": true,
-        "seconds": 9.900075383484364e-06,
+        "seconds": 8.399947546422482e-06,
         "evidence": "H4 delta path"
       },
       {
@@ -6228,7 +6293,7 @@
           "elastic_cap": 4096
         },
         "correct": true,
-        "seconds": 0.4316864999709651,
+        "seconds": 0.37915990001056343,
         "evidence": "build_tokenizer(vocab_lock, elastic_cap=4096)"
       },
       {
@@ -6242,7 +6307,7 @@
           "corpus_revision": "67e9b25"
         },
         "correct": true,
-        "seconds": 0.00033329997677356005,
+        "seconds": 0.00028900010511279106,
         "evidence": "o3 receipt / evaluate_bochner_language"
       },
       {
@@ -6254,7 +6319,7 @@
           "bits_per_char": 1.2735599219987657
         },
         "correct": true,
-        "seconds": 4.900037311017513e-06,
+        "seconds": 4.799920134246349e-06,
         "evidence": "o3 receipt"
       },
       {
@@ -6266,7 +6331,7 @@
           "char96": 0.1943359375
         },
         "correct": true,
-        "seconds": 2.600019797682762e-06,
+        "seconds": 2.900022082030773e-06,
         "evidence": "o3 receipt"
       },
       {
@@ -6277,13 +6342,13 @@
           "status": "accepted",
           "accepted": [
             "split_identifiers",
-            "unique_count",
+            "sequence_length",
             "clamp_unit"
           ],
           "plan": "holonic_holon_len"
         },
         "correct": true,
-        "seconds": 0.07077140000183135,
+        "seconds": 0.048158899997361004,
         "evidence": "SynthesisEngine.holonic_discover"
       },
       {
@@ -6295,7 +6360,7 @@
           "source": ""
         },
         "correct": true,
-        "seconds": 0.21014069998636842,
+        "seconds": 0.2057785999495536,
         "evidence": "holonic_discover refuses"
       },
       {
@@ -6307,7 +6372,7 @@
           "name": "holonic_holon_len"
         },
         "correct": true,
-        "seconds": 4.899920895695686e-06,
+        "seconds": 4.700035788118839e-06,
         "evidence": "PlanStore.compile"
       },
       {
@@ -6321,7 +6386,7 @@
           "refused": 4
         },
         "correct": true,
-        "seconds": 0.9829321000725031,
+        "seconds": 1.0830558000598103,
         "evidence": "run_diverse_dag_battery + holonic_discover"
       },
       {
@@ -6334,7 +6399,7 @@
           "train_tokens": 600473
         },
         "correct": true,
-        "seconds": 3.999995533376932e-05,
+        "seconds": 4.7200010158121586e-05,
         "evidence": "evaluate_bochner_language live_elastic arm"
       },
       {
@@ -6347,7 +6412,7 @@
           "beta": 0.02
         },
         "correct": true,
-        "seconds": 3.500026650726795e-06,
+        "seconds": 3.3999094739556313e-06,
         "evidence": "evaluate_bochner_language live_elastic arm"
       },
       {
@@ -6361,7 +6426,7 @@
           "elastic_bpc": 1.0828467630776455
         },
         "correct": true,
-        "seconds": 2.500019036233425e-06,
+        "seconds": 2.900022082030773e-06,
         "evidence": "evaluate_bochner_language pinned arms"
       },
       {
@@ -6375,7 +6440,7 @@
           "bridges": 2
         },
         "correct": true,
-        "seconds": 0.2276906999759376,
+        "seconds": 0.22858920006547123,
         "evidence": "POST /v1/holarch/telepathy equivalent"
       },
       {
@@ -6388,7 +6453,7 @@
           ]
         },
         "correct": true,
-        "seconds": 7.200054824352264e-06,
+        "seconds": 5.499925464391708e-06,
         "evidence": "SagnacKVGate.check"
       },
       {
@@ -6400,7 +6465,7 @@
           "slots_u": 6
         },
         "correct": true,
-        "seconds": 3.0999071896076202e-06,
+        "seconds": 2.400018274784088e-06,
         "evidence": "TelepathicReader read over the compacted cache"
       },
       {
@@ -6412,7 +6477,7 @@
           "steps": 14
         },
         "correct": true,
-        "seconds": 5.843743300065398,
+        "seconds": 2.1672299000201747,
         "evidence": "online-REPULSOR closed loop"
       },
       {
@@ -6431,7 +6496,7 @@
           }
         },
         "correct": true,
-        "seconds": 5.899928510189056e-06,
+        "seconds": 4.600035026669502e-06,
         "evidence": "SynthesisEngine.synthesize_from_telepathy"
       },
       {
@@ -6443,7 +6508,7 @@
           "receiver_prefill_tokens": 0
         },
         "correct": true,
-        "seconds": 2.200016751885414e-06,
+        "seconds": 1.999898813664913e-06,
         "evidence": "SwarmKVCache handoff only"
       },
       {
@@ -6456,7 +6521,7 @@
           "candidates": 15
         },
         "correct": true,
-        "seconds": 0.08619970001745969,
+        "seconds": 0.06930170010309666,
         "evidence": "SynthesisEngine.holonic_discover"
       },
       {
@@ -6469,7 +6534,7 @@
           "effects": 32
         },
         "correct": true,
-        "seconds": 0.2336615000385791,
+        "seconds": 0.23065299994777888,
         "evidence": "ctx.effect rollback"
       },
       {
@@ -6481,7 +6546,7 @@
           "plans_after": 29
         },
         "correct": true,
-        "seconds": 4.600035026669502e-06,
+        "seconds": 4.200031980872154e-06,
         "evidence": "PlanStore size before and after"
       },
       {
@@ -6504,7 +6569,7 @@
           "bridge_slots": 125
         },
         "correct": true,
-        "seconds": 0.19917809998150915,
+        "seconds": 0.20071889995597303,
         "evidence": "POST /v1/holarch/telepathy mode=ingest_chunks with query=None"
       },
       {
@@ -6529,7 +6594,7 @@
           ]
         },
         "correct": true,
-        "seconds": 7.999944500625134e-06,
+        "seconds": 8.200062438845634e-06,
         "evidence": "bridge index resolved after ingest, zero re-ingest"
       },
       {
@@ -6552,12 +6617,12 @@
             "fact",
             "fact"
           ],
-          "resolve_p50_ms": 0.11239992454648018,
-          "ttft_p50_ms": 0.6283000111579895,
+          "resolve_p50_ms": 0.10679999832063913,
+          "ttft_p50_ms": 0.5621000891551375,
           "receiver_prefill_tokens": 0
         },
         "correct": true,
-        "seconds": 8.709996473044157e-05,
+        "seconds": 8.849997539073229e-05,
         "evidence": "SagnacKVGate fact_consistency + resolve_bridges"
       },
       {
@@ -6578,7 +6643,7 @@
           "executed": true
         },
         "correct": true,
-        "seconds": 20.91329520009458,
+        "seconds": 2.5605366999516264,
         "evidence": "SynthesisEngine.synthesize_from_telepathy regime bank"
       },
       {
@@ -6586,25 +6651,57 @@
         "category": "q2_causal_vla",
         "expected": "holding the Vision KV fixed and swapping the Action KV changes the emitted operator",
         "measured": {
-          "pass0_strata": [
+          "pass0_count": 4,
+          "pass0_ms": 7.846100023016334,
+          "pass0_scan_ms": 601.7168000107631,
+          "pass0_regimes": [
+            0,
+            1
+          ],
+          "pass0_parity": [
             {
               "index": 0,
-              "regime": 0
+              "predicted": 0,
+              "decoded": 0
             },
             {
               "index": 1,
-              "regime": 0
+              "predicted": 1,
+              "decoded": 0
             },
             {
               "index": 2,
-              "regime": 2
+              "predicted": 0,
+              "decoded": 2
             },
             {
               "index": 3,
-              "regime": 0
+              "predicted": 0,
+              "decoded": 0
             }
           ],
-          "pass0_ms": 15211.505699902773,
+          "pass0_strata": [
+            {
+              "index": 0,
+              "regime": 0,
+              "predicted_regime": 0
+            },
+            {
+              "index": 1,
+              "regime": 0,
+              "predicted_regime": 1
+            },
+            {
+              "index": 2,
+              "regime": 2,
+              "predicted_regime": 0
+            },
+            {
+              "index": 3,
+              "regime": 0,
+              "predicted_regime": 0
+            }
+          ],
           "selected_index": 2,
           "from_regime": 0,
           "to_regime": 2,
@@ -6613,7 +6710,7 @@
           "status": "verified"
         },
         "correct": true,
-        "seconds": 0.0006277000065892935,
+        "seconds": 0.0004954000469297171,
         "evidence": "paired Action-KV counterfactual"
       },
       {
@@ -6626,7 +6723,7 @@
           "admitted": false
         },
         "correct": true,
-        "seconds": 5.0687923999503255,
+        "seconds": 1.374553499976173,
         "evidence": "SagnacKVGate binding condition on the action sender"
       },
       {
@@ -6646,7 +6743,7 @@
           ]
         },
         "correct": true,
-        "seconds": 1.6000005416572094e-05,
+        "seconds": 1.2699980288743973e-05,
         "evidence": "calibration_test_overlap_tokens"
       },
       {
@@ -6660,7 +6757,7 @@
           "elastic_bpc": 1.0828467630776455
         },
         "correct": true,
-        "seconds": 5.700043402612209e-06,
+        "seconds": 3.900029696524143e-06,
         "evidence": "evaluate_bochner_language pinned tail arms"
       },
       {
@@ -6677,7 +6774,7 @@
           "receipt_present": true
         },
         "correct": true,
-        "seconds": 0.0006618999177590013,
+        "seconds": 0.0005245000356808305,
         "evidence": "Q3 receipt full decile, or the live arm's selected Q3 mechanism"
       },
       {
@@ -6689,11 +6786,11 @@
           "accepted": 4,
           "traps": 4,
           "refused": 4,
-          "median_tick_ms": 0.024800014216452837,
+          "median_tick_ms": 0.026850029826164246,
           "residual_state": 0
         },
         "correct": true,
-        "seconds": 11.793421700014733,
+        "seconds": 11.834727599984035,
         "evidence": "henri_holon.HolonDaemon resident tick"
       },
       {
@@ -6708,7 +6805,7 @@
           "receipt_present": true
         },
         "correct": true,
-        "seconds": 0.0008671999676153064,
+        "seconds": 0.0009561999468132854,
         "evidence": "receipts/holarch/aaii_v5_eval.json Pillar A"
       },
       {
@@ -6721,7 +6818,7 @@
           "passed": true
         },
         "correct": true,
-        "seconds": 5.300040356814861e-06,
+        "seconds": 1.780001912266016e-05,
         "evidence": "receipts/holarch/aaii_v5_eval.json Pillar B"
       },
       {
@@ -6746,7 +6843,7 @@
           "registry_facts": 562
         },
         "correct": true,
-        "seconds": 0.0002661000471562147,
+        "seconds": 0.0003296999493613839,
         "evidence": "receipts/holarch/r1_unstructured_telepathy_and_wave_fact_veto.json"
       },
       {
@@ -6759,7 +6856,7 @@
           "string_rule_enforced": false
         },
         "correct": true,
-        "seconds": 6.8999361246824265e-06,
+        "seconds": 7.70005863159895e-06,
         "evidence": "physical-only ingest, string belt disabled"
       },
       {
@@ -6773,7 +6870,7 @@
           "prefill": 0
         },
         "correct": true,
-        "seconds": 3.600027412176132e-06,
+        "seconds": 3.400025889277458e-06,
         "evidence": "resolve_bridges p50 and faithful T2T prefill ratio"
       },
       {
@@ -6786,7 +6883,7 @@
           "persisted": true
         },
         "correct": true,
-        "seconds": 0.00018990004900842905,
+        "seconds": 0.00020709994714707136,
         "evidence": "ActionRegimeReadout fitted + checkpoint payload"
       },
       {
@@ -6806,7 +6903,7 @@
           }
         },
         "correct": true,
-        "seconds": 7.0999376475811005e-06,
+        "seconds": 7.300055585801601e-06,
         "evidence": "balanced 6 x 3 Action KV swaps"
       },
       {
@@ -6819,7 +6916,7 @@
           "hallucinated": 0
         },
         "correct": true,
-        "seconds": 2.200016751885414e-06,
+        "seconds": 2.300017513334751e-06,
         "evidence": "binding gate refusal before the AST binder"
       },
       {
@@ -6833,7 +6930,7 @@
           "scored_tokens": 61417
         },
         "correct": true,
-        "seconds": 0.00033519999124109745,
+        "seconds": 0.00034579995553940535,
         "evidence": "receipts/holarch/r3_static_and_streaming_full_decile_language.json"
       },
       {
@@ -6846,7 +6943,7 @@
           "stream_weight": 0.2
         },
         "correct": true,
-        "seconds": 3.900029696524143e-06,
+        "seconds": 4.600035026669502e-06,
         "evidence": "deployed adaptive arm on the same scored decile"
       },
       {
@@ -6865,7 +6962,7 @@
           }
         },
         "correct": true,
-        "seconds": 3.600027412176132e-06,
+        "seconds": 3.5999109968543053e-06,
         "evidence": "CountLanguageModel role discounts + token_logits recency + suffix floor"
       },
       {
@@ -6879,7 +6976,7 @@
           "omni": 100.0
         },
         "correct": true,
-        "seconds": 0.0008021999383345246,
+        "seconds": 0.0008550999918952584,
         "evidence": "real MMLU cartridge, 200 scored queries"
       },
       {
@@ -6893,7 +6990,7 @@
           "t2t": 0.0
         },
         "correct": true,
-        "seconds": 5.300040356814861e-06,
+        "seconds": 5.200039595365524e-06,
         "evidence": "DocumentFactExtractor ingest, query=None"
       },
       {
@@ -6907,7 +7004,7 @@
           "false_acceptance": 0
         },
         "correct": true,
-        "seconds": 3.100023604929447e-06,
+        "seconds": 3.00002284348011e-06,
         "evidence": "32-task synthesis + SidecarService.verify + sandbox critic"
       },
       {
@@ -6919,7 +7016,7 @@
           "identical": true
         },
         "correct": true,
-        "seconds": 0.0027994998963549733,
+        "seconds": 0.003009699983522296,
         "evidence": "interleaved calls on two windows; the first window repeats bit for bit"
       },
       {
@@ -6930,7 +7027,7 @@
           "matched_order": 6
         },
         "correct": true,
-        "seconds": 2.7400092221796513e-05,
+        "seconds": 2.629996743053198e-05,
         "evidence": "the window ends with a 6-gram that already occurred inside it"
       },
       {
@@ -6944,7 +7041,7 @@
           "stream_bits_per_char": 1.1660408493237004
         },
         "correct": true,
-        "seconds": 0.000395099981687963,
+        "seconds": 0.0004107001004740596,
         "evidence": "read from the sealed R3 receipt"
       },
       {
@@ -6954,11 +7051,11 @@
         "measured": {
           "exact": 16,
           "programs": 16,
-          "step_ms_mean": 0.8001918494891151,
+          "step_ms_mean": 0.7609865526344659,
           "slots": 4
         },
         "correct": true,
-        "seconds": 1.0038607999449596,
+        "seconds": 0.968332799966447,
         "evidence": "tape recovered from the wave; reference oracle agrees"
       },
       {
@@ -6976,7 +7073,7 @@
           ]
         },
         "correct": true,
-        "seconds": 7.200054824352264e-06,
+        "seconds": 7.2999391704797745e-06,
         "evidence": "two cycle traps, one undefined transition, one corrupted tape"
       },
       {
@@ -6988,7 +7085,7 @@
           "runs": 16
         },
         "correct": true,
-        "seconds": 3.400025889277458e-06,
+        "seconds": 3.600027412176132e-06,
         "evidence": "every read and write is a wave operation on slot 2"
       },
       {
@@ -7000,7 +7097,7 @@
           "charts": 42
         },
         "correct": true,
-        "seconds": 0.8756842999719083,
+        "seconds": 0.9120844999561086,
         "evidence": "spherical domain charts of at most 256 engrams"
       },
       {
@@ -7008,13 +7105,13 @@
         "category": "s3_charts",
         "expected": "charted strictly faster than the flat scan with full parity; the isolated 0.45 ms gate is measured in the S3 stage",
         "measured": {
-          "charted_p50_ms": 0.5118499975651503,
-          "flat_p50_ms": 0.5669500096701086,
+          "charted_p50_ms": 0.5358999478630722,
+          "flat_p50_ms": 0.6144999642856419,
           "parity": 40,
           "queries": 40
         },
         "correct": true,
-        "seconds": 0.00010599999222904444,
+        "seconds": 0.00010740000288933516,
         "evidence": "same queries, same k, same candidate multiplier; this probe runs inside a loaded evaluation process, so the isolated latency gate lives in receipts/holarch/s3_hierarchical_charts_and_sandboxed_browser.json"
       },
       {
@@ -7028,7 +7125,7 @@
           "after": 0.3771725987211109
         },
         "correct": true,
-        "seconds": 4.500034265220165e-06,
+        "seconds": 4.700035788118839e-06,
         "evidence": "partial polar SVD plus bounded pairwise deflation"
       },
       {
@@ -7051,7 +7148,7 @@
           ]
         },
         "correct": true,
-        "seconds": 0.0010617999359965324,
+        "seconds": 0.0010761000448837876,
         "evidence": "read from receipts/holarch/aaii_v5_eval.json"
       },
       {
@@ -7064,7 +7161,7 @@
           "text_tokens": 0
         },
         "correct": true,
-        "seconds": 5.700043402612209e-06,
+        "seconds": 5.899928510189056e-06,
         "evidence": "latent wave execution with no intermediate text"
       },
       {
@@ -7078,7 +7175,7 @@
           "omni": 100.0
         },
         "correct": true,
-        "seconds": 4.699919372797012e-06,
+        "seconds": 4.300032742321491e-06,
         "evidence": "scaled arm of the AAII v5.0 receipt"
       },
       {
@@ -7092,7 +7189,7 @@
           "duplicates": 0
         },
         "correct": true,
-        "seconds": 0.0010982000967487693,
+        "seconds": 0.0011044000275433064,
         "evidence": "the merged docs/HOLARCH.md header sequence"
       },
       {
@@ -7110,7 +7207,7 @@
           "goals": 12
         },
         "correct": true,
-        "seconds": 0.00026839994825422764,
+        "seconds": 0.0002620000159367919,
         "evidence": "read from the sealed q2 receipt"
       },
       {
@@ -7125,7 +7222,7 @@
           "bound": 20.0
         },
         "correct": true,
-        "seconds": 0.00020620005670934916,
+        "seconds": 0.00019419996533542871,
         "evidence": "read from the sealed s3 receipt"
       },
       {
@@ -7133,12 +7230,12 @@
         "category": "t1_hygiene",
         "expected": "the host clock pulse is positive and the charted ratio is inside its bound",
         "measured": {
-          "t_ref_ms": 0.08049991447478533,
+          "t_ref_ms": 0.08949998300522566,
           "charted_over_t_ref": 7.2047145522619465,
           "bound": 20.0
         },
         "correct": true,
-        "seconds": 0.010275699896737933,
+        "seconds": 0.010907400050200522,
         "evidence": "25 warm 256x1024 complex64 matvecs in this process"
       },
       {
@@ -7150,7 +7247,7 @@
           "ingested": 2500
         },
         "correct": true,
-        "seconds": 0.00046550005208700895,
+        "seconds": 0.0004873999860137701,
         "evidence": "read from the sealed t2 receipt"
       },
       {
@@ -7163,7 +7260,7 @@
           "hallucination": 0.0
         },
         "correct": true,
-        "seconds": 4.600035026669502e-06,
+        "seconds": 4.599918611347675e-06,
         "evidence": "the same digest-bound read rule as the AAII Pillar A arm"
       },
       {
@@ -7176,7 +7273,7 @@
           "synchronized": true
         },
         "correct": true,
-        "seconds": 3.7999125197529793e-06,
+        "seconds": 3.200024366378784e-06,
         "evidence": "a query issued with no use_charts argument"
       },
       {
@@ -7188,7 +7285,7 @@
           "queries": 20
         },
         "correct": true,
-        "seconds": 0.2656191000714898,
+        "seconds": 0.2583060000324622,
         "evidence": "a live 720-row cone store built in this process"
       },
       {
@@ -7203,7 +7300,7 @@
           "text_tokens": 0
         },
         "correct": true,
-        "seconds": 0.036449900013394654,
+        "seconds": 0.03470620000734925,
         "evidence": "zero hand-supplied rules; four short tapes in, longer tapes out"
       },
       {
@@ -7216,7 +7313,7 @@
           "tasks": 10
         },
         "correct": true,
-        "seconds": 0.0003706000279635191,
+        "seconds": 0.00036800000816583633,
         "evidence": "read from the sealed t3 receipt"
       },
       {
@@ -7228,7 +7325,7 @@
           "traps": 4
         },
         "correct": true,
-        "seconds": 4.499917849898338e-06,
+        "seconds": 4.799920134246349e-06,
         "evidence": "a repeated tape_in with two different tape_out values"
       },
       {
@@ -7242,7 +7339,7 @@
           "mcp": "INDUCED"
         },
         "correct": true,
-        "seconds": 3.300025127828121e-06,
+        "seconds": 3.200024366378784e-06,
         "evidence": "read from the sealed t3 receipt"
       },
       {
@@ -7257,7 +7354,7 @@
           }
         },
         "correct": true,
-        "seconds": 0.02106529998127371,
+        "seconds": 0.018113499972969294,
         "evidence": "browse -> compute -> finish, gated at every turn"
       },
       {
@@ -7270,7 +7367,7 @@
           "deliverable": null
         },
         "correct": true,
-        "seconds": 0.0003146000672131777,
+        "seconds": 0.00029360002372413874,
         "evidence": "finish is refused before the abandon turn is accepted"
       },
       {
@@ -7283,7 +7380,7 @@
           "unique_failures": 1
         },
         "correct": true,
-        "seconds": 0.0005796999903395772,
+        "seconds": 0.0005852000322192907,
         "evidence": "the second identical exec is refused before the interpreter runs"
       },
       {
@@ -7295,7 +7392,7 @@
           "chain_valid": true
         },
         "correct": true,
-        "seconds": 5.699926987290382e-06,
+        "seconds": 5.600042641162872e-06,
         "evidence": "parent of link N is the digest of link N-1"
       },
       {
@@ -7309,7 +7406,7 @@
           "base_selected": 160
         },
         "correct": true,
-        "seconds": 0.015489400015212595,
+        "seconds": 0.015638799988664687,
         "evidence": "b_stage 64, k_condense 2, min_cluster 8"
       },
       {
@@ -7321,7 +7418,7 @@
           "limit": 32
         },
         "correct": true,
-        "seconds": 0.00025509996339678764,
+        "seconds": 0.00028389994986355305,
         "evidence": "read from the sealed u2 receipt"
       },
       {
@@ -7333,7 +7430,7 @@
           "drift": 0
         },
         "correct": true,
-        "seconds": 4.800036549568176e-06,
+        "seconds": 5.900044925510883e-06,
         "evidence": "read from the sealed u2 receipt"
       },
       {
@@ -7342,11 +7439,11 @@
         "expected": "online recall 1.0 with at most 0.085*N rescored candidates and 1.65x speedup",
         "measured": {
           "recall": 1.0,
-          "candidate_ratio": 0.026406,
-          "speedup": 2.5857102646938364
+          "candidate_ratio": 0.026143999999999997,
+          "speedup": 2.5787493721244554
         },
         "correct": true,
-        "seconds": 2.800021320581436e-06,
+        "seconds": 3.200024366378784e-06,
         "evidence": "read from the sealed u2 receipt"
       },
       {
@@ -7359,7 +7456,7 @@
           "nodes": 6
         },
         "correct": true,
-        "seconds": 0.00024880003184080124,
+        "seconds": 0.0007063999073579907,
         "evidence": "strict one-cell head physics, no 2-cell lookahead"
       },
       {
@@ -7372,7 +7469,7 @@
           "states": 0
         },
         "correct": true,
-        "seconds": 0.0003236000193282962,
+        "seconds": 0.00032029999420046806,
         "evidence": "Fixpoint(pass) with Sagnac stationarity; zero hand transition rules"
       },
       {
@@ -7384,7 +7481,7 @@
           "states_q2": 1
         },
         "correct": true,
-        "seconds": 3.6999117583036423e-06,
+        "seconds": 3.400025889277458e-06,
         "evidence": "the T3b gate counts only 1-cell surfaces"
       },
       {
@@ -7397,7 +7494,7 @@
           "generalized": 8
         },
         "correct": true,
-        "seconds": 0.0006346000591292977,
+        "seconds": 0.00033080007415264845,
         "evidence": "read from the sealed t3 receipt"
       },
       {
@@ -7409,7 +7506,7 @@
           "total": 32
         },
         "correct": true,
-        "seconds": 0.011741399997845292,
+        "seconds": 0.011881399899721146,
         "evidence": "CKY over block-rotor slash categories"
       },
       {
@@ -7421,7 +7518,7 @@
           "reversals_ok": 3
         },
         "correct": true,
-        "seconds": 0.0014281999319791794,
+        "seconds": 0.001424900023266673,
         "evidence": "canonical 4-slot wave coherence"
       },
       {
@@ -7432,7 +7529,7 @@
           "vetoed": 6
         },
         "correct": true,
-        "seconds": 0.0022484000073745847,
+        "seconds": 0.0022511000279337168,
         "evidence": "fail-closed CCG semantic veto"
       },
       {
@@ -7445,7 +7542,7 @@
           "kappa_plus": 1.0
         },
         "correct": true,
-        "seconds": 0.004191800020635128,
+        "seconds": 0.004541900008916855,
         "evidence": "16-capability demand projector P_e = diag(r*)"
       },
       {
@@ -7457,7 +7554,7 @@
           "env_leaks": 0
         },
         "correct": true,
-        "seconds": 0.0006750000175088644,
+        "seconds": 0.003969999961555004,
         "evidence": "read from the sealed u5 receipt"
       },
       {
@@ -7470,7 +7567,7 @@
           "compression": 9.957671566816872
         },
         "correct": true,
-        "seconds": 6.300047971308231e-06,
+        "seconds": 7.200054824352264e-06,
         "evidence": "read from the sealed u5 receipt"
       },
       {
@@ -7495,7 +7592,7 @@
           }
         },
         "correct": true,
-        "seconds": 5.199923180043697e-06,
+        "seconds": 5.799927748739719e-06,
         "evidence": "read from the sealed u5 receipt"
       },
       {
@@ -7507,7 +7604,7 @@
           "claimed": false
         },
         "correct": true,
-        "seconds": 2.500019036233425e-06,
+        "seconds": 2.800021320581436e-06,
         "evidence": "no fabricated remote telemetry"
       },
       {
@@ -7529,7 +7626,7 @@
           "v1_total": 4
         },
         "correct": true,
-        "seconds": 0.0011651000240817666,
+        "seconds": 0.0011759999906644225,
         "evidence": "FactoredOneCellInducer, 0 text tokens, held-out lengths 12/17/24/32"
       },
       {
@@ -7545,7 +7642,7 @@
           "coherence": 1.0
         },
         "correct": true,
-        "seconds": 0.0024314000038430095,
+        "seconds": 0.0024446999887004495,
         "evidence": "MacroFixpoint composition of the 10 -> 01 inversion shuttle"
       },
       {
@@ -7553,7 +7650,7 @@
         "category": "v1_onecell",
         "expected": "the sealed one-cell audit is digest-valid and reports 10/12 solved, 10/12 length-generalised, 0 text tokens",
         "measured": {
-          "sha256": "e164062ed91311f2298442c7305a190faf0a4d16492eaf502df9b5c102ed4c1b",
+          "sha256": "22b556858190b14a27c8bf386ab871b374f8fddf97ba8d5476286a881c97ded1",
           "sidecar_match": true,
           "solved": 10,
           "generalized": 10,
@@ -7562,7 +7659,7 @@
           "gate_passed": true
         },
         "correct": true,
-        "seconds": 0.0005561999278143048,
+        "seconds": 0.007400300004519522,
         "evidence": "receipts/holarch/u3_inductive_turing_audit.json + SHA-256 sidecar"
       },
       {
@@ -7591,7 +7688,7 @@
           "refused": 4
         },
         "correct": true,
-        "seconds": 1.3824801000300795,
+        "seconds": 1.3584885000018403,
         "evidence": "duplicate input with two different outputs is rejected before search"
       },
       {
@@ -7606,7 +7703,7 @@
           "gate_keys": 11
         },
         "correct": true,
-        "seconds": 0.0009337000083178282,
+        "seconds": 0.0009401000570505857,
         "evidence": "SHA-256 sidecar + sealed gate fields; the sweep itself runs in its stage runner"
       },
       {
@@ -7621,7 +7718,7 @@
           "gate_keys": 15
         },
         "correct": true,
-        "seconds": 0.0005512000061571598,
+        "seconds": 0.0005224000196903944,
         "evidence": "SHA-256 sidecar + sealed gate fields; the sweep itself runs in its stage runner"
       },
       {
@@ -7636,7 +7733,7 @@
           "gate_keys": 15
         },
         "correct": true,
-        "seconds": 0.0005061000119894743,
+        "seconds": 0.0005216000135987997,
         "evidence": "SHA-256 sidecar + sealed gate fields; the sweep itself runs in its stage runner"
       },
       {
@@ -7645,11 +7742,11 @@
         "expected": "the sidecar arm performs zero query-time file reads while the baseline re-reads the package",
         "measured": {
           "mcp_reads": 0,
-          "baseline_reads": 528,
-          "chain_head": "f7527c531b9a5453"
+          "baseline_reads": 544,
+          "chain_head": "558d7d42dd809ac2"
         },
         "correct": true,
-        "seconds": 0.010235500056296587,
+        "seconds": 0.010230799904093146,
         "evidence": "one-time ingest, then Zone C only"
       },
       {
@@ -7665,7 +7762,7 @@
           ]
         },
         "correct": true,
-        "seconds": 0.0008278999011963606,
+        "seconds": 0.0007897000759840012,
         "evidence": "same operand, explicit per-slot reference product"
       },
       {
@@ -7677,7 +7774,7 @@
           "dim": 1024
         },
         "correct": true,
-        "seconds": 0.0012508000945672393,
+        "seconds": 0.0011041999096050858,
         "evidence": "same input, torch.set_num_threads 1 vs 8"
       },
       {
@@ -7686,11 +7783,11 @@
         "expected": "no receipt, trace or log under receipts/holarch contains the resolved key",
         "measured": {
           "key_resolved": true,
-          "files_scanned": 249,
+          "files_scanned": 273,
           "files_with_key": 0
         },
         "correct": true,
-        "seconds": 0.032927999971434474,
+        "seconds": 0.036117900046519935,
         "evidence": "byte scan of every sealed text receipt"
       },
       {
@@ -7702,7 +7799,7 @@
           "resolver_present": true
         },
         "correct": true,
-        "seconds": 1.4099990949034691e-05,
+        "seconds": 1.7900019884109497e-05,
         "evidence": "host-memory resolver; sandbox children are spawned with a scrubbed environment"
       },
       {
@@ -7714,7 +7811,7 @@
           "max_energy": 0.0
         },
         "correct": true,
-        "seconds": 0.001599299954250455,
+        "seconds": 0.002272999961860478,
         "evidence": "RepoSheaf.analyze on the polymorphic battery"
       },
       {
@@ -7727,7 +7824,7 @@
           "bytes": 21091
         },
         "correct": true,
-        "seconds": 0.00020300003234297037,
+        "seconds": 0.00025530008133500814,
         "evidence": "source scan of the plugin CLI runner"
       },
       {
@@ -7742,7 +7839,7 @@
           "contiguous": true
         },
         "correct": true,
-        "seconds": 0.0009866999462246895,
+        "seconds": 0.0013274999801069498,
         "evidence": "monotonic truncation guard, the same assertion as verify_holarch_consistency.py"
       },
       {
@@ -7750,30 +7847,32 @@
         "category": "v5_hygiene",
         "expected": "every .json receipt under receipts/holarch has a matching valid .sha256 sidecar",
         "measured": {
-          "receipts": 123,
+          "receipts": 135,
           "invalid": [],
           "invalid_count": 0
         },
         "correct": true,
-        "seconds": 0.02415900002233684,
+        "seconds": 0.027742299949750304,
         "evidence": "SHA-256 recomputation of every sealed receipt"
       },
       {
         "name": "w1_pass0_stratification",
         "category": "w1_pass0",
-        "expected": "four layouts are classified by a one-step Pass-0 probe before any long rollout",
+        "expected": "every validation layout is classified by one batched Pass-0 call before any long rollout",
         "measured": {
           "layouts": 4,
           "regimes": [
             0,
-            2
+            1
           ],
-          "pass0_ms": 15211.505699902773,
-          "selected_index": 2
+          "pass0_ms": 7.846100023016334,
+          "pass0_scan_ms": 601.7168000107631,
+          "selected_index": 2,
+          "probed_partners": 4
         },
         "correct": true,
-        "seconds": 1.2399978004395962e-05,
-        "evidence": "two-step run_telepathic_vla_episode per layout, no 24-step rollout"
+        "seconds": 9.400071576237679e-06,
+        "evidence": "one batched classify_action_regime_batch call plus one real partner probe"
       },
       {
         "name": "w1_counterfactual_regime_switch",
@@ -7787,7 +7886,7 @@
           "status": "verified"
         },
         "correct": true,
-        "seconds": 4.700035788118839e-06,
+        "seconds": 3.5999109968543053e-06,
         "evidence": "paired Action-KV counterfactual selected by Pass-0 stratification"
       },
       {
@@ -7795,7 +7894,7 @@
         "category": "w2_split_hygiene",
         "expected": "every document splits at its own cut with a six-token gap and no n-gram can straddle it",
         "measured": {
-          "documents": 34,
+          "documents": 35,
           "gap_tokens": 6,
           "gap_verified": true,
           "straddling_spans": 0,
@@ -7803,7 +7902,7 @@
           "reason": "a span of order <= 6 cannot hold an index on both sides of a 6-token gap"
         },
         "correct": true,
-        "seconds": 0.0721116999629885,
+        "seconds": 0.07699189998675138,
         "evidence": "stratified_segments reconstruction against the tokenizer"
       },
       {
@@ -7811,12 +7910,12 @@
         "category": "w2_split_hygiene",
         "expected": "the validation split holds both prose and code, so one modality cannot own the score",
         "measured": {
-          "code_val_tokens": 73904,
+          "code_val_tokens": 76508,
           "prose_val_tokens": 12878,
-          "code_fraction": 0.8516051715793598
+          "code_fraction": 0.8559282214216991
         },
         "correct": true,
-        "seconds": 9.00006853044033e-06,
+        "seconds": 8.500064723193645e-06,
         "evidence": "per-document tail token counts by file type"
       },
       {
@@ -7824,14 +7923,14 @@
         "category": "w2_split_hygiene",
         "expected": "the stratified held-out split clears the unchanged 0.45 top1 bar and the 0.6x char baseline",
         "measured": {
-          "tokens": 4871,
-          "top1": 0.5705194005337713,
-          "bits_per_char": 1.358050608413283,
+          "tokens": 4857,
+          "top1": 0.574840436483426,
+          "bits_per_char": 1.3363466518865152,
           "top1_bar": 0.45,
           "bpc_bar": 2.454708465195846
         },
         "correct": true,
-        "seconds": 7.828851299942471,
+        "seconds": 7.860301599954255,
         "evidence": "per-document contiguous tails, micro-averaged over the whole corpus"
       },
       {
@@ -7847,7 +7946,7 @@
           "gate_passed": true
         },
         "correct": true,
-        "seconds": 0.0007518000202253461,
+        "seconds": 0.0006336000515148044,
         "evidence": "receipts/holarch/w2_pytest_and_split_hygiene.json"
       },
       {
@@ -7859,7 +7958,7 @@
           "static_bpc": 1.223678623665999
         },
         "correct": true,
-        "seconds": 0.0005370000144466758,
+        "seconds": 0.00041119998786598444,
         "evidence": "sealed r3 receipt, not re-measured"
       },
       {
@@ -7890,7 +7989,7 @@
           "matches": 0
         },
         "correct": true,
-        "seconds": 0.00035610003396868706,
+        "seconds": 0.0016494999872520566,
         "evidence": "measured against TASK_TRANSFORMS, so the task is not relabelled"
       },
       {
@@ -7907,7 +8006,7 @@
           ]
         },
         "correct": true,
-        "seconds": 6.8999361246824265e-06,
+        "seconds": 6.500049494206905e-06,
         "evidence": "the audit reports its refusals instead of overfitting them"
       },
       {
@@ -7920,10 +8019,10 @@
           "traps": 4,
           "refused": 4,
           "residual_state": 0,
-          "sha256": "22b7f08159a486cf6b1f4e884346457d442ef9c1dd628ccbe2060dfb929c842c"
+          "sha256": "5018034b1ffba16a4d1d1f0e85c20df043e2b8443039448921e234b0cc9a4d4f"
         },
         "correct": true,
-        "seconds": 0.00029310001991689205,
+        "seconds": 0.0002762000076472759,
         "evidence": "receipts/holarch/v4_live_holon_plugin.json"
       },
       {
@@ -7938,7 +8037,7 @@
           "secret_in_receipt": false
         },
         "correct": true,
-        "seconds": 0.0001583000412210822,
+        "seconds": 0.0001390998950228095,
         "evidence": "sealed v3 credential receipt"
       },
       {
@@ -7951,7 +8050,7 @@
           "contiguous": true
         },
         "correct": true,
-        "seconds": 0.0011021000100299716,
+        "seconds": 0.0009420000715181231,
         "evidence": "the same guard as verify_holarch_consistency.py"
       },
       {
@@ -7959,12 +8058,12 @@
         "category": "w5_hygiene",
         "expected": "every sealed receipt still matches its SHA-256 sidecar",
         "measured": {
-          "receipts": 123,
+          "receipts": 135,
           "invalid": [],
           "invalid_count": 0
         },
         "correct": true,
-        "seconds": 0.023098899982869625,
+        "seconds": 0.02627919998485595,
         "evidence": "recomputed digest for every receipt"
       },
       {
@@ -7972,12 +8071,12 @@
         "category": "w2_split_hygiene",
         "expected": "the corpus the split reads is the digest-addressed local corpus, and the split never re-reads a file",
         "measured": {
-          "corpus_digest": "eacb3aaaafff58b1",
-          "documents": 34,
+          "corpus_digest": "47fa172003f65ec1",
+          "documents": 35,
           "reads": 1
         },
         "correct": true,
-        "seconds": 7.1999384090304375e-06,
+        "seconds": 7.899943739175797e-06,
         "evidence": "CodeTextCorpus.holarch reads once; the split is a pure function of it"
       },
       {
@@ -7991,7 +8090,7 @@
           "v1_total": 4
         },
         "correct": true,
-        "seconds": 0.00115430005826056,
+        "seconds": 0.0011843000538647175,
         "evidence": "live induction, zero text tokens"
       },
       {
@@ -8008,15 +8107,244 @@
           ],
           "passed": {
             "v1": true,
-            "v2": false,
+            "v2": true,
             "v3": false,
             "v4": true,
-            "v5": false
+            "v5": true
           }
         },
         "correct": true,
-        "seconds": 0.0002234999556094408,
+        "seconds": 0.0002452000044286251,
         "evidence": "receipts/holarch/v_cycle.json"
+      },
+      {
+        "name": "x1_shared_stem_four_mounts",
+        "category": "x1_shared_stem",
+        "expected": "one shared stem mounts all four arms in less than 50 ms each",
+        "measured": {
+          "mounts": 4,
+          "mount_ms": [
+            1.3246999587863684,
+            1.3826999347656965,
+            0.9532000403851271,
+            1.0647999588400126
+          ]
+        },
+        "correct": true,
+        "seconds": 0.0006127000087872148,
+        "evidence": "receipts/holarch/x1_live_four_arm_aaii_v5.json"
+      },
+      {
+        "name": "x1_arm3_beats_arm1",
+        "category": "x1_four_arm",
+        "expected": "the governed co-processor scores strictly above the raw live LLM",
+        "measured": {
+          "arm1_raw_llm": 0.375,
+          "arm3_henri_coprocessor": 0.5
+        },
+        "correct": true,
+        "seconds": 5.499925464391708e-06,
+        "evidence": "four-arm AAII v5.0 micro battery"
+      },
+      {
+        "name": "x1_arm3_beats_arm2",
+        "category": "x1_four_arm",
+        "expected": "the governed co-processor scores strictly above the RAG live LLM",
+        "measured": {
+          "arm2_rag_llm": 0.4375,
+          "arm3_henri_coprocessor": 0.5
+        },
+        "correct": true,
+        "seconds": 2.300017513334751e-06,
+        "evidence": "four-arm AAII v5.0 micro battery"
+      },
+      {
+        "name": "x1_zero_hallucination_and_secret",
+        "category": "x1_four_arm",
+        "expected": "arm0 and arm3 hallucinate at 0.0 and no receipt carries the API key",
+        "measured": {
+          "arm0": 0.0,
+          "arm3": 0.0,
+          "secret_leak_count": 0
+        },
+        "correct": true,
+        "seconds": 3.8000289350748062e-06,
+        "evidence": "arm-level hallucination counter and the receipt secret scan"
+      },
+      {
+        "name": "x2_wave_egress_organ",
+        "category": "x2_wave_egress",
+        "expected": "the wave-egress organ exists, imports and uses no autograd",
+        "measured": {
+          "module": true,
+          "autograd_used": false,
+          "markers": []
+        },
+        "correct": true,
+        "seconds": 7.109995931386948e-05,
+        "evidence": "receipts/holarch/x2_sovereign_wave_egress.json"
+      },
+      {
+        "name": "x2_sagnac_residual_reduced",
+        "category": "x2_wave_egress",
+        "expected": "the contrastive learner lowers the Sagnac homodyne residual",
+        "measured": {
+          "initial": 0.49919950460275153,
+          "final": 0.4849328781262236
+        },
+        "correct": true,
+        "seconds": 2.600019797682762e-06,
+        "evidence": "sagnac_curve in the X2 receipt"
+      },
+      {
+        "name": "x2_override_net_win_positive",
+        "category": "x2_wave_egress",
+        "expected": "the gated override fixes more floor tokens than it breaks",
+        "measured": {
+          "overrides": 618,
+          "wins": 314,
+          "losses": 71,
+          "net": 243
+        },
+        "correct": true,
+        "seconds": 2.700020559132099e-06,
+        "evidence": "held-out W2 stratified split"
+      },
+      {
+        "name": "x2_beats_count_floor_both_axes",
+        "category": "x2_wave_egress",
+        "expected": "the standalone egress beats the count floor on top-1 and bits-per-char",
+        "measured": {
+          "top1_wave": 0.6109747545582047,
+          "top1_floor": 0.5683730715287517,
+          "bpc_wave": 2.8042834316273515,
+          "bpc_floor": 3.0209420010674446
+        },
+        "correct": true,
+        "seconds": 2.500019036233425e-06,
+        "evidence": "held-out W2 stratified split, no clamp"
+      },
+      {
+        "name": "x3_twelve_of_twelve",
+        "category": "x3_onecell",
+        "expected": "all twelve one-cell tasks are induced and generalised",
+        "measured": {
+          "solved": 12,
+          "generalized": 12,
+          "v1": 12
+        },
+        "correct": true,
+        "seconds": 4.600035026669502e-06,
+        "evidence": "receipts/holarch/x3_twelve_of_twelve_turing.json"
+      },
+      {
+        "name": "x3_carry_add_generalized",
+        "category": "x3_onecell",
+        "expected": "two_bit_carry_add is induced by the carry latch and generalises 4/4",
+        "measured": {
+          "name": "two_bit_carry_add",
+          "status": "INDUCED",
+          "mechanism": "carry_latch_macro",
+          "nodes": 12036,
+          "states": 12,
+          "test_exact": 1,
+          "v1_exact": 4,
+          "v1_total": 4,
+          "text_tokens": 0
+        },
+        "correct": true,
+        "seconds": 2.6999041438102722e-06,
+        "evidence": "Q = Qctrl x R_sym x C_latch with full_add"
+      },
+      {
+        "name": "x3_delimiter_copy_generalized",
+        "category": "x3_onecell",
+        "expected": "delimiter_bounded_copy is induced by ripple_insert and generalises 4/4",
+        "measured": {
+          "name": "delimiter_bounded_copy",
+          "status": "INDUCED",
+          "mechanism": "ripple_insert_macro",
+          "nodes": 13332,
+          "states": 81,
+          "test_exact": 1,
+          "v1_exact": 4,
+          "v1_total": 4,
+          "text_tokens": 0
+        },
+        "correct": true,
+        "seconds": 2.100015990436077e-06,
+        "evidence": "strict one-cell swap-and-ripple sweep"
+      },
+      {
+        "name": "x3_strict_one_cell_and_budget",
+        "category": "x3_onecell",
+        "expected": "one-cell invariant holds, the node budget is respected and no text token is used",
+        "measured": {
+          "strict": true,
+          "max_nodes": 13332,
+          "text_tokens": 0,
+          "rows": 1775
+        },
+        "correct": true,
+        "seconds": 2.800021320581436e-06,
+        "evidence": "table move and write audit"
+      },
+      {
+        "name": "x4_pass0_batch_under_50ms",
+        "category": "x4_pass0_batch",
+        "expected": "the batched Pass-0 classification of every validation layout stays under 50 ms",
+        "measured": {
+          "layouts": 4,
+          "pass0_ms": 7.846100023016334
+        },
+        "correct": true,
+        "seconds": 2.600019797682762e-06,
+        "evidence": "classify_action_regime_batch, one encode call"
+      },
+      {
+        "name": "x4_pass0_scan_under_1500ms",
+        "category": "x4_pass0_batch",
+        "expected": "the Pass-0 scan including one real partner probe stays under 1500 ms",
+        "measured": {
+          "scan_ms": 601.7168000107631,
+          "probed_partners": 4
+        },
+        "correct": true,
+        "seconds": 2.00001522898674e-06,
+        "evidence": "batched classification plus one run_telepathic_vla_episode"
+      },
+      {
+        "name": "x4_counterfactual_switch_preserved",
+        "category": "x4_pass0_batch",
+        "expected": "the zero-text-token Action-KV swap still changes the emitted operator",
+        "measured": {
+          "from_regime": 0,
+          "to_regime": 2,
+          "from_operator": "+",
+          "to_operator": "*"
+        },
+        "correct": true,
+        "seconds": 2.300017513334751e-06,
+        "evidence": "paired Action-KV counterfactual"
+      },
+      {
+        "name": "x4_step_latency_median_under_1ms",
+        "category": "x4_pass0_batch",
+        "expected": "the wave-Turing step stays under 1 ms at median over five warm runs",
+        "measured": {
+          "runs": [
+            0.5483,
+            0.5589,
+            0.559,
+            0.5588,
+            0.5476
+          ],
+          "median_ms": 0.5588380985760263,
+          "max_ms": 0.5590047665117751
+        },
+        "correct": true,
+        "seconds": 0.10132619994692504,
+        "evidence": "two warm-up runs then five measured runs"
       }
     ]
   },
@@ -8205,63 +8533,85 @@
     "w2_corpus_digest_stable": true,
     "w3_swap_still_generalises": true,
     "w5_cycle_ledgers_present": true,
-    "queries_240": true,
-    "probes_164_present": true,
+    "x1_shared_stem_four_mounts": true,
+    "x1_arm3_beats_arm1": true,
+    "x1_arm3_beats_arm2": true,
+    "x1_zero_hallucination_and_secret": true,
+    "x2_wave_egress_organ": true,
+    "x2_sagnac_residual_reduced": true,
+    "x2_override_net_win_positive": true,
+    "x2_beats_count_floor_both_axes": true,
+    "x3_twelve_of_twelve": true,
+    "x3_carry_add_generalized": true,
+    "x3_delimiter_copy_generalized": true,
+    "x3_strict_one_cell_and_budget": true,
+    "x4_pass0_batch_under_50ms": true,
+    "x4_pass0_scan_under_1500ms": true,
+    "x4_counterfactual_switch_preserved": true,
+    "x4_step_latency_median_under_1ms": true,
+    "queries_256": true,
+    "probes_180_present": true,
+    "wall_le_160": true,
     "passed": true
   },
-  "wall_seconds": 176.7959951000521,
+  "wall_seconds": 131.3290968000656,
   "evidence": "OBSERVED",
   "category_ms": {
-    "j1_cleanroom": 14318.227599957027,
-    "j2_elastic_vocab": 68.29730002209544,
-    "j3_diverse_dag": 31.8962000310421,
-    "j4_openai_adapter": 407.89479995146394,
-    "k1_multitask": 8078.813700005412,
-    "k2_boundary_axioms": 1264.21679998748,
-    "k3_vla_dag": 2.1442000288516283,
-    "k4_rebase_concurrency": 1792.111900052987,
-    "m1_online_repulsor": 57720.695399912074,
-    "m2_low_latency": 1969.225600012578,
-    "m3_full_reference": 1.1572999646887183,
-    "m4_guard_ast": 54.85900002531707,
-    "o1_swat": 401.3632000423968,
-    "o2_api_epoch": 267.58370001334697,
-    "o3_language": 432.02730000484735,
-    "o4_holonic": 1263.8490999815986,
-    "p1_language": 0.04600000102072954,
-    "p2_telepathy": 227.70099993795156,
-    "p3_telepathic_vla": 5843.75140001066,
-    "p4_holon": 319.86580009106547,
-    "q1_telepathy": 199.27319989074022,
-    "q2_causal_vla": 25982.715300051495,
-    "q3_language": 0.6835999665781856,
-    "q4_aaii": 11794.294200022705,
-    "r1_telepathy": 0.2766000106930733,
-    "r2_causal_vla": 0.19920000340789557,
-    "r3_language": 0.3427000483497977,
-    "r4_aaii": 0.8106000022962689,
-    "s1_language": 3.221999970264733,
-    "s2_turing": 1003.8714000256732,
-    "s3_charts": 875.7947999984026,
-    "s4_suite": 1.0721998987719417,
-    "t1_hygiene": 11.84849999845028,
-    "t2_centered_charts": 266.09300007112324,
-    "t3_induction": 36.8282999843359,
-    "t4_coprocessor": 21.965299965813756,
-    "u2_condensed_charts": 15.752100036479533,
-    "u3_onecell": 1.2107000220566988,
-    "u4_ccg_sheaf": 19.609799957834184,
-    "u5_coprocessor": 0.6890000076964498,
-    "v1_onecell": 1386.6327999858186,
-    "v2_decoupled_sweeps": 12.22650008276105,
-    "v2_python_dispatch": 2.0786999957636,
-    "v3_credential_boundary": 32.94209996238351,
-    "v4_holon_wiring": 1.8022999865934253,
-    "v5_hygiene": 25.14569996856153,
-    "w1_pass0": 0.0171000137925148,
-    "w2_split_hygiene": 7902.267999947071,
-    "w3_onecell": 1.5173000283539295,
-    "w4_holon": 0.45140006113797426,
-    "w5_hygiene": 24.424499948509037
+    "j1_cleanroom": 14642.173000029288,
+    "j2_elastic_vocab": 89.79090000502765,
+    "j3_diverse_dag": 27.689200011081994,
+    "j4_openai_adapter": 339.6375998854637,
+    "k1_multitask": 8250.211200094782,
+    "k2_boundary_axioms": 1274.2539999308065,
+    "k3_vla_dag": 2.1798000670969486,
+    "k4_rebase_concurrency": 1696.9221999170259,
+    "m1_online_repulsor": 36369.632499990985,
+    "m2_low_latency": 2012.56500009913,
+    "m3_full_reference": 1.3155000051483512,
+    "m4_guard_ast": 55.392000009305775,
+    "o1_swat": 389.4201999064535,
+    "o2_api_epoch": 239.69279997982085,
+    "o3_language": 379.4566000578925,
+    "o4_holonic": 1336.998000042513,
+    "p1_language": 0.05349994171410799,
+    "p2_telepathy": 228.5971000092104,
+    "p3_telepathic_vla": 2167.236499954015,
+    "p4_holon": 299.9589000828564,
+    "q1_telepathy": 200.8155999938026,
+    "q2_causal_vla": 3935.585599974729,
+    "q3_language": 0.5411000456660986,
+    "q4_aaii": 11835.70159994997,
+    "r1_telepathy": 0.3408000338822603,
+    "r2_causal_vla": 0.21670002024620771,
+    "r3_language": 0.35399990156292915,
+    "r4_aaii": 0.8633000543341041,
+    "s1_language": 3.4467000514268875,
+    "s2_turing": 968.3436999330297,
+    "s3_charts": 912.1965999947861,
+    "s4_suite": 1.0863000061362982,
+    "t1_hygiene": 12.468000059016049,
+    "t2_centered_charts": 258.8011999614537,
+    "t3_induction": 35.082199960015714,
+    "t4_coprocessor": 18.997900071553886,
+    "u2_condensed_charts": 15.93180000782013,
+    "u3_onecell": 1.3609000016003847,
+    "u4_ccg_sheaf": 20.09929995983839,
+    "u5_coprocessor": 3.9857999654486775,
+    "v1_onecell": 1369.5094999857247,
+    "v2_decoupled_sweeps": 12.214899994432926,
+    "v2_python_dispatch": 1.893899985589087,
+    "v3_credential_boundary": 36.135800066404045,
+    "v4_holon_wiring": 2.528300043195486,
+    "v5_hygiene": 29.069799929857254,
+    "w1_pass0": 0.012999982573091984,
+    "w2_split_hygiene": 7938.3546999888495,
+    "w3_onecell": 2.840300090610981,
+    "w4_holon": 0.41529990267008543,
+    "w5_hygiene": 27.466400060802698,
+    "x1_four_arm": 0.011599971912801266,
+    "x1_shared_stem": 0.6127000087872148,
+    "x2_wave_egress": 0.07890001870691776,
+    "x3_onecell": 0.012199976481497288,
+    "x4_pass0_batch": 101.33309999946505
   }
 }

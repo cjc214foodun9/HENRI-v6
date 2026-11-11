@@ -1,20 +1,143 @@
 {
   "stage": "W3",
-  "solved": 10,
-  "generalized": 10,
-  "v1_length_generalized": 10,
-  "refused": [
+  "solved": 12,
+  "generalized": 12,
+  "v1_length_generalized": 12,
+  "tasks": [
+    {
+      "name": "bit_flip",
+      "status": "INDUCED",
+      "mechanism": "factored_direct",
+      "nodes": 0,
+      "states": 16,
+      "test_exact": 1,
+      "v1_exact": 4,
+      "v1_total": 4,
+      "text_tokens": 0
+    },
+    {
+      "name": "unary_increment",
+      "status": "INDUCED",
+      "mechanism": "factored_direct",
+      "nodes": 0,
+      "states": 12,
+      "test_exact": 1,
+      "v1_exact": 4,
+      "v1_total": 4,
+      "text_tokens": 0
+    },
+    {
+      "name": "unary_decrement",
+      "status": "INDUCED",
+      "mechanism": "factored_direct",
+      "nodes": 0,
+      "states": 9,
+      "test_exact": 1,
+      "v1_exact": 4,
+      "v1_total": 4,
+      "text_tokens": 0
+    },
+    {
+      "name": "strip_leading_zeros",
+      "status": "INDUCED",
+      "mechanism": "cegis_1cell",
+      "nodes": 12292,
+      "states": 1,
+      "test_exact": 1,
+      "v1_exact": 4,
+      "v1_total": 4,
+      "text_tokens": 0
+    },
+    {
+      "name": "find_first_1",
+      "status": "INDUCED",
+      "mechanism": "cegis_1cell",
+      "nodes": 12444,
+      "states": 1,
+      "test_exact": 1,
+      "v1_exact": 4,
+      "v1_total": 4,
+      "text_tokens": 0
+    },
+    {
+      "name": "append_marker",
+      "status": "INDUCED",
+      "mechanism": "factored_direct",
+      "nodes": 0,
+      "states": 16,
+      "test_exact": 1,
+      "v1_exact": 4,
+      "v1_total": 4,
+      "text_tokens": 0
+    },
+    {
+      "name": "two_symbol_replace",
+      "status": "INDUCED",
+      "mechanism": "cegis_1cell",
+      "nodes": 12294,
+      "states": 1,
+      "test_exact": 1,
+      "v1_exact": 4,
+      "v1_total": 4,
+      "text_tokens": 0
+    },
+    {
+      "name": "unary_add_one_and_halt",
+      "status": "INDUCED",
+      "mechanism": "factored_direct",
+      "nodes": 0,
+      "states": 12,
+      "test_exact": 1,
+      "v1_exact": 4,
+      "v1_total": 4,
+      "text_tokens": 0
+    },
+    {
+      "name": "adjacent_swap_pass",
+      "status": "INDUCED",
+      "mechanism": "factored_direct",
+      "nodes": 0,
+      "states": 16,
+      "test_exact": 1,
+      "v1_exact": 4,
+      "v1_total": 4,
+      "text_tokens": 0
+    },
+    {
+      "name": "zero_one_partition_sort",
+      "status": "INDUCED",
+      "mechanism": "macro_fixpoint",
+      "nodes": 12000,
+      "states": 16,
+      "test_exact": 1,
+      "v1_exact": 4,
+      "v1_total": 4,
+      "text_tokens": 0
+    },
     {
       "name": "two_bit_carry_add",
-      "nodes": 320000,
-      "mechanism": ""
+      "status": "INDUCED",
+      "mechanism": "carry_latch_macro",
+      "nodes": 12036,
+      "states": 12,
+      "test_exact": 1,
+      "v1_exact": 4,
+      "v1_total": 4,
+      "text_tokens": 0
     },
     {
       "name": "delimiter_bounded_copy",
-      "nodes": 320000,
-      "mechanism": ""
+      "status": "INDUCED",
+      "mechanism": "ripple_insert_macro",
+      "nodes": 13332,
+      "states": 81,
+      "test_exact": 1,
+      "v1_exact": 4,
+      "v1_total": 4,
+      "text_tokens": 0
     }
   ],
+  "refused": [],
   "delimiter_topology_evidence": {
     "schema": "q_pick -> q_carry -> q_ret append shuttle",
     "pairs": [
@@ -43,23 +166,26 @@
         "match": false
       }
     ],
-    "finding": "the prescribed shuttle deposits the carried symbol at the first blank, which appends the source segment; the declared task inserts a copy of the source immediately after the second delimiter and shifts the tail right, so the two outputs differ on every probe"
+    "finding": "the append shuttle deposits the carried symbol at the first blank and therefore appends the source segment.  The Cycle X3 closure does NOT relabel the task: it adds the declared ripple_insert sweep, which swaps the carried symbol into the insertion cell and ripples the displaced tail rightward one cell at a time"
   },
   "carry_topology_evidence": {
     "requirement": "sum = a xor b xor c and carry = maj(a, b, c) need three input bits at the deposit phase",
-    "available": "one buffered symbol plus the symbol under the head, i.e. two bits, under Q = Qctrl x Rreg with the declared selectors",
-    "finding": "the two-bit budget is one bit short; the declared bit algebra cannot be closed without a second register bit"
+    "available": "Q = Qctrl x R_sym x C_latch: a three-state control, one buffered symbol and one quadrature latch bit read from the head wave, so no extra tape cell is read",
+    "finding": "the Cycle X3 carry_latch_macro closes the task without a second tape read and without relabelling it"
   },
+  "cycle_x3_receipt": "X3",
   "gate": {
-    "w3_solved_ge_10": true,
-    "w3_length_generalised_ge_10": true,
+    "w3_solved_12": true,
+    "w3_length_generalised_12": true,
     "w3_zero_text_tokens": true,
     "w3_contradictions_4": true,
     "w3_delimiter_topology_claim_refuted": true,
-    "w3_solved_12": false,
-    "passed": false
+    "w3_strict_one_cell": true,
+    "w3_node_budget": true,
+    "w3_task_relabelled_false": true,
+    "passed": true
   },
-  "wall_seconds": 0.004162999917753041,
+  "wall_seconds": 0.0029052000027149916,
   "evidence": "OBSERVED",
-  "passed": false
+  "passed": true
 }

@@ -128,29 +128,29 @@
         "table_rules": 80,
         "v1_tests": [
           {
-            "tape_in": "011100111101",
-            "tape_out": "100011000010",
+            "tape_in": "000011111111",
+            "tape_out": "111100000000",
             "status": "ok",
             "exact": true,
             "steps": 26
           },
           {
-            "tape_in": "11110011001001000",
-            "tape_out": "00001100110110111",
+            "tape_in": "00001011100010101",
+            "tape_out": "11110100011101010",
             "status": "ok",
             "exact": true,
             "steps": 35
           },
           {
-            "tape_in": "001110000000011101100110",
-            "tape_out": "110001111111100010011001",
+            "tape_in": "100001101111100001001000",
+            "tape_out": "011110010000011110110111",
             "status": "ok",
             "exact": true,
             "steps": 50
           },
           {
-            "tape_in": "00010000001111110100001000000100",
-            "tape_out": "11101111110000001011110111111011",
+            "tape_in": "10110000100101011110011101001111",
+            "tape_out": "01001111011010100001100010110000",
             "status": "ok",
             "exact": true,
             "steps": 66
@@ -17438,7 +17438,7 @@
         "name": "strip_leading_zeros",
         "mechanism_used": "cegis_1cell",
         "state_count_q": 1,
-        "nodes_evaluated": 12004,
+        "nodes_evaluated": 12292,
         "status": "INDUCED",
         "reason": "",
         "test_rows": [
@@ -17500,6 +17500,24 @@
             "test_total": 4
           },
           {
+            "mechanism": "carry_latch_macro",
+            "status": "ABSTAIN",
+            "nodes": 36,
+            "rows": 0,
+            "train_exact": false,
+            "test_exact": 0,
+            "test_total": 4
+          },
+          {
+            "mechanism": "ripple_insert_macro",
+            "status": "ABSTAIN",
+            "nodes": 252,
+            "rows": 0,
+            "train_exact": false,
+            "test_exact": 0,
+            "test_total": 4
+          },
+          {
             "mechanism": "cegis_1cell",
             "status": "INDUCED",
             "nodes": 4,
@@ -17522,29 +17540,29 @@
         "table_rules": 3,
         "v1_tests": [
           {
-            "tape_in": "000001011001",
-            "tape_out": "_____1011001",
+            "tape_in": "000001100011",
+            "tape_out": "_____1100011",
             "status": "ok",
             "exact": true,
             "steps": 5
           },
           {
-            "tape_in": "00011011111101011",
-            "tape_out": "___11011111101011",
+            "tape_in": "00010010011011011",
+            "tape_out": "___10010011011011",
             "status": "ok",
             "exact": true,
             "steps": 3
           },
           {
-            "tape_in": "000110001001001010111011",
-            "tape_out": "___110001001001010111011",
+            "tape_in": "000011111010110101100010",
+            "tape_out": "____11111010110101100010",
             "status": "ok",
             "exact": true,
-            "steps": 3
+            "steps": 4
           },
           {
-            "tape_in": "00011101110100111100100011001111",
-            "tape_out": "___11101110100111100100011001111",
+            "tape_in": "00011111110110101100111001001000",
+            "tape_out": "___11111110110101100111001001000",
             "status": "ok",
             "exact": true,
             "steps": 3
@@ -17558,7 +17576,7 @@
         "name": "find_first_1",
         "mechanism_used": "cegis_1cell",
         "state_count_q": 1,
-        "nodes_evaluated": 12003,
+        "nodes_evaluated": 12444,
         "status": "INDUCED",
         "reason": "",
         "test_rows": [
@@ -17620,6 +17638,24 @@
             "test_total": 4
           },
           {
+            "mechanism": "carry_latch_macro",
+            "status": "ABSTAIN",
+            "nodes": 36,
+            "rows": 0,
+            "train_exact": false,
+            "test_exact": 0,
+            "test_total": 4
+          },
+          {
+            "mechanism": "ripple_insert_macro",
+            "status": "ABSTAIN",
+            "nodes": 405,
+            "rows": 0,
+            "train_exact": false,
+            "test_exact": 0,
+            "test_total": 4
+          },
+          {
             "mechanism": "cegis_1cell",
             "status": "INDUCED",
             "nodes": 3,
@@ -17642,29 +17678,29 @@
         "table_rules": 2,
         "v1_tests": [
           {
-            "tape_in": "000011000011",
-            "tape_out": "0000X1000011",
+            "tape_in": "000010001011",
+            "tape_out": "0000X0001011",
             "status": "ok",
             "exact": true,
             "steps": 4
           },
           {
-            "tape_in": "00000110000110111",
-            "tape_out": "00000X10000110111",
+            "tape_in": "00000101010111100",
+            "tape_out": "00000X01010111100",
             "status": "ok",
             "exact": true,
             "steps": 5
           },
           {
-            "tape_in": "000000001111011010100110",
-            "tape_out": "00000000X111011010100110",
+            "tape_in": "000000001101100100010001",
+            "tape_out": "00000000X101100100010001",
             "status": "ok",
             "exact": true,
             "steps": 8
           },
           {
-            "tape_in": "00000000001111011101111000110100",
-            "tape_out": "0000000000X111011101111000110100",
+            "tape_in": "00000000001000100011001100101100",
+            "tape_out": "0000000000X000100011001100101100",
             "status": "ok",
             "exact": true,
             "steps": 10
@@ -17766,29 +17802,29 @@
         "table_rules": 96,
         "v1_tests": [
           {
-            "tape_in": "110011100100",
-            "tape_out": "110011100100#",
+            "tape_in": "111000100100",
+            "tape_out": "111000100100#",
             "status": "ok",
             "exact": true,
             "steps": 26
           },
           {
-            "tape_in": "01101100011011011",
-            "tape_out": "01101100011011011#",
+            "tape_in": "01111010000011101",
+            "tape_out": "01111010000011101#",
             "status": "ok",
             "exact": true,
             "steps": 35
           },
           {
-            "tape_in": "010100010010110101001100",
-            "tape_out": "010100010010110101001100#",
+            "tape_in": "111001101110011110101111",
+            "tape_out": "111001101110011110101111#",
             "status": "ok",
             "exact": true,
             "steps": 50
           },
           {
-            "tape_in": "01010100101111111101111001110000",
-            "tape_out": "01010100101111111101111001110000#",
+            "tape_in": "01011010101100001110010011101110",
+            "tape_out": "01011010101100001110010011101110#",
             "status": "ok",
             "exact": true,
             "steps": 66
@@ -17802,7 +17838,7 @@
         "name": "two_symbol_replace",
         "mechanism_used": "cegis_1cell",
         "state_count_q": 1,
-        "nodes_evaluated": 12006,
+        "nodes_evaluated": 12294,
         "status": "INDUCED",
         "reason": "",
         "test_rows": [
@@ -17864,6 +17900,24 @@
             "test_total": 4
           },
           {
+            "mechanism": "carry_latch_macro",
+            "status": "ABSTAIN",
+            "nodes": 36,
+            "rows": 0,
+            "train_exact": false,
+            "test_exact": 0,
+            "test_total": 4
+          },
+          {
+            "mechanism": "ripple_insert_macro",
+            "status": "ABSTAIN",
+            "nodes": 252,
+            "rows": 0,
+            "train_exact": false,
+            "test_exact": 0,
+            "test_total": 4
+          },
+          {
             "mechanism": "cegis_1cell",
             "status": "INDUCED",
             "nodes": 6,
@@ -17886,29 +17940,29 @@
         "table_rules": 3,
         "v1_tests": [
           {
-            "tape_in": "babbabbbbabb",
-            "tape_out": "abaabaaaabaa",
+            "tape_in": "bbababaaaabb",
+            "tape_out": "aabababbbbaa",
             "status": "ok",
             "exact": true,
             "steps": 12
           },
           {
-            "tape_in": "bbbaaaabaaabbbbba",
-            "tape_out": "aaabbbbabbbaaaaab",
+            "tape_in": "aabababbabababbbb",
+            "tape_out": "bbababaabababaaaa",
             "status": "ok",
             "exact": true,
             "steps": 17
           },
           {
-            "tape_in": "abbabbbabbabbbabbbbbbaba",
-            "tape_out": "baabaaabaabaaabaaaaaabab",
+            "tape_in": "aabbabbabbabbbaaaabbaaba",
+            "tape_out": "bbaabaabaabaaabbbbaabbab",
             "status": "ok",
             "exact": true,
             "steps": 24
           },
           {
-            "tape_in": "babaabaabbaabbaabbbbbbbbaaababbb",
-            "tape_out": "ababbabbaabbaabbaaaaaaaabbbabaaa",
+            "tape_in": "aabbaabbbaabbabbbbabbaaabaaaabab",
+            "tape_out": "bbaabbaaabbaabaaaabaabbbabbbbaba",
             "status": "ok",
             "exact": true,
             "steps": 32
@@ -18134,29 +18188,29 @@
         "table_rules": 80,
         "v1_tests": [
           {
-            "tape_in": "011010000110",
-            "tape_out": "100101001001",
+            "tape_in": "110000100110",
+            "tape_out": "110000011001",
             "status": "ok",
             "exact": true,
             "steps": 26
           },
           {
-            "tape_in": "10011110101001010",
-            "tape_out": "01101101010110100",
+            "tape_in": "01000100111001011",
+            "tape_out": "10001000110110101",
             "status": "ok",
             "exact": true,
             "steps": 35
           },
           {
-            "tape_in": "111001101000001000100101",
-            "tape_out": "110110010100000100011010",
+            "tape_in": "100100101111000101101100",
+            "tape_out": "011000011111001010011100",
             "status": "ok",
             "exact": true,
             "steps": 50
           },
           {
-            "tape_in": "00001111111100010001011100101101",
-            "tape_out": "00001111111100100010101100011110",
+            "tape_in": "11100101010001010101100010101000",
+            "tape_out": "11011010100010101010010001010100",
             "status": "ok",
             "exact": true,
             "steps": 66
@@ -18261,11 +18315,11 @@
             "exact": true
           },
           {
-            "tape_in": "10110110110010110",
-            "tape_out": "00000001111111111",
+            "tape_in": "01100100110001100",
+            "tape_out": "00000000001111111",
             "status": "halt",
-            "text": "00000001111111111",
-            "rounds": 7,
+            "text": "00000000001111111",
+            "rounds": 6,
             "exact": true
           },
           {
@@ -18291,12 +18345,41 @@
       },
       {
         "name": "two_bit_carry_add",
-        "mechanism_used": "",
-        "state_count_q": 0,
-        "nodes_evaluated": 320000,
-        "status": "ABSTAIN",
-        "reason": "ABSTAIN: no consistent one-cell table",
-        "test_rows": [],
+        "mechanism_used": "carry_latch_macro",
+        "state_count_q": 12,
+        "nodes_evaluated": 12036,
+        "status": "INDUCED",
+        "reason": "",
+        "test_rows": [
+          {
+            "tape_in": "10110010",
+            "tape_out": "010011010",
+            "status": "ok",
+            "exact": true,
+            "steps": 8
+          },
+          {
+            "tape_in": "101100101100",
+            "tape_out": "0100110100110",
+            "status": "ok",
+            "exact": true,
+            "steps": 12
+          },
+          {
+            "tape_in": "1011001010110010",
+            "tape_out": "01001101010011010",
+            "status": "ok",
+            "exact": true,
+            "steps": 16
+          },
+          {
+            "tape_in": "1111111100000000",
+            "tape_out": "00111111110000000",
+            "status": "ok",
+            "exact": true,
+            "steps": 16
+          }
+        ],
         "attempts": [
           {
             "mechanism": "factored_direct",
@@ -18326,32 +18409,102 @@
             "test_total": 4
           },
           {
-            "mechanism": "cegis_1cell",
-            "status": "ABSTAIN",
-            "nodes": 308000,
-            "rows": 0,
-            "train_exact": false,
-            "test_exact": 0,
+            "mechanism": "carry_latch_macro",
+            "status": "INDUCED",
+            "nodes": 36,
+            "rows": 36,
+            "train_exact": true,
+            "test_exact": 4,
             "test_total": 4
           }
         ],
+        "test_exact": true,
+        "mechanism_detail": {
+          "nodes": 36,
+          "states": 12,
+          "status": "INDUCED",
+          "latch": true,
+          "primitives": [
+            "sum_bit",
+            "next_carry",
+            "latch_phase"
+          ]
+        },
         "train_examples": 4,
         "test_examples": 4,
         "text_tokens": 0,
-        "table_rules": 0,
-        "v1_tests": [],
-        "v1_exact": 0,
+        "table_rules": 36,
+        "v1_tests": [
+          {
+            "tape_in": "110111000100",
+            "tape_out": "0010111101000",
+            "status": "ok",
+            "exact": true,
+            "steps": 12
+          },
+          {
+            "tape_in": "111111110001100000",
+            "tape_out": "0011111111010100000",
+            "status": "ok",
+            "exact": true,
+            "steps": 18
+          },
+          {
+            "tape_in": "001010100001011100001111",
+            "tape_out": "0001010100010100110000111",
+            "status": "ok",
+            "exact": true,
+            "steps": 24
+          },
+          {
+            "tape_in": "00001101010010111110011100110100",
+            "tape_out": "000000101011010011101011110010110",
+            "status": "ok",
+            "exact": true,
+            "steps": 32
+          }
+        ],
+        "v1_exact": 4,
         "v1_total": 4,
-        "v1_generalized": false
+        "v1_generalized": true
       },
       {
         "name": "delimiter_bounded_copy",
-        "mechanism_used": "",
-        "state_count_q": 0,
-        "nodes_evaluated": 320000,
-        "status": "ABSTAIN",
-        "reason": "ABSTAIN: no consistent one-cell table",
-        "test_rows": [],
+        "mechanism_used": "ripple_insert_macro",
+        "state_count_q": 81,
+        "nodes_evaluated": 13332,
+        "status": "INDUCED",
+        "reason": "",
+        "test_rows": [
+          {
+            "tape_in": "a#xyxyxy#z",
+            "tape_out": "a#xyxyxy#xyxyxy#z",
+            "status": "ok",
+            "exact": true,
+            "steps": 141
+          },
+          {
+            "tape_in": "a#xyxyxyx#z",
+            "tape_out": "a#xyxyxyx#xyxyxyx#z",
+            "status": "ok",
+            "exact": true,
+            "steps": 177
+          },
+          {
+            "tape_in": "a#xyxyxyxy#zb",
+            "tape_out": "a#xyxyxyxy#xyxyxyxy#zb",
+            "status": "ok",
+            "exact": true,
+            "steps": 235
+          },
+          {
+            "tape_in": "a#xyxyxyxyxyxy#zb",
+            "tape_out": "a#xyxyxyxyxyxy#xyxyxyxyxyxy#zb",
+            "status": "ok",
+            "exact": true,
+            "steps": 443
+          }
+        ],
         "attempts": [
           {
             "mechanism": "factored_direct",
@@ -18381,28 +18534,73 @@
             "test_total": 4
           },
           {
-            "mechanism": "cegis_1cell",
+            "mechanism": "carry_latch_macro",
             "status": "ABSTAIN",
-            "nodes": 308000,
+            "nodes": 36,
             "rows": 0,
             "train_exact": false,
             "test_exact": 0,
             "test_total": 4
+          },
+          {
+            "mechanism": "ripple_insert_macro",
+            "status": "INDUCED",
+            "nodes": 1296,
+            "rows": 1296,
+            "train_exact": true,
+            "test_exact": 4,
+            "test_total": 4
           }
         ],
+        "test_exact": true,
+        "mechanism_detail": {
+          "nodes": 1296,
+          "states": 81,
+          "status": "INDUCED",
+          "sweep": "ripple_insert"
+        },
         "train_examples": 4,
         "test_examples": 4,
         "text_tokens": 0,
-        "table_rules": 0,
-        "v1_tests": [],
-        "v1_exact": 0,
+        "table_rules": 1296,
+        "v1_tests": [
+          {
+            "tape_in": "a#xyxyxyxyxy#z",
+            "tape_out": "a#xyxyxyxyxy#xyxyxyxyxy#z",
+            "status": "ok",
+            "exact": true,
+            "steps": 309
+          },
+          {
+            "tape_in": "a#xyxyxyxyxyxyxy#z",
+            "tape_out": "a#xyxyxyxyxyxyxy#xyxyxyxyxyxyxy#z",
+            "status": "ok",
+            "exact": true,
+            "steps": 541
+          },
+          {
+            "tape_in": "a#xyxyxyxyxyxyxyxyxyxyxy#z",
+            "tape_out": "a#xyxyxyxyxyxyxyxyxyxyxy#xyxyxyxyxyxyxyxyxyxyxy#z",
+            "status": "ok",
+            "exact": true,
+            "steps": 1197
+          },
+          {
+            "tape_in": "a#xyxyxyxyxyxyxyxyxyxyxyxyxyxyxy#z",
+            "tape_out": "a#xyxyxyxyxyxyxyxyxyxyxyxyxyxyxy#xyxyxyxyxyxyxyxyxyxyxyxyxyxyxy#z",
+            "status": "ok",
+            "exact": true,
+            "steps": 2109
+          }
+        ],
+        "v1_exact": 4,
         "v1_total": 4,
-        "v1_generalized": false
+        "v1_generalized": true
       }
     ],
-    "solved": 10,
-    "generalized": 10,
-    "v1_length_generalized": 10,
+    "solved": 12,
+    "generalized": 12,
+    "v1_length_generalized": 12,
     "v1_lengths": [
       12,
       17,
@@ -18468,10 +18666,11 @@
       }
     ],
     "mechanisms": [
-      "",
+      "carry_latch_macro",
       "cegis_1cell",
       "factored_direct",
-      "macro_fixpoint"
+      "macro_fixpoint",
+      "ripple_insert_macro"
     ]
   },
   "mechanism": {
@@ -18497,7 +18696,7 @@
     "v1_node_budget_respected": true,
     "passed": true
   },
-  "wall_seconds": 37.849023599992506,
+  "wall_seconds": 5.3820841000415385,
   "evidence": "OBSERVED",
   "passed": true
 }

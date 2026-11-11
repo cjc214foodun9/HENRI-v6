@@ -1,0 +1,233 @@
+{
+  "stage": "X3",
+  "tasks": [
+    {
+      "name": "bit_flip",
+      "status": "INDUCED",
+      "mechanism": "factored_direct",
+      "nodes": 0,
+      "states": 16,
+      "test_exact": 1,
+      "v1_exact": 4,
+      "v1_total": 4,
+      "text_tokens": 0
+    },
+    {
+      "name": "unary_increment",
+      "status": "INDUCED",
+      "mechanism": "factored_direct",
+      "nodes": 0,
+      "states": 12,
+      "test_exact": 1,
+      "v1_exact": 4,
+      "v1_total": 4,
+      "text_tokens": 0
+    },
+    {
+      "name": "unary_decrement",
+      "status": "INDUCED",
+      "mechanism": "factored_direct",
+      "nodes": 0,
+      "states": 9,
+      "test_exact": 1,
+      "v1_exact": 4,
+      "v1_total": 4,
+      "text_tokens": 0
+    },
+    {
+      "name": "strip_leading_zeros",
+      "status": "INDUCED",
+      "mechanism": "cegis_1cell",
+      "nodes": 12292,
+      "states": 1,
+      "test_exact": 1,
+      "v1_exact": 4,
+      "v1_total": 4,
+      "text_tokens": 0
+    },
+    {
+      "name": "find_first_1",
+      "status": "INDUCED",
+      "mechanism": "cegis_1cell",
+      "nodes": 12444,
+      "states": 1,
+      "test_exact": 1,
+      "v1_exact": 4,
+      "v1_total": 4,
+      "text_tokens": 0
+    },
+    {
+      "name": "append_marker",
+      "status": "INDUCED",
+      "mechanism": "factored_direct",
+      "nodes": 0,
+      "states": 16,
+      "test_exact": 1,
+      "v1_exact": 4,
+      "v1_total": 4,
+      "text_tokens": 0
+    },
+    {
+      "name": "two_symbol_replace",
+      "status": "INDUCED",
+      "mechanism": "cegis_1cell",
+      "nodes": 12294,
+      "states": 1,
+      "test_exact": 1,
+      "v1_exact": 4,
+      "v1_total": 4,
+      "text_tokens": 0
+    },
+    {
+      "name": "unary_add_one_and_halt",
+      "status": "INDUCED",
+      "mechanism": "factored_direct",
+      "nodes": 0,
+      "states": 12,
+      "test_exact": 1,
+      "v1_exact": 4,
+      "v1_total": 4,
+      "text_tokens": 0
+    },
+    {
+      "name": "adjacent_swap_pass",
+      "status": "INDUCED",
+      "mechanism": "factored_direct",
+      "nodes": 0,
+      "states": 16,
+      "test_exact": 1,
+      "v1_exact": 4,
+      "v1_total": 4,
+      "text_tokens": 0
+    },
+    {
+      "name": "zero_one_partition_sort",
+      "status": "INDUCED",
+      "mechanism": "macro_fixpoint",
+      "nodes": 12000,
+      "states": 16,
+      "test_exact": 1,
+      "v1_exact": 4,
+      "v1_total": 4,
+      "text_tokens": 0
+    },
+    {
+      "name": "two_bit_carry_add",
+      "status": "INDUCED",
+      "mechanism": "carry_latch_macro",
+      "nodes": 12036,
+      "states": 12,
+      "test_exact": 1,
+      "v1_exact": 4,
+      "v1_total": 4,
+      "text_tokens": 0
+    },
+    {
+      "name": "delimiter_bounded_copy",
+      "status": "INDUCED",
+      "mechanism": "ripple_insert_macro",
+      "nodes": 13332,
+      "states": 81,
+      "test_exact": 1,
+      "v1_exact": 4,
+      "v1_total": 4,
+      "text_tokens": 0
+    }
+  ],
+  "solved": 12,
+  "generalized": 12,
+  "v1_length_generalized": 12,
+  "v1_lengths": [
+    12,
+    17,
+    24,
+    32
+  ],
+  "contradictions": [
+    {
+      "name": "contradiction_0",
+      "reason": "ABSTAIN: unsatisfiable specification",
+      "exact_reason": true,
+      "nodes": 0
+    },
+    {
+      "name": "contradiction_1",
+      "reason": "ABSTAIN: unsatisfiable specification",
+      "exact_reason": true,
+      "nodes": 0
+    },
+    {
+      "name": "contradiction_2",
+      "reason": "ABSTAIN: unsatisfiable specification",
+      "exact_reason": true,
+      "nodes": 0
+    },
+    {
+      "name": "contradiction_3",
+      "reason": "ABSTAIN: unsatisfiable specification",
+      "exact_reason": true,
+      "nodes": 0
+    }
+  ],
+  "contradictions_failed_closed": 4,
+  "max_nodes_used": 13332,
+  "node_budget": 320000,
+  "mechanisms": [
+    "carry_latch_macro",
+    "cegis_1cell",
+    "factored_direct",
+    "macro_fixpoint",
+    "ripple_insert_macro"
+  ],
+  "strict_one_cell": {
+    "rows": 1775,
+    "violations": [],
+    "strict": true
+  },
+  "two_cell_excluded": true,
+  "text_tokens": 0,
+  "task_relabelled": false,
+  "declared_family": {
+    "bit_flip": "5ab44709f609863d",
+    "unary_increment": "2b8b89c5c7bf91f6",
+    "unary_decrement": "d92ac3df7dbd95e9",
+    "strip_leading_zeros": "8f38627313820e1e",
+    "find_first_1": "5fc714b6070823e8",
+    "append_marker": "722ceba9f5140ef3",
+    "two_symbol_replace": "2557a7c4c5b91a7a",
+    "unary_add_one_and_halt": "b1a15477af3f517c",
+    "adjacent_swap_pass": "5ab44709f609863d",
+    "zero_one_partition_sort": "fb03fa8ee4ba6931",
+    "two_bit_carry_add": "7cd35eceafb57f0a",
+    "delimiter_bounded_copy": "a372f6b51f7d87eb"
+  },
+  "carry_latch": {
+    "present": true,
+    "states": 12,
+    "latch_bits": 1,
+    "control_states": 4,
+    "register_symbols": 1
+  },
+  "ripple_insert": {
+    "present": true,
+    "states": 81,
+    "sweep": "strict one-cell swap-and-ripple"
+  },
+  "gate": {
+    "x3_tasks_solved_12": true,
+    "x3_generalized_12": true,
+    "x3_length_generalized_12": true,
+    "x3_contradictions_4": true,
+    "x3_carry_add_4_of_4": true,
+    "x3_delimiter_copy_4_of_4": true,
+    "x3_task_relabelled_false": true,
+    "x3_max_nodes_le_320000": true,
+    "x3_strict_one_cell": true,
+    "x3_text_tokens_zero": true,
+    "x3_two_cell_excluded": true,
+    "passed": true
+  },
+  "wall_seconds": 5.250335599994287,
+  "evidence": "OBSERVED",
+  "passed": true
+}

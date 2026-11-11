@@ -25,11 +25,11 @@
     "grounded_queries": 100,
     "ood_queries": 100,
     "engine": {
-      "corpus_digest": "207b088a8caedb19",
+      "corpus_digest": "619f1e8a1f37dfcc",
       "vocabulary_size": 2048,
       "vocabulary_digest": "d5a64f73b97c6aab",
-      "tokens": 869692,
-      "files": 34,
+      "tokens": 899809,
+      "files": 35,
       "vocab_locked": true,
       "vocab_ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
       "vocab_lock_path": "C:\\Users\\chan\\Desktop\\HENRI v6\\receipts\\holarch\\vocab_lock.json"
@@ -43,17 +43,18 @@
     "ood_abstain_rate": 1.0,
     "hallucination_rate": 0.0,
     "online_recall": 1.0,
-    "chart_births": 30,
-    "candidate_ratio": 0.026143999999999997,
-    "speedup": 2.5787493721244554,
-    "charted_p50_ms": 0.37174997851252556,
-    "flat_p50_ms": 0.958650023676455,
-    "condensations": 15,
+    "chart_births": 28,
+    "candidate_ratio": 0.056774000000000005,
+    "speedup": 2.1486455404328955,
+    "charted_p50_ms": 0.4578000516630709,
+    "flat_p50_ms": 0.9836500394158065,
+    "condensations": 14,
     "staged_now": 0,
-    "recall_misses": []
+    "recall_misses": [],
+    "grounded_failures": []
   },
   "atlas": {
-    "charts": 70,
+    "charts": 68,
     "rows": 3500,
     "rank": 8,
     "capacity": 64,
@@ -62,18 +63,18 @@
     "top_charts": 1,
     "top_charts_max": 1,
     "spawns": 0,
-    "absorbs": 110,
-    "staged_writes": 890,
+    "absorbs": 153,
+    "staged_writes": 847,
     "staged_now": 0,
-    "condensations": 15,
-    "condensed_charts": 30,
-    "condensed_rows": 890,
+    "condensations": 14,
+    "condensed_charts": 28,
+    "condensed_rows": 847,
     "b_stage": 64,
     "k_condense": 2,
     "min_cluster": 8,
-    "largest_chart": 131,
-    "mean_chart": 50.0,
-    "digest": "52fde4921c68dcb4"
+    "largest_chart": 169,
+    "mean_chart": 51.470588235294116,
+    "digest": "389c97e338658b8c"
   },
   "gate": {
     "u2_parity_1": true,
@@ -87,7 +88,7 @@
     "u2_speedup_ge_1_65": true,
     "passed": true
   },
-  "wall_seconds": 47.36224080005195,
+  "wall_seconds": 47.91023610008415,
   "evidence": "OBSERVED",
   "passed": true
 }

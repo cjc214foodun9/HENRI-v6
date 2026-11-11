@@ -34,3 +34,19 @@ t2_riemannian_chart_atlas.json  t3_foveated_bidirectional_turing.json  t4_sovere
 
 u1_fast_closure_and_hygiene.json  u2_condensed_riemannian_atlas.json  u3_inductive_turing_audit.json
 u5_live_coprocessor_aaii_harness.json  u_cycle.json  closure_manifest.json
+
+
+## Cycle V and W receipts
+
+v1_factored_turing_closure.json  v2_fast_gauntlet.json  v3_live_aaii_v5_arms.json
+v4_live_holon_plugin.json  v5_full_closure_ledger.json  v_cycle.json
+w1_pass0_gauntlet_240.json  w2_pytest_and_split_hygiene.json
+w3_complete_one_cell_turing.json  w4_live_four_arm_aaii_v5.json
+w5_wave_egress_and_full_closure.json  w_cycle.json
+
+## Cycle X receipts
+
+x1_live_four_arm_aaii_v5.json  x1_stage_four_arm.json
+x2_sovereign_wave_egress.json  x2_stage_wave_egress.json
+x3_twelve_of_twelve_turing.json  x3_stage_turing_closure.json
+x4_gauntlet_256_queries.json  x5_full_ledger_reconciliation.json  x_cycle.json

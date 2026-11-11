@@ -1,0 +1,240 @@
+{
+  "stage": "X1",
+  "run": {
+    "exit_code": 0,
+    "wall_seconds": 108.82737419998739,
+    "stderr_tail": ""
+  },
+  "shared_stem": {
+    "build_seconds": 9.660633299965411,
+    "build_ms": 9657.593100098893,
+    "describe": {
+      "root": "C:\\Users\\chan\\Desktop\\HENRI v6",
+      "build_ms": 9657.593100098893,
+      "mounts": 4,
+      "stats": {
+        "corpus_digest": "47fa172003f65ec1",
+        "files": 35,
+        "tokens": 895789,
+        "train_tokens": 806210,
+        "vocabulary_size": 2048,
+        "vocabulary_digest": "d5a64f73b97c6aab",
+        "vocab_locked": true,
+        "vocab_lock_path": "C:\\Users\\chan\\Desktop\\HENRI v6\\receipts\\holarch\\vocab_lock.json",
+        "verifier_passages": 1973,
+        "index": {
+          "built": true,
+          "package": "henri",
+          "modules": 90,
+          "functions": 3293,
+          "edges": 4245,
+          "nodes": 3295,
+          "seconds": 0.7118959999643266
+        },
+        "max_fit_tokens": 0
+      },
+      "signatures": 3293,
+      "symbol_table": 3295
+    },
+    "mounts": [
+      {
+        "namespace": "arm0_henri_standalone",
+        "mount_ms": 1.3246999587863684,
+        "plans": 0,
+        "boundary_axioms": 2.0,
+        "fast_weight_bytes": 16777216
+      },
+      {
+        "namespace": "arm1_raw_llm",
+        "mount_ms": 1.3826999347656965,
+        "plans": 0,
+        "boundary_axioms": 2.0,
+        "fast_weight_bytes": 16777216
+      },
+      {
+        "namespace": "arm2_rag_llm",
+        "mount_ms": 0.9532000403851271,
+        "plans": 0,
+        "boundary_axioms": 2.0,
+        "fast_weight_bytes": 16777216
+      },
+      {
+        "namespace": "arm3_henri_coprocessor",
+        "mount_ms": 1.0647999588400126,
+        "plans": 0,
+        "boundary_axioms": 2.0,
+        "fast_weight_bytes": 16777216
+      }
+    ],
+    "isolation": {
+      "distinct_fast_weights": true,
+      "distinct_namespaces": true,
+      "shared_count_lm": true,
+      "shared_lexical": true
+    }
+  },
+  "arms": {
+    "arm0_henri_standalone": {
+      "arm": "arm0_henri_standalone",
+      "tasks": 16,
+      "points": 12,
+      "composite_score": 0.75,
+      "hallucinations": 0,
+      "hallucination_rate": 0.0,
+      "abstentions": 8,
+      "per_pillar": {
+        "A": {
+          "tasks": 4,
+          "points": 4,
+          "mean": 1.0
+        },
+        "B": {
+          "tasks": 4,
+          "points": 4,
+          "mean": 1.0
+        },
+        "C": {
+          "tasks": 4,
+          "points": 0,
+          "mean": 0.0
+        },
+        "D": {
+          "tasks": 4,
+          "points": 4,
+          "mean": 1.0
+        }
+      },
+      "calls": 0
+    },
+    "arm1_raw_llm": {
+      "arm": "arm1_raw_llm",
+      "tasks": 16,
+      "points": 6,
+      "composite_score": 0.375,
+      "hallucinations": 1,
+      "hallucination_rate": 0.0625,
+      "abstentions": 12,
+      "per_pillar": {
+        "A": {
+          "tasks": 4,
+          "points": 0,
+          "mean": 0.0
+        },
+        "B": {
+          "tasks": 4,
+          "points": 0,
+          "mean": 0.0
+        },
+        "C": {
+          "tasks": 4,
+          "points": 2,
+          "mean": 0.5
+        },
+        "D": {
+          "tasks": 4,
+          "points": 4,
+          "mean": 1.0
+        }
+      },
+      "calls": 11
+    },
+    "arm2_rag_llm": {
+      "arm": "arm2_rag_llm",
+      "tasks": 16,
+      "points": 7,
+      "composite_score": 0.4375,
+      "hallucinations": 1,
+      "hallucination_rate": 0.0625,
+      "abstentions": 11,
+      "per_pillar": {
+        "A": {
+          "tasks": 4,
+          "points": 1,
+          "mean": 0.25
+        },
+        "B": {
+          "tasks": 4,
+          "points": 0,
+          "mean": 0.0
+        },
+        "C": {
+          "tasks": 4,
+          "points": 2,
+          "mean": 0.5
+        },
+        "D": {
+          "tasks": 4,
+          "points": 4,
+          "mean": 1.0
+        }
+      },
+      "calls": 8
+    },
+    "arm3_henri_coprocessor": {
+      "arm": "arm3_henri_coprocessor",
+      "tasks": 16,
+      "points": 8,
+      "composite_score": 0.5,
+      "hallucinations": 0,
+      "hallucination_rate": 0.0,
+      "abstentions": 12,
+      "per_pillar": {
+        "A": {
+          "tasks": 4,
+          "points": 0,
+          "mean": 0.0
+        },
+        "B": {
+          "tasks": 4,
+          "points": 0,
+          "mean": 0.0
+        },
+        "C": {
+          "tasks": 4,
+          "points": 4,
+          "mean": 1.0
+        },
+        "D": {
+          "tasks": 4,
+          "points": 4,
+          "mean": 1.0
+        }
+      },
+      "calls": 16
+    }
+  },
+  "live_calls": 48,
+  "budget": {
+    "calls": 48,
+    "max_calls": 64,
+    "retries": 0,
+    "max_retries": 16,
+    "errors": 0
+  },
+  "security": {
+    "api_key_sha256_8": "ccde6aef",
+    "receipt_leak_scan": {
+      "scanned": 267,
+      "leaks": [],
+      "count": 0
+    },
+    "secret_leak_count": 0,
+    "prompt_response_hashed": true
+  },
+  "gate": {
+    "x1_runner_exit_zero": true,
+    "x1_receipt_present": true,
+    "x1_shared_stem_once": true,
+    "x1_task_arm_suite_executed": true,
+    "x1_arm3_gt_arm2": true,
+    "x1_arm3_gt_arm1": true,
+    "x1_arm3_hallucination_zero": true,
+    "x1_arm0_hallucination_zero": true,
+    "x1_secret_leak_zero": true,
+    "x1_budget_respected": true,
+    "passed": true
+  },
+  "wall_seconds": 108.82786339998711,
+  "evidence": "OBSERVED",
+  "passed": true
+}

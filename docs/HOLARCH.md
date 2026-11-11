@@ -3843,3 +3843,130 @@ solved tasks still generalise, so the extension cost nothing.
 The W receipts are w1_pass0_gauntlet_240.json, w2_pytest_and_split_hygiene.json,
 w3_complete_one_cell_turing.json, w4_live_four_arm_aaii_v5.json and
 w5_wave_egress_and_full_closure.json; the aggregate is w_cycle.json.
+
+## 39. Cycle X: the shared stem, a contrastive wave egress, 12/12 one cell, and a 256-query gauntlet
+
+Cycle X closes the three open boundaries of Cycles V and W without moving a
+bar and without relabelling a task. Every number below is measured in the
+process named by its receipt.
+
+### 39.1 X1: one shared stem, four live arms
+
+`SharedCorpusStem` holds the immutable tokenizer, Bochner projector, base
+count model, ontology verifier, CodeGraphIndexer and RepoSheaf. It is built
+once (10.0 s) and each arm mounts in 0.95--1.38 ms, far inside the 50 ms
+contract. Four isolated namespaces share one Zone C memory; each arm owns its
+PlanStore, delta-rule fast weight and two typed boundary axioms.
+
+The 16-task AAII v5.0 micro battery is deterministic and auditable. Arm 0 is
+standalone HENRI (zero external calls); arm 1 is a raw live completion; arm 2
+adds BM25 context; arm 3 is governed by the exact-quantity check, the
+RepoSheaf capability check, an online REPULSOR retry and Chow abstention.
+
+| arm | composite | hallucination | abstentions | calls |
+|---|---|---|---|---|
+| arm0_henri_standalone | +0.7500 | 0.0000 | 8 | 0 |
+| arm1_raw_llm | +0.3750 | 0.0625 | 12 | 11 |
+| arm2_rag_llm | +0.4375 | 0.0625 | 11 | 6 |
+| arm3_henri_coprocessor | +0.5000 | 0.0000 | 12 | 17 |
+
+49 live completions were used against the 64-call budget (one REPULSOR
+retry). `max_tokens` was 512 and the temperature 0.0 on every call; prompt
+and response SHA-256 digests are recorded. The secret scan covers 265 receipt
+files and finds zero occurrences of the key.
+
+### 39.2 X2: contrastive wave egress and the unclamped override
+
+`henri/holarch/wave_egress.py` is a seven-mode phase-conjugate transducer:
+six window-local suffix resonances plus the post-photonic Zone B bright port,
+a Stiefel mode mixer retracted by QR, and the Born-rule readout. It uses no
+autograd, no optimiser and no network.
+
+| metric | value |
+|---|---|
+| held-out tokens | 5704 (35 documents, 6-token boundary purge) |
+| top-1 wave egress | 0.6110 |
+| top-1 count floor | 0.5684 |
+| bits/char wave egress | 2.8043 |
+| bits/char count floor | 3.0209 |
+| Sagnac residual (4 epochs) | 0.4992 -> 0.4849 |
+| unclamped overrides | 618 |
+| override wins / losses / net | 314 / 71 / +243 |
+
+The attribution is measured, not asserted: the order resonances add +4.26
+points of top-1 over the count floor; the learned phase vector stayed at zero
+and the per-mode gains carry the contrastive update. The post-photonic term
+was computed on 6,743 contexts and its calibrated fusion weight is 0.0, so it
+is reported and not used. The override thresholds were selected on an inner
+slice of the training split; the scored test split never entered that
+selection.
+
+### 39.3 X3: carry latch and ripple insert (12/12)
+
+The carry-latch control `Q = Qctrl x R_sym x C_latch` reads one tape cell per
+step and closes `two_bit_carry_add` 4/4 at L in [12, 32]. The strict one-cell
+`ripple_insert` sweep closes `delimiter_bounded_copy` 4/4 without relabelling
+it to append. All twelve tasks are induced and length-generalised, the four
+contradictory specifications fail closed, the largest node count is 13,332
+against the 320,000 budget, zero text tokens are used, and all 1,775
+transition rows read and write exactly one cell and move by one. The 2-cell
+foveated transducer remains diagnostic only.
+
+### 39.4 X4: the 256-query fast gauntlet
+
+| metric | value |
+|---|---|
+| queries | 256 (76 legacy + 180 probes) |
+| reachable accuracy | 1.0000 |
+| hallucination | 0.0000 |
+| query-time disk reads | 0 |
+| receipt chain | valid and contiguous |
+| wall time | 131.33 s (<= 160.0 s; 48.67 s headroom) |
+| Pass-0 batched classification | 7.85 ms (<= 50 ms) |
+| Pass-0 scan including one real partner probe | 601.72 ms (<= 1500 ms) |
+| wave-Turing step median(5) | 0.559 ms (max 0.560 ms) |
+
+The 15.3 s episode-constructor cost is gone: the unused 80-pair one-step
+audit is skipped on the episode path, the Pass-0 classification is one batched
+tensor call, and the four one-step probes confirm the decoded regime.
+
+### 39.5 X5: the five ledgers
+
+| ledger | passed |
+|---|---|
+| t_cycle.json | true |
+| u_cycle.json | true |
+| v_cycle.json | true (v3 now measured) |
+| w_cycle.json | true (w3, w4 and w5 now measured) |
+| x_cycle.json | true (x1..x5) |
+
+`verify_holarch_consistency.py` exits 0 with Sections 1..39 and sidecar parity
+1.0000; `pytest tests -q` exits 0 with zero failures and zero exclusions; the
+R3 streaming and static bits-per-character stay inside their sealed 1.2200
+and 1.4200 bars.
+
+### 39.6 Boundaries that stay open
+
+1. The X1 battery is a 16-task micro-AAII v5.0, not the full benchmark.
+2. Arm 0 abstains on the four coding tasks: a cold PlanStore holds no verified
+   plan, and Chow refuses rather than emitting unverified tokens.
+3. The X2 photonic fusion weight calibrates to 0.0; the post-photonic ports
+   are read and recorded but do not improve the held-out cross-entropy.
+4. The X2 phase vector stayed at zero; the measured contrastive movement is in
+   the per-mode gains and the QR-retracted mixer.
+5. The X3 micro-architectures are compiled from the declared primitives and
+   verified on the examples; the blind CEGIS surface still cannot find them
+   within 320,000 nodes, which is why they are separate named mechanisms.
+6. The 256-query wall time is a local-host measurement (131.33 s).
+7. The condensed MMLU atlas now probes two charts per query. After the Cycle X
+   corpus growth one chart left a single self-query unretrieved; the two-chart
+   probe restores the recall contract while the candidate ratio (0.0568) and
+   the speedup (2.164) stay inside their sealed gates. No bar moved.
+
+### 39.7 Detail
+
+The X receipts are x1_live_four_arm_aaii_v5.json, x1_stage_four_arm.json,
+x2_sovereign_wave_egress.json, x2_stage_wave_egress.json,
+x3_twelve_of_twelve_turing.json, x3_stage_turing_closure.json,
+x4_gauntlet_256_queries.json, x5_full_ledger_reconciliation.json and the
+aggregate x_cycle.json.

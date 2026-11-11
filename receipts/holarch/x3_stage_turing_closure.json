@@ -1,0 +1,169 @@
+{
+  "stage": "X3",
+  "run": {
+    "exit_code": 0,
+    "wall_seconds": 4.522750400006771,
+    "stderr_tail": ""
+  },
+  "solved": 12,
+  "v1_length_generalized": 12,
+  "contradictions_failed_closed": 4,
+  "max_nodes_used": 13332,
+  "strict_one_cell": {
+    "rows": 0,
+    "violations": [],
+    "strict": true
+  },
+  "tasks": [
+    {
+      "name": "bit_flip",
+      "status": "INDUCED",
+      "mechanism": "factored_direct",
+      "nodes": 0,
+      "states": 16,
+      "test_exact": 1,
+      "v1_exact": 4,
+      "v1_total": 4,
+      "text_tokens": 0
+    },
+    {
+      "name": "unary_increment",
+      "status": "INDUCED",
+      "mechanism": "factored_direct",
+      "nodes": 0,
+      "states": 12,
+      "test_exact": 1,
+      "v1_exact": 4,
+      "v1_total": 4,
+      "text_tokens": 0
+    },
+    {
+      "name": "unary_decrement",
+      "status": "INDUCED",
+      "mechanism": "factored_direct",
+      "nodes": 0,
+      "states": 9,
+      "test_exact": 1,
+      "v1_exact": 4,
+      "v1_total": 4,
+      "text_tokens": 0
+    },
+    {
+      "name": "strip_leading_zeros",
+      "status": "INDUCED",
+      "mechanism": "cegis_1cell",
+      "nodes": 12292,
+      "states": 1,
+      "test_exact": 1,
+      "v1_exact": 4,
+      "v1_total": 4,
+      "text_tokens": 0
+    },
+    {
+      "name": "find_first_1",
+      "status": "INDUCED",
+      "mechanism": "cegis_1cell",
+      "nodes": 12444,
+      "states": 1,
+      "test_exact": 1,
+      "v1_exact": 4,
+      "v1_total": 4,
+      "text_tokens": 0
+    },
+    {
+      "name": "append_marker",
+      "status": "INDUCED",
+      "mechanism": "factored_direct",
+      "nodes": 0,
+      "states": 16,
+      "test_exact": 1,
+      "v1_exact": 4,
+      "v1_total": 4,
+      "text_tokens": 0
+    },
+    {
+      "name": "two_symbol_replace",
+      "status": "INDUCED",
+      "mechanism": "cegis_1cell",
+      "nodes": 12294,
+      "states": 1,
+      "test_exact": 1,
+      "v1_exact": 4,
+      "v1_total": 4,
+      "text_tokens": 0
+    },
+    {
+      "name": "unary_add_one_and_halt",
+      "status": "INDUCED",
+      "mechanism": "factored_direct",
+      "nodes": 0,
+      "states": 12,
+      "test_exact": 1,
+      "v1_exact": 4,
+      "v1_total": 4,
+      "text_tokens": 0
+    },
+    {
+      "name": "adjacent_swap_pass",
+      "status": "INDUCED",
+      "mechanism": "factored_direct",
+      "nodes": 0,
+      "states": 16,
+      "test_exact": 1,
+      "v1_exact": 4,
+      "v1_total": 4,
+      "text_tokens": 0
+    },
+    {
+      "name": "zero_one_partition_sort",
+      "status": "INDUCED",
+      "mechanism": "macro_fixpoint",
+      "nodes": 12000,
+      "states": 16,
+      "test_exact": 1,
+      "v1_exact": 4,
+      "v1_total": 4,
+      "text_tokens": 0
+    },
+    {
+      "name": "two_bit_carry_add",
+      "status": "INDUCED",
+      "mechanism": "carry_latch_macro",
+      "nodes": 12036,
+      "states": 12,
+      "test_exact": 1,
+      "v1_exact": 4,
+      "v1_total": 4,
+      "text_tokens": 0
+    },
+    {
+      "name": "delimiter_bounded_copy",
+      "status": "INDUCED",
+      "mechanism": "ripple_insert_macro",
+      "nodes": 13332,
+      "states": 81,
+      "test_exact": 1,
+      "v1_exact": 4,
+      "v1_total": 4,
+      "text_tokens": 0
+    }
+  ],
+  "gate": {
+    "x3_runner_exit_zero": true,
+    "x3_receipt_present": true,
+    "x3_tasks_solved_12": true,
+    "x3_generalized_12": true,
+    "x3_length_generalized_12": true,
+    "x3_contradictions_4": true,
+    "x3_carry_add_4_of_4": true,
+    "x3_delimiter_copy_4_of_4": true,
+    "x3_task_relabelled_false": true,
+    "x3_max_nodes_le_320000": true,
+    "x3_strict_one_cell": true,
+    "x3_text_tokens_zero": true,
+    "passed": true
+  },
+  "wall_seconds": 4.523116600001231,
+  "evidence": "OBSERVED",
+  "passed": true
+}

@@ -1,0 +1,86 @@
+{
+  "stage": "X5",
+  "ledger": [
+    {
+      "name": "t_cycle",
+      "command": "C:\\Python314\\python.exe scripts/run_holarch_t_cycle.py --stages t1,t2,t3,t4",
+      "exit_code": 0,
+      "wall_seconds": 48.49643489997834,
+      "stdout_tail": "[t-cycle] t1 ...\n[t-cycle] t1 passed=True receipts\\holarch\\t1_hygiene_and_determinism.json\n[t-cycle] t2 ...\n[t-cycle] t2 passed=True receipts\\holarch\\t2_centered_charts_mmlu.json\n[t-cycle] t3 ...\n[t-cycle] t3 passed=True receipts\\holarch\\t3_inductive_wave_turing.json\n[t-cycle] t4 ...\n[t-cycle] t4 passed=True receipts\\holarch\\t4_coprocessor_and_substrate.json\n[t-cycle] aggregate receipts\\holarch\\t_cycle.json passed=True\n",
+      "stderr_tail": "[11/11/26 15:13:39] INFO     HTTP Request: POST                 _client.py:1025\n                             http://testserver/v1/holarch/turin                \n                             g \"HTTP/1.1 200 OK\"                               \n"
+    },
+    {
+      "name": "u_cycle",
+      "command": "C:\\Python314\\python.exe scripts/run_holarch_u_cycle.py --stages u1,u2,u3,u4,u5",
+      "exit_code": 0,
+      "wall_seconds": 62.64854250010103,
+      "stdout_tail": "[u-cycle] u1 ...\n[u-cycle] u1 passed=True receipts\\holarch\\u1_fast_closure_and_hygiene.json\n[u-cycle] u2 ...\n[u-cycle] u2 passed=True receipts\\holarch\\u2_condensed_riemannian_atlas.json\n[u-cycle] u3 ...\n[u-cycle] u3 passed=True receipts\\holarch\\u3_inductive_turing_audit.json\n[u-cycle] u4 ...\n[u-cycle] u4 passed=True receipts\\holarch\\t4_sovereign_ccg_and_repo_sheaf.json\n[u-cycle] u5 ...\n[u-cycle] u5 passed=True receipts\\holarch\\u5_live_coprocessor_aaii_harness.json\n[u-cycle] aggregate receipts\\holarch\\u_cycle.json passed=True\n",
+      "stderr_tail": ""
+    },
+    {
+      "name": "w_cycle_w2",
+      "command": "C:\\Python314\\python.exe scripts/run_holarch_w2_hygiene.py",
+      "exit_code": 0,
+      "wall_seconds": 326.35467669996433,
+      "stdout_tail": "[w2] top1=0.5720 bpc=1.3319 pytest_exit=0 failures=0\n[w2] receipts\\holarch\\w2_pytest_and_split_hygiene.json passed=True\n",
+      "stderr_tail": ""
+    },
+    {
+      "name": "v_cycle",
+      "command": "C:\\Python314\\python.exe scripts/run_holarch_v_cycle.py --stages v1,v2,v3,v4",
+      "exit_code": 0,
+      "wall_seconds": 21.086960999993607,
+      "stdout_tail": "[v-cycle] v1 ...\n[v-cycle] v1 passed=True receipts\\holarch\\v1_factored_turing_closure.json\n[v-cycle] v2 ...\n[v-cycle] v2 passed=True receipts\\holarch\\v2_fast_gauntlet.json\n[v-cycle] v3 ...\n[v-cycle] v3 passed=True receipts\\holarch\\v3_live_aaii_v5_arms.json\n[v-cycle] v4 ...\n[v-cycle] v4 passed=True receipts\\holarch\\v4_live_holon_plugin.json\n[v-cycle] aggregate receipts\\holarch\\v_cycle.json passed=False\n",
+      "stderr_tail": ""
+    },
+    {
+      "name": "consistency",
+      "command": "C:\\Python314\\python.exe scripts/verify_holarch_consistency.py",
+      "exit_code": 0,
+      "wall_seconds": 0.10734119999688119,
+      "stdout_tail": "{\n  \"receipts\": 137,\n  \"sidecars_present\": 137,\n  \"sidecars_valid\": 137,\n  \"missing_sidecars\": [],\n  \"invalid_sidecars\": [],\n  \"undocumented_receipts\": [],\n  \"doc_sections\": [\n    1,\n    2,\n    3,\n    4,\n    5,\n    6,\n    7,\n    8,\n    9,\n    10,\n    11,\n    12,\n    13,\n    14,\n    15,\n    16,\n    17,\n    18,\n    19,\n    20,\n    21,\n    22,\n    23,\n    24,\n    25,\n    26,\n    27,\n    28,\n    29,\n    30,\n    31,\n    32,\n    33,\n    34,\n    35,\n    36,\n    37,\n    38,\n    39\n  ],\n  \"sections_1_to_39\": true,\n  \"r3_streaming_bits_per_char\": 1.1660408493237004,\n  \"r3_static_bits_per_char\": 1.223678623665999,\n  \"language_guard\": true,\n  \"o_to_t_archive_present\": true,\n  \"valid\": true\n}\n",
+      "stderr_tail": ""
+    },
+    {
+      "name": "v_cycle_v5",
+      "command": "C:\\Python314\\python.exe scripts/run_holarch_v_cycle.py --stages v5",
+      "exit_code": 0,
+      "wall_seconds": 1.989850900019519,
+      "stdout_tail": "[v-cycle] v5 ...\n[v-cycle] v5 passed=True receipts\\holarch\\v5_full_closure_ledger.json\n[v-cycle] aggregate receipts\\holarch\\v_cycle.json passed=True\n",
+      "stderr_tail": ""
+    },
+    {
+      "name": "w_cycle",
+      "command": "C:\\Python314\\python.exe scripts/run_holarch_w_cycle.py --stages w1,w2,w3,w4,w5",
+      "exit_code": 0,
+      "wall_seconds": 1.984157699975185,
+      "stdout_tail": "[w-cycle] w1 ...\n[w-cycle] w1 passed=True receipts\\holarch\\w1_pass0_gauntlet_240.json\n[w-cycle] w2 ...\n[w-cycle] w2 passed=True receipts\\holarch\\w2_pytest_and_split_hygiene.json\n[w-cycle] w3 ...\n[w-cycle] w3 passed=True receipts\\holarch\\w3_complete_one_cell_turing.json\n[w-cycle] w4 ...\n[w-cycle] w4 passed=True receipts\\holarch\\w4_live_four_arm_aaii_v5.json\n[w-cycle] w5 ...\n[w-cycle] w5 passed=True receipts\\holarch\\w5_wave_egress_and_full_closure.json\n[w-cycle] aggregate receipts\\holarch\\w_cycle.json passed=True\n",
+      "stderr_tail": ""
+    }
+  ],
+  "t_cycle_passed": true,
+  "u_cycle_passed": true,
+  "v_cycle_passed": true,
+  "w_cycle_passed": true,
+  "pytest": {
+    "exit_code": 0,
+    "failures": 0,
+    "wall_seconds": 311.6025941000553
+  },
+  "gate": {
+    "x5_t_cycle_passed": true,
+    "x5_u_cycle_passed": true,
+    "x5_v_cycle_passed": true,
+    "x5_w_cycle_passed": true,
+    "x5_consistency_exit_zero": true,
+    "x5_pytest_exit_zero": true,
+    "x5_pytest_zero_failures": true,
+    "x5_v5_exit_zero": true,
+    "x5_w_exit_zero": true,
+    "x5_all_five_ledgers": true,
+    "passed": true
+  },
+  "wall_seconds": 462.6696268999949,
+  "evidence": "OBSERVED",
+  "passed": true
+}

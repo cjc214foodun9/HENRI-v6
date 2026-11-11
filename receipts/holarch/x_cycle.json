@@ -1,0 +1,107 @@
+{
+  "cycle": "X",
+  "head": "e242784c75e4c9d2d22acc0eff601f1aed6f2af2",
+  "stages": {
+    "x1": {
+      "receipt": "receipts\\holarch\\x1_stage_four_arm.json",
+      "sha256": "02623c16de72c0ba0465b6a75b2a547b196b20288332d9e7874cbb869e6e2654",
+      "passed": true,
+      "gate": {
+        "x1_runner_exit_zero": true,
+        "x1_receipt_present": true,
+        "x1_shared_stem_once": true,
+        "x1_task_arm_suite_executed": true,
+        "x1_arm3_gt_arm2": true,
+        "x1_arm3_gt_arm1": true,
+        "x1_arm3_hallucination_zero": true,
+        "x1_arm0_hallucination_zero": true,
+        "x1_secret_leak_zero": true,
+        "x1_budget_respected": true,
+        "passed": true
+      },
+      "wall_seconds": 108.82786339998711
+    },
+    "x2": {
+      "receipt": "receipts\\holarch\\x2_stage_wave_egress.json",
+      "sha256": "94a9468b768e829682fc1ccbf9736f728fb5965f10a09d6d934d4a12b94ba2ea",
+      "passed": true,
+      "gate": {
+        "x2_runner_exit_zero": true,
+        "x2_receipt_present": true,
+        "x2_wave_egress_module": true,
+        "x2_autograd_unused": true,
+        "x2_sagnac_residual_reduced": true,
+        "x2_unclamped_overrides_present": true,
+        "x2_override_net_win_positive": true,
+        "x2_top1_beats_floor": true,
+        "x2_bpc_beats_floor": true,
+        "passed": true
+      },
+      "wall_seconds": 66.22171950002667
+    },
+    "x3": {
+      "receipt": "receipts\\holarch\\x3_stage_turing_closure.json",
+      "sha256": "a8e7e76e2af6e526be66fb1eaf34ccba5c4d7039ea582854295bd5eccb75498b",
+      "passed": true,
+      "gate": {
+        "x3_runner_exit_zero": true,
+        "x3_receipt_present": true,
+        "x3_tasks_solved_12": true,
+        "x3_generalized_12": true,
+        "x3_length_generalized_12": true,
+        "x3_contradictions_4": true,
+        "x3_carry_add_4_of_4": true,
+        "x3_delimiter_copy_4_of_4": true,
+        "x3_task_relabelled_false": true,
+        "x3_max_nodes_le_320000": true,
+        "x3_strict_one_cell": true,
+        "x3_text_tokens_zero": true,
+        "passed": true
+      },
+      "wall_seconds": 4.523116600001231
+    },
+    "x4": {
+      "receipt": "receipts\\holarch\\x4_gauntlet_256_queries.json",
+      "sha256": "73dddfda2f58355e23d8e3fae053d485062e2d7ee62e16c4d63b4409700c308d",
+      "passed": true,
+      "gate": {
+        "x4_runner_exit_zero": true,
+        "x4_queries_256": true,
+        "x4_probe_slots_180": true,
+        "x4_reachable_1": true,
+        "x4_hallucination_0": true,
+        "x4_zero_query_reads": true,
+        "x4_receipt_chain_valid": true,
+        "x4_wall_le_160": true,
+        "x4_gauntlet_gate": true,
+        "x4_pass0_batch_under_50ms": true,
+        "x4_pass0_scan_under_1500ms": true,
+        "x4_counterfactual_switch_preserved": true,
+        "x4_step_latency_median_under_1ms": true,
+        "x4_x_probes_present": true,
+        "passed": true
+      },
+      "wall_seconds": 134.04964460001793
+    },
+    "x5": {
+      "receipt": "receipts\\holarch\\x5_full_ledger_reconciliation.json",
+      "sha256": "147a6e91cb3e02f3baecca9bb4ff9def0ff1fe55521f529589a05093f6799be2",
+      "passed": true,
+      "gate": {
+        "x5_t_cycle_passed": true,
+        "x5_u_cycle_passed": true,
+        "x5_v_cycle_passed": true,
+        "x5_w_cycle_passed": true,
+        "x5_consistency_exit_zero": true,
+        "x5_pytest_exit_zero": true,
+        "x5_pytest_zero_failures": true,
+        "x5_v5_exit_zero": true,
+        "x5_w_exit_zero": true,
+        "x5_all_five_ledgers": true,
+        "passed": true
+      },
+      "wall_seconds": 462.6696268999949
+    }
+  },
+  "passed": true
+}

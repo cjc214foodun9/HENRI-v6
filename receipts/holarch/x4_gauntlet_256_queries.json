@@ -1,0 +1,152 @@
+{
+  "stage": "X4",
+  "run": {
+    "exit_code": 0,
+    "wall_seconds": 134.04794849990867,
+    "stderr_tail": ""
+  },
+  "queries": 256,
+  "probe_slots": 180,
+  "wall_seconds_gauntlet": 131.3290968000656,
+  "headroom_seconds": 48.6709031999344,
+  "reachable_accuracy": 1.0,
+  "hallucination_rate": 0.0,
+  "query_file_reads": 0,
+  "x4_probes": [
+    {
+      "name": "x4_pass0_batch_under_50ms",
+      "category": "x4_pass0_batch",
+      "expected": "the batched Pass-0 classification of every validation layout stays under 50 ms",
+      "measured": {
+        "layouts": 4,
+        "pass0_ms": 7.846100023016334
+      },
+      "correct": true,
+      "seconds": 2.600019797682762e-06,
+      "evidence": "classify_action_regime_batch, one encode call"
+    },
+    {
+      "name": "x4_pass0_scan_under_1500ms",
+      "category": "x4_pass0_batch",
+      "expected": "the Pass-0 scan including one real partner probe stays under 1500 ms",
+      "measured": {
+        "scan_ms": 601.7168000107631,
+        "probed_partners": 4
+      },
+      "correct": true,
+      "seconds": 2.00001522898674e-06,
+      "evidence": "batched classification plus one run_telepathic_vla_episode"
+    },
+    {
+      "name": "x4_counterfactual_switch_preserved",
+      "category": "x4_pass0_batch",
+      "expected": "the zero-text-token Action-KV swap still changes the emitted operator",
+      "measured": {
+        "from_regime": 0,
+        "to_regime": 2,
+        "from_operator": "+",
+        "to_operator": "*"
+      },
+      "correct": true,
+      "seconds": 2.300017513334751e-06,
+      "evidence": "paired Action-KV counterfactual"
+    },
+    {
+      "name": "x4_step_latency_median_under_1ms",
+      "category": "x4_pass0_batch",
+      "expected": "the wave-Turing step stays under 1 ms at median over five warm runs",
+      "measured": {
+        "runs": [
+          0.5483,
+          0.5589,
+          0.559,
+          0.5588,
+          0.5476
+        ],
+        "median_ms": 0.5588380985760263,
+        "max_ms": 0.5590047665117751
+      },
+      "correct": true,
+      "seconds": 0.10132619994692504,
+      "evidence": "two warm-up runs then five measured runs"
+    }
+  ],
+  "category_ms": {
+    "j1_cleanroom": 14642.173000029288,
+    "j2_elastic_vocab": 89.79090000502765,
+    "j3_diverse_dag": 27.689200011081994,
+    "j4_openai_adapter": 339.6375998854637,
+    "k1_multitask": 8250.211200094782,
+    "k2_boundary_axioms": 1274.2539999308065,
+    "k3_vla_dag": 2.1798000670969486,
+    "k4_rebase_concurrency": 1696.9221999170259,
+    "m1_online_repulsor": 36369.632499990985,
+    "m2_low_latency": 2012.56500009913,
+    "m3_full_reference": 1.3155000051483512,
+    "m4_guard_ast": 55.392000009305775,
+    "o1_swat": 389.4201999064535,
+    "o2_api_epoch": 239.69279997982085,
+    "o3_language": 379.4566000578925,
+    "o4_holonic": 1336.998000042513,
+    "p1_language": 0.05349994171410799,
+    "p2_telepathy": 228.5971000092104,
+    "p3_telepathic_vla": 2167.236499954015,
+    "p4_holon": 299.9589000828564,
+    "q1_telepathy": 200.8155999938026,
+    "q2_causal_vla": 3935.585599974729,
+    "q3_language": 0.5411000456660986,
+    "q4_aaii": 11835.70159994997,
+    "r1_telepathy": 0.3408000338822603,
+    "r2_causal_vla": 0.21670002024620771,
+    "r3_language": 0.35399990156292915,
+    "r4_aaii": 0.8633000543341041,
+    "s1_language": 3.4467000514268875,
+    "s2_turing": 968.3436999330297,
+    "s3_charts": 912.1965999947861,
+    "s4_suite": 1.0863000061362982,
+    "t1_hygiene": 12.468000059016049,
+    "t2_centered_charts": 258.8011999614537,
+    "t3_induction": 35.082199960015714,
+    "t4_coprocessor": 18.997900071553886,
+    "u2_condensed_charts": 15.93180000782013,
+    "u3_onecell": 1.3609000016003847,
+    "u4_ccg_sheaf": 20.09929995983839,
+    "u5_coprocessor": 3.9857999654486775,
+    "v1_onecell": 1369.5094999857247,
+    "v2_decoupled_sweeps": 12.214899994432926,
+    "v2_python_dispatch": 1.893899985589087,
+    "v3_credential_boundary": 36.135800066404045,
+    "v4_holon_wiring": 2.528300043195486,
+    "v5_hygiene": 29.069799929857254,
+    "w1_pass0": 0.012999982573091984,
+    "w2_split_hygiene": 7938.3546999888495,
+    "w3_onecell": 2.840300090610981,
+    "w4_holon": 0.41529990267008543,
+    "w5_hygiene": 27.466400060802698,
+    "x1_four_arm": 0.011599971912801266,
+    "x1_shared_stem": 0.6127000087872148,
+    "x2_wave_egress": 0.07890001870691776,
+    "x3_onecell": 0.012199976481497288,
+    "x4_pass0_batch": 101.33309999946505
+  },
+  "gate": {
+    "x4_runner_exit_zero": true,
+    "x4_queries_256": true,
+    "x4_probe_slots_180": true,
+    "x4_reachable_1": true,
+    "x4_hallucination_0": true,
+    "x4_zero_query_reads": true,
+    "x4_receipt_chain_valid": true,
+    "x4_wall_le_160": true,
+    "x4_gauntlet_gate": true,
+    "x4_pass0_batch_under_50ms": true,
+    "x4_pass0_scan_under_1500ms": true,
+    "x4_counterfactual_switch_preserved": true,
+    "x4_step_latency_median_under_1ms": true,
+    "x4_x_probes_present": true,
+    "passed": true
+  },
+  "wall_seconds": 134.04964460001793,
+  "evidence": "OBSERVED",
+  "passed": true
+}

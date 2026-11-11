@@ -1,34 +1,34 @@
 {
   "stage": "W2",
   "split": {
-    "documents": 34,
-    "partition_tokens": 744755,
-    "held_out_tokens": 4900,
-    "top1": 0.5718367346938775,
-    "bits_per_char": 1.3028947415086516,
+    "documents": 35,
+    "partition_tokens": 770981,
+    "held_out_tokens": 4886,
+    "top1": 0.5720425706099058,
+    "bits_per_char": 1.3319413976136787,
     "top1_bar": 0.45,
     "bpc_bar": 2.454708465195846,
     "gap_tokens": 6,
     "gap_verified": true,
     "straddling_spans": 0,
     "max_straddling_order": 6,
-    "shared_6grams_natural": 23739,
-    "code_val_tokens": 70093,
-    "prose_val_tokens": 12469,
-    "baseline_single_cut_top1": 0.45210084033613446,
-    "baseline_single_cut_bits_per_char": 1.9067859603501116,
+    "shared_6grams_natural": 25127,
+    "code_val_tokens": 72597,
+    "prose_val_tokens": 12879,
+    "baseline_single_cut_top1": 0.5405042016806723,
+    "baseline_single_cut_bits_per_char": 1.8551458054680252,
     "per_document": [
       {
         "document": "HOLARCH.md",
-        "tokens": 151,
-        "top1": 0.543046357615894,
-        "bits_per_char": 2.2974634885360032
+        "tokens": 146,
+        "top1": 0.5068493150684932,
+        "bits_per_char": 2.3042779005696037
       },
       {
         "document": "__init__.py",
         "tokens": 68,
         "top1": 0.4852941176470588,
-        "bits_per_char": 1.78305408758196
+        "bits_per_char": 1.7883297738285018
       },
       {
         "document": "__main__.py",
@@ -38,197 +38,203 @@
       },
       {
         "document": "budget.py",
-        "tokens": 151,
-        "top1": 0.5562913907284768,
-        "bits_per_char": 1.5288784258133539
+        "tokens": 146,
+        "top1": 0.5821917808219178,
+        "bits_per_char": 1.5043927909448085
       },
       {
         "document": "centered_charts.py",
-        "tokens": 151,
-        "top1": 0.5298013245033113,
-        "bits_per_char": 1.4755842187552006
+        "tokens": 146,
+        "top1": 0.5205479452054794,
+        "bits_per_char": 1.5046745693879031
       },
       {
         "document": "cli.py",
-        "tokens": 151,
-        "top1": 0.6291390728476821,
-        "bits_per_char": 1.4102780124436554
+        "tokens": 146,
+        "top1": 0.6438356164383562,
+        "bits_per_char": 1.324112796852843
       },
       {
         "document": "code_gen.py",
-        "tokens": 151,
-        "top1": 0.5894039735099338,
-        "bits_per_char": 1.4352212224398675
+        "tokens": 146,
+        "top1": 0.4041095890410959,
+        "bits_per_char": 1.7489533244525517
       },
       {
         "document": "code_lang.py",
-        "tokens": 151,
-        "top1": 0.6622516556291391,
-        "bits_per_char": 0.847978825799061
+        "tokens": 146,
+        "top1": 0.6438356164383562,
+        "bits_per_char": 0.8993121182398359
       },
       {
         "document": "config.py",
-        "tokens": 151,
-        "top1": 0.5231788079470199,
-        "bits_per_char": 1.7038312955578727
+        "tokens": 146,
+        "top1": 0.541095890410959,
+        "bits_per_char": 1.6970358168712956
       },
       {
         "document": "coprocessor.py",
-        "tokens": 151,
-        "top1": 0.5894039735099338,
-        "bits_per_char": 0.7758362279702123
+        "tokens": 146,
+        "top1": 0.6301369863013698,
+        "bits_per_char": 0.6926136674204919
       },
       {
         "document": "deterministic.py",
-        "tokens": 151,
-        "top1": 0.6423841059602649,
-        "bits_per_char": 0.9215205408865323
+        "tokens": 146,
+        "top1": 0.6438356164383562,
+        "bits_per_char": 0.9302280244568236
       },
       {
         "document": "discovery.py",
-        "tokens": 151,
-        "top1": 0.5629139072847682,
-        "bits_per_char": 1.2446383266636376
+        "tokens": 146,
+        "top1": 0.5684931506849316,
+        "bits_per_char": 1.242404685109495
       },
       {
         "document": "induction.py",
-        "tokens": 151,
-        "top1": 0.6357615894039735,
-        "bits_per_char": 0.8750619044598029
+        "tokens": 146,
+        "top1": 0.684931506849315,
+        "bits_per_char": 0.9651884052852335
       },
       {
         "document": "mcp_server.py",
-        "tokens": 151,
-        "top1": 0.5629139072847682,
-        "bits_per_char": 1.5609348212956808
+        "tokens": 146,
+        "top1": 0.589041095890411,
+        "bits_per_char": 1.539303428514429
       },
       {
         "document": "model.py",
-        "tokens": 151,
-        "top1": 0.5496688741721855,
-        "bits_per_char": 1.803095751504566
+        "tokens": 146,
+        "top1": 0.5547945205479452,
+        "bits_per_char": 1.8955289559372883
       },
       {
         "document": "onecell_audit.py",
-        "tokens": 151,
-        "top1": 0.46357615894039733,
-        "bits_per_char": 1.680219793702406
+        "tokens": 146,
+        "top1": 0.4726027397260274,
+        "bits_per_char": 1.7128717388049868
       },
       {
         "document": "ontology_guard.py",
-        "tokens": 151,
-        "top1": 0.6026490066225165,
-        "bits_per_char": 0.8110115227370385
+        "tokens": 146,
+        "top1": 0.5958904109589042,
+        "bits_per_char": 0.8240830106365337
       },
       {
         "document": "paged_tape.py",
-        "tokens": 151,
-        "top1": 0.5960264900662252,
-        "bits_per_char": 1.294509745176735
+        "tokens": 146,
+        "top1": 0.589041095890411,
+        "bits_per_char": 1.3258288842908585
       },
       {
         "document": "pipeline.py",
-        "tokens": 151,
-        "top1": 0.6225165562913907,
-        "bits_per_char": 0.6448206049558359
+        "tokens": 146,
+        "top1": 0.547945205479452,
+        "bits_per_char": 0.8413354543347366
       },
       {
         "document": "repo_sheaf.py",
-        "tokens": 151,
-        "top1": 0.44370860927152317,
-        "bits_per_char": 2.1081238741722954
+        "tokens": 146,
+        "top1": 0.4520547945205479,
+        "bits_per_char": 2.088431523579332
       },
       {
         "document": "riemannian_atlas.py",
-        "tokens": 151,
-        "top1": 0.5364238410596026,
-        "bits_per_char": 1.4002409005584413
+        "tokens": 146,
+        "top1": 0.541095890410959,
+        "bits_per_char": 1.4066063028625415
       },
       {
         "document": "sandbox.py",
-        "tokens": 151,
-        "top1": 0.5099337748344371,
-        "bits_per_char": 1.4846124388275372
+        "tokens": 146,
+        "top1": 0.5205479452054794,
+        "bits_per_char": 1.4958585571659737
       },
       {
         "document": "server.py",
-        "tokens": 151,
-        "top1": 0.5298013245033113,
-        "bits_per_char": 1.4900341903859124
+        "tokens": 146,
+        "top1": 0.5616438356164384,
+        "bits_per_char": 1.4408964883860909
       },
       {
         "document": "sidecar.py",
-        "tokens": 151,
-        "top1": 0.6622516556291391,
-        "bits_per_char": 0.7366301048371559
+        "tokens": 146,
+        "top1": 0.6575342465753424,
+        "bits_per_char": 0.7413109180845893
       },
       {
         "document": "swat_bus.py",
-        "tokens": 151,
-        "top1": 0.47019867549668876,
-        "bits_per_char": 1.6299694973505237
+        "tokens": 146,
+        "top1": 0.4931506849315068,
+        "bits_per_char": 1.6673601962974327
       },
       {
         "document": "symbolic.py",
-        "tokens": 151,
-        "top1": 0.5165562913907285,
-        "bits_per_char": 1.7335949039395335
+        "tokens": 146,
+        "top1": 0.5273972602739726,
+        "bits_per_char": 1.7089574302596415
       },
       {
         "document": "tasks.py",
-        "tokens": 151,
-        "top1": 0.5298013245033113,
-        "bits_per_char": 1.1878404414368284
+        "tokens": 146,
+        "top1": 0.5273972602739726,
+        "bits_per_char": 1.2151265211656095
       },
       {
         "document": "train.py",
-        "tokens": 151,
-        "top1": 0.5496688741721855,
-        "bits_per_char": 1.0596099684558231
+        "tokens": 146,
+        "top1": 0.541095890410959,
+        "bits_per_char": 1.0668322089255462
       },
       {
         "document": "veto.py",
-        "tokens": 151,
-        "top1": 0.543046357615894,
-        "bits_per_char": 0.9435531436418101
+        "tokens": 146,
+        "top1": 0.5273972602739726,
+        "bits_per_char": 0.9360040571300114
       },
       {
         "document": "vla.py",
-        "tokens": 151,
-        "top1": 0.5496688741721855,
-        "bits_per_char": 1.5984789202564684
+        "tokens": 146,
+        "top1": 0.5684931506849316,
+        "bits_per_char": 1.5851888889961783
       },
       {
         "document": "wave_ccg.py",
-        "tokens": 151,
-        "top1": 0.6158940397350994,
-        "bits_per_char": 1.242938245049789
+        "tokens": 146,
+        "top1": 0.636986301369863,
+        "bits_per_char": 1.2454827979890668
+      },
+      {
+        "document": "wave_egress.py",
+        "tokens": 146,
+        "top1": 0.6027397260273972,
+        "bits_per_char": 1.7317883258881848
       },
       {
         "document": "zone_a.py",
-        "tokens": 151,
-        "top1": 0.7019867549668874,
-        "bits_per_char": 0.7660290882400201
+        "tokens": 146,
+        "top1": 0.6986301369863014,
+        "bits_per_char": 0.7575769384852153
       },
       {
         "document": "zone_b.py",
-        "tokens": 151,
-        "top1": 0.6821192052980133,
-        "bits_per_char": 0.9186941849252616
+        "tokens": 146,
+        "top1": 0.684931506849315,
+        "bits_per_char": 0.8927712901179216
       },
       {
         "document": "zone_c.py",
-        "tokens": 151,
-        "top1": 0.6357615894039735,
-        "bits_per_char": 0.8651663986080578
+        "tokens": 146,
+        "top1": 0.6575342465753424,
+        "bits_per_char": 0.8091636546123924
       }
     ],
-    "wall_seconds": 12.159519999986514
+    "wall_seconds": 12.634065299993381
   },
   "pytest": {
     "exit_code": 0,
     "failures": 0,
-    "wall_seconds": 353.3306631000014,
+    "wall_seconds": 311.6025941000553,
     "stdout_tail": "................................................................ [ 94%]\n.........................................................                [100%]\n============================== warnings summary ===============================\ntests/test_api_input_validation.py: 1 warning\ntests/test_phase10_cegis_repair.py: 1 warning\ntests/test_phase10_reason_channels.py: 2 warnings\ntests/test_phase10_structural_morphisms.py: 1 warning\ntests/test_phase11_tiebreak.py: 1 warning\ntests/test_phase5_cartridge.py: 5 warnings\ntests/test_phase6.py: 1 warning\ntests/test_phase7.py: 1 warning\ntests/test_phase8_operator_ingress.py: 1 warning\ntests/test_semantic_backbone.py: 1 warning\n  C:\\Users\\chan\\Desktop\\HENRI v6\\henri\\semantic_backbone.py:260: FutureWarning: The `get_sentence_embedding_dimension` method has been renamed to `get_embedding_dimension`.\n    self.dim_sem = int(self._model.get_sentence_embedding_dimension())\n\ntests/test_holarch_d1_d4.py::test_relaxation_lowers_the_lyapunov_energy_and_the_dark_energy\n  C:\\Users\\chan\\Desktop\\HENRI v6\\tests\\test_holarch_d1_d4.py:145: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.\n  Consider using tensor.detach() first. (Triggered internally at C:\\actions-runner\\_work\\pytorch\\pytorch\\pytorch\\torch\\csrc\\autograd\\generated\\python_variable_methods.cpp:837.)\n    assert float(energy_after.mean()) <= float(energy_before.mean()) + 1e-5\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n",
     "stderr_tail": ""
   },
@@ -247,7 +253,7 @@
     "w2_pytest_zero_failures": true,
     "passed": true
   },
-  "wall_seconds": 365.4976058000466,
+  "wall_seconds": 324.2442566999234,
   "evidence": "OBSERVED",
   "passed": true
 }

@@ -1,0 +1,86 @@
+{
+  "stage": "X2",
+  "run": {
+    "exit_code": 0,
+    "wall_seconds": 66.2213462999789,
+    "stderr_tail": ""
+  },
+  "split": {
+    "documents": 35,
+    "train_tokens": 767474,
+    "held_out_tokens": 5704,
+    "gap_tokens": 6,
+    "boundary_purged": true,
+    "inner_tokens": 115122,
+    "corpus_digest": "47fa172003f65ec1"
+  },
+  "wave_egress": {
+    "tokens": 5704,
+    "top1_wave_egress": 0.6109747545582047,
+    "bpc_wave_egress": 2.8042834316273515,
+    "perplexity_wave_egress": 6.985112888392788,
+    "top1_count_floor": 0.5683730715287517,
+    "bpc_count_floor": 3.0209420010674446,
+    "unclamped_override_count": 618,
+    "override_wins": 314,
+    "override_losses": 71,
+    "override_net_win_delta": 243,
+    "sagnac_initial": 0.49919950460275153,
+    "sagnac_final": 0.4849328781262236,
+    "sagnac_curve": [
+      0.49919950460275153,
+      0.4916725631555125,
+      0.4876083498454536,
+      0.4854188540799296,
+      0.4849328781262236
+    ],
+    "sagnac_residual_reduced": true,
+    "fusion": {
+      "orders": 6,
+      "window": 512,
+      "tau_H": 0.5,
+      "tau_margin": 0.02,
+      "tau_sagnac": 0.92,
+      "max_order": 6
+    },
+    "photonic_contexts": 6743,
+    "autograd_used": false,
+    "module": "henri/holarch/wave_egress.py"
+  },
+  "attribution": {
+    "wave_trained": {
+      "top1": 0.6109747545582047,
+      "bits_per_char": 2.8042834316273515
+    },
+    "wave_incoherent_ring": {
+      "top1": 0.6109747545582047,
+      "bits_per_char": 2.8036387716805455
+    },
+    "incoherent_suffix_mixture": {
+      "top1": 0.6109747545582047,
+      "bits_per_char": 2.8036387724186422
+    },
+    "count_floor": {
+      "top1": 0.5683730715287517,
+      "bits_per_char": 3.0209420010674446
+    },
+    "phase_learning_delta_top1": 0.0,
+    "phase_learning_delta_bpc": 0.0006446599468059588,
+    "suffix_resonance_delta_top1": 0.042601683029453
+  },
+  "gate": {
+    "x2_runner_exit_zero": true,
+    "x2_receipt_present": true,
+    "x2_wave_egress_module": true,
+    "x2_autograd_unused": true,
+    "x2_sagnac_residual_reduced": true,
+    "x2_unclamped_overrides_present": true,
+    "x2_override_net_win_positive": true,
+    "x2_top1_beats_floor": true,
+    "x2_bpc_beats_floor": true,
+    "passed": true
+  },
+  "wall_seconds": 66.22171950002667,
+  "evidence": "OBSERVED",
+  "passed": true
+}

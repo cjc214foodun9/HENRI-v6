@@ -1,18 +1,18 @@
 {
   "cycle": "U",
-  "head": "6322f2c5fdda8da44ceb453fa6e39151c3e7545e",
+  "head": "e242784c75e4c9d2d22acc0eff601f1aed6f2af2",
   "stages": {
     "u1": {
       "receipt": "receipts\\holarch\\u1_fast_closure_and_hygiene.json",
-      "sha256": "7970156df3bf6ebe604ef75eb9fc95f1d407554637729a478ee3e54306ba477b",
+      "sha256": "0ad3e5a931c4975af636a2ce20c2c2142cdb67a52350115cb7bdf329b9329e19",
       "passed": true,
       "gate": {
         "u1_docs_monotonic": true,
-        "u1_docs_sections_1_to_38": true,
+        "u1_docs_sections_1_to_39": true,
         "u1_receipt_index_outside_docs": true,
         "u1_sidecar_parity_100": true,
         "u1_no_undocumented_receipts": true,
-        "u1_gauntlet_240": true,
+        "u1_gauntlet_256": true,
         "u1_gauntlet_passed": true,
         "u1_zero_query_reads": true,
         "u1_reachable_1": true,
@@ -23,11 +23,11 @@
         "u1_r3_static_le_1_4200": true,
         "passed": true
       },
-      "wall_seconds": 0.06662350008264184
+      "wall_seconds": 0.09572640003170818
     },
     "u2": {
       "receipt": "receipts\\holarch\\u2_condensed_riemannian_atlas.json",
-      "sha256": "1f762287751ed280db776cb44f9cbce15b9466eca2764d8e0d488f68e46f8ec0",
+      "sha256": "4e49a5fedd459e37647c55462354e9b791c8f496030548f1b63a508b63791624",
       "passed": true,
       "gate": {
         "u2_parity_1": true,
@@ -41,11 +41,11 @@
         "u2_speedup_ge_1_65": true,
         "passed": true
       },
-      "wall_seconds": 47.36224080005195
+      "wall_seconds": 47.91023610008415
     },
     "u3": {
       "receipt": "receipts\\holarch\\u3_inductive_turing_audit.json",
-      "sha256": "22b556858190b14a27c8bf386ab871b374f8fddf97ba8d5476286a881c97ded1",
+      "sha256": "71d4fd084444a77caa67c12d16c6b9be16fd6f758afe521bd3f294fc19e8e2f6",
       "passed": true,
       "gate": {
         "u3_capacity_exact_long": true,
@@ -60,11 +60,11 @@
         "u3_two_cell_uncounted": true,
         "passed": true
       },
-      "wall_seconds": 38.52593350003008
+      "wall_seconds": 5.471889500040561
     },
     "u4": {
       "receipt": "receipts\\holarch\\t4_sovereign_ccg_and_repo_sheaf.json",
-      "sha256": "55ce965a56cf3e39ad26f7d7ac26617926a4f9dfa4b4b3be1989051ffce30129",
+      "sha256": "a38cd29e1922865bf2fd659af7387c601a6297fabcc1a5f206102b94c075ac78",
       "passed": true,
       "gate": {
         "u4_parse_ge_30": true,
@@ -77,7 +77,7 @@
         "u4_kappa_le_50": true,
         "passed": true
       },
-      "wall_seconds": 6.934146799962036
+      "wall_seconds": 6.957369299954735
     },
     "u5": {
       "receipt": "receipts\\holarch\\u5_live_coprocessor_aaii_harness.json",
@@ -100,7 +100,7 @@
         "u5_live_honest": true,
         "passed": true
       },
-      "wall_seconds": 0.0010205000871792436
+      "wall_seconds": 0.0009108000667765737
     }
   },
   "passed": true

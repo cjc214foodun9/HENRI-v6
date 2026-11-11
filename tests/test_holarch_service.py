@@ -143,9 +143,10 @@ def test_agent_eval_contract(tmp_path):
     # induction and co-processor probes; Cycle U added sixteen fast-closure,
     # condensed-chart, one-cell, CCG/sheaf and live-coprocessor probes; Cycle V
     # added sixteen factored-closure, gauntlet, credential, holon and hygiene
-    # probes; Cycle W adds sixteen Pass-0, split-hygiene and closure probes.
-    # The total is 76 legacy receipts plus 164 probes = 240 queries.
-    assert payload["queries_total"] == 240
+    # probes; Cycle W adds sixteen Pass-0, split-hygiene and closure probes;
+    # Cycle X adds sixteen shared-stem, wave-egress, one-cell and Pass-0 batch
+    # probes.  The total is 76 legacy receipts plus 180 probes = 256 queries.
+    assert payload["queries_total"] == 256
     assert payload["composite"]["mcp_accuracy"] >= 0.90
     assert payload["composite"]["mcp_refused"] == payload["composite"]["traps_total"]
     # Every declared category must still carry at least one scored query. The

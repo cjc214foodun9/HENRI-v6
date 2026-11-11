@@ -1,26 +1,26 @@
 {
   "stage": "U1",
   "documents": {
-    "count": 38,
+    "count": 39,
     "monotonic": true,
     "unique": true
   },
   "sidecars": {
-    "checked": 128,
+    "checked": 137,
     "missing": [],
     "invalid": [],
     "parity": 1.0
   },
   "gauntlet": {
-    "queries": 240,
-    "probe_slots": 164,
+    "queries": 256,
+    "probe_slots": 180,
     "reachable_accuracy": 1.0,
     "hallucination_rate": 0.0,
     "query_file_reads": 0,
     "receipt_chain_valid": true,
-    "wall_seconds": 176.7959951000521,
+    "wall_seconds": 131.3290968000656,
     "passed": true,
-    "sha256": "e00f6d367ac1afd825f7c95c8a840f98039aa47384342f4c0279e05ec4347042"
+    "sha256": "5c1f9408499b19abeac2aaee7461b63e556134c577e48f104b902cd0907e2308"
   },
   "r3": {
     "static_bits_per_char": 1.223678623665999,
@@ -29,11 +29,11 @@
   "undocumented_receipts": [],
   "gate": {
     "u1_docs_monotonic": true,
-    "u1_docs_sections_1_to_38": true,
+    "u1_docs_sections_1_to_39": true,
     "u1_receipt_index_outside_docs": true,
     "u1_sidecar_parity_100": true,
     "u1_no_undocumented_receipts": true,
-    "u1_gauntlet_240": true,
+    "u1_gauntlet_256": true,
     "u1_gauntlet_passed": true,
     "u1_zero_query_reads": true,
     "u1_reachable_1": true,
@@ -44,7 +44,7 @@
     "u1_r3_static_le_1_4200": true,
     "passed": true
   },
-  "wall_seconds": 0.06662350008264184,
+  "wall_seconds": 0.09572640003170818,
   "evidence": "OBSERVED",
   "passed": true
 }

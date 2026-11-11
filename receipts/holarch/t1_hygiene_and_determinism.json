@@ -39,16 +39,17 @@
       35,
       36,
       37,
-      38
+      38,
+      39
     ],
-    "count": 38,
+    "count": 39,
     "first": 1,
-    "last": 38,
+    "last": 39,
     "duplicates": [],
     "monotonic": true,
-    "sections_1_to_38": true,
-    "receipts": 128,
-    "referenced": 128,
+    "sections_1_to_39": true,
+    "receipts": 137,
+    "referenced": 137,
     "missing_receipts": []
   },
   "q2": {
@@ -268,7 +269,7 @@
   "gate": {
     "t1_docs_monotonic": true,
     "t1_docs_no_duplicates": true,
-    "t1_docs_sections_1_to_38": true,
+    "t1_docs_sections_1_to_39": true,
     "t1_docs_receipts_referenced": true,
     "t1_q2_passed": true,
     "t1_q2_goals_12": true,
@@ -283,7 +284,7 @@
     "t1_s3_latency_clock_invariant": true,
     "passed": true
   },
-  "wall_seconds": 0.0059247000608593225,
+  "wall_seconds": 0.0065342000452801585,
   "evidence": "OBSERVED",
   "passed": true
 }

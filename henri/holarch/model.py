@@ -1481,6 +1481,7 @@ def evaluate_closed_loop_action(
     trace: bool = False,
     online_repulsor: bool = False,
     online_namespace: str = "m1",
+    one_step_audit: bool = True,
 ) -> Dict[str, object]:
     """Closed-loop success of the 1-step latent wave lookahead policy.
 
@@ -1618,17 +1619,22 @@ def evaluate_closed_loop_action(
                 }
             )
     # One-step action accuracy on the held-out pairs, for the E1 triple gate.
+    # Directive X4: a caller that consumes only the trace does not pay for the
+    # 80-pair audit.  The flag defaults to True, so every existing caller keeps
+    # the exact number it measured; the episode and Pass-0 paths pass False
+    # because neither reads one_step_accuracy.
     correct = 0
     total = 0
-    for observation, label in task.val_pairs:
-        tensor = torch.as_tensor(observation, dtype=torch.float32).reshape(1, -1)
-        logits = model("action", tensor, training=False).task_logits[0]
-        view = tensor[0, :75].reshape(5, 5, 3).numpy()
-        for (row, col), action in (((1, 2), 0), ((3, 2), 1), ((2, 1), 2), ((2, 3), 3)):
-            if view[row, col, 0] > 0.5:
-                logits[action] = -float("inf")
-        correct += int(int(logits.argmax()) == int(label))
-        total += 1
+    if bool(one_step_audit):
+        for observation, label in task.val_pairs:
+            tensor = torch.as_tensor(observation, dtype=torch.float32).reshape(1, -1)
+            logits = model("action", tensor, training=False).task_logits[0]
+            view = tensor[0, :75].reshape(5, 5, 3).numpy()
+            for (row, col), action in (((1, 2), 0), ((3, 2), 1), ((2, 1), 2), ((2, 3), 3)):
+                if view[row, col, 0] > 0.5:
+                    logits[action] = -float("inf")
+            correct += int(int(logits.argmax()) == int(label))
+            total += 1
     return {
         "success_rate": float(wins / max(episode_count, 1)),
         "wins": int(wins),
@@ -1637,6 +1643,7 @@ def evaluate_closed_loop_action(
         "reactive_wins": int(reactive_wins),
         "one_step_accuracy": float(correct / max(total, 1)),
         "one_step_n": int(total),
+        "one_step_audit": bool(one_step_audit),
         "mean_steps_to_goal": float(np.mean(steps_used)) if steps_used else float("nan"),
         "goal_weight": float(goal_weight),
         "cycle_weight": float(cycle_weight),

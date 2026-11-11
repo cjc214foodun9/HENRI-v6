@@ -1,27 +1,28 @@
 {
   "cycle": "W",
-  "head": "6322f2c5fdda8da44ceb453fa6e39151c3e7545e",
+  "head": "e242784c75e4c9d2d22acc0eff601f1aed6f2af2",
   "stages": {
     "w1": {
       "receipt": "receipts\\holarch\\w1_pass0_gauntlet_240.json",
-      "sha256": "6e2fabbc2a312ed93d7100fd29456172e64c59ab7a4e8cbaddcd72a2a7135150",
+      "sha256": "1199228ddc689cd4dba6c43902e1d164c91ebcd34f169201f1a879eb04a344f0",
       "passed": true,
       "gate": {
-        "w1_queries_240": true,
-        "w1_probe_slots_164": true,
+        "w1_queries_256": true,
+        "w1_probe_slots_180": true,
         "w1_reachable_1": true,
         "w1_hallucination_0": true,
         "w1_zero_query_reads": true,
         "w1_wall_le_180": true,
+        "w1_wall_le_160": true,
         "w1_gauntlet_gate": true,
         "w1_pass0_probes_present": true,
         "passed": true
       },
-      "wall_seconds": 0.0016943999798968434
+      "wall_seconds": 0.001473400043323636
     },
     "w2": {
       "receipt": "receipts\\holarch\\w2_pytest_and_split_hygiene.json",
-      "sha256": "edf4da634c105e72539a571e9ef56b5eeb3b8ad66f2cd69e95f9466957b90beb",
+      "sha256": "143c936791eefc38e4203b4e6505c360e07d32bf9619d40ba02904b54f15c39d",
       "passed": true,
       "gate": {
         "w2_receipt_present": true,
@@ -35,50 +36,54 @@
         "w2_beats_single_cut": true,
         "passed": true
       },
-      "wall_seconds": 0.00047989992890506983
+      "wall_seconds": 0.0004613000201061368
     },
     "w3": {
       "receipt": "receipts\\holarch\\w3_complete_one_cell_turing.json",
-      "sha256": "cec232da94e3b2e6252a0a5b5626e0ba0c23a110dab1f6346cfe14864108bc40",
-      "passed": false,
+      "sha256": "11b90d4fd8aaeec8d2367fd2ebcfd823bf668090ed06c2d673e6c17bc64f5c98",
+      "passed": true,
       "gate": {
-        "w3_solved_ge_10": true,
-        "w3_length_generalised_ge_10": true,
+        "w3_solved_12": true,
+        "w3_length_generalised_12": true,
         "w3_zero_text_tokens": true,
         "w3_contradictions_4": true,
         "w3_delimiter_topology_claim_refuted": true,
-        "w3_solved_12": false,
-        "passed": false
+        "w3_strict_one_cell": true,
+        "w3_node_budget": true,
+        "w3_task_relabelled_false": true,
+        "passed": true
       },
-      "wall_seconds": 0.004162999917753041
+      "wall_seconds": 0.0029052000027149916
     },
     "w4": {
       "receipt": "receipts\\holarch\\w4_live_four_arm_aaii_v5.json",
-      "sha256": "44d30aa92fb0a252c794c3d21fa4d3f708cf374f51a2957c2e2a4c60a2a552f0",
-      "passed": false,
+      "sha256": "bbe3b06104ec55d37b34b0a74396c95951e7bb299efe46c84a6929cb1435405f",
+      "passed": true,
       "gate": {
-        "w4_only_arm0_measured": false,
-        "w4_four_arms_measured": false,
-        "w4_live_provider_claimed": false,
-        "w4_arm0_zero_hallucination": false,
-        "w4_arm3_strictly_highest": false,
-        "passed": false
+        "w4_four_arms_measured": true,
+        "w4_live_provider_claimed": true,
+        "w4_arm0_zero_hallucination": true,
+        "w4_arm3_zero_hallucination": true,
+        "w4_arm3_strictly_highest": true,
+        "w4_budget_respected": true,
+        "passed": true
       },
-      "wall_seconds": 0.00038350000977516174
+      "wall_seconds": 0.0002818000502884388
     },
     "w5": {
       "receipt": "receipts\\holarch\\w5_wave_egress_and_full_closure.json",
-      "sha256": "e7d80a167fc674920659edd7a82cbb0ba5c17787fba18cfaa1c7d11cd2ad5b65",
-      "passed": false,
+      "sha256": "7009e5f2c201ee0fdab86aa4adb954fbacdc82c8b810b73fea8488ce242f467e",
+      "passed": true,
       "gate": {
-        "w5_docs_contiguous_1_to_38": true,
-        "w5_wave_egress_organ_present": false,
-        "w5_contrastive_learning_measured": false,
-        "w5_margin_decoder_measured": false,
-        "passed": false
+        "w5_docs_contiguous": true,
+        "w5_wave_egress_organ_present": true,
+        "w5_contrastive_learning_measured": true,
+        "w5_margin_decoder_measured": true,
+        "w5_beats_count_floor": true,
+        "passed": true
       },
-      "wall_seconds": 0.001123500056564808
+      "wall_seconds": 0.0012612000573426485
     }
   },
-  "passed": false
+  "passed": true
 }

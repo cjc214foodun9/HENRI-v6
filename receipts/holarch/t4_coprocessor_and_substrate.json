@@ -308,7 +308,7 @@
     "t4_no_fabricated_gpu": true,
     "passed": true
   },
-  "wall_seconds": 0.10098290001042187,
+  "wall_seconds": 0.10617390007246286,
   "evidence": "OBSERVED",
   "passed": true
 }

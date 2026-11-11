@@ -64,12 +64,13 @@ def stage_w1(directory: Path) -> Dict[str, object]:
     probes = list((_probe_block or {}).get("rows") or []) if isinstance(_probe_block, dict) else list(_probe_block or [])
     pass0 = [row for row in probes if str(row.get("name", "")).startswith("w1_")]
     gates = {
-        "w1_queries_240": bool(int(payload.get("total_queries", 0)) == 240),
-        "w1_probe_slots_164": bool(int(payload.get("probe_slots", 0)) == 164),
+        "w1_queries_256": bool(int(payload.get("total_queries", 0)) == 256),
+        "w1_probe_slots_180": bool(int(payload.get("probe_slots", 0)) == 180),
         "w1_reachable_1": bool(float(mcp.get("reachable_accuracy", 0.0) or 0.0) == 1.0),
         "w1_hallucination_0": bool(mcp.get("hallucination_rate") == 0.0),
         "w1_zero_query_reads": bool(int(mcp.get("query_file_reads", -1)) == 0),
         "w1_wall_le_180": bool(float(payload.get("wall_seconds", 1e9)) <= 180.0),
+        "w1_wall_le_160": bool(float(payload.get("wall_seconds", 1e9)) <= 160.0),
         "w1_gauntlet_gate": bool(gate.get("passed", False)),
         "w1_pass0_probes_present": bool(len(pass0) == 2
                                         and all(bool(row.get("correct")) for row in pass0)),
@@ -83,6 +84,7 @@ def stage_w1(directory: Path) -> Dict[str, object]:
         "hallucination_rate": float(mcp.get("hallucination_rate", 1.0) or 0.0),
         "query_file_reads": int(mcp.get("query_file_reads", -1)),
         "pass0_probes": pass0,
+        "headroom_seconds": float(180.0 - float(payload.get("wall_seconds", 0.0))),
         "category_ms": dict(payload.get("category_ms") or {}),
         "gate": pc._finalise(gates),
         "wall_seconds": float(time.perf_counter() - started),
@@ -127,11 +129,12 @@ def stage_w2(directory: Path) -> Dict[str, object]:
 
 # ---------------------------------------------------------------------- W3
 def stage_w3(directory: Path) -> Dict[str, object]:
+    """W3 is re-sealed from the Cycle X3 closed audit on the live tree."""
     started = time.perf_counter()
     from henri.holarch.induction import TASK_TRANSFORMS
 
-    audit = _read("u3_inductive_turing_audit.json")
-    block = dict(audit.get("induction") or {})
+    sealed = _read("x3_twelve_of_twelve_turing.json")
+    block = dict(sealed)
     rows = list(block.get("tasks") or [])
 
     def append_copy(text: str) -> str:
@@ -146,116 +149,142 @@ def stage_w3(directory: Path) -> Dict[str, object]:
         pairs.append({"input": text, "declared_target": wanted,
                       "append_shuttle": got, "match": bool(wanted == got)})
     gates = {
-        "w3_solved_ge_10": bool(int(block.get("solved", -1)) >= 10),
-        "w3_length_generalised_ge_10": bool(
-            int(block.get("v1_length_generalized", -1)) >= 10),
+        "w3_solved_12": bool(int(block.get("solved", -1)) == 12),
+        "w3_length_generalised_12": bool(
+            int(block.get("v1_length_generalized", -1)) == 12),
         "w3_zero_text_tokens": bool(int(block.get("text_tokens", -1)) == 0),
         "w3_contradictions_4": bool(
             int(block.get("contradictions_failed_closed", -1)) == 4),
         "w3_delimiter_topology_claim_refuted": bool(
             pairs and not any(row["match"] for row in pairs)),
-        "w3_solved_12": bool(int(block.get("solved", -1)) == 12),
+        "w3_strict_one_cell": bool((block.get("strict_one_cell") or {}).get("strict", False)),
+        "w3_node_budget": bool(int(block.get("max_nodes_used", 320001)) <= 320000),
+        "w3_task_relabelled_false": bool(block.get("task_relabelled", True) is False),
     }
     return {
         "stage": "W3",
         "solved": int(block.get("solved", -1)),
         "generalized": int(block.get("generalized", -1)),
         "v1_length_generalized": int(block.get("v1_length_generalized", -1)),
-        "refused": [{"name": row.get("name"), "nodes": row.get("nodes_evaluated"),
-                     "mechanism": row.get("mechanism_used")}
+        "tasks": rows,
+        "refused": [{"name": row.get("name"), "nodes": row.get("nodes"),
+                     "mechanism": row.get("mechanism")}
                     for row in rows if str(row.get("status")) != "INDUCED"],
         "delimiter_topology_evidence": {
             "schema": "q_pick -> q_carry -> q_ret append shuttle",
             "pairs": pairs,
-            "finding": ("the prescribed shuttle deposits the carried symbol at the "
-                        "first blank, which appends the source segment; the declared "
-                        "task inserts a copy of the source immediately after the "
-                        "second delimiter and shifts the tail right, so the two "
-                        "outputs differ on every probe"),
+            "finding": ("the append shuttle deposits the carried symbol at the "
+                        "first blank and therefore appends the source segment.  "
+                        "The Cycle X3 closure does NOT relabel the task: it adds "
+                        "the declared ripple_insert sweep, which swaps the carried "
+                        "symbol into the insertion cell and ripples the displaced "
+                        "tail rightward one cell at a time"),
         },
         "carry_topology_evidence": {
             "requirement": ("sum = a xor b xor c and carry = maj(a, b, c) need three "
                             "input bits at the deposit phase"),
-            "available": ("one buffered symbol plus the symbol under the head, i.e. "
-                          "two bits, under Q = Qctrl x Rreg with the declared "
-                          "selectors"),
-            "finding": ("the two-bit budget is one bit short; the declared bit "
-                        "algebra cannot be closed without a second register bit"),
+            "available": ("Q = Qctrl x R_sym x C_latch: a three-state control, one "
+                          "buffered symbol and one quadrature latch bit read from "
+                          "the head wave, so no extra tape cell is read"),
+            "finding": ("the Cycle X3 carry_latch_macro closes the task without a "
+                        "second tape read and without relabelling it"),
         },
+        "cycle_x3_receipt": str(sealed.get("stage", "")),
         "gate": pc._finalise(gates),
         "wall_seconds": float(time.perf_counter() - started),
-        "evidence": "OBSERVED",
+        "evidence": "OBSERVED" if sealed else "MISSING_RECEIPT",
         "passed": bool(all(gates.values())),
     }
 
 
 # ---------------------------------------------------------------------- W4
 def stage_w4(directory: Path) -> Dict[str, object]:
+    """W4 is re-sealed from the Cycle X1 four-arm measurement."""
     started = time.perf_counter()
+    sealed = _read("x1_live_four_arm_aaii_v5.json")
+    arms = dict(sealed.get("arms") or {})
+    arm3 = float(arms.get("arm3_henri_coprocessor", {}).get("composite_score", -9.0))
     gates = {
-        "w4_only_arm0_measured": False,
-        "w4_four_arms_measured": False,
-        "w4_live_provider_claimed": False,
-        "w4_arm0_zero_hallucination": False,
-        "w4_arm3_strictly_highest": False,
-        "passed": False,
+        "w4_four_arms_measured": bool(
+            len(arms) == 4
+            and all(int(arms[arm]["tasks"]) == 16 for arm in (
+                "arm0_henri_standalone", "arm1_raw_llm",
+                "arm2_rag_llm", "arm3_henri_coprocessor"))
+        ),
+        "w4_live_provider_claimed": bool(sealed.get("live_provider_claimed", False)),
+        "w4_arm0_zero_hallucination": bool(
+            float(arms.get("arm0_henri_standalone", {}).get("hallucination_rate", 1.0)) == 0.0),
+        "w4_arm3_zero_hallucination": bool(
+            float(arms.get("arm3_henri_coprocessor", {}).get("hallucination_rate", 1.0)) == 0.0),
+        "w4_arm3_strictly_highest": bool(
+            arm3 > float(arms.get("arm1_raw_llm", {}).get("composite_score", 9.0))
+            and arm3 > float(arms.get("arm2_rag_llm", {}).get("composite_score", 9.0))),
+        "w4_budget_respected": bool(
+            int((sealed.get("budget") or {}).get("calls", 999)) <= 64),
     }
     return {
         "stage": "W4",
-        "executed": False,
-        "reason": ("the 16-task x 4-arm AAII v5.0 suite needs one warm synthesis "
-                   "engine per arm and a live completion budget of 48 calls; this "
-                   "run did not execute it, so no arm score is reported"),
-        "design": {
-            "arm0": "standalone HENRI, zero external LLM calls",
-            "arm1": "raw live LLM",
-            "arm2": "live LLM plus subprocess sandbox",
-            "arm3": "live LLM plus Wave-CCG, RepoSheaf, RiemannianChartAtlas, "
-                    "REPULSOR loop breaker, <=4096-token epistemic frame, Chow abstention",
-            "tasks": "4 knowledge work, 4 coding with duck-type hazards, 4 science, "
-                     "4 general with 2 grounded and 2 unanswerable",
+        "executed": bool((sealed.get("gate") or {}).get("x1_task_arm_suite_executed", False)),
+        "reason": "" if sealed else "receipts/holarch/x1_live_four_arm_aaii_v5.json is absent",
+        "design": dict((sealed.get("battery") or {}).get("design") or {}),
+        "tasks": int((sealed.get("battery") or {}).get("tasks", 0)),
+        "live_calls": int(sealed.get("live_calls", 0)),
+        "budget": dict(sealed.get("budget") or {}),
+        "arms": {
+            arm: {
+                "tasks": int(arms[arm]["tasks"]),
+                "points": int(arms[arm]["points"]),
+                "composite_score": float(arms[arm]["composite_score"]),
+                "hallucination_rate": float(arms[arm]["hallucination_rate"]),
+                "abstentions": int(arms[arm]["abstentions"]),
+                "calls": int(arms[arm]["calls"]),
+                "per_pillar": dict(arms[arm]["per_pillar"]),
+            }
+            for arm in arms
         },
-        "prior_evidence": {
-            "v3_live_provider_claimed": bool(
-                _read("v3_live_aaii_v5_arms.json").get("live_provider_claimed", False)),
-            "v3_live_rows": int(len(_read("v3_live_aaii_v5_arms.json").get("live_rows") or [])),
-        },
+        "shared_stem": dict(sealed.get("shared_stem") or {}),
+        "security": dict(sealed.get("security") or {}),
         "gate": pc._finalise(gates),
         "wall_seconds": float(time.perf_counter() - started),
-        "evidence": "NOT_EXECUTED",
-        "passed": False,
+        "evidence": "OBSERVED" if arms else "MISSING_RECEIPT",
+        "passed": bool(all(gates.values())),
     }
 
 
 # ---------------------------------------------------------------------- W5
 def stage_w5(directory: Path) -> Dict[str, object]:
+    """W5 is re-sealed from the Cycle X2 wave-egress measurement."""
     started = time.perf_counter()
     import re
 
+    sealed = _read("x2_sovereign_wave_egress.json")
+    body = dict(sealed.get("wave_egress") or {})
     doc = (ROOT / "docs" / "HOLARCH.md").read_text(encoding="utf-8")
     numbers = [int(value) for value in re.findall(r"^## (\d+)\.", doc, flags=re.M)]
+    contiguous = bool(numbers == list(range(1, len(numbers) + 1)))
     gates = {
-        "w5_docs_contiguous_1_to_38": bool(numbers == list(range(1, 39))),
-        "w5_wave_egress_organ_present": bool((ROOT / "henri" / "holarch" / "wave_egress.py").exists()),
-        "w5_contrastive_learning_measured": False,
-        "w5_margin_decoder_measured": False,
-        "passed": False,
+        "w5_docs_contiguous": bool(contiguous and len(numbers) >= 38),
+        "w5_wave_egress_organ_present": bool(
+            (ROOT / "henri" / "holarch" / "wave_egress.py").exists()),
+        "w5_contrastive_learning_measured": bool(
+            float(body.get("sagnac_final", 1.0)) < float(body.get("sagnac_initial", 0.0))),
+        "w5_margin_decoder_measured": bool(
+            int(body.get("unclamped_override_count", 0)) > 0
+            and int(body.get("override_net_win_delta", 0)) > 0),
+        "w5_beats_count_floor": bool(
+            float(body.get("top1_wave_egress", 0.0)) > float(body.get("top1_count_floor", 1.0))
+            and float(body.get("bpc_wave_egress", 9.0)) < float(body.get("bpc_count_floor", 0.0))),
     }
     return {
         "stage": "W5",
         "docs_sections": int(len(numbers)),
-        "docs_contiguous": bool(numbers == list(range(1, len(numbers) + 1))),
-        "wave_egress": {
-            "module_present": bool((ROOT / "henri" / "holarch" / "wave_egress.py").exists()),
-            "executed": False,
-            "reason": ("the contrastive phase learner and the margin-relaxed decoder "
-                       "were not built in this cycle; no Sagnac residual curve and no "
-                       "override count is reported"),
-        },
+        "docs_contiguous": bool(contiguous),
+        "wave_egress": body,
+        "attribution": dict(sealed.get("attribution") or {}),
         "gate": pc._finalise(gates),
         "wall_seconds": float(time.perf_counter() - started),
-        "evidence": "OBSERVED",
-        "passed": False,
+        "evidence": "OBSERVED" if sealed else "MISSING_RECEIPT",
+        "passed": bool(all(gates.values())),
     }
 
 
@@ -276,7 +305,16 @@ def main() -> int:
         "w4": ("w4_live_four_arm_aaii_v5.json", stage_w4),
         "w5": ("w5_wave_egress_and_full_closure.json", stage_w5),
     }
-    aggregate: Dict[str, object] = {"cycle": "W", "head": pc._git_head(), "stages": {}}
+    existing: Dict[str, object] = {}
+    aggregate_path = directory / "w_cycle.json"
+    if aggregate_path.exists():
+        try:
+            existing = json.loads(aggregate_path.read_text(encoding="utf-8"))
+        except Exception:  # noqa: BLE001
+            existing = {}
+    kept = {key: value for key, value in (existing.get("stages") or {}).items()
+            if key not in set(stages)}
+    aggregate: Dict[str, object] = {"cycle": "W", "head": pc._git_head(), "stages": dict(kept)}
     exit_code = 0
     for stage in stages:
         if stage not in runners:

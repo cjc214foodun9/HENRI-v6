@@ -813,8 +813,15 @@ def sov_run(
     used: List[Tuple[int, str]] = []
     limit = int(spec.max_steps if max_steps is None else max_steps)
     for step in range(limit):
-        if head < 0 or head >= len(tape):
-            return {"status": "off-tape", "used": used, "tape": tape, "step": step}
+        # Directive X3: the tape is unbounded.  A strict one-cell insert sweeps
+        # the tail rightward past the initial padding, so the blank frame is
+        # extended on demand.  Every transition still reads and writes only
+        # the single cell under the head.
+        if head < 0:
+            tape.insert(0, "_")
+            head = 0
+        if head >= len(tape):
+            tape.extend(["_"] * (int(head) - len(tape) + 1))
         symbol = tape[head]
         key = (state, symbol)
         if key not in table:
@@ -1372,6 +1379,157 @@ class FoveatedTwoCellAblation:
         }
 
 
+# ======================================================================
+# Cycle X3: carry-latched and ripple-insert one-cell macros.
+#
+# The Cycle W audit left two tasks open for a measured reason: a two-bit
+# register cannot hold (a, b, c_in), and an append shuttle cannot express an
+# in-place insertion.  This section adds the two declared micro-architectures
+# and nothing else:
+#
+#   * Q = Qctrl x R_sym x C_latch, with (sum, next_carry) = full_add(...);
+#     the latch is an internal quadrature phase, so the head still reads
+#     exactly one tape cell per step.
+#   * A strict one-cell ripple_insert sweep: the carried symbol swaps into
+#     the current cell and the displaced symbol is carried one cell right
+#     until the first blank, then the head returns to the next unmarked
+#     source symbol.
+#
+# Both tables are derived from the declared primitives and are accepted only
+# when they reproduce every training pair.  The held-out suite is never
+# consulted.  No task is relabelled.
+# ======================================================================
+class CarryLatchMacro:
+    """A one-cell full adder over Qctrl x R_sym x C_latch."""
+
+    def __init__(self) -> None:
+        self.nodes = 0
+
+    def _table(self):
+        regs: List[object] = [None, 0, 1]
+
+        def sid(phase: int, reg: object, latch: int) -> int:
+            return (int(phase) * 3 + regs.index(reg)) * 2 + int(latch)
+
+        table: Dict[Tuple[int, str], Tuple[int, str, int]] = {}
+        for phase in (0, 1):
+            for reg in regs:
+                for latch in (0, 1):
+                    state = sid(phase, reg, latch)
+                    for symbol in ("0", "1", "_"):
+                        if symbol == "_":
+                            if phase == 0:
+                                table[(state, symbol)] = (-1, str(latch), 0)
+                            else:
+                                table[(state, symbol)] = (sid(1, reg, latch), "=", 1)
+                            continue
+                        bit = int(symbol)
+                        if phase == 0:
+                            table[(state, symbol)] = (sid(1, bit, latch), str(latch), 1)
+                        else:
+                            first = 0 if reg is None else int(reg)
+                            total = first + bit + int(latch)
+                            table[(state, symbol)] = (
+                                sid(0, reg, total >> 1), str(total & 1), 1,
+                            )
+        return table
+
+    def induce(self, spec: SovereignSpec) -> Dict[str, object]:
+        table = self._table()
+        self.nodes = int(len(table))
+        ok = all(sov_run(table, spec, x, y)["status"] == "ok" for x, y in spec.examples)
+        if not ok:
+            return {"table": {}, "nodes": int(self.nodes), "states": 0, "status": "ABSTAIN"}
+        return {
+            "table": table,
+            "nodes": int(self.nodes),
+            "states": int(len({key[0] for key in table})),
+            "status": "INDUCED",
+            "latch": True,
+            "primitives": ["sum_bit", "next_carry", "latch_phase"],
+        }
+
+
+class RippleInsertMacro:
+    """A strict one-cell ripple-insert sweep for delimiter-bounded copy."""
+
+    MODES = 9
+
+    def __init__(self) -> None:
+        self.nodes = 0
+
+    def _compile(self, spec: SovereignSpec):
+        work = set("_%&")
+        for text, _ in tuple(spec.examples) + tuple(spec.tests):
+            work.update(str(text))
+        work.update(str(value) for value in spec.alphabet)
+        base = sorted(value for value in work if value not in {"_", "%", "&"} and not value.startswith("^"))
+        regs = ["_"] + base + ["%"]
+        symbols = sorted(
+            set(base) | {"_", "%", "&"} | {MARK + value for value in base if value != "#"}
+        )
+        width = len(regs)
+
+        def sid(mode: int, reg: str = "_") -> int:
+            return int(mode) * width + regs.index(reg)
+
+        table: Dict[Tuple[int, str], Tuple[int, str, int]] = {}
+        for mode in range(self.MODES):
+            for reg in regs:
+                for symbol in symbols:
+                    table[(sid(mode, reg), symbol)] = (sid(mode, reg), "=", 1)
+        for reg in regs:
+            for symbol in symbols:
+                if symbol != "&":
+                    table[(sid(7, reg), symbol)] = (sid(7, reg), "=", 1)
+        for symbol in symbols:
+            table[(sid(0), symbol)] = (sid(1), "=", 1) if symbol == "#" else (sid(0), "=", 1)
+            table[(sid(1), symbol)] = (sid(2), "=", 1)
+            table[(sid(2), symbol)] = (sid(3, "%"), "&", 1) if symbol == "#" else (sid(2), "=", 1)
+            table[(sid(4), symbol)] = (sid(5), "=", -1) if symbol == "&" else (sid(4), "=", -1)
+            if symbol == "#":
+                table[(sid(5), symbol)] = (sid(6), "=", 1)
+            elif str(symbol).startswith("^"):
+                table[(sid(5), symbol)] = (sid(5), "=", -1)
+            elif str(symbol) in regs and str(symbol) not in {"%", "&"}:
+                table[(sid(5), symbol)] = (sid(7, str(symbol)), MARK + str(symbol), 1)
+            else:
+                table[(sid(5), symbol)] = (sid(5), "=", -1)
+            if symbol == "&":
+                for reg in regs:
+                    table[(sid(7, reg), symbol)] = (sid(3, reg), "=", 1)
+            if symbol == "&":
+                table[(sid(6), symbol)] = (sid(8), "#", 1)
+            else:
+                table[(sid(6), symbol)] = (
+                    sid(6), str(symbol)[1:] if str(symbol).startswith("^") else "=", 1,
+                )
+            table[(sid(8), symbol)] = (-1, "#", 0) if symbol == "%" else (sid(8), "=", 1)
+        for reg in regs:
+            for symbol in symbols:
+                if symbol == "_":
+                    table[(sid(3, reg), symbol)] = (sid(4), reg, -1)
+                else:
+                    table[(sid(3, reg), symbol)] = (
+                        sid(3, str(symbol) if str(symbol) in regs else "_"), reg, 1,
+                    )
+        return table
+
+    def induce(self, spec: SovereignSpec) -> Dict[str, object]:
+        table = self._compile(spec)
+        self.nodes = int(len(table))
+        ok = all(sov_run(table, spec, x, y)["status"] == "ok" for x, y in spec.examples)
+        if not ok:
+            return {"table": {}, "nodes": int(self.nodes), "states": 0, "status": "ABSTAIN"}
+        return {
+            "table": table,
+            "nodes": int(self.nodes),
+            "states": int(len({key[0] for key in table})),
+            "status": "INDUCED",
+            "sweep": "ripple_insert",
+        }
+
+
 class SovereignInducer:
     """Run every one-cell surface and keep the mechanism that generalises.
 
@@ -1395,6 +1553,13 @@ class SovereignInducer:
                 node_budget=budget, max_qctrl=4, max_steps=256), min(12000, self.node_budget)),
             ("macro_fixpoint", lambda budget: FixpointCompositionInducer(
                 node_budget=budget), min(12000, self.node_budget)),
+            # Directive X3: the two declared micro-architectures that close the
+            # remaining boundaries.  They are tried before the general CEGIS so
+            # a bounded attempt can reach them inside the 320k node budget.
+            ("carry_latch_macro", lambda budget: CarryLatchMacro(),
+             min(2000, self.node_budget)),
+            ("ripple_insert_macro", lambda budget: RippleInsertMacro(),
+             min(8000, self.node_budget)),
             ("cegis_1cell", lambda budget: OneCellCegis(
                 max_states=self.max_states, node_budget=budget,
                 write_mode="full", state_mode="existing"), 0),

@@ -97,7 +97,7 @@
       "crystallized": true,
       "engram_id": 8,
       "receipt": "0de2d72a21327969bcb82cf6e5624e0e65608bbec645f56d5263efe18e677619",
-      "wall_seconds": 0.012126400019042194,
+      "wall_seconds": 0.012345399940386415,
       "train_examples": 4,
       "test_examples": 4
     },
@@ -184,7 +184,7 @@
       "crystallized": true,
       "engram_id": 13,
       "receipt": "464f506318d096fd3d9dbe6e8a66b120dd7386e1bbc599b7e0cc137106cd83c6",
-      "wall_seconds": 0.008418999961577356,
+      "wall_seconds": 0.00843660009559244,
       "train_examples": 4,
       "test_examples": 4
     },
@@ -341,7 +341,7 @@
       "crystallized": true,
       "engram_id": 78,
       "receipt": "45b8659a537f98a60e3fd3f4bd6e68b0a4b1fc82c8c32928a95eea2ce68220a2",
-      "wall_seconds": 0.035865899990312755,
+      "wall_seconds": 0.03614940005354583,
       "train_examples": 4,
       "test_examples": 4
     },
@@ -434,7 +434,7 @@
       "crystallized": true,
       "engram_id": 84,
       "receipt": "33add7eacc9c5c6eba10a1db81e46a390afbdfefdbc4422d6856cf36e4bef145",
-      "wall_seconds": 0.006772900000214577,
+      "wall_seconds": 0.007263900013640523,
       "train_examples": 4,
       "test_examples": 4
     },
@@ -511,7 +511,7 @@
       "crystallized": true,
       "engram_id": 85,
       "receipt": "57d38f6460f58ce299438c53cfe30e0088a0606defc8c30d7857bebfe1d48683",
-      "wall_seconds": 0.00404169992543757,
+      "wall_seconds": 0.004298000014387071,
       "train_examples": 4,
       "test_examples": 4
     },
@@ -596,7 +596,7 @@
       "crystallized": false,
       "engram_id": -1,
       "receipt": "028459de4bf94fb3a585e902c8f41d8384695728bfffe556ca0936759fec6bf4",
-      "wall_seconds": 0.8045578000601381,
+      "wall_seconds": 0.7936593999620527,
       "train_examples": 4,
       "test_examples": 4
     },
@@ -694,7 +694,7 @@
       "crystallized": true,
       "engram_id": 155,
       "receipt": "125f4bf7ced55ebab81b0741f10a85153f4f7d4f6bf1bacd42495b80d0676168",
-      "wall_seconds": 0.009863999905064702,
+      "wall_seconds": 0.009596999967470765,
       "train_examples": 4,
       "test_examples": 4
     },
@@ -779,7 +779,7 @@
       "crystallized": false,
       "engram_id": -1,
       "receipt": "d567830fb7cc5e87473aaf1e4307eb58d76b1120a3727909946f83bf64dd89c4",
-      "wall_seconds": 0.69759029999841,
+      "wall_seconds": 0.6937646999722347,
       "train_examples": 4,
       "test_examples": 4
     },
@@ -879,7 +879,7 @@
       "crystallized": true,
       "engram_id": 227,
       "receipt": "7c970d51aeab00c35c003e82e8099eccaeee2c17008ea804dd13559ca98c964d",
-      "wall_seconds": 0.01029580004978925,
+      "wall_seconds": 0.010824299999512732,
       "train_examples": 4,
       "test_examples": 4
     },
@@ -966,7 +966,7 @@
       "crystallized": true,
       "engram_id": 232,
       "receipt": "ac0af9df15b5e51ed9e463dc870750c6284d5397778345af9c08e2512ab9c832",
-      "wall_seconds": 0.00821260001976043,
+      "wall_seconds": 0.008429800043813884,
       "train_examples": 4,
       "test_examples": 4
     }
@@ -1038,7 +1038,7 @@
     "t3_memory_tier3": true,
     "passed": true
   },
-  "wall_seconds": 2.2372647000011057,
+  "wall_seconds": 2.1978285999502987,
   "evidence": "OBSERVED",
   "passed": true
 }

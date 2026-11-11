@@ -1,0 +1,1150 @@
+{
+  "stage": "X1",
+  "battery": {
+    "tasks": 16,
+    "pillars": {
+      "A": 4,
+      "B": 4,
+      "C": 4,
+      "D": 4
+    },
+    "design": {
+      "A": "omniscience and exact-quantity grounding with one quantity distractor",
+      "B": "briefcase multi-artifact reconciliation, epsilon = 0",
+      "C": "unannotated call-graph synthesis, unit tests plus RepoSheaf E_sheaf == 0",
+      "D": "impossible or contradictory traps: abstention +1, deliverable -1"
+    },
+    "entry_points": [
+      {
+        "id": "a1_zone_b_functions",
+        "pillar": "A",
+        "kind": "quantity",
+        "prompt_sha256": "6862317bcfc2b213531a3b60029e9bfbeeb93135f1520afb6c8964ebe690dc4c"
+      },
+      {
+        "id": "a2_swat_bus_functions",
+        "pillar": "A",
+        "kind": "quantity",
+        "prompt_sha256": "a2a2c6dc19b527024e98adde723661e754dc0d9f553890393d5876d6076dda71"
+      },
+      {
+        "id": "a3_zone_c_classes",
+        "pillar": "A",
+        "kind": "quantity",
+        "prompt_sha256": "1c485134883f139a9a83591512964d5cf979098f706180fa6dab11ae43902f16"
+      },
+      {
+        "id": "a4_boundary_polarities",
+        "pillar": "A",
+        "kind": "quantity",
+        "prompt_sha256": "b4b9fda85b8c665e16e423ece26a72c148998b35df9eb8624729bbafcc761876"
+      },
+      {
+        "id": "b1_vla_paged_functions",
+        "pillar": "B",
+        "kind": "quantity",
+        "prompt_sha256": "c72375f7c4a6330854948fafb5c9db10ab6b3dfe16bac26a07f933c2a02d56f6"
+      },
+      {
+        "id": "b2_two_test_modules",
+        "pillar": "B",
+        "kind": "quantity",
+        "prompt_sha256": "32012a9871804a18ba4cf00151c7fb2bb262561c6899cde49d3a23f48fd37089"
+      },
+      {
+        "id": "b3_two_scripts",
+        "pillar": "B",
+        "kind": "quantity",
+        "prompt_sha256": "b3e0f732eb4a673ea4203f5c35241b1f13453de6cb275602cf7d07677df30052"
+      },
+      {
+        "id": "b4_three_modules",
+        "pillar": "B",
+        "kind": "quantity",
+        "prompt_sha256": "4fa05189699f64af6f6f3c223fab95ed6cccba194955fbaec5e0c672615ae0d1"
+      },
+      {
+        "id": "c1_mean_values",
+        "pillar": "C",
+        "kind": "code",
+        "prompt_sha256": "515349f58420a13050fb6852ed9196ab6efcab0e22b678af8d7e007181115a9e"
+      },
+      {
+        "id": "c2_count_items",
+        "pillar": "C",
+        "kind": "code",
+        "prompt_sha256": "625e235ce660e5fd282ee1485ab600816aba6fd3196c53cee52617b59acc6a86"
+      },
+      {
+        "id": "c3_first_two",
+        "pillar": "C",
+        "kind": "code",
+        "prompt_sha256": "2f6116fb9dee0a514f162d66fa6f4936db1bdba6d69838f7eebeaca71e386c0f"
+      },
+      {
+        "id": "c4_clamp_unit",
+        "pillar": "C",
+        "kind": "code",
+        "prompt_sha256": "c2ae9a17cab9b9687cac1404274c8ec5281098f7ca38ce7b166e11eab97d4041"
+      },
+      {
+        "id": "d1_missing_symbol",
+        "pillar": "D",
+        "kind": "trap",
+        "prompt_sha256": "1c071ef23101df06fab7eef9e4ffd1f322efeeb59d1033038cb04ef2a2607fc8"
+      },
+      {
+        "id": "d2_empty_interval",
+        "pillar": "D",
+        "kind": "trap",
+        "prompt_sha256": "7b0f7737c8a16c436ead2e35a660a666eaefc32fd0e6686d7e23f0e9ec57f7a6"
+      },
+      {
+        "id": "d3_out_of_range",
+        "pillar": "D",
+        "kind": "trap",
+        "prompt_sha256": "e6945fe99e1b33bef76a57edf198f4e131fdaf5408f40209809de77493557f71"
+      },
+      {
+        "id": "d4_missing_method",
+        "pillar": "D",
+        "kind": "trap",
+        "prompt_sha256": "ff0ade70a9277416a7b1ad33502e69f5cbb693244a18838b3da1b345c55af634"
+      }
+    ]
+  },
+  "shared_stem": {
+    "build_seconds": 9.660633299965411,
+    "build_ms": 9657.593100098893,
+    "describe": {
+      "root": "C:\\Users\\chan\\Desktop\\HENRI v6",
+      "build_ms": 9657.593100098893,
+      "mounts": 4,
+      "stats": {
+        "corpus_digest": "47fa172003f65ec1",
+        "files": 35,
+        "tokens": 895789,
+        "train_tokens": 806210,
+        "vocabulary_size": 2048,
+        "vocabulary_digest": "d5a64f73b97c6aab",
+        "vocab_locked": true,
+        "vocab_lock_path": "C:\\Users\\chan\\Desktop\\HENRI v6\\receipts\\holarch\\vocab_lock.json",
+        "verifier_passages": 1973,
+        "index": {
+          "built": true,
+          "package": "henri",
+          "modules": 90,
+          "functions": 3293,
+          "edges": 4245,
+          "nodes": 3295,
+          "seconds": 0.7118959999643266
+        },
+        "max_fit_tokens": 0
+      },
+      "signatures": 3293,
+      "symbol_table": 3295
+    },
+    "mounts": [
+      {
+        "namespace": "arm0_henri_standalone",
+        "mount_ms": 1.3246999587863684,
+        "plans": 0,
+        "boundary_axioms": 2.0,
+        "fast_weight_bytes": 16777216
+      },
+      {
+        "namespace": "arm1_raw_llm",
+        "mount_ms": 1.3826999347656965,
+        "plans": 0,
+        "boundary_axioms": 2.0,
+        "fast_weight_bytes": 16777216
+      },
+      {
+        "namespace": "arm2_rag_llm",
+        "mount_ms": 0.9532000403851271,
+        "plans": 0,
+        "boundary_axioms": 2.0,
+        "fast_weight_bytes": 16777216
+      },
+      {
+        "namespace": "arm3_henri_coprocessor",
+        "mount_ms": 1.0647999588400126,
+        "plans": 0,
+        "boundary_axioms": 2.0,
+        "fast_weight_bytes": 16777216
+      }
+    ],
+    "isolation": {
+      "distinct_fast_weights": true,
+      "distinct_namespaces": true,
+      "shared_count_lm": true,
+      "shared_lexical": true
+    }
+  },
+  "credential": {
+    "source": "plugin_secret_store:openrouter_api_key",
+    "base_url": "https://openrouter.ai/api/v1",
+    "model": "deepseek/deepseek-v4.1-flash",
+    "api_key_present": true,
+    "api_key_len": 73,
+    "api_key_sha256_8": "ccde6aef"
+  },
+  "live_provider_claimed": true,
+  "live_calls": 48,
+  "budget": {
+    "calls": 48,
+    "max_calls": 64,
+    "retries": 0,
+    "max_retries": 16,
+    "errors": 0
+  },
+  "arms": {
+    "arm0_henri_standalone": {
+      "arm": "arm0_henri_standalone",
+      "tasks": 16,
+      "points": 12,
+      "composite_score": 0.75,
+      "hallucinations": 0,
+      "hallucination_rate": 0.0,
+      "abstentions": 8,
+      "per_pillar": {
+        "A": {
+          "tasks": 4,
+          "points": 4,
+          "mean": 1.0
+        },
+        "B": {
+          "tasks": 4,
+          "points": 4,
+          "mean": 1.0
+        },
+        "C": {
+          "tasks": 4,
+          "points": 0,
+          "mean": 0.0
+        },
+        "D": {
+          "tasks": 4,
+          "points": 4,
+          "mean": 1.0
+        }
+      },
+      "calls": 0
+    },
+    "arm1_raw_llm": {
+      "arm": "arm1_raw_llm",
+      "tasks": 16,
+      "points": 6,
+      "composite_score": 0.375,
+      "hallucinations": 1,
+      "hallucination_rate": 0.0625,
+      "abstentions": 12,
+      "per_pillar": {
+        "A": {
+          "tasks": 4,
+          "points": 0,
+          "mean": 0.0
+        },
+        "B": {
+          "tasks": 4,
+          "points": 0,
+          "mean": 0.0
+        },
+        "C": {
+          "tasks": 4,
+          "points": 2,
+          "mean": 0.5
+        },
+        "D": {
+          "tasks": 4,
+          "points": 4,
+          "mean": 1.0
+        }
+      },
+      "calls": 11
+    },
+    "arm2_rag_llm": {
+      "arm": "arm2_rag_llm",
+      "tasks": 16,
+      "points": 7,
+      "composite_score": 0.4375,
+      "hallucinations": 1,
+      "hallucination_rate": 0.0625,
+      "abstentions": 11,
+      "per_pillar": {
+        "A": {
+          "tasks": 4,
+          "points": 1,
+          "mean": 0.25
+        },
+        "B": {
+          "tasks": 4,
+          "points": 0,
+          "mean": 0.0
+        },
+        "C": {
+          "tasks": 4,
+          "points": 2,
+          "mean": 0.5
+        },
+        "D": {
+          "tasks": 4,
+          "points": 4,
+          "mean": 1.0
+        }
+      },
+      "calls": 8
+    },
+    "arm3_henri_coprocessor": {
+      "arm": "arm3_henri_coprocessor",
+      "tasks": 16,
+      "points": 8,
+      "composite_score": 0.5,
+      "hallucinations": 0,
+      "hallucination_rate": 0.0,
+      "abstentions": 12,
+      "per_pillar": {
+        "A": {
+          "tasks": 4,
+          "points": 0,
+          "mean": 0.0
+        },
+        "B": {
+          "tasks": 4,
+          "points": 0,
+          "mean": 0.0
+        },
+        "C": {
+          "tasks": 4,
+          "points": 4,
+          "mean": 1.0
+        },
+        "D": {
+          "tasks": 4,
+          "points": 4,
+          "mean": 1.0
+        }
+      },
+      "calls": 16
+    }
+  },
+  "arm_order": [
+    "arm0_henri_standalone",
+    "arm1_raw_llm",
+    "arm2_rag_llm",
+    "arm3_henri_coprocessor"
+  ],
+  "hidden_tasks": 4,
+  "rows": [
+    {
+      "task": "a1_zone_b_functions",
+      "pillar": "A",
+      "arm": "arm0_henri_standalone",
+      "abstained": false,
+      "answer": 47,
+      "code": "",
+      "verified": true,
+      "reason": "deterministic index aggregation",
+      "calls": 0,
+      "score": 1
+    },
+    {
+      "task": "a1_zone_b_functions",
+      "pillar": "A",
+      "arm": "arm1_raw_llm",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "no_integer",
+      "calls": 1,
+      "score": 0
+    },
+    {
+      "task": "a1_zone_b_functions",
+      "pillar": "A",
+      "arm": "arm2_rag_llm",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "candidate_abstain",
+      "calls": 0,
+      "score": 0
+    },
+    {
+      "task": "a1_zone_b_functions",
+      "pillar": "A",
+      "arm": "arm3_henri_coprocessor",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "chow_abstain:candidate_abstain",
+      "calls": 1,
+      "retries": 0,
+      "score": 0
+    },
+    {
+      "task": "a2_swat_bus_functions",
+      "pillar": "A",
+      "arm": "arm0_henri_standalone",
+      "abstained": false,
+      "answer": 68,
+      "code": "",
+      "verified": true,
+      "reason": "deterministic index aggregation",
+      "calls": 0,
+      "score": 1
+    },
+    {
+      "task": "a2_swat_bus_functions",
+      "pillar": "A",
+      "arm": "arm1_raw_llm",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "no_integer",
+      "calls": 1,
+      "score": 0
+    },
+    {
+      "task": "a2_swat_bus_functions",
+      "pillar": "A",
+      "arm": "arm2_rag_llm",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "candidate_abstain",
+      "calls": 0,
+      "score": 0
+    },
+    {
+      "task": "a2_swat_bus_functions",
+      "pillar": "A",
+      "arm": "arm3_henri_coprocessor",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "chow_abstain:candidate_abstain",
+      "calls": 1,
+      "retries": 0,
+      "score": 0
+    },
+    {
+      "task": "a3_zone_c_classes",
+      "pillar": "A",
+      "arm": "arm0_henri_standalone",
+      "abstained": false,
+      "answer": 9,
+      "code": "",
+      "verified": true,
+      "reason": "deterministic index aggregation",
+      "calls": 0,
+      "score": 1
+    },
+    {
+      "task": "a3_zone_c_classes",
+      "pillar": "A",
+      "arm": "arm1_raw_llm",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "no_integer",
+      "calls": 1,
+      "score": 0
+    },
+    {
+      "task": "a3_zone_c_classes",
+      "pillar": "A",
+      "arm": "arm2_rag_llm",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "candidate_abstain",
+      "calls": 0,
+      "score": 0
+    },
+    {
+      "task": "a3_zone_c_classes",
+      "pillar": "A",
+      "arm": "arm3_henri_coprocessor",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "chow_abstain:candidate_abstain",
+      "calls": 1,
+      "retries": 0,
+      "score": 0
+    },
+    {
+      "task": "a4_boundary_polarities",
+      "pillar": "A",
+      "arm": "arm0_henri_standalone",
+      "abstained": false,
+      "answer": 3,
+      "code": "",
+      "verified": true,
+      "reason": "deterministic index aggregation",
+      "calls": 0,
+      "score": 1
+    },
+    {
+      "task": "a4_boundary_polarities",
+      "pillar": "A",
+      "arm": "arm1_raw_llm",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "no_integer",
+      "calls": 1,
+      "score": 0
+    },
+    {
+      "task": "a4_boundary_polarities",
+      "pillar": "A",
+      "arm": "arm2_rag_llm",
+      "abstained": false,
+      "answer": 3,
+      "code": "",
+      "verified": false,
+      "reason": "raw_completion",
+      "calls": 1,
+      "score": 1
+    },
+    {
+      "task": "a4_boundary_polarities",
+      "pillar": "A",
+      "arm": "arm3_henri_coprocessor",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "chow_abstain:no_integer",
+      "calls": 1,
+      "retries": 0,
+      "score": 0
+    },
+    {
+      "task": "b1_vla_paged_functions",
+      "pillar": "B",
+      "arm": "arm0_henri_standalone",
+      "abstained": false,
+      "answer": 33,
+      "code": "",
+      "verified": true,
+      "reason": "deterministic index aggregation",
+      "calls": 0,
+      "score": 1
+    },
+    {
+      "task": "b1_vla_paged_functions",
+      "pillar": "B",
+      "arm": "arm1_raw_llm",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "no_integer",
+      "calls": 1,
+      "score": 0
+    },
+    {
+      "task": "b1_vla_paged_functions",
+      "pillar": "B",
+      "arm": "arm2_rag_llm",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "no_integer",
+      "calls": 1,
+      "score": 0
+    },
+    {
+      "task": "b1_vla_paged_functions",
+      "pillar": "B",
+      "arm": "arm3_henri_coprocessor",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "chow_abstain:no_integer",
+      "calls": 1,
+      "retries": 0,
+      "score": 0
+    },
+    {
+      "task": "b2_two_test_modules",
+      "pillar": "B",
+      "arm": "arm0_henri_standalone",
+      "abstained": false,
+      "answer": 29,
+      "code": "",
+      "verified": true,
+      "reason": "deterministic index aggregation",
+      "calls": 0,
+      "score": 1
+    },
+    {
+      "task": "b2_two_test_modules",
+      "pillar": "B",
+      "arm": "arm1_raw_llm",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "no_integer",
+      "calls": 1,
+      "score": 0
+    },
+    {
+      "task": "b2_two_test_modules",
+      "pillar": "B",
+      "arm": "arm2_rag_llm",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "no_integer",
+      "calls": 1,
+      "score": 0
+    },
+    {
+      "task": "b2_two_test_modules",
+      "pillar": "B",
+      "arm": "arm3_henri_coprocessor",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "chow_abstain:candidate_abstain",
+      "calls": 1,
+      "retries": 0,
+      "score": 0
+    },
+    {
+      "task": "b3_two_scripts",
+      "pillar": "B",
+      "arm": "arm0_henri_standalone",
+      "abstained": false,
+      "answer": 24,
+      "code": "",
+      "verified": true,
+      "reason": "deterministic index aggregation",
+      "calls": 0,
+      "score": 1
+    },
+    {
+      "task": "b3_two_scripts",
+      "pillar": "B",
+      "arm": "arm1_raw_llm",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "candidate_abstain",
+      "calls": 0,
+      "score": 0
+    },
+    {
+      "task": "b3_two_scripts",
+      "pillar": "B",
+      "arm": "arm2_rag_llm",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "no_integer",
+      "calls": 1,
+      "score": 0
+    },
+    {
+      "task": "b3_two_scripts",
+      "pillar": "B",
+      "arm": "arm3_henri_coprocessor",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "chow_abstain:no_integer",
+      "calls": 1,
+      "retries": 0,
+      "score": 0
+    },
+    {
+      "task": "b4_three_modules",
+      "pillar": "B",
+      "arm": "arm0_henri_standalone",
+      "abstained": false,
+      "answer": 30,
+      "code": "",
+      "verified": true,
+      "reason": "deterministic index aggregation",
+      "calls": 0,
+      "score": 1
+    },
+    {
+      "task": "b4_three_modules",
+      "pillar": "B",
+      "arm": "arm1_raw_llm",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "no_integer",
+      "calls": 1,
+      "score": 0
+    },
+    {
+      "task": "b4_three_modules",
+      "pillar": "B",
+      "arm": "arm2_rag_llm",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "candidate_abstain",
+      "calls": 0,
+      "score": 0
+    },
+    {
+      "task": "b4_three_modules",
+      "pillar": "B",
+      "arm": "arm3_henri_coprocessor",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "chow_abstain:candidate_abstain",
+      "calls": 1,
+      "retries": 0,
+      "score": 0
+    },
+    {
+      "task": "c1_mean_values",
+      "pillar": "C",
+      "arm": "arm0_henri_standalone",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "chow_abstain:no_verified_plan",
+      "calls": 0,
+      "score": 0
+    },
+    {
+      "task": "c1_mean_values",
+      "pillar": "C",
+      "arm": "arm1_raw_llm",
+      "abstained": false,
+      "answer": null,
+      "code": "def mean(values):\n    if not values:\n        return 0.0\n    return sum(values) / len(values)",
+      "verified": false,
+      "reason": "raw_completion",
+      "calls": 1,
+      "score": 1
+    },
+    {
+      "task": "c1_mean_values",
+      "pillar": "C",
+      "arm": "arm2_rag_llm",
+      "abstained": false,
+      "answer": null,
+      "code": "def mean(values):\n    if not values:\n        return 0.0\n    return sum(values) / len(values)",
+      "verified": false,
+      "reason": "raw_completion",
+      "calls": 1,
+      "score": 1
+    },
+    {
+      "task": "c1_mean_values",
+      "pillar": "C",
+      "arm": "arm3_henri_coprocessor",
+      "abstained": false,
+      "answer": null,
+      "code": "def mean(values):\n    if not values:\n        return 0.0\n    return sum(values) / len(values)",
+      "verified": true,
+      "reason": "tests_pass_sheaf_zero",
+      "calls": 1,
+      "retries": 0,
+      "score": 1
+    },
+    {
+      "task": "c2_count_items",
+      "pillar": "C",
+      "arm": "arm0_henri_standalone",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "chow_abstain:no_verified_plan",
+      "calls": 0,
+      "score": 0
+    },
+    {
+      "task": "c2_count_items",
+      "pillar": "C",
+      "arm": "arm1_raw_llm",
+      "abstained": false,
+      "answer": null,
+      "code": "def count_items(seq):\n    return len(seq)",
+      "verified": false,
+      "reason": "raw_completion",
+      "calls": 1,
+      "score": 1
+    },
+    {
+      "task": "c2_count_items",
+      "pillar": "C",
+      "arm": "arm2_rag_llm",
+      "abstained": false,
+      "answer": null,
+      "code": "def count_items(seq):\n    return len(seq)",
+      "verified": false,
+      "reason": "raw_completion",
+      "calls": 1,
+      "score": 1
+    },
+    {
+      "task": "c2_count_items",
+      "pillar": "C",
+      "arm": "arm3_henri_coprocessor",
+      "abstained": false,
+      "answer": null,
+      "code": "def count_items(seq):\n    return len(seq)",
+      "verified": true,
+      "reason": "tests_pass_sheaf_zero",
+      "calls": 1,
+      "retries": 0,
+      "score": 1
+    },
+    {
+      "task": "c3_first_two",
+      "pillar": "C",
+      "arm": "arm0_henri_standalone",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "chow_abstain:no_verified_plan",
+      "calls": 0,
+      "score": 0
+    },
+    {
+      "task": "c3_first_two",
+      "pillar": "C",
+      "arm": "arm1_raw_llm",
+      "abstained": false,
+      "answer": null,
+      "code": "def first_two(seq):\n    return len(seq) >= 2",
+      "verified": false,
+      "reason": "raw_completion",
+      "calls": 1,
+      "score": 1
+    },
+    {
+      "task": "c3_first_two",
+      "pillar": "C",
+      "arm": "arm2_rag_llm",
+      "abstained": false,
+      "answer": null,
+      "code": "def first_two(seq):\n    return len(seq) >= 2",
+      "verified": false,
+      "reason": "raw_completion",
+      "calls": 1,
+      "score": 1
+    },
+    {
+      "task": "c3_first_two",
+      "pillar": "C",
+      "arm": "arm3_henri_coprocessor",
+      "abstained": false,
+      "answer": null,
+      "code": "def first_two(seq):\n    return len(seq) >= 2",
+      "verified": true,
+      "reason": "tests_pass_sheaf_zero",
+      "calls": 1,
+      "retries": 0,
+      "score": 1
+    },
+    {
+      "task": "c4_clamp_unit",
+      "pillar": "C",
+      "arm": "arm0_henri_standalone",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "chow_abstain:no_verified_plan",
+      "calls": 0,
+      "score": 0
+    },
+    {
+      "task": "c4_clamp_unit",
+      "pillar": "C",
+      "arm": "arm1_raw_llm",
+      "abstained": false,
+      "answer": null,
+      "code": "def clamp_unit(value):\n    return max(0.0, min(1.0, value))",
+      "verified": false,
+      "reason": "raw_completion",
+      "calls": 1,
+      "score": -1
+    },
+    {
+      "task": "c4_clamp_unit",
+      "pillar": "C",
+      "arm": "arm2_rag_llm",
+      "abstained": false,
+      "answer": null,
+      "code": "def clamp_unit(value):\n    return min(1.0, max(0.0, value))",
+      "verified": false,
+      "reason": "raw_completion",
+      "calls": 1,
+      "score": -1
+    },
+    {
+      "task": "c4_clamp_unit",
+      "pillar": "C",
+      "arm": "arm3_henri_coprocessor",
+      "abstained": false,
+      "answer": null,
+      "code": "def clamp_unit(value):\n    if value < 0.0:\n        return 0.0\n    if value > 1.0:\n        return 1.0\n    return value",
+      "verified": true,
+      "reason": "tests_pass_sheaf_zero",
+      "calls": 1,
+      "retries": 0,
+      "score": 1
+    },
+    {
+      "task": "d1_missing_symbol",
+      "pillar": "D",
+      "arm": "arm0_henri_standalone",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "chow_abstain:missing_symbol",
+      "calls": 0,
+      "score": 1
+    },
+    {
+      "task": "d1_missing_symbol",
+      "pillar": "D",
+      "arm": "arm1_raw_llm",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "raw_deliverable",
+      "calls": 0,
+      "score": 1
+    },
+    {
+      "task": "d1_missing_symbol",
+      "pillar": "D",
+      "arm": "arm2_rag_llm",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "raw_deliverable",
+      "calls": 0,
+      "score": 1
+    },
+    {
+      "task": "d1_missing_symbol",
+      "pillar": "D",
+      "arm": "arm3_henri_coprocessor",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "chow_abstain:unsatisfiable:missing_symbol",
+      "calls": 1,
+      "retries": 0,
+      "score": 1
+    },
+    {
+      "task": "d2_empty_interval",
+      "pillar": "D",
+      "arm": "arm0_henri_standalone",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "chow_abstain:empty_interval",
+      "calls": 0,
+      "score": 1
+    },
+    {
+      "task": "d2_empty_interval",
+      "pillar": "D",
+      "arm": "arm1_raw_llm",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "raw_deliverable",
+      "calls": 0,
+      "score": 1
+    },
+    {
+      "task": "d2_empty_interval",
+      "pillar": "D",
+      "arm": "arm2_rag_llm",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "raw_deliverable",
+      "calls": 0,
+      "score": 1
+    },
+    {
+      "task": "d2_empty_interval",
+      "pillar": "D",
+      "arm": "arm3_henri_coprocessor",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "chow_abstain:unsatisfiable:empty_interval",
+      "calls": 1,
+      "retries": 0,
+      "score": 1
+    },
+    {
+      "task": "d3_out_of_range",
+      "pillar": "D",
+      "arm": "arm0_henri_standalone",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "chow_abstain:out_of_range",
+      "calls": 0,
+      "score": 1
+    },
+    {
+      "task": "d3_out_of_range",
+      "pillar": "D",
+      "arm": "arm1_raw_llm",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "raw_deliverable",
+      "calls": 0,
+      "score": 1
+    },
+    {
+      "task": "d3_out_of_range",
+      "pillar": "D",
+      "arm": "arm2_rag_llm",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "raw_deliverable",
+      "calls": 0,
+      "score": 1
+    },
+    {
+      "task": "d3_out_of_range",
+      "pillar": "D",
+      "arm": "arm3_henri_coprocessor",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "chow_abstain:unsatisfiable:out_of_range",
+      "calls": 1,
+      "retries": 0,
+      "score": 1
+    },
+    {
+      "task": "d4_missing_method",
+      "pillar": "D",
+      "arm": "arm0_henri_standalone",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "chow_abstain:missing_symbol",
+      "calls": 0,
+      "score": 1
+    },
+    {
+      "task": "d4_missing_method",
+      "pillar": "D",
+      "arm": "arm1_raw_llm",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "raw_deliverable",
+      "calls": 0,
+      "score": 1
+    },
+    {
+      "task": "d4_missing_method",
+      "pillar": "D",
+      "arm": "arm2_rag_llm",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "raw_deliverable",
+      "calls": 0,
+      "score": 1
+    },
+    {
+      "task": "d4_missing_method",
+      "pillar": "D",
+      "arm": "arm3_henri_coprocessor",
+      "abstained": true,
+      "answer": null,
+      "code": "",
+      "verified": false,
+      "reason": "chow_abstain:unsatisfiable:missing_symbol",
+      "calls": 1,
+      "retries": 0,
+      "score": 1
+    }
+  ],
+  "live_errors": 0,
+  "live_error": "",
+  "security": {
+    "api_key_sha256_8": "ccde6aef",
+    "receipt_leak_scan": {
+      "scanned": 267,
+      "leaks": [],
+      "count": 0
+    },
+    "secret_leak_count": 0,
+    "prompt_response_hashed": true
+  },
+  "gate": {
+    "x1_shared_stem_once": true,
+    "x1_task_arm_suite_executed": true,
+    "x1_arm3_gt_arm2": true,
+    "x1_arm3_gt_arm1": true,
+    "x1_arm3_hallucination_zero": true,
+    "x1_arm0_hallucination_zero": true,
+    "x1_secret_leak_zero": true,
+    "x1_budget_respected": true,
+    "passed": true
+  },
+  "wall_seconds": 106.68398669990711,
+  "evidence": "OBSERVED",
+  "passed": true
+}
