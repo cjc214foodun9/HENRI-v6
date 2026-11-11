@@ -3867,12 +3867,12 @@ RepoSheaf capability check, an online REPULSOR retry and Chow abstention.
 |---|---|---|---|---|
 | arm0_henri_standalone | +0.7500 | 0.0000 | 8 | 0 |
 | arm1_raw_llm | +0.3750 | 0.0625 | 12 | 11 |
-| arm2_rag_llm | +0.4375 | 0.0625 | 11 | 6 |
-| arm3_henri_coprocessor | +0.5000 | 0.0000 | 12 | 17 |
+| arm2_rag_llm | +0.4375 | 0.0625 | 11 | 8 |
+| arm3_henri_coprocessor | +0.5000 | 0.0000 | 12 | 16 |
 
-49 live completions were used against the 64-call budget (one REPULSOR
-retry). `max_tokens` was 512 and the temperature 0.0 on every call; prompt
-and response SHA-256 digests are recorded. The secret scan covers 265 receipt
+48 live completions were used against the 64-call budget (no REPULSOR
+retry was needed in this run). `max_tokens` was 512 and the temperature 0.0 on every call; prompt
+and response SHA-256 digests are recorded. The secret scan covers 267 receipt
 files and finds zero occurrences of the key.
 
 ### 39.2 X2: contrastive wave egress and the unclamped override
