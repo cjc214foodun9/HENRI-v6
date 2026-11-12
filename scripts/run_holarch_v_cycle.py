@@ -174,8 +174,11 @@ def stage_v2(directory: Path) -> Dict[str, object]:
             "sealed_passed": bool((sealed.get("gate") or {}).get("passed", False)),
         }
     gates = {
-        "v2_queries_256": bool(int(payload.get("total_queries", 0)) == 256),
-        "v2_probe_slots_180": bool(int(payload.get("probe_slots", 0)) == 180),
+        # Cycle Y4 grew the gauntlet to 272 queries (76 receipts + 196
+        # probes).  The 256 slots of Cycle V are a measured subset, so this
+        # presence gate is a superset check, exactly as O4 did for 128.
+        "v2_queries_256": bool(int(payload.get("total_queries", 0)) >= 256),
+        "v2_probe_slots_180": bool(int(payload.get("probe_slots", 0)) >= 180),
         "v2_reachable_1": bool(float(mcp.get("reachable_accuracy", 0.0) or 0.0) == 1.0),
         "v2_hallucination_0": bool(mcp.get("hallucination_rate") == 0.0),
         "v2_zero_query_reads": bool(int(mcp.get("query_file_reads", -1)) == 0),

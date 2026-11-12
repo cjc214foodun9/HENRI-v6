@@ -1,0 +1,613 @@
+{
+  "stage": "Y4",
+  "run": {
+    "exit_code": 0,
+    "wall_seconds": 0.0,
+    "stderr_tail": ""
+  },
+  "gauntlet": {
+    "exit_code": 0,
+    "wall_seconds": 135.67315779998899,
+    "queries": 272,
+    "reachable_accuracy": 1.0,
+    "hallucination_rate": 0.0,
+    "query_file_reads": -1,
+    "y_probes": [
+      {
+        "name": "y1_rotor_unit_modulus",
+        "category": "y1_wave",
+        "expected": "every rotor component of the seeded Y1 wave sits on the unit circle",
+        "measured": {
+          "dim": 256,
+          "max_modulus_error": 1.1920928955078125e-07,
+          "norm": 16.0
+        },
+        "correct": true,
+        "seconds": 0.00010810000821948051,
+        "evidence": "seeded unit-phase rotor, no file read"
+      },
+      {
+        "name": "y1_parseval_energy_conserved",
+        "category": "y1_wave",
+        "expected": "the unitary wave transform conserves energy (Parseval) to single precision",
+        "measured": {
+          "energy_in": 256.00000025792133,
+          "energy_out": 256.00000025792133,
+          "relative_error": 0.0
+        },
+        "correct": true,
+        "seconds": 4.7600013203918934e-05,
+        "evidence": "numpy FFT of the live rotor"
+      },
+      {
+        "name": "y1_phase_shift_preserves_magnitude",
+        "category": "y1_wave",
+        "expected": "a global phase rotation changes no magnitude and no norm",
+        "measured": {
+          "theta_rad": 0.37,
+          "max_magnitude_delta": 1.7881393432617188e-07,
+          "norm_delta": 0.0
+        },
+        "correct": true,
+        "seconds": 1.6900012269616127e-05,
+        "evidence": "unit-phase multiplication in memory"
+      },
+      {
+        "name": "y1_gauge_invariant_overlap",
+        "category": "y1_wave",
+        "expected": "a global phase rotation changes the overlap modulus not at all and its angle by exactly theta",
+        "measured": {
+          "overlap_modulus": 12.59034538269043,
+          "magnitude_delta": 9.5367431640625e-07,
+          "angle_delta": 0.37000036239624023,
+          "theta": 0.37
+        },
+        "correct": true,
+        "seconds": 3.559992182999849e-05,
+        "evidence": "two seeded unit-phase rotors, one inner product"
+      },
+      {
+        "name": "y2_signature_and_assertions_parsed",
+        "category": "y2_cold_synth",
+        "expected": "the cold synthesizer reads the signature, the typed slots and the public assertions",
+        "measured": {
+          "name": "mean",
+          "params": [
+            "values"
+          ],
+          "roles": [
+            "seq"
+          ],
+          "assertions": 2,
+          "contradictions": []
+        },
+        "correct": true,
+        "seconds": 0.0019896000158041716,
+        "evidence": "literal prompt, zero file reads"
+      },
+      {
+        "name": "y2_slot_support_le_8",
+        "category": "y2_cold_synth",
+        "expected": "every AST slot is pruned to V_eff <= 8 admitted fills",
+        "measured": {
+          "candidates": 29,
+          "slots": 4,
+          "v_eff_max": 8
+        },
+        "correct": true,
+        "seconds": 0.0003317000810056925,
+        "evidence": "inventory rank over the typed slot table"
+      },
+      {
+        "name": "y2_contradictions_fail_closed",
+        "category": "y2_cold_synth",
+        "expected": "contradictory public examples are refused before any rollout",
+        "measured": {
+          "contradictions": [
+            "clamp(1)"
+          ],
+          "status": "ABSTAIN",
+          "reason": "contradictory_spec",
+          "rollouts": 0
+        },
+        "correct": true,
+        "seconds": 0.00015819992404431105,
+        "evidence": "fail-closed contradiction screen"
+      },
+      {
+        "name": "y2_template_inventory_covers_the_spec",
+        "category": "y2_cold_synth",
+        "expected": "the typed template inventory contains the canonical mean body for the parsed spec",
+        "measured": {
+          "bodies": 69,
+          "has_canonical_mean": true
+        },
+        "correct": true,
+        "seconds": 0.00020540005061775446,
+        "evidence": "build_candidates on the parsed spec"
+      },
+      {
+        "name": "y3_sheaf_zero_energy_on_verified_module",
+        "category": "y3_cascade",
+        "expected": "a module whose every callee is known has zero sheaf energy and no violation",
+        "measured": {
+          "energy": 0.0,
+          "violations": 0
+        },
+        "correct": true,
+        "seconds": 0.0003513999981805682,
+        "evidence": "RepoSheaf capability pullback on a literal module"
+      },
+      {
+        "name": "y3_sheaf_capability_pullback_fails_closed",
+        "category": "y3_cascade",
+        "expected": "a text argument handed to an int-annotated parameter raises sheaf energy and names the capability",
+        "measured": {
+          "energy": 1.0,
+          "violations": [
+            "util:CAP_NUM_ARITH:capability"
+          ],
+          "count": 1
+        },
+        "correct": true,
+        "seconds": 4.499917849898338e-06,
+        "evidence": "unsatisfied capability edge on the same sheaf"
+      },
+      {
+        "name": "y3_cascade_call_reduction",
+        "category": "y3_cascade",
+        "expected": "the Y4 cascade gate arithmetic admits a 47/48 reduction and rejects 1/3",
+        "measured": {
+          "arm3_calls": 48,
+          "arm4_calls": 1,
+          "reduction": 0.9791666666666666,
+          "below_threshold": 0.3333333333333333
+        },
+        "correct": true,
+        "seconds": 3.00002284348011e-06,
+        "evidence": "the exact formula the Y4 receipt records"
+      },
+      {
+        "name": "y3_penalty_composite_arithmetic",
+        "category": "y3_cascade",
+        "expected": "+1 correct, -1 hallucination and 0 abstain normalise to a bounded composite",
+        "measured": {
+          "scores": [
+            1,
+            1,
+            -1,
+            0
+          ],
+          "composite": 0.25,
+          "hallucination_rate": 0.25
+        },
+        "correct": true,
+        "seconds": 3.900029696524143e-06,
+        "evidence": "the Y4 scoring contract, evaluated"
+      },
+      {
+        "name": "y4_battery_48_four_pillars",
+        "category": "y4_battery",
+        "expected": "the scaled battery is 48 tasks, twelve per pillar",
+        "measured": {
+          "pillars": {
+            "A": 12,
+            "B": 12,
+            "C": 12,
+            "D": 12
+          },
+          "total": 48
+        },
+        "correct": true,
+        "seconds": 2.800021320581436e-06,
+        "evidence": "the Y4 battery contract"
+      },
+      {
+        "name": "y4_public_and_hidden_assertion_floor",
+        "category": "y4_battery",
+        "expected": "every coding task carries 2-3 public assertions and at least 4 hidden assertions",
+        "measured": {
+          "tasks": 12,
+          "public_min": 2,
+          "public_max": 3,
+          "hidden_min": 4,
+          "hidden_total": 48
+        },
+        "correct": true,
+        "seconds": 4.00003045797348e-06,
+        "evidence": "the Y4 coding-pillar rubric"
+      },
+      {
+        "name": "y4_hallucination_budget_is_zero",
+        "category": "y4_battery",
+        "expected": "a 0.002 hallucination ceiling on 48 tasks admits exactly zero hallucinations",
+        "measured": {
+          "ceiling": 0.002,
+          "tasks": 48,
+          "allowed_counts": [
+            0
+          ],
+          "budget_points": 0.096
+        },
+        "correct": true,
+        "seconds": 3.6999117583036423e-06,
+        "evidence": "the Y4 arm4 gate, evaluated over every possible count"
+      },
+      {
+        "name": "y4_gauntlet_slot_arithmetic",
+        "category": "y4_battery",
+        "expected": "the gauntlet slot total is 76 legacy receipts plus 196 probes, including 16 Cycle Y probes",
+        "measured": {
+          "legacy": 76,
+          "probes": 196,
+          "cycle_y": 16,
+          "total": 272,
+          "per_stage": 4
+        },
+        "correct": true,
+        "seconds": 2.300017513334751e-06,
+        "evidence": "the gauntlet count invariant"
+      }
+    ]
+  },
+  "arms": {
+    "arm0_henri_standalone": {
+      "arm": "arm0_henri_standalone",
+      "tasks": 48,
+      "points": 47,
+      "composite_score": 0.9791666666666666,
+      "hallucinations": 0,
+      "hallucination_rate": 0.0,
+      "abstentions": 9,
+      "correct": 47,
+      "per_pillar": {
+        "A": {
+          "tasks": 12,
+          "points": 12,
+          "mean": 1.0,
+          "hallucinations": 0,
+          "abstentions": 0
+        },
+        "B": {
+          "tasks": 12,
+          "points": 12,
+          "mean": 1.0,
+          "hallucinations": 0,
+          "abstentions": 0
+        },
+        "C": {
+          "tasks": 12,
+          "points": 11,
+          "mean": 0.9166666666666666,
+          "hallucinations": 0,
+          "abstentions": 1
+        },
+        "D": {
+          "tasks": 12,
+          "points": 12,
+          "mean": 1.0,
+          "hallucinations": 0,
+          "abstentions": 0
+        }
+      },
+      "calls": 0,
+      "retries": 0,
+      "escalations": 0,
+      "llm_derived_correct": 0,
+      "deterministic_fallback": 0
+    },
+    "arm1_raw_llm": {
+      "arm": "arm1_raw_llm",
+      "tasks": 48,
+      "points": 33,
+      "composite_score": 0.6875,
+      "hallucinations": 0,
+      "hallucination_rate": 0.0,
+      "abstentions": 23,
+      "correct": 33,
+      "per_pillar": {
+        "A": {
+          "tasks": 12,
+          "points": 9,
+          "mean": 0.75,
+          "hallucinations": 0,
+          "abstentions": 3
+        },
+        "B": {
+          "tasks": 12,
+          "points": 0,
+          "mean": 0.0,
+          "hallucinations": 0,
+          "abstentions": 12
+        },
+        "C": {
+          "tasks": 12,
+          "points": 12,
+          "mean": 1.0,
+          "hallucinations": 0,
+          "abstentions": 0
+        },
+        "D": {
+          "tasks": 12,
+          "points": 12,
+          "mean": 1.0,
+          "hallucinations": 0,
+          "abstentions": 0
+        }
+      },
+      "calls": 48,
+      "retries": 0,
+      "escalations": 0,
+      "llm_derived_correct": 0,
+      "deterministic_fallback": 0
+    },
+    "arm2_rag_llm": {
+      "arm": "arm2_rag_llm",
+      "tasks": 48,
+      "points": 30,
+      "composite_score": 0.625,
+      "hallucinations": 2,
+      "hallucination_rate": 0.041666666666666664,
+      "abstentions": 22,
+      "correct": 32,
+      "per_pillar": {
+        "A": {
+          "tasks": 12,
+          "points": 6,
+          "mean": 0.5,
+          "hallucinations": 2,
+          "abstentions": 2
+        },
+        "B": {
+          "tasks": 12,
+          "points": 0,
+          "mean": 0.0,
+          "hallucinations": 0,
+          "abstentions": 12
+        },
+        "C": {
+          "tasks": 12,
+          "points": 12,
+          "mean": 1.0,
+          "hallucinations": 0,
+          "abstentions": 0
+        },
+        "D": {
+          "tasks": 12,
+          "points": 12,
+          "mean": 1.0,
+          "hallucinations": 0,
+          "abstentions": 0
+        }
+      },
+      "calls": 48,
+      "retries": 0,
+      "escalations": 0,
+      "llm_derived_correct": 0,
+      "deterministic_fallback": 0
+    },
+    "arm3_henri_coprocessor": {
+      "arm": "arm3_henri_coprocessor",
+      "tasks": 48,
+      "points": 48,
+      "composite_score": 1.0,
+      "hallucinations": 0,
+      "hallucination_rate": 0.0,
+      "abstentions": 8,
+      "correct": 48,
+      "per_pillar": {
+        "A": {
+          "tasks": 12,
+          "points": 12,
+          "mean": 1.0,
+          "hallucinations": 0,
+          "abstentions": 0
+        },
+        "B": {
+          "tasks": 12,
+          "points": 12,
+          "mean": 1.0,
+          "hallucinations": 0,
+          "abstentions": 0
+        },
+        "C": {
+          "tasks": 12,
+          "points": 12,
+          "mean": 1.0,
+          "hallucinations": 0,
+          "abstentions": 0
+        },
+        "D": {
+          "tasks": 12,
+          "points": 12,
+          "mean": 1.0,
+          "hallucinations": 0,
+          "abstentions": 0
+        }
+      },
+      "calls": 50,
+      "retries": 2,
+      "escalations": 0,
+      "llm_derived_correct": 25,
+      "deterministic_fallback": 15
+    },
+    "arm4_henri_cascade": {
+      "arm": "arm4_henri_cascade",
+      "tasks": 48,
+      "points": 48,
+      "composite_score": 1.0,
+      "hallucinations": 0,
+      "hallucination_rate": 0.0,
+      "abstentions": 8,
+      "correct": 48,
+      "per_pillar": {
+        "A": {
+          "tasks": 12,
+          "points": 12,
+          "mean": 1.0,
+          "hallucinations": 0,
+          "abstentions": 0
+        },
+        "B": {
+          "tasks": 12,
+          "points": 12,
+          "mean": 1.0,
+          "hallucinations": 0,
+          "abstentions": 0
+        },
+        "C": {
+          "tasks": 12,
+          "points": 12,
+          "mean": 1.0,
+          "hallucinations": 0,
+          "abstentions": 0
+        },
+        "D": {
+          "tasks": 12,
+          "points": 12,
+          "mean": 1.0,
+          "hallucinations": 0,
+          "abstentions": 0
+        }
+      },
+      "calls": 1,
+      "retries": 0,
+      "escalations": 1,
+      "llm_derived_correct": 1,
+      "deterministic_fallback": 0
+    }
+  },
+  "scoring": {
+    "rule": "+1 correct, -1 hallucination, 0 abstain",
+    "normalisation": "composite_score = sum(weights) / 48, so the range is [-1, 1]",
+    "correct": "an exact quantity match, a hidden-assertion pass, or an abstention on a proven-unsatisfiable trap",
+    "hallucination": "a wrong integer, an emitted function that fails a hidden assertion, or a deliverable on a proven-unsatisfiable trap",
+    "abstain": "no answer, or a refusal on a request the arm could not verify",
+    "per_pillar": "points over the twelve tasks of that pillar",
+    "governed_fallback": "arm3/arm4 hold the deterministic index. When a live candidate abstains or is rejected after the REPULSOR retries, the governed arm emits the recomputed quantity instead of a hallucination and stamps the row reason=deterministic_fallback:* with llm_derived=false. Every such row is counted in the per-arm deterministic_fallback field, so the LLM-derived share of the governed score is visible, not hidden."
+  },
+  "cold_path": {
+    "engine": "henri.holarch.cold_synth.ColdSynthesizer",
+    "llm_calls": 0,
+    "rollout_budget": 24,
+    "rollouts": 40,
+    "repulsors": 29,
+    "crystallized": 0,
+    "sandbox": "SubprocessSandboxExecutor(pure_algorithmic)"
+  },
+  "shared_stem": {
+    "build_seconds": 10.34871359996032,
+    "build_ms": 10345.357700018212,
+    "describe": {
+      "root": "C:\\Users\\chan\\Desktop\\HENRI v6",
+      "build_ms": 10345.357700018212,
+      "mounts": 5,
+      "stats": {
+        "corpus_digest": "a0527c5c72dc4a1c",
+        "files": 36,
+        "tokens": 954762,
+        "train_tokens": 859285,
+        "vocabulary_size": 2048,
+        "vocabulary_digest": "d5a64f73b97c6aab",
+        "vocab_locked": true,
+        "vocab_lock_path": "C:\\Users\\chan\\Desktop\\HENRI v6\\receipts\\holarch\\vocab_lock.json",
+        "verifier_passages": 2093,
+        "index": {
+          "built": true,
+          "package": "henri",
+          "modules": 91,
+          "functions": 3419,
+          "edges": 4386,
+          "nodes": 3421,
+          "seconds": 0.7496820000233129
+        },
+        "max_fit_tokens": 0
+      },
+      "signatures": 3419,
+      "symbol_table": 3421
+    },
+    "mounts": [
+      {
+        "namespace": "arm0_henri_standalone",
+        "mount_ms": 2.4083000607788563,
+        "plans": 0,
+        "boundary_axioms": 2.0,
+        "fast_weight_bytes": 16777216
+      },
+      {
+        "namespace": "arm1_raw_llm",
+        "mount_ms": 1.125300070270896,
+        "plans": 0,
+        "boundary_axioms": 2.0,
+        "fast_weight_bytes": 16777216
+      },
+      {
+        "namespace": "arm2_rag_llm",
+        "mount_ms": 1.1273000854998827,
+        "plans": 0,
+        "boundary_axioms": 2.0,
+        "fast_weight_bytes": 16777216
+      },
+      {
+        "namespace": "arm3_henri_coprocessor",
+        "mount_ms": 1.0513999732211232,
+        "plans": 0,
+        "boundary_axioms": 2.0,
+        "fast_weight_bytes": 16777216
+      },
+      {
+        "namespace": "arm4_henri_cascade",
+        "mount_ms": 0.91409997548908,
+        "plans": 0,
+        "boundary_axioms": 2.0,
+        "fast_weight_bytes": 16777216
+      }
+    ],
+    "isolation": {
+      "distinct_fast_weights": true,
+      "distinct_namespaces": true,
+      "shared_count_lm": true,
+      "shared_lexical": true
+    }
+  },
+  "arm4_call_reduction": {
+    "arm3_calls": 50,
+    "arm4_calls": 1,
+    "reduction": 0.98,
+    "reduction_pct": 98.0,
+    "definition": "(arm3_calls - arm4_calls) / arm3_calls; arm4 escalates only undecided tasks",
+    "escalated_tasks": [
+      "c12_truncate"
+    ]
+  },
+  "failed_gates": [],
+  "gate": {
+    "y4_runner_exit_zero": true,
+    "y4_gauntlet_exit_zero": true,
+    "y4_gauntlet_272": true,
+    "y4_gauntlet_reachable_1": true,
+    "y4_gauntlet_hallucination_0": true,
+    "y4_gauntlet_zero_query_reads": true,
+    "y4_gauntlet_wall_le_160": true,
+    "y4_gauntlet_y_probes_present": true,
+    "receipt_present": true,
+    "y4_battery_48": true,
+    "y4_five_arms_mounted": true,
+    "y4_arm0_cold_coding_gt_0": true,
+    "y4_arm0_hallucination_zero": true,
+    "y4_arm3_beats_arm1": true,
+    "y4_arm3_beats_arm2": true,
+    "y4_arm4_beats_arm1": true,
+    "y4_arm4_beats_arm2": true,
+    "y4_arm4_call_reduction_ge_35pct": true,
+    "y4_arm4_matches_arm3": true,
+    "y4_arm4_hallucination_le_002": true,
+    "y4_zero_credential_leaks": true,
+    "y4_mount_under_5ms": true,
+    "passed": true
+  },
+  "wall_seconds": 0.002883500070311129,
+  "evidence": "OBSERVED",
+  "passed": true,
+  "mode": "sealed-read"
+}

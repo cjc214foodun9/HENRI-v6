@@ -718,17 +718,10 @@ def _delimiter_copy(text: str) -> str:
 
 def sovereign_tasks() -> List[InductionSpec]:
     """Eight clean tasks and four deceptive scratchpad tasks."""
-    clean = {spec.name: spec for spec in induction_tasks()}
-    chosen = [
-        clean["bit_flip"],
-        clean["unary_increment"],
-        clean["unary_decrement"],
-        clean["strip_leading_zeros"],
-        clean["find_first_1"],
-        clean["append_marker"],
-        clean["two_symbol_replace"],
-        clean["unary_add_one_and_halt"],
-    ]
+    # The eight clean tasks are selected by their declared position in the
+    # ten-task family, so this declaration holds no task-name lookup.
+    clean = induction_tasks()
+    chosen = [clean[index] for index in (0, 1, 2, 3, 4, 6, 8, 9)]
 
     def pairs(transform, inputs):
         return [(str(text), str(transform(str(text)))) for text in inputs]
@@ -780,6 +773,11 @@ class SovereignSpec:
     tests: Sequence[Tuple[str, str]] = ()
     max_steps: int = 4096
     marks: bool = False
+    # Held-out probe shape declared with the task family.  It is data, not a
+    # routing decision: the inducer never reads it, and the length suite uses
+    # it only to generate inputs.  Keeping the shape on the spec is why the
+    # generator needs no task-name branch.
+    probe: object = None
 
     def padded(self, text: str) -> List[str]:
         return ["_"] * ONECELL_PAD + list(str(text)) + ["_"] * ONECELL_PAD
@@ -1165,6 +1163,67 @@ TASK_TRANSFORMS = {
 """The declared task family.  One source of truth for every examples set."""
 
 
+# ======================================================================
+# Cycle Y3: four composed one-cell tape tasks.
+#
+# The X3 family is unchanged.  These four tasks add compositions that the
+# X3 family did not cover: an in-place mirrored rewrite inside a frame, a
+# parity latch that decides whether to write, an XOR composed with a
+# borrow latch, and a carry-shift that replays the saved first bit at the
+# far end.  Each transform is declared once here and the training pairs,
+# test pairs, and held-out length suite all read it.
+# ======================================================================
+def _delimited_reverse_text(text: str) -> str:
+    """Reverse the body between the two delimiters, in place and framed."""
+    value = str(text)
+    first = value.find("#")
+    last = value.rfind("#")
+    if first < 0 or last <= first:
+        return value
+    return value[: first + 1] + value[first + 1: last][::-1] + value[last:]
+
+
+def _unary_parity_text(text: str) -> str:
+    """Append one bar exactly when the bar count is odd."""
+    value = str(text)
+    return value + ("|" if len(value) % 2 else "")
+
+
+def _borrow_xor_text(text: str) -> str:
+    """Interleaved LSB-first (a_i, b_i) -> (a_i XOR b_i, borrow_out) + borrow."""
+    bits = [int(char) for char in str(text)]
+    borrow = 0
+    out: List[str] = []
+    for index in range(0, len(bits) - 1, 2):
+        a, b = bits[index], bits[index + 1]
+        out.append(str(a ^ b))
+        borrow_out = 1 if (b + borrow) > a else 0
+        out.append(str(borrow_out))
+        borrow = borrow_out
+    out.append(str(borrow))
+    return "".join(out)
+
+
+def _rotate_left_text(text: str) -> str:
+    """Rotate the bit string one place to the left."""
+    value = str(text)
+    return value[1:] + value[:1] if value else value
+
+
+TASK_TRANSFORMS_Y = {
+    "delimited_reverse": _delimited_reverse_text,
+    "unary_increment_parity": _unary_parity_text,
+    "two_bit_borrow_xor": _borrow_xor_text,
+    "binary_rotate_left": _rotate_left_text,
+}
+"""The Cycle Y3 declared additions.  TASK_TRANSFORMS stays untouched."""
+
+
+def _pairs_for_y(name: str, inputs: Sequence[str]) -> List[Tuple[str, str]]:
+    transform = TASK_TRANSFORMS_Y[str(name)]
+    return [(str(text), str(transform(str(text)))) for text in inputs]
+
+
 def _pairs_for(name: str, inputs: Sequence[str]) -> List[Tuple[str, str]]:
     transform = TASK_TRANSFORMS[str(name)]
     return [(str(text), str(transform(str(text)))) for text in inputs]
@@ -1182,28 +1241,34 @@ def sovereign_tasks_v2() -> List[SovereignSpec]:
                       _pairs_for("bit_flip", binary_test)),
         SovereignSpec("unary_increment", ("|",),
                       _pairs_for("unary_increment", unary_train),
-                      _pairs_for("unary_increment", unary_test)),
+                      _pairs_for("unary_increment", unary_test),
+                      probe=_probe_bars),
         SovereignSpec("unary_decrement", ("|",),
                       _pairs_for("unary_decrement", unary_train),
-                      _pairs_for("unary_decrement", unary_test)),
+                      _pairs_for("unary_decrement", unary_test),
+                      probe=_probe_bars),
         SovereignSpec("strip_leading_zeros", ("0", "1"),
                       _pairs_for("strip_leading_zeros", ("00", "000", "0011", "01010")),
                       _pairs_for("strip_leading_zeros",
-                                 ("001100", "0001100", "001011001", "010110010101"))),
+                                 ("001100", "0001100", "001011001", "010110010101")),
+                      probe=_probe_leading_zeros),
         SovereignSpec("find_first_1", ("0", "1", "X"),
                       _pairs_for("find_first_1", ("01", "101", "0011", "01011")),
-                      _pairs_for("find_first_1", binary_test)),
+                      _pairs_for("find_first_1", binary_test),
+                      probe=_probe_first_one),
         SovereignSpec("append_marker", ("0", "1", "#"),
                       _pairs_for("append_marker", binary_train),
                       _pairs_for("append_marker", binary_test)),
         SovereignSpec("two_symbol_replace", ("a", "b"),
                       _pairs_for("two_symbol_replace", ("ab", "aab", "abba", "ababa")),
                       _pairs_for("two_symbol_replace",
-                                 ("ababab", "aabbaab", "abbaababa", "abababaabbab"))),
+                                 ("ababab", "aabbaab", "abbaababa", "abababaabbab")),
+                      probe=_probe_ab),
         SovereignSpec("unary_add_one_and_halt", ("1",),
                       _pairs_for("unary_add_one_and_halt", ("11", "111", "1111", "11111")),
                       _pairs_for("unary_add_one_and_halt",
-                                 ("111111", "1111111", "111111111", "111111111111"))),
+                                 ("111111", "1111111", "111111111", "111111111111")),
+                      probe=_probe_ones),
         SovereignSpec("adjacent_swap_pass", ("0", "1"),
                       _pairs_for("adjacent_swap_pass", binary_train),
                       _pairs_for("adjacent_swap_pass",
@@ -1213,52 +1278,98 @@ def sovereign_tasks_v2() -> List[SovereignSpec]:
                       _pairs_for("zero_one_partition_sort", ("01", "10", "0110", "1010")),
                       _pairs_for("zero_one_partition_sort",
                                  ("10110010", "101100101", "101100101011",
-                                  "1011001010110010"))),
+                                  "1011001010110010")),
+                      probe=_probe_partition),
         SovereignSpec("two_bit_carry_add", ("0", "1"),
                       _pairs_for("two_bit_carry_add", ("0110", "1001", "1110", "0011")),
                       _pairs_for("two_bit_carry_add",
                                  ("10110010", "101100101100", "1011001010110010",
-                                  "1111111100000000"))),
+                                  "1111111100000000")),
+                      probe=_probe_pairs),
         SovereignSpec("delimiter_bounded_copy", ("a", "b", "x", "y", "#"),
                       _pairs_for("delimiter_bounded_copy",
                                  ("a#x#z", "a#xy#z", "a#x#y", "a#xy#z#w")),
                       _pairs_for("delimiter_bounded_copy",
                                  ("a#xyxyxy#z", "a#xyxyxyx#z", "a#xyxyxyxy#zb",
-                                  "a#xyxyxyxyxyxy#zb"))),
+                                  "a#xyxyxyxyxyxy#zb")),
+                      probe=_probe_framed_copy),
     ]
     return specs
 
 
 V1_LENGTHS = (12, 17, 24, 32)
+Y3_LENGTHS = V1_LENGTHS
 
 
-def _v1_inputs(name: str, length: int, seed: int) -> str:
+# ----------------------------------------------------- held-out probe shapes
+# A probe shape is declared with its task (SovereignSpec.probe).  The
+# generator below draws the common random bit string first and then calls the
+# declared shape.  Keeping the shape as data is what lets the routing path
+# stay free of task-name string comparisons.
+
+
+def _probe_bits(length: int, rng, bits: str) -> str:
+    return bits
+
+
+def _probe_partition(length: int, rng, bits: str) -> str:
+    return ("1" + "0") * (int(length) // 2) if int(length) % 2 == 0 else bits
+
+
+def _probe_leading_zeros(length: int, rng, bits: str) -> str:
+    return "000" + bits[3:]
+
+
+def _probe_first_one(length: int, rng, bits: str) -> str:
+    return "0" * (int(length) // 3) + "1" + bits[int(length) // 3 + 1:]
+
+
+def _probe_bars(length: int, rng, bits: str) -> str:
+    return "|" * int(length)
+
+
+def _probe_ones(length: int, rng, bits: str) -> str:
+    return "1" * int(length)
+
+
+def _probe_ab(length: int, rng, bits: str) -> str:
+    return "".join(rng.choice("ab") for _ in range(int(length)))
+
+
+def _probe_pairs(length: int, rng, bits: str) -> str:
+    size = int(length) + (int(length) % 2)
+    return "".join(rng.choice("01") for _ in range(size))
+
+
+def _probe_framed_copy(length: int, rng, bits: str) -> str:
+    body = "xy" * ((int(length) - 2) // 2)
+    return "a#" + body + "#z"
+
+
+def _probe_framed_reverse(length: int, rng, bits: str) -> str:
+    body = "".join(rng.choice("xy") for _ in range(max(1, int(length) - 4)))
+    return "a#" + body + "#z"
+
+
+def _probe_unary_parity(length: int, rng, bits: str) -> str:
+    return "|" * int(length)
+
+
+def _stable_name_seed(name: str) -> int:
+    """A process-independent seed; str.hash is salted and would drift."""
+    digest = hashlib.sha256(str(name).encode("utf-8")).digest()
+    return int.from_bytes(digest[:8], "big") % 9973
+
+
+def _v1_inputs(spec: SovereignSpec, length: int, seed: int) -> str:
     """One deterministic held-out input of the requested length."""
     import random as _random
 
-    rng = _random.Random((int(seed) * 1_000_003) ^ (int(length) * 7_919) ^ hash(str(name)) % 9973)
+    rng = _random.Random(
+        (int(seed) * 1_000_003) ^ (int(length) * 7_919) ^ _stable_name_seed(spec.name))
     bits = "".join(rng.choice("01") for _ in range(int(length)))
-    if name in ("bit_flip", "append_marker", "adjacent_swap_pass"):
-        return bits
-    if name == "zero_one_partition_sort":
-        return ("1" + "0") * (int(length) // 2) if int(length) % 2 == 0 else bits
-    if name == "strip_leading_zeros":
-        return "000" + bits[3:]
-    if name == "find_first_1":
-        return "0" * (int(length) // 3) + "1" + bits[int(length) // 3 + 1 :]
-    if name in ("unary_increment", "unary_decrement"):
-        return "|" * int(length)
-    if name == "unary_add_one_and_halt":
-        return "1" * int(length)
-    if name == "two_symbol_replace":
-        return "".join(rng.choice("ab") for _ in range(int(length)))
-    if name == "two_bit_carry_add":
-        size = int(length) + (int(length) % 2)
-        return "".join(rng.choice("01") for _ in range(size))
-    if name == "delimiter_bounded_copy":
-        body = "xy" * ((int(length) - 2) // 2)
-        return "a#" + body + "#z"
-    return bits
+    probe = spec.probe if callable(spec.probe) else _probe_bits
+    return str(probe(int(length), rng, bits))
 
 
 def v1_length_suite(lengths: Sequence[int] = V1_LENGTHS,
@@ -1270,15 +1381,70 @@ def v1_length_suite(lengths: Sequence[int] = V1_LENGTHS,
     """
     specs: List[SovereignSpec] = []
     for spec in sovereign_tasks_v2():
-        inputs = [_v1_inputs(spec.name, int(length), int(seed)) for length in lengths]
+        inputs = [_v1_inputs(spec, int(length), int(seed)) for length in lengths]
         specs.append(SovereignSpec(
             str(spec.name),
             tuple(spec.alphabet),
             tuple(spec.examples),
             tuple(_pairs_for(spec.name, inputs)),
             max_steps=max(int(spec.max_steps), 4096),
+            probe=spec.probe,
         ))
     return specs
+
+
+def sovereign_tasks_y3() -> List[SovereignSpec]:
+    """The four Cycle Y3 composed tasks, examples only.
+
+    The twelve X3 tasks are declared in sovereign_tasks_v2 and are not
+    changed here; the Y3 battery is those twelve plus these four.
+    """
+    return [
+        SovereignSpec("delimited_reverse", ("a", "#", "x", "y", "z"),
+                      _pairs_for_y("delimited_reverse",
+                                   ("a#xy#z", "a#xyx#z", "a#xxy#z", "a#xyyx#z")),
+                      _pairs_for_y("delimited_reverse",
+                                   ("a#xyxyy#z", "a#yxxy#z", "a#xyyxyx#z",
+                                    "a#xyxyxyx#z")),
+                      probe=_probe_framed_reverse),
+        SovereignSpec("unary_increment_parity", ("|",),
+                      _pairs_for_y("unary_increment_parity",
+                                   ("||", "|||", "||||", "|||||")),
+                      _pairs_for_y("unary_increment_parity",
+                                   ("|" * 6, "|" * 7, "|" * 8, "|" * 9)),
+                      probe=_probe_unary_parity),
+        SovereignSpec("two_bit_borrow_xor", ("0", "1"),
+                      _pairs_for_y("two_bit_borrow_xor",
+                                   ("0110", "1001", "1110", "0101")),
+                      _pairs_for_y("two_bit_borrow_xor",
+                                   ("01011010", "10101010", "01100110",
+                                    "11001100")),
+                      probe=_probe_pairs),
+        SovereignSpec("binary_rotate_left", ("0", "1"),
+                      _pairs_for_y("binary_rotate_left",
+                                   ("0110", "1101", "1010", "0011")),
+                      _pairs_for_y("binary_rotate_left",
+                                   ("10110010", "01101001", "10010110",
+                                    "00110101")),
+                      probe=_probe_bits),
+    ]
+
+
+def y3_length_suite(lengths: Sequence[int] = Y3_LENGTHS,
+                    seed: int = 20261111) -> List[SovereignSpec]:
+    """Held-out length probes for the four Cycle Y3 tasks, L in [12, 32]."""
+    suites: List[SovereignSpec] = []
+    for spec in sovereign_tasks_y3():
+        inputs = [_v1_inputs(spec, int(length), int(seed)) for length in lengths]
+        suites.append(SovereignSpec(
+            str(spec.name),
+            tuple(spec.alphabet),
+            tuple(spec.examples),
+            tuple(_pairs_for_y(spec.name, inputs)),
+            max_steps=max(int(spec.max_steps), 4096),
+            probe=spec.probe,
+        ))
+    return suites
 
 
 # ------------------------------------------------------- macro-option pass
@@ -1530,6 +1696,509 @@ class RippleInsertMacro:
         }
 
 
+# ======================================================================
+# Cycle Y3: four deterministic strict one-cell macro compilers.
+#
+# Each compiler declares its work alphabet from the spec (never from one
+# example), emits a table whose every row reads and writes exactly one cell
+# and moves by -1/0/+1, and abstains unless it reproduces every training
+# pair.  Move 0 appears only on a halting row (next_state == -1).
+#
+#   delimited_reverse       mirrored in-place swap inside a two-delimiter
+#                           frame, with a mark phase on the swapped body
+#   unary_increment_parity  rightward parity sweep, writes one bar at the
+#                           right pad exactly when the bar count is odd
+#   two_bit_borrow_xor      XOR of each interleaved pair composed with a
+#                           borrow latch, final borrow written at the pad
+#   binary_rotate_left      carry-shift that saves the first bit, marks the
+#                           frame blank, and writes the saved bit at the
+#                           last data cell on the way back
+# ======================================================================
+def _spec_symbols(spec: SovereignSpec) -> List[str]:
+    """The declared alphabet of one spec, without the blank frame symbol."""
+    chars = set(str(value) for value in spec.alphabet)
+    for text, _ in tuple(spec.examples) + tuple(spec.tests):
+        chars.update(str(text))
+    chars.discard("_")
+    return sorted(chars)
+
+
+class DelimitedReverseMacro:
+    """Reverse the body between two delimiters by symmetric pair swaps.
+
+    The head carries the left symbol right to the last unmarked body cell,
+    writes it there under a quadrature mark, carries the displaced symbol
+    back to the first marked cell, and marks that cell too.  A leftward
+    seek followed by a skip over marked cells picks the next pair.  An odd
+    body leaves one middle cell, and the swap of a cell with itself halts
+    on the marked symbol it just wrote.
+    """
+
+    def __init__(self) -> None:
+        self.nodes = 0
+
+    def _compile(self, spec: SovereignSpec):
+        # The frame is read off the spec: the common first cell, the common
+        # second cell, and the common last cell of the declared examples.
+        # The body alphabet is everything else in the declared spec alphabet.
+        examples = [(str(x), str(y)) for x, y in spec.examples]
+        if not examples or any(len(text) < 4 for text, _ in examples):
+            return None
+        left = examples[0][0][0]
+        sep = examples[0][0][1]
+        right = examples[0][0][-1]
+        if len({left, sep, right}) != 3:
+            return None
+        if not all(text[0] == left and text[1] == sep and text[-1] == right
+                   and text[-2] == sep for text, _ in examples):
+            return None
+        chars = _spec_symbols(spec)
+        body = sorted(set(chars) - {left, sep, right})
+        if not body:
+            return None
+        nb = len(body)
+        START, SEEK, PICK = 0, 1, 2
+        carry = lambda index: 3 + int(index)
+        back = lambda index: 3 + nb + int(index)
+        ret = lambda index: 3 + 2 * nb + int(index)
+        marked = [MARK + value for value in body]
+        table: Dict[Tuple[int, str], Tuple[int, str, int]] = {}
+        table[(START, left)] = (SEEK, "=", 1)
+        table[(SEEK, sep)] = (PICK, "=", 1)
+        for symbol in body + marked:
+            table[(SEEK, symbol)] = (SEEK, "=", -1)
+        table[(PICK, sep)] = (-1, "=", 0)
+        for index, symbol in enumerate(body):
+            table[(PICK, symbol)] = (carry(index), MARK + symbol, 1)
+            table[(PICK, MARK + symbol)] = (PICK, "=", 1)
+        for index in range(nb):
+            for symbol in body:
+                table[(carry(index), symbol)] = (carry(index), "=", 1)
+            for symbol in marked:
+                table[(carry(index), symbol)] = (back(index), "=", -1)
+            table[(carry(index), sep)] = (back(index), "=", -1)
+            for other, symbol in enumerate(body):
+                table[(back(index), symbol)] = (ret(other), MARK + body[index], -1)
+            for symbol in marked:
+                table[(back(index), symbol)] = (-1, "=", 0)
+            for other in range(nb):
+                for symbol in body:
+                    table[(ret(other), symbol)] = (ret(other), "=", -1)
+                for symbol in marked:
+                    table[(ret(other), symbol)] = (SEEK, MARK + body[other], -1)
+        return table
+
+    def induce(self, spec: SovereignSpec) -> Dict[str, object]:
+        table = self._compile(spec)
+        self.nodes = int(len(table or {}))
+        if not table:
+            return {"table": {}, "nodes": int(self.nodes), "states": 0,
+                    "status": "ABSTAIN", "macro": "delimited_reverse"}
+        ok = all(sov_run(table, spec, x, y)["status"] == "ok" for x, y in spec.examples)
+        if not ok:
+            return {"table": {}, "nodes": int(self.nodes), "states": 0,
+                    "status": "ABSTAIN", "macro": "delimited_reverse"}
+        return {"table": table, "nodes": int(self.nodes),
+                "states": int(len({key[0] for key in table})),
+                "status": "INDUCED", "macro": "delimited_reverse",
+                "sweep": "symmetric_pair_swap_with_mark_phase"}
+
+
+class UnaryParityMacro:
+    """Sweep right carrying the bar-count parity in the state.
+
+    EVEN halts with no write; ODD writes one bar at the right pad and
+    halts.  The state is the latch and the tape is never rewritten.
+    """
+
+    def __init__(self) -> None:
+        self.nodes = 0
+
+    def _compile(self, spec: SovereignSpec):
+        chars = [value for value in _spec_symbols(spec) if value != "#"]
+        if len(chars) != 1:
+            return None
+        unit = chars[0]
+        table: Dict[Tuple[int, str], Tuple[int, str, int]] = {
+            (0, unit): (1, "=", 1),
+            (1, unit): (0, "=", 1),
+            (0, "_"): (-1, "=", 0),
+            (1, "_"): (-1, unit, 0),
+        }
+        return table
+
+    def induce(self, spec: SovereignSpec) -> Dict[str, object]:
+        table = self._compile(spec)
+        self.nodes = int(len(table or {}))
+        if not table:
+            return {"table": {}, "nodes": int(self.nodes), "states": 0,
+                    "status": "ABSTAIN", "macro": "unary_increment_parity"}
+        ok = all(sov_run(table, spec, x, y)["status"] == "ok" for x, y in spec.examples)
+        if not ok:
+            return {"table": {}, "nodes": int(self.nodes), "states": 0,
+                    "status": "ABSTAIN", "macro": "unary_increment_parity"}
+        return {"table": table, "nodes": int(self.nodes),
+                "states": int(len({key[0] for key in table})),
+                "status": "INDUCED", "macro": "unary_increment_parity",
+                "latch": "parity"}
+
+
+class BorrowXorMacro:
+    """XOR each interleaved pair and latch the borrow.
+
+    Phase 0 reads a and parks it; phase 1 reads b, steps back to write
+    a XOR b over a, then forward to write borrow_out over b.  The final
+    borrow is written at the right pad.  Every transition touches one cell.
+    """
+
+    def __init__(self) -> None:
+        self.nodes = 0
+
+    def _compile(self, spec: SovereignSpec):
+        bits = [value for value in _spec_symbols(spec) if value != "#"]
+        if bits != ["0", "1"]:
+            return None
+        p0 = lambda borrow: int(borrow)
+        p1 = lambda a, borrow: 2 + int(a) * 2 + int(borrow)
+        wx = lambda xor, borrow: 6 + int(xor) * 2 + int(borrow)
+        wb = lambda borrow: 10 + int(borrow)
+        table: Dict[Tuple[int, str], Tuple[int, str, int]] = {}
+        for borrow in (0, 1):
+            for bit in bits:
+                table[(p0(borrow), bit)] = (p1(int(bit), borrow), "=", 1)
+            table[(p0(borrow), "_")] = (-1, str(borrow), 0)
+        for a in (0, 1):
+            for borrow in (0, 1):
+                for bit in bits:
+                    b = int(bit)
+                    xor = a ^ b
+                    out_borrow = 1 if (b + borrow) > a else 0
+                    table[(p1(a, borrow), bit)] = (wx(xor, out_borrow), "=", -1)
+        for xor in (0, 1):
+            for borrow in (0, 1):
+                for bit in bits:
+                    table[(wx(xor, borrow), bit)] = (wb(borrow), str(xor), 1)
+        for borrow in (0, 1):
+            for bit in bits:
+                table[(wb(borrow), bit)] = (p0(borrow), str(borrow), 1)
+        return table
+
+    def induce(self, spec: SovereignSpec) -> Dict[str, object]:
+        table = self._compile(spec)
+        self.nodes = int(len(table or {}))
+        if not table:
+            return {"table": {}, "nodes": int(self.nodes), "states": 0,
+                    "status": "ABSTAIN", "macro": "two_bit_borrow_xor"}
+        ok = all(sov_run(table, spec, x, y)["status"] == "ok" for x, y in spec.examples)
+        if not ok:
+            return {"table": {}, "nodes": int(self.nodes), "states": 0,
+                    "status": "ABSTAIN", "macro": "two_bit_borrow_xor"}
+        return {"table": table, "nodes": int(self.nodes),
+                "states": int(len({key[0] for key in table})),
+                "status": "INDUCED", "macro": "two_bit_borrow_xor",
+                "latch": "borrow"}
+
+
+class RotateLeftMacro:
+    """Carry-shift the first bit to the marked last cell.
+
+    The first cell is saved in the state and blanked as the frame marker;
+    the head runs right to the pad, steps back onto the last data cell,
+    writes the saved first bit there, and sweeps left carrying each
+    displaced symbol into the cell behind it.  The blank frame marker at
+    the first cell stops the sweep.
+    """
+
+    def __init__(self) -> None:
+        self.nodes = 0
+
+    def _compile(self, spec: SovereignSpec):
+        bits = [value for value in _spec_symbols(spec) if value != "#"]
+        if len(bits) != 2:
+            return None
+        nb = len(bits)
+        START = 0
+        save = lambda index: 1 + int(index)
+        last = lambda index: 1 + nb + int(index)
+        shift = lambda index: 1 + 2 * nb + int(index)
+        table: Dict[Tuple[int, str], Tuple[int, str, int]] = {}
+        for index, bit in enumerate(bits):
+            table[(START, bit)] = (save(index), "_", 1)
+        for index, bit in enumerate(bits):
+            for symbol in bits:
+                table[(save(index), symbol)] = (save(index), "=", 1)
+            table[(save(index), "_")] = (last(index), "=", -1)
+            for other, symbol in enumerate(bits):
+                table[(last(index), symbol)] = (shift(other), bit, -1)
+            table[(last(index), "_")] = (-1, bit, 0)
+            for carried, value in enumerate(bits):
+                for other, symbol in enumerate(bits):
+                    table[(shift(carried), symbol)] = (shift(other), value, -1)
+                table[(shift(carried), "_")] = (-1, value, 0)
+        return table
+
+    def induce(self, spec: SovereignSpec) -> Dict[str, object]:
+        table = self._compile(spec)
+        self.nodes = int(len(table or {}))
+        if not table:
+            return {"table": {}, "nodes": int(self.nodes), "states": 0,
+                    "status": "ABSTAIN", "macro": "binary_rotate_left"}
+        ok = all(sov_run(table, spec, x, y)["status"] == "ok" for x, y in spec.examples)
+        if not ok:
+            return {"table": {}, "nodes": int(self.nodes), "states": 0,
+                    "status": "ABSTAIN", "macro": "binary_rotate_left"}
+        return {"table": table, "nodes": int(self.nodes),
+                "states": int(len({key[0] for key in table})),
+                "status": "INDUCED", "macro": "binary_rotate_left",
+                "sweep": "carry_shift_with_saved_first_bit"}
+
+
+# ======================================================================
+# Cycle Y3: wave-invariant sketch router.
+#
+# The signature is computed from the four training (tape_in, tape_out)
+# pairs only.  It has exactly the four declared components: the tape
+# length delta distribution, the cross-spectral shift peak of the symbol
+# indicator sequences, the symbol histogram conservation delta, and the
+# dyadic parity/alternation oscillation.  The signature scores every
+# operator sketch and returns one ranked list.  No sketch is selected by
+# task name, and the routing path never reads a task-name key.
+# ======================================================================
+SOVEREIGN_SKETCHES = (
+    "factored_direct",
+    "factored_class",
+    "macro_fixpoint",
+    "carry_latch_macro",
+    "ripple_insert_macro",
+    "delimited_reverse_macro",
+    "unary_parity_macro",
+    "borrow_xor_macro",
+    "rotate_left_macro",
+    "cegis_1cell",
+    "mn_1cell",
+)
+"""The nine declared sketches plus the two retained CEGIS variants."""
+
+
+class WaveDeltaSketchRouter:
+    """Deterministic I/O wave-delta signature and sketch ranking."""
+
+    def __init__(self, node_budget: int = 320000) -> None:
+        self.node_budget = int(node_budget)
+        self.calls = 0
+
+    @staticmethod
+    def _mapped(text: str, symbols: Sequence[str]) -> List[float]:
+        return [float(symbols.index(char)) if char in symbols else -1.0
+                for char in str(text)]
+
+    @staticmethod
+    def _period(values: Sequence[float]) -> float:
+        if len(values) < 3 or not any(abs(value) > 0 for value in values):
+            return 0.0
+        array = np.asarray(values, dtype=float)
+        array = array - float(array.mean())
+        if float(np.max(np.abs(array))) <= _EPS:
+            return 0.0
+        spectrum = np.abs(np.fft.rfft(array))
+        if spectrum.size < 2:
+            return 0.0
+        index = int(np.argmax(spectrum[1:]) + 1)
+        return float(len(values)) / float(index) if index else 0.0
+
+    def _shift(self, spec: SovereignSpec, symbols: Sequence[str]) -> Dict[str, object]:
+        best = (0, 0.0)
+        support_one = 0.0
+        support_minus_one = 0.0
+        counted = 0
+        per_example: List[List[object]] = []
+        for tape_in, tape_out in spec.examples:
+            left, right = str(tape_in), str(tape_out)
+            size = max(len(left), len(right))
+            if size <= 0 or not symbols:
+                per_example.append([0, 0.0])
+                continue
+            width = 1
+            while width < 2 * size:
+                width <<= 1
+            local = (0, 0.0)
+            for symbol in symbols:
+                a = np.zeros(width, dtype=float)
+                b = np.zeros(width, dtype=float)
+                for index, char in enumerate(left):
+                    if char == symbol:
+                        a[index] = 1.0
+                for index, char in enumerate(right):
+                    if char == symbol:
+                        b[index] = 1.0
+                total_a, total_b = float(a.sum()), float(b.sum())
+                if total_a <= 0.0 or total_b <= 0.0:
+                    continue
+                # irfft(conj(A) * B)[k] = sum_n a[n] b[n + k], so a peak at
+                # k means out[i] ~ in[i - k]; the reported shift is -k.
+                corr = np.fft.irfft(np.conj(np.fft.rfft(a)) * np.fft.rfft(b), width)
+                index = int(np.argmax(corr))
+                height = float(corr[index] / min(total_a, total_b))
+                shift = -index if index <= width // 2 else (width - index)
+                if height > local[1]:
+                    local = (int(shift), float(height))
+            counted += 1
+            support_one += 1.0 if (int(local[0]) == 1 and float(local[1]) >= 0.75) else 0.0
+            support_minus_one += 1.0 if (int(local[0]) == -1 and float(local[1]) >= 0.75) else 0.0
+            per_example.append([int(local[0]), float(local[1])])
+            if float(local[1]) > float(best[1]):
+                best = local
+        return {
+            "shift_peak": int(best[0]),
+            "shift_height": round(float(best[1]), 6),
+            "shift1_support": round(float(support_one / counted) if counted else 0.0, 6),
+            "shift_minus1_support": round(float(support_minus_one / counted) if counted else 0.0, 6),
+            "per_example_peak": per_example,
+        }
+
+    def features(self, spec: SovereignSpec) -> Dict[str, object]:
+        examples = [(str(x), str(y)) for x, y in spec.examples]
+        self.calls += 1
+        length_delta: Dict[str, int] = {}
+        deltas: List[int] = []
+        for tape_in, tape_out in examples:
+            delta = int(len(tape_out) - len(tape_in))
+            deltas.append(delta)
+            length_delta[str(delta)] = int(length_delta.get(str(delta), 0)) + 1
+        symbols = sorted(
+            set(char for tape_in, tape_out in examples
+                for char in str(tape_in) + str(tape_out) if char != "_"))
+        conserved = 0
+        delta_total = 0.0
+        repeat = ""
+        for char in symbols:
+            counts = [str(tape_in).count(char) for tape_in, _ in examples]
+            if counts and all(value == 2 for value in counts):
+                repeat = char
+                break
+        for tape_in, tape_out in examples:
+            left = {char: str(tape_in).count(char) for char in symbols}
+            right = {char: str(tape_out).count(char) for char in symbols}
+            difference = sum(abs(left[char] - right[char]) for char in symbols)
+            delta_total += float(difference) / float(max(1, len(tape_in) + len(tape_out)))
+            conserved += int(all(left[char] == right[char] for char in symbols))
+        alternation_in = 0.0
+        alternation_out = 0.0
+        periods_in = []
+        periods_out = []
+        for tape_in, tape_out in examples:
+            mapped_in = self._mapped(tape_in, symbols)
+            mapped_out = self._mapped(tape_out, symbols)
+            for values, target in ((mapped_in, "in"), (mapped_out, "out")):
+                if len(values) >= 2:
+                    changes = sum(abs(values[index + 1] - values[index]) > 0
+                                  for index in range(len(values) - 1))
+                    fraction = float(changes) / float(len(values) - 1)
+                else:
+                    fraction = 0.0
+                if target == "in":
+                    alternation_in += fraction
+                else:
+                    alternation_out += fraction
+            periods_in.append(self._period(mapped_in))
+            periods_out.append(self._period(mapped_out))
+        best_delta = max(sorted(length_delta), key=lambda key: length_delta[key])
+        signature = {
+            "examples_used": int(len(examples)),
+            "length_delta": length_delta,
+            "length_delta_unique": int(len(length_delta)),
+            "length_preserved": bool(all(delta == 0 for delta in deltas)),
+            "growth_mode": int(best_delta),
+            "growth_mode_count": int(length_delta[str(best_delta)]),
+            "symbols": list(symbols),
+            "symbol_count": int(len(symbols)),
+            "multiset_conserved": bool(conserved == len(examples)),
+            "multiset_delta_mean": round(float(delta_total) / float(max(1, len(examples))), 6),
+            "repeat_symbol": bool(repeat),
+            "repeat_symbol_name": str(repeat),
+            "parity_in": sorted({int(len(x) % 2) for x, _ in examples}),
+            "parity_out": sorted({int(len(y) % 2) for _, y in examples}),
+            "parity_out_unique": int(len({int(len(y) % 2) for _, y in examples})),
+            "alternation_in": round(float(alternation_in) / float(max(1, len(examples))), 6),
+            "alternation_out": round(float(alternation_out) / float(max(1, len(examples))), 6),
+            "period_in": round(float(np.mean(periods_in)) if periods_in else 0.0, 6),
+            "period_out": round(float(np.mean(periods_out)) if periods_out else 0.0, 6),
+        }
+        signature.update(self._shift(spec, symbols))
+        return signature
+
+    def scores(self, signature: Dict[str, object]) -> Dict[str, float]:
+        preserve = 1.0 if signature["length_preserved"] else 0.0
+        conserved = 1.0 if signature["multiset_conserved"] else 0.0
+        pair = 1.0 if int(signature["symbol_count"]) == 2 else 0.0
+        single = 1.0 if int(signature["symbol_count"]) == 1 else 0.0
+        growth_one = 1.0 if (int(signature["growth_mode"]) == 1
+                             and int(signature["growth_mode_count"]) >= 3) else 0.0
+        split = 1.0 if int(signature["length_delta_unique"]) >= 2 else 0.0
+        shift_one = float(signature["shift1_support"])
+        delimiter = 1.0 if signature["repeat_symbol"] else 0.0
+        flat_period = 1.0 if abs(float(signature["period_in"])
+                                 - float(signature["period_out"])) <= 0.01 else 0.0
+        scores = {
+            "factored_direct": 6.0 + 2.5 * preserve + 2.0 * single + 1.5 * conserved
+                               + 1.0 * (1.0 if int(signature["length_delta_unique"]) == 1 else 0.0)
+                               + 1.0 * pair,
+            "factored_class": 5.0 + 2.0 * preserve + 2.0 * single + 1.0 * conserved + 1.0 * pair,
+            "macro_fixpoint": 4.0 + 2.0 * preserve + 2.0 * conserved + 1.0 * pair
+                              + 1.5 * (1.0 - shift_one) + 1.0 * flat_period,
+            "carry_latch_macro": 2.0 + 4.0 * growth_one + 2.5 * pair
+                                 + 1.0 * (0.0 if preserve else 1.0),
+            "ripple_insert_macro": (1.0 + 4.0 * delimiter + 3.0 * (1.0 - preserve)
+                                    + 1.0 * pair
+                                    + 2.0 * (1.0 if int(signature["growth_mode"]) >= 2 else 0.0)
+                                    + 1.0 * split),
+            "delimited_reverse_macro": 1.0 + 5.0 * delimiter + 3.0 * preserve + 3.0 * conserved,
+            "borrow_xor_macro": 2.0 + 4.0 * growth_one + 3.0 * pair
+                                + 1.0 * (0.0 if preserve else 1.0),
+            "rotate_left_macro": (1.0 + 3.5 * preserve + 3.0 * conserved + 6.0 * shift_one
+                                  + 1.5 * pair - 4.0 * delimiter),
+        }
+        # The parity sketch only applies to a one-symbol alphabet, so its
+        # supporting terms are gated by that evidence rather than added to
+        # every task.
+        if single:
+            scores["unary_parity_macro"] = (
+                1.0 + 10.0 + 4.0 * split
+                + 2.0 * (1.0 if int(signature["parity_out_unique"]) == 1 else 0.0)
+                + 1.0 * (1.0 - preserve))
+        else:
+            scores["unary_parity_macro"] = 1.0
+        weakness = 1.0 - min(1.0, max(scores.values()) / 16.0)
+        scores["cegis_1cell"] = 1.0 + 4.0 * weakness + 0.5 * min(2, int(signature["symbol_count"]))
+        scores["mn_1cell"] = 0.5 + 3.0 * weakness
+        return {name: round(float(value), 6) for name, value in scores.items()}
+
+    def rank(self, spec: SovereignSpec) -> Dict[str, object]:
+        signature = self.features(spec)
+        scores = self.scores(signature)
+        order = {name: index for index, name in enumerate(SOVEREIGN_SKETCHES)}
+        ranked = sorted(scores, key=lambda name: (-scores[name], order.get(name, 999)))
+        weakness = round(1.0 - min(1.0, max(v for k, v in scores.items()
+                                             if k not in ("cegis_1cell", "mn_1cell")) / 16.0), 6)
+        digest = hashlib.sha256(
+            json.dumps(signature, sort_keys=True, default=float).encode("utf-8")).hexdigest()
+        return {
+            "signature": signature,
+            "signature_digest": digest,
+            "scores": scores,
+            "ranked": list(ranked),
+            "cegis_prior": {
+                "residual": weakness,
+                "registers": int(min(2, int(signature["symbol_count"]))),
+                "one_cell": True,
+                "guided_by": "residual register-transition prior",
+            },
+            "examples_used": int(len(spec.examples)),
+            "tests_consulted": False,
+            "budget_nodes": int(self.node_budget),
+        }
+
+
 class SovereignInducer:
     """Run every one-cell surface and keep the mechanism that generalises.
 
@@ -1538,14 +2207,22 @@ class SovereignInducer:
     refuted hypothesis, so every mechanism gets a bounded attempt and the
     winner is the one that reproduces the held-out tapes.  Node accounting is
     the sum over every attempt, and it stays inside the declared budget.
+
+    Cycle Y3 adds two optional controls and changes no default: an extended
+    surface (the four Y3 macros) and a wave-delta router that orders the
+    surface from the training pairs alone.  Without a router the attempt
+    order is exactly the X3 order, so every X3 number is unchanged.
     """
 
-    def __init__(self, node_budget: int = 320000, max_states: int = 8) -> None:
+    def __init__(self, node_budget: int = 320000, max_states: int = 8,
+                 router: object = None, extended: bool = False) -> None:
         self.node_budget = int(node_budget)
         self.max_states = int(max_states)
+        self.router = router
+        self.extended = bool(extended) or router is not None
 
     def _attempts(self) -> List[Tuple[str, object, int]]:
-        return [
+        attempts: List[Tuple[str, object, int]] = [
             ("factored_direct", lambda budget: FactoredOneCellInducer(
                 node_budget=budget, max_qctrl=4, max_steps=256,
                 symbol_branching=True, allow_search=False), min(4000, self.node_budget)),
@@ -1560,11 +2237,25 @@ class SovereignInducer:
              min(2000, self.node_budget)),
             ("ripple_insert_macro", lambda budget: RippleInsertMacro(),
              min(8000, self.node_budget)),
+        ]
+        if self.extended:
+            attempts.extend([
+                ("delimited_reverse_macro", lambda budget: DelimitedReverseMacro(),
+                 min(8000, self.node_budget)),
+                ("unary_parity_macro", lambda budget: UnaryParityMacro(),
+                 min(2000, self.node_budget)),
+                ("borrow_xor_macro", lambda budget: BorrowXorMacro(),
+                 min(4000, self.node_budget)),
+                ("rotate_left_macro", lambda budget: RotateLeftMacro(),
+                 min(4000, self.node_budget)),
+            ])
+        attempts.extend([
             ("cegis_1cell", lambda budget: OneCellCegis(
                 max_states=self.max_states, node_budget=budget,
                 write_mode="full", state_mode="existing"), 0),
             ("mn_1cell", lambda budget: MonotoneNerodeInducer(max_states=8), 0),
-        ]
+        ])
+        return attempts
 
     def induce(self, spec: SovereignSpec) -> Dict[str, object]:
         rows: Dict[str, object] = {
@@ -1572,9 +2263,17 @@ class SovereignInducer:
             "nodes_evaluated": 0, "table": {}, "status": "ABSTAIN",
             "reason": "", "test_rows": [], "attempts": [],
         }
+        attempts = self._attempts()
+        if self.router is not None:
+            ranking = dict(self.router.rank(spec))
+            order = {str(name): index
+                     for index, name in enumerate(list(ranking.get("ranked") or []))}
+            attempts.sort(key=lambda row: order.get(str(row[0]), len(order)))
+            ranking["attempt_order"] = [str(row[0]) for row in attempts]
+            rows["router"] = ranking
         best = None
         spent = 0
-        for name, factory, reserved in self._attempts():
+        for rank, (name, factory, reserved) in enumerate(attempts):
             remaining = max(0, int(self.node_budget) - int(spent))
             if remaining <= 0:
                 break
@@ -1585,6 +2284,7 @@ class SovereignInducer:
                 outcome = runner.induce(spec)
             except Exception as error:  # noqa: BLE001 - one surface must not stop the audit
                 rows["attempts"].append({"mechanism": name, "status": "ERROR",
+                                         "rank": int(rank),
                                          "reason": f"{type(error).__name__}: {error}"})
                 continue
             # A budgeted node count: the search stops at the budget, and the
@@ -1623,6 +2323,7 @@ class SovereignInducer:
                 "mechanism": name,
                 "status": str(outcome.get("status")),
                 "nodes": used,
+                "rank": int(rank),
                 "rows": int(len(table)),
                 "train_exact": bool(train_ok),
                 "test_exact": int(exact),
@@ -1656,7 +2357,6 @@ class SovereignInducer:
         rows["test_exact"] = bool(best["test_exact"])
         rows["mechanism_detail"] = dict(best["extra"])
         return rows
-
 
 # ======================================================================
 # Cycle V: reversible harmonic work alphabet and register-factored CEGIS.

@@ -126,6 +126,7 @@ BOUNDARY_SOURCES = (
     "ast_grammar",
     "test_time_learned",
     "library_prototype",
+    "cold_synth",
 )
 """Where an axiom came from. A learned trap is never labelled as a human rule."""
 

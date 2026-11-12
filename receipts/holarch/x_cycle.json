@@ -1,6 +1,6 @@
 {
   "cycle": "X",
-  "head": "e242784c75e4c9d2d22acc0eff601f1aed6f2af2",
+  "head": "97292b7a8d1528692bd34246e29809994825be49",
   "stages": {
     "x1": {
       "receipt": "receipts\\holarch\\x1_stage_four_arm.json",
@@ -39,50 +39,6 @@
       },
       "wall_seconds": 66.22171950002667
     },
-    "x3": {
-      "receipt": "receipts\\holarch\\x3_stage_turing_closure.json",
-      "sha256": "a8e7e76e2af6e526be66fb1eaf34ccba5c4d7039ea582854295bd5eccb75498b",
-      "passed": true,
-      "gate": {
-        "x3_runner_exit_zero": true,
-        "x3_receipt_present": true,
-        "x3_tasks_solved_12": true,
-        "x3_generalized_12": true,
-        "x3_length_generalized_12": true,
-        "x3_contradictions_4": true,
-        "x3_carry_add_4_of_4": true,
-        "x3_delimiter_copy_4_of_4": true,
-        "x3_task_relabelled_false": true,
-        "x3_max_nodes_le_320000": true,
-        "x3_strict_one_cell": true,
-        "x3_text_tokens_zero": true,
-        "passed": true
-      },
-      "wall_seconds": 4.523116600001231
-    },
-    "x4": {
-      "receipt": "receipts\\holarch\\x4_gauntlet_256_queries.json",
-      "sha256": "73dddfda2f58355e23d8e3fae053d485062e2d7ee62e16c4d63b4409700c308d",
-      "passed": true,
-      "gate": {
-        "x4_runner_exit_zero": true,
-        "x4_queries_256": true,
-        "x4_probe_slots_180": true,
-        "x4_reachable_1": true,
-        "x4_hallucination_0": true,
-        "x4_zero_query_reads": true,
-        "x4_receipt_chain_valid": true,
-        "x4_wall_le_160": true,
-        "x4_gauntlet_gate": true,
-        "x4_pass0_batch_under_50ms": true,
-        "x4_pass0_scan_under_1500ms": true,
-        "x4_counterfactual_switch_preserved": true,
-        "x4_step_latency_median_under_1ms": true,
-        "x4_x_probes_present": true,
-        "passed": true
-      },
-      "wall_seconds": 134.04964460001793
-    },
     "x5": {
       "receipt": "receipts\\holarch\\x5_full_ledger_reconciliation.json",
       "sha256": "147a6e91cb3e02f3baecca9bb4ff9def0ff1fe55521f529589a05093f6799be2",
@@ -101,6 +57,51 @@
         "passed": true
       },
       "wall_seconds": 462.6696268999949
+    },
+    "x3": {
+      "receipt": "receipts\\holarch\\x3_stage_turing_closure.json",
+      "sha256": "d531ab8ca95a7fa84ad11c99784fcd8a1e74bf53fca6d941dcc61659df1a48ed",
+      "passed": true,
+      "gate": {
+        "x3_runner_exit_zero": true,
+        "x3_receipt_present": true,
+        "x3_tasks_solved_12": true,
+        "x3_generalized_12": true,
+        "x3_length_generalized_12": true,
+        "x3_contradictions_4": true,
+        "x3_carry_add_4_of_4": true,
+        "x3_delimiter_copy_4_of_4": true,
+        "x3_task_relabelled_false": true,
+        "x3_max_nodes_le_320000": true,
+        "x3_strict_one_cell": true,
+        "x3_text_tokens_zero": true,
+        "passed": true
+      },
+      "wall_seconds": 7.137806599959731
+    },
+    "x4": {
+      "receipt": "receipts\\holarch\\x4_gauntlet_256_queries.json",
+      "sha256": "de46f29fab1e2d79f3728e484c7837594cfae548dfb45a8248219712c77aa240",
+      "passed": true,
+      "gate": {
+        "x4_runner_exit_zero": true,
+        "x4_queries_272": true,
+        "x4_probe_slots_196": true,
+        "x4_cycle_y_probes_16": true,
+        "x4_reachable_1": true,
+        "x4_hallucination_0": true,
+        "x4_zero_query_reads": true,
+        "x4_receipt_chain_valid": true,
+        "x4_wall_le_160": true,
+        "x4_gauntlet_gate": true,
+        "x4_pass0_batch_under_50ms": true,
+        "x4_pass0_scan_under_1500ms": true,
+        "x4_counterfactual_switch_preserved": true,
+        "x4_step_latency_median_under_1ms": true,
+        "x4_x_probes_present": true,
+        "passed": true
+      },
+      "wall_seconds": 136.52739840000868
     }
   },
   "passed": true

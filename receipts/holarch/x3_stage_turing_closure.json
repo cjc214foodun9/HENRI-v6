@@ -2,7 +2,7 @@
   "stage": "X3",
   "run": {
     "exit_code": 0,
-    "wall_seconds": 4.522750400006771,
+    "wall_seconds": 7.137442299979739,
     "stderr_tail": ""
   },
   "solved": 12,
@@ -10,7 +10,7 @@
   "contradictions_failed_closed": 4,
   "max_nodes_used": 13332,
   "strict_one_cell": {
-    "rows": 0,
+    "rows": 1775,
     "violations": [],
     "strict": true
   },
@@ -163,7 +163,7 @@
     "x3_text_tokens_zero": true,
     "passed": true
   },
-  "wall_seconds": 4.523116600001231,
+  "wall_seconds": 7.137806599959731,
   "evidence": "OBSERVED",
   "passed": true
 }

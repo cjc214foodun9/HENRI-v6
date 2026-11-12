@@ -170,10 +170,18 @@ def stage_x4(directory: Path) -> Dict[str, Any]:
     mcp = dict(payload.get("holarch_mcp") or {})
     rows = list((payload.get("probes") or {}).get("rows") or [])
     x4_rows = [row for row in rows if str(row.get("name", "")).startswith("x4_")]
+    y_rows = [row for row in rows if str(row.get("category", "")).startswith("y")]
     gates = {
         "x4_runner_exit_zero": bool(int(run["exit_code"]) == 0),
-        "x4_queries_256": bool(int(payload.get("total_queries", 0)) == 256),
-        "x4_probe_slots_180": bool(int(payload.get("probe_slots", 0)) == 180),
+        # Stage Y4 grows the gauntlet from 256 to 272: the 76 legacy receipts
+        # and the 180 Cycle J..X probes are unchanged, and sixteen Cycle Y
+        # probes are added on top.  The count gate moves with the suite; no
+        # accuracy, hygiene or wall-clock gate is relaxed.
+        "x4_queries_272": bool(int(payload.get("total_queries", 0)) == 272),
+        "x4_probe_slots_196": bool(int(payload.get("probe_slots", 0)) == 196),
+        "x4_cycle_y_probes_16": bool(
+            len(y_rows) == 16 and all(bool(row.get("correct")) for row in y_rows)
+            and bool(gate.get("cycle_y_probes_16", False))),
         "x4_reachable_1": bool(float(mcp.get("reachable_accuracy", 0.0) or 0.0) == 1.0),
         "x4_hallucination_0": bool(mcp.get("hallucination_rate") == 0.0),
         "x4_zero_query_reads": bool(int(mcp.get("query_file_reads", -1)) == 0),
@@ -194,6 +202,7 @@ def stage_x4(directory: Path) -> Dict[str, Any]:
         "run": {key: run[key] for key in ("exit_code", "wall_seconds", "stderr_tail")},
         "queries": int(payload.get("total_queries", 0)),
         "probe_slots": int(payload.get("probe_slots", 0)),
+        "cycle_y_probes": len(y_rows),
         "wall_seconds_gauntlet": float(payload.get("wall_seconds", 0.0)),
         "headroom_seconds": float(180.0 - float(payload.get("wall_seconds", 0.0))),
         "reachable_accuracy": float(mcp.get("reachable_accuracy", 0.0) or 0.0),

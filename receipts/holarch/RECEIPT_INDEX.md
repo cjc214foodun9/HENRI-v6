@@ -50,3 +50,12 @@ x1_live_four_arm_aaii_v5.json  x1_stage_four_arm.json
 x2_sovereign_wave_egress.json  x2_stage_wave_egress.json
 x3_twelve_of_twelve_turing.json  x3_stage_turing_closure.json
 x4_gauntlet_256_queries.json  x5_full_ledger_reconciliation.json  x_cycle.json
+
+## Cycle Y receipts
+
+y1_photonic_wave_egress.json  y2_cold_start_synthesis.json
+y3_unified_wave_induction.json
+y4_scaled_aaii_v5.json  y5_hardware_and_ledger_closure.json
+y1_stage_photonic_wave_egress.json  y2_stage_cold_synthesis.json
+y3_stage_unified_induction.json  y4_stage_scaled_aaii_v5.json
+y_jev_mathematical_challenges.json  y_cycle.json  agent_eval.json

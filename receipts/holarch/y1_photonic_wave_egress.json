@@ -1,0 +1,450 @@
+{
+  "stage": "Y1",
+  "split": {
+    "documents": 36,
+    "train_tokens": 817014,
+    "inner_tokens": 122553,
+    "held_out_tokens": 5706,
+    "gap_tokens": 6,
+    "boundary_purged": true,
+    "corpus_digest": "a0527c5c72dc4a1c"
+  },
+  "wave_egress": {
+    "tokens": 5706,
+    "top1_wave_egress": 0.6048019628461269,
+    "bpc_wave_egress": 2.849976708865573,
+    "perplexity_wave_egress": 7.209887302198685,
+    "top1_count_floor": 0.5664213109008062,
+    "bpc_count_floor": 3.0533056591308774,
+    "unclamped_override_count": 559,
+    "override_wins": 277,
+    "override_losses": 60,
+    "override_net_win_delta": 217,
+    "sagnac_initial": 0.5214301856790055,
+    "sagnac_final": 0.5135565279884544,
+    "sagnac_curve": [
+      0.5214301856790055,
+      0.5166605374004372,
+      0.5145178341857369,
+      0.5135565279884544,
+      0.5135565279884544
+    ],
+    "sagnac_residual_reduced": true,
+    "fusion": {
+      "orders": 6,
+      "window": 512,
+      "tau_H": 0.5,
+      "tau_margin": 0.02,
+      "tau_sagnac": 0.92,
+      "max_order": 6
+    },
+    "photonic_contexts": 7004,
+    "autograd_used": false,
+    "module": "henri/holarch/wave_egress.py"
+  },
+  "x2_side_by_side": {
+    "top1": 0.6049772169645987,
+    "bits_per_char": 2.850266077535616,
+    "net_overrides": 216,
+    "photonic_weight": 0.0,
+    "receipt_constants": {
+      "top1": 0.611,
+      "bpc": 2.8043,
+      "net": 243
+    },
+    "seconds": 57.9903617000673
+  },
+  "photonic_cartridge": {
+    "ridge": 0.1,
+    "contexts": 600,
+    "slots": [
+      {
+        "slot": 0,
+        "contexts": 600,
+        "raw_port_cosine": 0.14728678094783948,
+        "aligned_port_cosine": 0.7305472268085111,
+        "aligner_norm": 14.76994675043828,
+        "phase_displacement": 1.8634804709847548
+      },
+      {
+        "slot": 1,
+        "contexts": 600,
+        "raw_port_cosine": 0.5105638221230306,
+        "aligned_port_cosine": 0.9291642749317035,
+        "aligner_norm": 10.782385276680436,
+        "phase_displacement": 0.9195565274846713
+      },
+      {
+        "slot": 2,
+        "contexts": 600,
+        "raw_port_cosine": 0.11613533845807798,
+        "aligned_port_cosine": 0.7509368116073938,
+        "aligner_norm": 4.1508148651521,
+        "phase_displacement": 0.6726187337047114
+      },
+      {
+        "slot": 3,
+        "contexts": 600,
+        "raw_port_cosine": 0.06610592426683178,
+        "aligned_port_cosine": 0.6718609476786397,
+        "aligner_norm": 6.172119162122221,
+        "phase_displacement": 1.4436871724566873
+      }
+    ],
+    "mean_raw_cosine": 0.210022966448945,
+    "mean_aligned_cosine": 0.770627315256562,
+    "mean_phase_displacement": 1.224835726157706,
+    "checkpoint_bytes_touched": 0
+  },
+  "capacity_probe": {
+    "task": "recover the oldest token of a 24-token window",
+    "rows": [
+      {
+        "d_slot": 64,
+        "dim": 256,
+        "probe_top1": 0.51,
+        "ideal_matched_filter_top1": 0.9266666666666666,
+        "six_order_suffix_top1": 0.0,
+        "chance_top1": 0.015625
+      },
+      {
+        "d_slot": 128,
+        "dim": 512,
+        "probe_top1": 0.6333333333333333,
+        "ideal_matched_filter_top1": 0.9966666666666667,
+        "six_order_suffix_top1": 0.0,
+        "chance_top1": 0.015625
+      },
+      {
+        "d_slot": 256,
+        "dim": 1024,
+        "probe_top1": 0.7633333333333333,
+        "ideal_matched_filter_top1": 1.0,
+        "six_order_suffix_top1": 0.0,
+        "chance_top1": 0.015625
+      },
+      {
+        "d_slot": 512,
+        "dim": 2048,
+        "probe_top1": 0.9933333333333333,
+        "ideal_matched_filter_top1": 1.0,
+        "six_order_suffix_top1": 0.0,
+        "chance_top1": 0.015625
+      },
+      {
+        "d_slot": 1024,
+        "dim": 4096,
+        "probe_top1": 1.0,
+        "ideal_matched_filter_top1": 1.0,
+        "six_order_suffix_top1": 0.0,
+        "chance_top1": 0.015625
+      }
+    ],
+    "capacity_boundary_dim": 2048,
+    "deployed_dim": 1024,
+    "deployed_probe_top1": 0.7633333333333333,
+    "suffix_blind": true,
+    "plates": 4,
+    "kerr": 0.25,
+    "note": "closed-form ridge probe on the post-photonic field; the suffix bank is structurally blind to the target, so any positive value is optical"
+  },
+  "photonic_calibration": {
+    "weight": 0.0,
+    "rows": [
+      {
+        "weight": 0.0,
+        "top1": 0.746268656716418,
+        "bpc": 1.59462030998613
+      },
+      {
+        "weight": 0.01,
+        "top1": 0.746268656716418,
+        "bpc": 1.6095210575669416
+      },
+      {
+        "weight": 0.02,
+        "top1": 0.746268656716418,
+        "bpc": 1.62434687734905
+      },
+      {
+        "weight": 0.05,
+        "top1": 0.746268656716418,
+        "bpc": 1.6677800209674325
+      },
+      {
+        "weight": 0.1,
+        "top1": 0.746268656716418,
+        "bpc": 1.736791335026246
+      },
+      {
+        "weight": 0.2,
+        "top1": 0.746268656716418,
+        "bpc": 1.863805609095713
+      },
+      {
+        "weight": 0.3,
+        "top1": 0.746268656716418,
+        "bpc": 1.9787148680437714
+      }
+    ],
+    "samples": 201
+  },
+  "photonic_calibration_after_phase": {
+    "weight": 0.0,
+    "rows": [
+      {
+        "weight": 0.0,
+        "top1": 0.746268656716418,
+        "bpc": 1.59462030998613
+      },
+      {
+        "weight": 0.01,
+        "top1": 0.746268656716418,
+        "bpc": 1.6095210575669416
+      },
+      {
+        "weight": 0.02,
+        "top1": 0.746268656716418,
+        "bpc": 1.62434687734905
+      },
+      {
+        "weight": 0.05,
+        "top1": 0.746268656716418,
+        "bpc": 1.6677800209674325
+      },
+      {
+        "weight": 0.1,
+        "top1": 0.746268656716418,
+        "bpc": 1.736791335026246
+      },
+      {
+        "weight": 0.2,
+        "top1": 0.746268656716418,
+        "bpc": 1.863805609095713
+      },
+      {
+        "weight": 0.3,
+        "top1": 0.746268656716418,
+        "bpc": 1.9787148680437714
+      }
+    ],
+    "samples": 201
+  },
+  "inner_ce_ablation": {
+    "suffix_only_6mode": {
+      "tokens": 320,
+      "nll": 1.1003017543026188,
+      "bits_per_char": 1.5873998844138149,
+      "top1": 0.753125
+    },
+    "with_photonic": {
+      "tokens": 320,
+      "nll": 1.1002996386185322,
+      "bits_per_char": 1.587396832126875,
+      "top1": 0.753125
+    },
+    "delta_bits_per_char": -3.052286939864146e-06,
+    "delta_nll": -2.1156840865899085e-06,
+    "selected_weight": 0.0
+  },
+  "phase": {
+    "inner_nll_initial": 1.1599995429409862,
+    "inner_nll_final": 1.1599995429409862,
+    "inner_nll_gain": 0.0,
+    "phase_displacement": 0.0,
+    "mean_abs_step": 0.0,
+    "updates": 0,
+    "epochs": 3,
+    "final_step": 0.00625,
+    "curve": [
+      1.1599995429409862,
+      1.1599995429409862,
+      1.1599995429409862,
+      1.1599995429409862
+    ],
+    "seed_phase_norm": 0.3301293584317981,
+    "phase": [
+      [
+        0.014626436994197257,
+        0.08783151775108494,
+        0.061036598507972696,
+        0.03424167926486046
+      ],
+      [
+        0.05604779323150675,
+        0.029252873988394514,
+        0.002457954745282187,
+        0.07566303550216986
+      ],
+      [
+        0.09746914946881624,
+        0.070674230225704,
+        0.04387931098259177,
+        0.017084391739479444
+      ],
+      [
+        0.03889050570612582,
+        0.012095586463013498,
+        0.08530066721990118,
+        0.05850574797678903
+      ],
+      [
+        0.08031186194343523,
+        0.0535169427003229,
+        0.026722023457210753,
+        0.09992710421409844
+      ],
+      [
+        0.021733218180744807,
+        0.09493829893763249,
+        0.06814337969452033,
+        0.04134846045140801
+      ],
+      [
+        0.06315457441805421,
+        0.036359655174942065,
+        0.009564735931829738,
+        0.08276981668871741
+      ],
+      [
+        0.004575930655363792,
+        0.07778101141225165,
+        0.050986092169139144,
+        0.024191172926026995
+      ]
+    ],
+    "phase0": [
+      [
+        0.014626436994197257,
+        0.08783151775108494,
+        0.061036598507972696,
+        0.03424167926486046
+      ],
+      [
+        0.05604779323150675,
+        0.029252873988394514,
+        0.002457954745282187,
+        0.07566303550216986
+      ],
+      [
+        0.09746914946881624,
+        0.070674230225704,
+        0.04387931098259177,
+        0.017084391739479444
+      ],
+      [
+        0.03889050570612582,
+        0.012095586463013498,
+        0.08530066721990118,
+        0.05850574797678903
+      ],
+      [
+        0.08031186194343523,
+        0.0535169427003229,
+        0.026722023457210753,
+        0.09992710421409844
+      ],
+      [
+        0.021733218180744807,
+        0.09493829893763249,
+        0.06814337969452033,
+        0.04134846045140801
+      ],
+      [
+        0.06315457441805421,
+        0.036359655174942065,
+        0.009564735931829738,
+        0.08276981668871741
+      ],
+      [
+        0.004575930655363792,
+        0.07778101141225165,
+        0.050986092169139144,
+        0.024191172926026995
+      ]
+    ],
+    "displacement": 0.0
+  },
+  "attribution": {
+    "wave_quadrature": {
+      "top1": 0.6048019628461269,
+      "bits_per_char": 2.849976708865573
+    },
+    "wave_seed_phase": {
+      "top1": 0.6048019628461269,
+      "bits_per_char": 2.849976708865573
+    },
+    "wave_no_quadrature": {
+      "top1": 0.6049772169645987,
+      "bits_per_char": 2.850266230840366
+    },
+    "quadrature_delta_top1": -0.000175254118471857,
+    "quadrature_delta_bpc": -0.0002895219747927058,
+    "phase_learning_delta_top1": 0.0,
+    "phase_learning_delta_bpc": 0.0
+  },
+  "fit": {
+    "epochs": 4,
+    "updates": 2083,
+    "theta": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "mode_gain": [
+      1.6382593652093913,
+      0.25371824094190143,
+      0.6270687240046873,
+      0.9820364093131101,
+      1.1017395157414618,
+      1.1156564039262318,
+      1.144435073488497,
+      1.1370862673747195
+    ],
+    "seconds": 130.6918642000528,
+    "override_calibration": {
+      "tau_H": 0.5,
+      "tau_margin": 0.02,
+      "tau_sagnac": 0.92,
+      "wins": 20,
+      "losses": 7,
+      "net": 13,
+      "rows": 901
+    },
+    "photonic_weight": 0.0
+  },
+  "autograd_markers": [],
+  "bar_policy": {
+    "note": "X2's sealed numbers are the bar (top1 0.6150 target, bpc < 2.8043, net > 250); the photonic weight and the override thresholds are selected on an inner slice of the training split only, and the cartridge is fitted on the training split only."
+  },
+  "gate": {
+    "y1_module_present": true,
+    "y1_autograd_unused": true,
+    "y1_quadrature_enabled": true,
+    "y1_photonic_weight_positive": false,
+    "y1_photonic_improves_inner_ce": true,
+    "y1_phase_displacement": false,
+    "y1_phase_attribution_nonzero": false,
+    "y1_held_out_top1": false,
+    "y1_bits_per_char_beat_x2": false,
+    "y1_net_overrides": false,
+    "y1_top1_beats_floor": true,
+    "y1_bpc_beats_floor": true,
+    "y1_gap_purged": true,
+    "y1_held_out_tokens": true,
+    "y1_cartridge_positive_cosine": true,
+    "y1_capacity_probe_ran": true,
+    "y1_capacity_probe_monotone": true,
+    "y1_capacity_suffix_blind": true,
+    "y1_capacity_deployed_retrieval": true,
+    "passed": false
+  },
+  "wall_seconds": 199.1440636999905,
+  "evidence": "OBSERVED",
+  "passed": false
+}

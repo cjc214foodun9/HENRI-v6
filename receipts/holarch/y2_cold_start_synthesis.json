@@ -1,0 +1,905 @@
+{
+  "stage": "Y2",
+  "suite": {
+    "tasks": 16,
+    "traps": 4,
+    "public_assertions_per_task": [
+      2,
+      3
+    ],
+    "hidden_assertions_per_task": 4,
+    "planstore_before": 0,
+    "planstore_after": 0,
+    "authoring_note": "the suite and the synthesizer share one author, so pass@1 is an upper bound on a clean-room number, not an unbiased estimate"
+  },
+  "pass_at_1": 1.0,
+  "solved": 16,
+  "emitted": 16,
+  "hidden_precision": 1.0,
+  "syntax_type_error_rate": 0.0,
+  "traps_refused": 4,
+  "max_rollouts": 4,
+  "rollout_budget": 24,
+  "max_effective_branching": 8,
+  "llm_calls": 0,
+  "repulsors_registered": 38,
+  "rows": [
+    {
+      "task": "count_even",
+      "status": "SOLVED",
+      "reason": "public_assertions_pass",
+      "rollouts": 1,
+      "v_eff": {
+        "return_expr": 8,
+        "comprehension": 8,
+        "loop": 8,
+        "recursion": 5
+      },
+      "v_eff_max": 8,
+      "candidates": 29,
+      "hidden_ok": true,
+      "hidden_detail": "pass",
+      "source_sha256": "834de581fa86f8ec902c48b3ca3efecfc868791b00a2725e55ac0e1f969dae42",
+      "source_head": "def count_even(nums: list) -> int:\n    return sum(1 for x in nums if x % 2 == 0)\n",
+      "seconds": 0.2483290999662131,
+      "trajectory": [
+        {
+          "slot": "comprehension",
+          "body": "return sum(1 for x in nums if x % 2 == 0)",
+          "ok": true,
+          "detail": "public_assertions_pass"
+        }
+      ]
+    },
+    {
+      "task": "sum_positive",
+      "status": "SOLVED",
+      "reason": "public_assertions_pass",
+      "rollouts": 1,
+      "v_eff": {
+        "return_expr": 8,
+        "comprehension": 8,
+        "loop": 8,
+        "recursion": 5
+      },
+      "v_eff_max": 8,
+      "candidates": 29,
+      "hidden_ok": true,
+      "hidden_detail": "pass",
+      "source_sha256": "8c4c244c3f5e3e868c2278ee3af2f60e37b1187c40f797aaf7162188283d78a8",
+      "source_head": "def sum_positive(values: list) -> int:\n    return sum(x for x in values if x > 0)\n",
+      "seconds": 0.21064480009954423,
+      "trajectory": [
+        {
+          "slot": "comprehension",
+          "body": "return sum(x for x in values if x > 0)",
+          "ok": true,
+          "detail": "public_assertions_pass"
+        }
+      ]
+    },
+    {
+      "task": "reverse_words",
+      "status": "SOLVED",
+      "reason": "public_assertions_pass",
+      "rollouts": 1,
+      "v_eff": {
+        "return_expr": 7,
+        "loop": 6
+      },
+      "v_eff_max": 7,
+      "candidates": 13,
+      "hidden_ok": true,
+      "hidden_detail": "pass",
+      "source_sha256": "03d2785b8fe9836fa9a3498f270f1ad3f4d9b823f75343773d7b42373a0c56d6",
+      "source_head": "def reverse_words(text: str) -> str:\n    return ' '.join(text.split()[::-1])\n",
+      "seconds": 0.09697229997254908,
+      "trajectory": [
+        {
+          "slot": "loop",
+          "body": "return ' '.join(text.split()[::-1])",
+          "ok": true,
+          "detail": "public_assertions_pass"
+        }
+      ]
+    },
+    {
+      "task": "is_palindrome",
+      "status": "SOLVED",
+      "reason": "public_assertions_pass",
+      "rollouts": 1,
+      "v_eff": {
+        "return_expr": 7,
+        "loop": 6
+      },
+      "v_eff_max": 7,
+      "candidates": 13,
+      "hidden_ok": true,
+      "hidden_detail": "pass",
+      "source_sha256": "9498891e386cedf91cf64cc2b546920de7db51965905d1f1ded7a8beeded62d8",
+      "source_head": "def is_palindrome(text: str) -> bool:\n    return text == text[::-1]\n",
+      "seconds": 0.0953778000548482,
+      "trajectory": [
+        {
+          "slot": "return_expr",
+          "body": "return text == text[::-1]",
+          "ok": true,
+          "detail": "public_assertions_pass"
+        }
+      ]
+    },
+    {
+      "task": "max_value",
+      "status": "SOLVED",
+      "reason": "public_assertions_pass",
+      "rollouts": 1,
+      "v_eff": {
+        "return_expr": 8,
+        "comprehension": 8,
+        "loop": 8,
+        "recursion": 5
+      },
+      "v_eff_max": 8,
+      "candidates": 29,
+      "hidden_ok": true,
+      "hidden_detail": "pass",
+      "source_sha256": "c57747fb2fe22f5ff140d234b553bdf35a286be450a220125fb589ad92c208e1",
+      "source_head": "def max_value(nums: list) -> int:\n    best = nums[0]\n    for x in nums:\n        if x > best:\n            best = x\n    return best\n",
+      "seconds": 0.22680709999985993,
+      "trajectory": [
+        {
+          "slot": "loop",
+          "body": "best = nums[0]\n    for x in nums:\n        if x > best:\n            best = x\n    return best",
+          "ok": true,
+          "detail": "public_assertions_pass"
+        }
+      ]
+    },
+    {
+      "task": "dedupe",
+      "status": "SOLVED",
+      "reason": "public_assertions_pass",
+      "rollouts": 4,
+      "v_eff": {
+        "return_expr": 8,
+        "comprehension": 8,
+        "loop": 8,
+        "recursion": 5
+      },
+      "v_eff_max": 8,
+      "candidates": 29,
+      "hidden_ok": true,
+      "hidden_detail": "pass",
+      "source_sha256": "1972c66484290ea96e54edd0edffb34eb5442871c470d0844b762ee654fe6a6c",
+      "source_head": "def dedupe(nums: list) -> list:\n    return list(dict.fromkeys(nums))\n",
+      "seconds": 0.43009190005250275,
+      "trajectory": [
+        {
+          "slot": "return_expr",
+          "body": "return nums[0]",
+          "ok": false,
+          "detail": "AssertionError"
+        },
+        {
+          "slot": "return_expr",
+          "body": "return sorted(nums)",
+          "ok": false,
+          "detail": "AssertionError"
+        },
+        {
+          "slot": "return_expr",
+          "body": "return sorted(set(nums))",
+          "ok": false,
+          "detail": "AssertionError"
+        },
+        {
+          "slot": "return_expr",
+          "body": "return list(dict.fromkeys(nums))",
+          "ok": true,
+          "detail": "public_assertions_pass"
+        }
+      ]
+    },
+    {
+      "task": "count_vowels",
+      "status": "SOLVED",
+      "reason": "public_assertions_pass",
+      "rollouts": 1,
+      "v_eff": {
+        "return_expr": 7,
+        "loop": 6
+      },
+      "v_eff_max": 7,
+      "candidates": 13,
+      "hidden_ok": true,
+      "hidden_detail": "pass",
+      "source_sha256": "f03d20993d74abd600991b2281fb461c4daa9d1f6df0b46a16a0c9e6fd4435fc",
+      "source_head": "def count_vowels(text: str) -> int:\n    return sum(1 for c in text.lower() if c in 'aeiou')\n",
+      "seconds": 0.11381020001135767,
+      "trajectory": [
+        {
+          "slot": "loop",
+          "body": "return sum(1 for c in text.lower() if c in 'aeiou')",
+          "ok": true,
+          "detail": "public_assertions_pass"
+        }
+      ]
+    },
+    {
+      "task": "factorial",
+      "status": "SOLVED",
+      "reason": "public_assertions_pass",
+      "rollouts": 1,
+      "v_eff": {
+        "return_expr": 4,
+        "loop": 2,
+        "recursion": 4
+      },
+      "v_eff_max": 4,
+      "candidates": 10,
+      "hidden_ok": true,
+      "hidden_detail": "pass",
+      "source_sha256": "7ac8901118b623ddd2125b45558a53d756f2b4882e3dde4e4559eff43694dede",
+      "source_head": "def factorial(n: int) -> int:\n    if n <= 1:\n        return 1\n    return n * factorial(n - 1)\n",
+      "seconds": 0.10204859997611493,
+      "trajectory": [
+        {
+          "slot": "recursion",
+          "body": "if n <= 1:\n        return 1\n    return n * factorial(n - 1)",
+          "ok": true,
+          "detail": "public_assertions_pass"
+        }
+      ]
+    },
+    {
+      "task": "gcd",
+      "status": "SOLVED",
+      "reason": "public_assertions_pass",
+      "rollouts": 1,
+      "v_eff": {
+        "return_expr": 8,
+        "loop": 2,
+        "recursion": 7
+      },
+      "v_eff_max": 8,
+      "candidates": 17,
+      "hidden_ok": true,
+      "hidden_detail": "pass",
+      "source_sha256": "cdcd8f9d57e7acf19d49bbfe6d0044c1f6b7415d1ec732cb2982ac89de2057e5",
+      "source_head": "def gcd(a: int, b: int) -> int:\n    a, b = abs(a), abs(b)\n    while b:\n        a, b = b, a % b\n    return a\n",
+      "seconds": 0.12679449992720038,
+      "trajectory": [
+        {
+          "slot": "recursion",
+          "body": "a, b = abs(a), abs(b)\n    while b:\n        a, b = b, a % b\n    return a",
+          "ok": true,
+          "detail": "public_assertions_pass"
+        }
+      ]
+    },
+    {
+      "task": "digit_sum",
+      "status": "SOLVED",
+      "reason": "public_assertions_pass",
+      "rollouts": 1,
+      "v_eff": {
+        "return_expr": 4,
+        "loop": 2,
+        "recursion": 4
+      },
+      "v_eff_max": 4,
+      "candidates": 10,
+      "hidden_ok": true,
+      "hidden_detail": "pass",
+      "source_sha256": "f47c6f0aebdef6e971608240c32b9d04ec54e33b734fbf1eb0954ddcf1f1bb1e",
+      "source_head": "def digit_sum(n: int) -> int:\n    total = 0\n    for c in str(n):\n        total += int(c)\n    return total\n",
+      "seconds": 0.12320519995409995,
+      "trajectory": [
+        {
+          "slot": "loop",
+          "body": "total = 0\n    for c in str(n):\n        total += int(c)\n    return total",
+          "ok": true,
+          "detail": "public_assertions_pass"
+        }
+      ]
+    },
+    {
+      "task": "fibonacci",
+      "status": "SOLVED",
+      "reason": "public_assertions_pass",
+      "rollouts": 1,
+      "v_eff": {
+        "return_expr": 4,
+        "loop": 2,
+        "recursion": 4
+      },
+      "v_eff_max": 4,
+      "candidates": 10,
+      "hidden_ok": true,
+      "hidden_detail": "pass",
+      "source_sha256": "3b6083d00d7d3229ae24220500ce1f2ffed0c277cfdf935d7d475aa5af932bfb",
+      "source_head": "def fibonacci(n: int) -> int:\n    if n <= 1:\n        return n\n    return fibonacci(n - 1) + fibonacci(n - 2)\n",
+      "seconds": 0.10877819999586791,
+      "trajectory": [
+        {
+          "slot": "recursion",
+          "body": "if n <= 1:\n        return n\n    return fibonacci(n - 1) + fibonacci(n - 2)",
+          "ok": true,
+          "detail": "public_assertions_pass"
+        }
+      ]
+    },
+    {
+      "task": "flatten",
+      "status": "SOLVED",
+      "reason": "public_assertions_pass",
+      "rollouts": 1,
+      "v_eff": {
+        "return_expr": 8,
+        "comprehension": 8,
+        "loop": 8,
+        "recursion": 5
+      },
+      "v_eff_max": 8,
+      "candidates": 29,
+      "hidden_ok": true,
+      "hidden_detail": "pass",
+      "source_sha256": "8cc9d586723245453e7665e54dc3a51d11ea82dc2472eb5bfccabba174a5b131",
+      "source_head": "def flatten(matrix: list) -> list:\n    return [y for x in matrix for y in x]\n",
+      "seconds": 0.2133687000023201,
+      "trajectory": [
+        {
+          "slot": "comprehension",
+          "body": "return [y for x in matrix for y in x]",
+          "ok": true,
+          "detail": "public_assertions_pass"
+        }
+      ]
+    },
+    {
+      "task": "is_prime",
+      "status": "SOLVED",
+      "reason": "public_assertions_pass",
+      "rollouts": 1,
+      "v_eff": {
+        "return_expr": 4,
+        "loop": 2,
+        "recursion": 4
+      },
+      "v_eff_max": 4,
+      "candidates": 10,
+      "hidden_ok": true,
+      "hidden_detail": "pass",
+      "source_sha256": "a680c2bfdd7253aef13f7aa2fe1d40f91fbb4d05e5ad2656f7d141f0d868c952",
+      "source_head": "def is_prime(n: int) -> bool:\n    if n < 2:\n        return False\n    d = 2\n    while d * d <= n:\n        if n % d == 0:\n            return False\n        d += 1\n    return True\n",
+      "seconds": 0.10835059999953955,
+      "trajectory": [
+        {
+          "slot": "recursion",
+          "body": "if n < 2:\n        return False\n    d = 2\n    while d * d <= n:\n        if n % d == 0:\n            return False\n        d += 1\n    return True",
+          "ok": true,
+          "detail": "public_assertions_pass"
+        }
+      ]
+    },
+    {
+      "task": "word_lengths",
+      "status": "SOLVED",
+      "reason": "public_assertions_pass",
+      "rollouts": 2,
+      "v_eff": {
+        "return_expr": 8,
+        "comprehension": 8,
+        "loop": 8,
+        "recursion": 5
+      },
+      "v_eff_max": 8,
+      "candidates": 29,
+      "hidden_ok": true,
+      "hidden_detail": "pass",
+      "source_sha256": "a9e84bc3693a5c129a6b208bb4f660cccbf8a6169aee38c64a17ef2bdb58be65",
+      "source_head": "def word_lengths(words: list) -> list:\n    return [len(w) for w in words]\n",
+      "seconds": 0.2810140000656247,
+      "trajectory": [
+        {
+          "slot": "comprehension",
+          "body": "return [w for w in words if len(w) > words]",
+          "ok": false,
+          "detail": "TypeError: '>' not supported between instances of 'int' and 'list'"
+        },
+        {
+          "slot": "comprehension",
+          "body": "return [len(w) for w in words]",
+          "ok": true,
+          "detail": "public_assertions_pass"
+        }
+      ]
+    },
+    {
+      "task": "sort_by_length",
+      "status": "SOLVED",
+      "reason": "public_assertions_pass",
+      "rollouts": 1,
+      "v_eff": {
+        "return_expr": 8,
+        "comprehension": 8,
+        "loop": 8,
+        "recursion": 5
+      },
+      "v_eff_max": 8,
+      "candidates": 29,
+      "hidden_ok": true,
+      "hidden_detail": "pass",
+      "source_sha256": "715def0ce90f02b14922da8106ee5669d5ac035ab41d54c2b0460e3115046ec6",
+      "source_head": "def sort_by_length(words: list) -> list:\n    return sorted(words, key=len)\n",
+      "seconds": 0.20582729997113347,
+      "trajectory": [
+        {
+          "slot": "comprehension",
+          "body": "return sorted(words, key=len)",
+          "ok": true,
+          "detail": "public_assertions_pass"
+        }
+      ]
+    },
+    {
+      "task": "median",
+      "status": "SOLVED",
+      "reason": "public_assertions_pass",
+      "rollouts": 1,
+      "v_eff": {
+        "return_expr": 8,
+        "comprehension": 8,
+        "loop": 8,
+        "recursion": 5
+      },
+      "v_eff_max": 8,
+      "candidates": 29,
+      "hidden_ok": true,
+      "hidden_detail": "pass",
+      "source_sha256": "b1cf1148c1ebbc92ec15ea848c40490a9d6522ca27fb6acc59dd802ab7af53c0",
+      "source_head": "def median(nums: list) -> float:\n    values = sorted(nums)\n    n = len(values)\n    if n % 2 == 1:\n        return values[n // 2]\n    return (values[n // 2 - 1] + values[n // 2]) / 2\n",
+      "seconds": 0.24649739998858422,
+      "trajectory": [
+        {
+          "slot": "loop",
+          "body": "values = sorted(nums)\n    n = len(values)\n    if n % 2 == 1:\n        return values[n // 2]\n    return (values[n // 2 - 1] + values[n // 2]) / 2",
+          "ok": true,
+          "detail": "public_assertions_pass"
+        }
+      ]
+    }
+  ],
+  "traps": [
+    {
+      "task": "contradictory_examples",
+      "kind": "contradiction",
+      "status": "ABSTAIN",
+      "reason": "contradictory_spec",
+      "rollouts": 0,
+      "abstained": true
+    },
+    {
+      "task": "contradictory_return_capability",
+      "kind": "type_contradiction",
+      "status": "ABSTAIN",
+      "reason": "exhausted_public_assertions",
+      "rollouts": 10,
+      "abstained": true
+    },
+    {
+      "task": "missing_external_capability",
+      "kind": "unsatisfiable_capability",
+      "status": "ABSTAIN",
+      "reason": "unsatisfiable_capability",
+      "rollouts": 0,
+      "abstained": true
+    },
+    {
+      "task": "contradictory_return_type",
+      "kind": "type_contradiction",
+      "status": "ABSTAIN",
+      "reason": "exhausted_public_assertions",
+      "rollouts": 24,
+      "abstained": true
+    }
+  ],
+  "sandbox_ledger": [
+    {
+      "exit_code": 0,
+      "ok": true,
+      "duration_ms": 40.01800005789846,
+      "sha256": "84f40d38794fdd6a"
+    },
+    {
+      "exit_code": 0,
+      "ok": true,
+      "duration_ms": 37.124000024050474,
+      "sha256": "73f7bdc97df50189"
+    },
+    {
+      "exit_code": 0,
+      "ok": true,
+      "duration_ms": 38.064700085669756,
+      "sha256": "d31350e257c3d5db"
+    },
+    {
+      "exit_code": 0,
+      "ok": true,
+      "duration_ms": 36.10949998255819,
+      "sha256": "17480753e626239b"
+    },
+    {
+      "exit_code": 0,
+      "ok": true,
+      "duration_ms": 36.852800054475665,
+      "sha256": "4eb4444f413513e4"
+    },
+    {
+      "exit_code": 0,
+      "ok": true,
+      "duration_ms": 35.59740004129708,
+      "sha256": "26f34a1230f01013"
+    },
+    {
+      "exit_code": 0,
+      "ok": true,
+      "duration_ms": 35.44120001606643,
+      "sha256": "7ef56d9434c0b0d3"
+    },
+    {
+      "exit_code": 0,
+      "ok": true,
+      "duration_ms": 36.41050006262958,
+      "sha256": "bf9499827df9255b"
+    },
+    {
+      "exit_code": 0,
+      "ok": true,
+      "duration_ms": 36.526700016111135,
+      "sha256": "761cf322d4189151"
+    },
+    {
+      "exit_code": 0,
+      "ok": true,
+      "duration_ms": 36.683499929495156,
+      "sha256": "8712735570594f29"
+    },
+    {
+      "exit_code": 1,
+      "ok": false,
+      "duration_ms": 65.57380000595003,
+      "sha256": "b3379518dfd92ceb"
+    },
+    {
+      "exit_code": 1,
+      "ok": false,
+      "duration_ms": 59.59860002622008,
+      "sha256": "8cd1a17795c9ac15"
+    },
+    {
+      "exit_code": 1,
+      "ok": false,
+      "duration_ms": 59.82799991033971,
+      "sha256": "2de3dfcc17cb9aa0"
+    },
+    {
+      "exit_code": 0,
+      "ok": true,
+      "duration_ms": 35.32260004431009,
+      "sha256": "40ae33914b58f4a2"
+    },
+    {
+      "exit_code": 0,
+      "ok": true,
+      "duration_ms": 37.49759995844215,
+      "sha256": "5d5b04efeba40855"
+    },
+    {
+      "exit_code": 0,
+      "ok": true,
+      "duration_ms": 45.888799941167235,
+      "sha256": "4b1485e3164af2d5"
+    },
+    {
+      "exit_code": 0,
+      "ok": true,
+      "duration_ms": 42.862200061790645,
+      "sha256": "c1ad57a1d9857f19"
+    },
+    {
+      "exit_code": 0,
+      "ok": true,
+      "duration_ms": 36.0916000790894,
+      "sha256": "a03040ed1d80a297"
+    },
+    {
+      "exit_code": 0,
+      "ok": true,
+      "duration_ms": 35.49449995625764,
+      "sha256": "c0d4bb05bf550fca"
+    },
+    {
+      "exit_code": 0,
+      "ok": true,
+      "duration_ms": 36.200899980030954,
+      "sha256": "3bdfd9e142a34777"
+    },
+    {
+      "exit_code": 0,
+      "ok": true,
+      "duration_ms": 43.377600028179586,
+      "sha256": "1d70a90c8a48fd27"
+    },
+    {
+      "exit_code": 0,
+      "ok": true,
+      "duration_ms": 46.874500112608075,
+      "sha256": "0c7f001b347ceebc"
+    },
+    {
+      "exit_code": 0,
+      "ok": true,
+      "duration_ms": 42.00749995652586,
+      "sha256": "3a76934c09b19f78"
+    },
+    {
+      "exit_code": 0,
+      "ok": true,
+      "duration_ms": 39.03899993747473,
+      "sha256": "8275ef4c8fa9b6bd"
+    },
+    {
+      "exit_code": 0,
+      "ok": true,
+      "duration_ms": 37.171400035731494,
+      "sha256": "7772634ffabcc56f"
+    },
+    {
+      "exit_code": 0,
+      "ok": true,
+      "duration_ms": 43.82989997975528,
+      "sha256": "f59d62e1813efb5f"
+    },
+    {
+      "exit_code": 0,
+      "ok": true,
+      "duration_ms": 36.292799981310964,
+      "sha256": "181b5057cc61c5fe"
+    },
+    {
+      "exit_code": 0,
+      "ok": true,
+      "duration_ms": 35.446399939246476,
+      "sha256": "c01377b9f390e8e4"
+    },
+    {
+      "exit_code": 0,
+      "ok": true,
+      "duration_ms": 41.03469999972731,
+      "sha256": "482a39a8b38ae61f"
+    },
+    {
+      "exit_code": 1,
+      "ok": false,
+      "duration_ms": 60.54390000645071,
+      "sha256": "a2f4f6e409d2a616"
+    },
+    {
+      "exit_code": 0,
+      "ok": true,
+      "duration_ms": 36.07320005539805,
+      "sha256": "204a6e259abf907b"
+    },
+    {
+      "exit_code": 0,
+      "ok": true,
+      "duration_ms": 35.09590006433427,
+      "sha256": "e74b8ca3d522aa25"
+    },
+    {
+      "exit_code": 0,
+      "ok": true,
+      "duration_ms": 37.726799957454205,
+      "sha256": "2233dffe0fd3359e"
+    },
+    {
+      "exit_code": 0,
+      "ok": true,
+      "duration_ms": 36.35459998622537,
+      "sha256": "2286ca28b60a7f57"
+    },
+    {
+      "exit_code": 0,
+      "ok": true,
+      "duration_ms": 38.76490006223321,
+      "sha256": "4bf34320cb3b4297"
+    },
+    {
+      "exit_code": 0,
+      "ok": true,
+      "duration_ms": 43.12350007239729,
+      "sha256": "4b7160c11ddf5d06"
+    },
+    {
+      "exit_code": 1,
+      "ok": false,
+      "duration_ms": 59.51029993593693,
+      "sha256": "e11875bf934de758"
+    },
+    {
+      "exit_code": 1,
+      "ok": false,
+      "duration_ms": 61.03779992554337,
+      "sha256": "3382e11f633a0cf8"
+    },
+    {
+      "exit_code": 1,
+      "ok": false,
+      "duration_ms": 59.40350005403161,
+      "sha256": "b3220d9ae99cee4c"
+    },
+    {
+      "exit_code": 1,
+      "ok": false,
+      "duration_ms": 57.68309999257326,
+      "sha256": "6c0ca7016ccb7c91"
+    },
+    {
+      "exit_code": 1,
+      "ok": false,
+      "duration_ms": 58.16749995574355,
+      "sha256": "ccdb83b74eb7c20c"
+    },
+    {
+      "exit_code": 1,
+      "ok": false,
+      "duration_ms": 61.802699929103255,
+      "sha256": "12c05a330bbc83d0"
+    },
+    {
+      "exit_code": 1,
+      "ok": false,
+      "duration_ms": 60.59480004478246,
+      "sha256": "8d64b59bda5532e9"
+    },
+    {
+      "exit_code": 1,
+      "ok": false,
+      "duration_ms": 62.85680003929883,
+      "sha256": "05b6ab40cc343309"
+    },
+    {
+      "exit_code": 1,
+      "ok": false,
+      "duration_ms": 57.50690004788339,
+      "sha256": "b182e9bd0b77cb65"
+    },
+    {
+      "exit_code": 1,
+      "ok": false,
+      "duration_ms": 64.55270003061742,
+      "sha256": "cc0fda215cb06c25"
+    },
+    {
+      "exit_code": 1,
+      "ok": false,
+      "duration_ms": 58.7278000311926,
+      "sha256": "f7367887d5d99ca6"
+    },
+    {
+      "exit_code": 1,
+      "ok": false,
+      "duration_ms": 63.496300019323826,
+      "sha256": "3e8081dc0533d5ec"
+    },
+    {
+      "exit_code": 1,
+      "ok": false,
+      "duration_ms": 66.59840000793338,
+      "sha256": "220b07af67c0687e"
+    },
+    {
+      "exit_code": 1,
+      "ok": false,
+      "duration_ms": 64.11080004181713,
+      "sha256": "cfcd098f455a7cea"
+    },
+    {
+      "exit_code": 1,
+      "ok": false,
+      "duration_ms": 59.536000015214086,
+      "sha256": "125f897f65679dab"
+    },
+    {
+      "exit_code": 1,
+      "ok": false,
+      "duration_ms": 64.73320000804961,
+      "sha256": "f9c3c14e3b4a1584"
+    },
+    {
+      "exit_code": 1,
+      "ok": false,
+      "duration_ms": 59.66130003798753,
+      "sha256": "7e1daee4bb016718"
+    },
+    {
+      "exit_code": 1,
+      "ok": false,
+      "duration_ms": 61.57419993542135,
+      "sha256": "8805531f8bc101ed"
+    },
+    {
+      "exit_code": 1,
+      "ok": false,
+      "duration_ms": 61.26460002269596,
+      "sha256": "ad15d9498cf987e6"
+    },
+    {
+      "exit_code": 1,
+      "ok": false,
+      "duration_ms": 64.22910001128912,
+      "sha256": "fb93842ed05811aa"
+    },
+    {
+      "exit_code": 1,
+      "ok": false,
+      "duration_ms": 63.80459992215037,
+      "sha256": "62aba7ebd90cf078"
+    },
+    {
+      "exit_code": 1,
+      "ok": false,
+      "duration_ms": 62.309600063599646,
+      "sha256": "0a0e3f7263f93de9"
+    },
+    {
+      "exit_code": 1,
+      "ok": false,
+      "duration_ms": 59.40969998482615,
+      "sha256": "0959080669cf0f36"
+    },
+    {
+      "exit_code": 1,
+      "ok": false,
+      "duration_ms": 58.5769999306649,
+      "sha256": "fde7612f3e75b39c"
+    },
+    {
+      "exit_code": 1,
+      "ok": false,
+      "duration_ms": 58.56899998616427,
+      "sha256": "a0cd05b99c50a895"
+    },
+    {
+      "exit_code": 1,
+      "ok": false,
+      "duration_ms": 59.974399977363646,
+      "sha256": "bc426f95a796ecc1"
+    },
+    {
+      "exit_code": 1,
+      "ok": false,
+      "duration_ms": 58.670499944128096,
+      "sha256": "9bb8afe7de940e45"
+    }
+  ],
+  "gate": {
+    "y2_planstore_empty_at_start": true,
+    "y2_zero_llm_calls": true,
+    "y2_standalone_pass_at_1": true,
+    "y2_hidden_precision": true,
+    "y2_syntax_type_error_rate_zero": true,
+    "y2_traps_refused_4": true,
+    "y2_budget_24": true,
+    "y2_effective_branching_le_8": true,
+    "y2_zero_external_completion": true,
+    "y2_repulsor_registered": true,
+    "y2_sandbox_out_of_process": true,
+    "y2_emitted_solutions_present": true,
+    "passed": true
+  },
+  "wall_seconds": 10.602061799960211,
+  "evidence": "OBSERVED",
+  "passed": true
+}

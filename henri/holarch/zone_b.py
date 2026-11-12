@@ -1233,3 +1233,177 @@ class PhotonicCore(nn.Module):
 def phase_authority(temperature: torch.Tensor, pockels_gain: float = 0.9) -> torch.Tensor:
     """Measured control authority dPhi/dV at a given temperature."""
     return float(pockels_gain) * curie_weiss_gain(temperature)
+
+
+# ======================================================================
+# Directive Y1: the non-destructive subword optical phase cartridge.
+#
+# Cycle E trained the four BaTiO3 phase masks on the 96-character
+# CharLMTask stream.  Cycle L-X replaced that ingress with the
+# BochnerPhaseProjector four-slot subword codebook.  The masked plates are
+# a fixed pseudo-unitary operator on S^{D-1}; measured against the subword
+# codebook its bright-port readout is O(D^{-1/2}) (concentration of
+# measure), so the X2 calibrator correctly muted the photonic fusion
+# weight.  The fix is not to retrain Vision/Action/Relational weights.
+# It is a separate, closed-form, cross-spectral alignment between the
+# post-photonic ports and the Bochner training stream:
+#
+#     M_s = Y_s X_s^H (X_s X_s^H + lambda I)^{-1}
+#
+# where X_s stacks the post-photonic bright-port slot-s blocks over the
+# training contexts and Y_s stacks the Bochner context waves of the same
+# contexts.  M_s is the minimum-mean-square phase-conjugate aligner: it is
+# solved in closed form (no autograd, no optimiser) and it is applied to
+# the ports, so holarch_medium.pt stays byte-identical and every
+# Vision/Action/Relational weight is untouched.
+# ======================================================================
+class SubwordPhaseCartridge(nn.Module):
+    """Closed-form cross-spectral alignment of the Zone B ports.
+
+    The cartridge OWNS its aligner.  It never edits a plate mask, a heater,
+    a pool basis or a mixer weight, so a mounted checkpoint keeps its
+    original bytes and the cartridge can be dropped without a reload.
+    """
+
+    def __init__(self, core: "PhotonicCore", *, ridge: float = 1e-1) -> None:
+        super().__init__()
+        self.core = core
+        self.dim = int(core.dim)
+        self.n_slots = int(core.n_slots)
+        self.d_slot = int(core.d_slot)
+        self.ridge = float(ridge)
+        self.aligners: list = [None for _ in range(self.n_slots)]
+        self.observed = 0
+        self.report: Dict[str, object] = {}
+
+    # --------------------------------------------------------------- ports
+    @torch.no_grad()
+    def ports(self, psi: torch.Tensor):
+        """The raw bright and dark ports of the mounted plate stack."""
+        state = self.core(psi)
+        return state.bright, state.dark, state
+
+    @staticmethod
+    def _blocks(field: torch.Tensor, n_slots: int, d_slot: int) -> list:
+        return [
+            field[:, index * d_slot : (index + 1) * d_slot].detach().cpu().numpy()
+            for index in range(n_slots)
+        ]
+
+    # --------------------------------------------------------------- fitting
+    def fit(
+        self,
+        waves: Sequence[torch.Tensor],
+        *,
+        contexts: Optional[Sequence[object]] = None,
+    ) -> Dict[str, object]:
+        """Solve the per-slot phase-conjugate aligner in closed form.
+
+        waves are the Bochner context waves (the targets).  The bright port
+        of each wave is the observation.  Each slot is a separate ridge
+        problem, because the four slots are four independent waveguide
+        banks and a cross-slot aligner would be a full rank-D scramble.
+        """
+        import numpy as np
+
+        if len(waves) < 4:
+            raise ValueError("the cartridge needs at least four context waves")
+        stack = torch.cat([w.reshape(1, -1) for w in waves], dim=0).to(torch.complex64)
+        bright, _dark, _state = self.ports(stack)
+        xb = self._blocks(bright, self.n_slots, self.d_slot)
+        yb = self._blocks(stack, self.n_slots, self.d_slot)
+        rows: list = []
+        for slot in range(self.n_slots):
+            # Sample-major convention: rows are contexts.  The ridge problem
+            # is min_M ||X M^T - Y||^2 + lambda ||M||^2 with the closed form
+            # M^T = (X^H X + lambda I)^{-1} X^H Y.  The transpose matters: the
+            # conjugate-transposed aligner rotates the field the wrong way and
+            # measured a LOWER cosine than the raw port.
+            x = np.asarray(xb[slot], dtype=np.complex128)      # (N, d)
+            y = np.asarray(yb[slot], dtype=np.complex128)      # (N, d)
+            gram = x.conj().T @ x                              # (d, d)
+            scale = float(np.trace(gram).real) / max(gram.shape[0], 1)
+            gram = gram + np.eye(gram.shape[0], dtype=np.complex128) * (
+                self.ridge * max(scale, 1e-12)
+            )
+            alpha = np.linalg.solve(gram, x.conj().T @ y)      # (d, d) = M^T
+            aligner = alpha.T                                  # (d, d)
+            aligned = x @ aligner.T
+            cosine = float(
+                np.mean(
+                    np.abs(np.sum(aligned.conj() * y, axis=0))
+                    / np.maximum(
+                        np.linalg.norm(aligned, axis=0) * np.linalg.norm(y, axis=0), 1e-12
+                    )
+                )
+            )
+            raw_cosine = float(
+                np.mean(
+                    np.abs(np.sum(x.conj() * y, axis=0))
+                    / np.maximum(
+                        np.linalg.norm(x, axis=0) * np.linalg.norm(y, axis=0), 1e-12
+                    )
+                )
+            )
+            self.aligners[slot] = aligner.astype(np.complex64)
+            rows.append(
+                {
+                    "slot": int(slot),
+                    "contexts": int(x.shape[0]),
+                    "raw_port_cosine": raw_cosine,
+                    "aligned_port_cosine": cosine,
+                    "aligner_norm": float(np.linalg.norm(aligner)),
+                    "phase_displacement": float(
+                        np.abs(np.angle(np.diag(aligner))).mean()
+                    ),
+                }
+            )
+        self.observed = int(len(waves))
+        self.report = {
+            "ridge": float(self.ridge),
+            "contexts": int(len(waves)),
+            "slots": rows,
+            "mean_raw_cosine": float(np.mean([row["raw_port_cosine"] for row in rows])),
+            "mean_aligned_cosine": float(
+                np.mean([row["aligned_port_cosine"] for row in rows])
+            ),
+            "mean_phase_displacement": float(
+                np.mean([row["phase_displacement"] for row in rows])
+            ),
+            "checkpoint_bytes_touched": 0,
+        }
+        return dict(self.report)
+
+    # --------------------------------------------------------------- adapter
+    def adapt_arrays(self, bright, dark):
+        """Apply the solved aligner to numpy ports (the egress hot path)."""
+        import numpy as np
+
+        if any(item is None for item in self.aligners):
+            return bright, dark
+        out_b = np.array(bright, dtype=np.complex64, copy=True)
+        out_d = np.array(dark, dtype=np.complex64, copy=True)
+        for slot in range(self.n_slots):
+            aligner = self.aligners[slot]
+            if aligner is None:
+                continue
+            start = slot * self.d_slot
+            stop = start + self.d_slot
+            out_b[start:stop] = aligner @ np.asarray(bright[start:stop], dtype=np.complex64)
+            out_d[start:stop] = aligner @ np.asarray(dark[start:stop], dtype=np.complex64)
+        return out_b, out_d
+
+    def as_dict(self) -> Dict[str, object]:
+        payload = dict(self.report)
+        payload["mounted"] = bool(all(item is not None for item in self.aligners))
+        payload["dim"] = int(self.dim)
+        payload["d_slot"] = int(self.d_slot)
+        return payload
+
+
+def open_subword_cartridge(model, *, ridge: float = 1e-1) -> SubwordPhaseCartridge:
+    """Build a cartridge on a mounted holarch without touching its weights."""
+    core = getattr(model, "zone_b", None)
+    if core is None:
+        raise ValueError("the model exposes no Zone B photonic core")
+    return SubwordPhaseCartridge(core, ridge=float(ridge))

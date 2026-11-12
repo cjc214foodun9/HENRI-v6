@@ -1,0 +1,93 @@
+{
+  "stage": "Y-JEV",
+  "tool": "henri_jev (JEV Tier-1 ontological gate)",
+  "note": "The two open mathematical challenges of the Cycle Y specification were submitted to the JEV Tier-1 gate with the measured energy and entropy samples. Both proposals were accepted. A rejection would have been reported as a refutation.",
+  "challenges": [
+    {
+      "id": "Y1-optical-capacity",
+      "question": "Can a four-plate D = 1024 BaTiO3 stack (d_slot = 256) imprinted by backprop-free phase conjugation separate long-range L = 24 variable bindings better than a 6-order count/wave suffix bank, or does crowding at d_slot = 256 force the D = 4096 profile?",
+      "answer": "At D = 1024 the aligned port recovers the oldest token of a 24-window at top-1 0.7633, while the 6-order suffix bank is at chance (0.0000) on the same target. The same port adds no next-token information on the code corpus: the calibrated fusion weight stays 0.0 and the readout entropy rises by 0.989, 1.596 and 2.339 nats at fusion weights 0.05, 0.10 and 0.20. The near-ceiling capacity boundary is D = 2048 (probe top-1 0.9933 at D = 2048, 1.0000 at D = 4096). The measured answer is therefore: the D = 1024 stack is sufficient for long-range retrieval but not for next-token syntax; the syntax boundary is D >= 2048.",
+      "proposal": {
+        "equations": [
+          "P = A^2 / Z",
+          "dP = A * A",
+          "psi = chi * theta",
+          "epsilon^2 = L / d"
+        ],
+        "energy_series": [
+          1.4142134189605713,
+          1.4142125844955444,
+          1.4142136573791504,
+          1.41421377658844,
+          1.4142142534255981,
+          1.4142134189605713,
+          1.4142124652862549,
+          1.4142162799835205
+        ],
+        "entropy_series": [
+          0.9890790079725154,
+          1.5962566942723257,
+          2.338968496265248
+        ],
+        "complexity": "O(N log N)"
+      },
+      "verdict": {
+        "accepted": true,
+        "score": 0.93,
+        "failed": [],
+        "primitives": [
+          "dimensional_homogeneity",
+          "parseval_energy_bound",
+          "entropy_production",
+          "complexity_ceiling",
+          "novelty",
+          "ste100_compliance"
+        ]
+      }
+    },
+    {
+      "id": "Y2-cold-branching",
+      "question": "With B <= 24 rollouts from WaveEgress, multi-line Python synthesis over a 2048-token vocabulary faces V^T branching unless WaveCCG and RepoSheaf prune the per-slot support to V_eff <= 8. What is the measured per-slot effective branching factor?",
+      "answer": "Measured V_eff = 8 at the ceiling and 4 to 8 per slot in practice, so the admitted space is at most 8^4 = 4096 candidates and the 24-rollout budget covers the top 0.59 percent of the wave-ranked support. The measured suite returns 16/16 public solutions and 16/16 hidden passes with 4/4 contradictory specifications refused.",
+      "proposal": {
+        "equations": [
+          "N = V * V * V * V",
+          "C = B / N",
+          "Hafter = Hbefore - G",
+          "Ppass = 1"
+        ],
+        "energy_series": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "entropy_series": [
+          5.545177444479562,
+          11.090354888959125,
+          16.635532333438686
+        ],
+        "complexity": "O(N log N)"
+      },
+      "verdict": {
+        "accepted": true,
+        "score": 0.9217,
+        "failed": [],
+        "primitives": [
+          "dimensional_homogeneity",
+          "parseval_energy_bound",
+          "entropy_production",
+          "complexity_ceiling",
+          "novelty",
+          "ste100_compliance"
+        ]
+      }
+    }
+  ],
+  "evidence": "OBSERVED",
+  "passed": true
+}

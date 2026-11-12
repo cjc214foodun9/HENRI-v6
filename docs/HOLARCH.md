@@ -3970,3 +3970,161 @@ x2_sovereign_wave_egress.json, x2_stage_wave_egress.json,
 x3_twelve_of_twelve_turing.json, x3_stage_turing_closure.json,
 x4_gauntlet_256_queries.json, x5_full_ledger_reconciliation.json and the
 aggregate x_cycle.json.
+
+## 40. Cycle Y: photonic egress, cold synthesis, unified induction, scaled AAII v5.0
+
+Cycle Y closes four of the seven boundaries of §39.6 and it reports the fifth
+as a measured negative. No bar is lowered: a gate that fails stays false in
+its receipt and is named in §40.7. Every receipt below records the corpus
+digest it was measured on, because the corpus is this repository, and this
+section itself changes it.
+
+### 40.1 Y1: photonic-coupled wave egress and the Born-rule torque
+
+| organ | measurement (y1_photonic_wave_egress.json) |
+|---|---|
+| complex quadrature | both quadratures retained on every mode resonance; held-out top-1 0.6048 and bits/char 2.8500, against 0.6050 and 2.8503 for the same organ with the real-part path (delta -0.0002 top-1, -0.0003 bits/char) |
+| subword optical cartridge | closed-form per-slot cross-spectral aligner, zero checkpoint bytes touched; mean post-photonic port cosine 0.210 -> 0.771 (slots 0.73 / 0.93 / 0.75 / 0.67) |
+| photonic fusion weight | w* = 0.0000 with a cross-entropy-first selector; the aligned port changes the inner bits/char by 0.00000 (1.10030 -> 1.10030) |
+| phase displacement | 0.0000 rad; the analytic cross-term torque line search rejected every step on the inner slice |
+| held-out egress | top-1 0.6048 against the count floor 0.5664; bits/char 2.8500 against 3.0533; 559 unclamped overrides with net +217 |
+| capacity probe | oldest-token retrieval 0.510 / 0.633 / 0.763 / 0.993 / 1.000 at D = 256 / 512 / 1024 / 2048 / 4096, while the 6-order suffix bank stays at 0.000 on the same target |
+
+The two measured facts do not contradict each other. The D = 1024 stack does
+carry a long-range binding: it recovers the oldest token of a 24-token window
+at 0.763, and the suffix bank is at chance there. The same port carries no
+next-token information on the code corpus, so a calibrated fusion weight is
+zero. The minimum channel count for near-ceiling long-range retrieval is
+measured at D = 2048 (0.993); D = 4096 saturates at 1.000. The Y1 gate is
+false on the fusion, phase and absolute-bar subgates and true on the
+quadrature, cartridge, floor, capacity and hygiene subgates.
+
+### 40.2 Y2: cold-start standalone code synthesis
+
+| metric | value (y2_cold_start_synthesis.json) |
+|---|---|
+| clean-room suite | 16 unseen tasks, 2-3 public assertions in the prompt, 4 hidden assertions each |
+| PlanStore at start | empty (0 plans), empty at end (0 plans written) |
+| external LLM calls | 0 |
+| standalone hidden pass@1 | 1.0000 (16/16) |
+| hidden-test precision of emitted code | 1.0000 |
+| syntax and type error rate | 0.0000 |
+| contradictory specs refused | 4/4 |
+| rollout budget | B = 24, maximum used 4 |
+| per-slot effective branching | V_eff <= 8 in every slot |
+| REPULSOR axioms registered | 38 |
+
+The pass@1 is an upper bound, not an unbiased estimate: the suite and the
+assembler share one author. The hidden assertions are unseen by the
+synthesizer, so the precision and the trap refusals are independent
+measurements. The RepoSheaf return-capability pullback refuses a body whose
+returned provision exceeds the declared annotation, and that check is what
+refuses the type-contradiction trap.
+
+### 40.3 Y3: wave-invariant induction, 16/16
+
+| metric | value (y3_unified_wave_induction.json) |
+|---|---|
+| battery | 16 tasks: the 12 Cycle X tasks plus delimited_reverse, unary_increment_parity, two_bit_borrow_xor, binary_rotate_left |
+| induced and length-generalised on L in [12, 32] | 16/16 |
+| Cycle X retention | 12/12 induced, generalised and length-generalised |
+| contradictory specs refused | 4/4 |
+| strict one-cell rows audited | 1,862 rows, 0 violations, move 0 only on halt |
+| maximum nodes in one task | 12,086 of 320,000 |
+| total nodes across the ranked sketches | 37,624 |
+| task-name string branches in induction.py | 0 |
+| text tokens | 0 |
+
+The router ranks eleven operator sketches from a four-component I/O wave-delta
+signature: tape length delta, cross-spectral shift peak, symbol histogram
+conservation and dyadic parity alternation. The signature reads the four
+training example pairs only. The four new tasks close by their declared
+macros, at 37, 4, 26 and 20 table rules.
+
+### 40.4 Y4: 48-task five-arm AAII v5.0 and the 272-query gauntlet
+
+| arm | correct | abstentions | hallucinations | external calls |
+|---|---|---|---|---|
+| arm0_henri_standalone | 47/48 | 9 | 0 | 0 |
+| arm1_raw_llm | 33/48 | 23 | 0 | 48 |
+| arm2_rag_llm | 32/48 | 22 | 2 | 48 |
+| arm3_henri_coprocessor | 48/48 | 8 | 0 | 50 |
+| arm4_henri_cascade | 48/48 | 8 | 0 | 1 |
+
+The composite rule is +1 correct, -1 hallucination, 0 abstain, normalised over
+48 tasks. arm4 sends one task to the governed co-processor and holds the rest
+at zero external cost, a 98.0 percent call reduction against arm3 with the
+same composite accuracy and zero hallucinations. Five arms mount on one
+SharedCorpusStem built in 10.59 s, and every mount stays under 5 ms.
+arm0 solves the cold coding pillar through the Y2 synthesizer with zero
+external calls: 40 rollouts and 29 REPULSORs over the twelve tasks. arm3 is
+not purely model output: 15 of its 48 rows are the deterministic index
+fallback, each stamped llm_derived = false in the receipt, and arm4 inherits
+none of them.
+
+| gauntlet | value (agent_eval.json) |
+|---|---|
+| queries | 272 (76 legacy + 196 probes, 16 of them Cycle Y) |
+| reachable accuracy | 1.0000 |
+| hallucination | 0.0000 |
+| query-time file reads | 0 |
+| receipt chain | valid and contiguous |
+| wall time | 133.77 s (<= 160.0 s) |
+
+### 40.5 Y5: hardware probe and the ledger seal
+
+The hardware gate runs a D = 4096 (HolarchConfig.production()) forward,
+imprint and egress readout benchmark on CUDA when a device is bound. On this
+host torch.cuda.is_available() is False, so the probe records Path B and the
+string CUDA: BLOCKED with the exact driver diagnostics, and it records no CPU
+number as a GPU measurement. The same probe verifies the .sha256 sidecar
+parity of every receipt, runs pytest tests -q, reads the sealed t, u, v, w
+and x ledgers, re-checks the R3 streaming (1.2200) and static (1.4200) bars,
+and scans every receipt for a credential. All of it is in
+y5_hardware_and_ledger_closure.json.
+
+### 40.6 JEV verification of the two open mathematical challenges
+
+Both challenges of the specification were submitted to the JEV Tier-1
+ontological gate with measured samples (y_jev_mathematical_challenges.json).
+
+1. Optical capacity (Y1): accepted, score 0.93. Dimensional homogeneity on
+   four equations, Parseval ratio 1.000000, smallest entropy increment 0.607
+   nats, complexity inside the ceiling. The measured answer is that D = 1024
+   suffices for long-range retrieval and that the syntax boundary is
+   D >= 2048.
+2. Cold-search branching (Y2): accepted, score 0.9217. The admitted space is
+   V_eff^4 <= 8^4 = 4096, the 24-rollout budget covers the top 0.59 percent
+   of the wave-ranked support, and the measured suite is 16/16 with 4/4
+   refusals.
+
+### 40.7 Boundaries that stay open in Cycle Y
+
+1. The photonic fusion weight is 0.0000 on next-token language at D = 1024.
+   The capacity probe locates the retrieval boundary at D = 2048; the
+   next-token boundary is not measured because no trained D = 2048 stack
+   exists in this checkout.
+2. The per-slot phase offsets move by 0.0000 rad. The analytic torque is a
+   near-gauge rotation of one mode inside one slot, and the measured
+   derivative of the normalised likelihood is below the line-search
+   tolerance. A per-token phase has leverage; a per-slot offset does not.
+3. arm0 abstains on 9 of 48 tasks. Chow still refuses where verification
+   fails, and the cascade pays for that with a single escalation.
+4. The Y2 pass@1 shares an author with the suite, so it is an upper bound.
+5. CUDA remains blocked on this host. The production D = 4096 number is not
+   measured, and the receipt says so.
+
+### 40.8 Detail
+
+The Y receipts are y1_photonic_wave_egress.json, y2_cold_start_synthesis.json,
+y3_unified_wave_induction.json, y4_scaled_aaii_v5.json,
+y5_hardware_and_ledger_closure.json, y_jev_mathematical_challenges.json,
+agent_eval.json and the aggregate y_cycle.json. The stage views are
+y1_stage_photonic_wave_egress.json, y2_stage_cold_synthesis.json,
+y3_stage_unified_induction.json and y4_stage_scaled_aaii_v5.json. The X receipts are unchanged:
+x1_live_four_arm_aaii_v5.json, x1_stage_four_arm.json,
+x2_sovereign_wave_egress.json, x2_stage_wave_egress.json,
+x3_twelve_of_twelve_turing.json, x3_stage_turing_closure.json,
+x4_gauntlet_256_queries.json, x5_full_ledger_reconciliation.json and
+x_cycle.json.
+

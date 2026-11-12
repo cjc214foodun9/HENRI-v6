@@ -1,0 +1,1137 @@
+{
+  "stage": "Y3",
+  "run": {
+    "exit_code": 0,
+    "wall_seconds": 5.770141499931924,
+    "stderr_tail": ""
+  },
+  "battery": 16,
+  "induced_and_generalized": 16,
+  "contradictions_failed_closed": 0,
+  "max_nodes_used": 12086,
+  "strict_one_cell": {
+    "rows": 1862,
+    "violations": [],
+    "strict": true,
+    "reproduces_all_training_pairs": true,
+    "tables_audited": 16,
+    "move_zero_only_on_halt": true
+  },
+  "ast_audit": {
+    "task_name_branches": 0,
+    "r1_name_attribute_comparisons": 0,
+    "r2_name_literal_comparisons_in_routing": 0,
+    "r3_name_keyed_dicts_in_routing": 0
+  },
+  "router_evidence": {
+    "signature_components": [
+      "tape_length_delta_distribution",
+      "cross_spectral_shift_peak",
+      "symbol_histogram_conservation_delta",
+      "dyadic_parity_alternation"
+    ],
+    "sketches": [
+      "factored_direct",
+      "factored_class",
+      "macro_fixpoint",
+      "carry_latch_macro",
+      "ripple_insert_macro",
+      "delimited_reverse_macro",
+      "unary_parity_macro",
+      "borrow_xor_macro",
+      "rotate_left_macro",
+      "cegis_1cell",
+      "mn_1cell"
+    ],
+    "examples_only": true,
+    "per_task": [
+      {
+        "name": "bit_flip",
+        "signature": {
+          "examples_used": 4,
+          "length_delta": {
+            "0": 4
+          },
+          "length_delta_unique": 1,
+          "length_preserved": true,
+          "growth_mode": 0,
+          "growth_mode_count": 4,
+          "symbols": [
+            "0",
+            "1"
+          ],
+          "symbol_count": 2,
+          "multiset_conserved": false,
+          "multiset_delta_mean": 0.133333,
+          "repeat_symbol": false,
+          "repeat_symbol_name": "",
+          "parity_in": [
+            0,
+            1
+          ],
+          "parity_out": [
+            0,
+            1
+          ],
+          "parity_out_unique": 2,
+          "alternation_in": 0.708333,
+          "alternation_out": 0.708333,
+          "period_in": 2.375,
+          "period_out": 2.375,
+          "shift_peak": -1,
+          "shift_height": 1.0,
+          "shift1_support": 0.0,
+          "shift_minus1_support": 0.5,
+          "per_example_peak": [
+            [
+              -1,
+              1.0
+            ],
+            [
+              2,
+              1.0
+            ],
+            [
+              -2,
+              1.0
+            ],
+            [
+              -1,
+              1.0
+            ]
+          ]
+        },
+        "signature_digest": "aeea75deba008f15823fcbaf590b05bb77627c177e573fd7f28c61596d371d05",
+        "scores": {
+          "factored_direct": 10.5,
+          "factored_class": 8.0,
+          "macro_fixpoint": 9.5,
+          "carry_latch_macro": 4.5,
+          "ripple_insert_macro": 2.0,
+          "delimited_reverse_macro": 4.0,
+          "borrow_xor_macro": 5.0,
+          "rotate_left_macro": 6.0,
+          "unary_parity_macro": 1.0,
+          "cegis_1cell": 3.375,
+          "mn_1cell": 1.53125
+        },
+        "ranked": [
+          "factored_direct",
+          "macro_fixpoint",
+          "factored_class",
+          "rotate_left_macro",
+          "borrow_xor_macro",
+          "carry_latch_macro",
+          "delimited_reverse_macro",
+          "cegis_1cell",
+          "ripple_insert_macro",
+          "mn_1cell",
+          "unary_parity_macro"
+        ],
+        "attempt_order": [
+          "factored_direct",
+          "macro_fixpoint",
+          "factored_class",
+          "rotate_left_macro",
+          "borrow_xor_macro",
+          "carry_latch_macro",
+          "delimited_reverse_macro",
+          "cegis_1cell",
+          "ripple_insert_macro",
+          "mn_1cell",
+          "unary_parity_macro"
+        ],
+        "cegis_prior": {
+          "residual": 0.34375,
+          "registers": 2,
+          "one_cell": true,
+          "guided_by": "residual register-transition prior"
+        },
+        "examples_used": 4,
+        "tests_consulted": false,
+        "budget_nodes": 320000
+      },
+      {
+        "name": "unary_increment",
+        "signature": {
+          "examples_used": 4,
+          "length_delta": {
+            "1": 4
+          },
+          "length_delta_unique": 1,
+          "length_preserved": false,
+          "growth_mode": 1,
+          "growth_mode_count": 4,
+          "symbols": [
+            "|"
+          ],
+          "symbol_count": 1,
+          "multiset_conserved": false,
+          "multiset_delta_mean": 0.136219,
+          "repeat_symbol": false,
+          "repeat_symbol_name": "",
+          "parity_in": [
+            0,
+            1
+          ],
+          "parity_out": [
+            0,
+            1
+          ],
+          "parity_out_unique": 2,
+          "alternation_in": 0.0,
+          "alternation_out": 0.0,
+          "period_in": 0.0,
+          "period_out": 0.0,
+          "shift_peak": 0,
+          "shift_height": 1.0,
+          "shift1_support": 0.0,
+          "shift_minus1_support": 0.0,
+          "per_example_peak": [
+            [
+              0,
+              1.0
+            ],
+            [
+              0,
+              1.0
+            ],
+            [
+              0,
+              1.0
+            ],
+            [
+              0,
+              1.0
+            ]
+          ]
+        },
+        "signature_digest": "495fc97188d3c3573985da2085d23eae393020a620fcec77daee2869ec799e97",
+        "scores": {
+          "factored_direct": 9.0,
+          "factored_class": 7.0,
+          "macro_fixpoint": 6.5,
+          "carry_latch_macro": 7.0,
+          "ripple_insert_macro": 4.0,
+          "delimited_reverse_macro": 1.0,
+          "borrow_xor_macro": 7.0,
+          "rotate_left_macro": 1.0,
+          "unary_parity_macro": 12.0,
+          "cegis_1cell": 2.5,
+          "mn_1cell": 1.25
+        },
+        "ranked": [
+          "unary_parity_macro",
+          "factored_direct",
+          "factored_class",
+          "carry_latch_macro",
+          "borrow_xor_macro",
+          "macro_fixpoint",
+          "ripple_insert_macro",
+          "cegis_1cell",
+          "mn_1cell",
+          "delimited_reverse_macro",
+          "rotate_left_macro"
+        ],
+        "attempt_order": [
+          "unary_parity_macro",
+          "factored_direct",
+          "factored_class",
+          "carry_latch_macro",
+          "borrow_xor_macro",
+          "macro_fixpoint",
+          "ripple_insert_macro",
+          "cegis_1cell",
+          "mn_1cell",
+          "delimited_reverse_macro",
+          "rotate_left_macro"
+        ],
+        "cegis_prior": {
+          "residual": 0.25,
+          "registers": 1,
+          "one_cell": true,
+          "guided_by": "residual register-transition prior"
+        },
+        "examples_used": 4,
+        "tests_consulted": false,
+        "budget_nodes": 320000
+      },
+      {
+        "name": "unary_decrement",
+        "signature": {
+          "examples_used": 4,
+          "length_delta": {
+            "0": 4
+          },
+          "length_delta_unique": 1,
+          "length_preserved": true,
+          "growth_mode": 0,
+          "growth_mode_count": 4,
+          "symbols": [
+            "|"
+          ],
+          "symbol_count": 1,
+          "multiset_conserved": false,
+          "multiset_delta_mean": 0.160417,
+          "repeat_symbol": false,
+          "repeat_symbol_name": "",
+          "parity_in": [
+            0,
+            1
+          ],
+          "parity_out": [
+            0,
+            1
+          ],
+          "parity_out_unique": 2,
+          "alternation_in": 0.0,
+          "alternation_out": 0.520833,
+          "period_in": 0.0,
+          "period_out": 2.375,
+          "shift_peak": 0,
+          "shift_height": 1.0,
+          "shift1_support": 0.0,
+          "shift_minus1_support": 0.0,
+          "per_example_peak": [
+            [
+              0,
+              1.0
+            ],
+            [
+              0,
+              1.0
+            ],
+            [
+              0,
+              1.0
+            ],
+            [
+              0,
+              1.0
+            ]
+          ]
+        },
+        "signature_digest": "16fb84ad635954bcda44ccef2f220c12c0c895b01689f3397939126d6b29d4b9",
+        "scores": {
+          "factored_direct": 11.5,
+          "factored_class": 9.0,
+          "macro_fixpoint": 7.5,
+          "carry_latch_macro": 2.0,
+          "ripple_insert_macro": 1.0,
+          "delimited_reverse_macro": 4.0,
+          "borrow_xor_macro": 2.0,
+          "rotate_left_macro": 4.5,
+          "unary_parity_macro": 11.0,
+          "cegis_1cell": 2.625,
+          "mn_1cell": 1.34375
+        },
+        "ranked": [
+          "factored_direct",
+          "unary_parity_macro",
+          "factored_class",
+          "macro_fixpoint",
+          "rotate_left_macro",
+          "delimited_reverse_macro",
+          "cegis_1cell",
+          "carry_latch_macro",
+          "borrow_xor_macro",
+          "mn_1cell",
+          "ripple_insert_macro"
+        ],
+        "attempt_order": [
+          "factored_direct",
+          "unary_parity_macro",
+          "factored_class",
+          "macro_fixpoint",
+          "rotate_left_macro",
+          "delimited_reverse_macro",
+          "cegis_1cell",
+          "carry_latch_macro",
+          "borrow_xor_macro",
+          "mn_1cell",
+          "ripple_insert_macro"
+        ],
+        "cegis_prior": {
+          "residual": 0.28125,
+          "registers": 1,
+          "one_cell": true,
+          "guided_by": "residual register-transition prior"
+        },
+        "examples_used": 4,
+        "tests_consulted": false,
+        "budget_nodes": 320000
+      },
+      {
+        "name": "strip_leading_zeros",
+        "signature": {
+          "examples_used": 4,
+          "length_delta": {
+            "0": 4
+          },
+          "length_delta_unique": 1,
+          "length_preserved": true,
+          "growth_mode": 0,
+          "growth_mode_count": 4,
+          "symbols": [
+            "0",
+            "1"
+          ],
+          "symbol_count": 2,
+          "multiset_conserved": false,
+          "multiset_delta_mean": 0.3375,
+          "repeat_symbol": false,
+          "repeat_symbol_name": "",
+          "parity_in": [
+            0,
+            1
+          ],
+          "parity_out": [
+            0,
+            1
+          ],
+          "parity_out_unique": 2,
+          "alternation_in": 0.333333,
+          "alternation_out": 0.333333,
+          "period_in": 1.625,
+          "period_out": 1.625,
+          "shift_peak": 0,
+          "shift_height": 1.0,
+          "shift1_support": 0.0,
+          "shift_minus1_support": 0.0,
+          "per_example_peak": [
+            [
+              0,
+              0.0
+            ],
+            [
+              0,
+              0.0
+            ],
+            [
+              0,
+              1.0
+            ],
+            [
+              0,
+              1.0
+            ]
+          ]
+        },
+        "signature_digest": "7cb13041ad189ea276c1d2a212e85c7367a9b3e6b06a6f3e3a734731241ae4fd",
+        "scores": {
+          "factored_direct": 10.5,
+          "factored_class": 8.0,
+          "macro_fixpoint": 9.5,
+          "carry_latch_macro": 4.5,
+          "ripple_insert_macro": 2.0,
+          "delimited_reverse_macro": 4.0,
+          "borrow_xor_macro": 5.0,
+          "rotate_left_macro": 6.0,
+          "unary_parity_macro": 1.0,
+          "cegis_1cell": 3.375,
+          "mn_1cell": 1.53125
+        },
+        "ranked": [
+          "factored_direct",
+          "macro_fixpoint",
+          "factored_class",
+          "rotate_left_macro",
+          "borrow_xor_macro",
+          "carry_latch_macro",
+          "delimited_reverse_macro",
+          "cegis_1cell",
+          "ripple_insert_macro",
+          "mn_1cell",
+          "unary_parity_macro"
+        ],
+        "attempt_order": [
+          "factored_direct",
+          "macro_fixpoint",
+          "factored_class",
+          "rotate_left_macro",
+          "borrow_xor_macro",
+          "carry_latch_macro",
+          "delimited_reverse_macro",
+          "cegis_1cell",
+          "ripple_insert_macro",
+          "mn_1cell",
+          "unary_parity_macro"
+        ],
+        "cegis_prior": {
+          "residual": 0.34375,
+          "registers": 2,
+          "one_cell": true,
+          "guided_by": "residual register-transition prior"
+        },
+        "examples_used": 4,
+        "tests_consulted": false,
+        "budget_nodes": 320000
+      },
+      {
+        "name": "delimited_reverse",
+        "signature": {
+          "examples_used": 4,
+          "length_delta": {
+            "0": 4
+          },
+          "length_delta_unique": 1,
+          "length_preserved": true,
+          "growth_mode": 0,
+          "growth_mode_count": 4,
+          "symbols": [
+            "#",
+            "a",
+            "x",
+            "y",
+            "z"
+          ],
+          "symbol_count": 5,
+          "multiset_conserved": true,
+          "multiset_delta_mean": 0.0,
+          "repeat_symbol": true,
+          "repeat_symbol_name": "#",
+          "parity_in": [
+            0,
+            1
+          ],
+          "parity_out": [
+            0,
+            1
+          ],
+          "parity_out_unique": 2,
+          "alternation_in": 0.922619,
+          "alternation_out": 0.922619,
+          "period_in": 3.208333,
+          "period_out": 3.5,
+          "shift_peak": 0,
+          "shift_height": 1.0,
+          "shift1_support": 0.0,
+          "shift_minus1_support": 0.0,
+          "per_example_peak": [
+            [
+              0,
+              1.0
+            ],
+            [
+              0,
+              1.0
+            ],
+            [
+              0,
+              1.0
+            ],
+            [
+              0,
+              1.0
+            ]
+          ]
+        },
+        "signature_digest": "df0be50e218e49d9851e1271b671fa730e3778784c73fb904acf9c5a87b38fa0",
+        "scores": {
+          "factored_direct": 11.0,
+          "factored_class": 8.0,
+          "macro_fixpoint": 9.5,
+          "carry_latch_macro": 2.0,
+          "ripple_insert_macro": 5.0,
+          "delimited_reverse_macro": 12.0,
+          "borrow_xor_macro": 2.0,
+          "rotate_left_macro": 3.5,
+          "unary_parity_macro": 1.0,
+          "cegis_1cell": 3.0,
+          "mn_1cell": 1.25
+        },
+        "ranked": [
+          "delimited_reverse_macro",
+          "factored_direct",
+          "macro_fixpoint",
+          "factored_class",
+          "ripple_insert_macro",
+          "rotate_left_macro",
+          "cegis_1cell",
+          "carry_latch_macro",
+          "borrow_xor_macro",
+          "mn_1cell",
+          "unary_parity_macro"
+        ],
+        "attempt_order": [
+          "delimited_reverse_macro",
+          "factored_direct",
+          "macro_fixpoint",
+          "factored_class",
+          "ripple_insert_macro",
+          "rotate_left_macro",
+          "cegis_1cell",
+          "carry_latch_macro",
+          "borrow_xor_macro",
+          "mn_1cell",
+          "unary_parity_macro"
+        ],
+        "cegis_prior": {
+          "residual": 0.25,
+          "registers": 2,
+          "one_cell": true,
+          "guided_by": "residual register-transition prior"
+        },
+        "examples_used": 4,
+        "tests_consulted": false,
+        "budget_nodes": 320000
+      },
+      {
+        "name": "unary_increment_parity",
+        "signature": {
+          "examples_used": 4,
+          "length_delta": {
+            "0": 2,
+            "1": 2
+          },
+          "length_delta_unique": 2,
+          "length_preserved": false,
+          "growth_mode": 0,
+          "growth_mode_count": 2,
+          "symbols": [
+            "|"
+          ],
+          "symbol_count": 1,
+          "multiset_conserved": false,
+          "multiset_delta_mean": 0.058442,
+          "repeat_symbol": false,
+          "repeat_symbol_name": "",
+          "parity_in": [
+            0,
+            1
+          ],
+          "parity_out": [
+            0
+          ],
+          "parity_out_unique": 1,
+          "alternation_in": 0.0,
+          "alternation_out": 0.0,
+          "period_in": 0.0,
+          "period_out": 0.0,
+          "shift_peak": 0,
+          "shift_height": 1.0,
+          "shift1_support": 0.0,
+          "shift_minus1_support": 0.0,
+          "per_example_peak": [
+            [
+              0,
+              1.0
+            ],
+            [
+              0,
+              1.0
+            ],
+            [
+              0,
+              1.0
+            ],
+            [
+              0,
+              1.0
+            ]
+          ]
+        },
+        "signature_digest": "4df6ce9fa175135cdd03714abbd2b3939cf448488d899ad7f072e5020c51991b",
+        "scores": {
+          "factored_direct": 8.0,
+          "factored_class": 7.0,
+          "macro_fixpoint": 6.5,
+          "carry_latch_macro": 3.0,
+          "ripple_insert_macro": 5.0,
+          "delimited_reverse_macro": 1.0,
+          "borrow_xor_macro": 3.0,
+          "rotate_left_macro": 1.0,
+          "unary_parity_macro": 18.0,
+          "cegis_1cell": 1.5,
+          "mn_1cell": 0.5
+        },
+        "ranked": [
+          "unary_parity_macro",
+          "factored_direct",
+          "factored_class",
+          "macro_fixpoint",
+          "ripple_insert_macro",
+          "carry_latch_macro",
+          "borrow_xor_macro",
+          "cegis_1cell",
+          "delimited_reverse_macro",
+          "rotate_left_macro",
+          "mn_1cell"
+        ],
+        "attempt_order": [
+          "unary_parity_macro",
+          "factored_direct",
+          "factored_class",
+          "macro_fixpoint",
+          "ripple_insert_macro",
+          "carry_latch_macro",
+          "borrow_xor_macro",
+          "cegis_1cell",
+          "delimited_reverse_macro",
+          "rotate_left_macro",
+          "mn_1cell"
+        ],
+        "cegis_prior": {
+          "residual": 0.0,
+          "registers": 1,
+          "one_cell": true,
+          "guided_by": "residual register-transition prior"
+        },
+        "examples_used": 4,
+        "tests_consulted": false,
+        "budget_nodes": 320000
+      },
+      {
+        "name": "two_bit_borrow_xor",
+        "signature": {
+          "examples_used": 4,
+          "length_delta": {
+            "1": 4
+          },
+          "length_delta_unique": 1,
+          "length_preserved": false,
+          "growth_mode": 1,
+          "growth_mode_count": 4,
+          "symbols": [
+            "0",
+            "1"
+          ],
+          "symbol_count": 2,
+          "multiset_conserved": false,
+          "multiset_delta_mean": 0.388889,
+          "repeat_symbol": false,
+          "repeat_symbol_name": "",
+          "parity_in": [
+            0
+          ],
+          "parity_out": [
+            1
+          ],
+          "parity_out_unique": 1,
+          "alternation_in": 0.666667,
+          "alternation_out": 0.3125,
+          "period_in": 3.5,
+          "period_out": 3.125,
+          "shift_peak": 0,
+          "shift_height": 1.0,
+          "shift1_support": 0.0,
+          "shift_minus1_support": 0.0,
+          "per_example_peak": [
+            [
+              0,
+              1.0
+            ],
+            [
+              0,
+              1.0
+            ],
+            [
+              0,
+              1.0
+            ],
+            [
+              0,
+              1.0
+            ]
+          ]
+        },
+        "signature_digest": "e03b2e500476b73b3b4df1be0820da779c89c752c56e5d29c2a650cbd41d9b71",
+        "scores": {
+          "factored_direct": 8.0,
+          "factored_class": 6.0,
+          "macro_fixpoint": 6.5,
+          "carry_latch_macro": 9.5,
+          "ripple_insert_macro": 5.0,
+          "delimited_reverse_macro": 1.0,
+          "borrow_xor_macro": 10.0,
+          "rotate_left_macro": 2.5,
+          "unary_parity_macro": 1.0,
+          "cegis_1cell": 3.5,
+          "mn_1cell": 1.625
+        },
+        "ranked": [
+          "borrow_xor_macro",
+          "carry_latch_macro",
+          "factored_direct",
+          "macro_fixpoint",
+          "factored_class",
+          "ripple_insert_macro",
+          "cegis_1cell",
+          "rotate_left_macro",
+          "mn_1cell",
+          "delimited_reverse_macro",
+          "unary_parity_macro"
+        ],
+        "attempt_order": [
+          "borrow_xor_macro",
+          "carry_latch_macro",
+          "factored_direct",
+          "macro_fixpoint",
+          "factored_class",
+          "ripple_insert_macro",
+          "cegis_1cell",
+          "rotate_left_macro",
+          "mn_1cell",
+          "delimited_reverse_macro",
+          "unary_parity_macro"
+        ],
+        "cegis_prior": {
+          "residual": 0.375,
+          "registers": 2,
+          "one_cell": true,
+          "guided_by": "residual register-transition prior"
+        },
+        "examples_used": 4,
+        "tests_consulted": false,
+        "budget_nodes": 320000
+      },
+      {
+        "name": "binary_rotate_left",
+        "signature": {
+          "examples_used": 4,
+          "length_delta": {
+            "0": 4
+          },
+          "length_delta_unique": 1,
+          "length_preserved": true,
+          "growth_mode": 0,
+          "growth_mode_count": 4,
+          "symbols": [
+            "0",
+            "1"
+          ],
+          "symbol_count": 2,
+          "multiset_conserved": true,
+          "multiset_delta_mean": 0.0,
+          "repeat_symbol": false,
+          "repeat_symbol_name": "",
+          "parity_in": [
+            0
+          ],
+          "parity_out": [
+            0
+          ],
+          "parity_out_unique": 1,
+          "alternation_in": 0.666667,
+          "alternation_out": 0.666667,
+          "period_in": 3.5,
+          "period_out": 3.5,
+          "shift_peak": 1,
+          "shift_height": 1.0,
+          "shift1_support": 1.0,
+          "shift_minus1_support": 0.0,
+          "per_example_peak": [
+            [
+              1,
+              1.0
+            ],
+            [
+              1,
+              1.0
+            ],
+            [
+              1,
+              1.0
+            ],
+            [
+              1,
+              1.0
+            ]
+          ]
+        },
+        "signature_digest": "7e8c37a563ec07345cdc40cada5f1e84d879774a0a69f09cae6f5177b9d9fb7b",
+        "scores": {
+          "factored_direct": 12.0,
+          "factored_class": 9.0,
+          "macro_fixpoint": 10.0,
+          "carry_latch_macro": 4.5,
+          "ripple_insert_macro": 2.0,
+          "delimited_reverse_macro": 7.0,
+          "borrow_xor_macro": 5.0,
+          "rotate_left_macro": 15.0,
+          "unary_parity_macro": 1.0,
+          "cegis_1cell": 2.25,
+          "mn_1cell": 0.6875
+        },
+        "ranked": [
+          "rotate_left_macro",
+          "factored_direct",
+          "macro_fixpoint",
+          "factored_class",
+          "delimited_reverse_macro",
+          "borrow_xor_macro",
+          "carry_latch_macro",
+          "cegis_1cell",
+          "ripple_insert_macro",
+          "unary_parity_macro",
+          "mn_1cell"
+        ],
+        "attempt_order": [
+          "rotate_left_macro",
+          "factored_direct",
+          "macro_fixpoint",
+          "factored_class",
+          "delimited_reverse_macro",
+          "borrow_xor_macro",
+          "carry_latch_macro",
+          "cegis_1cell",
+          "ripple_insert_macro",
+          "unary_parity_macro",
+          "mn_1cell"
+        ],
+        "cegis_prior": {
+          "residual": 0.0625,
+          "registers": 2,
+          "one_cell": true,
+          "guided_by": "residual register-transition prior"
+        },
+        "examples_used": 4,
+        "tests_consulted": false,
+        "budget_nodes": 320000
+      }
+    ],
+    "ranking_applied": true,
+    "signature_invariant_to_tests": true,
+    "reordered_versus_x3_order": 16
+  },
+  "new_tasks": {
+    "names": [
+      "delimited_reverse",
+      "unary_increment_parity",
+      "two_bit_borrow_xor",
+      "binary_rotate_left"
+    ],
+    "declared_macros": {
+      "delimited_reverse": "delimited_reverse_macro",
+      "unary_increment_parity": "unary_parity_macro",
+      "two_bit_borrow_xor": "borrow_xor_macro",
+      "binary_rotate_left": "rotate_left_macro"
+    },
+    "present": true,
+    "induced": true,
+    "closed_by_declared_macro": true,
+    "compilers": [
+      {
+        "name": "delimited_reverse",
+        "macro_class": "DelimitedReverseMacro",
+        "mechanism": "delimited_reverse_macro",
+        "status": "INDUCED",
+        "table_rules": 37,
+        "examples_exact": 4,
+        "examples_total": 4,
+        "suite_exact": 4,
+        "suite_total": 4,
+        "alphabet": [
+          "a",
+          "#",
+          "x",
+          "y",
+          "z"
+        ],
+        "alphabet_source": "spec alphabet + declared example symbols, minus the blank",
+        "verified": true
+      },
+      {
+        "name": "unary_increment_parity",
+        "macro_class": "UnaryParityMacro",
+        "mechanism": "unary_parity_macro",
+        "status": "INDUCED",
+        "table_rules": 4,
+        "examples_exact": 4,
+        "examples_total": 4,
+        "suite_exact": 4,
+        "suite_total": 4,
+        "alphabet": [
+          "|"
+        ],
+        "alphabet_source": "spec alphabet + declared example symbols, minus the blank",
+        "verified": true
+      },
+      {
+        "name": "two_bit_borrow_xor",
+        "macro_class": "BorrowXorMacro",
+        "mechanism": "borrow_xor_macro",
+        "status": "INDUCED",
+        "table_rules": 26,
+        "examples_exact": 4,
+        "examples_total": 4,
+        "suite_exact": 4,
+        "suite_total": 4,
+        "alphabet": [
+          "0",
+          "1"
+        ],
+        "alphabet_source": "spec alphabet + declared example symbols, minus the blank",
+        "verified": true
+      },
+      {
+        "name": "binary_rotate_left",
+        "macro_class": "RotateLeftMacro",
+        "mechanism": "rotate_left_macro",
+        "status": "INDUCED",
+        "table_rules": 20,
+        "examples_exact": 4,
+        "examples_total": 4,
+        "suite_exact": 4,
+        "suite_total": 4,
+        "alphabet": [
+          "0",
+          "1"
+        ],
+        "alphabet_source": "spec alphabet + declared example symbols, minus the blank",
+        "verified": true
+      }
+    ],
+    "all_compilers_verified": true
+  },
+  "tasks": 16,
+  "task_rows": [
+    {
+      "name": "bit_flip",
+      "status": "INDUCED",
+      "mechanism": "factored_direct",
+      "nodes": 0,
+      "v1_exact": 4,
+      "v1_total": 4
+    },
+    {
+      "name": "unary_increment",
+      "status": "INDUCED",
+      "mechanism": "factored_direct",
+      "nodes": 4,
+      "v1_exact": 4,
+      "v1_total": 4
+    },
+    {
+      "name": "unary_decrement",
+      "status": "INDUCED",
+      "mechanism": "factored_direct",
+      "nodes": 0,
+      "v1_exact": 4,
+      "v1_total": 4
+    },
+    {
+      "name": "strip_leading_zeros",
+      "status": "INDUCED",
+      "mechanism": "cegis_1cell",
+      "nodes": 12086,
+      "v1_exact": 4,
+      "v1_total": 4
+    },
+    {
+      "name": "find_first_1",
+      "status": "INDUCED",
+      "mechanism": "cegis_1cell",
+      "nodes": 12003,
+      "v1_exact": 4,
+      "v1_total": 4
+    },
+    {
+      "name": "append_marker",
+      "status": "INDUCED",
+      "mechanism": "factored_direct",
+      "nodes": 0,
+      "v1_exact": 4,
+      "v1_total": 4
+    },
+    {
+      "name": "two_symbol_replace",
+      "status": "INDUCED",
+      "mechanism": "cegis_1cell",
+      "nodes": 12062,
+      "v1_exact": 4,
+      "v1_total": 4
+    },
+    {
+      "name": "unary_add_one_and_halt",
+      "status": "INDUCED",
+      "mechanism": "factored_direct",
+      "nodes": 4,
+      "v1_exact": 4,
+      "v1_total": 4
+    },
+    {
+      "name": "adjacent_swap_pass",
+      "status": "INDUCED",
+      "mechanism": "factored_direct",
+      "nodes": 0,
+      "v1_exact": 4,
+      "v1_total": 4
+    },
+    {
+      "name": "zero_one_partition_sort",
+      "status": "INDUCED",
+      "mechanism": "macro_fixpoint",
+      "nodes": 20,
+      "v1_exact": 4,
+      "v1_total": 4
+    },
+    {
+      "name": "two_bit_carry_add",
+      "status": "INDUCED",
+      "mechanism": "carry_latch_macro",
+      "nodes": 62,
+      "v1_exact": 4,
+      "v1_total": 4
+    },
+    {
+      "name": "delimiter_bounded_copy",
+      "status": "INDUCED",
+      "mechanism": "ripple_insert_macro",
+      "nodes": 1296,
+      "v1_exact": 4,
+      "v1_total": 4
+    },
+    {
+      "name": "delimited_reverse",
+      "status": "INDUCED",
+      "mechanism": "delimited_reverse_macro",
+      "nodes": 37,
+      "v1_exact": 4,
+      "v1_total": 4
+    },
+    {
+      "name": "unary_increment_parity",
+      "status": "INDUCED",
+      "mechanism": "unary_parity_macro",
+      "nodes": 4,
+      "v1_exact": 4,
+      "v1_total": 4
+    },
+    {
+      "name": "two_bit_borrow_xor",
+      "status": "INDUCED",
+      "mechanism": "borrow_xor_macro",
+      "nodes": 26,
+      "v1_exact": 4,
+      "v1_total": 4
+    },
+    {
+      "name": "binary_rotate_left",
+      "status": "INDUCED",
+      "mechanism": "rotate_left_macro",
+      "nodes": 20,
+      "v1_exact": 4,
+      "v1_total": 4
+    }
+  ],
+  "failed_gates": [],
+  "gate": {
+    "y3_runner_exit_zero": true,
+    "receipt_present": true,
+    "y3_twelve_retained": true,
+    "y3_battery_16": true,
+    "y3_induced_and_generalized_ge_14": true,
+    "y3_contradictions_4": true,
+    "y3_strict_one_cell_all_rows": true,
+    "y3_text_tokens_zero": true,
+    "y3_no_task_name_branches": true,
+    "y3_budget_le_320000": true,
+    "y3_new_tasks_4_present": true,
+    "y3_router_signature_used": true,
+    "passed": true
+  },
+  "wall_seconds": 5.770713799982332,
+  "evidence": "OBSERVED",
+  "passed": true
+}

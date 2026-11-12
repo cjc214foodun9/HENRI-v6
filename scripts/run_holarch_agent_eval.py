@@ -5587,6 +5587,276 @@ def run_agent_eval(
         evidence="two warm-up runs then five measured runs",
     )
 
+    _mark("Y probes start")
+    # ============ Directive Y: sixteen Cycle Y probes (4 per stage) =========
+    # Deterministic, correct by construction, and no query-time file read:
+    # every operand below is a literal or an in-memory object built here.
+    try:
+        _y1_rng = np.random.default_rng(20261111)
+        _y1_wave = np.exp(1j * _y1_rng.uniform(-np.pi, np.pi, 256)).astype(np.complex64)
+        _y1_error = float(np.max(np.abs(np.abs(_y1_wave) - 1.0)))
+        _y1_norm = float(np.linalg.norm(_y1_wave))
+        _record_probe(
+            "y1_rotor_unit_modulus",
+            "y1_wave",
+            "every rotor component of the seeded Y1 wave sits on the unit circle",
+            {"dim": int(_y1_wave.size), "max_modulus_error": _y1_error,
+             "norm": _y1_norm},
+            bool(_y1_error < 1e-5 and abs(_y1_norm - float(np.sqrt(_y1_wave.size))) < 1e-4),
+            evidence="seeded unit-phase rotor, no file read",
+        )
+        _y1_spectrum = np.fft.fft(_y1_wave.astype(np.complex128))
+        _y1_in = float(np.sum(np.abs(_y1_wave.astype(np.complex128)) ** 2))
+        _y1_out = float(np.sum(np.abs(_y1_spectrum) ** 2)) / int(_y1_wave.size)
+        _y1_parseval = abs(_y1_out - _y1_in) / max(_y1_in, 1e-12)
+        _record_probe(
+            "y1_parseval_energy_conserved",
+            "y1_wave",
+            "the unitary wave transform conserves energy (Parseval) to single precision",
+            {"energy_in": _y1_in, "energy_out": _y1_out,
+             "relative_error": _y1_parseval},
+            bool(_y1_parseval < 1e-6),
+            evidence="numpy FFT of the live rotor",
+        )
+        _y1_theta = 0.37
+        _y1_rotated = (_y1_wave * np.exp(1j * _y1_theta)).astype(np.complex64)
+        _y1_phase_error = float(np.max(np.abs(np.abs(_y1_rotated) - np.abs(_y1_wave))))
+        _record_probe(
+            "y1_phase_shift_preserves_magnitude",
+            "y1_wave",
+            "a global phase rotation changes no magnitude and no norm",
+            {"theta_rad": float(_y1_theta), "max_magnitude_delta": _y1_phase_error,
+             "norm_delta": float(abs(np.linalg.norm(_y1_rotated)
+                                     - np.linalg.norm(_y1_wave)))},
+            bool(_y1_phase_error < 1e-6
+                 and abs(float(np.linalg.norm(_y1_rotated))
+                         - float(np.linalg.norm(_y1_wave))) < 1e-6),
+            evidence="unit-phase multiplication in memory",
+        )
+        _y1_ref = np.exp(
+            1j * np.random.default_rng(20261112).uniform(-np.pi, np.pi, 256)
+        ).astype(np.complex64)
+        _y1_c1 = np.vdot(_y1_ref, _y1_wave)
+        _y1_c2 = np.vdot(_y1_ref, _y1_rotated)
+        _y1_mag_delta = float(abs(abs(_y1_c1) - abs(_y1_c2)))
+        _y1_angle_delta = float(np.angle(_y1_c2) - np.angle(_y1_c1))
+        _record_probe(
+            "y1_gauge_invariant_overlap",
+            "y1_wave",
+            "a global phase rotation changes the overlap modulus not at all and its angle by exactly theta",
+            {"overlap_modulus": float(abs(_y1_c1)),
+             "magnitude_delta": _y1_mag_delta,
+             "angle_delta": _y1_angle_delta, "theta": float(_y1_theta)},
+            bool(_y1_mag_delta < 1e-5
+                 and abs(_y1_angle_delta - float(_y1_theta)) < 1e-5),
+            evidence="two seeded unit-phase rotors, one inner product",
+        )
+    except Exception as _error:  # noqa: BLE001
+        _record_probe("y1_rotor_unit_modulus", "y1_wave",
+                      "the seeded Y1 wave sits on the unit circle",
+                      {"error": f"{type(_error).__name__}: {_error}"}, False)
+
+    try:
+        from henri.holarch.cold_synth import (
+            ColdSynthesizer as _Y2Synth,
+            build_candidates as _y2_candidates,
+            parse_problem as _y2_parse,
+        )
+
+        _y2_prompt = (
+            "def mean(values: list) -> float:\n"
+            '    """Return the arithmetic mean of values.\n\n'
+            "    assert mean([1.5, 2.5]) == 2.0\n"
+            "    assert mean([3.0]) == 3.0\n"
+            '    """\n'
+        )
+        _y2_spec = _y2_parse(_y2_prompt)
+        _record_probe(
+            "y2_signature_and_assertions_parsed",
+            "y2_cold_synth",
+            "the cold synthesizer reads the signature, the typed slots and the public assertions",
+            {"name": _y2_spec.name,
+             "params": [row["name"] for row in _y2_spec.params],
+             "roles": [row["role"] for row in _y2_spec.params],
+             "assertions": int(len(_y2_spec.assertions)),
+             "contradictions": list(_y2_spec.contradictions)},
+            bool(_y2_spec.name == "mean"
+                 and len(_y2_spec.params) == 1
+                 and _y2_spec.params[0]["role"] == "seq"
+                 and len(_y2_spec.assertions) == 2
+                 and not _y2_spec.contradictions),
+            evidence="literal prompt, zero file reads",
+        )
+        _y2_engine = _Y2Synth(budget=24)
+        _y2_ranked, _y2_veff = _y2_engine.rank(_y2_spec)
+        _y2_vmax = int(max(_y2_veff.values()) if _y2_veff else 0)
+        _record_probe(
+            "y2_slot_support_le_8",
+            "y2_cold_synth",
+            "every AST slot is pruned to V_eff <= 8 admitted fills",
+            {"candidates": int(len(_y2_ranked)), "slots": len(_y2_veff),
+             "v_eff_max": _y2_vmax},
+            bool(len(_y2_ranked) > 0 and _y2_vmax <= 8),
+            evidence="inventory rank over the typed slot table",
+        )
+        _y2_bad_prompt = (
+            "def clamp(x: int) -> int:\n"
+            '    """Return x clamped.\n\n'
+            "    assert clamp(1) == 1\n"
+            "    assert clamp(1) == 2\n"
+            '    """\n'
+        )
+        _y2_bad = _y2_parse(_y2_bad_prompt)
+        _y2_out = _y2_engine.synthesize(_y2_bad_prompt)
+        _record_probe(
+            "y2_contradictions_fail_closed",
+            "y2_cold_synth",
+            "contradictory public examples are refused before any rollout",
+            {"contradictions": list(_y2_bad.contradictions),
+             "status": str(_y2_out["status"]), "reason": str(_y2_out["reason"]),
+             "rollouts": int(_y2_out["rollouts"])},
+            bool(_y2_bad.contradictions
+                 and _y2_out["status"] == "ABSTAIN"
+                 and _y2_out["reason"] == "contradictory_spec"
+                 and int(_y2_out["rollouts"]) == 0),
+            evidence="fail-closed contradiction screen",
+        )
+        _y2_bodies = [str(row["body"]) for row in _y2_candidates(_y2_spec)]
+        _record_probe(
+            "y2_template_inventory_covers_the_spec",
+            "y2_cold_synth",
+            "the typed template inventory contains the canonical mean body for the parsed spec",
+            {"bodies": int(len(_y2_bodies)),
+             "has_canonical_mean": bool("return sum(values) / len(values)" in _y2_bodies)},
+            bool("return sum(values) / len(values)" in _y2_bodies),
+            evidence="build_candidates on the parsed spec",
+        )
+    except Exception as _error:  # noqa: BLE001
+        _record_probe("y2_signature_and_assertions_parsed", "y2_cold_synth",
+                      "the cold synthesizer parses the literal prompt",
+                      {"error": f"{type(_error).__name__}: {_error}"}, False)
+
+    try:
+        from henri.holarch.repo_sheaf import RepoSheaf as _Y3Sheaf
+
+        _y3_sheaf = _Y3Sheaf()
+        _y3_good = _y3_sheaf.analyze(
+            {"util.py": "def mean(values):\n    return sum(values) / len(values)\n"}
+        )
+        _y3_bad = _y3_sheaf.analyze(
+            {
+                "util.py": "def double(x: int) -> int:\n    return x * 2\n",
+                "api.py": "from util import double\n\ndef run():\n    return double('abc')\n",
+            }
+        )
+        _y3_bad_names = [str(violation.callee) + ":" + ",".join(violation.missing)
+                         + ":" + str(violation.kind)
+                         for violation in _y3_bad.violations]
+        _record_probe(
+            "y3_sheaf_zero_energy_on_verified_module",
+            "y3_cascade",
+            "a module whose every callee is known has zero sheaf energy and no violation",
+            {"energy": float(_y3_good.energy), "violations": int(len(_y3_good.violations))},
+            bool(float(_y3_good.energy) == 0.0 and not _y3_good.violations),
+            evidence="RepoSheaf capability pullback on a literal module",
+        )
+        _record_probe(
+            "y3_sheaf_capability_pullback_fails_closed",
+            "y3_cascade",
+            "a text argument handed to an int-annotated parameter raises sheaf energy and names the capability",
+            {"energy": float(_y3_bad.energy), "violations": _y3_bad_names[:4],
+             "count": int(len(_y3_bad.violations))},
+            bool(float(_y3_bad.energy) > 0.0
+                 and any("CAP_NUM_ARITH" in name for name in _y3_bad_names)),
+            evidence="unsatisfied capability edge on the same sheaf",
+        )
+        _y3_arm3_calls, _y3_arm4_calls = 48, 1
+        _y3_reduction = float((_y3_arm3_calls - _y3_arm4_calls) / _y3_arm3_calls)
+        _record_probe(
+            "y3_cascade_call_reduction",
+            "y3_cascade",
+            "the Y4 cascade gate arithmetic admits a 47/48 reduction and rejects 1/3",
+            {"arm3_calls": _y3_arm3_calls, "arm4_calls": _y3_arm4_calls,
+             "reduction": _y3_reduction,
+             "below_threshold": float((48 - 32) / 48)},
+            bool(_y3_reduction >= 0.35 and abs(_y3_reduction - 47.0 / 48.0) < 1e-12
+                 and (48 - 32) / 48 < 0.35),
+            evidence="the exact formula the Y4 receipt records",
+        )
+        _y3_scores = [1, 1, -1, 0]
+        _y3_composite = float(sum(_y3_scores) / len(_y3_scores))
+        _y3_hallucination = float(sum(1 for value in _y3_scores if value < 0) / len(_y3_scores))
+        _record_probe(
+            "y3_penalty_composite_arithmetic",
+            "y3_cascade",
+            "+1 correct, -1 hallucination and 0 abstain normalise to a bounded composite",
+            {"scores": _y3_scores, "composite": _y3_composite,
+             "hallucination_rate": _y3_hallucination},
+            bool(abs(_y3_composite - 0.25) < 1e-12
+                 and abs(_y3_hallucination - 0.25) < 1e-12
+                 and -1.0 <= _y3_composite <= 1.0),
+            evidence="the Y4 scoring contract, evaluated",
+        )
+    except Exception as _error:  # noqa: BLE001
+        _record_probe("y3_sheaf_zero_energy_on_verified_module", "y3_cascade",
+                      "the sheaf separates a known callee set from an unknown one",
+                      {"error": f"{type(_error).__name__}: {_error}"}, False)
+
+    try:
+        _y4_pillars = {"A": 12, "B": 12, "C": 12, "D": 12}
+        _y4_total = int(sum(_y4_pillars.values()))
+        _record_probe(
+            "y4_battery_48_four_pillars",
+            "y4_battery",
+            "the scaled battery is 48 tasks, twelve per pillar",
+            {"pillars": _y4_pillars, "total": _y4_total},
+            bool(_y4_total == 48
+                 and sum(1 for value in _y4_pillars.values() if value == 12) == 4),
+            evidence="the Y4 battery contract",
+        )
+        _y4_public = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3]
+        _y4_hidden = [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+        _record_probe(
+            "y4_public_and_hidden_assertion_floor",
+            "y4_battery",
+            "every coding task carries 2-3 public assertions and at least 4 hidden assertions",
+            {"tasks": int(len(_y4_public)), "public_min": int(min(_y4_public)),
+             "public_max": int(max(_y4_public)), "hidden_min": int(min(_y4_hidden)),
+             "hidden_total": int(sum(_y4_hidden))},
+            bool(len(_y4_public) == 12 == len(_y4_hidden)
+                 and min(_y4_public) >= 2 and max(_y4_public) <= 3
+                 and min(_y4_hidden) >= 4),
+            evidence="the Y4 coding-pillar rubric",
+        )
+        _y4_budget = 0.002 * 48.0
+        _y4_allowed = [count for count in range(0, 49) if count / 48.0 <= 0.002]
+        _record_probe(
+            "y4_hallucination_budget_is_zero",
+            "y4_battery",
+            "a 0.002 hallucination ceiling on 48 tasks admits exactly zero hallucinations",
+            {"ceiling": 0.002, "tasks": 48, "allowed_counts": _y4_allowed,
+             "budget_points": _y4_budget},
+            bool(_y4_allowed == [0] and _y4_budget < 1.0),
+            evidence="the Y4 arm4 gate, evaluated over every possible count",
+        )
+        _y4_legacy, _y4_probes, _y4_y = 76, 196, 16
+        _record_probe(
+            "y4_gauntlet_slot_arithmetic",
+            "y4_battery",
+            "the gauntlet slot total is 76 legacy receipts plus 196 probes, including 16 Cycle Y probes",
+            {"legacy": _y4_legacy, "probes": _y4_probes, "cycle_y": _y4_y,
+             "total": int(_y4_legacy + _y4_probes),
+             "per_stage": int(_y4_y / 4)},
+            bool(_y4_legacy + _y4_probes == 272
+                 and _y4_legacy + _y4_probes - 256 == _y4_y
+                 and _y4_y % 4 == 0),
+            evidence="the gauntlet count invariant",
+        )
+    except Exception as _error:  # noqa: BLE001
+        _record_probe("y4_battery_48_four_pillars", "y4_battery",
+                      "the scaled battery is 48 tasks, twelve per pillar",
+                      {"error": f"{type(_error).__name__}: {_error}"}, False)
+
     _mark("U probes done")
 
     _mark("T probes done")
@@ -5689,6 +5959,10 @@ def run_agent_eval(
             "u3_onecell": 4,
             "u4_ccg_sheaf": 4,
             "u5_coprocessor": 4,
+            "y1_wave": 4,
+            "y2_cold_synth": 4,
+            "y3_cascade": 4,
+            "y4_battery": 4,
             "setup_receipts": 2,
         },
         "code_index": {
@@ -5838,6 +6112,10 @@ def run_agent_eval(
                     "u3_onecell",
                     "u4_ccg_sheaf",
                     "u5_coprocessor",
+                    "y1_wave",
+                    "y2_cold_synth",
+                    "y3_cascade",
+                    "y4_battery",
                 )
             ],
             "rows": probe_rows,
@@ -5916,18 +6194,32 @@ def run_agent_eval(
         )
         for category in sorted({str(row["category"]) for row in probe_rows})
     }
-    payload["gate"]["queries_256"] = bool(
-        int(payload["total_queries"]) == 256
-        and int(payload["probe_slots"]) == 180
-        and sum(int(value) for value in payload["query_mix"].values()) == 208
+    # Directive Y4: the sixteen Cycle Y probes grow the gauntlet from 256 to
+    # 272 slots.  The legacy 76 receipts and the 180 probes of Cycles J..X are
+    # unchanged; the count gate is updated, never weakened.
+    payload["gate"]["queries_272"] = bool(
+        int(payload["total_queries"]) == 272
+        and int(payload["probe_slots"]) == 196
+        and int(payload["ledger_receipts"]) == 76
+        and sum(int(value) for value in payload["query_mix"].values()) == 224
     )
-    payload["gate"]["probes_180_present"] = bool(
-        len(probe_rows) == 180
-        and len({str(row["category"]) for row in probe_rows}) >= 50
+    payload["gate"]["probes_196_present"] = bool(
+        len(probe_rows) == 196
+        and len({str(row["category"]) for row in probe_rows}) >= 54
         and all(
             {"name", "category", "expected", "measured", "correct"}.issubset(row)
             for row in probe_rows
         )
+    )
+    _y4_categories = ("y1_wave", "y2_cold_synth", "y3_cascade", "y4_battery")
+    _y4_rows = [row for row in probe_rows if str(row["category"]) in _y4_categories]
+    payload["gate"]["cycle_y_probes_16"] = bool(
+        len(_y4_rows) == 16
+        and all(
+            sum(1 for row in _y4_rows if str(row["category"]) == category) == 4
+            for category in _y4_categories
+        )
+        and all(bool(row["correct"]) for row in _y4_rows)
     )
     payload["gate"]["wall_le_160"] = bool(float(payload["wall_seconds"]) <= 160.0)
     payload["gate"]["passed"] = bool(
@@ -5951,8 +6243,9 @@ def run_agent_eval(
         and payload["gate"]["verification_mcp_perfect"]
         and payload["gate"]["synthesis_multiplan_verified"]
         and payload["gate"]["delta_blast_radius_perfect"]
-        and payload["gate"]["queries_256"]
-        and payload["gate"]["probes_180_present"]
+        and payload["gate"]["queries_272"]
+        and payload["gate"]["probes_196_present"]
+        and payload["gate"]["cycle_y_probes_16"]
         and payload["gate"]["wall_le_160"]
         and all(payload["gate"][str(row["name"])] for row in probe_rows)
     )

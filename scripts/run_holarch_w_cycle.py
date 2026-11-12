@@ -64,8 +64,11 @@ def stage_w1(directory: Path) -> Dict[str, object]:
     probes = list((_probe_block or {}).get("rows") or []) if isinstance(_probe_block, dict) else list(_probe_block or [])
     pass0 = [row for row in probes if str(row.get("name", "")).startswith("w1_")]
     gates = {
-        "w1_queries_256": bool(int(payload.get("total_queries", 0)) == 256),
-        "w1_probe_slots_180": bool(int(payload.get("probe_slots", 0)) == 180),
+        # Cycle Y4 grew the gauntlet to 272 queries (76 receipts + 196
+        # probes).  The 256 slots of Cycle W are a measured subset, so this
+        # presence gate is a superset check, exactly as O4 did for 128.
+        "w1_queries_256": bool(int(payload.get("total_queries", 0)) >= 256),
+        "w1_probe_slots_180": bool(int(payload.get("probe_slots", 0)) >= 180),
         "w1_reachable_1": bool(float(mcp.get("reachable_accuracy", 0.0) or 0.0) == 1.0),
         "w1_hallucination_0": bool(mcp.get("hallucination_rate") == 0.0),
         "w1_zero_query_reads": bool(int(mcp.get("query_file_reads", -1)) == 0),

@@ -47,6 +47,32 @@ Architecture
    training split.  The held-out W2 test split never enters the calibration.
 
 Nothing here calls backward(), an optimiser, or a network.
+
+Cycle Y1 extension (quadrature=True)
+------------------------------------
+Two measured defects of X2 are repaired here without touching the X2 path
+(quadrature=False is bit-identical to the Cycle X organ):
+
+1. Phase saddle.  X2 kept only the real part of every mode resonance and
+   initialized theta at zero, so the Born cross-term cos(0) sat on a
+   stationary point with d/dphi = -sin(0) = 0.  Here every mode resonance
+   keeps BOTH quadratures: s_m(v|h) = sqrt(p_m(v)) * exp(i * arg <chi_v,
+   psi_m>), and the per-mode / per-slot offsets phi[m, s] start at
+   deterministic incommensurate irrational angles.  The offset is updated
+   by the analytical contrastive Born-rule cross-term torque
+
+       d|A(v)|^2 / d phi[m,s] = -2 Im(c_m a_m(v) conj(A(v))),  v in slot s
+
+   with c_m = sum_k U[k,m] the column sum of the Stiefel mixer.  The
+   photonic mode keeps the exact complex amplitude <chi_v, bright>, so its
+   probability is Born's rule on the optical readout, not a mutilated real
+   part.
+
+2. Optical subspace covariate shift.  The egress may mount a
+   zone_b.SubwordPhaseCartridge, a closed-form per-slot cross-spectral
+   aligner between the post-photonic ports and the Bochner codebook.  The
+   bright port then carries the L = 24 structural context instead of a
+   Cycle E character-alphabet scramble.
 """
 
 from __future__ import annotations
@@ -132,6 +158,8 @@ class ContrastivePhaseResonator:
         max_occurrences: int = 96,
         alpha: Optional[Dict[int, float]] = None,
         saturation: float = 1.0,
+        quadrature: bool = False,
+        phase_seed: float = 1.0,
     ) -> None:
         self.projector = projector
         self.tokenizer = tokenizer
@@ -172,6 +200,45 @@ class ContrastivePhaseResonator:
         self.photonic_weight = 0.10
         self.override: Dict[str, Any] = {}
         self._photonic_cache: Dict[Tuple[int, ...], Tuple[np.ndarray, float, float]] = {}
+        # ------------------------------------------------------ Y1 quadrature
+        # The quadrature path is opt-in so that the sealed X2 receipt stays
+        # replayable bit for bit on the same code.
+        self.quadrature = bool(quadrature)
+        self.phase_gain = 1.0
+        self.cartridge = None
+        self.phase_epochs = 0
+        self.phase_updates = 0
+        self.phase_curve: List[float] = []
+        self.phase_attribution: Dict[str, float] = {}
+        modes = len(self.orders) + 2
+        # Deterministic small incommensurate irrational seed angles.  sin(0)
+        # is the saddle X2 could not leave; frac(m*sqrt(2)+s*sqrt(3)) is
+        # equidistributed and never repeats a rational ratio.
+        seed = np.zeros((modes, 4), dtype=np.float64)
+        for mode in range(modes):
+            for slot in range(4):
+                value = (mode + 1) * math.sqrt(2.0) + (slot + 1) * math.sqrt(3.0)
+                seed[mode, slot] = 0.10 * float(phase_seed) * (value - math.floor(value))
+        self.phase0 = seed
+        self.phase = seed.copy()
+        self._slot_ids = np.asarray(
+            [int(tokenizer.slot_of(token)) % 4 for token in range(self.vocab_size)],
+            dtype=np.int64,
+        )
+        self._slot_index = [
+            np.nonzero(self._slot_ids == slot)[0] for slot in range(4)
+        ]
+        self._phi_slot = [
+            np.ascontiguousarray(self.phi[self._slot_index[slot]][
+                :, slot * (self.dim // 4) : (slot + 1) * (self.dim // 4)
+            ])
+            for slot in range(4)
+        ]
+        # Per-slot codebook blocks for the dense semantic readout.
+        self._context_cache: Dict[Tuple[int, ...], np.ndarray] = {}
+        self._phasor_cache: Dict[Tuple[int, ...], np.ndarray] = {}
+        self._last_photonic_complex: Optional[np.ndarray] = None
+        self.cartridge_report: Dict[str, Any] = {}
 
     # ------------------------------------------------------------ statistics
     def observe(self, ids: Sequence[int]) -> "ContrastivePhaseResonator":
@@ -239,16 +306,25 @@ class ContrastivePhaseResonator:
         spaced ring phases the Born rule reduces exactly to the incoherent
         mixture; a learned phase offset can only move it away from that ring.
         """
+        weights, dists, totals, has_photonic, _terms = self._order_waves_full(
+            context, model
+        )
+        return weights, dists, totals, has_photonic
+
+    def _order_waves_full(self, context: Sequence[int], model=None):
+        """The same order waves, plus the retained complex photonic amplitude."""
         prior = self.base_distribution(context)
         weights: List[float] = [0.25]
         dists: List[np.ndarray] = [prior]
         totals: List[float] = [1.0]
+        terms: List[Optional[np.ndarray]] = [None]
         for order, local, total in self._resonances(context):
             alpha = float(self.alpha.get(int(order), 0.7))
             saturation = float(total) / (float(total) + self.saturation)
             weights.append(max(0.0, alpha * saturation * 0.75))
             dists.append(local)
             totals.append(float(total))
+            terms.append(None)
         has_photonic = False
         if model is not None:
             term = self.photonic_term(context, model)
@@ -256,14 +332,15 @@ class ContrastivePhaseResonator:
                 weights.append(float(self.photonic_weight))
                 dists.append(term)
                 totals.append(1.0)
+                terms.append(self._last_photonic_complex)
                 has_photonic = True
         for index in range(len(weights)):
             gain = float(self.mode_gain[index]) if index < self.mode_gain.size else 1.0
             weights[index] = max(0.0, float(weights[index]) * gain)
         mass = float(sum(weights))
         if mass <= 0.0:
-            return [1.0], [prior], [1.0], False
-        return [float(value / mass) for value in weights], dists, totals, has_photonic
+            return [1.0], [prior], [1.0], False, [None]
+        return [float(value / mass) for value in weights], dists, totals, has_photonic, terms
 
     def distribution(self, context: Sequence[int], model=None) -> np.ndarray:
         """The wave-egress next-token distribution for one causal context."""
@@ -280,6 +357,43 @@ class ContrastivePhaseResonator:
         return np.stack(rows), totals
 
     # ------------------------------------------------------- photonic route
+    def codebook_readout(self, wave: np.ndarray) -> np.ndarray:
+        """<chi_v, wave> for the whole locked vocabulary, both quadratures.
+
+        The codebook is slot-routed, so the dense readout is four block
+        matrix-vector products of shape (n_s, D/4) instead of one (V, D)
+        product: the same number in four times fewer operations.
+        """
+        field = np.asarray(wave, dtype=np.complex64)
+        out = np.zeros(self.vocab_size, dtype=np.complex64)
+        d_slot = self.dim // 4
+        for slot in range(4):
+            block = np.conj(field[slot * d_slot : (slot + 1) * d_slot])
+            rows = self._phi_slot[slot]
+            out[self._slot_index[slot]] = rows @ block
+        # rows @ conj(field) is conj(<chi_v, field>); undo the conjugation so
+        # the caller always receives the physics inner product.
+        return np.conj(out)
+
+    def context_wave(self, tokens: Sequence[int]) -> np.ndarray:
+        """The L = window Bochner context wave, cached by token tuple."""
+        key = tuple(int(token) for token in tokens)
+        cached = self._context_cache.get(key)
+        if cached is not None:
+            return cached
+        wave = self.projector.sequence_wave(list(key), self.tokenizer)
+        wave = np.asarray(wave, dtype=np.complex64)
+        if len(self._context_cache) < 8192:
+            self._context_cache[key] = wave
+        return wave
+
+    def set_cartridge(self, cartridge, *, report: Optional[Dict[str, Any]] = None):
+        """Mount the Y1 subword optical cartridge on the photonic route."""
+        self.cartridge = cartridge
+        self.cartridge_report = dict(report or {})
+        self._photonic_cache.clear()
+        return self
+
     def photonic_term(self, context: Sequence[int], model=None) -> Optional[np.ndarray]:
         """Read the post-photonic bright port against the Bochner codebook."""
         if model is None:
@@ -287,27 +401,33 @@ class ContrastivePhaseResonator:
         key = tuple(int(token) for token in context[-24:])
         cached = self._photonic_cache.get(key)
         if cached is not None:
+            self._last_photonic_complex = cached[3]
             return cached[0]
         import torch
 
-        wave = self.projector.sequence_wave(list(key), self.tokenizer)
+        wave = self.context_wave(key)
         psi = torch.from_numpy(np.asarray(wave, dtype=np.complex64)).reshape(1, -1)
         with torch.no_grad():
             state = model.zone_b(psi)
             bright = state.bright[0].detach().cpu().numpy().astype(np.complex64)
             dark = state.dark[0].detach().cpu().numpy().astype(np.complex64)
-        raw = np.real(self.phi @ np.conj(bright)).astype(np.float64)
-        raw = np.maximum(raw, 0.0)
-        total = float(raw.sum())
+        if self.cartridge is not None:
+            bright, dark = self.cartridge.adapt_arrays(bright, dark)
+        raw = self.codebook_readout(bright)
+        positive = np.maximum(np.real(raw), 0.0)
+        total = float(positive.sum())
         if total <= 0.0:
+            self._last_photonic_complex = None
             return None
-        score = raw / total
+        score = positive / total
         self.photonic_contexts += 1
+        self._last_photonic_complex = raw
         if len(self._photonic_cache) < 8192:
             self._photonic_cache[key] = (
                 score,
                 float(np.linalg.norm(bright)),
                 float(np.linalg.norm(dark)),
+                raw,
             )
         return score
 
@@ -331,7 +451,7 @@ class ContrastivePhaseResonator:
         Born trace, so U = I is exactly the incoherent arithmetic order
         mixture and any other U is a genuine mode-interference readout.
         """
-        weights, dists, totals, has_photonic = self._order_waves(
+        weights, dists, totals, has_photonic, terms = self._order_waves_full(
             context, model if photonic else None
         )
         count = len(dists)
@@ -344,6 +464,13 @@ class ContrastivePhaseResonator:
                 * math.sqrt(max(float(weights[index]), _EPS))
                 * np.sqrt(np.maximum(dist, _EPS))
             )
+        pre_mixer: Optional[np.ndarray] = None
+        if self.quadrature:
+            for index, dist in enumerate(dists):
+                state[index] = self._quadrature_row(
+                    index, context, dist, terms[index], float(weights[index])
+                )
+            pre_mixer = state.copy()
         mixer = np.asarray(self.adapter[:count, :count], dtype=np.complex128)
         state = mixer @ state
         info = {
@@ -352,8 +479,78 @@ class ContrastivePhaseResonator:
             "totals": [float(value) for value in totals],
             "weights": [float(value) for value in weights],
             "modes": int(count),
+            "quadrature": bool(self.quadrature),
+            "phase_displacement": self.phase_displacement(),
+            "pre_mixer": pre_mixer,
         }
         return state, info
+
+    # ------------------------------------------------------- Y1 quadrature
+    def phase_displacement(self) -> float:
+        """||phi - phi^(0)||_2 over every mode and slot."""
+        return float(np.linalg.norm(np.asarray(self.phase) - np.asarray(self.phase0)))
+
+    def _mode_wave(self, index: int, context: Sequence[int]) -> np.ndarray:
+        """The Bochner codebook wave a mode resonance is read against."""
+        if index <= 0:
+            return self.context_wave([int(token) for token in context[-24:]])
+        order = int(self.orders[min(index - 1, len(self.orders) - 1)])
+        return self.context_wave([int(token) for token in context[-order:]])
+
+    def _mode_phasor(
+        self, wave: np.ndarray, support: np.ndarray
+    ) -> np.ndarray:
+        """exp(i * arg <chi_v, psi_m>): the retained quadrature of a mode."""
+        phasor = np.ones(self.vocab_size, dtype=np.complex128)
+        if support.size == 0:
+            return phasor
+        if support.size > 256:
+            overlap = self.codebook_readout(wave)[support]
+        else:
+            overlap = np.conj(wave) @ self.phi[support].T
+        magnitude = np.abs(overlap)
+        safe = magnitude > 1e-6
+        unit = np.ones_like(overlap)
+        unit[safe] = overlap[safe] / magnitude[safe]
+        phasor[support] = unit
+        return phasor
+
+    def _quadrature_row(
+        self,
+        index: int,
+        context: Sequence[int],
+        dist: np.ndarray,
+        term: Optional[np.ndarray],
+        weight: float,
+    ) -> np.ndarray:
+        """One complex mode resonance s_m(v|h) with BOTH quadratures.
+
+        Count modes keep the count envelope sqrt(p_m(v)) and take the phase
+        of the Bochner inner product.  The photonic mode is the exact complex
+        amplitude <chi_v, bright>, renormalised so Born's rule returns the
+        optical readout distribution.  Every mode then receives its learned
+        per-mode / per-slot offset phi[m, s(v)].
+        """
+        if term is not None:
+            norm = float(np.linalg.norm(term))
+            if norm > _EPS:
+                row = (math.sqrt(max(float(weight), _EPS)) * np.asarray(
+                    term, dtype=np.complex128) / norm)
+            else:
+                row = np.zeros(self.vocab_size, dtype=np.complex128)
+        else:
+            support = np.nonzero(np.asarray(dist) > 0.0)[0]
+            wave = self._mode_wave(index, context)
+            row = (
+                math.sqrt(max(float(weight), _EPS))
+                * np.sqrt(np.maximum(np.asarray(dist, dtype=np.float64), _EPS))
+                * self._mode_phasor(wave, support)
+            )
+        if self.phase_gain != 0.0 and index < self.phase.shape[0]:
+            row = row * np.exp(
+                1j * float(self.phase_gain) * self.phase[index][self._slot_ids]
+            )
+        return row
 
     def born(self, amplitude: np.ndarray) -> np.ndarray:
         state = np.asarray(amplitude)
@@ -556,6 +753,199 @@ class ContrastivePhaseResonator:
             "autograd_used": False,
         }
 
+    # ------------------------------------------------- Y1 phase torque
+    def fit_quadrature(
+        self,
+        ids: Sequence[int],
+        *,
+        model=None,
+        epochs: int = 3,
+        samples: int = 480,
+        inner_fraction: float = 0.15,
+        eta: float = 0.02,
+        eta_negative: float = 0.02,
+        floor_fn=None,
+        clip: float = 0.05,
+    ) -> Dict[str, Any]:
+        """Learn phi[m, s] by the analytical Born-rule cross-term torque.
+
+        For one training position the post-mixer amplitude is
+        A(v) = sum_k (U a)[k, v] and the mixer column sum is c_m = sum_k U[k,m].
+        The exact derivative of Born's power with respect to a phase offset is
+
+            d|A(v)|^2 / dphi[m, s(v)] = -2 Im(c_m a_m(v) conj(A(v))),
+
+        so no tensor graph and no finite difference is needed.  The target's
+        slot column is pushed up and the count floor's wrong competitor's
+        slot column is pushed down.  The inner slice of the training split
+        is the only checkpoint selector, so the recorded curve is best-so-far
+        and cannot end worse than it started.
+        """
+        if not self.quadrature:
+            raise ValueError("fit_quadrature needs quadrature=True")
+        sequence = [int(token) for token in ids]
+        if self.base_counts is None:
+            from henri.holarch.code_gen import CountLanguageModel
+
+            self.base_counts = CountLanguageModel(self.vocab_size)
+            self.base_counts.fit(sequence)
+        cut = int(len(sequence) * (1.0 - float(inner_fraction)))
+        fit_ids = sequence[:cut]
+        inner_ids = sequence[cut:]
+        if len(fit_ids) <= self.max_order + 2 or len(inner_ids) <= self.max_order + 2:
+            return {"epochs": 0, "updates": 0}
+        sample_count = int(min(int(samples), max(1, len(fit_ids) - self.max_order - 2)))
+        stride = max(1, (len(fit_ids) - self.max_order - 2) // sample_count)
+        positions = list(range(self.max_order, len(fit_ids) - 1, stride))[:sample_count]
+        inner_positions = list(
+            range(self.max_order, len(inner_ids) - 1, max(1, len(inner_ids) // 192))
+        )[:192]
+
+        def inner_nll() -> float:
+            total = 0.0
+            count = 0
+            for position in inner_positions:
+                context = inner_ids[max(0, position - self.window) : position]
+                target = int(inner_ids[position])
+                probability = self.born(self.amplitudes(context, photonic=False)[0])
+                total -= float(np.log(max(float(probability[target]), 1e-12)))
+                count += 1
+            return float(total / max(count, 1))
+
+        initial = inner_nll()
+        best = (float(initial), self.phase.copy(), self.theta.copy())
+        curve: List[float] = [float(initial)]
+        updates = 0
+        total_update = 0.0
+        step = float(clip)
+        for _epoch in range(int(epochs)):
+            gradient = np.zeros_like(self.phase)
+            counted = 0
+            for position in positions:
+                context = fit_ids[max(0, position - self.window) : position]
+                target = int(fit_ids[position])
+                if not (0 <= target < self.vocab_size):
+                    continue
+                state, info = self.amplitudes(context, photonic=False)
+                pre = info.get("pre_mixer")
+                if pre is None:
+                    continue
+                count = int(state.shape[0])
+                mixer = np.asarray(self.adapter[:count, :count], dtype=np.complex128)
+                column = mixer.sum(axis=0)
+                power = float(np.sum(np.abs(state) ** 2)) + _EPS
+                target_slot = int(self._slot_ids[target])
+                amplitude = complex(state[:, target].sum())
+                competitor = -1
+                if floor_fn is not None:
+                    try:
+                        floor = floor_fn(context)
+                        if floor is not None:
+                            competitor = int(np.argmax(floor))
+                    except Exception:  # noqa: BLE001 - a floor failure is not fatal
+                        competitor = -1
+                competitor_slot = (
+                    int(self._slot_ids[competitor])
+                    if 0 <= competitor < self.vocab_size
+                    else -1
+                )
+                competitor_amplitude = (
+                    complex(state[:, competitor].sum())
+                    if 0 <= competitor < self.vocab_size
+                    else 0.0
+                )
+                contrast = float(eta_negative) / max(float(eta), _EPS)
+                for mode in range(min(count, self.phase.shape[0])):
+                    pull = -2.0 * float(
+                        np.imag(column[mode] * pre[mode, target] * np.conj(amplitude))
+                    )
+                    gradient[mode, target_slot] += pull / power
+                    if competitor_slot >= 0 and competitor != target:
+                        push = -2.0 * float(
+                            np.imag(
+                                column[mode]
+                                * pre[mode, competitor]
+                                * np.conj(competitor_amplitude)
+                            )
+                        )
+                        gradient[mode, competitor_slot] -= contrast * push / power
+                counted += 1
+            if counted <= 0:
+                break
+            gradient = gradient / float(counted)
+            scale = float(np.max(np.abs(gradient)))
+            if scale <= 0.0:
+                break
+            direction = gradient / scale
+            trial = self.phase + step * direction
+            self.phase = trial
+            value = inner_nll()
+            if value < best[0] - 1e-12:
+                best = (float(value), trial.copy(), self.theta.copy())
+                updates += int(counted)
+                total_update += float(np.sum(np.abs(step * direction)))
+                curve.append(float(value))
+            else:
+                self.phase = best[1].copy()
+                self.theta = best[2].copy()
+                step *= 0.5
+                curve.append(float(min(best[0], value)))
+                if step < 1e-4:
+                    break
+        self.phase = best[1]
+        self.theta = best[2]
+        self.phase_curve = list(curve)
+        self.phase_epochs = int(epochs)
+        self.phase_updates = int(updates)
+        displacement = self.phase_displacement()
+        self.phase_attribution = {
+            "inner_nll_initial": float(initial),
+            "inner_nll_final": float(best[0]),
+            "inner_nll_gain": float(initial - best[0]),
+            "phase_displacement": float(displacement),
+            "mean_abs_step": float(total_update / max(len(curve) - 1, 1)),
+            "updates": int(updates),
+            "epochs": int(epochs),
+            "final_step": float(step),
+            "curve": [float(value) for value in curve],
+            "seed_phase_norm": float(np.linalg.norm(self.phase0)),
+        }
+        return dict(self.phase_attribution)
+
+    def fit_cartridge(
+        self,
+        ids: Sequence[int],
+        model,
+        *,
+        samples: int = 320,
+        context: int = 24,
+        ridge: float = 1e-1,
+    ) -> Dict[str, Any]:
+        """Fit the non-destructive subword optical cartridge in closed form.
+
+        The target is the Bochner context wave, the observation is the post-
+        photonic bright port of the SAME context.  Nothing is written to the
+        mounted checkpoint: the aligner lives in the cartridge.
+        """
+        import torch
+
+        from henri.holarch.zone_b import open_subword_cartridge
+
+        sequence = [int(token) for token in ids]
+        if len(sequence) <= int(context) + 2:
+            return {"contexts": 0}
+        indices = list(range(int(context), len(sequence) - 1))
+        stride = max(1, len(indices) // max(int(samples), 1))
+        indices = indices[::stride][: int(samples)]
+        waves = [
+            torch.from_numpy(self.context_wave(sequence[index - int(context) : index]))
+            for index in indices
+        ]
+        cartridge = open_subword_cartridge(model, ridge=float(ridge))
+        report = cartridge.fit(waves)
+        self.set_cartridge(cartridge, report=report)
+        return dict(report)
+
     # ------------------------------------------------------------- override
     def candidate(self, context: Sequence[int], *, model=None) -> Dict[str, Any]:
         """The egress token, its margin, and the Sagnac residual."""
@@ -617,7 +1007,12 @@ class ContrastivePhaseResonator:
                 "bpc": float(nll / tokens / math.log(2.0)),
             }
             rows.append(row)
-            if best is None or (row["top1"], -row["bpc"]) > (best["top1"], -best["bpc"]):
+            # The admitted objective is the validation cross-entropy, because
+            # the fusion weight multiplies a probability term.  A weight that
+            # buys one extra top-1 token and pays 0.08 bits/char for it is a
+            # worse model, not a better one; the old (top-1 first) ordering
+            # admitted exactly that.  Top-1 breaks a tie only.
+            if best is None or (row["bpc"], -row["top1"]) < (best["bpc"], -best["top1"]):
                 best = row
         self.photonic_weight = float(best["weight"]) if best is not None else 0.10
         return {"weight": float(self.photonic_weight), "rows": rows, "samples": int(len(indices))}
