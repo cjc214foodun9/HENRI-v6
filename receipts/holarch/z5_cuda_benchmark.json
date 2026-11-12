@@ -1,0 +1,165 @@
+{
+  "stage": "Z5-cuda-benchmark",
+  "status": "CUDA: BLOCKED",
+  "cuda_available": false,
+  "torch_version": "2.11.0+cu128",
+  "cuda_build": "12.8",
+  "gpu_measurements": [],
+  "gpu_numbers_claimed": false,
+  "cpu_measurement_reported_as_gpu": false,
+  "driver_diagnostic": {
+    "platform": "Windows-11-10.0.26300-SP0",
+    "torch_version": "2.11.0+cu128",
+    "cuda_compiled_version": "12.8",
+    "torch_cuda_available": false,
+    "torch_device_count": 0,
+    "cuda_visible_devices": "",
+    "cuda_visible_devices_set": false,
+    "cuda_home": "",
+    "cuda_path_set": false,
+    "nvidia_smi_path": "C:\\WINDOWS\\system32\\nvidia-smi.EXE",
+    "nvidia_smi_reachable": true,
+    "nvidia_smi_devices": [],
+    "nvidia_smi_driver_version": "",
+    "nvidia_smi_error": "",
+    "driver_libraries": {
+      "C:\\Windows\\System32\\nvcuda.dll": true,
+      "C:\\Windows\\SysWOW64\\nvcuda.dll": true,
+      "C:\\Program Files\\NVIDIA Corporation\\NVSMI\\nvidia-smi.exe": false
+    },
+    "nvcuda_present": true,
+    "libcuda_present": false,
+    "driver_files_found": 2,
+    "on_windows": true,
+    "root_cause": "nvidia-smi ran but listed no device",
+    "verdict": "BLOCKED",
+    "pnp": {
+      "platform": "Windows-11-10.0.26300-SP0",
+      "display_class_guid": "{4d36e968-e325-11ce-bfc1-08002be10318}",
+      "queried": true,
+      "devices": [
+        {
+          "name": "AMD Radeon(TM) Graphics",
+          "device_id": "PCI\\VEN_1002&DEV_13C0&SUBSYS_D0001458&REV_CB\\4&16012499&0&0041",
+          "status": "OK",
+          "service": "amduw23g-205305-f16b1d83",
+          "pnp_class": "Display",
+          "config_manager_error_code": 0,
+          "problem": "working"
+        },
+        {
+          "name": "AMD Radeon RX 9070 XT",
+          "device_id": "PCI\\VEN_1002&DEV_7550&SUBSYS_24241458&REV_C0\\6&17CA0BD2&0&00000009",
+          "status": "OK",
+          "service": "amduw23g-205306-a9c55ce7",
+          "pnp_class": "Display",
+          "config_manager_error_code": 0,
+          "problem": "working"
+        }
+      ],
+      "class_keys": [
+        {
+          "key": "0000",
+          "driver_desc": "AMD Radeon(TM) Graphics"
+        },
+        {
+          "key": "0001",
+          "driver_desc": "AMD Radeon(TM) Graphics"
+        },
+        {
+          "key": "0002",
+          "driver_desc": "AMD Radeon RX 9070 XT"
+        },
+        {
+          "key": "0003",
+          "driver_desc": "NVIDIA GeForce RTX 5070 Ti"
+        },
+        {
+          "key": "Configuration",
+          "driver_desc": ""
+        }
+      ],
+      "reason": "the NVIDIA driver class key is registered for NVIDIA GeForce RTX 5070 Ti but no NVIDIA PnP display device is enumerated: the adapter is absent from the bus, disabled in firmware, or was removed after a driver install, so nvidia-smi lists no device and torch cannot reach CUDA",
+      "exit_code": 0,
+      "nvidia_devices": [],
+      "nvidia_problem_codes": [],
+      "ghost_nvidia_driver_keys": [
+        {
+          "key": "0003",
+          "driver_desc": "NVIDIA GeForce RTX 5070 Ti"
+        }
+      ]
+    },
+    "evidence": "OBSERVED"
+  },
+  "pnp": {
+    "platform": "Windows-11-10.0.26300-SP0",
+    "display_class_guid": "{4d36e968-e325-11ce-bfc1-08002be10318}",
+    "queried": true,
+    "devices": [
+      {
+        "name": "AMD Radeon(TM) Graphics",
+        "device_id": "PCI\\VEN_1002&DEV_13C0&SUBSYS_D0001458&REV_CB\\4&16012499&0&0041",
+        "status": "OK",
+        "service": "amduw23g-205305-f16b1d83",
+        "pnp_class": "Display",
+        "config_manager_error_code": 0,
+        "problem": "working"
+      },
+      {
+        "name": "AMD Radeon RX 9070 XT",
+        "device_id": "PCI\\VEN_1002&DEV_7550&SUBSYS_24241458&REV_C0\\6&17CA0BD2&0&00000009",
+        "status": "OK",
+        "service": "amduw23g-205306-a9c55ce7",
+        "pnp_class": "Display",
+        "config_manager_error_code": 0,
+        "problem": "working"
+      }
+    ],
+    "class_keys": [
+      {
+        "key": "0000",
+        "driver_desc": "AMD Radeon(TM) Graphics"
+      },
+      {
+        "key": "0001",
+        "driver_desc": "AMD Radeon(TM) Graphics"
+      },
+      {
+        "key": "0002",
+        "driver_desc": "AMD Radeon RX 9070 XT"
+      },
+      {
+        "key": "0003",
+        "driver_desc": "NVIDIA GeForce RTX 5070 Ti"
+      },
+      {
+        "key": "Configuration",
+        "driver_desc": ""
+      }
+    ],
+    "reason": "the NVIDIA driver class key is registered for NVIDIA GeForce RTX 5070 Ti but no NVIDIA PnP display device is enumerated: the adapter is absent from the bus, disabled in firmware, or was removed after a driver install, so nvidia-smi lists no device and torch cannot reach CUDA",
+    "exit_code": 0,
+    "nvidia_devices": [],
+    "nvidia_problem_codes": [],
+    "ghost_nvidia_driver_keys": [
+      {
+        "key": "0003",
+        "driver_desc": "NVIDIA GeForce RTX 5070 Ti"
+      }
+    ]
+  },
+  "root_cause": "nvidia-smi ran but listed no device",
+  "reason": "torch.cuda.is_available() is False.  No GPU number is reported.  The PnP diagnostic names the exact state instead.",
+  "wall_seconds": 1.0884722000919282,
+  "evidence": "OBSERVED",
+  "gate": {
+    "z5_status_recorded": true,
+    "z5_no_cpu_as_gpu": true,
+    "z5_measured_or_blocked": true,
+    "z5_pnp_recorded": true,
+    "z5_numbers_only_when_measured": true,
+    "passed": true
+  },
+  "passed": true
+}

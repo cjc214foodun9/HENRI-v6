@@ -13,8 +13,9 @@ measurement as a Blackwell result.
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
-from typing import Dict
+from typing import Dict, List
 
 import torch
 from torch import nn
@@ -282,5 +283,161 @@ def probe_nvidia_driver_state() -> Dict[str, object]:
         )
     report["root_cause"] = "; ".join(reasons) if reasons else "CUDA device present and visible"
     report["verdict"] = "VISIBLE" if torch.cuda.is_available() else "BLOCKED"
+    # Directive Z5: the PnP state is the missing evidence.  A GPU that the
+    # registry enumerates but nvidia-smi does not list is a driver problem.
+    try:
+        report["pnp"] = probe_pnp_display_state()
+    except Exception as error:  # pragma: no cover - a probe must never raise
+        report["pnp"] = {"queried": False, "reason": f"{type(error).__name__}: {error}"}
     report["evidence"] = "OBSERVED"
     return report
+
+# ---------------------------------------------------------------------------
+# Directive Z5: non-destructive Plug-and-Play state of the display adapters
+# ---------------------------------------------------------------------------
+DISPLAY_CLASS_GUID = "{4d36e968-e325-11ce-bfc1-08002be10318}"
+"""The Windows display-adapter setup class.  A GPU enumerated here but absent
+from nvidia-smi is a PnP/driver problem, not a torch problem."""
+
+_PNP_SCRIPT = (
+    "Get-CimInstance Win32_PnPEntity | "
+    "Where-Object { $_.PNPClass -eq 'Display' -or $_.Service -eq 'nvlddmkm' } | "
+    "Select-Object Name,DeviceID,Status,ConfigManagerErrorCode,ConfigManagerUserConfig,"
+    "Service,PNPClass | ConvertTo-Json -Compress"
+)
+
+_REGISTRY_SCRIPT = (
+    "Get-ChildItem 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Class\\"
+    + DISPLAY_CLASS_GUID
+    + "' -ErrorAction SilentlyContinue | ForEach-Object { "
+    + "[pscustomobject]@{ Key = $_.PSChildName; "
+    + "DriverDesc = (Get-ItemProperty $_.PSPath -ErrorAction SilentlyContinue).DriverDesc } } | "
+    + "ConvertTo-Json -Compress"
+)
+
+
+def probe_pnp_display_state() -> Dict[str, object]:
+    """Read the PnP status of every display adapter, without changing it.
+
+    ConfigManagerErrorCode is the Device Manager problem code: 0 = working,
+    10 = cannot start, 12 = not enough resources, 22 = disabled, 28 = no
+    driver installed, 31 = cannot load driver, 43 = stopped with an error.
+    The query is read-only.  A non-Windows host or a blocked PowerShell
+    returns an empty report with the reason, never a fabricated state.
+    """
+    import platform
+    import subprocess
+
+    report: Dict[str, object] = {
+        "platform": platform.platform(),
+        "display_class_guid": DISPLAY_CLASS_GUID,
+        "queried": False,
+        "devices": [],
+        "class_keys": [],
+        "reason": "",
+    }
+    if not platform.system().lower().startswith("win"):
+        report["reason"] = "PnP query is Windows-only"
+        return report
+    shell = "powershell.exe"
+    try:
+        completed = subprocess.run(
+            [shell, "-NoProfile", "-NonInteractive", "-Command", _PNP_SCRIPT],
+            capture_output=True,
+            text=True,
+            timeout=25,
+        )
+    except Exception as error:  # pragma: no cover - host dependent
+        report["reason"] = f"{type(error).__name__}: {error}"
+        return report
+    report["queried"] = True
+    report["exit_code"] = int(completed.returncode)
+    text = (completed.stdout or "").strip()
+    devices: List[Dict[str, object]] = []
+    if text:
+        try:
+            payload = json.loads(text)
+            rows = payload if isinstance(payload, list) else [payload]
+            for row in rows:
+                code = row.get("ConfigManagerErrorCode")
+                devices.append(
+                    {
+                        "name": str(row.get("Name", "")),
+                        "device_id": str(row.get("DeviceID", "")),
+                        "status": str(row.get("Status", "")),
+                        "service": str(row.get("Service", "") or ""),
+                        "pnp_class": str(row.get("PNPClass", "") or ""),
+                        "config_manager_error_code": int(code) if code is not None else None,
+                        "problem": _PNP_CODE_MEANING.get(
+                            int(code) if code is not None else -1, "unknown"
+                        ),
+                    }
+                )
+        except Exception as error:  # pragma: no cover - malformed output
+            report["reason"] = f"unparsed PnP output: {type(error).__name__}"
+    report["devices"] = devices
+    try:
+        completed = subprocess.run(
+            [shell, "-NoProfile", "-NonInteractive", "-Command", _REGISTRY_SCRIPT],
+            capture_output=True,
+            text=True,
+            timeout=25,
+        )
+        text = (completed.stdout or "").strip()
+        if text:
+            payload = json.loads(text)
+            rows = payload if isinstance(payload, list) else [payload]
+            report["class_keys"] = [
+                {
+                    "key": str(row.get("Key", "")),
+                    "driver_desc": str(row.get("DriverDesc", "") or ""),
+                }
+                for row in rows
+            ]
+    except Exception:  # pragma: no cover - registry read is optional evidence
+        report["class_keys"] = []
+    nvidia = [row for row in devices if "NVIDIA" in str(row["name"]).upper()
+              or "10DE" in str(row["device_id"]).upper()]
+    report["nvidia_devices"] = nvidia
+    report["nvidia_problem_codes"] = [
+        row["config_manager_error_code"] for row in nvidia
+    ]
+    ghost = [
+        row for row in report["class_keys"]
+        if "NVIDIA" in str(row.get("driver_desc", "")).upper()
+    ]
+    report["ghost_nvidia_driver_keys"] = ghost
+    if not devices:
+        report["reason"] = "no display adapter enumerated"
+    elif not nvidia and ghost:
+        report["reason"] = (
+            "the NVIDIA driver class key is registered for "
+            + ", ".join(str(row.get("driver_desc", "")) for row in ghost)
+            + " but no NVIDIA PnP display device is enumerated: the adapter is "
+            "absent from the bus, disabled in firmware, or was removed after a "
+            "driver install, so nvidia-smi lists no device and torch cannot reach CUDA"
+        )
+    elif not nvidia:
+        report["reason"] = "no NVIDIA adapter enumerated"
+    elif all(row["config_manager_error_code"] == 0 for row in nvidia):
+        report["reason"] = "NVIDIA adapter enumerated with problem code 0"
+    else:
+        report["reason"] = "NVIDIA adapter enumerated with a non-zero problem code"
+    return report
+
+
+_PNP_CODE_MEANING = {
+    -1: "no code",
+    0: "working",
+    1: "not configured",
+    3: "driver corrupt",
+    10: "cannot start",
+    12: "not enough free resources",
+    18: "reinstall the drivers",
+    22: "disabled",
+    24: "device not present",
+    28: "no driver installed",
+    31: "cannot load driver",
+    43: "driver stopped with an error",
+}
+

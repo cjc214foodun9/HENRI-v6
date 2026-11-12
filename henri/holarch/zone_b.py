@@ -1308,7 +1308,13 @@ class SubwordPhaseCartridge(nn.Module):
 
         if len(waves) < 4:
             raise ValueError("the cartridge needs at least four context waves")
-        stack = torch.cat([w.reshape(1, -1) for w in waves], dim=0).to(torch.complex64)
+        prepared = []
+        for wave in waves:
+            tensor = wave if isinstance(wave, torch.Tensor) else torch.from_numpy(
+                np.asarray(wave, dtype=np.complex64)
+            )
+            prepared.append(tensor.reshape(1, -1))
+        stack = torch.cat(prepared, dim=0).to(torch.complex64)
         bright, _dark, _state = self.ports(stack)
         xb = self._blocks(bright, self.n_slots, self.d_slot)
         yb = self._blocks(stack, self.n_slots, self.d_slot)
@@ -1402,8 +1408,14 @@ class SubwordPhaseCartridge(nn.Module):
 
 
 def open_subword_cartridge(model, *, ridge: float = 1e-1) -> SubwordPhaseCartridge:
-    """Build a cartridge on a mounted holarch without touching its weights."""
+    """Build a cartridge on a mounted holarch without touching its weights.
+
+    A bare PhotonicCore is accepted too: a Cycle Z egress may mount the
+    D = 2048 plate stack directly, without a full holarch checkpoint.
+    """
     core = getattr(model, "zone_b", None)
+    if core is None and hasattr(model, "dim") and hasattr(model, "d_slot"):
+        core = model
     if core is None:
         raise ValueError("the model exposes no Zone B photonic core")
     return SubwordPhaseCartridge(core, ridge=float(ridge))

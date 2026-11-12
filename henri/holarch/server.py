@@ -634,6 +634,59 @@ def chat_content(action: str, output: Any, refused: bool) -> str:
     return str(output)
 
 
+def chat_stream_chunks(payload: Dict[str, Any]) -> List[str]:
+    """OpenAI-style SSE lines for one completed chat turn.
+
+    Directive Z4. The non-stream body is computed first and then replayed as
+    delta chunks, so a streaming turn and a blocking turn carry the same
+    content, the same usage and the same epistemic receipt. The final line is
+    the OpenAI terminator "data: [DONE]".
+    """
+    completion = dict(payload or {})
+    chunk_id = str(completion.get("id", "chatcmpl-henri"))
+    created = int(completion.get("created", 0) or 0)
+    model = str(completion.get("model", "henri-holarch"))
+    choices = list(completion.get("choices") or [{}])
+    first = dict(choices[0]) if choices else {}
+    content = str((first.get("message") or {}).get("content") or "")
+    finish = str(first.get("finish_reason") or "stop")
+    usage = dict(completion.get("usage") or {})
+    receipt = dict(completion.get("epistemic_receipt") or {})
+    holarch = dict(completion.get("holarch") or {})
+
+    def envelope(delta: Dict[str, Any], finish_reason: Any) -> Dict[str, Any]:
+        return {
+            "id": chunk_id,
+            "object": "chat.completion.chunk",
+            "created": int(created),
+            "model": model,
+            "choices": [
+                {"index": 0, "delta": dict(delta), "finish_reason": finish_reason}
+            ],
+        }
+
+    words = content.split(" ") if content else [""]
+    pieces: List[str] = []
+    for start in range(0, len(words)):
+        text = " ".join(words[start:start + 1])
+        if start + 1 < len(words):
+            text = text + " "
+        pieces.append(text)
+    if not pieces:
+        pieces = [""]
+    events: List[Dict[str, Any]] = [envelope({"role": "assistant", "content": ""}, None)]
+    for piece in pieces:
+        events.append(envelope({"content": piece}, None))
+    final = envelope({}, finish)
+    final["usage"] = usage
+    final["epistemic_receipt"] = receipt
+    final["holarch"] = holarch
+    events.append(final)
+    lines = ["data: " + canonical_json(event) for event in events]
+    lines.append("data: [DONE]")
+    return lines
+
+
 class SidecarService:
     """One sidecar, one receipt chain, one reader/writer lock.
 
@@ -2823,6 +2876,8 @@ class ChatCompletionRequest(BaseModel):
     messages: List[ChatMessage] = Field(default_factory=list)
     tools: Optional[List[Dict[str, Any]]] = None
     metadata: Optional[Dict[str, Any]] = None
+    stream: bool = False
+    """Directive Z4: true asks for text/event-stream delta chunks."""
 
 
 _UNSET: Any = object()
@@ -2946,7 +3001,13 @@ class EpistemicGateMiddleware:
             if not replayed:
                 replayed = True
                 return {"type": "http.request", "body": body, "more_body": False}
-            return {"type": "http.disconnect"}
+            # Directive Z4: a streaming response keeps a listener on receive
+            # and stops the stream when it sees http.disconnect. Delegating the
+            # later reads to the real channel keeps that listener honest
+            # instead of handing it a synthetic disconnect before the body has
+            # been delivered. A blocking response never reads receive twice,
+            # so the non-stream path is untouched.
+            return await receive()
 
         await self.app(scope, replay, send)
 
@@ -3163,11 +3224,26 @@ def build_app(
 
     @app.post("/v1/chat/completions")
     def chat_completions(request: ChatCompletionRequest):
-        return get_service().chat_completion(
+        from fastapi.responses import StreamingResponse
+
+        payload = get_service().chat_completion(
             request.model,
             [message.model_dump() for message in request.messages],
             request.tools,
             request.metadata,
+        )
+        if not bool(request.stream):
+            return payload
+        lines = chat_stream_chunks(payload)
+
+        def events():
+            for line in lines:
+                yield line + "\n\n"
+
+        return StreamingResponse(
+            events(),
+            media_type="text/event-stream",
+            headers={"cache-control": "no-cache", "x-accel-buffering": "no"},
         )
 
     @app.get("/v1/holarch/receipt")

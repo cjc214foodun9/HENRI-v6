@@ -1,0 +1,348 @@
+{
+  "stage": "Z1",
+  "run": {
+    "exit_code": 0,
+    "wall_seconds": 0.0,
+    "stderr_tail": ""
+  },
+  "config": {
+    "dim": 2048,
+    "d_slot": 512,
+    "freq_bands": 32,
+    "photonic_layers": 4,
+    "pointer_offsets": [
+      7,
+      24
+    ]
+  },
+  "pinned_split": {
+    "digest": "8f270f34e8f35ef84e415d076bea20a7bc15edff337f89ed72ad607447ba8554",
+    "files": 38,
+    "train_tokens": 758656,
+    "val_tokens": 84086,
+    "documents": 38,
+    "verification": {
+      "digest_recorded": "8f270f34e8f35ef84e415d076bea20a7bc15edff337f89ed72ad607447ba8554",
+      "digest_current": "8f270f34e8f35ef84e415d076bea20a7bc15edff337f89ed72ad607447ba8554",
+      "invariant": true,
+      "mismatched_files": [],
+      "missing_files": [],
+      "added_files": [],
+      "live_corpus_digest_recorded": "ba86d3fbad37b946",
+      "live_corpus_digest_current": "ba86d3fbad37b946",
+      "live_corpus_moved": false,
+      "written": "receipts\\holarch\\pinned_lang_split.json"
+    },
+    "live_corpus_digest": "ba86d3fbad37b946"
+  },
+  "photonic_cartridge": {
+    "before_imprint": {
+      "ridge": 0.1,
+      "contexts": 600,
+      "slots": [
+        {
+          "slot": 0,
+          "contexts": 600,
+          "raw_port_cosine": 0.2671111464659026,
+          "aligned_port_cosine": 0.939855802368003,
+          "aligner_norm": 20.220777022046132,
+          "phase_displacement": 1.262509854162551
+        },
+        {
+          "slot": 1,
+          "contexts": 600,
+          "raw_port_cosine": 0.5078547009684999,
+          "aligned_port_cosine": 0.9770102433088613,
+          "aligner_norm": 13.394381498174662,
+          "phase_displacement": 1.194877322284138
+        },
+        {
+          "slot": 2,
+          "contexts": 600,
+          "raw_port_cosine": 0.16022995094839987,
+          "aligned_port_cosine": 0.9449387989186826,
+          "aligner_norm": 6.923373365854554,
+          "phase_displacement": 0.776881642048117
+        },
+        {
+          "slot": 3,
+          "contexts": 600,
+          "raw_port_cosine": 0.18996155427466396,
+          "aligned_port_cosine": 0.8979137926970119,
+          "aligner_norm": 11.253830974638392,
+          "phase_displacement": 0.6307178253255772
+        }
+      ],
+      "mean_raw_cosine": 0.2812893381643666,
+      "mean_aligned_cosine": 0.9399296593231397,
+      "mean_phase_displacement": 0.9662466609550959,
+      "checkpoint_bytes_touched": 0
+    },
+    "after_imprint": {
+      "ridge": 0.1,
+      "contexts": 600,
+      "slots": [
+        {
+          "slot": 0,
+          "contexts": 600,
+          "raw_port_cosine": 0.27842881057816543,
+          "aligned_port_cosine": 0.9398401119524347,
+          "aligner_norm": 20.214093306708595,
+          "phase_displacement": 0.6324083411374161
+        },
+        {
+          "slot": 1,
+          "contexts": 600,
+          "raw_port_cosine": 0.5188330639289453,
+          "aligned_port_cosine": 0.9770126450463568,
+          "aligner_norm": 13.394561611713387,
+          "phase_displacement": 0.35568407131217505
+        },
+        {
+          "slot": 2,
+          "contexts": 600,
+          "raw_port_cosine": 0.18317491038112416,
+          "aligned_port_cosine": 0.9448402639132072,
+          "aligner_norm": 6.922769947885662,
+          "phase_displacement": 1.8797156906116717
+        },
+        {
+          "slot": 3,
+          "contexts": 600,
+          "raw_port_cosine": 0.20392493287985364,
+          "aligned_port_cosine": 0.8979195168174824,
+          "aligner_norm": 11.253150250868776,
+          "phase_displacement": 0.7261745252720329
+        }
+      ],
+      "mean_raw_cosine": 0.29609042944202213,
+      "mean_aligned_cosine": 0.9399031344323703,
+      "mean_phase_displacement": 0.8984956570833239,
+      "checkpoint_bytes_touched": 0
+    },
+    "imprint_residuals": [
+      1.565114140510559,
+      1.6321344375610352,
+      1.6932244300842285,
+      1.5791699886322021,
+      1.5303772687911987,
+      1.6350561380386353,
+      1.614086627960205,
+      1.5271029472351074,
+      1.5039387941360474,
+      1.5619874000549316,
+      1.4703037738800049,
+      1.5316791534423828,
+      1.5153793096542358,
+      1.5625026226043701,
+      1.5620728731155396,
+      1.555182933807373,
+      1.6304216384887695,
+      1.5113381147384644,
+      1.6272276639938354,
+      1.4381171464920044,
+      1.5413519144058228,
+      1.4677213430404663,
+      1.5128741264343262,
+      1.4983386993408203,
+      1.4846214056015015,
+      1.5955334901809692,
+      1.471291184425354,
+      1.5253005027770996,
+      1.5353056192398071,
+      1.4641399383544922,
+      1.465225100517273,
+      1.4544475078582764,
+      1.5310863256454468,
+      1.4728381633758545,
+      1.4721794128417969,
+      1.503846287727356,
+      1.4330343008041382,
+      1.5045218467712402,
+      1.551175832748413,
+      1.5265661478042603,
+      1.4896421432495117,
+      1.5265558958053589,
+      1.5601823329925537,
+      1.570289134979248,
+      1.5302276611328125,
+      1.5250096321105957,
+      1.5020335912704468,
+      1.461991786956787,
+      1.4848705530166626,
+      1.4813276529312134,
+      1.528126835823059,
+      1.5462493896484375,
+      1.4304876327514648,
+      1.5917658805847168,
+      1.47142493724823,
+      1.5556650161743164,
+      1.489469289779663,
+      1.4723334312438965,
+      1.4893743991851807,
+      1.4538803100585938,
+      1.5022510290145874,
+      1.4903476238250732,
+      1.5274313688278198,
+      1.4503799676895142
+    ]
+  },
+  "wave_egress": {
+    "tokens": 5714,
+    "top1_wave_egress": 0.5987049352467624,
+    "bpc_wave_egress": 2.8983612643654357,
+    "perplexity_wave_egress": 7.455790200474783,
+    "top1_count_floor": 0.5582779138956948,
+    "bpc_count_floor": 3.119222897199147,
+    "unclamped_override_count": 640,
+    "override_wins": 301,
+    "override_losses": 74,
+    "override_net_win_delta": 227,
+    "sagnac_initial": 0.47291370176400455,
+    "sagnac_final": 0.4626450836371819,
+    "sagnac_curve": [
+      0.47291370176400455,
+      0.4679144874444443,
+      0.46467956383454395,
+      0.4630082581901342,
+      0.4626450836371819
+    ],
+    "sagnac_residual_reduced": true,
+    "fusion": {
+      "orders": 6,
+      "window": 512,
+      "tau_H": 0.5,
+      "tau_margin": 0.02,
+      "tau_sagnac": 0.92,
+      "max_order": 6
+    },
+    "photonic_contexts": 903,
+    "autograd_used": false,
+    "module": "henri/holarch/wave_egress.py"
+  },
+  "x2_baseline": {
+    "top1": 0.6006300315015751,
+    "bits_per_char": 2.894812290769193,
+    "net_overrides": 243,
+    "copy_recall": {
+      "hits": 743,
+      "positions": 1092,
+      "recall": 0.6804029304029304
+    },
+    "photonic_weight": 0.0,
+    "fit_updates": 2076
+  },
+  "pointer": {
+    "w_low": 0.0,
+    "w_high": 0.0,
+    "tau_h": 1.5,
+    "fusion": {
+      "selected": {
+        "tau_H": 1.5,
+        "w_low": 0.0,
+        "w_high": 0.0,
+        "nll": 1.2261763253247144,
+        "bits_per_char": 1.7689985038014178,
+        "top1": 0.7
+      },
+      "rows": 48,
+      "grid": {
+        "low": [
+          0.0,
+          0.05,
+          0.1
+        ],
+        "high": [
+          0.0,
+          0.1,
+          0.2,
+          0.3
+        ],
+        "tau": [
+          1.5,
+          2.0,
+          2.5,
+          3.0
+        ]
+      },
+      "zero_point_available": true
+    },
+    "inner_ce_with_pointer": 1.2261763253247144,
+    "copy_recall": {
+      "hits": 748,
+      "positions": 1092,
+      "recall": 0.684981684981685
+    },
+    "ablation_without_pointer": {
+      "top1": 0.5987049352467624,
+      "bits_per_char": 2.8983612643654357,
+      "net_overrides": 227
+    },
+    "contexts": 120
+  },
+  "rotor": {
+    "inner_nll_initial": 1.1050121753056283,
+    "inner_nll_final": 1.1050121753056283,
+    "inner_nll_gain": 0.0,
+    "displacement": 0.0,
+    "updates": 0,
+    "epochs": 8,
+    "bands": 32,
+    "modes": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "curve": [
+      1.1050121753056283
+    ],
+    "ablation_without_rotor": {
+      "top1": 0.5987049352467624,
+      "bits_per_char": 2.8983612643654357
+    },
+    "final_displacement": 0.0
+  },
+  "attribution": {
+    "pointer_delta_top1": 0.0,
+    "pointer_delta_bpc": 0.0,
+    "rotor_delta_top1": 0.0,
+    "rotor_delta_bpc": 0.0,
+    "baseline_delta_top1": -0.0019250962548127415,
+    "baseline_delta_bpc": 0.0035489735962426217
+  },
+  "failed_gates": [
+    "z1_w_high_positive",
+    "z1_pointer_improves_inner_ce",
+    "z1_rotor_displacement_gt_001",
+    "z1_rotor_ce_decrease",
+    "z1_top1_beats_x2",
+    "z1_bpc_beats_x2",
+    "z1_copy_recall_gain_015"
+  ],
+  "gate": {
+    "z1_runner_exit_zero": true,
+    "receipt_present": true,
+    "z1_pinned_split_invariant": true,
+    "z1_pinned_excludes_docs": true,
+    "z1_port_cosine_ge_080": true,
+    "z1_imprint_residual_reduced": true,
+    "z1_w_high_positive": false,
+    "z1_pointer_improves_inner_ce": false,
+    "z1_rotor_displacement_gt_001": false,
+    "z1_rotor_ce_decrease": false,
+    "z1_top1_beats_x2": false,
+    "z1_bpc_beats_x2": false,
+    "z1_copy_recall_gain_015": false,
+    "z1_autograd_unused": true,
+    "z1_held_out_tokens": true,
+    "passed": false
+  },
+  "wall_seconds": 0.0005348999984562397,
+  "evidence": "OBSERVED",
+  "passed": false,
+  "mode": "sealed-read"
+}

@@ -1,0 +1,135 @@
+{
+  "stage": "Z5",
+  "cuda": {
+    "status": "CUDA: BLOCKED",
+    "gpu_measurements": [],
+    "pnp": {
+      "platform": "Windows-11-10.0.26300-SP0",
+      "display_class_guid": "{4d36e968-e325-11ce-bfc1-08002be10318}",
+      "queried": true,
+      "devices": [
+        {
+          "name": "AMD Radeon(TM) Graphics",
+          "device_id": "PCI\\VEN_1002&DEV_13C0&SUBSYS_D0001458&REV_CB\\4&16012499&0&0041",
+          "status": "OK",
+          "service": "amduw23g-205305-f16b1d83",
+          "pnp_class": "Display",
+          "config_manager_error_code": 0,
+          "problem": "working"
+        },
+        {
+          "name": "AMD Radeon RX 9070 XT",
+          "device_id": "PCI\\VEN_1002&DEV_7550&SUBSYS_24241458&REV_C0\\6&17CA0BD2&0&00000009",
+          "status": "OK",
+          "service": "amduw23g-205306-a9c55ce7",
+          "pnp_class": "Display",
+          "config_manager_error_code": 0,
+          "problem": "working"
+        }
+      ],
+      "class_keys": [
+        {
+          "key": "0000",
+          "driver_desc": "AMD Radeon(TM) Graphics"
+        },
+        {
+          "key": "0001",
+          "driver_desc": "AMD Radeon(TM) Graphics"
+        },
+        {
+          "key": "0002",
+          "driver_desc": "AMD Radeon RX 9070 XT"
+        },
+        {
+          "key": "0003",
+          "driver_desc": "NVIDIA GeForce RTX 5070 Ti"
+        },
+        {
+          "key": "Configuration",
+          "driver_desc": ""
+        }
+      ],
+      "reason": "the NVIDIA driver class key is registered for NVIDIA GeForce RTX 5070 Ti but no NVIDIA PnP display device is enumerated: the adapter is absent from the bus, disabled in firmware, or was removed after a driver install, so nvidia-smi lists no device and torch cannot reach CUDA",
+      "exit_code": 0,
+      "nvidia_devices": [],
+      "nvidia_problem_codes": [],
+      "ghost_nvidia_driver_keys": [
+        {
+          "key": "0003",
+          "driver_desc": "NVIDIA GeForce RTX 5070 Ti"
+        }
+      ]
+    },
+    "root_cause": "nvidia-smi ran but listed no device"
+  },
+  "ledger": {
+    "t_cycle": true,
+    "u_cycle": true,
+    "v_cycle": true,
+    "w_cycle": true,
+    "x_cycle": true
+  },
+  "y_cycle": {
+    "passed": false,
+    "superseded": true,
+    "reason": "Cycle Y's Y1 subgate remains false; Z1 supersedes the Y1 organ with a D = 2048 measurement. y_cycle.json is retained as historical evidence and z_cycle.json is the current aggregate."
+  },
+  "pinned_split": {
+    "digest_recorded": "8f270f34e8f35ef84e415d076bea20a7bc15edff337f89ed72ad607447ba8554",
+    "digest_current": "8f270f34e8f35ef84e415d076bea20a7bc15edff337f89ed72ad607447ba8554",
+    "invariant": true,
+    "mismatched_files": [],
+    "missing_files": [],
+    "added_files": [],
+    "live_corpus_digest_recorded": "ba86d3fbad37b946",
+    "live_corpus_digest_current": "809c2a4f10cb975c",
+    "live_corpus_moved": true
+  },
+  "pytest": {
+    "exit_code": 0,
+    "failures": 0,
+    "wall_seconds": 331.7666384000331,
+    "stdout_tail": "is_repair.py: 1 warning\ntests/test_phase10_reason_channels.py: 2 warnings\ntests/test_phase10_structural_morphisms.py: 1 warning\ntests/test_phase11_tiebreak.py: 1 warning\ntests/test_phase5_cartridge.py: 5 warnings\ntests/test_phase6.py: 1 warning\ntests/test_phase7.py: 1 warning\ntests/test_phase8_operator_ingress.py: 1 warning\ntests/test_semantic_backbone.py: 1 warning\n  C:\\Users\\chan\\Desktop\\HENRI v6\\henri\\semantic_backbone.py:260: FutureWarning: The `get_sentence_embedding_dimension` method has been renamed to `get_embedding_dimension`.\n    self.dim_sem = int(self._model.get_sentence_embedding_dimension())\n\ntests/test_holarch_d1_d4.py::test_relaxation_lowers_the_lyapunov_energy_and_the_dark_energy\n  C:\\Users\\chan\\Desktop\\HENRI v6\\tests\\test_holarch_d1_d4.py:145: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.\n  Consider using tensor.detach() first. (Triggered internally at C:\\actions-runner\\_work\\pytorch\\pytorch\\pytorch\\torch\\csrc\\autograd\\generated\\python_variable_methods.cpp:837.)\n    assert float(energy_after.mean()) <= float(energy_before.mean()) + 1e-5\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n",
+    "stderr_tail": ""
+  },
+  "corpus_hygiene": {
+    "source": "r3_static_and_streaming_full_decile_language.json (sealed)",
+    "streaming_bits_per_char": 1.1660408493237004,
+    "static_bits_per_char": 1.223678623665999
+  },
+  "sidecar": {
+    "checked": 160,
+    "missing": [],
+    "mismatched": [],
+    "parity": 1.0
+  },
+  "secrets": {
+    "files": 160,
+    "leaks": [],
+    "leak_count": 0
+  },
+  "gate": {
+    "z5_cuda_path_recorded": true,
+    "z5_no_cpu_as_gpu": true,
+    "z5_pnp_diagnostic_recorded": true,
+    "z5_t_cycle_passed": true,
+    "z5_u_cycle_passed": true,
+    "z5_v_cycle_passed": true,
+    "z5_w_cycle_passed": true,
+    "z5_x_cycle_passed": true,
+    "z5_y_superseded_documented": true,
+    "z5_pinned_split_unmoved_by_section_41": true,
+    "z5_pytest_exit_zero": true,
+    "z5_pytest_zero_failures": true,
+    "z5_sidecar_parity_one": true,
+    "z5_r3_stream_bpc_le_122": true,
+    "z5_r3_static_bpc_le_142": true,
+    "z5_zero_credential_leaks": true,
+    "z5_docs_section_41": true,
+    "passed": true
+  },
+  "wall_seconds": 334.83857269992586,
+  "evidence": "OBSERVED",
+  "passed": true,
+  "mode": "fresh"
+}

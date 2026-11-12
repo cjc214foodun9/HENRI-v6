@@ -1,0 +1,2148 @@
+{
+  "stage": "Z3",
+  "title": "spatial ARC-style induction: four-slot toroidal wave encoding, D4 invariant router, CEGIS operator chains",
+  "node_budget": 200000,
+  "encoding": {
+    "dimension": 2048,
+    "slots": 4,
+    "slot_width": 512,
+    "colours": 10,
+    "basis": "fixed orthogonal toroidal Fourier basis per slot",
+    "colour_phase": "exp(2*pi*i*g*s/10) per colour and slot",
+    "cell_phase": "exp(2*pi*i*m*(s+1)/(4*H*W)) per cell and slot",
+    "grids": 206,
+    "exact_roundtrips": 206,
+    "max_cell_error": 0,
+    "max_phase_residual": 1.1710090180710446e-15,
+    "max_isometry_error": 2.7465400791133423e-15,
+    "max_gram_error": 8.939427847621783e-16,
+    "frame_gram": {
+      "4x6": {
+        "frame_rows": 96,
+        "gram_max_error": 7.122021712289982e-16
+      },
+      "5x7": {
+        "frame_rows": 140,
+        "gram_max_error": 8.939427847621783e-16
+      }
+    },
+    "invertible": true,
+    "shapes_tested": 54
+  },
+  "router": {
+    "sketches": [
+      "dihedral",
+      "toroidal_shift",
+      "bounded_shift",
+      "colour_map",
+      "crop_bbox",
+      "tile",
+      "scale",
+      "interior_flood_fill",
+      "mask_by_colour",
+      "symmetry_completion",
+      "constant_fill"
+    ],
+    "sketch_labels": {
+      "dihedral": "D4 dihedral transform",
+      "toroidal_shift": "toroidal shift (wrap)",
+      "bounded_shift": "bounded shift (constant fill)",
+      "colour_map": "colour permutation / mapping",
+      "crop_bbox": "bounding-box crop",
+      "tile": "tile / replicate",
+      "scale": "nearest-neighbour scale",
+      "interior_flood_fill": "interior flood fill",
+      "mask_by_colour": "mask by colour",
+      "symmetry_completion": "symmetry completion",
+      "constant_fill": "constant fill"
+    },
+    "components": [
+      "shape_and_bounding_box_delta",
+      "d4_dihedral_cross_spectral_resonance",
+      "fourier_translation_phase_peak",
+      "colour_mass_and_euler_containment"
+    ],
+    "d4_elements": [
+      "identity",
+      "rot90",
+      "rot180",
+      "rot270",
+      "reflect_h",
+      "reflect_v",
+      "reflect_diag",
+      "reflect_antidiag"
+    ],
+    "d4_evidence": [
+      {
+        "name": "z3_rot90_ccw",
+        "authored_element": "rot90",
+        "router_best_element": "rot90",
+        "router_best_mean": 1.0,
+        "identified": true
+      },
+      {
+        "name": "z3_rot180_rect",
+        "authored_element": "rot180",
+        "router_best_element": "rot180",
+        "router_best_mean": 1.0,
+        "identified": true
+      },
+      {
+        "name": "z3_reflect_h",
+        "authored_element": "reflect_h",
+        "router_best_element": "reflect_h",
+        "router_best_mean": 1.0,
+        "identified": true
+      },
+      {
+        "name": "z3_reflect_diag",
+        "authored_element": "reflect_diag",
+        "router_best_element": "reflect_diag",
+        "router_best_mean": 1.0,
+        "identified": true
+      }
+    ],
+    "d4_identified": 4,
+    "selftest": {
+      "declared_shift": [
+        2,
+        3
+      ],
+      "recovered_shift": [
+        2,
+        3
+      ],
+      "shift_exact": true,
+      "shift_height": 1.0,
+      "declared_d4": "rot90",
+      "recovered_d4": "rot90",
+      "d4_exact": true,
+      "d4_resonance": {
+        "identity": 0.237938922,
+        "rot90": 1.0,
+        "rot180": 0.237938922,
+        "rot270": 0.139754249,
+        "reflect_h": 0.336372876,
+        "reflect_v": 0.134118627,
+        "reflect_diag": 0.365881373,
+        "reflect_antidiag": 0.154508497
+      },
+      "elements": [
+        "identity",
+        "rot90",
+        "rot180",
+        "rot270",
+        "reflect_h",
+        "reflect_v",
+        "reflect_diag",
+        "reflect_antidiag"
+      ]
+    },
+    "ranking_applied": true,
+    "signature_invariant_to_tests": true,
+    "examples_only": true
+  },
+  "tasks": [
+    {
+      "name": "z3_rot90_ccw",
+      "authored": "dihedral(rot90)",
+      "authored_family": "dihedral",
+      "status": "INDUCED",
+      "reason": "",
+      "mechanism": "dihedral(1)",
+      "families": [
+        "dihedral"
+      ],
+      "stages": 1,
+      "nodes": 4,
+      "repulsors": 1,
+      "pruned_duplicates": 0,
+      "train_exact": true,
+      "train_total": 3,
+      "held_out_exact": 3,
+      "held_out_total": 3,
+      "generalized": true,
+      "held_out_shapes": [
+        {
+          "input": [
+            6,
+            11
+          ],
+          "expected": [
+            11,
+            6
+          ],
+          "predicted": [
+            11,
+            6
+          ],
+          "exact": true,
+          "wave_exact": true
+        },
+        {
+          "input": [
+            10,
+            7
+          ],
+          "expected": [
+            7,
+            10
+          ],
+          "predicted": [
+            7,
+            10
+          ],
+          "exact": true,
+          "wave_exact": true
+        },
+        {
+          "input": [
+            6,
+            7
+          ],
+          "expected": [
+            7,
+            6
+          ],
+          "predicted": [
+            7,
+            6
+          ],
+          "exact": true,
+          "wave_exact": true
+        }
+      ],
+      "authored_family_induced": true,
+      "held_out_shapes_unseen": true,
+      "train_examples": 3,
+      "test_examples": 3,
+      "router": {
+        "signature_digest": "a9ba5731c9301289ee3a88a759ff244b75c5048eda55c501f77f753595e0230d",
+        "ranked": [
+          "dihedral",
+          "crop_bbox",
+          "colour_map",
+          "toroidal_shift",
+          "bounded_shift",
+          "mask_by_colour",
+          "tile",
+          "scale",
+          "interior_flood_fill",
+          "symmetry_completion",
+          "constant_fill"
+        ],
+        "chosen_rank": 0,
+        "candidate_families": [
+          "dihedral",
+          "crop_bbox",
+          "colour_map",
+          "mask_by_colour",
+          "tile",
+          "scale",
+          "interior_flood_fill",
+          "symmetry_completion",
+          "constant_fill"
+        ],
+        "d4_best_element": "rot90",
+        "d4_best_mean": 1.0,
+        "translation_peak": [
+          -1,
+          -1
+        ],
+        "translation_height": 0.0,
+        "shape_preserved": false,
+        "mass_preserved": true,
+        "examples_used": 3,
+        "tests_consulted": false
+      }
+    },
+    {
+      "name": "z3_rot180_rect",
+      "authored": "dihedral(rot180)",
+      "authored_family": "dihedral",
+      "status": "INDUCED",
+      "reason": "",
+      "mechanism": "dihedral(2)",
+      "families": [
+        "dihedral"
+      ],
+      "stages": 1,
+      "nodes": 5,
+      "repulsors": 2,
+      "pruned_duplicates": 0,
+      "train_exact": true,
+      "train_total": 3,
+      "held_out_exact": 3,
+      "held_out_total": 3,
+      "generalized": true,
+      "held_out_shapes": [
+        {
+          "input": [
+            6,
+            8
+          ],
+          "expected": [
+            6,
+            8
+          ],
+          "predicted": [
+            6,
+            8
+          ],
+          "exact": true,
+          "wave_exact": true
+        },
+        {
+          "input": [
+            11,
+            7
+          ],
+          "expected": [
+            11,
+            7
+          ],
+          "predicted": [
+            11,
+            7
+          ],
+          "exact": true,
+          "wave_exact": true
+        },
+        {
+          "input": [
+            6,
+            9
+          ],
+          "expected": [
+            6,
+            9
+          ],
+          "predicted": [
+            6,
+            9
+          ],
+          "exact": true,
+          "wave_exact": true
+        }
+      ],
+      "authored_family_induced": true,
+      "held_out_shapes_unseen": true,
+      "train_examples": 3,
+      "test_examples": 3,
+      "router": {
+        "signature_digest": "fc0b3376f189b4c1d30e4f2301362280d36ec60cff67ea00af4757e997b0a6ad",
+        "ranked": [
+          "dihedral",
+          "colour_map",
+          "toroidal_shift",
+          "mask_by_colour",
+          "bounded_shift",
+          "symmetry_completion",
+          "scale",
+          "interior_flood_fill",
+          "crop_bbox",
+          "tile",
+          "constant_fill"
+        ],
+        "chosen_rank": 0,
+        "candidate_families": [
+          "dihedral",
+          "colour_map",
+          "toroidal_shift",
+          "mask_by_colour",
+          "bounded_shift",
+          "symmetry_completion",
+          "scale",
+          "interior_flood_fill",
+          "crop_bbox",
+          "tile",
+          "constant_fill"
+        ],
+        "d4_best_element": "rot180",
+        "d4_best_mean": 1.0,
+        "translation_peak": [
+          0,
+          6
+        ],
+        "translation_height": 0.786329,
+        "shape_preserved": true,
+        "mass_preserved": true,
+        "examples_used": 3,
+        "tests_consulted": false
+      }
+    },
+    {
+      "name": "z3_reflect_h",
+      "authored": "dihedral(reflect_h)",
+      "authored_family": "dihedral",
+      "status": "INDUCED",
+      "reason": "",
+      "mechanism": "dihedral(4)",
+      "families": [
+        "dihedral"
+      ],
+      "stages": 1,
+      "nodes": 7,
+      "repulsors": 4,
+      "pruned_duplicates": 0,
+      "train_exact": true,
+      "train_total": 3,
+      "held_out_exact": 3,
+      "held_out_total": 3,
+      "generalized": true,
+      "held_out_shapes": [
+        {
+          "input": [
+            6,
+            7
+          ],
+          "expected": [
+            6,
+            7
+          ],
+          "predicted": [
+            6,
+            7
+          ],
+          "exact": true,
+          "wave_exact": true
+        },
+        {
+          "input": [
+            12,
+            10
+          ],
+          "expected": [
+            12,
+            10
+          ],
+          "predicted": [
+            12,
+            10
+          ],
+          "exact": true,
+          "wave_exact": true
+        },
+        {
+          "input": [
+            6,
+            12
+          ],
+          "expected": [
+            6,
+            12
+          ],
+          "predicted": [
+            6,
+            12
+          ],
+          "exact": true,
+          "wave_exact": true
+        }
+      ],
+      "authored_family_induced": true,
+      "held_out_shapes_unseen": true,
+      "train_examples": 3,
+      "test_examples": 3,
+      "router": {
+        "signature_digest": "7b923e1b399208f5ef094e3b8cfa91f343590b649733a02b2383aa28a0d097ef",
+        "ranked": [
+          "dihedral",
+          "colour_map",
+          "interior_flood_fill",
+          "toroidal_shift",
+          "mask_by_colour",
+          "bounded_shift",
+          "symmetry_completion",
+          "scale",
+          "crop_bbox",
+          "tile",
+          "constant_fill"
+        ],
+        "chosen_rank": 0,
+        "candidate_families": [
+          "dihedral",
+          "colour_map",
+          "interior_flood_fill",
+          "toroidal_shift",
+          "mask_by_colour",
+          "bounded_shift",
+          "symmetry_completion",
+          "scale",
+          "crop_bbox",
+          "tile",
+          "constant_fill"
+        ],
+        "d4_best_element": "reflect_h",
+        "d4_best_mean": 1.0,
+        "translation_peak": [
+          0,
+          4
+        ],
+        "translation_height": 0.798358,
+        "shape_preserved": true,
+        "mass_preserved": true,
+        "examples_used": 3,
+        "tests_consulted": false
+      }
+    },
+    {
+      "name": "z3_reflect_diag",
+      "authored": "dihedral(reflect_diag)",
+      "authored_family": "dihedral",
+      "status": "INDUCED",
+      "reason": "",
+      "mechanism": "dihedral(6)",
+      "families": [
+        "dihedral"
+      ],
+      "stages": 1,
+      "nodes": 9,
+      "repulsors": 6,
+      "pruned_duplicates": 0,
+      "train_exact": true,
+      "train_total": 3,
+      "held_out_exact": 3,
+      "held_out_total": 3,
+      "generalized": true,
+      "held_out_shapes": [
+        {
+          "input": [
+            6,
+            11
+          ],
+          "expected": [
+            11,
+            6
+          ],
+          "predicted": [
+            11,
+            6
+          ],
+          "exact": true,
+          "wave_exact": true
+        },
+        {
+          "input": [
+            10,
+            7
+          ],
+          "expected": [
+            7,
+            10
+          ],
+          "predicted": [
+            7,
+            10
+          ],
+          "exact": true,
+          "wave_exact": true
+        },
+        {
+          "input": [
+            12,
+            9
+          ],
+          "expected": [
+            9,
+            12
+          ],
+          "predicted": [
+            9,
+            12
+          ],
+          "exact": true,
+          "wave_exact": true
+        }
+      ],
+      "authored_family_induced": true,
+      "held_out_shapes_unseen": true,
+      "train_examples": 3,
+      "test_examples": 3,
+      "router": {
+        "signature_digest": "44c0de15e53946c21a852c4cca966ca11b3228ebe9393661460a00af119629f1",
+        "ranked": [
+          "dihedral",
+          "colour_map",
+          "toroidal_shift",
+          "bounded_shift",
+          "crop_bbox",
+          "mask_by_colour",
+          "tile",
+          "scale",
+          "interior_flood_fill",
+          "symmetry_completion",
+          "constant_fill"
+        ],
+        "chosen_rank": 0,
+        "candidate_families": [
+          "dihedral",
+          "colour_map",
+          "crop_bbox",
+          "mask_by_colour",
+          "tile",
+          "scale",
+          "interior_flood_fill",
+          "symmetry_completion",
+          "constant_fill"
+        ],
+        "d4_best_element": "reflect_diag",
+        "d4_best_mean": 1.0,
+        "translation_peak": [
+          -1,
+          -1
+        ],
+        "translation_height": 0.0,
+        "shape_preserved": false,
+        "mass_preserved": true,
+        "examples_used": 3,
+        "tests_consulted": false
+      }
+    },
+    {
+      "name": "z3_toroidal_shift_1_2",
+      "authored": "toroidal_shift(1,2)",
+      "authored_family": "toroidal_shift",
+      "status": "INDUCED",
+      "reason": "",
+      "mechanism": "toroidal_shift(1,2)",
+      "families": [
+        "toroidal_shift"
+      ],
+      "stages": 1,
+      "nodes": 3,
+      "repulsors": 0,
+      "pruned_duplicates": 0,
+      "train_exact": true,
+      "train_total": 3,
+      "held_out_exact": 3,
+      "held_out_total": 3,
+      "generalized": true,
+      "held_out_shapes": [
+        {
+          "input": [
+            6,
+            11
+          ],
+          "expected": [
+            6,
+            11
+          ],
+          "predicted": [
+            6,
+            11
+          ],
+          "exact": true,
+          "wave_exact": true
+        },
+        {
+          "input": [
+            10,
+            8
+          ],
+          "expected": [
+            10,
+            8
+          ],
+          "predicted": [
+            10,
+            8
+          ],
+          "exact": true,
+          "wave_exact": true
+        },
+        {
+          "input": [
+            7,
+            12
+          ],
+          "expected": [
+            7,
+            12
+          ],
+          "predicted": [
+            7,
+            12
+          ],
+          "exact": true,
+          "wave_exact": true
+        }
+      ],
+      "authored_family_induced": true,
+      "held_out_shapes_unseen": true,
+      "train_examples": 3,
+      "test_examples": 3,
+      "router": {
+        "signature_digest": "e879d16b0799599997e1ee3969e605617720d3ce836506a7f57a46587b84dd5d",
+        "ranked": [
+          "toroidal_shift",
+          "colour_map",
+          "bounded_shift",
+          "dihedral",
+          "mask_by_colour",
+          "symmetry_completion",
+          "scale",
+          "interior_flood_fill",
+          "crop_bbox",
+          "tile",
+          "constant_fill"
+        ],
+        "chosen_rank": 0,
+        "candidate_families": [
+          "toroidal_shift",
+          "colour_map",
+          "bounded_shift",
+          "dihedral",
+          "mask_by_colour",
+          "symmetry_completion",
+          "scale",
+          "interior_flood_fill",
+          "crop_bbox",
+          "tile",
+          "constant_fill"
+        ],
+        "d4_best_element": "identity",
+        "d4_best_mean": 0.651644,
+        "translation_peak": [
+          1,
+          2
+        ],
+        "translation_height": 1.0,
+        "shape_preserved": true,
+        "mass_preserved": true,
+        "examples_used": 3,
+        "tests_consulted": false
+      }
+    },
+    {
+      "name": "z3_bounded_shift_2_1",
+      "authored": "bounded_shift(2,1,0)",
+      "authored_family": "bounded_shift",
+      "status": "INDUCED",
+      "reason": "",
+      "mechanism": "bounded_shift(2,1,0)",
+      "families": [
+        "bounded_shift"
+      ],
+      "stages": 1,
+      "nodes": 17,
+      "repulsors": 14,
+      "pruned_duplicates": 0,
+      "train_exact": true,
+      "train_total": 3,
+      "held_out_exact": 3,
+      "held_out_total": 3,
+      "generalized": true,
+      "held_out_shapes": [
+        {
+          "input": [
+            6,
+            7
+          ],
+          "expected": [
+            6,
+            7
+          ],
+          "predicted": [
+            6,
+            7
+          ],
+          "exact": true,
+          "wave_exact": true
+        },
+        {
+          "input": [
+            10,
+            12
+          ],
+          "expected": [
+            10,
+            12
+          ],
+          "predicted": [
+            10,
+            12
+          ],
+          "exact": true,
+          "wave_exact": true
+        },
+        {
+          "input": [
+            11,
+            6
+          ],
+          "expected": [
+            11,
+            6
+          ],
+          "predicted": [
+            11,
+            6
+          ],
+          "exact": true,
+          "wave_exact": true
+        }
+      ],
+      "authored_family_induced": true,
+      "held_out_shapes_unseen": true,
+      "train_examples": 3,
+      "test_examples": 3,
+      "router": {
+        "signature_digest": "93c28762b260b2527fd31bb0f204bbc4cbeb2428058020d2629c80bc601677a3",
+        "ranked": [
+          "mask_by_colour",
+          "colour_map",
+          "toroidal_shift",
+          "bounded_shift",
+          "dihedral",
+          "symmetry_completion",
+          "crop_bbox",
+          "scale",
+          "interior_flood_fill",
+          "tile",
+          "constant_fill"
+        ],
+        "chosen_rank": 3,
+        "candidate_families": [
+          "mask_by_colour",
+          "colour_map",
+          "toroidal_shift",
+          "bounded_shift",
+          "dihedral",
+          "symmetry_completion",
+          "crop_bbox",
+          "scale",
+          "interior_flood_fill",
+          "tile",
+          "constant_fill"
+        ],
+        "d4_best_element": "identity",
+        "d4_best_mean": 0.506882,
+        "translation_peak": [
+          2,
+          1
+        ],
+        "translation_height": 0.819256,
+        "shape_preserved": true,
+        "mass_preserved": false,
+        "examples_used": 3,
+        "tests_consulted": false
+      }
+    },
+    {
+      "name": "z3_colour_swap_1_2",
+      "authored": "colour_map(1<->2)",
+      "authored_family": "colour_map",
+      "status": "INDUCED",
+      "reason": "",
+      "mechanism": "colour_map(0,2,1,3,4,5,6,7,8,9)",
+      "families": [
+        "colour_map"
+      ],
+      "stages": 1,
+      "nodes": 41,
+      "repulsors": 38,
+      "pruned_duplicates": 0,
+      "train_exact": true,
+      "train_total": 3,
+      "held_out_exact": 3,
+      "held_out_total": 3,
+      "generalized": true,
+      "held_out_shapes": [
+        {
+          "input": [
+            6,
+            11
+          ],
+          "expected": [
+            6,
+            11
+          ],
+          "predicted": [
+            6,
+            11
+          ],
+          "exact": true,
+          "wave_exact": true
+        },
+        {
+          "input": [
+            9,
+            12
+          ],
+          "expected": [
+            9,
+            12
+          ],
+          "predicted": [
+            9,
+            12
+          ],
+          "exact": true,
+          "wave_exact": true
+        },
+        {
+          "input": [
+            11,
+            7
+          ],
+          "expected": [
+            11,
+            7
+          ],
+          "predicted": [
+            11,
+            7
+          ],
+          "exact": true,
+          "wave_exact": true
+        }
+      ],
+      "authored_family_induced": true,
+      "held_out_shapes_unseen": true,
+      "train_examples": 3,
+      "test_examples": 3,
+      "router": {
+        "signature_digest": "2d6bb666d22919e4694ac6655a1683d8e6b5fc6bd3126331bd4615488bf77dce",
+        "ranked": [
+          "toroidal_shift",
+          "mask_by_colour",
+          "bounded_shift",
+          "colour_map",
+          "interior_flood_fill",
+          "dihedral",
+          "symmetry_completion",
+          "scale",
+          "crop_bbox",
+          "tile",
+          "constant_fill"
+        ],
+        "chosen_rank": 3,
+        "candidate_families": [
+          "toroidal_shift",
+          "mask_by_colour",
+          "bounded_shift",
+          "colour_map",
+          "interior_flood_fill",
+          "dihedral",
+          "symmetry_completion",
+          "scale",
+          "crop_bbox",
+          "tile",
+          "constant_fill"
+        ],
+        "d4_best_element": "identity",
+        "d4_best_mean": 0.950671,
+        "translation_peak": [
+          0,
+          0
+        ],
+        "translation_height": 0.950671,
+        "shape_preserved": true,
+        "mass_preserved": false,
+        "examples_used": 3,
+        "tests_consulted": false
+      }
+    },
+    {
+      "name": "z3_colour_cycle_123",
+      "authored": "colour_map(1->2->3->1)",
+      "authored_family": "colour_map",
+      "status": "INDUCED",
+      "reason": "",
+      "mechanism": "colour_map(0,2,3,1,4,5,6,7,8,9)",
+      "families": [
+        "colour_map"
+      ],
+      "stages": 1,
+      "nodes": 41,
+      "repulsors": 38,
+      "pruned_duplicates": 0,
+      "train_exact": true,
+      "train_total": 3,
+      "held_out_exact": 3,
+      "held_out_total": 3,
+      "generalized": true,
+      "held_out_shapes": [
+        {
+          "input": [
+            6,
+            7
+          ],
+          "expected": [
+            6,
+            7
+          ],
+          "predicted": [
+            6,
+            7
+          ],
+          "exact": true,
+          "wave_exact": true
+        },
+        {
+          "input": [
+            11,
+            8
+          ],
+          "expected": [
+            11,
+            8
+          ],
+          "predicted": [
+            11,
+            8
+          ],
+          "exact": true,
+          "wave_exact": true
+        },
+        {
+          "input": [
+            12,
+            10
+          ],
+          "expected": [
+            12,
+            10
+          ],
+          "predicted": [
+            12,
+            10
+          ],
+          "exact": true,
+          "wave_exact": true
+        }
+      ],
+      "authored_family_induced": true,
+      "held_out_shapes_unseen": true,
+      "train_examples": 3,
+      "test_examples": 3,
+      "router": {
+        "signature_digest": "74e326e45b53519bd4b355199636fab2144310fb4d53a9a5c5236b5334da4066",
+        "ranked": [
+          "toroidal_shift",
+          "mask_by_colour",
+          "bounded_shift",
+          "colour_map",
+          "interior_flood_fill",
+          "dihedral",
+          "symmetry_completion",
+          "scale",
+          "crop_bbox",
+          "tile",
+          "constant_fill"
+        ],
+        "chosen_rank": 3,
+        "candidate_families": [
+          "toroidal_shift",
+          "mask_by_colour",
+          "bounded_shift",
+          "colour_map",
+          "interior_flood_fill",
+          "dihedral",
+          "symmetry_completion",
+          "scale",
+          "crop_bbox",
+          "tile",
+          "constant_fill"
+        ],
+        "d4_best_element": "identity",
+        "d4_best_mean": 0.883073,
+        "translation_peak": [
+          0,
+          0
+        ],
+        "translation_height": 0.883073,
+        "shape_preserved": true,
+        "mass_preserved": false,
+        "examples_used": 3,
+        "tests_consulted": false
+      }
+    },
+    {
+      "name": "z3_crop_bbox",
+      "authored": "crop_bbox()",
+      "authored_family": "crop_bbox",
+      "status": "INDUCED",
+      "reason": "",
+      "mechanism": "crop_bbox",
+      "families": [
+        "crop_bbox"
+      ],
+      "stages": 1,
+      "nodes": 16,
+      "repulsors": 13,
+      "pruned_duplicates": 0,
+      "train_exact": true,
+      "train_total": 3,
+      "held_out_exact": 3,
+      "held_out_total": 3,
+      "generalized": true,
+      "held_out_shapes": [
+        {
+          "input": [
+            6,
+            7
+          ],
+          "expected": [
+            1,
+            2
+          ],
+          "predicted": [
+            1,
+            2
+          ],
+          "exact": true,
+          "wave_exact": true
+        },
+        {
+          "input": [
+            10,
+            9
+          ],
+          "expected": [
+            7,
+            6
+          ],
+          "predicted": [
+            7,
+            6
+          ],
+          "exact": true,
+          "wave_exact": true
+        },
+        {
+          "input": [
+            11,
+            13
+          ],
+          "expected": [
+            7,
+            10
+          ],
+          "predicted": [
+            7,
+            10
+          ],
+          "exact": true,
+          "wave_exact": true
+        }
+      ],
+      "authored_family_induced": true,
+      "held_out_shapes_unseen": true,
+      "train_examples": 3,
+      "test_examples": 3,
+      "router": {
+        "signature_digest": "bb27625bb5837d8f4ae93a837f13bb88045aa490c3f78163409add1e3b10dbe9",
+        "ranked": [
+          "colour_map",
+          "dihedral",
+          "toroidal_shift",
+          "bounded_shift",
+          "crop_bbox",
+          "tile",
+          "scale",
+          "interior_flood_fill",
+          "mask_by_colour",
+          "symmetry_completion",
+          "constant_fill"
+        ],
+        "chosen_rank": 4,
+        "candidate_families": [
+          "colour_map",
+          "dihedral",
+          "crop_bbox",
+          "tile",
+          "scale",
+          "interior_flood_fill",
+          "mask_by_colour",
+          "symmetry_completion",
+          "constant_fill"
+        ],
+        "d4_best_element": "identity",
+        "d4_best_mean": 0.0,
+        "translation_peak": [
+          -1,
+          -1
+        ],
+        "translation_height": 0.0,
+        "shape_preserved": false,
+        "mass_preserved": false,
+        "examples_used": 3,
+        "tests_consulted": false
+      }
+    },
+    {
+      "name": "z3_tile_2x2",
+      "authored": "tile(2,2)",
+      "authored_family": "tile",
+      "status": "INDUCED",
+      "reason": "",
+      "mechanism": "tile(2,2)",
+      "families": [
+        "tile"
+      ],
+      "stages": 1,
+      "nodes": 5,
+      "repulsors": 2,
+      "pruned_duplicates": 0,
+      "train_exact": true,
+      "train_total": 3,
+      "held_out_exact": 3,
+      "held_out_total": 3,
+      "generalized": true,
+      "held_out_shapes": [
+        {
+          "input": [
+            6,
+            9
+          ],
+          "expected": [
+            12,
+            18
+          ],
+          "predicted": [
+            12,
+            18
+          ],
+          "exact": true,
+          "wave_exact": true
+        },
+        {
+          "input": [
+            10,
+            8
+          ],
+          "expected": [
+            20,
+            16
+          ],
+          "predicted": [
+            20,
+            16
+          ],
+          "exact": true,
+          "wave_exact": true
+        },
+        {
+          "input": [
+            9,
+            6
+          ],
+          "expected": [
+            18,
+            12
+          ],
+          "predicted": [
+            18,
+            12
+          ],
+          "exact": true,
+          "wave_exact": true
+        }
+      ],
+      "authored_family_induced": true,
+      "held_out_shapes_unseen": true,
+      "train_examples": 3,
+      "test_examples": 3,
+      "router": {
+        "signature_digest": "d1564f922490706cd3cffd44d2db1f167dcf361d4a2da5eef613cca30d8b6d4d",
+        "ranked": [
+          "scale",
+          "tile",
+          "colour_map",
+          "interior_flood_fill",
+          "dihedral",
+          "toroidal_shift",
+          "bounded_shift",
+          "crop_bbox",
+          "mask_by_colour",
+          "symmetry_completion",
+          "constant_fill"
+        ],
+        "chosen_rank": 1,
+        "candidate_families": [
+          "scale",
+          "tile",
+          "colour_map",
+          "interior_flood_fill",
+          "dihedral",
+          "crop_bbox",
+          "mask_by_colour",
+          "symmetry_completion",
+          "constant_fill"
+        ],
+        "d4_best_element": "identity",
+        "d4_best_mean": 0.0,
+        "translation_peak": [
+          -1,
+          -1
+        ],
+        "translation_height": 0.0,
+        "shape_preserved": false,
+        "mass_preserved": false,
+        "examples_used": 3,
+        "tests_consulted": false
+      }
+    },
+    {
+      "name": "z3_scale_2",
+      "authored": "scale(2)",
+      "authored_family": "scale",
+      "status": "INDUCED",
+      "reason": "",
+      "mechanism": "scale(2)",
+      "families": [
+        "scale"
+      ],
+      "stages": 1,
+      "nodes": 3,
+      "repulsors": 0,
+      "pruned_duplicates": 0,
+      "train_exact": true,
+      "train_total": 3,
+      "held_out_exact": 3,
+      "held_out_total": 3,
+      "generalized": true,
+      "held_out_shapes": [
+        {
+          "input": [
+            6,
+            10
+          ],
+          "expected": [
+            12,
+            20
+          ],
+          "predicted": [
+            12,
+            20
+          ],
+          "exact": true,
+          "wave_exact": true
+        },
+        {
+          "input": [
+            9,
+            7
+          ],
+          "expected": [
+            18,
+            14
+          ],
+          "predicted": [
+            18,
+            14
+          ],
+          "exact": true,
+          "wave_exact": true
+        },
+        {
+          "input": [
+            11,
+            8
+          ],
+          "expected": [
+            22,
+            16
+          ],
+          "predicted": [
+            22,
+            16
+          ],
+          "exact": true,
+          "wave_exact": true
+        }
+      ],
+      "authored_family_induced": true,
+      "held_out_shapes_unseen": true,
+      "train_examples": 3,
+      "test_examples": 3,
+      "router": {
+        "signature_digest": "5047d1dd28a1f46c4f1f553b238bd3d572b51b24741d42c6770e6d9f4dc9363c",
+        "ranked": [
+          "scale",
+          "tile",
+          "colour_map",
+          "interior_flood_fill",
+          "dihedral",
+          "toroidal_shift",
+          "bounded_shift",
+          "crop_bbox",
+          "mask_by_colour",
+          "symmetry_completion",
+          "constant_fill"
+        ],
+        "chosen_rank": 0,
+        "candidate_families": [
+          "scale",
+          "tile",
+          "colour_map",
+          "interior_flood_fill",
+          "dihedral",
+          "crop_bbox",
+          "mask_by_colour",
+          "symmetry_completion",
+          "constant_fill"
+        ],
+        "d4_best_element": "identity",
+        "d4_best_mean": 0.0,
+        "translation_peak": [
+          -1,
+          -1
+        ],
+        "translation_height": 0.0,
+        "shape_preserved": false,
+        "mass_preserved": false,
+        "examples_used": 3,
+        "tests_consulted": false
+      }
+    },
+    {
+      "name": "z3_interior_fill_3",
+      "authored": "interior_flood_fill(3)",
+      "authored_family": "interior_flood_fill",
+      "status": "INDUCED",
+      "reason": "",
+      "mechanism": "interior_flood_fill(3)",
+      "families": [
+        "interior_flood_fill"
+      ],
+      "stages": 1,
+      "nodes": 5,
+      "repulsors": 2,
+      "pruned_duplicates": 0,
+      "train_exact": true,
+      "train_total": 3,
+      "held_out_exact": 3,
+      "held_out_total": 3,
+      "generalized": true,
+      "held_out_shapes": [
+        {
+          "input": [
+            6,
+            10
+          ],
+          "expected": [
+            6,
+            10
+          ],
+          "predicted": [
+            6,
+            10
+          ],
+          "exact": true,
+          "wave_exact": true
+        },
+        {
+          "input": [
+            10,
+            9
+          ],
+          "expected": [
+            10,
+            9
+          ],
+          "predicted": [
+            10,
+            9
+          ],
+          "exact": true,
+          "wave_exact": true
+        },
+        {
+          "input": [
+            12,
+            12
+          ],
+          "expected": [
+            12,
+            12
+          ],
+          "predicted": [
+            12,
+            12
+          ],
+          "exact": true,
+          "wave_exact": true
+        }
+      ],
+      "authored_family_induced": true,
+      "held_out_shapes_unseen": true,
+      "train_examples": 3,
+      "test_examples": 3,
+      "router": {
+        "signature_digest": "f541e06331a3f1fd34c1767364a391bcdc55dbe9be41c6ffc4be41562ac9ae77",
+        "ranked": [
+          "interior_flood_fill",
+          "toroidal_shift",
+          "bounded_shift",
+          "dihedral",
+          "colour_map",
+          "mask_by_colour",
+          "symmetry_completion",
+          "scale",
+          "crop_bbox",
+          "tile",
+          "constant_fill"
+        ],
+        "chosen_rank": 0,
+        "candidate_families": [
+          "interior_flood_fill",
+          "toroidal_shift",
+          "bounded_shift",
+          "dihedral",
+          "colour_map",
+          "mask_by_colour",
+          "symmetry_completion",
+          "scale",
+          "crop_bbox",
+          "tile",
+          "constant_fill"
+        ],
+        "d4_best_element": "identity",
+        "d4_best_mean": 0.887059,
+        "translation_peak": [
+          0,
+          0
+        ],
+        "translation_height": 0.887059,
+        "shape_preserved": true,
+        "mass_preserved": false,
+        "examples_used": 3,
+        "tests_consulted": false
+      }
+    },
+    {
+      "name": "z3_mask_colour_2",
+      "authored": "mask_by_colour(2)",
+      "authored_family": "mask_by_colour",
+      "status": "INDUCED",
+      "reason": "",
+      "mechanism": "mask_by_colour(2)",
+      "families": [
+        "mask_by_colour"
+      ],
+      "stages": 1,
+      "nodes": 4,
+      "repulsors": 1,
+      "pruned_duplicates": 0,
+      "train_exact": true,
+      "train_total": 3,
+      "held_out_exact": 3,
+      "held_out_total": 3,
+      "generalized": true,
+      "held_out_shapes": [
+        {
+          "input": [
+            6,
+            10
+          ],
+          "expected": [
+            6,
+            10
+          ],
+          "predicted": [
+            6,
+            10
+          ],
+          "exact": true,
+          "wave_exact": true
+        },
+        {
+          "input": [
+            9,
+            7
+          ],
+          "expected": [
+            9,
+            7
+          ],
+          "predicted": [
+            9,
+            7
+          ],
+          "exact": true,
+          "wave_exact": true
+        },
+        {
+          "input": [
+            11,
+            12
+          ],
+          "expected": [
+            11,
+            12
+          ],
+          "predicted": [
+            11,
+            12
+          ],
+          "exact": true,
+          "wave_exact": true
+        }
+      ],
+      "authored_family_induced": true,
+      "held_out_shapes_unseen": true,
+      "train_examples": 3,
+      "test_examples": 3,
+      "router": {
+        "signature_digest": "c524c06e093961f85822454a02dba4dfae8d57116adde46f9c8483f9015bce23",
+        "ranked": [
+          "mask_by_colour",
+          "toroidal_shift",
+          "bounded_shift",
+          "dihedral",
+          "colour_map",
+          "symmetry_completion",
+          "crop_bbox",
+          "scale",
+          "interior_flood_fill",
+          "tile",
+          "constant_fill"
+        ],
+        "chosen_rank": 0,
+        "candidate_families": [
+          "mask_by_colour",
+          "toroidal_shift",
+          "bounded_shift",
+          "dihedral",
+          "colour_map",
+          "symmetry_completion",
+          "crop_bbox",
+          "scale",
+          "interior_flood_fill",
+          "tile",
+          "constant_fill"
+        ],
+        "d4_best_element": "identity",
+        "d4_best_mean": 0.825151,
+        "translation_peak": [
+          0,
+          0
+        ],
+        "translation_height": 0.825151,
+        "shape_preserved": true,
+        "mass_preserved": false,
+        "examples_used": 3,
+        "tests_consulted": false
+      }
+    },
+    {
+      "name": "z3_symmetry_completion",
+      "authored": "symmetry_completion()",
+      "authored_family": "symmetry_completion",
+      "status": "INDUCED",
+      "reason": "",
+      "mechanism": "symmetry_completion",
+      "families": [
+        "symmetry_completion"
+      ],
+      "stages": 1,
+      "nodes": 3,
+      "repulsors": 0,
+      "pruned_duplicates": 0,
+      "train_exact": true,
+      "train_total": 3,
+      "held_out_exact": 3,
+      "held_out_total": 3,
+      "generalized": true,
+      "held_out_shapes": [
+        {
+          "input": [
+            6,
+            10
+          ],
+          "expected": [
+            6,
+            10
+          ],
+          "predicted": [
+            6,
+            10
+          ],
+          "exact": true,
+          "wave_exact": true
+        },
+        {
+          "input": [
+            12,
+            8
+          ],
+          "expected": [
+            12,
+            8
+          ],
+          "predicted": [
+            12,
+            8
+          ],
+          "exact": true,
+          "wave_exact": true
+        },
+        {
+          "input": [
+            8,
+            12
+          ],
+          "expected": [
+            8,
+            12
+          ],
+          "predicted": [
+            8,
+            12
+          ],
+          "exact": true,
+          "wave_exact": true
+        }
+      ],
+      "authored_family_induced": true,
+      "held_out_shapes_unseen": true,
+      "train_examples": 3,
+      "test_examples": 3,
+      "router": {
+        "signature_digest": "ae4785e272fb1888114ae0a18a78e7de994371adb75d994cb63dc46719ac303f",
+        "ranked": [
+          "symmetry_completion",
+          "toroidal_shift",
+          "bounded_shift",
+          "colour_map",
+          "interior_flood_fill",
+          "dihedral",
+          "mask_by_colour",
+          "scale",
+          "crop_bbox",
+          "tile",
+          "constant_fill"
+        ],
+        "chosen_rank": 0,
+        "candidate_families": [
+          "symmetry_completion",
+          "toroidal_shift",
+          "bounded_shift",
+          "colour_map",
+          "interior_flood_fill",
+          "dihedral",
+          "mask_by_colour",
+          "scale",
+          "crop_bbox",
+          "tile",
+          "constant_fill"
+        ],
+        "d4_best_element": "identity",
+        "d4_best_mean": 0.889207,
+        "translation_peak": [
+          0,
+          0
+        ],
+        "translation_height": 0.889207,
+        "shape_preserved": true,
+        "mass_preserved": false,
+        "examples_used": 3,
+        "tests_consulted": false
+      }
+    },
+    {
+      "name": "z3_constant_fill_5",
+      "authored": "constant_fill(5)",
+      "authored_family": "constant_fill",
+      "status": "INDUCED",
+      "reason": "",
+      "mechanism": "constant_fill(5)",
+      "families": [
+        "constant_fill"
+      ],
+      "stages": 1,
+      "nodes": 3,
+      "repulsors": 0,
+      "pruned_duplicates": 0,
+      "train_exact": true,
+      "train_total": 3,
+      "held_out_exact": 3,
+      "held_out_total": 3,
+      "generalized": true,
+      "held_out_shapes": [
+        {
+          "input": [
+            6,
+            10
+          ],
+          "expected": [
+            6,
+            10
+          ],
+          "predicted": [
+            6,
+            10
+          ],
+          "exact": true,
+          "wave_exact": true
+        },
+        {
+          "input": [
+            11,
+            7
+          ],
+          "expected": [
+            11,
+            7
+          ],
+          "predicted": [
+            11,
+            7
+          ],
+          "exact": true,
+          "wave_exact": true
+        },
+        {
+          "input": [
+            9,
+            12
+          ],
+          "expected": [
+            9,
+            12
+          ],
+          "predicted": [
+            9,
+            12
+          ],
+          "exact": true,
+          "wave_exact": true
+        }
+      ],
+      "authored_family_induced": true,
+      "held_out_shapes_unseen": true,
+      "train_examples": 3,
+      "test_examples": 3,
+      "router": {
+        "signature_digest": "991ee763a6a5a9261d9e905476b609c4b1cea81dfd1b4e8cf78e8e50c5acc1b6",
+        "ranked": [
+          "constant_fill",
+          "mask_by_colour",
+          "toroidal_shift",
+          "bounded_shift",
+          "interior_flood_fill",
+          "dihedral",
+          "colour_map",
+          "symmetry_completion",
+          "scale",
+          "crop_bbox",
+          "tile"
+        ],
+        "chosen_rank": 0,
+        "candidate_families": [
+          "constant_fill",
+          "mask_by_colour",
+          "toroidal_shift",
+          "bounded_shift",
+          "interior_flood_fill",
+          "dihedral",
+          "colour_map",
+          "symmetry_completion",
+          "scale",
+          "crop_bbox",
+          "tile"
+        ],
+        "d4_best_element": "identity",
+        "d4_best_mean": 0.804852,
+        "translation_peak": [
+          0,
+          0
+        ],
+        "translation_height": 0.804852,
+        "shape_preserved": true,
+        "mass_preserved": false,
+        "examples_used": 3,
+        "tests_consulted": false
+      }
+    },
+    {
+      "name": "z3_rot90_then_swap",
+      "authored": "dihedral(rot90) >> colour_map(1<->2)",
+      "authored_family": "dihedral",
+      "status": "INDUCED",
+      "reason": "",
+      "mechanism": "dihedral(1) >> colour_map(0,2,1,3,4,5,6,7,8,9)",
+      "families": [
+        "dihedral",
+        "colour_map"
+      ],
+      "stages": 2,
+      "nodes": 77,
+      "repulsors": 64,
+      "pruned_duplicates": 0,
+      "train_exact": true,
+      "train_total": 3,
+      "held_out_exact": 3,
+      "held_out_total": 3,
+      "generalized": true,
+      "held_out_shapes": [
+        {
+          "input": [
+            6,
+            8
+          ],
+          "expected": [
+            8,
+            6
+          ],
+          "predicted": [
+            8,
+            6
+          ],
+          "exact": true,
+          "wave_exact": true
+        },
+        {
+          "input": [
+            10,
+            7
+          ],
+          "expected": [
+            7,
+            10
+          ],
+          "predicted": [
+            7,
+            10
+          ],
+          "exact": true,
+          "wave_exact": true
+        },
+        {
+          "input": [
+            12,
+            11
+          ],
+          "expected": [
+            11,
+            12
+          ],
+          "predicted": [
+            11,
+            12
+          ],
+          "exact": true,
+          "wave_exact": true
+        }
+      ],
+      "authored_family_induced": true,
+      "held_out_shapes_unseen": true,
+      "train_examples": 3,
+      "test_examples": 3,
+      "router": {
+        "signature_digest": "2a5c0b01f17438c75b984ddd20975e4d17c2c6643e52810eb595ce1b3c905246",
+        "ranked": [
+          "dihedral",
+          "crop_bbox",
+          "mask_by_colour",
+          "colour_map",
+          "interior_flood_fill",
+          "toroidal_shift",
+          "bounded_shift",
+          "tile",
+          "scale",
+          "symmetry_completion",
+          "constant_fill"
+        ],
+        "chosen_rank": 0,
+        "candidate_families": [
+          "dihedral",
+          "crop_bbox",
+          "mask_by_colour",
+          "colour_map",
+          "interior_flood_fill",
+          "tile",
+          "scale",
+          "symmetry_completion",
+          "constant_fill"
+        ],
+        "d4_best_element": "rot90",
+        "d4_best_mean": 0.952596,
+        "translation_peak": [
+          -1,
+          -1
+        ],
+        "translation_height": 0.0,
+        "shape_preserved": false,
+        "mass_preserved": false,
+        "examples_used": 3,
+        "tests_consulted": false
+      }
+    }
+  ],
+  "induced": 16,
+  "generalized": 16,
+  "task_count": 16,
+  "failed_tasks": [],
+  "contradictions": {
+    "rows": [
+      {
+        "name": "z3_contradiction_two_outputs",
+        "authored": "one input, two different outputs",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: unsatisfiable specification (one input, two outputs)",
+        "nodes": 0,
+        "refused_fail_closed": true,
+        "mechanism": ""
+      },
+      {
+        "name": "z3_contradiction_colour_only",
+        "authored": "one input, two outputs differing in one colour",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: unsatisfiable specification (one input, two outputs)",
+        "nodes": 0,
+        "refused_fail_closed": true,
+        "mechanism": ""
+      },
+      {
+        "name": "z3_contradiction_shape_violation",
+        "authored": "one input, one shape-preserving and one tiled output",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: unsatisfiable specification (one input, two outputs)",
+        "nodes": 0,
+        "refused_fail_closed": true,
+        "mechanism": ""
+      },
+      {
+        "name": "z3_contradiction_declared_shape",
+        "authored": "an output shape that violates the declared shape rule",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: a pair violates the declared shape rule",
+        "nodes": 0,
+        "refused_fail_closed": true,
+        "mechanism": ""
+      }
+    ],
+    "refused": 4,
+    "declared": 4,
+    "policy": "fail-closed: duplicate input/outputs or a violated declared shape facet refuses before any search node is spent"
+  },
+  "budget": {
+    "node_budget": 200000,
+    "max_nodes_used": 77,
+    "total_nodes_used": 243,
+    "per_task_nodes": {
+      "z3_rot90_ccw": 4,
+      "z3_rot180_rect": 5,
+      "z3_reflect_h": 7,
+      "z3_reflect_diag": 9,
+      "z3_toroidal_shift_1_2": 3,
+      "z3_bounded_shift_2_1": 17,
+      "z3_colour_swap_1_2": 41,
+      "z3_colour_cycle_123": 41,
+      "z3_crop_bbox": 16,
+      "z3_tile_2x2": 5,
+      "z3_scale_2": 3,
+      "z3_interior_fill_3": 5,
+      "z3_mask_colour_2": 4,
+      "z3_symmetry_completion": 3,
+      "z3_constant_fill_5": 3,
+      "z3_rot90_then_swap": 77
+    },
+    "within_budget": true,
+    "unified": "one budget per task across every ranked sketch and both stages",
+    "node_definition": "one operator-chain execution on one training pair",
+    "enforcement": {
+      "task": "z3_rot90_then_swap",
+      "budget": 8,
+      "nodes": 8,
+      "status": "ABSTAIN",
+      "budget_exhausted": true,
+      "passed": true
+    },
+    "repulsor_policy": "a refuted chain is recorded as a REPULSOR axiom (cap 64) and an identical chain is never executed twice; duplicate proposals are pruned before they cost a node",
+    "repulsors_recorded": 185,
+    "duplicates_pruned": 0
+  },
+  "ast_audit": {
+    "onecell_audit": {
+      "path": "C:\\Users\\chan\\Desktop\\HENRI v6\\henri\\holarch\\spatial_induction.py",
+      "task_names_checked": 20,
+      "routing_path": "SovereignInducer + *Router class bodies + module-level _route/_rank/_score/_sketch helpers",
+      "r1_name_attribute_comparisons": 0,
+      "r2_name_literal_comparisons_in_routing": 0,
+      "r3_name_keyed_dicts_in_routing": 0,
+      "task_name_branches": 0,
+      "broad_name_literal_comparisons_anywhere": 0,
+      "r1_examples": [],
+      "r2_examples": [],
+      "r3_examples": [],
+      "declaration_registries": {},
+      "routing_reads_declared_registry": false,
+      "registry_reads": [],
+      "passed": true
+    },
+    "module_literal_audit": {
+      "path": "henri/holarch/spatial_induction.py",
+      "task_names_checked": 20,
+      "string_constants": 403,
+      "task_name_literals_in_module": 0,
+      "task_name_literals": [],
+      "name_attribute_comparisons": 0,
+      "name_attribute_examples": [],
+      "passed": true
+    },
+    "import_audit": {
+      "imports": [
+        "__future__",
+        "dataclasses",
+        "hashlib",
+        "itertools",
+        "json",
+        "numpy",
+        "time",
+        "typing"
+      ],
+      "forbidden_imports": [],
+      "llm_calls": 0,
+      "network_calls": 0,
+      "passed": true
+    },
+    "task_name_branches": 0
+  },
+  "stages": {
+    "task_rows": 16,
+    "contradiction_rows": 4,
+    "unique_names": 16,
+    "grids_round_tripped": 206,
+    "d4_evidence_rows": 4,
+    "router_sketches": 11,
+    "held_out_unseen_tasks": 16,
+    "train_pairs": [
+      3
+    ],
+    "test_pairs": [
+      3
+    ]
+  },
+  "wave_calls": {
+    "encoder_calls": 636,
+    "router_calls": 33,
+    "note": "encoder invocations are counted by the encoder itself; the router ran once per task, once per task again for the test-invariance check, and once for the budget-enforcement probe"
+  },
+  "text_tokens": {
+    "count": 0,
+    "source": "every task is passed as integer numpy arrays; no character stream, tokenizer or vocabulary enters the inducer",
+    "measured": "str-valued entries in the example and test pairs of all 20 specs"
+  },
+  "disclosure": "the sixteen tasks in this script and the operator library in henri/holarch/spatial_induction.py share an author; the tasks are stored in this script so the inducer cannot special-case them",
+  "gate": {
+    "z3_runner_runs": true,
+    "z3_encoding_invertible": true,
+    "z3_zero_text_tokens": true,
+    "z3_zero_llm_calls": true,
+    "z3_zero_task_name_branches": true,
+    "z3_induced_and_generalized_ge_14": true,
+    "z3_contradictions_4_of_4": true,
+    "z3_budget_le_200000": true,
+    "z3_d4_router_used": true,
+    "passed": true
+  },
+  "evidence": "OBSERVED",
+  "git_head": "24fe965265e6bff32df54af30a11fb187299fd07",
+  "wall_seconds": 0.45913049997761846,
+  "passed": true
+}

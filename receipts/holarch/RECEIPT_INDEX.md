@@ -59,3 +59,13 @@ y4_scaled_aaii_v5.json  y5_hardware_and_ledger_closure.json
 y1_stage_photonic_wave_egress.json  y2_stage_cold_synthesis.json
 y3_stage_unified_induction.json  y4_stage_scaled_aaii_v5.json
 y_jev_mathematical_challenges.json  y_cycle.json  agent_eval.json
+
+## Cycle Z receipts
+
+z1_d2048_pointer_wave_egress.json  z2_external_cold_synthesis.json
+z3_spatial_arc_induction.json  z4_live_aaii_and_api_stress.json
+z5_cuda_benchmark.json  z_jev_mathematical_challenges.json
+z1_stage_pointer_egress.json  z2_stage_external_synthesis.json
+z3_stage_spatial_induction.json  z4_stage_live_aaii_and_stress.json
+z5_hardware_ledger_closure.json  z_cycle.json
+pinned_lang_split.json

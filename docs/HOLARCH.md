@@ -4128,3 +4128,141 @@ x3_twelve_of_twelve_turing.json, x3_stage_turing_closure.json,
 x4_gauntlet_256_queries.json, x5_full_ledger_reconciliation.json and
 x_cycle.json.
 
+## 41. Cycle Z: pinned split, D = 2048 egress, external synthesis, 2D induction, live suite
+
+Cycle Z closes the two Cycle Y boundaries that were closable and it makes the
+evaluation itself stable. The pinned split decouples the held-out stream from
+the documentation, so Section 41 cannot move the numbers it reports. The
+D = 2048 stack is real and measured. The pointer and the band rotor are
+measured negatives. The external synthesis audit is author-decoupled. The 2D
+spatial induction is a new program class. The PnP probe names the exact reason
+the GPU is invisible.
+
+### 41.1 Z1: pinned split, D = 2048 egress, pointer and band rotor
+
+| organ | measurement (z1_d2048_pointer_wave_egress.json) |
+|---|---|
+| pinned split | digest 8f270f34... over 38 package files and the declared rule; docs/HOLARCH.md excluded; 758,656 train and 84,086 held-out tokens; invariant true before and after this section |
+| D = 2048 stack | four BaTiO3 plates at d_slot = 512; closed-form per-slot cartridge; port cosine 0.281 -> 0.940 |
+| contrastive imprint | one round toward the subword context wave; the residual is 1.565 at the first wave and 1.490 at the sixty-fourth, and the last-eight mean is below the first-eight mean, which is the gate |
+| entropy-gated pointer | w* = 0.0000 on the inner slice; the pointer does not lower the inner cross-entropy |
+| band rotor | B = 32 sub-bands; displacement 0.0000 rad; every line-search step rejected |
+| held-out egress | top-1 0.5987 against the six-order baseline 0.6006; bits/char 2.8984 against 2.8948; 640 overrides, net +227 |
+| long-range copy recall | 0.6850 against the suffix bank 0.6804 on 1,092 long-range positions |
+
+The Z1 gate is false on the pointer, rotor and baseline subgates and true on
+the pinned split, the port alignment, the imprint, the no-autograd and the
+held-out-token subgates. The measured reasons are exact: a band is a
+partition of the codebook dimension, and a random-phase Bochner codevector
+spreads its phasor over every band, so a band rotation changes a token phasor
+by about 1/B of the angle. The position-unbound pointer is anti-informative
+as a standalone distribution. The JEV gate refuted the gauge-breaking
+challenge on the entropy invariant, which is the correct verdict, and the
+corrected law is recorded in z_jev_mathematical_challenges.json.
+
+### 41.2 Z2: author-decoupled external cold-start synthesis
+
+| suite | result (z2_external_cold_synthesis.json) |
+|---|---|
+| primary MBPP-sanitized, 32 pinned | 28 solved of 30 eligible (pass@1 0.8750 against the declared 32), 2 abstained, 0 emitted-but-failed-hidden, precision 1.0000 |
+| secondary HumanEval, 32 pinned | 7 solved (0.2188), 25 abstained, precision 1.0000 |
+| LLM calls | 0 |
+| Arm B consolidation | PlanStore 0 -> 35 Tier-3 plans; transfer 12 of 12 compound or mutated tasks against Arm A 0 of 12 |
+| contradiction traps | 6 of 6 refused by both arms |
+| branch audit | 0 task-identity comparisons, 0 compared identifier literals, 0 unexplained string comparisons |
+
+HumanEval was measured before the MBPP primary was selected, and both numbers
+are printed side by side. The two MBPP abstentions and the twenty-five
+HumanEval abstentions are algorithm families outside the general schema
+library; nothing was filtered.
+
+### 41.3 Z3: 2D toroidal wave-invariant induction
+
+| metric | value (z3_spatial_arc_induction.json) |
+|---|---|
+| encoding | D = 2048, four 512-dim toroidal Fourier slots, 206 grids round-trip with max cell error 0, isometry residual 2.7e-15 |
+| battery | 16 ARC-style tasks, 3 to 4 demonstrations each, held-out inputs at unseen H', W' in [6, 16] |
+| induced and generalised | 16 of 16 |
+| contradictions refused | 4 of 4 at 0 nodes |
+| D4 router | the authored element is recovered at resonance 1.0 on 4 of 4 dihedral tasks; shift and rotation selftest exact |
+| node budget | 200,000; 77 nodes for the hardest task, 240 total |
+| task-name branches | 0 |
+| text tokens and LLM calls | 0 and 0 |
+
+### 41.4 Z4: live 64-task five-arm suite, SSE and the 1,000-request stress
+
+The battery is 64 tasks: 52 answerable (12 factual, 12 briefcase, 16 pinned
+external coding, 12 2D ARC) plus 12 impossible or out-of-distribution traps.
+Every arm reports its own split metrics; a fallback row is stamped so a
+deterministic answer is never counted as model output.
+
+| arm | answerable | traps | hallucination | LLM calls |
+|---|---|---|---|---|
+| arm0_henri_standalone | 36/52 (0.6923) | 12/12 | 0.0000 | 0 |
+| arm1_raw_llm | 31/52 (0.5962) | 10/12 | 0.0312 | 64 |
+| arm2_rag_llm | 30/52 (0.5769) | 10/12 | 0.0469 | 64 |
+| arm3_henri_coprocessor | 36/52 (0.6923) | 12/12 | 0.0000 | 47 |
+| arm4_henri_cascade | 40/52 (0.7692) | 12/12 | 0.0000 | 4 |
+
+The penalty-weighted composite is 0.7500 / 0.6094 / 0.5781 / 0.7500 / 0.8125.
+arm4 sends four tasks to the governed co-processor and holds the rest at zero
+external cost, a 91.49 percent call reduction against arm3 with a higher
+composite and zero hallucinations. arm0 abstains on all sixteen external
+coding tasks: twelve prompts carry their examples as prose and the four that
+carry doctests exhaust the rollout budget. arm3 has 18 of 36 answers from the
+deterministic index fallback, each stamped in the receipt.
+
+| gate | measurement (z4_live_aaii_and_api_stress.json) |
+|---|---|
+| HTTP stress | 1,000 of 1,000 requests, 0 5xx, 16 workers, P50 13.25 ms, P95 65.52 ms, P99 93.50 ms |
+| receipt chain | 1,504 links, chain valid |
+| SSE | 250 of 250 streams, each 12 data chunks plus a done event, non-stream path still JSON |
+| RSS drift | +1.5 MiB |
+| gauntlet | 288 queries, 212 probe slots, 146.21 s, reachable 1.0000, hallucination 0.0000, 0 query-time reads |
+
+### 41.5 Z5: the PnP diagnosis and the T-through-Z ledger
+
+The non-destructive PnP query is decisive. Windows enumerates two display
+adapters, both AMD, both with ConfigManagerErrorCode 0. No NVIDIA adapter is
+enumerated. The display class key 4d36e968-e325-11ce-bfc1-08002be10318 still
+holds key 0003 with DriverDesc "NVIDIA GeForce RTX 5070 Ti". The card is a
+ghost driver-class entry: the physical device is not on the bus, so
+nvidia-smi lists nothing and torch cannot reach CUDA. Every GPU number in this
+cycle is therefore absent, and CUDA: BLOCKED carries that PnP code.
+
+z5_cuda_benchmark.json records the state for D = 2048 and D = 4096 and claims
+no measurement. The JEV submissions are in
+z_jev_mathematical_challenges.json: Challenge 2 was accepted at 0.95;
+Challenge 1 was refuted on the entropy invariant and the corrected law is
+recorded there. t, u, v, w and x remain passed; y_cycle.json stays false and
+is superseded by z_cycle.json, as it must be.
+
+### 41.6 Boundaries that stay open in Cycle Z
+
+1. The band rotor has no measurable leverage at B = 32, and the pointer is
+   anti-informative. The corrected law is that gauge breaking needs a
+   per-token phase, not a per-band phase.
+2. The external synthesis gap is large: 0.8750 on MBPP-sanitized against
+   0.2188 on HumanEval. The primary suite is the easier one and the receipt
+   says so.
+3. The 16 ARC-style tasks share an author with the operator library. The
+   expected outputs are produced by task-local transforms, not by importing
+   the library, but the tasks are not an external ARC split.
+4. arm0 abstains on all sixteen external coding tasks in the live suite. The
+   live arms cover that slice; the standalone claim does not.
+5. CUDA stays blocked. The RTX 5070 Ti is a driver-class ghost, not a visible
+   device, and no GPU number is reported.
+
+### 41.7 Detail
+
+The Z receipts are z1_d2048_pointer_wave_egress.json,
+z2_external_cold_synthesis.json, z3_spatial_arc_induction.json,
+z4_live_aaii_and_api_stress.json, z5_cuda_benchmark.json,
+z_jev_mathematical_challenges.json, pinned_lang_split.json, the stage views
+z1_stage_pointer_egress.json, z2_stage_external_synthesis.json,
+z3_stage_spatial_induction.json, z4_stage_live_aaii_and_stress.json,
+z5_hardware_ledger_closure.json and the aggregate z_cycle.json. The vendored
+external data are receipts/holarch/external/HumanEval.jsonl and
+receipts/holarch/external/mbpp_sanitized.json, each with its upstream URL and
+sha256 in the Z2 receipt.
+

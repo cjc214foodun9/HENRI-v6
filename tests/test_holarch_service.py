@@ -146,9 +146,11 @@ def test_agent_eval_contract(tmp_path):
     # probes; Cycle W adds sixteen Pass-0, split-hygiene and closure probes;
     # Cycle X adds sixteen shared-stem, wave-egress, one-cell and Pass-0 batch
     # probes; Cycle Y adds sixteen wave-egress, cold-synthesis, cascade and
-    # scaled-battery probes.  The total is 76 legacy receipts plus 196 probes
-    # = 272 queries.  The legacy 256 slots are unchanged.
-    assert payload["queries_total"] == 272
+    # scaled-battery probes; Cycle Z adds sixteen wave-arithmetic, external
+    # synthesis, spatial-induction and stress-arithmetic probes.  The total is
+    # 76 legacy receipts plus 212 probes = 288 queries.  The legacy 256 slots
+    # are unchanged.
+    assert payload["queries_total"] == 288
     assert payload["composite"]["mcp_accuracy"] >= 0.90
     assert payload["composite"]["mcp_refused"] == payload["composite"]["traps_total"]
     # Every declared category must still carry at least one scored query. The
@@ -225,6 +227,10 @@ def test_agent_eval_contract(tmp_path):
         "y2_cold_synth",
         "y3_cascade",
         "y4_battery",
+        "z1_wave",
+        "z2_external_synth",
+        "z3_spatial",
+        "z4_stress",
     } <= set(payload["per_category"])
     assert all(int(row["total"]) >= 1 for row in payload["per_category"].values())
     # The legacy 76-receipt chain is still contiguous; the twelve J probes add

@@ -1,0 +1,96 @@
+{
+  "stage": "Z-JEV",
+  "tool": "henri_jev (JEV Tier-1 ontological gate)",
+  "note": "Both Cycle Z challenges were submitted with measured samples. Challenge 2 was accepted. Challenge 1 was REFUTED by the entropy-production invariant, and the refutation is the scientific result the specification invited: the receipt records the corrected law instead of forcing an acceptance.",
+  "challenges": [
+    {
+      "id": "Z1-gauge-broken-band-torque-and-pointer",
+      "question": "Does breaking the slot U(1) gauge with a B_freq-band rotor give a non-zero Born torque and a positive conditional information gain for the long-range pointer at D = 2048?",
+      "answer": "No. The band rotor changes a token phasor by one B_freq-th of the rotation angle (1/32 at B = 32). The analytic torque is therefore O(1/B) and the measured inner cross-entropy step is rejected by the line search at every epoch. The position-unbound pointer is anti-informative as a standalone distribution: the measured conditional information gain is -20.717 nats and does not improve as offsets 7..24 are added. The JEV gate rejected the proposal on the entropy-production invariant, which is the correct verdict.",
+      "corrected_law": "Gauge breaking needs a PER-TOKEN phase, not a per-band phase: a band is a partition of the codebook dimension, and a random-phase Bochner codevector spreads its phasor over every band, so a band rotation is a small perturbation of the token phasor. The entropy-gated fusion weight that could admit the pointer is zero because the pointer is not a calibrated next-token distribution.",
+      "proposal": {
+        "equations": [
+          "P = A^2 / Z",
+          "dP = A * A",
+          "psi = chi * theta",
+          "phi = theta / B"
+        ],
+        "energy_series": [
+          1.414213,
+          1.414218,
+          1.414213,
+          1.414206,
+          1.414205,
+          1.414214,
+          1.414214,
+          1.414213
+        ],
+        "entropy_series": [
+          -20.717,
+          -41.435,
+          -62.155
+        ],
+        "complexity": "O(N log N)"
+      },
+      "verdict": {
+        "accepted": false,
+        "score": 0.775,
+        "failed": [
+          "entropy_production"
+        ],
+        "passed": [
+          "dimensional_homogeneity",
+          "parseval_energy_bound",
+          "complexity_ceiling",
+          "novelty",
+          "ste100_compliance"
+        ],
+        "detail": "Smallest entropy increment -2.072e+01 against tolerance 6.216e-05. Entropy decreases, so the proposal is refuted."
+      }
+    },
+    {
+      "id": "Z3-dihedral-toroidal-spectral-invariance",
+      "question": "Does the D4 dihedral group times the toroidal shift group generate a spectral invariant family that reduces the 2D program search with a positive information gain?",
+      "answer": "Yes. The D = 2048 four-slot toroidal Fourier encoding round-trips 206 of 206 grids with exact cell equality and a 2.7e-15 isometry residual. The D4 x Z_H x Z_W spectral family reduces the operator space by a measured 143 to 384 nats on held-out grid sizes, and 16 of 16 authored ARC-style tasks are induced and generalised to unseen dimensions with at most 77 nodes.",
+      "proposal": {
+        "equations": [
+          "Eout = Ein",
+          "psi = grid * basis",
+          "Nrestricted = D4 * H * W * C",
+          "gain = space / Nrestricted"
+        ],
+        "energy_series": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "entropy_series": [
+          143.4,
+          295.9,
+          384.5
+        ],
+        "complexity": "O(N log N)"
+      },
+      "verdict": {
+        "accepted": true,
+        "score": 0.95,
+        "failed": [],
+        "passed": [
+          "dimensional_homogeneity",
+          "parseval_energy_bound",
+          "entropy_production",
+          "complexity_ceiling",
+          "novelty",
+          "ste100_compliance"
+        ]
+      }
+    }
+  ],
+  "evidence": "OBSERVED",
+  "passed": true
+}

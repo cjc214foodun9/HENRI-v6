@@ -498,7 +498,7 @@ class ContrastivePhaseResonator:
         return self.context_wave([int(token) for token in context[-order:]])
 
     def _mode_phasor(
-        self, wave: np.ndarray, support: np.ndarray
+        self, index: int, wave: np.ndarray, support: np.ndarray
     ) -> np.ndarray:
         """exp(i * arg <chi_v, psi_m>): the retained quadrature of a mode."""
         phasor = np.ones(self.vocab_size, dtype=np.complex128)
@@ -544,7 +544,7 @@ class ContrastivePhaseResonator:
             row = (
                 math.sqrt(max(float(weight), _EPS))
                 * np.sqrt(np.maximum(np.asarray(dist, dtype=np.float64), _EPS))
-                * self._mode_phasor(wave, support)
+                * self._mode_phasor(index, wave, support)
             )
         if self.phase_gain != 0.0 and index < self.phase.shape[0]:
             row = row * np.exp(

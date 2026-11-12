@@ -1,0 +1,229 @@
+{
+  "stage": "Z1-pinned-split",
+  "rule": {
+    "source": "henri/holarch/**/*.py",
+    "excludes": [
+      "docs/HOLARCH.md"
+    ],
+    "val_fraction": 0.1,
+    "boundary_gap": 6,
+    "split": "per-document contiguous tail with a 6-token boundary gap"
+  },
+  "files": [
+    {
+      "name": "henri/holarch/__init__.py",
+      "bytes": 1683,
+      "sha256": "89f88fd412a9089325a8ffeb785c9554a48937d75bfff859b0ea07ab14f3fcf5"
+    },
+    {
+      "name": "henri/holarch/__main__.py",
+      "bytes": 176,
+      "sha256": "5f6cdafa75bb08c1458ab8cb2f7af6ff612dc9369cf160ab729401ac53c68352"
+    },
+    {
+      "name": "henri/holarch/budget.py",
+      "bytes": 18002,
+      "sha256": "852f25a6c17c0bf721d8418385214adaf7f22ce3eed64e95f1b57f75c0f98ddc"
+    },
+    {
+      "name": "henri/holarch/centered_charts.py",
+      "bytes": 12887,
+      "sha256": "694160ef36bfef76acf60daefc7bd3271efe0632f1010b3b9ad37ab1edcb906f"
+    },
+    {
+      "name": "henri/holarch/cli.py",
+      "bytes": 24250,
+      "sha256": "cbb51aa8a426de01054d01723377384bf2d1ef84038522b32388c4edb3dbc6db"
+    },
+    {
+      "name": "henri/holarch/code_gen.py",
+      "bytes": 338935,
+      "sha256": "7294d05214527d5b7beca0b69c4637d61a90d9fcbc3f8035048c1094281d04a1"
+    },
+    {
+      "name": "henri/holarch/code_lang.py",
+      "bytes": 71269,
+      "sha256": "784181d215fd63ea74130c9cf823ffd46985610593696d26f97bcaf3d59b7ed1"
+    },
+    {
+      "name": "henri/holarch/cold_synth.py",
+      "bytes": 84933,
+      "sha256": "a9b663734c3d6df2476ff0bee1cbd9a5162ab1c2ec435d72a5cdcf183b18d8b9"
+    },
+    {
+      "name": "henri/holarch/config.py",
+      "bytes": 20968,
+      "sha256": "3dd76f888ad110e95c566881f2ff456fe6c275e127c3569a13a059fff7a73763"
+    },
+    {
+      "name": "henri/holarch/coprocessor.py",
+      "bytes": 96052,
+      "sha256": "4d4c9d6225927d357d9746517a09c3cb0d679d98111fee9b743490fbe922bccc"
+    },
+    {
+      "name": "henri/holarch/deterministic.py",
+      "bytes": 5204,
+      "sha256": "a852bf705ee2adfcb063def3eb5a17fb3a36847168730654e8b7a21d7dcdcccc"
+    },
+    {
+      "name": "henri/holarch/discovery.py",
+      "bytes": 20615,
+      "sha256": "95e705e9f62bf73f1df473c0ebc39020725f901ad7ed5d759a5ceb406ae2e5b1"
+    },
+    {
+      "name": "henri/holarch/induction.py",
+      "bytes": 142048,
+      "sha256": "3116ac0e0c91d904ecf8f9136219c573a3365686c22e32d044c10b4cf241f685"
+    },
+    {
+      "name": "henri/holarch/mcp_server.py",
+      "bytes": 12310,
+      "sha256": "f7319ed2ad938fc846b0d5e41b656f8a6f000c9dfa27c229a3ff905a465c7193"
+    },
+    {
+      "name": "henri/holarch/model.py",
+      "bytes": 88487,
+      "sha256": "7db2ab8c434df9a4129c39909f06a6e79bc8eca5baafb2687fd17cd14ba41927"
+    },
+    {
+      "name": "henri/holarch/onecell_audit.py",
+      "bytes": 11563,
+      "sha256": "da7834ef32e4ca0de5bcd018a396b1180b3c97c7dc1768df5aefcc794a8de4f4"
+    },
+    {
+      "name": "henri/holarch/ontology_guard.py",
+      "bytes": 40658,
+      "sha256": "c2c79da079fe2d70ab4a52a93438e8ad45f82a1a2d985d432b58c590c5e0211e"
+    },
+    {
+      "name": "henri/holarch/paged_tape.py",
+      "bytes": 10323,
+      "sha256": "10382a877961c731ba0a1bad81114a82ecce66920b31fddf1e4c539e65faa308"
+    },
+    {
+      "name": "henri/holarch/pinned_split.py",
+      "bytes": 5712,
+      "sha256": "f3182a7d324952db50331e8a02dbd9638967de1b85b59bd2299397c646fa08ec"
+    },
+    {
+      "name": "henri/holarch/pipeline.py",
+      "bytes": 106041,
+      "sha256": "98f508f62cf5e3263518181c26b5b4e092086e86ecc4987a3c8227b03022f25f"
+    },
+    {
+      "name": "henri/holarch/pointer_egress.py",
+      "bytes": 22415,
+      "sha256": "191cd4690197896901a4a89ce035ef439f29b975f4fe1268dffc85ae7caad738"
+    },
+    {
+      "name": "henri/holarch/repo_sheaf.py",
+      "bytes": 38793,
+      "sha256": "42c6f9a97a4b904a73304caba7480322f5d07c5706838ea21de0d4915ba315c8"
+    },
+    {
+      "name": "henri/holarch/riemannian_atlas.py",
+      "bytes": 24103,
+      "sha256": "af107d302989d58b19d508257944526622ed4b3402e3eb4eeb308eebf31825c3"
+    },
+    {
+      "name": "henri/holarch/sandbox.py",
+      "bytes": 18656,
+      "sha256": "990d066bdb46593bc6de7d58370a6536efacd769a9cc62e3905ebb7bd232d287"
+    },
+    {
+      "name": "henri/holarch/server.py",
+      "bytes": 134974,
+      "sha256": "a6fbafa67ca58c50ff88e53d2d0d997b7b74e43c19f6067303d07bad287b41cf"
+    },
+    {
+      "name": "henri/holarch/sidecar.py",
+      "bytes": 34287,
+      "sha256": "43579ba9c7a371590210a89b224f7abcd3af653960717e099153b5532e6c640b"
+    },
+    {
+      "name": "henri/holarch/spatial_induction.py",
+      "bytes": 59351,
+      "sha256": "73e3ea6ad2a3085780bcfe61fc81d928b002f1c4b06d4961ccc0739d71d165dc"
+    },
+    {
+      "name": "henri/holarch/swat_bus.py",
+      "bytes": 99357,
+      "sha256": "9cec1fe91a0eeba2cc62e8666d21b7d0e5dc45b96aaf90c8b5d135699bc696a0"
+    },
+    {
+      "name": "henri/holarch/symbolic.py",
+      "bytes": 109913,
+      "sha256": "cd53d0859804507898f225078f01daccb5de383fac7f23ab61304b3a343642b9"
+    },
+    {
+      "name": "henri/holarch/tasks.py",
+      "bytes": 26291,
+      "sha256": "8065029cf522c5f6ffe818de4c125bdd579253fc0bcc2614c4d1d1114873cc0e"
+    },
+    {
+      "name": "henri/holarch/train.py",
+      "bytes": 31189,
+      "sha256": "c14b0fc081e001cc81906a109ce9aabde7eda6bd7801576d52172932c060efc3"
+    },
+    {
+      "name": "henri/holarch/veto.py",
+      "bytes": 14682,
+      "sha256": "71dc55d824be37ec203cd5a083cf891e32402250d6951cda1eb2a0ed69cd9d2d"
+    },
+    {
+      "name": "henri/holarch/vla.py",
+      "bytes": 6925,
+      "sha256": "42848702762b7b4479b5c0c055d93e490b7dd1d1766f48e0a629a792f817479a"
+    },
+    {
+      "name": "henri/holarch/wave_ccg.py",
+      "bytes": 23863,
+      "sha256": "7e5b20084922c05d13e7d888687fdfc39e577e30002e24a80ac891b0dc3f6567"
+    },
+    {
+      "name": "henri/holarch/wave_egress.py",
+      "bytes": 52889,
+      "sha256": "d4b5f8c84297b94f14f39770e2424e4db700833d1f71e92adc7453a3f96ec66a"
+    },
+    {
+      "name": "henri/holarch/zone_a.py",
+      "bytes": 21386,
+      "sha256": "e6a0fa1cf4f7cfdb77fc3d5386b2312dfe2acec0f87784b8ce3a645794f8527e"
+    },
+    {
+      "name": "henri/holarch/zone_b.py",
+      "bytes": 61893,
+      "sha256": "38ee1740605e2c5a39d6f71fc21fec3894251045f59705b12c89e4fb11a88228"
+    },
+    {
+      "name": "henri/holarch/zone_c.py",
+      "bytes": 96322,
+      "sha256": "ac8903631c2e9bab187e37b2b4ab6543a79f9623dd1e80b4ebdfdcd1d7f0c821"
+    }
+  ],
+  "file_count": 38,
+  "digest": "8f270f34e8f35ef84e415d076bea20a7bc15edff337f89ed72ad607447ba8554",
+  "live_corpus_digest": "ba86d3fbad37b946",
+  "train_tokens": 758656,
+  "val_tokens": 84086,
+  "documents": 38,
+  "val_fingerprint": [
+    1306,
+    932,
+    928,
+    80,
+    946,
+    928,
+    24,
+    942,
+    80,
+    1320,
+    787,
+    63,
+    81,
+    83,
+    787,
+    1805
+  ],
+  "note": "docs/HOLARCH.md is excluded, so appending a section cannot move this split; the live corpus digest is recorded to show the difference"
+}

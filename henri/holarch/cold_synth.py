@@ -50,6 +50,7 @@ _SIGNATURE = re.compile(
 )
 _ASSERT = re.compile(r"^\s*assert\s+.+$", re.MULTILINE)
 _DOCTEST = re.compile(r"^\s*>>>\s*(.+)$", re.MULTILINE)
+_URL = re.compile(r"(?i)\b(?:https?://|www\.)\S+")
 _UNSATISFIABLE_WORDS = (
     "internet", "http", "https", "network", "download", "fetch the latest",
     "web", "api key", "database server", "email", "stock price",
@@ -77,30 +78,80 @@ def _split_params(text: str) -> List[str]:
     return [part.strip() for part in parts if part.strip()]
 
 
+_STR_TOKENS = frozenset(
+    {
+        "str", "string", "strings", "text", "sentence", "phrase", "line",
+        "char", "character", "substring", "pattern", "delimiter", "s",
+        "token", "text1", "word",
+    }
+)
+_SEQ_TOKENS = frozenset(
+    {
+        "list", "lists", "array", "arrays", "arr", "arrs", "nums", "numbers",
+        "values", "items", "data", "matrix", "rows", "row", "seq", "sequence",
+        "sequences", "tuple", "tup", "tuples", "vector", "elements",
+        "collection", "iterable", "words", "letters", "pairs", "l", "xs",
+        "ys", "groups", "sublists", "strings", "stack", "queue", "set",
+    }
+)
+_NUM_TOKENS = frozenset(
+    {
+        "n", "x", "y", "z", "k", "m", "a", "b", "c", "d", "i", "j", "num",
+        "number", "count", "index", "size", "length", "threshold", "target",
+        "total", "value", "power", "base", "shift", "sum", "cost", "amount",
+        "step", "start", "end", "limit", "precision", "width", "height",
+    }
+)
+
+
+def _name_tokens(name: str) -> List[str]:
+    """Word tokens of an identifier: snake_case and camelCase both split.
+
+    A substring test ("s" in "numbers") silently mis-typed every argument
+    whose name merely CONTAINED a letter; whole-token matching is the general
+    rule that a name is a sequence of words, not a bag of characters.
+    """
+    out: List[str] = []
+    for part in re.split(r"[^A-Za-z0-9]+", str(name)):
+        for piece in re.findall(r"[A-Z]+(?![a-z])|[A-Z][a-z0-9]*|[a-z0-9]+", part):
+            token = re.sub(r"[0-9]+$", "", piece.lower())
+            if token:
+                out.append(token)
+    return out
+
+
 def _annotation_role(annotation: str, name: str) -> str:
+    """The typed role of one argument: annotation first, then name words."""
     text = str(annotation or "").lower()
     if text:
+        if "bool" in text:
+            return "bool"
         if "str" in text:
             return "str"
         if any(word in text for word in ("list", "sequence", "tuple", "iterable", "set")):
             return "seq"
         if any(word in text for word in ("int", "float", "number")):
             return "num"
-        if "bool" in text:
-            return "bool"
-    lowered = str(name).lower()
-    if any(word in lowered for word in ("text", "word", "sentence", "phrase", "string", "s")):
-        return "str"
-    if any(word in lowered for word in (
-            "nums", "values", "items", "data", "arr", "lst", "seq", "words",
-            "matrix", "rows", "xs", "numbers", "array", "pairs", "letters")):
+    tokens = set(_name_tokens(name))
+    if tokens & _SEQ_TOKENS:
         return "seq"
+    if tokens & _STR_TOKENS:
+        return "str"
+    if tokens & _NUM_TOKENS:
+        return "num"
     return "num"
 
 
 @dataclass
 class ProblemSpec:
-    """Everything the synthesizer is allowed to know about one task."""
+    """Everything the synthesizer is allowed to know about one task.
+
+    The added fields are the general structural prior: the public examples
+    read as typed call/answer pairs, the literal constants the specification
+    itself names, the output kind the examples agree on, and the shape facts
+    a length/permutation/elementwise comparison yields.  None of them names
+    a task.
+    """
 
     name: str
     params: List[Dict[str, str]]
@@ -109,6 +160,13 @@ class ProblemSpec:
     assertions: List[str]
     goal_wave: np.ndarray
     contradictions: List[str] = field(default_factory=list)
+    faults: List[str] = field(default_factory=list)
+    examples: List[Dict[str, Any]] = field(default_factory=list)
+    literals: List[str] = field(default_factory=list)
+    return_kind: str = "any"
+    arg_kinds: Dict[str, str] = field(default_factory=dict)
+    shape: Dict[str, Any] = field(default_factory=dict)
+    prompt: str = ""
 
     @property
     def words(self) -> List[str]:
@@ -125,16 +183,338 @@ class ProblemSpec:
         return [param["name"] for param in self.params if param["role"] == role]
 
 
+def _doctest_assertions(docstring: str) -> List[str]:
+    """Parse classic doctest pairs into assert statements.
+
+    A >>> call line is followed by the expected repr on the next non-empty
+    line.  This is the public-example channel of an unmodified benchmark
+    prompt: the external problems carry their own doctests, so no example is
+    authored here.  A Traceback case and a multi-line expected value are
+    skipped, because neither is a literal the sandbox assert can compare.
+    """
+    lines = str(docstring).splitlines()
+    out: List[str] = []
+    index = 0
+    while index < len(lines):
+        line = lines[index].strip()
+        if not line.startswith(">>>"):
+            index += 1
+            continue
+        expression = line[3:].strip()
+        index += 1
+        while index < len(lines) and not lines[index].strip():
+            index += 1
+        if index >= len(lines):
+            break
+        expected = lines[index].strip()
+        continuation = (
+            index + 1 < len(lines) and lines[index + 1].strip().startswith("...")
+        )
+        if (
+            not expression
+            or not expected
+            or expected.startswith("...")
+            or "Traceback" in expected
+            or continuation
+        ):
+            index += 1
+            continue
+        if "==" in expression:
+            out.append("assert " + expression)
+        else:
+            out.append("assert (%s) == (%s)" % (expression, expected))
+        index += 1
+    return out
+
+
+_MISSING = object()
+
+
+def _literal_kind(value: Any) -> str:
+    """The structural kind of one literal value."""
+    if value is _MISSING:
+        return "any"
+    if value is None:
+        return "none"
+    if isinstance(value, bool):
+        return "bool"
+    if isinstance(value, int):
+        return "int"
+    if isinstance(value, float):
+        return "float"
+    if isinstance(value, str):
+        return "str"
+    if isinstance(value, list):
+        return "list"
+    if isinstance(value, tuple):
+        return "tuple"
+    if isinstance(value, dict):
+        return "dict"
+    if isinstance(value, (set, frozenset)):
+        return "set"
+    return "any"
+
+
+def _literal_value(node: ast.AST) -> Any:
+    """The literal value of one AST node, or the sentinel when not literal."""
+    try:
+        return ast.literal_eval(node)
+    except Exception:  # noqa: BLE001 - a non-literal argument is not an example
+        return _MISSING
+
+
+def _parse_examples(assertions: Sequence[str], name: str) -> List[Dict[str, Any]]:
+    """Read the public assertions as typed call/answer pairs.
+
+    Three shapes are admitted, because all three appear in public benchmark
+    tests: "assert f(...) == value", "assert f(...)", and "assert not f(...)".
+    The expected value of a bare call is True, of a negated call False.  A
+    call whose arguments are not literals is kept with an unknown argument
+    kind, so the shape prior never invents a value it did not read.
+    """
+    out: List[Dict[str, Any]] = []
+    for line in assertions:
+        text = str(line).strip()
+        if not text.startswith("assert "):
+            continue
+        body = text[len("assert "):].strip()
+        try:
+            node = ast.parse(body, mode="eval").body
+        except SyntaxError:
+            continue
+        expected: Any = _MISSING
+        call = None
+        if isinstance(node, ast.Compare) and len(node.ops) == 1 and isinstance(node.ops[0], ast.Eq):
+            call = node.left
+            expected = _literal_value(node.comparators[0])
+        elif isinstance(node, ast.Call):
+            call, expected = node, True
+        elif (
+            isinstance(node, ast.UnaryOp)
+            and isinstance(node.op, ast.Not)
+            and isinstance(node.operand, ast.Call)
+        ):
+            call, expected = node.operand, False
+        if not isinstance(call, ast.Call) or not isinstance(call.func, ast.Name):
+            continue
+        args = [_literal_value(arg) for arg in call.args]
+        keywords = {
+            str(keyword.arg): _literal_value(keyword.value)
+            for keyword in call.keywords
+            if keyword.arg is not None
+        }
+        out.append(
+            {
+                "callee": str(call.func.id),
+                "args": args,
+                "keywords": keywords,
+                "expected": expected,
+                "expected_kind": _literal_kind(expected),
+                "arg_kinds": [_literal_kind(value) for value in args],
+                "text": text,
+            }
+        )
+    return [row for row in out if str(row["callee"]) == str(name)]
+
+
+def _harvest_literals(docstring: str, examples: Sequence[Dict[str, Any]]) -> List[str]:
+    """String literals the specification itself names, as Python source.
+
+    A public description that names a constant ("the string 'std'") is part
+    of the task, not an implementation detail: binding it is what makes the
+    literal-count schema reachable without a per-task rule.  Only short,
+    single-line quotations are harvested, and the pool is capped, so the
+    binding stays a deterministic enumeration.
+    """
+    pool: List[str] = []
+
+    def add(value: str) -> None:
+        text = str(value).strip()
+        if not text or len(text) > 24:
+            return
+        if "\n" in text or "\t" in text:
+            return
+        rendered = repr(text)
+        if rendered not in pool:
+            pool.append(rendered)
+
+    for single, double in re.findall(r"'([^'\n]{1,24})'|\"([^\"\n]{1,24})\"", str(docstring)):
+        add(single or double)
+    for row in examples:
+        for value in row.get("args", []):
+            if isinstance(value, str):
+                add(value)
+    return pool[:6]
+
+
+def _module_exists(name: str) -> bool:
+    import importlib.util
+
+    try:
+        return importlib.util.find_spec(str(name)) is not None
+    except Exception:  # noqa: BLE001 - an unreadable name is not a dependency
+        return False
+
+
+def _prompt_faults(prompt: str) -> List[str]:
+    """Capability faults the PROMPT itself declares, before any synthesis.
+
+    A prompt that imports a module the U5 profile blocks, or a module that is
+    not installed at all, asks for a capability the emitted module cannot
+    have.  The screen is fail-closed on the prompt's own import statements
+    and silent on a prompt that is not valid Python.
+    """
+    try:
+        tree = ast.parse(str(prompt))
+    except SyntaxError:
+        return []
+    from henri.holarch.sandbox import BLOCKED_MODULES
+
+    faults: List[str] = []
+    for node in ast.walk(tree):
+        modules: List[str] = []
+        if isinstance(node, ast.Import):
+            modules = [str(alias.name) for alias in node.names]
+        elif isinstance(node, ast.ImportFrom):
+            modules = [str(node.module or "")]
+        for module in modules:
+            root = module.split(".")[0].strip()
+            if not root:
+                continue
+            if root in BLOCKED_MODULES:
+                faults.append("blocked_import:" + root)
+            elif not _module_exists(root):
+                faults.append("missing_import:" + root)
+    return sorted(set(faults))
+
+
+def _arity_fault(
+    examples: Sequence[Dict[str, Any]], expected: int, flexible: bool
+) -> str:
+    """A public example that calls the declared function with the wrong arity."""
+    if flexible or not examples:
+        return ""
+    arities = sorted({len(row.get("args", [])) for row in examples if not row.get("keywords")})
+    if arities and any(int(value) != int(expected) for value in arities):
+        return "arity_mismatch:" + ",".join(str(value) for value in arities)
+    return ""
+
+
+def _shape_from_examples(
+    examples: Sequence[Dict[str, Any]], return_kind: str
+) -> Dict[str, Any]:
+    """Length/permutation/elementwise/fold facts read off the public examples.
+
+    This is the structural prior the synthesizer ranks with.  Every fact is a
+    relation between an observed argument and an observed answer, so it holds
+    for any task whose public examples are literals.
+    """
+    shape: Dict[str, Any] = {
+        "fold": False,
+        "elementwise": False,
+        "permutation": False,
+        "pairwise": False,
+        "halving": False,
+        "subset": False,
+        "conversion": False,
+        "ratios": [],
+    }
+    for row in examples:
+        args = list(row.get("args", []))
+        expected = row.get("expected", _MISSING)
+        if expected is _MISSING:
+            continue
+        if return_kind in ("int", "float", "num", "bool") and any(
+            _literal_kind(value) in ("list", "tuple") for value in args
+        ):
+            shape["fold"] = True
+        if isinstance(expected, list):
+            if all(isinstance(item, tuple) and len(item) == 2 for item in expected) and expected:
+                shape["pairwise"] = True
+            for value in args:
+                if not isinstance(value, (list, tuple)):
+                    continue
+                if len(value) and len(expected) == len(value) and all(
+                    not isinstance(item, (list, tuple)) for item in expected
+                ):
+                    shape["elementwise"] = True
+                    if sorted(map(repr, expected)) == sorted(map(repr, value)):
+                        shape["permutation"] = True
+                if len(value) and len(expected) < len(value):
+                    shape["subset"] = True
+                if len(value) and len(expected) == len(value) // 2:
+                    shape["halving"] = True
+                if len(value) and len(expected) == max(0, len(value) - 1):
+                    shape["pairwise"] = True
+                if len(expected) and len(expected) == len(value):
+                    shape["ratios"].append(round(float(len(expected)) / float(len(value)), 3))
+        if isinstance(expected, (tuple, list)) and expected and all(
+            isinstance(item, int) and not isinstance(item, bool) for item in expected
+        ) and any(isinstance(value, str) for value in args):
+            shape["conversion"] = True
+        if isinstance(expected, str):
+            for value in args:
+                if not isinstance(value, str) or not value:
+                    continue
+                if len(expected) < len(value):
+                    shape["subset"] = True
+                if len(expected) * 2 == len(value):
+                    shape["halving"] = True
+    return shape
+
+
+def _prompt_call_names(text: str) -> List[str]:
+    """Names called by the prompt's own public examples."""
+    names: List[str] = []
+    for expression in _DOCTEST.findall(str(text)):
+        try:
+            tree = ast.parse(str(expression).strip(), mode="eval")
+        except SyntaxError:
+            continue
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
+                names.append(str(node.func.id))
+    for line in _ASSERT.findall(str(text)):
+        try:
+            tree = ast.parse(str(line).strip())
+        except SyntaxError:
+            continue
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
+                names.append(str(node.func.id))
+    return names
+
+
+def _select_signature(text: str):
+    """The definition a prompt is asking for.
+
+    A prompt may declare a helper before the function under test, and the
+    first def is then the wrong one.  The rule is outcome-blind: prefer the
+    LAST definition the prompt's own examples call, because the examples are
+    the public contract; a prompt with no call evidence falls back to its last
+    definition, which is where the requested function sits.
+    """
+    matches = list(_SIGNATURE.finditer(str(text)))
+    if not matches:
+        return None
+    called = set(_prompt_call_names(text))
+    for match in reversed(matches):
+        if str(match.group(1)) in called:
+            return match
+    return matches[-1]
+
+
 def parse_problem(prompt: str, *, extra_tests: Optional[Sequence[str]] = None) -> ProblemSpec:
     """Read one task prompt into a typed specification and a Slot-3 goal wave."""
     text = str(prompt)
-    match = _SIGNATURE.search(text)
+    match = _select_signature(text)
     if match is None:
         raise ValueError("prompt carries no function signature")
     name = str(match.group(1))
     returns = str(match.group(3) or "").strip()
     params: List[Dict[str, str]] = []
-    for raw in _split_params(match.group(2)):
+    raw_params = _split_params(match.group(2))
+    for raw in raw_params:
         if raw in ("self", "cls"):
             continue
         piece = raw.split(":")
@@ -147,15 +527,12 @@ def parse_problem(prompt: str, *, extra_tests: Optional[Sequence[str]] = None) -
                 "role": _annotation_role(annotation, left),
             }
         )
-    doc_match = re.search(r'"""(.*?)"""', text, flags=re.DOTALL)
+    # The docstring belongs to the selected definition, not to a helper that
+    # the prompt happened to define first.
+    doc_match = re.search(r'"""(.*?)"""', text[match.end():], flags=re.DOTALL)
     docstring = str(doc_match.group(1)) if doc_match else ""
     assertions = [line.strip() for line in _ASSERT.findall(docstring + "\n" + text)]
-    for line in _DOCTEST.findall(docstring):
-        expression = str(line).strip()
-        if "==" not in expression and not expression.startswith("assert"):
-            continue
-        assertions.append("assert " + expression if not expression.startswith("assert")
-                          else expression)
+    assertions.extend(_doctest_assertions(docstring))
     if extra_tests:
         assertions.extend(str(line).strip() for line in extra_tests)
     seen = set()
@@ -165,6 +542,59 @@ def parse_problem(prompt: str, *, extra_tests: Optional[Sequence[str]] = None) -
             continue
         seen.add(line)
         unique_assertions.append(line)
+
+    examples = _parse_examples(unique_assertions, name)
+    # An unannotated argument is typed by what the public examples actually
+    # pass into it.  The declaration wins when it declares a type.
+    for index, param in enumerate(params):
+        if str(param.get("annotation", "")).strip():
+            continue
+        kinds = {
+            row["arg_kinds"][index]
+            for row in examples
+            if index < len(row["arg_kinds"]) and row["arg_kinds"][index] != "any"
+        }
+        if len(kinds) == 1:
+            kind = kinds.pop()
+            if kind in ("list", "tuple", "set"):
+                param["role"] = "seq"
+            elif kind == "str":
+                param["role"] = "str"
+            elif kind in ("int", "float", "bool"):
+                param["role"] = "num"
+    arg_kinds = {}
+    for index, param in enumerate(params):
+        observed = {
+            row["arg_kinds"][index]
+            for row in examples
+            if index < len(row["arg_kinds"]) and row["arg_kinds"][index] != "any"
+        }
+        kind = observed.pop() if len(observed) == 1 else ""
+        if not kind:
+            kind = {"str": "str", "seq": "seq", "num": "num", "bool": "bool"}.get(
+                str(param["role"]), "any"
+            )
+        arg_kinds[str(param["name"])] = kind
+
+    expected_kinds = {
+        str(row["expected_kind"]) for row in examples if row["expected_kind"] != "any"
+    }
+    if not expected_kinds:
+        return_kind = "any"
+    elif len(expected_kinds) == 1:
+        return_kind = expected_kinds.pop()
+    elif expected_kinds <= {"int", "float"}:
+        return_kind = "num"
+    else:
+        return_kind = "any"
+
+    flexible = any(
+        ("=" in raw) or raw.startswith("*") or raw.startswith("**") for raw in raw_params
+    )
+    faults = _prompt_faults(text)
+    arity = _arity_fault(examples, len(params), flexible)
+    if arity:
+        faults.append(arity)
 
     # Slot-3 goal wave: the WaveCCG frame of the natural-language request is
     # projected to its canonical four-slot rotor and unit-normalised.  A
@@ -188,6 +618,13 @@ def parse_problem(prompt: str, *, extra_tests: Optional[Sequence[str]] = None) -
         assertions=unique_assertions,
         goal_wave=goal,
         contradictions=contradictions,
+        faults=faults,
+        examples=examples,
+        literals=_harvest_literals(docstring, examples),
+        return_kind=return_kind,
+        arg_kinds=arg_kinds,
+        shape=_shape_from_examples(examples, return_kind),
+        prompt=text,
     )
 
 
@@ -362,31 +799,230 @@ TEMPLATES: List[Tuple[Tuple[str, ...], str, str, str]] = [
 ]
 
 
-def _instantiate(template: str, spec: ProblemSpec) -> Optional[str]:
+# --------------------------------------------------------- schema families
+# General algorithmic schemas, not benchmark tasks.  Each entry is a typed
+# sketch the structural prior can rank: tags are ordinary English/CS words
+# that a specification may use, needs is the placeholder requirement, effect
+# is the structural class the sketch realises (fold, map, filter, pairwise,
+# sort, stride, dict, convert, predicate, tuple).  A sketch is instantiated
+# from the parsed specification only; nothing here names a task.
+SCHEMA_FAMILIES: List[Dict[str, Any]] = [
+    # ---- numeric predicates
+    {"tags": ("prime",), "needs": "num1", "effect": "predicate", "slot": "return_expr",
+     "body": "return {n1} >= 2 and not any({n1} % d == 0 for d in range(2, int({n1} ** 0.5) + 1))"},
+    {"tags": ("non", "prime", "composite"), "needs": "num1", "effect": "predicate",
+     "slot": "return_expr",
+     "body": "return {n1} < 2 or any({n1} % d == 0 for d in range(2, int({n1} ** 0.5) + 1))"},
+    {"tags": ("power", "two"), "needs": "num1", "effect": "predicate", "slot": "return_expr",
+     "body": "return {n1} > 0 and ({n1} & ({n1} - 1)) == 0"},
+    {"tags": ("power", "two", "not"), "needs": "num1", "effect": "predicate",
+     "slot": "return_expr",
+     "body": "return {n1} <= 0 or ({n1} & ({n1} - 1)) != 0"},
+    {"tags": ("differ", "bit", "position"), "needs": "num2", "effect": "predicate",
+     "slot": "return_expr",
+     "body": "value = {n1} ^ {n2}\n    return value != 0 and (value & (value - 1)) == 0"},
+    {"tags": ("opposite", "sign"), "needs": "num2", "effect": "predicate",
+     "slot": "return_expr",
+     "body": "return ({n1} >= 0) != ({n2} >= 0)"},
+    {"tags": ("perfect", "square"), "needs": "num1", "effect": "predicate",
+     "slot": "return_expr",
+     "body": "root = int({n1} ** 0.5)\n    return root * root == {n1}"},
+    {"tags": ("perfect", "square", "not"), "needs": "num1", "effect": "predicate",
+     "slot": "return_expr",
+     "body": "root = int({n1} ** 0.5)\n    return root * root != {n1}"},
+    # ---- order statistics
+    {"tags": ("second", "smallest", "unique"), "needs": "seq1", "effect": "select",
+     "slot": "loop",
+     "body": ("values = sorted(set({s1}))\n    if len(values) < 2:\n        return None\n"
+              "    return values[1]")},
+    {"tags": ("second", "largest", "unique"), "needs": "seq1", "effect": "select",
+     "slot": "loop",
+     "body": ("values = sorted(set({s1}))\n    if len(values) < 2:\n        return None\n"
+              "    return values[-2]")},
+    # ---- literal-bound string work
+    {"tags": ("count", "occurrence", "occurence", "frequency", "string"), "needs": "strlit",
+     "effect": "fold", "slot": "return_expr", "body": "return {s1}.count({lit1})"},
+    {"tags": ("position", "index", "find", "string"), "needs": "strlit",
+     "effect": "scalar", "slot": "return_expr", "body": "return {s1}.find({lit1})"},
+    {"tags": ("count", "digit", "string", "number"), "needs": "str1", "effect": "fold",
+     "slot": "comprehension", "body": "return sum(1 for c in {s1} if c.isdigit())"},
+    {"tags": ("count", "letter", "alpha", "string"), "needs": "str1", "effect": "fold",
+     "slot": "comprehension", "body": "return sum(1 for c in {s1} if c.isalpha())"},
+    {"tags": ("count", "upper", "capital"), "needs": "str1", "effect": "fold",
+     "slot": "comprehension", "body": "return sum(1 for c in {s1} if c.isupper())"},
+    {"tags": ("digit", "list", "number"), "needs": "num1", "effect": "map",
+     "slot": "comprehension", "body": "return [int(c) for c in str({n1})]"},
+    {"tags": ("count", "set", "bit", "binary"), "needs": "num1", "effect": "fold",
+     "slot": "return_expr", "body": "return bin({n1}).count('1')"},
+    # ---- pairwise and adjacency
+    {"tags": ("pair", "consecutive", "adjacent", "pairs"), "needs": "seq1",
+     "effect": "pairwise", "slot": "pairwise",
+     "body": "return list(zip({s1}, {s1}[1:]))"},
+    {"tags": ("multiply", "product", "tuple", "element", "consecutive"), "needs": "seq1",
+     "effect": "pairwise", "slot": "pairwise",
+     "body": "return tuple(a * b for a, b in zip({s1}, {s1}[1:]))"},
+    {"tags": ("sum", "adjacent", "pair", "consecutive"), "needs": "seq1",
+     "effect": "pairwise", "slot": "pairwise",
+     "body": "return [a + b for a, b in zip({s1}, {s1}[1:])]"},
+    {"tags": ("consecutive", "duplicate", "remove"), "needs": "seq1", "effect": "filter",
+     "slot": "loop",
+     "body": ("out = []\n    for index, value in enumerate({s1}):\n"
+              "        if index == 0 or value != {s1}[index - 1]:\n"
+              "            out.append(value)\n    return out")},
+    # ---- two-list and three-list alignment
+    {"tags": ("count", "same", "indices", "equal", "pair"), "needs": "seq2",
+     "effect": "fold", "slot": "comprehension",
+     "body": "return sum(1 for a, b in zip({s1}, {s2}) if a == b)"},
+    {"tags": ("common", "index", "list", "equal"), "needs": "seq2", "effect": "filter",
+     "slot": "comprehension", "body": "return [a for a, b in zip({s1}, {s2}) if a == b]"},
+    {"tags": ("common", "three", "index", "list"), "needs": "seq3", "effect": "filter",
+     "slot": "comprehension",
+     "body": "return [a for a, b, c in zip({s1}, {s2}, {s3}) if a == b == c]"},
+    {"tags": ("count", "pair", "sum"), "needs": "seqnum", "effect": "fold", "slot": "loop",
+     "body": ("total = 0\n    for i in range(len({s1})):\n"
+              "        for j in range(i + 1, len({s1})):\n"
+              "            if {s1}[i] + {s1}[j] == {n1}:\n"
+              "                total += 1\n    return total")},
+    {"tags": ("majority", "element", "array", "sorted"), "needs": "seqnum2",
+     "effect": "fold", "slot": "return_expr",
+     "body": "return {s1}.count({n2}) * 2 > {n1}"},
+    {"tags": ("below", "under", "threshold", "less", "smaller", "all"), "needs": "seqnum",
+     "effect": "predicate", "slot": "return_expr",
+     "body": "return all(item < {n1} for item in {s1})"},
+    {"tags": ("above", "over", "threshold", "greater", "larger", "all"), "needs": "seqnum",
+     "effect": "predicate", "slot": "return_expr",
+     "body": "return all(item > {n1} for item in {s1})"},
+    {"tags": ("count", "unique", "sublist", "list", "dictionary"), "needs": "seq1",
+     "effect": "dict", "slot": "dict_fold",
+     "body": ("out = {}\n    for item in {s1}:\n        key = tuple(item)\n"
+              "        out[key] = out.get(key, 0) + 1\n    return out")},
+    # ---- bit rotation and digit arithmetic
+    {"tags": ("rotate", "left", "bit"), "needs": "num2", "effect": "scalar",
+     "slot": "return_expr", "body": "return ({n1} << {n2}) | ({n1} >> (32 - {n2}))"},
+    {"tags": ("rotate", "right", "bit"), "needs": "num2", "effect": "scalar",
+     "slot": "return_expr", "body": "return ({n1} >> {n2}) | ({n1} << (32 - {n2}))"},
+    {"tags": ("digit", "sum", "power", "base"), "needs": "num2", "effect": "fold",
+     "slot": "comprehension", "body": "return sum(int(c) for c in str({n1} ** {n2}))"},
+    # ---- structure conversion
+    {"tags": ("convert", "tuple", "string", "integer"), "needs": "str1",
+     "effect": "convert", "slot": "convert",
+     "body": ("return tuple(int(part) for part in "
+              "{s1}.replace('(', '').replace(')', '').split(','))")},
+    {"tags": ("remove", "tuple", "nested"), "needs": "seq1", "effect": "filter",
+     "slot": "comprehension",
+     "body": "return tuple(item for item in {s1} if not isinstance(item, tuple))"},
+    {"tags": ("count", "rotation", "sorted", "array"), "needs": "seq1", "effect": "fold",
+     "slot": "loop",
+     "body": ("for i in range(1, len({s1})):\n        if {s1}[i] < {s1}[i - 1]:\n"
+              "            return i\n    return 0")},
+    # ---- regular expressions
+    {"tags": ("decimal", "precision", "number", "string"), "needs": "str1",
+     "effect": "predicate", "slot": "regex",
+     "body": "import re\n    return bool(re.fullmatch(r'\\d+(\\.\\d{1,2})?', {s1}))"},
+    {"tags": ("occurrence", "occurence", "substring", "position", "string"),
+     "needs": "str2", "effect": "tuple", "slot": "regex",
+     "body": ("import re\n    match = re.search({s2}, {s1})\n"
+              "    if match is None:\n        return None\n"
+              "    return (match.group(0), match.start(), match.end())")},
+    {"tags": ("quotation", "quote", "extract", "string"), "needs": "str1",
+     "effect": "list", "slot": "regex",
+     "body": "import re\n    return re.findall('\"(.*?)\"', {s1})"},
+    # ---- positional transforms
+    {"tags": ("odd", "index", "remove", "string"), "needs": "str1", "effect": "stride",
+     "slot": "return_expr", "body": "return {s1}[::2]"},
+    {"tags": ("odd", "index", "every", "other", "list"), "needs": "seq1",
+     "effect": "stride", "slot": "return_expr", "body": "return {s1}[::2]"},
+    {"tags": ("odd", "index", "second"), "needs": "str1", "effect": "stride",
+     "slot": "return_expr", "body": "return {s1}[1::2]"},
+    {"tags": ("sort", "ascending", "order", "sorted"), "needs": "seq1",
+     "effect": "sort", "slot": "return_expr", "body": "return sorted({s1})"},
+    {"tags": ("rotate", "left", "list"), "needs": "seq1", "effect": "map",
+     "slot": "return_expr", "body": "return {s1}[1:] + {s1}[:1]"},
+    {"tags": ("intersperse", "delimiter", "between"), "needs": "seqnum",
+     "effect": "map", "slot": "loop",
+     "body": ("out = []\n    for item in {s1}:\n        out.append(item)\n"
+              "        out.append({n1})\n    return out[:-1]")},
+]
+
+
+_KIND_NEEDS: Dict[str, Tuple[str, ...]] = {
+    "seq1": ("s1",),
+    "seq2": ("s1", "s2"),
+    "seq3": ("s1", "s2", "s3"),
+    "seqnum": ("s1", "n1"),
+    "seqnum2": ("s1", "n1", "n2"),
+    "seq2num": ("s1", "s2", "n1"),
+    "str1": ("s1",),
+    "str2": ("s1", "s2"),
+    "str3": ("s1", "s2", "s3"),
+    "strnum": ("s1", "n1"),
+    "strlit": ("s1", "lit1"),
+    "str2lit": ("s1", "s2", "lit1"),
+    "num1": ("n1",),
+    "num2": ("n1", "n2"),
+    "num3": ("n1", "n2", "n3"),
+    "any2": ("n1", "n2"),
+    "any3": ("n1", "n2", "n3"),
+    "none": (),
+}
+
+
+def _requirement_placeholders(needs: Optional[str]) -> Tuple[str, ...]:
+    text = str(needs or "").strip()
+    if text in _KIND_NEEDS:
+        return _KIND_NEEDS[text]
+    if not text:
+        return ()
+    return tuple(part.strip() for part in text.split(",") if part.strip())
+
+
+def _instantiate(
+    template: str,
+    spec: ProblemSpec,
+    needs: Optional[str] = None,
+    strict_numeric: bool = False,
+) -> Optional[str]:
+    """Bind a typed sketch to the parsed signature, or refuse the sketch.
+
+    The requirement names the placeholders the sketch needs: s-codes read the
+    string and sequence arguments, n-codes the numeric ones, lit-codes the
+    literal constants the specification itself names.  A missing pool entry
+    refuses the sketch instead of emitting an unbound placeholder.
+    """
     seqs = spec.by_role("seq")
     strs = spec.by_role("str")
     nums = spec.by_role("num")
     binding: Dict[str, str] = {"name": spec.name}
-    kind_needs = {
-        "seq1": ["s1"], "seq2": ["s1", "s2"], "seqnum": ["s1", "n1"],
-        "str1": ["s1"], "str2": ["s1", "s2"], "str3": ["s1", "s2", "s3"],
-        "num1": ["n1"], "num2": ["n1", "n2"], "any2": ["n1", "n2"],
-    }
+    required = list(_requirement_placeholders(needs))
     for key in re.findall(r"\{(\w+)\}", template):
+        if key not in required:
+            required.append(key)
+    for key in required:
         if key == "name":
             continue
-        if key.startswith("s"):
-            pool = strs + seqs
-            index = int(key[1:]) - 1
-            if index >= len(pool):
+        if key.startswith("lit"):
+            index = int(key[3:]) - 1
+            if index < 0 or index >= len(spec.literals):
                 return None
-            binding[key] = pool[index]
+            binding[key] = spec.literals[index]
+            continue
+        if key.startswith("s"):
+            # A str-coded sketch reads STRING arguments only; a seq-coded one
+            # may read either, because a string is a sequence too.  Merging
+            # the pools unconditionally bound a character predicate to a list
+            # of numbers, which is a type error the sketch never meant.
+            str_only = str(needs or "").startswith("str")
+            pool = strs if str_only else (strs + seqs)
+        elif strict_numeric:
+            # A schema family that declares a numeric slot means a NUMBER:
+            # binding it to a list argument would type-error by construction.
+            pool = nums
         else:
             pool = nums + [name for name in seqs if name not in nums]
-            index = int(key[1:]) - 1
-            if index >= len(pool):
-                return None
-            binding[key] = pool[index]
+        index = int(key[1:]) - 1
+        if index < 0 or index >= len(pool):
+            return None
+        binding[key] = pool[index]
 
     def substitute(match):
         key = match.group(1)
@@ -398,6 +1034,23 @@ def _instantiate(template: str, spec: ProblemSpec) -> Optional[str]:
 def build_candidates(spec: ProblemSpec) -> List[Dict[str, Any]]:
     """Every typed sketch the slot inventory admits, before wave pruning."""
     out: List[Dict[str, Any]] = []
+    seen: set = set()
+
+    def add(tags, body, slot, kind, effect="") -> None:
+        text = str(body)
+        if text in seen:
+            return
+        seen.add(text)
+        out.append(
+            {
+                "body": text,
+                "tags": tuple(tags),
+                "slot": str(slot),
+                "kind": str(kind),
+                "effect": str(effect),
+            }
+        )
+
     for tags, kind, body, slot in TEMPLATES:
         if kind.startswith("num") and not (spec.by_role("num") or spec.by_role("seq")):
             continue
@@ -405,11 +1058,21 @@ def build_candidates(spec: ProblemSpec) -> List[Dict[str, Any]]:
             continue
         if kind.startswith("seq") and not spec.by_role("seq"):
             continue
-        rendered = _instantiate(body, spec)
+        rendered = _instantiate(body, spec, kind)
         if rendered is None:
             continue
-        out.append({"body": rendered, "tags": tuple(tags), "slot": slot,
-                    "kind": kind})
+        add(tags, rendered, slot, kind)
+    for family in SCHEMA_FAMILIES:
+        rendered = _instantiate(
+            str(family["body"]), spec, str(family["needs"]), strict_numeric=True
+        )
+        if rendered is None:
+            continue
+        add(family["tags"], rendered, family["slot"], family["needs"],
+            family.get("effect", ""))
+    for family in schema_candidates(spec):
+        add(family["tags"], family["body"], family["slot"],
+            family.get("needs", ""), family.get("effect", ""))
     return out
 
 
@@ -464,13 +1127,29 @@ class ColdSynthesizer:
 
     # -------------------------------------------------------------- ranking
     def rank(self, spec: ProblemSpec) -> Tuple[List[Dict[str, Any]], Dict[str, int]]:
-        """Prune every slot to V_eff <= slot_support, then rank by the prior."""
+        """Prune every slot to V_eff <= slot_support, then rank by the prior.
+
+        The prior is structural first: the sketch's inferred output kind is
+        compared with the kind the public examples agree on, and its effect
+        class is compared with the shape facts read off the same examples.
+        Vocabulary hits and the local wave score break the remaining ties.
+        """
         words = set(spec.words)
         candidates = build_candidates(spec)
         for candidate in candidates:
             hits = sum(1 for tag in candidate["tags"] if tag in words)
             candidate["keyword"] = int(hits)
             candidate["wave"] = self._wave_score(candidate["body"])
+            candidate["out_kind"] = _body_kind(candidate["body"], spec.arg_kinds)
+            # Vocabulary support is part of the score, not a tie-break: a
+            # sketch the specification never mentions must not outrank one
+            # it names, or a structurally plausible body can win on two
+            # lucky examples alone.
+            candidate["score"] = float(
+                _kind_match(candidate["out_kind"], spec.return_kind)
+                + _effect_bonus(candidate, spec)
+                + min(float(hits), 3.0)
+            )
         slots: Dict[str, List[Dict[str, Any]]] = {}
         for candidate in candidates:
             slots.setdefault(str(candidate["slot"]), []).append(candidate)
@@ -479,12 +1158,24 @@ class ColdSynthesizer:
         for slot, items in slots.items():
             items = sorted(
                 items,
-                key=lambda row: (-float(row["keyword"]), -float(row["wave"])),
+                key=lambda row: (
+                    -float(row["score"]),
+                    -float(row["keyword"]),
+                    -float(row["wave"]),
+                    str(row["body"]),
+                ),
             )
             keep = items[: self.slot_support]
             v_eff[slot] = int(len(keep))
             admitted.extend(keep)
-        admitted.sort(key=lambda row: (-float(row["keyword"]), -float(row["wave"])))
+        admitted.sort(
+            key=lambda row: (
+                -float(row["score"]),
+                -float(row["keyword"]),
+                -float(row["wave"]),
+                str(row["body"]),
+            )
+        )
         return admitted, v_eff
 
     # ---------------------------------------------------------- verification
@@ -493,7 +1184,10 @@ class ColdSynthesizer:
 
         The annotations are what the RepoSheaf capability pullback reads, so a
         body that demands a capability its declared argument cannot provision
-        is refused before it is executed.
+        is refused before it is executed.  A declared annotation may name a
+        typing constructor (List, Optional, Tuple, ...); the module then
+        carries the import that makes the annotation evaluable, because an
+        annotation the module cannot resolve would fail at definition time.
         """
         declared = ", ".join(
             "%s: %s" % (param["name"], param["annotation"])
@@ -502,7 +1196,9 @@ class ColdSynthesizer:
             for param in spec.params
         )
         suffix = (" -> " + str(spec.returns)) if spec.returns else ""
-        return "def %s(%s)%s:\n    %s\n" % (spec.name, declared, suffix, body)
+        source = "def %s(%s)%s:\n    %s\n" % (spec.name, declared, suffix, body)
+        prelude = _typing_prelude(source)
+        return (prelude + source) if prelude else source
 
     def _verify(self, spec: ProblemSpec, source: str) -> Tuple[bool, str]:
         """Syntax, capability and public-assertion check inside the U5 box."""
@@ -534,7 +1230,15 @@ class ColdSynthesizer:
             if profile is None:
                 return False, "sheaf:missing_function"
             provision = _return_provision(profile)
-            if float(np.linalg.norm(provision)) <= 0.0 and "None" not in str(spec.returns):
+            # The pullback reads a DECLARED return type.  An unannotated
+            # function has no return provision to be empty, so the check is
+            # applied only when the signature declares one.
+            declared_return = str(spec.returns).strip()
+            if (
+                float(np.linalg.norm(provision)) <= 0.0
+                and declared_return
+                and "None" not in declared_return
+            ):
                 return False, "sheaf:empty_return_provision"
             from henri.holarch.repo_sheaf import (
                 CAP_CALLABLE,
@@ -633,7 +1337,7 @@ class ColdSynthesizer:
         failed: Sequence[str],
         temperature: float,
         generator: np.random.Generator,
-        greedy: int = 8,
+        greedy: int = 16,
     ) -> List[Dict[str, Any]]:
         """Greedy head, then high-temperature sampling away from failures."""
         remaining = [row for row in ranked if row["body"] not in set(failed)]
@@ -680,13 +1384,25 @@ class ColdSynthesizer:
             "source": "",
             "reason": "",
             "trajectory": [],
+            "return_kind": str(spec.return_kind),
+            "faults": list(spec.faults),
+            "shape": dict(spec.shape),
         }
         if spec.contradictions:
             report["reason"] = "contradictory_spec"
             self.last_report = report
             return report
-        lowered = (spec.docstring + " " + prompt).lower()
-        if any(word in lowered for word in _UNSATISFIABLE_WORDS):
+        if spec.faults:
+            report["reason"] = "spec_fault:" + str(spec.faults[0])
+            self.last_report = report
+            return report
+        if not spec.assertions:
+            # Nothing to verify against: a bare pass would be a vacuous
+            # emission, so the call fail-closes instead of guessing.
+            report["reason"] = "no_public_examples"
+            self.last_report = report
+            return report
+        if _unsatisfiable(spec.docstring + " " + prompt):
             report["reason"] = "unsatisfiable_capability"
             self.last_report = report
             return report
@@ -742,6 +1458,515 @@ class ColdSynthesizer:
             self.crystallized += 1
         except Exception:  # noqa: BLE001 - an optional write is not a gate
             return
+
+
+# --------------------------------------------------- structural prior (Z2)
+_KIND_GROUPS = {
+    "int": 1.0,
+    "float": 1.0,
+    "num": 1.0,
+}
+
+_TYPING_NAMES = frozenset(
+    {
+        "List", "Dict", "Tuple", "Set", "FrozenSet", "Optional", "Union",
+        "Any", "Callable", "Iterable", "Iterator", "Sequence", "Mapping",
+        "MutableMapping", "TypeVar", "Generic", "Literal", "TypedDict",
+        "NamedTuple", "Deque", "DefaultDict", "Counter", "Type", "NoReturn",
+        "Generator", "AsyncIterator", "Awaitable",
+    }
+)
+
+
+def _typing_prelude(source: str) -> str:
+    """The typing import a module needs to evaluate its own annotations."""
+    try:
+        tree = ast.parse(str(source))
+    except SyntaxError:
+        return ""
+    needed: set = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.arg) and node.annotation is not None:
+            for sub in ast.walk(node.annotation):
+                if isinstance(sub, ast.Name) and sub.id in _TYPING_NAMES:
+                    needed.add(sub.id)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.returns is not None:
+            for sub in ast.walk(node.returns):
+                if isinstance(sub, ast.Name) and sub.id in _TYPING_NAMES:
+                    needed.add(sub.id)
+    if not needed:
+        return ""
+    return "from typing import " + ", ".join(sorted(needed)) + "\n\n"
+
+
+def _merge_kinds(kinds: Sequence[str]) -> str:
+    values = [str(kind) for kind in kinds if str(kind)]
+    if not values:
+        return "none"
+    without_none = [kind for kind in values if kind != "none"]
+    if without_none:
+        values = without_none
+    else:
+        return "none"
+    unique = set(values)
+    if len(unique) == 1:
+        return unique.pop()
+    if unique <= {"int", "float", "num"}:
+        return "num"
+    if unique <= {"bool", "int"}:
+        return "bool"
+    return "any"
+
+
+def _expr_kind(node: ast.AST, env: Dict[str, str]) -> str:
+    """The structural kind of one expression under a typed name environment."""
+    if isinstance(node, ast.Constant):
+        return _literal_kind(node.value)
+    if isinstance(node, ast.Name):
+        return str(env.get(node.id, "any"))
+    if isinstance(node, (ast.List, ast.ListComp)):
+        return "list"
+    if isinstance(node, ast.Tuple):
+        return "tuple"
+    if isinstance(node, (ast.Dict, ast.DictComp)):
+        return "dict"
+    if isinstance(node, (ast.Set, ast.SetComp)):
+        return "set"
+    if isinstance(node, ast.Compare):
+        return "bool"
+    if isinstance(node, ast.BoolOp):
+        return "bool"
+    if isinstance(node, ast.UnaryOp):
+        if isinstance(node.op, ast.Not):
+            return "bool"
+        return _expr_kind(node.operand, env)
+    if isinstance(node, ast.IfExp):
+        return _merge_kinds(
+            [_expr_kind(node.body, env), _expr_kind(node.orelse, env)]
+        )
+    if isinstance(node, ast.BinOp):
+        left = _expr_kind(node.left, env)
+        right = _expr_kind(node.right, env)
+        if isinstance(node.op, ast.Add) and "str" in (left, right):
+            return "str"
+        if isinstance(node.op, ast.Add) and left in ("list", "tuple"):
+            return left
+        if isinstance(node.op, ast.FloorDiv) and left in ("int", "num") and right == "int":
+            return "int"
+        if left == "str" and isinstance(node.op, ast.Mod):
+            return "str"
+        return "num"
+    if isinstance(node, ast.Call):
+        return _call_kind(node, env)
+    if isinstance(node, ast.Subscript):
+        base = _expr_kind(node.value, env)
+        if isinstance(node.slice, ast.Slice):
+            return base
+        return "any"
+    if isinstance(node, ast.JoinedStr):
+        return "str"
+    return "any"
+
+
+def _call_kind(node: ast.Call, env: Dict[str, str]) -> str:
+    func = node.func
+    if isinstance(func, ast.Name):
+        table = {
+            "len": "int", "int": "int", "ord": "int", "hash": "int",
+            "float": "num", "round": "num", "abs": "num", "sum": "num",
+            "pow": "num", "min": "any", "max": "any",
+            "str": "str", "repr": "str", "chr": "str", "format": "str",
+            "sorted": "list", "list": "list", "reversed": "list",
+            "tuple": "tuple", "dict": "dict", "set": "set",
+            "frozenset": "set", "bool": "bool", "any": "bool", "all": "bool",
+            "isinstance": "bool", "callable": "bool", "iter": "any",
+            "enumerate": "any", "zip": "any", "map": "any", "filter": "any",
+        }
+        return str(table.get(str(func.id), "any"))
+    if isinstance(func, ast.Attribute):
+        name = str(func.attr)
+        if name in {"count", "index", "find", "rfind", "bit_length", "rindex"}:
+            return "int"
+        if name in {
+            "isdigit", "isalpha", "isalnum", "isspace", "isupper", "islower",
+            "isdecimal", "isnumeric", "startswith", "endswith", "isidentifier",
+        }:
+            return "bool"
+        if name in {
+            "join", "upper", "lower", "title", "strip", "lstrip", "rstrip",
+            "replace", "format", "capitalize", "swapcase", "casefold",
+            "center", "zfill", "ljust", "rjust",
+        }:
+            return "str"
+        if name in {"split", "splitlines", "findall", "keys", "values", "items", "copy"}:
+            return "list"
+        if name in {"get", "setdefault", "pop"}:
+            return "any"
+        if name in {"append", "extend", "sort", "add", "update", "discard", "insert"}:
+            return "none"
+        if name in {"search", "match", "fullmatch"}:
+            return "match"
+    return "any"
+
+
+def _body_kind(body: str, env: Optional[Dict[str, str]] = None) -> str:
+    """Statically infer the output kind of one candidate body.
+
+    Local bindings are typed first: a loop over range() binds an int, a loop
+    over a sequence binds its element kind, and an assignment binds the kind
+    of its right-hand side.  Without that pass a structured loop body would
+    return an unknown name and be ranked as if its type were unknown.
+    """
+    try:
+        tree = ast.parse("def _candidate():\n    " + str(body) + "\n")
+    except SyntaxError:
+        return "any"
+    scope = dict(env or {})
+    function = next(
+        (node for node in tree.body if isinstance(node, ast.FunctionDef)), None
+    )
+    if function is None:
+        return "any"
+    for node in ast.walk(function):
+        if isinstance(node, (ast.For, ast.AsyncFor)):
+            iterated = _iterated_kind(node.iter, scope)
+            for target in ast.walk(node.target):
+                if isinstance(target, ast.Name):
+                    scope[target.id] = "int" if isinstance(node.iter, ast.Call) and getattr(node.iter.func, "id", "") == "range" else iterated
+        elif isinstance(node, ast.Assign):
+            value_kind = _expr_kind(node.value, scope)
+            for target in node.targets:
+                if isinstance(target, ast.Name):
+                    scope[target.id] = value_kind
+                elif isinstance(target, (ast.Tuple, ast.List)):
+                    for element in target.elts:
+                        if isinstance(element, ast.Name):
+                            scope[element.id] = "any"
+        elif isinstance(node, ast.AugAssign) and isinstance(node.target, ast.Name):
+            scope[node.target.id] = _expr_kind(node.value, scope)
+    kinds: List[str] = []
+    for node in ast.walk(function):
+        if isinstance(node, ast.Return):
+            kinds.append("none" if node.value is None else _expr_kind(node.value, scope))
+    return _merge_kinds(kinds)
+
+
+def _iterated_kind(node: ast.AST, env: Dict[str, str]) -> str:
+    """The element kind a for-loop target receives."""
+    if isinstance(node, ast.Call):
+        name = getattr(node.func, "id", "") or getattr(node.func, "attr", "")
+        if name in {"range", "enumerate"}:
+            return "int"
+        if name in {"zip", "items"}:
+            return "any"
+        if name in {"keys", "values"}:
+            return "any"
+    return "any"
+
+
+def _kind_match(actual: str, wanted: str) -> float:
+    """How well an inferred output kind matches the examples' answer kind."""
+    left = str(actual or "any")
+    right = str(wanted or "any")
+    if left == "any" or right == "any":
+        return 0.0
+    if left == right:
+        return 4.0
+    numeric = {"int", "float", "num"}
+    if left in numeric and right in numeric:
+        return 3.0
+    if left in {"bool", "int", "num"} and right in {"bool", "int", "num"}:
+        return 2.0
+    if left == "match" and right == "bool":
+        return 2.0
+    if left in {"list", "tuple", "str"} and right == "seq":
+        return 2.0
+    if right in {"list", "tuple", "str"} and left == "seq":
+        return 2.0
+    if left == "none" or right == "none":
+        return 0.0
+    return -4.0
+
+
+def _effect_bonus(candidate: Dict[str, Any], spec: ProblemSpec) -> float:
+    """The shape facts the effect class of a sketch agrees with."""
+    effect = str(candidate.get("effect", ""))
+    shape = spec.shape or {}
+    bonus = 0.0
+    if effect == "fold" and shape.get("fold"):
+        bonus += 1.5
+    if effect == "map" and shape.get("elementwise"):
+        bonus += 1.5
+    if effect == "filter" and shape.get("subset"):
+        bonus += 1.0
+    if effect in ("sort", "permute") and shape.get("permutation"):
+        bonus += 1.5
+    if effect == "pairwise" and shape.get("pairwise"):
+        bonus += 2.0
+    if effect == "stride" and shape.get("halving"):
+        bonus += 2.0
+    if effect == "predicate" and spec.return_kind == "bool":
+        bonus += 1.0
+    if effect == "tuple" and spec.return_kind == "tuple":
+        bonus += 1.5
+    if effect == "dict" and spec.return_kind == "dict":
+        bonus += 1.5
+    if effect == "convert" and shape.get("conversion"):
+        bonus += 1.5
+    if effect == "recurrence" and any(
+        row.get("expected_kind") in ("int", "float", "num") for row in spec.examples
+    ):
+        bonus += 1.0
+    return float(bonus)
+
+
+def _unsatisfiable(text: str) -> bool:
+    """True when the specification asks for a capability the profile lacks.
+
+    A citation URL is not a network request: the URL is stripped before the
+    vocabulary screen runs, so a docstring that links a reference page is not
+    refused for containing the letters of a protocol name.
+    """
+    cleaned = _URL.sub(" ", str(text)).lower()
+    return any(word in cleaned for word in _UNSATISFIABLE_WORDS)
+
+
+_QUOTED_CHAR = re.compile(r"['\"]([A-Za-z0-9])['\"]")
+_SINGLE_CHAR = re.compile(r"(?<![A-Za-z0-9])([A-Za-z0-9])(?![A-Za-z0-9])")
+_QUANTIFIER_WORDS = (
+    (re.compile(r"one or more|at least one|one or many"), "+"),
+    (re.compile(r"zero or more|any number of"), "*"),
+    (re.compile(r"zero or one|optional|at most one"), "?"),
+    (re.compile(r"\bthree\b"), "{3}"),
+    (re.compile(r"\btwo\b"), "{2}"),
+    (re.compile(r"\bfour\b"), "{4}"),
+)
+
+
+def _regex_candidates(spec: ProblemSpec) -> List[Dict[str, Any]]:
+    """Regex sketches read from a natural-language match description.
+
+    The description names the two characters and the quantifier ("an 'a'
+    followed by one or more 'b's"), so the pattern is a general reading of
+    the sentence, not a stored answer.  A description without the relation
+    yields no candidate.
+    """
+    out: List[Dict[str, Any]] = []
+    text = str(spec.docstring)
+    lowered = text.lower()
+    marker = "followed by"
+    if marker not in lowered:
+        return out
+    strings = spec.by_role("str")
+    if not strings:
+        return out
+    index = lowered.index(marker)
+    window = lowered[max(0, index - 24): index]
+    firsts = _SINGLE_CHAR.findall(window)
+    first = firsts[-1] if firsts else ""
+    after = text[index + len(marker):]
+    quoted = _QUOTED_CHAR.findall(after)
+    second = quoted[0] if quoted else ""
+    if not second:
+        tokens = _SINGLE_CHAR.findall(after)
+        second = tokens[0] if tokens else ""
+    if not first or not second:
+        return out
+    quantifier = ""
+    for pattern, symbol in _QUANTIFIER_WORDS:
+        if pattern.search(after.lower()):
+            quantifier = symbol
+            break
+    if not quantifier:
+        quantifier = "+"
+    pattern = str(first) + str(second) + quantifier
+    body = "import re\n    return bool(re.search(r'%s', %s))" % (pattern, strings[0])
+    out.append(
+        {
+            "tags": ("match", "string", "pattern", "followed"),
+            "body": body,
+            "slot": "regex",
+            "needs": "str1",
+            "effect": "predicate",
+        }
+    )
+    return out
+
+
+_NUMBER_RUN = re.compile(r"(?<![\w.])-?\d+(?:\s*,\s*-?\d+){5,}")
+
+
+def _recurrence_candidates(spec: ProblemSpec) -> List[Dict[str, Any]]:
+    """A linear recurrence fitted to the sequence the specification prints.
+
+    A specification that lists the first terms of a sequence states the very
+    data a two-term linear recurrence needs.  The fit is a small exhaustive
+    search over integer coefficients, accepted only when it is unique, so an
+    ambiguous sequence yields no candidate and cannot be emitted by guess.
+    """
+    out: List[Dict[str, Any]] = []
+    numbers = spec.by_role("num")
+    if len(numbers) != 1:
+        return out
+    for match in _NUMBER_RUN.finditer(str(spec.docstring)):
+        terms = [int(value) for value in re.findall(r"-?\d+", match.group(0))]
+        if len(terms) < 6:
+            continue
+        fits = []
+        for p in range(-3, 4):
+            for q in range(-3, 4):
+                if p == 0 and q == 0:
+                    continue
+                if all(
+                    terms[i] == p * terms[i - 1] + q * terms[i - 2]
+                    for i in range(2, len(terms))
+                ):
+                    fits.append((p, q))
+        if len(fits) != 1:
+            continue
+        p, q = fits[0]
+        body = (
+            "if {n1} < 2:\n"
+            "        return %d if {n1} == 0 else %d\n"
+            "    table = [%d, %d]\n"
+            "    for i in range(2, {n1} + 1):\n"
+            "        table.append(%d * table[i - 1] + %d * table[i - 2])\n"
+            "    return table[{n1}]"
+            % (terms[0], terms[1], terms[0], terms[1], p, q)
+        )
+        out.append(
+            {
+                "tags": ("nth", "number", "term", "sequence"),
+                "body": body.replace("{n1}", str(numbers[0])),
+                "slot": "recurrence",
+                "needs": "num1",
+                "effect": "recurrence",
+            }
+        )
+    return out
+
+
+def schema_candidates(spec: ProblemSpec) -> List[Dict[str, Any]]:
+    """Sketches generated from the parsed specification, not from a table."""
+    out: List[Dict[str, Any]] = []
+    out.extend(_regex_candidates(spec))
+    out.extend(_recurrence_candidates(spec))
+    return out
+
+
+# ------------------------------------------------------------ branch audit
+_TASK_IDENTITY_ATTRS = frozenset(
+    {"name", "task", "task_id", "taskid", "task_name", "entry_point", "prompt", "func"}
+)
+# The closed vocabulary of literals this module is allowed to compare with:
+# structural type tags, effect tags, placeholder keys and punctuation.  A
+# comparison against anything else is reported as unexplained, so a task name
+# cannot hide behind the audit's own allowance.
+_AUDIT_VOCABULARY = frozenset(
+    {
+        "bool", "str", "seq", "num", "int", "float", "any", "none", "match",
+        "list", "tuple", "dict", "set", "name", "fold", "map", "filter",
+        "pairwise", "stride", "predicate", "convert", "recurrence", "sort",
+        "permute", "select", "scalar",
+        "==", "=", ",", "(", ")", "[", "]", "{", "}", "([{", ")]}",
+        "\n", "\t", "None", "Traceback", "range", "enumerate", "zip",
+        "get", "items", "keys", "values", "sort", "append",
+    }
+)
+
+
+def _identity_expression(node: ast.AST) -> bool:
+    if isinstance(node, ast.Name):
+        return str(node.id).lower() in _TASK_IDENTITY_ATTRS
+    if isinstance(node, ast.Attribute):
+        return str(node.attr).lower() in _TASK_IDENTITY_ATTRS
+    if isinstance(node, ast.Subscript):
+        if _identity_expression(node.value):
+            return True
+        slice_node = node.slice
+        return isinstance(slice_node, ast.Constant) and str(slice_node.value).lower() in _TASK_IDENTITY_ATTRS
+    return False
+
+
+def audit_task_specific_branches(
+    source: str, identifiers: Sequence[str] = ()
+) -> Dict[str, Any]:
+    """Count any branch on a task name or a task id in one source file.
+
+    Two counters decide the audit.  task_identity_comparisons counts a string
+    comparison whose other side reads a task identity (a .name, a task_id, an
+    entry_point), which is the shape a per-task special case takes.
+    task_identifier_literals counts string literals in the module that equal
+    one of the supplied benchmark identifiers.  Both must be zero.
+    """
+    tree = ast.parse(str(source))
+    string_comparisons = 0
+    structural_comparisons = 0
+    identity_comparisons = 0
+    unexplained_comparisons = 0
+    branches: List[str] = []
+    samples: List[str] = []
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Compare):
+            continue
+        sides = [node.left] + list(node.comparators)
+        literals = [
+            side
+            for side in sides
+            if isinstance(side, ast.Constant) and isinstance(side.value, str)
+        ]
+        if not literals:
+            continue
+        string_comparisons += 1
+        if any(_identity_expression(side) for side in sides):
+            identity_comparisons += 1
+            if len(branches) < 8:
+                branches.append(ast.unparse(node))
+        values = [str(side.value).strip() for side in literals]
+        if all(value in _AUDIT_VOCABULARY or not value for value in values):
+            structural_comparisons += 1
+        else:
+            unexplained_comparisons += 1
+            if len(samples) < 8:
+                samples.append(ast.unparse(node))
+    wanted = {str(value).strip().lower() for value in identifiers if str(value).strip()}
+    module_literals = {
+        str(node.value).strip().lower()
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Constant) and isinstance(node.value, str)
+    }
+    overlap = sorted(module_literals & wanted)
+    compared_identifier_hits: List[str] = []
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Compare):
+            continue
+        for side in [node.left] + list(node.comparators):
+            if isinstance(side, ast.Constant) and isinstance(side.value, str):
+                value = str(side.value).strip().lower()
+                if value in wanted and value not in compared_identifier_hits:
+                    compared_identifier_hits.append(value)
+    compared_identifier_hits.sort()
+    return {
+        "string_literal_comparisons": int(string_comparisons),
+        "structural_vocabulary_comparisons": int(structural_comparisons),
+        "unexplained_string_comparisons": int(unexplained_comparisons),
+        "unexplained_samples": samples,
+        "task_identity_comparisons": int(identity_comparisons),
+        "compared_identifier_literals": compared_identifier_hits,
+        "compared_identifier_literal_count": int(len(compared_identifier_hits)),
+        "module_literal_overlap": overlap,
+        "module_literal_overlap_note": (
+            "informational only: an ordinary English word in the sketch tag "
+            "vocabulary can coincide with a benchmark entry-point name. A tag "
+            "is not a branch; the gated counters are the comparison ones."
+        ),
+        "branches": branches,
+        "ok": bool(
+            identity_comparisons == 0
+            and unexplained_comparisons == 0
+            and not compared_identifier_hits
+        ),
+    }
 
 
 def make_wave_scorer(egress, context: str, tokenizer) -> Callable[[str], float]:

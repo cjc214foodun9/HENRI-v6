@@ -1,0 +1,77 @@
+{
+  "stage": "Z3",
+  "run": {
+    "exit_code": 0,
+    "wall_seconds": 0.0,
+    "stderr_tail": ""
+  },
+  "battery": 16,
+  "induced": 16,
+  "generalized": 16,
+  "contradictions_failed_closed": 4,
+  "max_nodes_used": 77,
+  "ast_audit": {
+    "onecell_audit": {
+      "path": "C:\\Users\\chan\\Desktop\\HENRI v6\\henri\\holarch\\spatial_induction.py",
+      "task_names_checked": 20,
+      "routing_path": "SovereignInducer + *Router class bodies + module-level _route/_rank/_score/_sketch helpers",
+      "r1_name_attribute_comparisons": 0,
+      "r2_name_literal_comparisons_in_routing": 0,
+      "r3_name_keyed_dicts_in_routing": 0,
+      "task_name_branches": 0,
+      "broad_name_literal_comparisons_anywhere": 0,
+      "r1_examples": [],
+      "r2_examples": [],
+      "r3_examples": [],
+      "declaration_registries": {},
+      "routing_reads_declared_registry": false,
+      "registry_reads": [],
+      "passed": true
+    },
+    "module_literal_audit": {
+      "path": "henri/holarch/spatial_induction.py",
+      "task_names_checked": 20,
+      "string_constants": 403,
+      "task_name_literals_in_module": 0,
+      "task_name_literals": [],
+      "name_attribute_comparisons": 0,
+      "name_attribute_examples": [],
+      "passed": true
+    },
+    "import_audit": {
+      "imports": [
+        "__future__",
+        "dataclasses",
+        "hashlib",
+        "itertools",
+        "json",
+        "numpy",
+        "time",
+        "typing"
+      ],
+      "forbidden_imports": [],
+      "llm_calls": 0,
+      "network_calls": 0,
+      "passed": true
+    },
+    "task_name_branches": 0
+  },
+  "failed_gates": [],
+  "gate": {
+    "z3_runner_exit_zero": true,
+    "receipt_present": true,
+    "z3_encoding_invertible": true,
+    "z3_zero_text_tokens": true,
+    "z3_zero_llm_calls": true,
+    "z3_zero_task_name_branches": true,
+    "z3_induced_and_generalized_ge_14": true,
+    "z3_contradictions_4_of_4": true,
+    "z3_budget_le_200000": true,
+    "z3_d4_router_used": true,
+    "passed": true
+  },
+  "wall_seconds": 0.0003676998894661665,
+  "evidence": "OBSERVED",
+  "passed": true,
+  "mode": "sealed-read"
+}

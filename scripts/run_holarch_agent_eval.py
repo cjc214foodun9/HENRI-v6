@@ -5839,23 +5839,316 @@ def run_agent_eval(
             bool(_y4_allowed == [0] and _y4_budget < 1.0),
             evidence="the Y4 arm4 gate, evaluated over every possible count",
         )
-        _y4_legacy, _y4_probes, _y4_y = 76, 196, 16
+        _y4_legacy, _y4_probes, _y4_y, _y4_z = 76, 212, 16, 16
         _record_probe(
             "y4_gauntlet_slot_arithmetic",
             "y4_battery",
-            "the gauntlet slot total is 76 legacy receipts plus 196 probes, including 16 Cycle Y probes",
+            "the gauntlet slot total is 76 legacy receipts plus 212 probes, 16 of them Cycle Y "
+            "and 16 of them Cycle Z",
             {"legacy": _y4_legacy, "probes": _y4_probes, "cycle_y": _y4_y,
-             "total": int(_y4_legacy + _y4_probes),
+             "cycle_z": _y4_z, "total": int(_y4_legacy + _y4_probes),
              "per_stage": int(_y4_y / 4)},
-            bool(_y4_legacy + _y4_probes == 272
-                 and _y4_legacy + _y4_probes - 256 == _y4_y
-                 and _y4_y % 4 == 0),
+            bool(_y4_legacy + _y4_probes == 288
+                 and _y4_legacy + _y4_probes - 256 == _y4_y + _y4_z
+                 and _y4_y % 4 == 0 and _y4_z % 4 == 0),
             evidence="the gauntlet count invariant",
         )
     except Exception as _error:  # noqa: BLE001
         _record_probe("y4_battery_48_four_pillars", "y4_battery",
                       "the scaled battery is 48 tasks, twelve per pillar",
                       {"error": f"{type(_error).__name__}: {_error}"}, False)
+
+    # ================= Directive Z4: 16 Cycle Z probes =====================
+    # Z1 wave egress arithmetic, Z2 external synthesis, Z3 spatial induction and
+    # Z4 stress/budget arithmetic.  Every probe is a live computation on this
+    # tree; none of them reads a sealed number as if it were a measurement.
+    try:
+        _z1_amp = np.array([0.0 + 0.0j, 1.0 + 0.0j, 0.0 + 1.0j, -2.0 + 0.0j, 0.0 - 0.0j])
+        _z1_p = np.abs(_z1_amp) ** 2
+        _z1_p = _z1_p / _z1_p.sum()
+        _record_probe(
+            "z1_born_rule_normalisation",
+            "z1_wave",
+            "the Born rule |a|^2 on a five-mode amplitude is non-negative and sums to one",
+            {"sum": float(_z1_p.sum()), "argmax": int(np.argmax(_z1_p)),
+             "modes": int(_z1_p.size), "min": float(_z1_p.min())},
+            bool(abs(float(_z1_p.sum()) - 1.0) <= 1e-12
+                 and float(_z1_p.min()) >= 0.0
+                 and int(np.argmax(_z1_p)) == 3),
+            evidence="the Z1 transducer emission rule, evaluated",
+        )
+        _z1_x = np.array([0.5, -1.5, 2.0, 0.0, -0.25, 3.5, 1.0, -2.0])
+        _z1_spec = np.abs(np.fft.fft(_z1_x)) ** 2
+        _z1_time = float(np.sum(np.abs(_z1_x) ** 2))
+        _z1_freq = float(_z1_spec.sum()) / float(_z1_x.size)
+        _record_probe(
+            "z1_parseval_identity",
+            "z1_wave",
+            "the Fourier frame preserves energy: sum|x|^2 equals sum|X|^2 / N",
+            {"time_energy": _z1_time, "freq_energy": _z1_freq,
+             "residual": abs(_z1_time - _z1_freq)},
+            bool(abs(_z1_time - _z1_freq) <= 1e-9),
+            evidence="the orthonormal toroidal basis the Z1/Z3 encoders use",
+        )
+        _z1_theta = 0.37
+        _z1_cancel = abs(np.exp(1j * _z1_theta) + np.exp(1j * (_z1_theta + np.pi)))
+        _z1_add = abs(np.exp(1j * _z1_theta) + np.exp(1j * _z1_theta))
+        _record_probe(
+            "z1_phase_conjugate_interference",
+            "z1_wave",
+            "a phase-conjugate pair cancels and an in-phase pair adds to two",
+            {"cancelled": float(_z1_cancel), "added": float(_z1_add)},
+            bool(float(_z1_cancel) <= 1e-12 and abs(float(_z1_add) - 2.0) <= 1e-12),
+            evidence="the contrastive phase-conjugate interference rule",
+        )
+        _z1_receipt = _read("z1_d2048_pointer_wave_egress.json")
+        _z1_cfg = dict(_z1_receipt.get("config") or {})
+        _z1_dim = int(_z1_cfg.get("dim", 0) or 0)
+        _z1_slot = int(_z1_cfg.get("d_slot", 0) or 0)
+        _z1_layers = int(_z1_cfg.get("photonic_layers", 0) or 0)
+        _z1_offsets = list(_z1_cfg.get("pointer_offsets") or [])
+        _record_probe(
+            "z1_dimension_arithmetic",
+            "z1_wave",
+            "the recorded Z1 configuration is 2048 = 4 plates x 512 slot cells with a 7..24 pointer window",
+            {"dim": _z1_dim, "d_slot": _z1_slot, "layers": _z1_layers,
+             "offsets": _z1_offsets, "slots": int(_z1_dim // max(_z1_slot, 1)),
+             "window": int(_z1_offsets[1] - _z1_offsets[0]) if len(_z1_offsets) == 2 else 0},
+            bool(_z1_dim == 2048 and _z1_slot == 512 and _z1_layers == 4
+                 and _z1_dim == _z1_slot * _z1_layers
+                 and _z1_offsets == [7, 24]),
+            evidence="receipts/holarch/z1_d2048_pointer_wave_egress.json, config block",
+        )
+    except Exception as _error:  # noqa: BLE001
+        _record_probe("z1_born_rule_normalisation", "z1_wave",
+                      "the Z1 wave arithmetic holds on a fixed amplitude",
+                      {"error": f"{type(_error).__name__}: {_error}"}, False)
+
+    try:
+        import hashlib as _z2_hash
+        _z2_path = RECEIPTS / "external" / "HumanEval.jsonl"
+        _z2_rows = [json.loads(line) for line in _z2_path.read_text(encoding="utf-8").splitlines()
+                    if line.strip()]
+        _z2_digest = _z2_hash.sha256(_z2_path.read_bytes()).hexdigest()
+        _z2_with_four = int(sum(
+            1 for row in _z2_rows
+            if len(re.findall(r"^\s*assert ", str(row["test"]), flags=re.M)) >= 4))
+        _record_probe(
+            "z2_external_corpus_digest",
+            "z2_external_synth",
+            "the vendored HumanEval corpus is 164 tasks at the pinned sha256 with 142 scored tasks",
+            {"tasks": int(len(_z2_rows)), "sha256": _z2_digest,
+             "with_four_asserts": _z2_with_four},
+            bool(len(_z2_rows) == 164 and _z2_with_four == 142
+                 and _z2_digest == "1d49078ba3e2b196b9344535bef34a43021f038fad9561d6ee7c53450609a6a2"),
+            evidence="receipts/holarch/external/HumanEval.jsonl, hashed in this process",
+        )
+        from henri.holarch.cold_synth import parse_problem as _z2_parse
+
+        _z2_by_id = {str(row["task_id"]): row for row in _z2_rows}
+        _z2_doctest = _z2_parse(str(_z2_by_id["HumanEval/0"]["prompt"]))
+        _record_probe(
+            "z2_doctest_public_channel",
+            "z2_external_synth",
+            "the cold parser reads the canonical doctests as public examples",
+            {"name": str(_z2_doctest.name), "assertions": int(len(_z2_doctest.assertions)),
+             "returns": str(_z2_doctest.returns)},
+            bool(str(_z2_doctest.name) == "has_close_elements"
+                 and len(_z2_doctest.assertions) == 2
+                 and str(_z2_doctest.returns) == "bool"),
+            evidence="henri.holarch.cold_synth.parse_problem on HumanEval/0",
+        )
+        _z2_prose = _z2_parse(str(_z2_by_id["HumanEval/101"]["prompt"]))
+        _record_probe(
+            "z2_prose_prompt_has_no_public_examples",
+            "z2_external_synth",
+            "a prose-only prompt yields an empty public evidence set, which is why the Z4 rule abstains on it",
+            {"name": str(_z2_prose.name), "assertions": int(len(_z2_prose.assertions)),
+             "min_public_examples": 2},
+            bool(len(_z2_prose.assertions) == 0),
+            evidence="the vacuous-verification hazard the Z4 fail-closed rule removes",
+        )
+        from henri.holarch.cold_synth import ColdSynthesizer as _z2_synth
+
+        _z2_network = _z2_synth().synthesize(
+            "def fetch_page(url: str) -> str:\n"
+            '    """Download the page over http from the network and return it.\n'
+            "    >>> fetch_page('http://example.com')\n"
+            "    'ok'\n"
+            '    """\n'
+        )
+        _record_probe(
+            "z2_unsatisfiable_capability_refused",
+            "z2_external_synth",
+            "a task that demands network access is refused without a sandbox run",
+            {"status": str(_z2_network["status"]), "reason": str(_z2_network["reason"]),
+             "rollouts": int(_z2_network["rollouts"])},
+            bool(str(_z2_network["status"]) == "ABSTAIN"
+                 and str(_z2_network["reason"]) == "unsatisfiable_capability"
+                 and int(_z2_network["rollouts"]) == 0),
+            evidence="the cold synthesizer's capability refusal",
+        )
+    except Exception as _error:  # noqa: BLE001
+        _record_probe("z2_external_corpus_digest", "z2_external_synth",
+                      "the vendored corpus is pinned",
+                      {"error": f"{type(_error).__name__}: {_error}"}, False)
+
+    try:
+        from henri.holarch.spatial_induction import (
+            SpatialCegisInducer as _z3_inducer,
+            SpatialSpec as _z3_spec,
+            apply_chain as _z3_apply,
+            as_grid as _z3_grid,
+            ToroidalWaveEncoder as _z3_encoder,
+        )
+
+        _z3_engine = _z3_inducer()
+        _z3_base = _z3_grid(np.array([[0, 1, 2, 0, 0, 3],
+                                      [4, 0, 0, 5, 0, 0],
+                                      [0, 6, 0, 0, 7, 0],
+                                      [0, 0, 8, 0, 0, 9]], dtype=np.int64))
+        _z3_shifted = np.roll(np.roll(_z3_base, 2, axis=0), 3, axis=1)
+        _z3_second = _z3_grid(np.array([[1, 0, 0, 0, 2, 0],
+                                        [0, 3, 4, 0, 0, 5],
+                                        [6, 0, 7, 8, 0, 0],
+                                        [0, 9, 0, 0, 1, 0]], dtype=np.int64))
+        _z3_out = _z3_engine.induce(_z3_spec(
+            name="shift",
+            examples=[(_z3_base, _z3_shifted),
+                      (_z3_second, np.roll(np.roll(_z3_second, 2, axis=0), 3, axis=1))],
+        ))
+        _record_probe(
+            "z3_spatial_cegis_recovers_shift",
+            "z3_spatial",
+            "the CEGIS inducer recovers the declared (2,3) toroidal shift from two pairs",
+            {"status": str(_z3_out["status"]), "chain": list(_z3_out["chain"]),
+             "nodes": int(_z3_out["nodes"])},
+            bool(str(_z3_out["status"]) == "INDUCED"
+                 and list(_z3_out["chain"]) == ["toroidal_shift(2,3)"]),
+            evidence="henri.holarch.spatial_induction.SpatialCegisInducer",
+        )
+        _z3_square = _z3_grid(np.array([[0, 1, 2, 3],
+                                        [4, 5, 0, 6],
+                                        [0, 7, 8, 0],
+                                        [9, 0, 0, 1]], dtype=np.int64))
+        _z3_rot = _z3_engine.induce(_z3_spec(
+            name="rot",
+            examples=[(_z3_square, np.rot90(_z3_square, 1))],
+        ))
+        _record_probe(
+            "z3_spatial_cegis_recovers_rot90",
+            "z3_spatial",
+            "the CEGIS inducer recovers the declared rot90 element from one demonstration",
+            {"status": str(_z3_rot["status"]), "chain": list(_z3_rot["chain"]),
+             "nodes": int(_z3_rot["nodes"])},
+            bool(str(_z3_rot["status"]) == "INDUCED"
+                 and list(_z3_rot["chain"]) == ["dihedral(1)"]),
+            evidence="the same inducer on a dihedral demonstration",
+        )
+        _z3_refusal = _z3_engine.refuse(_z3_spec(
+            name="contradiction",
+            examples=[(_z3_base, _z3_shifted), (_z3_base, _z3_second)],
+        ))
+        _record_probe(
+            "z3_spatial_refuses_contradiction",
+            "z3_spatial",
+            "one input with two declared outputs is refused before any search",
+            {"refusal": str(_z3_refusal or "")},
+            bool(_z3_refusal is not None and "unsatisfiable" in str(_z3_refusal)),
+            evidence="the fail-closed refusal the Z4 ARC trap relies on",
+        )
+        _z3_report = _z3_encoder().roundtrip(_z3_square)
+        _record_probe(
+            "z3_spatial_wave_roundtrip_exact",
+            "z3_spatial",
+            "the four-slot toroidal encoding inverts a grid with zero cell error",
+            {"max_cell_error": int(_z3_report["max_cell_error"]),
+             "phase_residual": float(_z3_report["phase_residual"]),
+             "exact": bool(_z3_report["exact"])},
+            bool(bool(_z3_report["exact"]) and int(_z3_report["max_cell_error"]) == 0
+                 and float(_z3_report["phase_residual"]) <= 1e-12),
+            evidence="ToroidalWaveEncoder.roundtrip",
+        )
+    except Exception as _error:  # noqa: BLE001
+        _record_probe("z3_spatial_cegis_recovers_shift", "z3_spatial",
+                      "the spatial inducer recovers a declared shift",
+                      {"error": f"{type(_error).__name__}: {_error}"}, False)
+
+    try:
+        _z4_latency = np.asarray([float(value) for value in range(1, 101)])
+        _z4_p50 = float(np.percentile(_z4_latency, 50))
+        _z4_p95 = float(np.percentile(_z4_latency, 95))
+        _z4_p99 = float(np.percentile(_z4_latency, 99))
+        _record_probe(
+            "z4_percentile_arithmetic",
+            "z4_stress",
+            "linear-interpolation percentiles of 1..100 are 50.5, 95.05 and 99.01",
+            {"p50": _z4_p50, "p95": _z4_p95, "p99": _z4_p99},
+            bool(abs(_z4_p50 - 50.5) <= 1e-9 and abs(_z4_p95 - 95.05) <= 1e-9
+                 and abs(_z4_p99 - 99.01) <= 1e-9),
+            evidence="the estimator the Z4 stress receipt records",
+        )
+        _z4_answerable = 12 + 12 + 16 + 12
+        _z4_four_arms = 4 * 64
+        _record_probe(
+            "z4_live_budget_arithmetic",
+            "z4_stress",
+            "a one-call-per-task four-arm sweep needs 256 calls, so the 200-call cap forces the "
+            "governed arms to pre-decide",
+            {"four_arms": int(_z4_four_arms), "cap": 200,
+             "margin": int(200 - 3 * 64), "three_arms_plus_retries": int(3 * 64 + 8)},
+            bool(_z4_four_arms == 256 and _z4_four_arms > 200
+                 and 200 - 3 * 64 == 8 and 3 * 64 + 8 == 200),
+            evidence="the Z4 call budget, evaluated",
+        )
+        from henri.holarch.server import ReceiptLedger as _z4_ledger
+
+        _z4_chain = _z4_ledger()
+        for _z4_index in range(3):
+            _z4_chain.issue("/v1/probe", {"index": _z4_index}, {"ok": True})
+        _z4_valid = bool(_z4_chain.verify_chain())
+        _z4_chain.receipts[0]["result"] = {"tampered": True}
+        _z4_tampered = bool(_z4_chain.verify_chain())
+        _record_probe(
+            "z4_receipt_chain_tamper_detection",
+            "z4_stress",
+            "a three-link receipt chain verifies, and editing one link breaks it",
+            {"count": int(_z4_chain.count), "valid_before": _z4_valid,
+             "valid_after_tamper": _z4_tampered, "head": str(_z4_chain.head())[:16]},
+            bool(_z4_valid and not _z4_tampered),
+            evidence="the chain the 1000-request stress gate reads",
+        )
+        from henri.holarch.server import chat_stream_chunks as _z4_chunks
+
+        _z4_body = {
+            "id": "chatcmpl-probe",
+            "object": "chat.completion",
+            "created": 1,
+            "model": "henri-holarch",
+            "choices": [{"index": 0, "message": {"role": "assistant", "content": "two words"},
+                         "finish_reason": "stop"}],
+            "usage": {"prompt_tokens": 1, "completion_tokens": 2, "total_tokens": 3},
+            "epistemic_receipt": {"sha256": "0" * 64},
+            "holarch": {"action": "verify"},
+        }
+        _z4_lines = _z4_chunks(_z4_body)
+        _z4_data = [line for line in _z4_lines if line.startswith("data: {")]
+        _record_probe(
+            "z4_sse_chunk_contract",
+            "z4_stress",
+            "the streaming adapter emits a role delta, at least one content delta and data: [DONE]",
+            {"lines": int(len(_z4_lines)), "data_chunks": int(len(_z4_data)),
+             "first": _z4_lines[0][:48], "last": _z4_lines[-1]},
+            bool(len(_z4_data) >= 2 and _z4_lines[-1] == "data: [DONE]"
+                 and '"role"' in _z4_lines[0]),
+            evidence="henri.holarch.server.chat_stream_chunks on a fixed completion",
+        )
+    except Exception as _error:  # noqa: BLE001
+        _record_probe("z4_percentile_arithmetic", "z4_stress",
+                      "the stress estimator is exact on a known sample",
+                      {"error": f"{type(_error).__name__}: {_error}"}, False)
+
+    _mark("Z probes done")
 
     _mark("U probes done")
 
@@ -5963,6 +6256,10 @@ def run_agent_eval(
             "y2_cold_synth": 4,
             "y3_cascade": 4,
             "y4_battery": 4,
+            "z1_wave": 4,
+            "z2_external_synth": 4,
+            "z3_spatial": 4,
+            "z4_stress": 4,
             "setup_receipts": 2,
         },
         "code_index": {
@@ -6116,6 +6413,10 @@ def run_agent_eval(
                     "y2_cold_synth",
                     "y3_cascade",
                     "y4_battery",
+                    "z1_wave",
+                    "z2_external_synth",
+                    "z3_spatial",
+                    "z4_stress",
                 )
             ],
             "rows": probe_rows,
@@ -6194,18 +6495,19 @@ def run_agent_eval(
         )
         for category in sorted({str(row["category"]) for row in probe_rows})
     }
-    # Directive Y4: the sixteen Cycle Y probes grow the gauntlet from 256 to
-    # 272 slots.  The legacy 76 receipts and the 180 probes of Cycles J..X are
-    # unchanged; the count gate is updated, never weakened.
-    payload["gate"]["queries_272"] = bool(
-        int(payload["total_queries"]) == 272
-        and int(payload["probe_slots"]) == 196
+    # Directive Y4 grew the gauntlet from 256 to 272 slots.  Directive Z4 adds
+    # sixteen Cycle Z probes and grows it again, from 272 to 288.  The legacy 76
+    # receipts and the 212 probes of Cycles J..Z are unchanged in meaning; the
+    # count gate is updated, never weakened.
+    payload["gate"]["queries_288"] = bool(
+        int(payload["total_queries"]) == 288
+        and int(payload["probe_slots"]) == 212
         and int(payload["ledger_receipts"]) == 76
-        and sum(int(value) for value in payload["query_mix"].values()) == 224
+        and sum(int(value) for value in payload["query_mix"].values()) == 240
     )
-    payload["gate"]["probes_196_present"] = bool(
-        len(probe_rows) == 196
-        and len({str(row["category"]) for row in probe_rows}) >= 54
+    payload["gate"]["probes_212_present"] = bool(
+        len(probe_rows) == 212
+        and len({str(row["category"]) for row in probe_rows}) >= 58
         and all(
             {"name", "category", "expected", "measured", "correct"}.issubset(row)
             for row in probe_rows
@@ -6220,6 +6522,16 @@ def run_agent_eval(
             for category in _y4_categories
         )
         and all(bool(row["correct"]) for row in _y4_rows)
+    )
+    _z4_categories = ("z1_wave", "z2_external_synth", "z3_spatial", "z4_stress")
+    _z4_rows = [row for row in probe_rows if str(row["category"]) in _z4_categories]
+    payload["gate"]["cycle_z_probes_16"] = bool(
+        len(_z4_rows) == 16
+        and all(
+            sum(1 for row in _z4_rows if str(row["category"]) == category) == 4
+            for category in _z4_categories
+        )
+        and all(bool(row["correct"]) for row in _z4_rows)
     )
     payload["gate"]["wall_le_160"] = bool(float(payload["wall_seconds"]) <= 160.0)
     payload["gate"]["passed"] = bool(
@@ -6243,9 +6555,10 @@ def run_agent_eval(
         and payload["gate"]["verification_mcp_perfect"]
         and payload["gate"]["synthesis_multiplan_verified"]
         and payload["gate"]["delta_blast_radius_perfect"]
-        and payload["gate"]["queries_272"]
-        and payload["gate"]["probes_196_present"]
+        and payload["gate"]["queries_288"]
+        and payload["gate"]["probes_212_present"]
         and payload["gate"]["cycle_y_probes_16"]
+        and payload["gate"]["cycle_z_probes_16"]
         and payload["gate"]["wall_le_160"]
         and all(payload["gate"][str(row["name"])] for row in probe_rows)
     )

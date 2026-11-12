@@ -1,0 +1,380 @@
+{
+  "stage": "Z4",
+  "run": {
+    "exit_code": 0,
+    "wall_seconds": 854.2094511000905,
+    "stderr_tail": ""
+  },
+  "gauntlet": {
+    "exit_code": 0,
+    "wall_seconds": 134.92405100003816,
+    "queries": 288,
+    "reachable_accuracy": 1.0,
+    "hallucination_rate": 0.0,
+    "query_file_reads": -1
+  },
+  "mode": "fresh",
+  "measurement_mode": "live",
+  "arms": {
+    "arm0_henri_standalone": {
+      "arm": "arm0_henri_standalone",
+      "tasks": 64,
+      "points": 48,
+      "composite_score": 0.75,
+      "answerable_solved": 36,
+      "answerable_total": 52,
+      "answerable_solved_rate": 0.6923076923076923,
+      "trap_refused": 12,
+      "trap_total": 12,
+      "trap_refusal_rate": 1.0,
+      "blocked_rows": 0,
+      "hallucinations": 0,
+      "hallucination_rate": 0.0,
+      "abstentions": 28,
+      "correct": 48,
+      "llm_derived_count": 0,
+      "llm_derived_correct": 0,
+      "external_api_calls": 0,
+      "retries": 0,
+      "escalations": 0,
+      "deterministic_fallback": 0,
+      "per_slice": {
+        "factual": {
+          "tasks": 12,
+          "solved": 12,
+          "solved_rate": 1.0,
+          "points": 12,
+          "hallucinations": 0,
+          "abstentions": 0
+        },
+        "briefcase": {
+          "tasks": 12,
+          "solved": 12,
+          "solved_rate": 1.0,
+          "points": 12,
+          "hallucinations": 0,
+          "abstentions": 0
+        },
+        "external_coding": {
+          "tasks": 16,
+          "solved": 0,
+          "solved_rate": 0.0,
+          "points": 0,
+          "hallucinations": 0,
+          "abstentions": 16
+        },
+        "arc": {
+          "tasks": 12,
+          "solved": 12,
+          "solved_rate": 1.0,
+          "points": 12,
+          "hallucinations": 0,
+          "abstentions": 0
+        }
+      }
+    },
+    "arm1_raw_llm": {
+      "arm": "arm1_raw_llm",
+      "tasks": 64,
+      "points": 41,
+      "composite_score": 0.640625,
+      "answerable_solved": 32,
+      "answerable_total": 52,
+      "answerable_solved_rate": 0.6153846153846154,
+      "trap_refused": 11,
+      "trap_total": 12,
+      "trap_refusal_rate": 0.9166666666666666,
+      "blocked_rows": 0,
+      "hallucinations": 2,
+      "hallucination_rate": 0.03125,
+      "abstentions": 30,
+      "correct": 43,
+      "llm_derived_count": 0,
+      "llm_derived_correct": 0,
+      "external_api_calls": 64,
+      "retries": 0,
+      "escalations": 0,
+      "deterministic_fallback": 0,
+      "per_slice": {
+        "factual": {
+          "tasks": 12,
+          "solved": 6,
+          "solved_rate": 0.5,
+          "points": 6,
+          "hallucinations": 0,
+          "abstentions": 6
+        },
+        "briefcase": {
+          "tasks": 12,
+          "solved": 0,
+          "solved_rate": 0.0,
+          "points": 0,
+          "hallucinations": 0,
+          "abstentions": 12
+        },
+        "external_coding": {
+          "tasks": 16,
+          "solved": 16,
+          "solved_rate": 1.0,
+          "points": 16,
+          "hallucinations": 0,
+          "abstentions": 0
+        },
+        "arc": {
+          "tasks": 12,
+          "solved": 10,
+          "solved_rate": 0.8333333333333334,
+          "points": 9,
+          "hallucinations": 1,
+          "abstentions": 1
+        }
+      }
+    },
+    "arm2_rag_llm": {
+      "arm": "arm2_rag_llm",
+      "tasks": 64,
+      "points": 40,
+      "composite_score": 0.625,
+      "answerable_solved": 31,
+      "answerable_total": 52,
+      "answerable_solved_rate": 0.5961538461538461,
+      "trap_refused": 11,
+      "trap_total": 12,
+      "trap_refusal_rate": 0.9166666666666666,
+      "blocked_rows": 0,
+      "hallucinations": 2,
+      "hallucination_rate": 0.03125,
+      "abstentions": 31,
+      "correct": 42,
+      "llm_derived_count": 0,
+      "llm_derived_correct": 0,
+      "external_api_calls": 64,
+      "retries": 0,
+      "escalations": 0,
+      "deterministic_fallback": 0,
+      "per_slice": {
+        "factual": {
+          "tasks": 12,
+          "solved": 6,
+          "solved_rate": 0.5,
+          "points": 5,
+          "hallucinations": 1,
+          "abstentions": 5
+        },
+        "briefcase": {
+          "tasks": 12,
+          "solved": 0,
+          "solved_rate": 0.0,
+          "points": 0,
+          "hallucinations": 0,
+          "abstentions": 12
+        },
+        "external_coding": {
+          "tasks": 16,
+          "solved": 16,
+          "solved_rate": 1.0,
+          "points": 16,
+          "hallucinations": 0,
+          "abstentions": 0
+        },
+        "arc": {
+          "tasks": 12,
+          "solved": 9,
+          "solved_rate": 0.75,
+          "points": 9,
+          "hallucinations": 0,
+          "abstentions": 3
+        }
+      }
+    },
+    "arm3_henri_coprocessor": {
+      "arm": "arm3_henri_coprocessor",
+      "tasks": 64,
+      "points": 50,
+      "composite_score": 0.78125,
+      "answerable_solved": 38,
+      "answerable_total": 52,
+      "answerable_solved_rate": 0.7307692307692307,
+      "trap_refused": 12,
+      "trap_total": 12,
+      "trap_refusal_rate": 1.0,
+      "blocked_rows": 0,
+      "hallucinations": 0,
+      "hallucination_rate": 0.0,
+      "abstentions": 26,
+      "correct": 50,
+      "llm_derived_count": 20,
+      "llm_derived_correct": 20,
+      "external_api_calls": 46,
+      "retries": 6,
+      "escalations": 0,
+      "deterministic_fallback": 18,
+      "per_slice": {
+        "factual": {
+          "tasks": 12,
+          "solved": 12,
+          "solved_rate": 1.0,
+          "points": 12,
+          "hallucinations": 0,
+          "abstentions": 0
+        },
+        "briefcase": {
+          "tasks": 12,
+          "solved": 12,
+          "solved_rate": 1.0,
+          "points": 12,
+          "hallucinations": 0,
+          "abstentions": 0
+        },
+        "external_coding": {
+          "tasks": 16,
+          "solved": 4,
+          "solved_rate": 0.25,
+          "points": 4,
+          "hallucinations": 0,
+          "abstentions": 12
+        },
+        "arc": {
+          "tasks": 12,
+          "solved": 10,
+          "solved_rate": 0.8333333333333334,
+          "points": 10,
+          "hallucinations": 0,
+          "abstentions": 2
+        }
+      }
+    },
+    "arm4_henri_cascade": {
+      "arm": "arm4_henri_cascade",
+      "tasks": 64,
+      "points": 51,
+      "composite_score": 0.796875,
+      "answerable_solved": 39,
+      "answerable_total": 52,
+      "answerable_solved_rate": 0.75,
+      "trap_refused": 12,
+      "trap_total": 12,
+      "trap_refusal_rate": 1.0,
+      "blocked_rows": 0,
+      "hallucinations": 0,
+      "hallucination_rate": 0.0,
+      "abstentions": 25,
+      "correct": 51,
+      "llm_derived_count": 3,
+      "llm_derived_correct": 3,
+      "external_api_calls": 5,
+      "retries": 1,
+      "escalations": 16,
+      "deterministic_fallback": 0,
+      "per_slice": {
+        "factual": {
+          "tasks": 12,
+          "solved": 12,
+          "solved_rate": 1.0,
+          "points": 12,
+          "hallucinations": 0,
+          "abstentions": 0
+        },
+        "briefcase": {
+          "tasks": 12,
+          "solved": 12,
+          "solved_rate": 1.0,
+          "points": 12,
+          "hallucinations": 0,
+          "abstentions": 0
+        },
+        "external_coding": {
+          "tasks": 16,
+          "solved": 3,
+          "solved_rate": 0.1875,
+          "points": 3,
+          "hallucinations": 0,
+          "abstentions": 13
+        },
+        "arc": {
+          "tasks": 12,
+          "solved": 12,
+          "solved_rate": 1.0,
+          "points": 12,
+          "hallucinations": 0,
+          "abstentions": 0
+        }
+      }
+    }
+  },
+  "stress": {
+    "requests": 1000,
+    "workers": 16,
+    "agent_step_requests": 500,
+    "chat_requests": 500,
+    "chat_stream_requests": 250,
+    "completed": 1000,
+    "ok_200": 1000,
+    "status_counts": {
+      "200": 1000
+    },
+    "five_xx": 0,
+    "transport_errors": 0,
+    "error_samples": [],
+    "latency_ms": {
+      "p50": 13.621899939607829,
+      "p95": 55.59293000842443,
+      "p99": 64.89345205482095,
+      "mean": 19.975838899146765,
+      "max": 70.43890003114939
+    },
+    "wall_seconds": 1.2555332999909297,
+    "rss_before_bytes": 1115713536,
+    "rss_after_bytes": 1119293440,
+    "rss_delta_bytes": 3579904,
+    "rss_method": "psutil",
+    "ledger": {
+      "count": 1504,
+      "head": "8b691d7320191776ece98add1cbbce47d8bf81f18b8f069a1efe182eb2aab044",
+      "chain_valid": true
+    },
+    "sse": {
+      "streams": 250,
+      "min_data_lines": 12,
+      "max_data_lines": 12,
+      "done_seen": 250,
+      "verified_streams": 250
+    },
+    "status_all_200": true,
+    "warmup": {
+      "calls": 2,
+      "status": 200
+    }
+  },
+  "failed_gates": [],
+  "gate": {
+    "z4_runner_exit_zero": true,
+    "z4_gauntlet_exit_zero": true,
+    "z4_gauntlet_288": true,
+    "z4_gauntlet_reachable_1": true,
+    "z4_gauntlet_hallucination_0": true,
+    "z4_gauntlet_zero_reads": true,
+    "z4_gauntlet_wall_le_160": true,
+    "receipt_present": true,
+    "z4_mode_live": true,
+    "z4_battery_64": true,
+    "z4_zero_credential_leaks": true,
+    "z4_digests_recorded": true,
+    "z4_arm0_hallucination_zero": true,
+    "z4_arm0_traps_12": true,
+    "z4_arm0_zero_calls": true,
+    "z4_arm4_beats_arm1": true,
+    "z4_arm4_beats_arm2": true,
+    "z4_arm4_hallucination_zero": true,
+    "z4_arm4_call_reduction_ge_80pct": true,
+    "z4_stress_1000_ok": true,
+    "z4_stress_zero_5xx": true,
+    "z4_receipt_chain_1000": true,
+    "z4_sse_verified": true,
+    "z4_rss_drift_bounded": true,
+    "passed": true
+  },
+  "wall_seconds": 991.9610070999479,
+  "evidence": "OBSERVED",
+  "passed": true
+}
