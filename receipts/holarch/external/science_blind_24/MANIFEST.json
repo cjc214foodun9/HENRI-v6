@@ -1,0 +1,229 @@
+{
+  "disjoint_pool_size": 551,
+  "problem_count": 24,
+  "problems": [
+    {
+      "file": "problems/blind_sci_01.json",
+      "id": "blind_sci_01",
+      "sha256": "b3dded0b2c05a0fa05b44b31b62dc03264eef7a99c4d8f42b100d95e41468442",
+      "source": "atkins",
+      "upstream_file": "atkins.json",
+      "upstream_file_sha256": "d2dd481ade7a3a2c6a108e2539bddaf2df83ecb5ef4021f04f520d55ec51f5ac",
+      "upstream_problemid": "e1.1(a)(b)"
+    },
+    {
+      "file": "problems/blind_sci_02.json",
+      "id": "blind_sci_02",
+      "sha256": "232cfdf37b3a4100b8ff1b810f736b3190917dfe88d0999d276960719c0c684c",
+      "source": "atkins",
+      "upstream_file": "atkins.json",
+      "upstream_file_sha256": "d2dd481ade7a3a2c6a108e2539bddaf2df83ecb5ef4021f04f520d55ec51f5ac",
+      "upstream_problemid": "e2.10(a)"
+    },
+    {
+      "file": "problems/blind_sci_03.json",
+      "id": "blind_sci_03",
+      "sha256": "397029227d99f220385962aeff6b9125c42d1376be8ed9461876ff762a0ea02e",
+      "source": "atkins",
+      "upstream_file": "atkins.json",
+      "upstream_file_sha256": "d2dd481ade7a3a2c6a108e2539bddaf2df83ecb5ef4021f04f520d55ec51f5ac",
+      "upstream_problemid": "e3.13(a)(a)"
+    },
+    {
+      "file": "problems/blind_sci_04.json",
+      "id": "blind_sci_04",
+      "sha256": "353f4f93cdfdb76246654f8d635c1d9b8a1342634143ddb17256874b5b6fc61b",
+      "source": "atkins",
+      "upstream_file": "atkins.json",
+      "upstream_file_sha256": "d2dd481ade7a3a2c6a108e2539bddaf2df83ecb5ef4021f04f520d55ec51f5ac",
+      "upstream_problemid": "e3.6(a)(b)"
+    },
+    {
+      "file": "problems/blind_sci_05.json",
+      "id": "blind_sci_05",
+      "sha256": "525e694caafc4cc7ec50d3e77587665396049b3cc745ac99bb2dc8f157404557",
+      "source": "atkins",
+      "upstream_file": "atkins.json",
+      "upstream_file_sha256": "d2dd481ade7a3a2c6a108e2539bddaf2df83ecb5ef4021f04f520d55ec51f5ac",
+      "upstream_problemid": "p2.21"
+    },
+    {
+      "file": "problems/blind_sci_06.json",
+      "id": "blind_sci_06",
+      "sha256": "6cfee27b18e91f127fcad5279afadf6ac38ab59c8150718e834e3d05c2bdd5f8",
+      "source": "calculus",
+      "upstream_file": "calculus.json",
+      "upstream_file_sha256": "69779c85d33afe2bf17d6f2a0cb7ccbb172e609cc21c3e86b17e1c21eb9fb2c6",
+      "upstream_problemid": "14.4.33"
+    },
+    {
+      "file": "problems/blind_sci_07.json",
+      "id": "blind_sci_07",
+      "sha256": "28ceb1c18a63af213497175be0ee0e27c39acbdeec6a82153c95abe34bf45e9c",
+      "source": "calculus",
+      "upstream_file": "calculus.json",
+      "upstream_file_sha256": "69779c85d33afe2bf17d6f2a0cb7ccbb172e609cc21c3e86b17e1c21eb9fb2c6",
+      "upstream_problemid": "7.7.43"
+    },
+    {
+      "file": "problems/blind_sci_08.json",
+      "id": "blind_sci_08",
+      "sha256": "8e273530abafe8d6f3d953e9f16865cbf679211ee289f11a9019dfaff062f529",
+      "source": "chemmc",
+      "upstream_file": "chemmc.json",
+      "upstream_file_sha256": "134baf281dc7636fd01729b7f3b52465a44ea55fec5cb00e76a5fe809da520a0",
+      "upstream_problemid": "1-45"
+    },
+    {
+      "file": "problems/blind_sci_09.json",
+      "id": "blind_sci_09",
+      "sha256": "a02d5f56cb05d2f83cf439444cc761cda53ddf484c8f94cbe775dc9cb6d00cc2",
+      "source": "class",
+      "upstream_file": "class.json",
+      "upstream_file_sha256": "113f73bf829e73ed4ab7ccb97a3a8cc50531075ebdb13e5421d62230a96e239a",
+      "upstream_problemid": "14.20"
+    },
+    {
+      "file": "problems/blind_sci_10.json",
+      "id": "blind_sci_10",
+      "sha256": "0410c6df2c1339afbd5f8f5e2ebad344598f13e5f3ace18c45fd424c5da3cdf8",
+      "source": "class",
+      "upstream_file": "class.json",
+      "upstream_file_sha256": "113f73bf829e73ed4ab7ccb97a3a8cc50531075ebdb13e5421d62230a96e239a",
+      "upstream_problemid": "Problem 10.22"
+    },
+    {
+      "file": "problems/blind_sci_11.json",
+      "id": "blind_sci_11",
+      "sha256": "e510c91913ea0516212eaea708496f19805ebd9ea0e2c15524253a0b3931a926",
+      "source": "class",
+      "upstream_file": "class.json",
+      "upstream_file_sha256": "113f73bf829e73ed4ab7ccb97a3a8cc50531075ebdb13e5421d62230a96e239a",
+      "upstream_problemid": "Problem 9.12"
+    },
+    {
+      "file": "problems/blind_sci_12.json",
+      "id": "blind_sci_12",
+      "sha256": "2129ec4bc7b178a18d0c9302d8d08516d1cf65c9c2b0b331a7f2af796e3a573a",
+      "source": "diff",
+      "upstream_file": "diff.json",
+      "upstream_file_sha256": "009547bcb646c7c88532908b9c3a689f02af66233869ea6e35c2d7c676478565",
+      "upstream_problemid": "page 66-28"
+    },
+    {
+      "file": "problems/blind_sci_13.json",
+      "id": "blind_sci_13",
+      "sha256": "f6074e735b7287641e866f2219326790563ff060bcbe32f4a9fdfcd2fbf62879",
+      "source": "diff",
+      "upstream_file": "diff.json",
+      "upstream_file_sha256": "009547bcb646c7c88532908b9c3a689f02af66233869ea6e35c2d7c676478565",
+      "upstream_problemid": "page344-14"
+    },
+    {
+      "file": "problems/blind_sci_14.json",
+      "id": "blind_sci_14",
+      "sha256": "0b77f38ad717887b150a7bedde9b322a1f258625cc29db20dcb011028cf423f9",
+      "source": "fund",
+      "upstream_file": "fund.json",
+      "upstream_file_sha256": "d6b90173970bfa5ed04355c77731c5a28921a0224a0fb7240817f6cb18ea3790",
+      "upstream_problemid": "Question 21.33"
+    },
+    {
+      "file": "problems/blind_sci_15.json",
+      "id": "blind_sci_15",
+      "sha256": "395d668895c4b22a66de436f2c82c4bd7d9a3a660c18fca8401cba2019b1a4a6",
+      "source": "fund",
+      "upstream_file": "fund.json",
+      "upstream_file_sha256": "d6b90173970bfa5ed04355c77731c5a28921a0224a0fb7240817f6cb18ea3790",
+      "upstream_problemid": "Question 22.39"
+    },
+    {
+      "file": "problems/blind_sci_16.json",
+      "id": "blind_sci_16",
+      "sha256": "f9e626d2d29c04019007084d4721c96915dd0af2e42f04a206a6e63e573fdfbe",
+      "source": "fund",
+      "upstream_file": "fund.json",
+      "upstream_file_sha256": "d6b90173970bfa5ed04355c77731c5a28921a0224a0fb7240817f6cb18ea3790",
+      "upstream_problemid": "Question 23.25"
+    },
+    {
+      "file": "problems/blind_sci_17.json",
+      "id": "blind_sci_17",
+      "sha256": "fc593b5003fa80020faf2ec1160af67de04b0704068120e697ce480d99de2b23",
+      "source": "matter",
+      "upstream_file": "matter.json",
+      "upstream_file_sha256": "641291cb3d62b18bd73daa1f62988733d039f4df940f77f46052e92ac284ea94",
+      "upstream_problemid": "38.3"
+    },
+    {
+      "file": "problems/blind_sci_18.json",
+      "id": "blind_sci_18",
+      "sha256": "afbf4f9b195dcbeee8f9fa83ead37d16d5143636dd9c7e64c488e1b37f48aeb8",
+      "source": "matter",
+      "upstream_file": "matter.json",
+      "upstream_file_sha256": "641291cb3d62b18bd73daa1f62988733d039f4df940f77f46052e92ac284ea94",
+      "upstream_problemid": "69.3"
+    },
+    {
+      "file": "problems/blind_sci_19.json",
+      "id": "blind_sci_19",
+      "sha256": "3731cfb5f029ef34324bb489a54d3353914aadef510e7c6a27d8c06b620d6feb",
+      "source": "quan",
+      "upstream_file": "quan.json",
+      "upstream_file_sha256": "a3c4f483b5dd7ce162d3d95610bb56614b5003ecba80f450c79755811176e4f1",
+      "upstream_problemid": "14.35"
+    },
+    {
+      "file": "problems/blind_sci_20.json",
+      "id": "blind_sci_20",
+      "sha256": "322fc21c7d2f262799e92e1a086b744f8f67f31ea19455946e720c3b2f37b34d",
+      "source": "stat",
+      "upstream_file": "stat.json",
+      "upstream_file_sha256": "a0f84cf8fbb94512174e4ecddb5a7bfa2b6ce7ddde0094c70d886a51a003dcfb",
+      "upstream_problemid": "5.2-13"
+    },
+    {
+      "file": "problems/blind_sci_21.json",
+      "id": "blind_sci_21",
+      "sha256": "b9c40e700179c58738437f07206c6c64b40146ee8b31bd538456d53def71deb5",
+      "source": "stat",
+      "upstream_file": "stat.json",
+      "upstream_file_sha256": "a0f84cf8fbb94512174e4ecddb5a7bfa2b6ce7ddde0094c70d886a51a003dcfb",
+      "upstream_problemid": "5.6-7"
+    },
+    {
+      "file": "problems/blind_sci_22.json",
+      "id": "blind_sci_22",
+      "sha256": "91301536a0287590bed22d6f278d6db70422f1431d31e7ea3ec1017553a259e4",
+      "source": "stat",
+      "upstream_file": "stat.json",
+      "upstream_file_sha256": "a0f84cf8fbb94512174e4ecddb5a7bfa2b6ce7ddde0094c70d886a51a003dcfb",
+      "upstream_problemid": "Problem 1.1.3"
+    },
+    {
+      "file": "problems/blind_sci_23.json",
+      "id": "blind_sci_23",
+      "sha256": "937d9aae0cdfd35a3ed15864c1be38acad5bd03c8c32b3ecaa97dc0b3afdc2e3",
+      "source": "stat",
+      "upstream_file": "stat.json",
+      "upstream_file_sha256": "a0f84cf8fbb94512174e4ecddb5a7bfa2b6ce7ddde0094c70d886a51a003dcfb",
+      "upstream_problemid": "Problem 1.4.9"
+    },
+    {
+      "file": "problems/blind_sci_24.json",
+      "id": "blind_sci_24",
+      "sha256": "bab5c0be957a5eaec3508afaff656b0944d69f02a04dcc5334a76fd6ff35209c",
+      "source": "thermo",
+      "upstream_file": "thermo.json",
+      "upstream_file_sha256": "723e550d350dbb13644bf72eda5f19a5d8978aa5abd1c779399051618604494b",
+      "upstream_problemid": "15.45"
+    }
+  ],
+  "selection_rule": "deterministic_sorted_stride(pool_size=551, stride=22, count=24, zero_filtering)",
+  "slice_id": "ag2_blind_scibench_24_v1",
+  "slice_sha256": "7abf596ca2ae9b312ac5a72e95f297a0cc8028fd8522594be5a2984c4d165216",
+  "stride": 22,
+  "upstream_commit": "e14e0ca3d3db0f02928a18d435b9c3d15656a7c5",
+  "upstream_license": "MIT",
+  "upstream_repo": "https://github.com/mandyyyyii/scibench"
+}

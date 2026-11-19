@@ -1,0 +1,10 @@
+{
+  "answer_number": 2.3613,
+  "id": "blind_sci_13",
+  "problem_text": "Consider the initial value problem\r\n$$\r\ny^{\\prime \\prime}+\\gamma y^{\\prime}+y=\\delta(t-1), \\quad y(0)=0, \\quad y^{\\prime}(0)=0,\r\n$$\r\nwhere $\\gamma$ is the damping coefficient (or resistance).\r\nFind the time $t_1$ at which the solution attains its maximum value.",
+  "source": "diff",
+  "unit": " ",
+  "upstream_file": "diff.json",
+  "upstream_file_sha256": "009547bcb646c7c88532908b9c3a689f02af66233869ea6e35c2d7c676478565",
+  "upstream_problemid": "page344-14"
+}

@@ -455,9 +455,10 @@
       },
       "verdict": {
         "status": "BLOCKED_MISSING_RND_AGENT_PLUGIN",
-        "accepted": false,
+        "evidence_label": "BLOCKED",
         "score": null,
-        "reason": "External henri_jev plugin (RND AGENT) is not mounted in this clean-room VM; complete formal proposal JSON is prepared and sealed with zero fabricated scores."
+        "failed_primitives": null,
+        "reason": "External @RND AGENT henri_jev plugin is not mounted in this host environment; zero scores were fabricated."
       }
     },
     "AF3-DEPTH3-COMPOSITIONAL-LOO-FALSE-CONSENSUS-BOUND": {
@@ -687,9 +688,10 @@
       },
       "verdict": {
         "status": "BLOCKED_MISSING_RND_AGENT_PLUGIN",
-        "accepted": false,
+        "evidence_label": "BLOCKED",
         "score": null,
-        "reason": "External henri_jev plugin (RND AGENT) is not mounted in this clean-room VM; complete formal proposal JSON is prepared and sealed with zero fabricated scores."
+        "failed_primitives": null,
+        "reason": "External @RND AGENT henri_jev plugin is not mounted in this host environment; zero scores were fabricated."
       }
     }
   },
@@ -703,5 +705,18 @@
     "passed": false
   },
   "wall_seconds": 0.22745163600029628,
-  "passed": false
+  "passed": false,
+  "updated_by_cycle": "AG0",
+  "ag0_probe": {
+    "plugin_present": false,
+    "mounted_binary": null,
+    "searched_binaries": [
+      "henri_jev",
+      "rnd-agent-jev",
+      "cordis-jev"
+    ],
+    "note": "Local henri.cli cmd_jev only verifies local ontology/sidecar integrity (EVIDENCE HOLDS); external @RND AGENT henri_jev Tier-1 mathematical proposal scorer is absent on this clean-room VM."
+  },
+  "accepted_count": 0,
+  "total_challenges": 2
 }

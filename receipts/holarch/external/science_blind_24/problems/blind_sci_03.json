@@ -1,0 +1,10 @@
+{
+  "answer_number": 0.0,
+  "id": "blind_sci_03",
+  "problem_text": "Assume that all gases are perfect and that data refer to 298.15 K unless otherwise stated. Calculate the total change in entropy, when a sample of nitrogen gas of mass $14 \\mathrm{~g}$ at $298 \\mathrm{~K}$ and $1.00 \\mathrm{bar}$ doubles its volume in an isothermal reversible expansion.",
+  "source": "atkins",
+  "unit": " ",
+  "upstream_file": "atkins.json",
+  "upstream_file_sha256": "d2dd481ade7a3a2c6a108e2539bddaf2df83ecb5ef4021f04f520d55ec51f5ac",
+  "upstream_problemid": "e3.13(a)(a)"
+}

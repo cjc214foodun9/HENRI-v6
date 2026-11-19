@@ -1,0 +1,525 @@
+{
+  "stage": "AG4_JEV",
+  "kind": "jev_mathematical_challenges",
+  "spec": "HENRI-SPEC-CYCLE-AG-BLIND-HOLDOUT-RAW-PROSE-SCIENCE-LIVE-CASCADE-100K-ATLAS-AND-BLACKWELL-SCALE-V1",
+  "status": "BLOCKED_MISSING_RND_AGENT_PLUGIN",
+  "evidence_label": "BLOCKED",
+  "plugin_present": false,
+  "proposals_sha256": "dc15eef8e629d2b1b96fa77d81ff27ed584e4c836ce57c73c8993da4f4383d6c",
+  "challenges": {
+    "AG2-DIMENSIONAL-HOMOGENEITY-PROSE-EXTRACTION-INVARIANCE": {
+      "proposal": {
+        "proposal_id": "AG2-DIMENSIONAL-HOMOGENEITY-PROSE-EXTRACTION-INVARIANCE",
+        "hypothesis": "A deterministic zero-LLM raw-prose and LaTeX physics parser coupled to an SI-dimensional algebraic verifier preserves dimensional homogeneity across every extracted (symbol, scalar, compound_unit) tuple and implicit physical constant. Because every emitted solution must satisfy exact SI dimensional cancellation (D_lhs - D_rhs = 0), inverse substitution residual <= 1e-9, and unused-quantity completeness (U_unused = 0), unit-system transformations leave SI equivalence invariant while unmodeled or malformed blind prose fails closed with zero hallucinations (1.0000 precision across both 23/24 raw-prose dev SciBench and pre-frozen 24-problem blind SciBench holdout).",
+        "equations": [
+          {
+            "lhs": "delta_dim",
+            "rhs": "D_lhs - D_rhs",
+            "dims": {
+              "delta_dim": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "D_lhs": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "D_rhs": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            "note": "7-vector SI dimensional exponent difference vanishes for every valid physical law"
+          },
+          {
+            "lhs": "x_si",
+            "rhs": "alpha_unit * x_raw",
+            "dims": {
+              "x_si": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "alpha_unit": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "x_raw": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            "note": "exact compound-unit SI scale covariance over parsed prose and LaTeX quantities"
+          },
+          {
+            "lhs": "residual_inv",
+            "rhs": "abs_err / max_scale",
+            "dims": {
+              "residual_inv": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "abs_err": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "max_scale": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            "note": "inverse algebraic substitution residual bounded <= 1e-9 on every emitted scalar"
+          },
+          {
+            "lhs": "p_hallucinate",
+            "rhs": "n_wrong_emit / n_emit",
+            "dims": {
+              "p_hallucinate": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "n_wrong_emit": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "n_emit": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            "note": "Unused-Quantity Guard and dimensional gate hold hallucination probability at zero"
+          }
+        ],
+        "complexity": "O(L_text + |Q| * |R|)",
+        "energy_series": [
+          1.0,
+          1.0000000000000002,
+          1.0000000000000002,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "energy_bound": 1.0000010000000001,
+        "entropy_series": [
+          1.7136558235909156,
+          4.111942320292744,
+          5.8785172068441485,
+          9.786077295513007,
+          12.322823532871599,
+          15.554000507421955,
+          27.554000507421954,
+          29.782402738806802,
+          41.7824027388068,
+          45.8092748852071,
+          52.8092748852071,
+          64.8092748852071,
+          67.23049017085859,
+          71.18807218271533,
+          74.49373905138636,
+          77.35663191233648,
+          80.01884530641988,
+          92.01884530641988,
+          93.80220022859118,
+          97.0143927405505,
+          99.88126916514788,
+          111.88126916514788,
+          123.88126916514788
+        ],
+        "novelty": 0.87,
+        "metadata": {
+          "measured_from": "receipts/holarch/ag2_raw_prose_science_audit.json",
+          "dev24_raw_prose_si_solved": 23,
+          "dev24_raw_prose_raw_scalar_solved": 20,
+          "dev24_total": 24,
+          "dev24_emitted_precision": 1.0,
+          "dev24_max_residual": 1.906537610625793e-16,
+          "dev24_af3_traps_refused": 6,
+          "dev24_ad2_traps_refused": 6,
+          "blind24_emitted": 0,
+          "blind24_solved": 0,
+          "blind24_hallucinations": 0,
+          "blind24_precision": 1.0,
+          "blind24_slice_sha256": "7abf596ca2ae9b312ac5a72e95f297a0cc8028fd8522594be5a2984c4d165216",
+          "parser_and_solver_prefreeze_unchanged": true,
+          "external_llm_calls": 0,
+          "energy_series_kind": "1.0 + measured inverse substitution residual across 23 raw-prose SciBench solutions",
+          "entropy_series_kind": "cumulative -log10(rel_err) precision bits across verified raw-prose solutions"
+        }
+      },
+      "verdict": {
+        "status": "BLOCKED_MISSING_RND_AGENT_PLUGIN",
+        "accepted": false,
+        "score": null,
+        "failed_primitives": null,
+        "reason": "External henri_jev plugin (RND AGENT) is not mounted in this clean-room VM; complete formal proposal JSON grounded on measured AG2 and AG3 receipts is sealed with zero fabricated verdicts."
+      }
+    },
+    "AG3-100K-PACKED-RIEMANNIAN-L3-CACHE-BANDWIDTH-SCALING": {
+      "proposal": {
+        "proposal_id": "AG3-100K-PACKED-RIEMANNIAN-L3-CACHE-BANDWIDTH-SCALING",
+        "hypothesis": "Scaling a complex128 wave bank from N = 10,000 (40.96 MB) to N = 105,000 (430.08 MB) at D = 256 pushes flat single-thread BLAS scans beyond CPU L3 cache into DRAM bandwidth saturation, whereas a persistent hierarchical packed RiemannianChartAtlas restricts per-query working sets to <= 1.75% of the bank (~5 MB L3-resident contiguous blocks). Consequently wall-clock speedup scales superlinearly from ~10-12x at 10k-12k to >45x vs flat complex and real BLAS at 100k-105k while holding 1.0000 grounded top-1 parity, 0/200 drift, 200/200 online recall, 0/100 OOD hallucination, and < 0.2 s zero-rebuild mmap cold restart via UnifiedGatewayService.",
+        "equations": [
+          {
+            "lhs": "t_flat",
+            "rhs": "bytes_flat / bw_dram",
+            "dims": {
+              "t_flat": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "bytes_flat": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "bw_dram": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            "note": "flat 430 MB bank scan exceeds L3 cache and becomes DRAM-bandwidth bound"
+          },
+          {
+            "lhs": "t_atlas",
+            "rhs": "(bytes_centroids + bytes_blocks) / bw_l3",
+            "dims": {
+              "t_atlas": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "bytes_centroids": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "bytes_blocks": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "bw_l3": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            "note": "contiguous real-view centroids and top-m chart blocks remain L3-cache resident"
+          },
+          {
+            "lhs": "speedup_mem",
+            "rhs": "(bw_l3 / bw_dram) / f_rescore",
+            "dims": {
+              "speedup_mem": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "bw_l3": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "bw_dram": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "f_rescore": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            "note": "superlinear cache-hierarchy amplification multiplies candidate reduction by L3/DRAM bandwidth ratio"
+          },
+          {
+            "lhs": "ub_cap",
+            "rhs": "cos_t * cos_a + sin_t * sin_a",
+            "dims": {
+              "ub_cap": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "cos_t": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "cos_a": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "sin_t": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "sin_a": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            "note": "exact spherical triangle inequality geodesic macro-cap upper bound guarantees 1.0000 routing parity"
+          },
+          {
+            "lhs": "t_mount",
+            "rhs": "c_meta * C * D",
+            "dims": {
+              "t_mount": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "c_meta": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "C": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "D": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            "note": "zero-copy mmap slab mount loads pre-packed charts in O(C*D) with zero chart rebuilds"
+          }
+        ],
+        "complexity": "O(C * D + m * B_eff * D)",
+        "energy_series": [
+          46.657898425000894,
+          44.92775712000025,
+          0.815330885000094
+        ],
+        "energy_bound": 46.65794508289932,
+        "entropy_series": [
+          10.035559352526802,
+          19.903121012459188,
+          29.952018307221685,
+          39.4362139778311,
+          48.93658618070653,
+          58.599572243364285,
+          68.43077737989405,
+          78.09182728157379,
+          88.10651236375182,
+          97.63056699052242,
+          107.41223302946646,
+          117.19348912181086,
+          126.9418329728157,
+          136.94981773002564,
+          147.1800159944664,
+          157.04467321764145
+        ],
+        "novelty": 0.9,
+        "metadata": {
+          "measured_from": "receipts/holarch/ag3_multifile_repo_and_100k_atlas.json and receipts/holarch/af1_fast_riemannian_atlas.json",
+          "dim": 256,
+          "af1_10k_speedup_complex": 10.030853926563527,
+          "af1_12k_speedup_complex": 12.354026862859058,
+          "ag3_100k_speedup_complex": 40.44388957758398,
+          "ag3_100k_speedup_real": 47.4484495725599,
+          "ag3_105k_speedup_complex": 57.225721830708665,
+          "ag3_105k_speedup_real": 55.10371058738327,
+          "ag3_105k_rescore_fraction_mean": 0.011620809523809523,
+          "ag3_105k_rescore_fraction_max": 0.017495238095238095,
+          "flat_105k_working_set_bytes": 430080000,
+          "atlas_105k_mean_rescore_bytes": 4997878,
+          "working_set_reduction_ratio": 86.05252068978075,
+          "grounded_top1_parity_100k": 1.0,
+          "grounded_top1_parity_105k": 1.0,
+          "post_write_drift": 0,
+          "online_recall": 200,
+          "cold_gateway_mount_seconds": 0.09102187299981779,
+          "cold_gateway_rebuilt_charts": 0,
+          "cold_gateway_parity": 1.0,
+          "energy_series_kind": "measured median query latency ms/query: [flat_complex_105k, flat_real_105k, packed_atlas_105k]",
+          "entropy_series_kind": "cumulative explained variance across 16 buckets of the 105k Riemannian chart atlas"
+        }
+      },
+      "verdict": {
+        "status": "BLOCKED_MISSING_RND_AGENT_PLUGIN",
+        "accepted": false,
+        "score": null,
+        "failed_primitives": null,
+        "reason": "External henri_jev plugin (RND AGENT) is not mounted in this clean-room VM; complete formal proposal JSON grounded on measured AG2 and AG3 receipts is sealed with zero fabricated verdicts."
+      }
+    }
+  },
+  "scores": [],
+  "accepted": false,
+  "gate": {
+    "ag_jev_two_formal_proposals_built": true,
+    "ag_jev_zero_fabricated_verdicts": true,
+    "ag_jev_two_of_two_accepted": false,
+    "ag_jev_scores_ge_094": false,
+    "passed": false
+  },
+  "wall_seconds": 4.19117659199992,
+  "passed": false
+}

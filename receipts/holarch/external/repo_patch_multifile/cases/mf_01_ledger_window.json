@@ -1,0 +1,20 @@
+{
+  "call_chain": "ledger.api:count_eligible -> ledger.policy:filter_entries -> ledger.window:within_limit",
+  "defect_family": "boundary_compare",
+  "files": {
+    "ledger/__init__.py": "",
+    "ledger/api.py": "from ledger.policy import filter_entries\n\ndef count_eligible(amounts: list, ceiling: int) -> int:\n    return len(filter_entries(amounts, ceiling))\n",
+    "ledger/policy.py": "from ledger.window import within_limit\n\ndef filter_entries(amounts: list, ceiling: int) -> list:\n    kept = []\n    for value in amounts:\n        if within_limit(value, ceiling):\n            kept.append(value)\n    return kept\n",
+    "ledger/window.py": "def within_limit(amount: int, ceiling: int) -> bool:\n    return amount < ceiling\n"
+  },
+  "hidden": {
+    "tests/test_hidden.py": "from ledger.api import count_eligible\n\ndef test_exact_single():\n    assert count_eligible([50], 50) == 1\n\ndef test_negative_threshold():\n    assert count_eligible([-10, -5, 0, 5], -5) == 2\n\ndef test_empty():\n    assert count_eligible([], 10) == 0\n"
+  },
+  "id": "mf_01_ledger_window",
+  "issue": "Inclusive ceiling entries at exact threshold are dropped by the ledger window.",
+  "module_count": 3,
+  "public": {
+    "tests/test_public.py": "from ledger.api import count_eligible\n\ndef test_inclusive_ceiling():\n    assert count_eligible([10, 20, 30, 40], 30) == 3\n\ndef test_strictly_below():\n    assert count_eligible([5, 10], 20) == 2\n"
+  },
+  "test_path": "tests/test_public.py"
+}

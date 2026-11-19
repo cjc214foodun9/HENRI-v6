@@ -35,14 +35,26 @@ Dilution conserves the amount of solute, so concentration times volume is
 constant. The ideal gas pressure equals amount times the gas constant times
 temperature divided by volume. The ideal gas pressure from sample mass equals
 mass divided by molar mass times the gas constant times temperature divided by
-volume. At constant volume ideal gas pressure is proportional to absolute
-temperature.
+volume. The ideal gas volume equals amount times the gas constant times
+temperature divided by pressure. The ideal gas volume from sample mass equals
+mass divided by molar mass times the gas constant times temperature divided by
+pressure. The ideal gas temperature equals pressure times volume divided by
+amount times the gas constant. The ideal gas amount equals pressure times
+volume divided by the gas constant times temperature. At constant temperature
+ideal gas pressure times volume is constant. At constant pressure ideal gas
+volume is proportional to absolute temperature. At constant volume ideal gas
+pressure is proportional to absolute temperature. Root mean square gas speed
+equals the square root of three times the gas constant times temperature
+divided by molar mass.
 
 ## Radiation and quantum mechanics
 
 Electromagnetic wave frequency equals the speed of light divided by wavelength.
-Photon energy equals Planck constant multiplied by the speed of light divided
-by wavelength. Molar photon energy equals Avogadro constant times Planck
+Electromagnetic wavelength equals the speed of light divided by frequency.
+Photon energy equals Planck constant multiplied by frequency. Photon energy
+equals Planck constant multiplied by the speed of light divided by wavelength.
+Photon wavelength equals Planck constant multiplied by the speed of light
+divided by energy. Molar photon energy equals Avogadro constant times Planck
 constant times the speed of light divided by wavelength. Blackbody temperature
 equals the Wien displacement constant divided by peak wavelength. Peak
 blackbody wavelength equals the Wien displacement constant divided by
@@ -57,12 +69,17 @@ Electrostatic work equals electric charge multiplied by potential difference.
 Electrostatic force equals Coulomb constant times the product of charge
 magnitudes divided by distance squared. Separation between point charges
 equals the square root of Coulomb constant times the product of charge
-magnitudes divided by force. Acceleration in a uniform electric field equals
-charge magnitude multiplied by electric field divided by mass. Electric dipole
-moment equals charge magnitude multiplied by separation. Net electric flux
-through a closed surface equals enclosed charge divided by vacuum permittivity.
-Elementary charge count equals total charge magnitude divided by the
-elementary charge.
+magnitudes divided by force. Point charge electric field equals Coulomb
+constant times charge magnitude divided by distance squared. Electric force in
+a uniform electric field equals charge magnitude multiplied by electric field.
+Acceleration in a uniform electric field equals charge magnitude multiplied by
+electric field divided by mass. Electric dipole moment equals charge magnitude
+multiplied by separation. Net electric flux through a closed surface equals
+enclosed charge divided by vacuum permittivity. Elementary charge count equals
+total charge magnitude divided by the elementary charge. Electric current
+equals voltage divided by resistance. Electric potential difference equals
+current multiplied by resistance. Electrical power equals voltage multiplied by
+current.
 
 ## Conservation
 

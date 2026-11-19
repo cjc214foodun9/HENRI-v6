@@ -1,0 +1,10 @@
+{
+  "answer_number": 22.0,
+  "id": "blind_sci_01",
+  "problem_text": "What pressure would $131 \\mathrm{g}$ of xenon gas in a vessel of volume $1.0 \\mathrm{dm}^3$ exert at $25^{\\circ} \\mathrm{C}$ if it behaved as a van der Waals gas?",
+  "source": "atkins",
+  "unit": "$\\mathrm{atm}$ ",
+  "upstream_file": "atkins.json",
+  "upstream_file_sha256": "d2dd481ade7a3a2c6a108e2539bddaf2df83ecb5ef4021f04f520d55ec51f5ac",
+  "upstream_problemid": "e1.1(a)(b)"
+}

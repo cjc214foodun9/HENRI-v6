@@ -1,0 +1,1236 @@
+{
+  "stage": "AG0",
+  "spec": "HENRI-SPEC-CYCLE-AG-BLIND-HOLDOUT-RAW-PROSE-SCIENCE-LIVE-CASCADE-100K-ATLAS-AND-BLACKWELL-SCALE-V1",
+  "evidence_label": "OBSERVED_WITH_HONEST_HOST_BLOCKS",
+  "compute_device": "cpu",
+  "status": "PARTIAL_OBSERVED_HOST_EXTERNAL_DEPS_BLOCKED",
+  "af4_jev_closure": {
+    "receipt": "receipts/holarch/af_jev_mathematical_challenges.json",
+    "receipt_sha256": "37708786bd7af05717e39b33b06774e72c80f292362aedf388613a677e12dcfb",
+    "plugin_present": false,
+    "proposals_intact": true,
+    "challenge_ids": [
+      "AF1-PACKED-RIEMANNIAN-CONTIGUOUS-BLAS-SUBLINEAR-BOUND",
+      "AF3-DEPTH3-COMPOSITIONAL-LOO-FALSE-CONSENSUS-BOUND"
+    ],
+    "accepted_count": 0,
+    "total_challenges": 2,
+    "scores": {
+      "AF1-PACKED-RIEMANNIAN-CONTIGUOUS-BLAS-SUBLINEAR-BOUND": null,
+      "AF3-DEPTH3-COMPOSITIONAL-LOO-FALSE-CONSENSUS-BOUND": null
+    },
+    "failed_primitives": {
+      "AF1-PACKED-RIEMANNIAN-CONTIGUOUS-BLAS-SUBLINEAR-BOUND": null,
+      "AF3-DEPTH3-COMPOSITIONAL-LOO-FALSE-CONSENSUS-BOUND": null
+    },
+    "status": "BLOCKED_MISSING_RND_AGENT_PLUGIN",
+    "evidence_label": "BLOCKED",
+    "probe": {
+      "plugin_present": false,
+      "mounted_binary": null,
+      "searched_binaries": [
+        "henri_jev",
+        "rnd-agent-jev",
+        "cordis-jev"
+      ],
+      "note": "Local henri.cli cmd_jev only verifies local ontology/sidecar integrity (EVIDENCE HOLDS); external @RND AGENT henri_jev Tier-1 mathematical proposal scorer is absent on this clean-room VM."
+    }
+  },
+  "aaii96_battery": {
+    "total_tasks": 96,
+    "answerable_total": 80,
+    "traps_total": 16,
+    "arm0_henri_standalone": {
+      "evidence_label": "OBSERVED",
+      "answerable_solved": 77,
+      "answerable_total": 80,
+      "answerable_rate": 0.9625,
+      "traps_refused": 16,
+      "traps_total": 16,
+      "trap_refusal_rate": 1.0,
+      "composite_score": 0.96875,
+      "hallucinations": 0,
+      "hallucination_rate": 0.0,
+      "external_api_calls": 0,
+      "llm_derived_count": 0,
+      "per_pillar": {
+        "knowledge_work": {
+          "solved": 20,
+          "total": 20,
+          "hallucinations": 0
+        },
+        "coding": {
+          "solved": 19,
+          "total": 20,
+          "hallucinations": 0
+        },
+        "science": {
+          "solved": 20,
+          "total": 20,
+          "hallucinations": 0
+        },
+        "general": {
+          "solved": 18,
+          "total": 20,
+          "hallucinations": 0
+        },
+        "traps": {
+          "refused": 16,
+          "total": 16,
+          "hallucinations": 0
+        }
+      },
+      "rows": [
+        {
+          "id": "b1_functions_four_modules",
+          "pillar": "knowledge_work",
+          "kind": "briefcase",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "b2_classes_four_modules",
+          "pillar": "knowledge_work",
+          "kind": "briefcase",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "b3_function_gap",
+          "pillar": "knowledge_work",
+          "kind": "briefcase",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "b4_test_functions_three_modules",
+          "pillar": "knowledge_work",
+          "kind": "briefcase",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "b5_lines_three_modules",
+          "pillar": "knowledge_work",
+          "kind": "briefcase",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "b6_argmax_class_module",
+          "pillar": "knowledge_work",
+          "kind": "briefcase",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "b7_function_spread",
+          "pillar": "knowledge_work",
+          "kind": "briefcase",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "b8_function_percent",
+          "pillar": "knowledge_work",
+          "kind": "briefcase",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "b9_dense_module_count",
+          "pillar": "knowledge_work",
+          "kind": "briefcase",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "b10_script_functions_two",
+          "pillar": "knowledge_work",
+          "kind": "briefcase",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "b11_classes_three_modules",
+          "pillar": "knowledge_work",
+          "kind": "briefcase",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "b12_module_max_functions",
+          "pillar": "knowledge_work",
+          "kind": "briefcase",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "b13_ac_engine_functions",
+          "pillar": "knowledge_work",
+          "kind": "briefcase",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "b14_ac_engine_lines",
+          "pillar": "knowledge_work",
+          "kind": "briefcase",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "b15_max_classes_ac_engines",
+          "pillar": "knowledge_work",
+          "kind": "briefcase",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "b16_runner_function_spread",
+          "pillar": "knowledge_work",
+          "kind": "briefcase",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "deliv_01_telemetry_ops",
+          "pillar": "knowledge_work",
+          "kind": "deliverable",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "deliv_02_financial_ledger",
+          "pillar": "knowledge_work",
+          "kind": "deliverable",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "deliv_03_science_lab",
+          "pillar": "knowledge_work",
+          "kind": "deliverable",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "deliv_04_security_receipts",
+          "pillar": "knowledge_work",
+          "kind": "deliverable",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "ad1_pipeline_drop_tail",
+          "pillar": "coding",
+          "kind": "repo_patch",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "ad1_ledger_accumulator",
+          "pillar": "coding",
+          "kind": "repo_patch",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "ad1_chunk_boundary",
+          "pillar": "coding",
+          "kind": "repo_patch",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "ad1_dedupe_none_guard",
+          "pillar": "coding",
+          "kind": "repo_patch",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "ad1_router_attribute",
+          "pillar": "coding",
+          "kind": "repo_patch",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "ad1_router_callee",
+          "pillar": "coding",
+          "kind": "repo_patch",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "ad1_numeric_sign",
+          "pillar": "coding",
+          "kind": "repo_patch",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "ad1_numeric_compare",
+          "pillar": "coding",
+          "kind": "repo_patch",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "ad1_numeric_scale",
+          "pillar": "coding",
+          "kind": "repo_patch",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "ad1_parser_index",
+          "pillar": "coding",
+          "kind": "repo_patch",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "mbpp_3",
+          "pillar": "coding",
+          "kind": "pinned_external_mbpp",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "mbpp_6",
+          "pillar": "coding",
+          "kind": "pinned_external_mbpp",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "mbpp_58",
+          "pillar": "coding",
+          "kind": "pinned_external_mbpp",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "mbpp_172",
+          "pillar": "coding",
+          "kind": "pinned_external_mbpp",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "mbpp_223",
+          "pillar": "coding",
+          "kind": "pinned_external_mbpp",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "mbpp_226",
+          "pillar": "coding",
+          "kind": "pinned_external_mbpp",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "mbpp_721",
+          "pillar": "coding",
+          "kind": "pinned_external_mbpp",
+          "solved": false,
+          "abstained": true,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "mbpp_723",
+          "pillar": "coding",
+          "kind": "pinned_external_mbpp",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "mbpp_724",
+          "pillar": "coding",
+          "kind": "pinned_external_mbpp",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "mbpp_725",
+          "pillar": "coding",
+          "kind": "pinned_external_mbpp",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "sci01",
+          "pillar": "science",
+          "kind": "ad2_science",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "sci02",
+          "pillar": "science",
+          "kind": "ad2_science",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "sci03",
+          "pillar": "science",
+          "kind": "ad2_science",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "sci04",
+          "pillar": "science",
+          "kind": "ad2_science",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "sci05",
+          "pillar": "science",
+          "kind": "ad2_science",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "sci06",
+          "pillar": "science",
+          "kind": "ad2_science",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "sci07",
+          "pillar": "science",
+          "kind": "ad2_science",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "sci08",
+          "pillar": "science",
+          "kind": "ad2_science",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "sci09",
+          "pillar": "science",
+          "kind": "ad2_science",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "sci10",
+          "pillar": "science",
+          "kind": "ad2_science",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "sci11",
+          "pillar": "science",
+          "kind": "ad2_science",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "sci12",
+          "pillar": "science",
+          "kind": "ad2_science",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "sci13",
+          "pillar": "science",
+          "kind": "ad2_science",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "sci14",
+          "pillar": "science",
+          "kind": "ad2_science",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "sci15",
+          "pillar": "science",
+          "kind": "ad2_science",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "sci16",
+          "pillar": "science",
+          "kind": "ad2_science",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "sci17",
+          "pillar": "science",
+          "kind": "ad2_science",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "sci18",
+          "pillar": "science",
+          "kind": "ad2_science",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "ext_sci_01",
+          "pillar": "science",
+          "kind": "external_scibench",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "ext_sci_02",
+          "pillar": "science",
+          "kind": "external_scibench",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "f1_deterministic_functions",
+          "pillar": "general",
+          "kind": "factual",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "f2_budget_classes",
+          "pillar": "general",
+          "kind": "factual",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "f3_service_test_functions",
+          "pillar": "general",
+          "kind": "factual",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "f4_holarch_module_count",
+          "pillar": "general",
+          "kind": "factual",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "f5_cold_synth_lines",
+          "pillar": "general",
+          "kind": "factual",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "f6_spatial_functions",
+          "pillar": "general",
+          "kind": "factual",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "f7_arithmetic",
+          "pillar": "general",
+          "kind": "factual",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "f8_prime_sum_below_50",
+          "pillar": "general",
+          "kind": "factual",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "f9_fibonacci_15",
+          "pillar": "general",
+          "kind": "factual",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "f10_triangular_25",
+          "pillar": "general",
+          "kind": "factual",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "arcx_00576224",
+          "pillar": "general",
+          "kind": "official_arc",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "arcx_070dd51e",
+          "pillar": "general",
+          "kind": "official_arc",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "arcx_0ca9ddb6",
+          "pillar": "general",
+          "kind": "official_arc",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "arcx_13713586",
+          "pillar": "general",
+          "kind": "official_arc",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "arcx_1990f7a8",
+          "pillar": "general",
+          "kind": "official_arc",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "arcx_1d398264",
+          "pillar": "general",
+          "kind": "official_arc",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "arcx_212895b5",
+          "pillar": "general",
+          "kind": "official_arc",
+          "solved": false,
+          "abstained": true,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "arcx_256b0a75",
+          "pillar": "general",
+          "kind": "official_arc",
+          "solved": false,
+          "abstained": true,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "arcx_29623171",
+          "pillar": "general",
+          "kind": "official_arc",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "arcx_3194b014",
+          "pillar": "general",
+          "kind": "official_arc",
+          "solved": true,
+          "abstained": false,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "t8_contradictory_arc",
+          "pillar": "trap",
+          "kind": "arc",
+          "refused": true,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "t14_arc_palette_contradiction",
+          "pillar": "trap",
+          "kind": "arc",
+          "refused": true,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "t15_arc_shape_contradiction",
+          "pillar": "trap",
+          "kind": "arc",
+          "refused": true,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "t16_arc_fill_contradiction",
+          "pillar": "trap",
+          "kind": "arc",
+          "refused": true,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "t1_missing_symbol",
+          "pillar": "trap",
+          "kind": "factual",
+          "refused": true,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "t7_no_real_solution",
+          "pillar": "trap",
+          "kind": "factual",
+          "refused": true,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "t9_contradictory_examples",
+          "pillar": "trap",
+          "kind": "external_coding",
+          "refused": true,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "ad1_trap_conflicting_assertions",
+          "pillar": "trap",
+          "kind": "repo_trap",
+          "refused": true,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "ad1_trap_stale_issue",
+          "pillar": "trap",
+          "kind": "repo_trap",
+          "refused": true,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "ad1_trap_sheaf_conflict",
+          "pillar": "trap",
+          "kind": "repo_trap",
+          "refused": true,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "sci19",
+          "pillar": "trap",
+          "kind": "science_trap",
+          "refused": true,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "sci20",
+          "pillar": "trap",
+          "kind": "science_trap",
+          "refused": true,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "sci21",
+          "pillar": "trap",
+          "kind": "science_trap",
+          "refused": true,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "sci22",
+          "pillar": "trap",
+          "kind": "science_trap",
+          "refused": true,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "sci23",
+          "pillar": "trap",
+          "kind": "science_trap",
+          "refused": true,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        },
+        {
+          "id": "sci24",
+          "pillar": "trap",
+          "kind": "science_trap",
+          "refused": true,
+          "hallucinated": false,
+          "llm_derived": false,
+          "llm_calls": 0
+        }
+      ]
+    },
+    "live_llm_arms": {
+      "credentials_present": false,
+      "status": "BLOCKED_MISSING_LLM_CREDENTIALS",
+      "spend_guard": {
+        "label": "af2_aaii96",
+        "budget": 120,
+        "calls": 0,
+        "retries": 0,
+        "remaining": 120,
+        "acquired": true,
+        "reclaimed_stale_lock": false,
+        "lock": "/home/antigravity/cjc214foodun9/HENRI-v6/receipts/holarch/_work_af/.af2_live_battery.lock",
+        "wall_seconds": 0.0002541542053222656
+      },
+      "arms": {
+        "arm1_raw_llm": {
+          "status": "BLOCKED_MISSING_LLM_CREDENTIALS",
+          "evidence_label": "BLOCKED",
+          "executed_tasks": 0,
+          "external_api_calls": 0,
+          "llm_derived_count": 0,
+          "reason": "No live LLM API credential is provisioned in this environment; zero completions were fabricated."
+        },
+        "arm2_rag_llm": {
+          "status": "BLOCKED_MISSING_LLM_CREDENTIALS",
+          "evidence_label": "BLOCKED",
+          "executed_tasks": 0,
+          "external_api_calls": 0,
+          "llm_derived_count": 0,
+          "reason": "No live LLM API credential is provisioned in this environment; zero completions were fabricated."
+        },
+        "arm3_henri_coprocessor": {
+          "status": "BLOCKED_MISSING_LLM_CREDENTIALS",
+          "evidence_label": "BLOCKED",
+          "executed_tasks": 0,
+          "external_api_calls": 0,
+          "llm_derived_count": 0,
+          "reason": "No live LLM API credential is provisioned in this environment; zero completions were fabricated."
+        },
+        "arm4_henri_cascade": {
+          "status": "BLOCKED_MISSING_LLM_CREDENTIALS",
+          "evidence_label": "BLOCKED",
+          "executed_tasks": 0,
+          "external_api_calls": 0,
+          "llm_derived_count": 0,
+          "reason": "No live LLM API credential is provisioned in this environment; zero completions were fabricated."
+        }
+      },
+      "prompt_response_digests": []
+    },
+    "credentials_present": false,
+    "arm4_call_ratio_vs_arm3": null,
+    "spend_guard": {
+      "label": "ag0_aaii96_cascade",
+      "budget": 120,
+      "calls": 0,
+      "retries": 0,
+      "remaining": 120,
+      "acquired": true,
+      "reclaimed_stale_lock": false,
+      "lock": "/home/antigravity/cjc214foodun9/HENRI-v6/receipts/holarch/_work_ag/.ag0_live_cascade.lock",
+      "wall_seconds": 0.00016021728515625
+    },
+    "updated_ad3_receipt": {
+      "path": "receipts/holarch/ad3_deliverable_and_aaii96.json",
+      "sha256": "725f312fd6531d0d19038b28375c9c969e509c20315c7f8852eee285be6e48d7"
+    }
+  },
+  "gauntlet_comparison": {
+    "gateway_cleanroom_gauntlet_336": {
+      "provenance_tier": "gateway_cleanroom_gauntlet_336",
+      "evidence_label": "OBSERVED",
+      "executed_live_in_ag0": true,
+      "queries_total": 336,
+      "queries_correct": 336,
+      "reachable_correct": 258,
+      "reachable_total": 258,
+      "traps_refused": 78,
+      "traps_total": 78,
+      "hallucination_rate": 0.0,
+      "query_file_reads": 0,
+      "receipt_chain_valid": true,
+      "per_category": {
+        "core_code_call_flow": {
+          "total": 24,
+          "correct": 24,
+          "traps": 0,
+          "hallucinations": 0
+        },
+        "core_multi_hop_graph": {
+          "total": 32,
+          "correct": 32,
+          "traps": 0,
+          "hallucinations": 0
+        },
+        "core_unreachable_traps": {
+          "total": 16,
+          "correct": 16,
+          "traps": 16,
+          "hallucinations": 0
+        },
+        "core_ood_veto_and_playbook": {
+          "total": 24,
+          "correct": 24,
+          "traps": 12,
+          "hallucinations": 0
+        },
+        "gateway_ae4_api_verbs_and_mcp": {
+          "total": 40,
+          "correct": 40,
+          "traps": 8,
+          "hallucinations": 0
+        },
+        "fast_riemannian_atlas_10k": {
+          "total": 40,
+          "correct": 40,
+          "traps": 8,
+          "hallucinations": 0
+        },
+        "ontology_and_deliverable_grounding": {
+          "total": 40,
+          "correct": 40,
+          "traps": 16,
+          "hallucinations": 0
+        },
+        "compositional_arc_and_contradictions": {
+          "total": 40,
+          "correct": 40,
+          "traps": 4,
+          "hallucinations": 0
+        },
+        "sheaf_and_dimensional_invariants": {
+          "total": 40,
+          "correct": 40,
+          "traps": 10,
+          "hallucinations": 0
+        },
+        "cycle_ad_ae_af_closure_probes": {
+          "total": 40,
+          "correct": 40,
+          "traps": 4,
+          "hallucinations": 0
+        }
+      }
+    },
+    "legacy_neural_agent_eval_304": {
+      "provenance_tier": "legacy_neural_agent_eval_304",
+      "script": "scripts/run_holarch_agent_eval.py",
+      "mmlu_csv_path": "data/official_benchmarks/canonical/mmlu/mmlu.csv",
+      "mmlu_csv_present": false,
+      "status": "BLOCKED_MISSING_GITIGNORED_MMLU_CSV",
+      "evidence_label": "BLOCKED",
+      "executed_live_in_ag0": false,
+      "reason": "Gitignored data/official_benchmarks/canonical/mmlu/mmlu.csv is not mounted on this host; legacy neural agent eval was not fabricated.",
+      "historical_sealed_receipt": {
+        "path": "receipts/holarch/agent_eval.json",
+        "sidecar_valid": false,
+        "sha256": "aa93b1626e426a80bbba9c8f5309bdb0da1ad119385c705111f667e50b8d0f6a",
+        "total_queries": 304,
+        "passed": true
+      }
+    }
+  },
+  "host_blocks": [
+    {
+      "component": "henri_jev_plugin",
+      "code": "BLOCKED_MISSING_RND_AGENT_PLUGIN",
+      "present": false
+    },
+    {
+      "component": "aaii96_live_llm_arms_1_to_4",
+      "code": "BLOCKED_MISSING_LLM_CREDENTIALS",
+      "present": false
+    },
+    {
+      "component": "legacy_neural_agent_eval_mmlu",
+      "code": "BLOCKED_MISSING_GITIGNORED_MMLU_CSV",
+      "present": false
+    }
+  ],
+  "pinned_snapshot": {
+    "path": "receipts/holarch/pinned_corpus_snapshot.json",
+    "sha256": "d675f3816bbf472493b25f885bbb56c62c5ec88a81ab31e31a9b87b3a0c23703",
+    "sha256_before": "d675f3816bbf472493b25f885bbb56c62c5ec88a81ab31e31a9b87b3a0c23703",
+    "expected_sha256": "d675f3816bbf472493b25f885bbb56c62c5ec88a81ab31e31a9b87b3a0c23703",
+    "expected_digest": "8f270f34e8f35ef84e415d076bea20a7bc15edff337f89ed72ad607447ba8554"
+  },
+  "wall_seconds": 52.56181607999997,
+  "credential_scan": {
+    "leaks": [],
+    "zero_leaks": true
+  },
+  "gate": {
+    "ag0_arm0_ge_75_of_80_and_16_traps_zero_hall_zero_llm": true,
+    "ag0_arm4_live_beats_arm3_at_le_15pct_calls": false,
+    "ag0_jev_af4_2_of_2_accepted_ge_094": false,
+    "ag0_af4_jev_proposals_intact_honest_provenance": true,
+    "ag0_gateway_gauntlet_336_observed_perfect": true,
+    "ag0_neural_gauntlet_rerun_observed": false,
+    "ag0_pinned_snapshot_unchanged": true,
+    "ag0_zero_credential_leaks": true,
+    "passed": false
+  },
+  "passed": false,
+  "local_observed_gates_passed": true,
+  "evidence": "OBSERVED"
+}

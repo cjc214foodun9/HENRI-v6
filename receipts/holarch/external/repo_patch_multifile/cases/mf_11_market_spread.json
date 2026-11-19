@@ -1,0 +1,20 @@
+{
+  "call_chain": "market.api:quote_spread -> market.quoter:evaluate_quote -> market.spread:compute_spread",
+  "defect_family": "call_arg_order_swap",
+  "files": {
+    "market/__init__.py": "",
+    "market/api.py": "from market.quoter import evaluate_quote\n\ndef quote_spread(bid: float, ask: float) -> float:\n    return evaluate_quote(bid, ask)\n",
+    "market/quoter.py": "from market.spread import compute_spread\n\ndef evaluate_quote(bid: float, ask: float) -> float:\n    return compute_spread(ask, bid)\n",
+    "market/spread.py": "def compute_spread(bid: float, ask: float) -> float:\n    return round(ask - bid, 4)\n"
+  },
+  "hidden": {
+    "tests/test_hidden.py": "from market.api import quote_spread\n\ndef test_zero_spread():\n    assert quote_spread(50.0, 50.0) == 0.0\n\ndef test_wide_spread():\n    assert quote_spread(10.0, 17.25) == 7.25\n"
+  },
+  "id": "mf_11_market_spread",
+  "issue": "Quoter passes (ask, bid) to compute_spread(bid, ask), producing negative spreads.",
+  "module_count": 3,
+  "public": {
+    "tests/test_public.py": "from market.api import quote_spread\n\ndef test_positive_spread():\n    assert quote_spread(100.0, 102.5) == 2.5\n\ndef test_tight_spread():\n    assert quote_spread(9.95, 10.0) == 0.05\n"
+  },
+  "test_path": "tests/test_public.py"
+}

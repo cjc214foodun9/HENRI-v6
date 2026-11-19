@@ -1,0 +1,10 @@
+{
+  "answer_number": 1.3,
+  "id": "blind_sci_14",
+  "problem_text": "Calculate the number of coulombs of positive charge in 250 $\\mathrm{cm}^3$ of (neutral) water. (Hint: A hydrogen atom contains one proton; an oxygen atom contains eight protons.)",
+  "source": "fund",
+  "unit": "$10^7 \\mathrm{C}$",
+  "upstream_file": "fund.json",
+  "upstream_file_sha256": "d6b90173970bfa5ed04355c77731c5a28921a0224a0fb7240817f6cb18ea3790",
+  "upstream_problemid": "Question 21.33"
+}

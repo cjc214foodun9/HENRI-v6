@@ -1,0 +1,10 @@
+{
+  "answer_number": 11.0,
+  "id": "blind_sci_11",
+  "problem_text": "Astronaut Stumblebum wanders too far away from the space shuttle orbiter while repairing a broken communications satellite. Stumblebum realizes that the orbiter is moving away from him at $3 \\mathrm{~m} / \\mathrm{s}$. Stumblebum and his maneuvering unit have a mass of $100 \\mathrm{~kg}$, including a pressurized tank of mass $10 \\mathrm{~kg}$. The tank includes only $2 \\mathrm{~kg}$ of gas that is used to propel him in space. The gas escapes with a constant velocity of $100 \\mathrm{~m} / \\mathrm{s}$. With what velocity will Stumblebum have to throw the empty tank away to reach the orbiter?",
+  "source": "class",
+  "unit": "$ \\mathrm{~m} / \\mathrm{s}$ ",
+  "upstream_file": "class.json",
+  "upstream_file_sha256": "113f73bf829e73ed4ab7ccb97a3a8cc50531075ebdb13e5421d62230a96e239a",
+  "upstream_problemid": "Problem 9.12"
+}

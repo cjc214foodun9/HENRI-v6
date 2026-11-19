@@ -1,0 +1,143 @@
+{
+  "cases": [
+    {
+      "call_chain": "ledger.api:count_eligible -> ledger.policy:filter_entries -> ledger.window:within_limit",
+      "defect_family": "boundary_compare",
+      "file": "cases/mf_01_ledger_window.json",
+      "id": "mf_01_ledger_window",
+      "module_count": 3,
+      "sha256": "261187ecefb1bc2494afd2d41fc85532e29630dc56e073525e0a19a3578d3254"
+    },
+    {
+      "call_chain": "telemetry.api:average_latency -> telemetry.aggregator:summarize_window -> telemetry.math_ops:mean_value",
+      "defect_family": "missing_empty_guard",
+      "file": "cases/mf_02_metrics_rate.json",
+      "id": "mf_02_metrics_rate",
+      "module_count": 3,
+      "sha256": "e9a68be937ac13550a79aee8a60bac5bae20419c5276e0b3f1acc50a5a22484f"
+    },
+    {
+      "call_chain": "routing.gateway:pick_lowest_cost -> routing.planner:plan_route -> routing.selector:choose_best -> routing.cost:adjusted_costs",
+      "defect_family": "wrong_builtin_callee",
+      "file": "cases/mf_03_router_dispatch.json",
+      "id": "mf_03_router_dispatch",
+      "module_count": 4,
+      "sha256": "2601a5594305f037a8d503533efc5693430c0d4e0b2c0061adee0c41e15f3780"
+    },
+    {
+      "call_chain": "cache.facade:evict_count -> cache.store:excess_items -> cache.bounds:compute_overflow",
+      "defect_family": "off_by_one_int",
+      "file": "cases/mf_04_cache_eviction.json",
+      "id": "mf_04_cache_eviction",
+      "module_count": 3,
+      "sha256": "060ec481f85072c1d348f06b3091232b19b2cdf8f377589d32386279070ff54f"
+    },
+    {
+      "call_chain": "billing.api:final_total -> billing.invoice:build_total -> billing.discount:apply_discount -> billing.rounding:round_cents",
+      "defect_family": "binop_sign_flip",
+      "file": "cases/mf_05_invoice_discount.json",
+      "id": "mf_05_invoice_discount",
+      "module_count": 4,
+      "sha256": "5088c6469b1b7690dab96ab19e4892ae001ec742e5ce9d53de5ea6e5cc745245"
+    },
+    {
+      "call_chain": "sched.api:has_conflict -> sched.planner:check_slots -> sched.intervals:intervals_overlap",
+      "defect_family": "boolop_inversion",
+      "file": "cases/mf_06_schedule_overlap.json",
+      "id": "mf_06_schedule_overlap",
+      "module_count": 3,
+      "sha256": "0a5f8720f4bc6409bb71e25eb439e5b0a33b42ab2e25299cab878e3de31c0732"
+    },
+    {
+      "call_chain": "codec.api:extract_body -> codec.parser:parse_packet -> codec.frame:strip_header -> codec.payload:copy_payload",
+      "defect_family": "slice_lower_bound",
+      "file": "cases/mf_07_frame_slice.json",
+      "id": "mf_07_frame_slice",
+      "module_count": 4,
+      "sha256": "9c55ae30e4fd1da6046fd66bb996ae6db8c1c82682bb2c5f1d574c76cfd7e6a2"
+    },
+    {
+      "call_chain": "mlops.api:center_feature -> mlops.pipeline:run_stage -> mlops.preprocess:shift_values -> mlops.stats:apply_offset -> mlops.kernel:signed_delta",
+      "defect_family": "binop_operand_order",
+      "file": "cases/mf_08_feature_norm.json",
+      "id": "mf_08_feature_norm",
+      "module_count": 5,
+      "sha256": "33340b4e79d76a3495da8ec5371c3c1a7f71156e9b8fcd1567ef711b41c3c83d"
+    },
+    {
+      "call_chain": "audit.api:normalize_tag -> audit.verify:sanitize_entry -> audit.entry:clean_label",
+      "defect_family": "missing_none_guard",
+      "file": "cases/mf_09_audit_guard.json",
+      "id": "mf_09_audit_guard",
+      "module_count": 3,
+      "sha256": "815735b1000b7f70c2a538596c32abf2f9ae0880621cc3dd333c94e94939af4e"
+    },
+    {
+      "call_chain": "acl.api:effective_mask -> acl.policy:resolve_roles -> acl.evaluator:combine_grants -> acl.bitmask:merge_bits",
+      "defect_family": "augassign_bitwise",
+      "file": "cases/mf_10_acl_bitmask.json",
+      "id": "mf_10_acl_bitmask",
+      "module_count": 4,
+      "sha256": "9f904a73f22a2af1b1eb9c2178bbb02ff8ebacc307b0524eecda69e4ce228b43"
+    },
+    {
+      "call_chain": "market.api:quote_spread -> market.quoter:evaluate_quote -> market.spread:compute_spread",
+      "defect_family": "call_arg_order_swap",
+      "file": "cases/mf_11_market_spread.json",
+      "id": "mf_11_market_spread",
+      "module_count": 3,
+      "sha256": "ceff7bb1a7c7328ac8cd05deff23bca822a1b93e125d76978446c32a0c667281"
+    },
+    {
+      "call_chain": "docops.api:normalize_doc -> docops.router:route_text -> docops.formatter:format_body -> docops.cleaner:clean_body -> docops.rules:lower_text",
+      "defect_family": "wrong_imported_callee",
+      "file": "cases/mf_12_text_dispatch.json",
+      "id": "mf_12_text_dispatch",
+      "module_count": 5,
+      "sha256": "e4cd68b53115a0a42a309577d670a488b61d54bb346e1723df4d6bb2f827a71a"
+    }
+  ],
+  "cases_count": 12,
+  "module_depth_range": [
+    3,
+    5
+  ],
+  "provenance": "clean_room_multifile_suite_cycle_ag3",
+  "slice_id": "ag3_repo_patch_multifile_12_plus_4_traps",
+  "slice_sha256": "839f4a0acba04cb0ee63e3710842d259cee281455626de8a17950dd4d42c62f0",
+  "traps": [
+    {
+      "expected_sheaf_violation_kind": "capability",
+      "file": "traps/trap_mf_01_str_to_numeric_sum.json",
+      "id": "trap_mf_01_str_to_numeric_sum",
+      "kind": "cross_module_capability_mismatch_str_to_sum",
+      "module_count": 3,
+      "sha256": "23c6293ded33a714351f0150680e418337fb93644821303ab4a2124d437fdaac"
+    },
+    {
+      "expected_sheaf_violation_kind": "capability",
+      "file": "traps/trap_mf_02_int_to_sized_len.json",
+      "id": "trap_mf_02_int_to_sized_len",
+      "kind": "cross_module_capability_mismatch_int_to_len",
+      "module_count": 3,
+      "sha256": "d0ac15f17beb2837bf9a077ff9df47aee00147e3b177b12a6d3bbf44b39a33a5"
+    },
+    {
+      "expected_sheaf_violation_kind": "arity",
+      "file": "traps/trap_mf_03_cross_module_arity.json",
+      "id": "trap_mf_03_cross_module_arity",
+      "kind": "cross_module_arity_mismatch",
+      "module_count": 3,
+      "sha256": "7b048e367d97f34e156190b6bdca7e4bde344fa02ce052e860ade8a313a83fea"
+    },
+    {
+      "expected_sheaf_violation_kind": "capability",
+      "file": "traps/trap_mf_04_tuple_to_seq_mut.json",
+      "id": "trap_mf_04_tuple_to_seq_mut",
+      "kind": "cross_module_transitive_tuple_to_append",
+      "module_count": 3,
+      "sha256": "ade37fd359b4c6b71f99e85364e2722c7dac192339f4f98284e33ba269bd828a"
+    }
+  ],
+  "traps_count": 4
+}

@@ -1,0 +1,10 @@
+{
+  "answer_number": 11.58,
+  "id": "blind_sci_12",
+  "problem_text": "A mass of $0.25 \\mathrm{~kg}$ is dropped from rest in a medium offering a resistance of $0.2|v|$, where $v$ is measured in $\\mathrm{m} / \\mathrm{s}$.\r\nIf the mass is dropped from a height of $30 \\mathrm{~m}$, find its velocity when it hits the ground.",
+  "source": "diff",
+  "unit": " m/s",
+  "upstream_file": "diff.json",
+  "upstream_file_sha256": "009547bcb646c7c88532908b9c3a689f02af66233869ea6e35c2d7c676478565",
+  "upstream_problemid": "page 66-28"
+}

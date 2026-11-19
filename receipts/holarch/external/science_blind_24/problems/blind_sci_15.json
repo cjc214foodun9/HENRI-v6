@@ -1,0 +1,10 @@
+{
+  "answer_number": -5.0,
+  "id": "blind_sci_15",
+  "problem_text": "In Millikan's experiment, an oil drop of radius $1.64 \\mu \\mathrm{m}$ and density $0.851 \\mathrm{~g} / \\mathrm{cm}^3$ is suspended in chamber C when a downward electric field of $1.92 \\times 10^5 \\mathrm{~N} / \\mathrm{C}$ is applied. Find the charge on the drop, in terms of $e$.",
+  "source": "fund",
+  "unit": "$e$ ",
+  "upstream_file": "fund.json",
+  "upstream_file_sha256": "d6b90173970bfa5ed04355c77731c5a28921a0224a0fb7240817f6cb18ea3790",
+  "upstream_problemid": "Question 22.39"
+}

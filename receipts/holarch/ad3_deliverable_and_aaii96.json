@@ -1,6 +1,6 @@
 {
   "stage": "AD3",
-  "updated_by_cycle": "AF2",
+  "updated_by_cycle": "AG0",
   "status": "PARTIAL_OBSERVED_LIVE_LLM_ARMS_BLOCKED_MISSING_CREDENTIALS",
   "manifest": {
     "pillars": [
@@ -221,7 +221,7 @@
         "reason": "ABSTAIN: ontology claim check contradicted (quantity 999999 is stated differently in the evidence): CSV telemetry.csv column requests across 3 rows has sum 999999."
       }
     ],
-    "seconds": 0.022298547999980656
+    "seconds": 0.02005210699996951
   },
   "arm0_henri_standalone": {
     "evidence_label": "OBSERVED",
@@ -1222,7 +1222,7 @@
       "acquired": true,
       "reclaimed_stale_lock": false,
       "lock": "/home/antigravity/cjc214foodun9/HENRI-v6/receipts/holarch/_work_af/.af2_live_battery.lock",
-      "wall_seconds": 0.00037860870361328125
+      "wall_seconds": 0.0002541542053222656
     },
     "arms": {
       "arm1_raw_llm": {
@@ -1361,9 +1361,9 @@
         "hallucinations": 0
       }
     },
-    "setup_seconds": 4.845485616999667,
-    "query_seconds": 4.270256537000023,
-    "wall_seconds": 9.117004379999798,
+    "setup_seconds": 3.765285339000002,
+    "query_seconds": 3.942306977000044,
+    "wall_seconds": 7.709104651000075,
     "historical_agent_eval_304": {
       "path": "receipts/holarch/agent_eval.json",
       "sidecar_valid": false,
@@ -1389,5 +1389,22 @@
   },
   "wall_seconds": 61.7153449729999,
   "evidence": "OBSERVED",
-  "passed": false
+  "passed": false,
+  "neural_agent_eval_304": {
+    "provenance_tier": "legacy_neural_agent_eval_304",
+    "script": "scripts/run_holarch_agent_eval.py",
+    "mmlu_csv_path": "data/official_benchmarks/canonical/mmlu/mmlu.csv",
+    "mmlu_csv_present": false,
+    "status": "BLOCKED_MISSING_GITIGNORED_MMLU_CSV",
+    "evidence_label": "BLOCKED",
+    "executed_live_in_ag0": false,
+    "reason": "Gitignored data/official_benchmarks/canonical/mmlu/mmlu.csv is not mounted on this host; legacy neural agent eval was not fabricated.",
+    "historical_sealed_receipt": {
+      "path": "receipts/holarch/agent_eval.json",
+      "sidecar_valid": false,
+      "sha256": "aa93b1626e426a80bbba9c8f5309bdb0da1ad119385c705111f667e50b8d0f6a",
+      "total_queries": 304,
+      "passed": true
+    }
+  }
 }

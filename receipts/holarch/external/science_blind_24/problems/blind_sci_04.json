@@ -1,0 +1,10 @@
+{
+  "answer_number": -20.0,
+  "id": "blind_sci_04",
+  "problem_text": "Assume that all gases are perfect and that data refer to 298.15 K unless otherwise stated. Consider a system consisting of $2.0 \\mathrm{~mol} \\mathrm{CO}_2(\\mathrm{~g})$, initially at $25^{\\circ} \\mathrm{C}$ and $10 \\mathrm{~atm}$ and confined to a cylinder of cross-section $10.0 \\mathrm{~cm}^2$. It is allowed to expand adiabatically against an external pressure of 1.0 atm until the piston has moved outwards through $20 \\mathrm{~cm}$. Assume that carbon dioxide may be considered a perfect gas with $C_{V, \\mathrm{~m}}=28.8 \\mathrm{~J} \\mathrm{~K}^{-1} \\mathrm{~mol}^{-1}$ and calculate $w$.",
+  "source": "atkins",
+  "unit": "$\\text{J}$ ",
+  "upstream_file": "atkins.json",
+  "upstream_file_sha256": "d2dd481ade7a3a2c6a108e2539bddaf2df83ecb5ef4021f04f520d55ec51f5ac",
+  "upstream_problemid": "e3.6(a)(b)"
+}

@@ -1,0 +1,10 @@
+{
+  "answer_number": 234.4,
+  "id": "blind_sci_18",
+  "problem_text": "The enthalpy of fusion of mercury is $2.292 \\mathrm{~kJ} \\mathrm{~mol}^{-1}$, and its normal freezing point is $234.3 \\mathrm{~K}$ with a change in molar volume of $+0.517 \\mathrm{~cm}^3 \\mathrm{~mol}^{-1}$ on melting. At what temperature will the bottom of a column of mercury (density $13.6 \\mathrm{~g} \\mathrm{~cm}^{-3}$ ) of height $10.0 \\mathrm{~m}$ be expected to freeze?",
+  "source": "matter",
+  "unit": " $ \\mathrm{~K}$ ",
+  "upstream_file": "matter.json",
+  "upstream_file_sha256": "641291cb3d62b18bd73daa1f62988733d039f4df940f77f46052e92ac284ea94",
+  "upstream_problemid": "69.3"
+}

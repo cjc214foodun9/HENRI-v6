@@ -1,0 +1,10 @@
+{
+  "answer_number": -57.2,
+  "id": "blind_sci_24",
+  "problem_text": "Determine the molar standard Gibbs energy for ${ }^{35} \\mathrm{Cl}^{35} \\mathrm{Cl}$ where $\\widetilde{\\nu}=560 . \\mathrm{cm}^{-1}, B=0.244 \\mathrm{~cm}^{-1}$, and the ground electronic state is nondegenerate.",
+  "source": "thermo",
+  "unit": " $\\mathrm{~kJ} \\mathrm{~mol}^{-1}$",
+  "upstream_file": "thermo.json",
+  "upstream_file_sha256": "723e550d350dbb13644bf72eda5f19a5d8978aa5abd1c779399051618604494b",
+  "upstream_problemid": "15.45"
+}

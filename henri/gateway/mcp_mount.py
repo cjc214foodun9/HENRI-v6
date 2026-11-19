@@ -221,12 +221,38 @@ def build_mcp_server(
 
     @mcp.tool()
     def holarch_science_solve(
-        problem: Dict[str, Any], namespace: str = "default"
+        problem: Optional[Dict[str, Any]] = None,
+        prompt: Optional[str] = None,
+        target_unit: Optional[str] = None,
+        namespace: str = "default",
     ) -> Dict[str, Any]:
-        """Solve a quantitative science problem with dimensional, inverse, and ontology checks."""
+        """Solve a quantitative science problem (structured dict or raw prose) with dimensional, inverse, and ontology checks."""
         ns = service.auth.authorize_namespace(policy, namespace)
         return service.science_solve(
-            policy=policy, problem=problem, namespace=ns, cascade_policy="wave_only"
+            policy=policy,
+            problem=problem,
+            prompt=prompt,
+            target_unit=target_unit,
+            namespace=ns,
+            cascade_policy="wave_only",
+        )
+
+    @mcp.tool()
+    def holarch_science(
+        prompt: Optional[str] = None,
+        problem: Optional[Dict[str, Any]] = None,
+        target_unit: Optional[str] = None,
+        namespace: str = "default",
+    ) -> Dict[str, Any]:
+        """Solve a raw-prose or structured science problem with zero-LLM dimensional parsing and proof checks."""
+        ns = service.auth.authorize_namespace(policy, namespace)
+        return service.science_solve(
+            policy=policy,
+            problem=problem,
+            prompt=prompt,
+            target_unit=target_unit,
+            namespace=ns,
+            cascade_policy="wave_only",
         )
 
     @mcp.tool()

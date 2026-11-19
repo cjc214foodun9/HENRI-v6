@@ -1,0 +1,10 @@
+{
+  "answer_number": -194.0,
+  "id": "blind_sci_02",
+  "problem_text": "Assume all gases are perfect unless stated otherwise. Unless otherwise stated, thermodynamic data are for 298.15 K. A sample of carbon dioxide of mass $2.45 \\mathrm{~g}$ at $27.0^{\\circ} \\mathrm{C}$ is allowed to expand reversibly and adiabatically from $500 \\mathrm{~cm}^3$ to $3.00 \\mathrm{dm}^3$. What is the work done by the gas?",
+  "source": "atkins",
+  "unit": "$\\mathrm{~J}$",
+  "upstream_file": "atkins.json",
+  "upstream_file_sha256": "d2dd481ade7a3a2c6a108e2539bddaf2df83ecb5ef4021f04f520d55ec51f5ac",
+  "upstream_problemid": "e2.10(a)"
+}

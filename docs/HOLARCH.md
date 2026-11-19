@@ -4806,5 +4806,59 @@ See `ad_cycle.json` for the pytest counts, the consistency exit code, the .sha25
 * Live `henri_jev` plugin scoring (`af_jev_mathematical_challenges.json`): `BLOCKED_MISSING_RND_AGENT_PLUGIN`; formal proposal JSON ready for submission when the plugin host runs.
 * Clean-checkout optional data/models (`tests/conftest.py`, `tests/test_holarch_service.py`, `tests/test_phase10_*.py`, `tests/test_semantic_backbone.py`): gitignored `data/official_benchmarks/canonical/mmlu/mmlu.csv` (`BLOCKED_MISSING_GITIGNORED_MMLU_CSV`, 44 tests) and offline `sentence-transformers` model cache (`BLOCKED_MISSING_SENTENCE_TRANSFORMERS_MODEL`, 4 tests) record explicit provenance skips when absent and run in full whenever present.
 
+---
+
+## 48. Cycle AG: Blind Holdouts, Raw-Prose Dimensional Physics, Multi-File Patching, 100k Persistent Atlas, and Blackwell Policy Gate
+
+### 48.1 Scope, invariants, and zero core-physics mutation
+
+Cycle AG (`HENRI-SPEC-CYCLE-AG-BLIND-HOLDOUT-RAW-PROSE-SCIENCE-LIVE-CASCADE-100K-ATLAS-AND-BLACKWELL-SCALE-V1`) executes five stages (`AG0` through `AG4`) on top of Cycle AF (`fef075c`). The cycle enforces strict ASD-STE100 epistemology, zero task-name branching, immutable pre-freeze hashes for blind holdouts, and zero mutation of core physics modules.
+
+* **Core physics immutability (`0` bytes changed vs `fef075c`):** `henri/holarch/model.py`, `henri/holarch/zone_a.py`, `henri/holarch/zone_b.py`, `henri/holarch/backends/__init__.py`, `henri/holarch/backends/blackwell.py`, and `henri/holarch/backends/reference.py` retain exact SHA-256 parity.
+* **Frozen holdout modules:** `henri/holarch/arc_objects.py` (`94d34f3266c7c27aee4492743b27fad8e7d2507fd92b74cacd8f65d2556491a8`), `henri/holarch/science_parser.py` (`03ba04c6cc866c603dd3e97bfc331ee4917cc7283e662c5a1f8763565a390a08`), and `henri/holarch/science_solver.py` (`2cc3937906a35782e06a35f515ae9843fed5ab42f65ae48b17d9151e79c4c553`) stay byte-identical after their pre-freeze records.
+* **Pinned corpus snapshot:** `receipts/holarch/pinned_corpus_snapshot.json` keeps exact SHA-256 `d675f3816bbf472493b25f885bbb56c62c5ec88a81ab31e31a9b87b3a0c23703` and digest `8f270f34e8f35ef84e415d076bea20a7bc15edff337f89ed72ad607447ba8554`.
+
+### 48.2 AG0: Host-mounted closure check for AF4 JEV, AAII-96 cascade, and gauntlets
+
+* **Observed standalone AAII-96 (`ag0_live_cascade_and_jev_closure.json`, updated `ad3_deliverable_and_aaii96.json`):** `arm0_henri_standalone` achieves **77/80** (96.25%, bar >= 75/80), refuses **16/16** traps, emits **0** hallucinations, and makes **0** external LLM calls.
+* **Observed clean-room gateway gauntlet:** `gateway_cleanroom_gauntlet_336` scores **336/336** (`258/258` reachable, `78/78` traps, `0` hallucinations, `0` query-time disk reads).
+* **Honest host-blocked checks:** External LLM credentials are absent on this clean-room VM, so `arm1_raw_llm` through `arm4_henri_cascade` record `BLOCKED_MISSING_LLM_CREDENTIALS` with `0` fabricated calls. The `RND AGENT` `henri_jev` plugin is absent, so `af_jev_mathematical_challenges.json` preserves both sealed AF4 proposals under `BLOCKED_MISSING_RND_AGENT_PLUGIN`. Gitignored `mmlu.csv` is absent, so `legacy_neural_agent_eval_304` records `BLOCKED_MISSING_GITIGNORED_MMLU_CSV`. `ag0_live_cascade_and_jev_closure.json` seals with `local_observed_gates_passed: true` and `0` credential leaks.
+
+### 48.3 AG1: Frozen zero-touch blind 100-task external ARC-AGI audit
+
+* **Pre-freeze provenance (`ag1_blind_arc_100_audit.json`):** The SHA-256 digest of `henri/holarch/arc_objects.py` (`94d34f3266c7c27aee4492743b27fad8e7d2507fd92b74cacd8f65d2556491a8`) stays unchanged before vendoring, after vendoring, and after evaluation.
+* **Disjoint blind slice (`receipts/holarch/external/arc_agi_blind_100/MANIFEST.json`):** Selected **100** unmodified tasks from `fchollet/ARC-AGI` (`399030444e0ab0cc8b4e199870fb20b863846f34`) by deterministic stride (`7`) over the sorted union of `training` and `evaluation` with **0** overlap against the 48-task development slice (`slice_digest: 6a737c638cbb948cba7d7782eb1392bac98c32af14b409f3f3d9b3813a27e690`).
+* **Measured blind results (`passed: true`, 8/8 gates):** `ObjectLooInducer` (depth 3, `0` LLM calls, `0` task-specific branches) solves **10/100** tasks blind (**10.0%** pass@1: **9/50** training, **1/50** evaluation) at **1.0000** emitted precision (**0** false emissions, **90** clean abstentions), depth histogram `{"1": 10, "2": 0, "3": 0}`, and **4/4** contradiction traps refused at **0** search nodes.
+* **Honest abstention taxonomy (90 abstained tasks):** `loo_rejected_overfit_candidate` (35), `dimension_reduction_extraction_gap` (24), `same_shape_operator_gap` (16), `same_shape_large_canvas_rule_gap` (12), `dimension_expansion_synthesis_gap` (2), and `variable_aspect_morphism_gap` (1).
+
+### 48.4 AG2: Deterministic raw-prose dimensional physics parser and blind SciBench holdout
+
+* **Parser and solver (`henri/holarch/science_parser.py`, `henri/holarch/science_solver.py`):** Added a deterministic zero-LLM raw-prose and LaTeX parser extracting `(symbol, numeric_value, unit_expression)` tuples, compound units, scientific notation, implicit physical constants, and target units directly from unmodified `problem_text`. Wired `ScienceSolver.solve_text()` into `POST /v1/holarch/science` and MCP tool `holarch_science`.
+* **Tier 1 Dev24 raw-text evaluation (`ag2_raw_prose_science_audit.json`):** Stripping all pre-parsed `quantities` and `target` fields yields **23/24** (95.83%) SI-equivalent pass@1 and **20/24** (83.33%) raw-scalar pass@1 at **1.0000** emitted precision, max inverse residual **1.91e-16** (<= 1e-9), **6/6** AF3 traps refused, **6/6** AD2 traps refused, and non-regression on structured SciBench (**23/24**) and AD2 (**18/18**). Gateway REST and MCP raw-prose probes pass with Ed25519 signed receipts and HTTP 422 empty-input rejection.
+* **Tier 2 pre-frozen blind 24-problem SciBench holdout (`receipts/holarch/external/science_blind_24/MANIFEST.json`):** Sealed pre-freeze SHA-256 hashes of `science_parser.py` and `science_solver.py` prior to vendoring **24** disjoint unmodified problems from `mandyyyyii/scibench` (`e14e0ca3d3db0f02928a18d435b9c3d15656a7c5`, deterministic stride `22` over `551` remaining problems, `0` overlap, `slice_sha256: 7abf596ca2ae9b312ac5a72e95f297a0cc8028fd8522594be5a2984c4d165216`). Blind raw-prose evaluation records **0/24** emitted, **0** hallucinations, **1.0000** precision, **0** task-specific branches, **0** LLM calls, and `parser_and_solver_sha256_unchanged: true`. Abstentions divide across `target_quantity_unidentified` (10), `out_of_verified_primer_scope` (9), and `unconsumed_physical_quantities` (5). All 12/12 AG2 gates pass (`passed: true`).
+
+### 48.5 AG3: Multi-file repository patching and 100,000-engram persistent hierarchical atlas
+
+* **Part A multi-file cross-module patching (`receipts/holarch/external/repo_patch_multifile/MANIFEST.json`, `ag3_multifile_repo_and_100k_atlas.json`):** Constructed a clean-room benchmark of **12** multi-file (3 to 5 modules) Python repository defects plus **4** cross-module `RepoSheaf` capability-mismatch traps. `RepoPatchEngine` combines `CodeGraphIndexer` cross-module localization, `RepoSheaf` verification, and REPULSOR traceback pruning to pass **12/12** hidden test suites (100.00%, bar >= 9/12) at **1.0000** precision, `E_sheaf = 0.0` on all 12 emissions, **64** REPULSOR blocks registered, **4/4** traps refused (`E_sheaf > 0.0`), **0** task-specific branches, and **0** external LLM calls. QuixBugs non-regression holds at **12/14** (85.71%) with **1.0000** precision and **4/4** traps refused.
+* **Part B 100,000-engram persistent hierarchical packed atlas (`henri/holarch/riemannian_atlas.py`, `henri/gateway/service.py`):** Added two-level spherical macro-cap geodesic routing and binary mmap persistence (`save` / `load` with SHA-256 sidecar verification) wired into `UnifiedGatewayService` startup. Measured at `N = 100,000` world rows plus `5,000` online writes (`D = 256`, 1 pinned CPU BLAS thread, 5 timed passes):
+  * **100k world bank:** grounded top-1 parity **1.0000**, candidate fraction mean **0.0157** (max **0.0182** <= 0.0500), median speedup **40.44x** vs flat complex BLAS (bar >= 15.0x) and **47.45x** vs flat real BLAS (bar >= 12.0x).
+  * **105k post-online bank:** grounded top-1 parity **1.0000**, post-write drift **0/200**, online recall **200/200** (1.0000), OOD hallucination **0/100**, candidate fraction mean **0.0116** (max **0.0175** <= 0.0500), median speedup **57.23x** vs flat complex BLAS and **55.10x** vs flat real BLAS, boundary ratio **0.0765** (<= 0.0800), working-set reduction **86.05x** (`430.08 MB` flat vs `5.00 MB` mean L3-resident rescore).
+  * **Cold restart persistence:** disk save **1.621 s** (`476.8 MB`), cold subprocess `UnifiedGatewayService` mount **0.091 s** (bar < 2.0 s) with **0** rebuilt charts and **1.0000** post-restart query parity (`200/200`). All 21/21 AG3 gates pass (`passed: true`).
+
+### 48.6 AG4: Blackwell policy gate, D=4096 CPU thermodynamic contract, JEV proposals, and master seal
+
+* **Blackwell SM120 policy gate (`ag4_blackwell_and_jev.json`):** `allowLiveVast` stays `false` without modification. Exact Cycle AE1 refusal text stays intact, spend is **$0.00**, running instances at exit equal **0**, and status is stamped `CUDA: BLOCKED_BY_POLICY`. CPU-side Blackwell SM120 ABI, shared-memory, and FFT parity contract passes (`abi_ok: true`).
+* **D=4096 CPU thermodynamic contract (`compute_device: "cpu"`, never relabelled as GPU):** `HolarchConfig.production(device="cpu")` (`dim = 4096`, **5,886,556** parameters) executes 20 deterministic AdamW steps in **4.09 s** with all gradients finite, eval loss decreasing **2.3003 -> 0.3156** (`0.1372x`, train loss **2.2915 -> 0.6356**), Parseval unit-norm conservation max error **2.26e-06** (< 1e-5), and bit-exact (`0.0` diff) save/reload checkpoint parity on `task_logits` and `photonic.bright`.
+* **AG2/AG3 JEV formal challenge proposals (`ag_jev_mathematical_challenges.json`):** Sealed two complete Tier-1 formal proposals (`AG2-DIMENSIONAL-HOMOGENEITY-PROSE-EXTRACTION-INVARIANCE` and `AG3-100K-PACKED-RIEMANNIAN-L3-CACHE-BANDWIDTH-SCALING`) grounded in measured AG2 and AG3 series. External `RND AGENT` `henri_jev` scoring is stamped `BLOCKED_MISSING_RND_AGENT_PLUGIN` with zero fabricated scores. `ag4_blackwell_and_jev.json` seals with `local_policy_and_proposal_gates_passed: true`.
+* **Master ledger (`ag_cycle.json`):** `local_observed_all_passed: true`, full repository `pytest` **1,045 passed, 66 skipped, 0 failed, 0 errors** (exit `0`, `251.4 s`, including `tests/test_cycle_ag.py` `5/5`), `verify_holarch_consistency.py` valid (`sections_1_to_48: true`, **209/209** `.sha256` sidecars verified at **1.0000** parity with 22 exact LF and 187 cross-platform CRLF-equivalent matches), R3 language compression bars (`static 1.2237 <= 1.4200`, `streaming 1.1660 <= 1.2200`), core physics and frozen holdout SHA-256 immutability, pinned corpus immutability, and **0** credential leaks.
+
+### 48.7 Honest environment-blocked boundaries in Cycle AG
+
+* Live five-arm AAII-96 LLM comparison (`ag0_live_cascade_and_jev_closure.json`, `ad3_deliverable_and_aaii96.json`): `BLOCKED_MISSING_LLM_CREDENTIALS`.
+* Live Blackwell SM120 rental and Gate GB-5 capture (`ag4_blackwell_and_jev.json`): `CUDA: BLOCKED_BY_POLICY` (`$0.00` spend, `0` instances).
+* Live `henri_jev` plugin scoring (`af_jev_mathematical_challenges.json`, `ag_jev_mathematical_challenges.json`): `BLOCKED_MISSING_RND_AGENT_PLUGIN`.
+* Legacy neural MMLU gauntlet and optional clean-checkout test fixtures: `BLOCKED_MISSING_GITIGNORED_MMLU_CSV` and `BLOCKED_MISSING_SENTENCE_TRANSFORMERS_MODEL`.
+
+
 
 

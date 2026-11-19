@@ -1,0 +1,20 @@
+{
+  "call_chain": "audit.api:normalize_tag -> audit.verify:sanitize_entry -> audit.entry:clean_label",
+  "defect_family": "missing_none_guard",
+  "files": {
+    "audit/__init__.py": "",
+    "audit/api.py": "from audit.verify import sanitize_entry\n\ndef normalize_tag(label: str) -> str:\n    return sanitize_entry(label)\n",
+    "audit/entry.py": "def clean_label(label: str) -> str:\n    return label.strip().lower()\n",
+    "audit/verify.py": "from audit.entry import clean_label\n\ndef sanitize_entry(label: str) -> str:\n    return clean_label(label)\n"
+  },
+  "hidden": {
+    "tests/test_hidden.py": "from audit.api import normalize_tag\n\ndef test_empty_tag():\n    assert normalize_tag('   ') == ''\n\ndef test_none_again():\n    assert normalize_tag(None) == ''\n\ndef test_mixed_case():\n    assert normalize_tag('SecOps') == 'secops'\n"
+  },
+  "id": "mf_09_audit_guard",
+  "issue": "Audit log cleaner crashes with AttributeError when optional label is None.",
+  "module_count": 3,
+  "public": {
+    "tests/test_public.py": "from audit.api import normalize_tag\n\ndef test_standard_tag():\n    assert normalize_tag('  Prod-A  ') == 'prod-a'\n\ndef test_none_tag():\n    assert normalize_tag(None) == ''\n"
+  },
+  "test_path": "tests/test_public.py"
+}
