@@ -1,0 +1,21 @@
+{
+  "call_chain": "acl.api:effective_mask -> acl.policy:resolve_roles -> acl.evaluator:combine_grants -> acl.bitmask:merge_bits",
+  "defect_family": "augassign_bitwise",
+  "files": {
+    "acl/__init__.py": "",
+    "acl/api.py": "from acl.policy import resolve_roles\n\ndef effective_mask(flags: list) -> int:\n    return resolve_roles(flags)\n",
+    "acl/bitmask.py": "def merge_bits(flags: list) -> int:\n    mask = 0\n    for bit in flags:\n        mask ^= bit\n    return mask\n",
+    "acl/evaluator.py": "from acl.bitmask import merge_bits\n\ndef combine_grants(flags: list) -> int:\n    return merge_bits(flags)\n",
+    "acl/policy.py": "from acl.evaluator import combine_grants\n\ndef resolve_roles(flags: list) -> int:\n    return combine_grants(flags)\n"
+  },
+  "hidden": {
+    "tests/test_hidden.py": "from acl.api import effective_mask\n\ndef test_all_same():\n    assert effective_mask([8, 8, 8, 8]) == 8\n\ndef test_empty_grants():\n    assert effective_mask([]) == 0\n"
+  },
+  "id": "mf_10_acl_bitmask",
+  "issue": "Duplicate permission grants cancel each other out because bitmask merger uses XOR instead of OR.",
+  "module_count": 4,
+  "public": {
+    "tests/test_public.py": "from acl.api import effective_mask\n\ndef test_duplicate_grants():\n    assert effective_mask([1, 2, 2, 4]) == 7\n\ndef test_distinct_grants():\n    assert effective_mask([1, 4]) == 5\n"
+  },
+  "test_path": "tests/test_public.py"
+}

@@ -1,0 +1,21 @@
+{
+  "call_chain": "billing.api:final_total -> billing.invoice:build_total -> billing.discount:apply_discount -> billing.rounding:round_cents",
+  "defect_family": "binop_sign_flip",
+  "files": {
+    "billing/__init__.py": "",
+    "billing/api.py": "from billing.invoice import build_total\n\ndef final_total(subtotal: float, rate: float, shipping: float) -> float:\n    return build_total(subtotal, rate, shipping)\n",
+    "billing/discount.py": "from billing.rounding import round_cents\n\ndef apply_discount(subtotal: float, rate: float) -> float:\n    deduction = subtotal * rate\n    return round_cents(subtotal + deduction)\n",
+    "billing/invoice.py": "from billing.discount import apply_discount\n\ndef build_total(subtotal: float, rate: float, shipping: float) -> float:\n    discounted = apply_discount(subtotal, rate)\n    return discounted + shipping\n",
+    "billing/rounding.py": "def round_cents(value: float) -> float:\n    return round(value, 2)\n"
+  },
+  "hidden": {
+    "tests/test_hidden.py": "from billing.api import final_total\n\ndef test_quarter_discount():\n    assert final_total(200.0, 0.25, 0.0) == 150.0\n\ndef test_half_discount():\n    assert final_total(80.0, 0.5, 4.5) == 44.5\n"
+  },
+  "id": "mf_05_invoice_discount",
+  "issue": "Discount module adds the discount amount to the subtotal instead of subtracting it.",
+  "module_count": 4,
+  "public": {
+    "tests/test_public.py": "from billing.api import final_total\n\ndef test_ten_percent_discount():\n    assert final_total(100.0, 0.1, 5.0) == 95.0\n\ndef test_zero_discount():\n    assert final_total(50.0, 0.0, 10.0) == 60.0\n"
+  },
+  "test_path": "tests/test_public.py"
+}

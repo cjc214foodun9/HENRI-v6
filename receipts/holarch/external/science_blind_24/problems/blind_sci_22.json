@@ -1,0 +1,10 @@
+{
+  "answer_number": 0.2307692308,
+  "id": "blind_sci_22",
+  "problem_text": "Draw one card at random from a standard deck of cards. The sample space $S$ is the collection of the 52 cards. Assume that the probability set function assigns $1 / 52$ to each of the 52 outcomes. Let\r\n$$\r\n\\begin{aligned}\r\nA & =\\{x: x \\text { is a jack, queen, or king }\\}, \\\\\r\nB & =\\{x: x \\text { is a } 9,10, \\text { or jack and } x \\text { is red }\\}, \\\\\r\nC & =\\{x: x \\text { is a club }\\}, \\\\\r\nD & =\\{x: x \\text { is a diamond, a heart, or a spade }\\} .\r\n\\end{aligned}\r\n$$\r\nFind $P(A)$",
+  "source": "stat",
+  "unit": " ",
+  "upstream_file": "stat.json",
+  "upstream_file_sha256": "a0f84cf8fbb94512174e4ecddb5a7bfa2b6ce7ddde0094c70d886a51a003dcfb",
+  "upstream_problemid": "Problem 1.1.3"
+}

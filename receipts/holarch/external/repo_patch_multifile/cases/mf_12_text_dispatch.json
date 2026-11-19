@@ -1,0 +1,22 @@
+{
+  "call_chain": "docops.api:normalize_doc -> docops.router:route_text -> docops.formatter:format_body -> docops.cleaner:clean_body -> docops.rules:lower_text",
+  "defect_family": "wrong_imported_callee",
+  "files": {
+    "docops/__init__.py": "",
+    "docops/api.py": "from docops.router import route_text\n\ndef normalize_doc(text: str) -> str:\n    return route_text(text)\n",
+    "docops/cleaner.py": "from docops.rules import lower_text, upper_text\n\ndef clean_body(text: str) -> str:\n    return upper_text(text)\n",
+    "docops/formatter.py": "from docops.cleaner import clean_body\n\ndef format_body(text: str) -> str:\n    return clean_body(text)\n",
+    "docops/router.py": "from docops.formatter import format_body\n\ndef route_text(text: str) -> str:\n    return format_body(text)\n",
+    "docops/rules.py": "def lower_text(text: str) -> str:\n    return text.strip().lower()\n\ndef upper_text(text: str) -> str:\n    return text.strip().upper()\n"
+  },
+  "hidden": {
+    "tests/test_hidden.py": "from docops.api import normalize_doc\n\ndef test_all_caps():\n    assert normalize_doc('HENRI V6') == 'henri v6'\n\ndef test_tabs():\n    assert normalize_doc('\\tSpecDoc\\n') == 'specdoc'\n"
+  },
+  "id": "mf_12_text_dispatch",
+  "issue": "Five-module document pipeline invokes imported upper_text instead of lower_text in cleaner.",
+  "module_count": 5,
+  "public": {
+    "tests/test_public.py": "from docops.api import normalize_doc\n\ndef test_lowercase_doc():\n    assert normalize_doc('  Hello World  ') == 'hello world'\n\ndef test_already_lower():\n    assert normalize_doc('alpha') == 'alpha'\n"
+  },
+  "test_path": "tests/test_public.py"
+}

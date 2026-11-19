@@ -1,0 +1,10 @@
+{
+  "answer_number": 5.4,
+  "id": "blind_sci_06",
+  "problem_text": "The length and width of a rectangle are measured as $30 \\mathrm{~cm}$ and $24 \\mathrm{~cm}$, respectively, with an error in measurement of at most $0.1 \\mathrm{~cm}$ in each. Use differentials to estimate the maximum error in the calculated area of the rectangle.",
+  "source": "calculus",
+  "unit": " $\\mathrm{cm^2}$",
+  "upstream_file": "calculus.json",
+  "upstream_file_sha256": "69779c85d33afe2bf17d6f2a0cb7ccbb172e609cc21c3e86b17e1c21eb9fb2c6",
+  "upstream_problemid": "14.4.33"
+}

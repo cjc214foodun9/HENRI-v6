@@ -45,6 +45,9 @@ SCIENCE_TRAP_PREFIXES = (
     "unknown_unit_",
     "unknown_target_unit_",
     "malformed_quantities",
+    "no_dimensionally_consistent_relation",
+    "dimensional_homogeneity_failed",
+    "computation_failed_",
 )
 
 
@@ -101,15 +104,36 @@ def run_repo_patch(
 
 
 def run_science_solve(
-    problem: Dict[str, Any],
+    problem: Optional[Dict[str, Any]] = None,
     *,
+    prompt: Optional[str] = None,
+    target_unit: Optional[str] = None,
     ontology_root: Optional[Path] = None,
 ) -> Dict[str, Any]:
-    """Run Cycle AD2 `ScienceSolver` with dimensional, inverse, and ontology checks."""
+    """Run Cycle AD2/AG2 `ScienceSolver` on structured dicts or raw prose."""
     solver = ScienceSolver(ontology_root=ontology_root or REPO_ROOT)
     workdir = Path(tempfile.mkdtemp(prefix="henri_gw_science_"))
     try:
-        raw = solver.solve(dict(problem), workspace=workdir)
+        prob_dict = dict(problem) if isinstance(problem, dict) else {}
+        has_structured = bool(prob_dict.get("quantities")) and bool(prob_dict.get("target"))
+        if has_structured:
+            raw = solver.solve(prob_dict, workspace=workdir)
+        else:
+            raw_text = (
+                prompt
+                if prompt is not None and str(prompt).strip()
+                else prob_dict.get("problem_text") or prob_dict.get("prompt") or ""
+            )
+            eff_target_unit = target_unit
+            if eff_target_unit is None and isinstance(prob_dict.get("target"), dict):
+                eff_target_unit = prob_dict["target"].get("unit")
+            raw = solver.solve_text(
+                str(raw_text),
+                target_unit=eff_target_unit,
+                problem_id=str(prob_dict.get("id", "")),
+                domain=str(prob_dict.get("domain", "")),
+                workspace=workdir,
+            )
     finally:
         shutil.rmtree(workdir, ignore_errors=True)
 

@@ -1,0 +1,21 @@
+{
+  "call_chain": "routing.gateway:pick_lowest_cost -> routing.planner:plan_route -> routing.selector:choose_best -> routing.cost:adjusted_costs",
+  "defect_family": "wrong_builtin_callee",
+  "files": {
+    "routing/__init__.py": "",
+    "routing/cost.py": "def adjusted_costs(latencies: list, overhead: int) -> list:\n    out = []\n    for ms in latencies:\n        out.append(ms + overhead)\n    return out\n",
+    "routing/gateway.py": "from routing.planner import plan_route\n\ndef pick_lowest_cost(latencies: list, overhead: int) -> int:\n    return plan_route(latencies, overhead)\n",
+    "routing/planner.py": "from routing.selector import choose_best\n\ndef plan_route(latencies: list, overhead: int) -> int:\n    return choose_best(latencies, overhead)\n",
+    "routing/selector.py": "from routing.cost import adjusted_costs\n\ndef choose_best(latencies: list, overhead: int) -> int:\n    scored = adjusted_costs(latencies, overhead)\n    return max(scored)\n"
+  },
+  "hidden": {
+    "tests/test_hidden.py": "from routing.gateway import pick_lowest_cost\n\ndef test_single_route():\n    assert pick_lowest_cost([22], 3) == 25\n\ndef test_tied_routes():\n    assert pick_lowest_cost([8, 8, 15], 2) == 10\n\ndef test_zero_overhead():\n    assert pick_lowest_cost([100, 20, 40], 0) == 20\n"
+  },
+  "id": "mf_03_router_dispatch",
+  "issue": "Route selector chooses the highest-cost backend instead of the lowest-cost backend.",
+  "module_count": 4,
+  "public": {
+    "tests/test_public.py": "from routing.gateway import pick_lowest_cost\n\ndef test_pick_cheapest():\n    assert pick_lowest_cost([50, 12, 35], 5) == 17\n\ndef test_two_routes():\n    assert pick_lowest_cost([9, 4], 1) == 5\n"
+  },
+  "test_path": "tests/test_public.py"
+}

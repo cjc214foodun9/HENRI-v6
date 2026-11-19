@@ -50,6 +50,7 @@ class GatewayConfig:
     timescale_dsn: str = "postgresql://postgres:henri_local_only@localhost:55432/henri"
     sqlite_path: str = "data/gateway/henri_gateway.sqlite3"
     zone_c_sqlite_path: Optional[str] = None
+    atlas_persist_dir: Optional[str] = None
 
     # Compute & Holarch
     holarch_device: str = "cpu"  # cpu | cuda (BLOCKED on CPU hosts)
@@ -93,6 +94,7 @@ class GatewayConfig:
         """Deterministic SHA-256 over non-secret operational parameters."""
         safe = {
             "zone_c_backend": self.zone_c_backend,
+            "atlas_persist_configured": bool(self.atlas_persist_dir),
             "holarch_device": self.holarch_device,
             "compute_workers": self.compute_workers,
             "digital_twin_dim": self.digital_twin_dim,
@@ -136,6 +138,7 @@ class GatewayConfig:
                 "HENRI_GATEWAY_SQLITE_PATH", "data/gateway/henri_gateway.sqlite3"
             ),
             zone_c_sqlite_path=os.environ.get("HENRI_ZONEC_PATH") or None,
+            atlas_persist_dir=os.environ.get("HENRI_ATLAS_PERSIST_DIR") or None,
             holarch_device=os.environ.get("HENRI_HOLARCH_DEVICE", "cpu"),
             holarch_checkpoint=os.environ.get("HENRI_HOLARCH_CHECKPOINT") or None,
             holarch_autoload=_env_bool("HENRI_HOLARCH_AUTOLOAD", True),

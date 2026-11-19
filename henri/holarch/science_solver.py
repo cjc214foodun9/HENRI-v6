@@ -31,6 +31,7 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
 from .ontology_guard import OntologyVerifier
 from .sandbox import SubprocessSandboxExecutor, extract_child_result
+from .science_parser import parse_compound_unit, parse_science_text
 
 Dims = Tuple[float, float, float, float, float, float]
 DIM_ZERO: Dims = (0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
@@ -121,6 +122,7 @@ UNIT_TABLE: Dict[str, Tuple[float, Dims]] = {
     "J/(kg*K)": (1.0, _d(length=2, time=-2, temperature=-1)),
     "mol/L": (1000.0, _d(amount=1, length=-3)),
     "g/mol": (0.001, _d(mass=1, amount=-1)),
+    "Ohm": (1.0, _d(mass=1, length=2, time=-3, current=-2)),
 }
 
 CONSTANTS: Dict[str, Tuple[float, str]] = {
@@ -138,13 +140,21 @@ CONSTANTS: Dict[str, Tuple[float, str]] = {
 
 
 def unit_dims(unit: str) -> Optional[Dims]:
-    entry = UNIT_TABLE.get(str(unit).strip())
-    return None if entry is None else entry[1]
+    key = str(unit).strip()
+    entry = UNIT_TABLE.get(key)
+    if entry is not None:
+        return entry[1]
+    parsed = parse_compound_unit(key)
+    return None if parsed is None else parsed[1]
 
 
 def unit_scale(unit: str) -> Optional[float]:
-    entry = UNIT_TABLE.get(str(unit).strip())
-    return None if entry is None else entry[0]
+    key = str(unit).strip()
+    entry = UNIT_TABLE.get(key)
+    if entry is not None:
+        return entry[0]
+    parsed = parse_compound_unit(key)
+    return None if parsed is None else parsed[0]
 
 
 def _mathify(expression: str) -> str:
@@ -534,6 +544,145 @@ RELATIONS: Tuple[Relation, ...] = (
         lambda z, sd, n: z * sd / math.sqrt(n),
         lambda half_width, z, sd, n: half_width * math.sqrt(n) / z,
     ),
+    Relation(
+        "power", "power equals work divided by time",
+        (("work", _d(mass=1, length=2, time=-2)), ("time", _d(time=1))),
+        _d(mass=1, length=2, time=-3), "work / time",
+        "time", "work / power",
+        lambda work, time: work / time,
+        lambda power, work, time: work / power,
+    ),
+    Relation(
+        "distance_from_speed", "distance equals speed multiplied by time",
+        (("speed", _d(length=1, time=-1)), ("time", _d(time=1))),
+        _d(length=1), "speed * time",
+        "time", "distance / speed",
+        lambda speed, time: speed * time,
+        lambda distance, speed, time: distance / speed,
+    ),
+    Relation(
+        "boyle_pressure", "at constant temperature ideal gas pressure times volume is constant",
+        (("p1", _d(mass=1, length=-1, time=-2)), ("v1", _d(length=3)), ("v2", _d(length=3))),
+        _d(mass=1, length=-1, time=-2), "p1 * v1 / v2",
+        "v2", "p1 * v1 / p2",
+        lambda p1, v1, v2: p1 * v1 / v2,
+        lambda p2, p1, v1, v2: p1 * v1 / p2,
+    ),
+    Relation(
+        "charles_volume", "at constant pressure ideal gas volume is proportional to absolute temperature",
+        (("v1", _d(length=3)), ("t1", _d(temperature=1)), ("t2", _d(temperature=1))),
+        _d(length=3), "v1 * t2 / t1",
+        "t2", "v2 * t1 / v1",
+        lambda v1, t1, t2: v1 * t2 / t1,
+        lambda v2, v1, t1, t2: v2 * t1 / v1,
+    ),
+    Relation(
+        "ideal_gas_volume", "the ideal gas volume equals amount times the gas constant times temperature divided by pressure",
+        (("amount", _d(amount=1)), ("temperature", _d(temperature=1)), ("pressure", _d(mass=1, length=-1, time=-2))),
+        _d(length=3), "amount * R * temperature / pressure",
+        "temperature", "pressure * volume / (amount * R)",
+        lambda amount, temperature, pressure: amount * 8.314462618 * temperature / pressure,
+        lambda volume, amount, temperature, pressure: pressure * volume / (amount * 8.314462618),
+    ),
+    Relation(
+        "ideal_gas_volume_mass", "the ideal gas volume from sample mass equals mass divided by molar mass times the gas constant times temperature divided by pressure",
+        (("mass", _d(mass=1)), ("molar_mass", _d(mass=1, amount=-1)),
+         ("temperature", _d(temperature=1)), ("pressure", _d(mass=1, length=-1, time=-2))),
+        _d(length=3), "(mass / molar_mass) * R * temperature / pressure",
+        "temperature", "pressure * volume * molar_mass / (mass * R)",
+        lambda mass, molar_mass, temperature, pressure: (mass / molar_mass) * 8.314462618 * temperature / pressure,
+        lambda volume, mass, molar_mass, temperature, pressure: pressure * volume * molar_mass / (mass * 8.314462618),
+    ),
+    Relation(
+        "ideal_gas_temperature", "the ideal gas temperature equals pressure times volume divided by amount times the gas constant",
+        (("pressure", _d(mass=1, length=-1, time=-2)), ("volume", _d(length=3)), ("amount", _d(amount=1))),
+        _d(temperature=1), "pressure * volume / (amount * R)",
+        "pressure", "amount * R * temperature / volume",
+        lambda pressure, volume, amount: pressure * volume / (amount * 8.314462618),
+        lambda temperature, pressure, volume, amount: amount * 8.314462618 * temperature / volume,
+    ),
+    Relation(
+        "ideal_gas_amount", "the ideal gas amount equals pressure times volume divided by the gas constant times temperature",
+        (("pressure", _d(mass=1, length=-1, time=-2)), ("volume", _d(length=3)), ("temperature", _d(temperature=1))),
+        _d(amount=1), "pressure * volume / (R * temperature)",
+        "pressure", "amount * R * temperature / volume",
+        lambda pressure, volume, temperature: pressure * volume / (8.314462618 * temperature),
+        lambda amount, pressure, volume, temperature: amount * 8.314462618 * temperature / volume,
+    ),
+    Relation(
+        "rms_speed", "root mean square gas speed equals the square root of three times the gas constant times temperature divided by molar mass",
+        (("R", _d(mass=1, length=2, time=-2, temperature=-1, amount=-1)),
+         ("temperature", _d(temperature=1)), ("molar_mass", _d(mass=1, amount=-1))),
+        _d(length=1, time=-1), "sqrt(3.0 * R * temperature / molar_mass)",
+        "temperature", "(rms_speed ** 2) * molar_mass / (3.0 * R)",
+        lambda R, temperature, molar_mass: math.sqrt(3.0 * R * temperature / molar_mass),
+        lambda rms_speed, R, temperature, molar_mass: (rms_speed * rms_speed) * molar_mass / (3.0 * R),
+    ),
+    Relation(
+        "wave_wavelength", "electromagnetic wavelength equals the speed of light divided by frequency",
+        (("c", _d(length=1, time=-1)), ("frequency", _d(time=-1))),
+        _d(length=1), "c / frequency",
+        "frequency", "c / wavelength",
+        lambda c, frequency: c / frequency,
+        lambda wavelength, c, frequency: c / wavelength,
+    ),
+    Relation(
+        "photon_energy_frequency", "photon energy equals Planck constant multiplied by frequency",
+        (("h", _d(mass=1, length=2, time=-1)), ("frequency", _d(time=-1))),
+        _d(mass=1, length=2, time=-2), "h * frequency",
+        "frequency", "energy / h",
+        lambda h, frequency: h * frequency,
+        lambda energy, h, frequency: energy / h,
+    ),
+    Relation(
+        "photon_wavelength_from_energy", "photon wavelength equals Planck constant multiplied by the speed of light divided by energy",
+        (("h", _d(mass=1, length=2, time=-1)), ("c", _d(length=1, time=-1)), ("energy", _d(mass=1, length=2, time=-2))),
+        _d(length=1), "h * c / energy",
+        "energy", "h * c / wavelength",
+        lambda h, c, energy: h * c / energy,
+        lambda wavelength, h, c, energy: h * c / wavelength,
+    ),
+    Relation(
+        "coulomb_electric_field", "point charge electric field equals Coulomb constant times charge magnitude divided by distance squared",
+        (("k_e", _d(mass=1, length=3, time=-4, current=-2)),
+         ("charge", _d(time=1, current=1)), ("distance", _d(length=1))),
+        _d(mass=1, length=1, time=-3, current=-1), "k_e * abs(charge) / (distance ** 2)",
+        "distance", "sqrt(k_e * abs(charge) / electric_field)",
+        lambda k_e, charge, distance: k_e * abs(charge) / (distance * distance),
+        lambda electric_field, k_e, charge, distance: math.sqrt(k_e * abs(charge) / electric_field),
+    ),
+    Relation(
+        "electric_force_field", "electric force in a uniform electric field equals charge magnitude multiplied by electric field",
+        (("charge", _d(time=1, current=1)), ("electric_field", _d(mass=1, length=1, time=-3, current=-1))),
+        _d(mass=1, length=1, time=-2), "abs(charge) * electric_field",
+        "electric_field", "force / abs(charge)",
+        lambda charge, electric_field: abs(charge) * electric_field,
+        lambda force, charge, electric_field: force / abs(charge),
+    ),
+    Relation(
+        "ohm_current", "electric current equals voltage divided by resistance",
+        (("voltage", _d(mass=1, length=2, time=-3, current=-1)), ("resistance", _d(mass=1, length=2, time=-3, current=-2))),
+        _d(current=1), "voltage / resistance",
+        "voltage", "current * resistance",
+        lambda voltage, resistance: voltage / resistance,
+        lambda current, voltage, resistance: current * resistance,
+    ),
+    Relation(
+        "ohm_voltage", "electric potential difference equals current multiplied by resistance",
+        (("current", _d(current=1)), ("resistance", _d(mass=1, length=2, time=-3, current=-2))),
+        _d(mass=1, length=2, time=-3, current=-1), "current * resistance",
+        "current", "voltage / resistance",
+        lambda current, resistance: current * resistance,
+        lambda voltage, current, resistance: voltage / resistance,
+    ),
+    Relation(
+        "electric_power", "electrical power equals voltage multiplied by current",
+        (("voltage", _d(mass=1, length=2, time=-3, current=-1)), ("current", _d(current=1))),
+        _d(mass=1, length=2, time=-3), "voltage * current",
+        "current", "power / voltage",
+        lambda voltage, current: voltage * current,
+        lambda power, voltage, current: power / voltage,
+    ),
 )
 
 
@@ -592,6 +741,23 @@ OUTPUT_SYMBOL = {
     "conditional_prob": "p_cond",
     "independent_intersection": "p_ab",
     "confidence": "half_width",
+    "power": "power",
+    "distance_from_speed": "distance",
+    "boyle_pressure": "p2",
+    "charles_volume": "v2",
+    "ideal_gas_volume": "volume",
+    "ideal_gas_volume_mass": "volume",
+    "ideal_gas_temperature": "temperature",
+    "ideal_gas_amount": "amount",
+    "rms_speed": "rms_speed",
+    "wave_wavelength": "wavelength",
+    "photon_energy_frequency": "energy",
+    "photon_wavelength_from_energy": "wavelength",
+    "coulomb_electric_field": "electric_field",
+    "electric_force_field": "force",
+    "ohm_current": "current",
+    "ohm_voltage": "voltage",
+    "electric_power": "power",
 }
 
 
@@ -632,8 +798,68 @@ class ScienceSolver:
             self._ontology = verifier
         return self._ontology
 
+    # ---------------------------------------------------------- raw prose API
+    def solve_text(
+        self,
+        problem_text: str,
+        *,
+        target_unit: Optional[str] = None,
+        problem_id: str = "",
+        domain: str = "",
+        workspace: Optional[Path] = None,
+    ) -> Dict[str, Any]:
+        """Parse unmodified raw prose/LaTeX and verify with ``solve()`` (0 LLM calls)."""
+        started = __import__("time").perf_counter()
+        parsed = parse_science_text(
+            problem_text,
+            target_unit=target_unit,
+            problem_id=problem_id,
+            domain=domain,
+        )
+        if not parsed.ok:
+            return {
+                "id": str(problem_id),
+                "domain": str(domain or "raw_prose_science"),
+                "status": "ABSTAIN",
+                "reason": str(parsed.reason or "raw_prose_parse_abstained"),
+                "llm_calls": 0,
+                "input_mode": "raw_text",
+                "parsed": {
+                    "ok": False,
+                    "reason": str(parsed.reason),
+                    "measurements_found": len(parsed.measurements),
+                    "target_unit_explicit": bool(parsed.target_unit_explicit),
+                },
+                "seconds": float(__import__("time").perf_counter() - started),
+            }
+        res = self.solve(parsed.problem, workspace=workspace)
+        res["input_mode"] = "raw_text"
+        res["parsed"] = {
+            "ok": True,
+            "quantities": list(parsed.problem.get("quantities") or []),
+            "target": dict(parsed.problem.get("target") or {}),
+            "target_unit_explicit": bool(parsed.target_unit_explicit),
+            "measurements_found": len(parsed.measurements),
+            "boilerplate_stripped": list(parsed.boilerplate_stripped),
+        }
+        return res
+
     # ----------------------------------------------------------------- solve
     def solve(self, problem: Dict[str, Any], workspace: Optional[Path] = None) -> Dict[str, Any]:
+        if (
+            "quantities" not in problem
+            and "target" not in problem
+            and "table" not in problem
+            and (problem.get("prompt") or problem.get("problem_text"))
+        ):
+            raw_text = str(problem.get("problem_text") or problem.get("prompt") or "")
+            return self.solve_text(
+                raw_text,
+                target_unit=problem.get("target_unit"),
+                problem_id=str(problem.get("id", "")),
+                domain=str(problem.get("domain", "")),
+                workspace=workspace,
+            )
         started = __import__("time").perf_counter()
         result: Dict[str, Any] = {
             "id": str(problem.get("id", "")),

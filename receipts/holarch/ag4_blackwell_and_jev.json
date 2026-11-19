@@ -1,0 +1,241 @@
+{
+  "stage": "AG4",
+  "spec": "HENRI-SPEC-CYCLE-AG-BLIND-HOLDOUT-RAW-PROSE-SCIENCE-LIVE-CASCADE-100K-ATLAS-AND-BLACKWELL-SCALE-V1",
+  "evidence_label": "OBSERVED",
+  "compute_device": "cpu",
+  "cuda_status": "CUDA: BLOCKED_BY_POLICY",
+  "policy": {
+    "plugin_present": false,
+    "config_path": "RND AGENT\\harness\\plugins\\henri-holon\\cordis.patch.yml",
+    "allowLiveVast": false,
+    "sealed_ae1_policy_sha256": "6d88966fb8244c4cb1712ef915c4b38b23dc9069643d2f78dd046c84146e8c72",
+    "policy_modified": false,
+    "refusal_string": "A live Vast.ai run is blocked by policy. Set allowLiveVast: true in the plugin config first.",
+    "reason": "External plugin directory RND AGENT is absent in this clean-room VM; preserving Cycle AE1 allowLiveVast=false policy refusal without modification."
+  },
+  "hardware": {
+    "local": {
+      "torch_cuda_available": false,
+      "device_count": 0,
+      "capability": null,
+      "cuda_status": "BLOCKED_NO_PCIE_NVIDIA_DEVICE",
+      "torch_version": "2.15.0+cpu"
+    },
+    "rented": false,
+    "running_instances_at_exit": 0,
+    "spend_usd": 0.0,
+    "cuda_status": "CUDA: BLOCKED_BY_POLICY",
+    "gb5": {
+      "status": "BLOCKED_BY_POLICY",
+      "measured": false,
+      "reason": "A live Vast.ai run is blocked by policy. Set allowLiveVast: true in the plugin config first."
+    }
+  },
+  "blackwell_software_contract": {
+    "capability": {
+      "sm120_170": true,
+      "sm120_188": true,
+      "sm120_160": false,
+      "sm100_170": false,
+      "sm90_170": false
+    },
+    "shared_memory_bytes": {
+      "D2048": 8192,
+      "D4096": 16384,
+      "D8192": 32768,
+      "D56000": 101376
+    },
+    "max_smem_bytes": 101376,
+    "sm_targets": {
+      "170": "RTX 5090",
+      "188": "RTX PRO 6000 Blackwell"
+    },
+    "forbidden_tokens": [],
+    "fft_parity": {
+      "2048": {
+        "dim": 2048,
+        "compute_device": "cpu_reference_only_not_gpu",
+        "energy_in": 8212.261859673128,
+        "energy_out": 16424.5237175815,
+        "energy_ratio": 1.999999999785107,
+        "deterministic": true,
+        "identity_delta": 2.009714112417343e-07
+      },
+      "4096": {
+        "dim": 4096,
+        "compute_device": "cpu_reference_only_not_gpu",
+        "energy_in": 16109.457373530899,
+        "energy_out": 32218.91476828669,
+        "energy_ratio": 2.0000000013175425,
+        "deterministic": true,
+        "identity_delta": 2.0525874358920373e-07
+      },
+      "8192": {
+        "dim": 8192,
+        "compute_device": "cpu_reference_only_not_gpu",
+        "energy_in": 32791.71805921207,
+        "energy_out": 65583.4361316119,
+        "energy_ratio": 2.0000000004021676,
+        "deterministic": true,
+        "identity_delta": 2.043425829194119e-07
+      }
+    },
+    "production": {
+      "dim": 4096,
+      "photonic_layers": 4
+    },
+    "abi_ok": true
+  },
+  "d4096_cpu_thermodynamic_contract": {
+    "evidence_label": "OBSERVED",
+    "compute_device": "cpu",
+    "relabelled_as_gpu": false,
+    "dim": 4096,
+    "photonic_layers": 4,
+    "n_experts": 16,
+    "parameter_count": 5886556,
+    "config_digest": "3c4c9b578a43c484",
+    "steps": 20,
+    "eval_loss_before": 2.3002610206604004,
+    "eval_loss_after": 0.3156369626522064,
+    "eval_loss_drop_ratio": 0.13721788954263445,
+    "losses": [
+      2.2914843559265137,
+      2.2643890380859375,
+      2.5134828090667725,
+      2.249422311782837,
+      2.1631219387054443,
+      2.213653087615967,
+      2.158362865447998,
+      2.017838954925537,
+      2.148372173309326,
+      2.6015522480010986,
+      2.127919912338257,
+      1.8046597242355347,
+      1.4850611686706543,
+      1.3859893083572388,
+      1.1842812299728394,
+      2.4338746070861816,
+      1.2362033128738403,
+      1.0224391222000122,
+      1.1912583112716675,
+      0.6356161236763
+    ],
+    "initial_loss": 2.2914843559265137,
+    "final_loss": 0.6356161236763,
+    "mean_first5_loss": 2.296380090713501,
+    "mean_last5_loss": 1.3038782954216004,
+    "loss_decreased": true,
+    "all_gradients_finite": true,
+    "max_grad_norm": 4.896145255937792,
+    "min_grad_norm": 0.29694639608471807,
+    "parseval_errors": [
+      1.6689300537109375e-06,
+      1.430511474609375e-06,
+      7.748603820800781e-07,
+      1.430511474609375e-06,
+      1.7881393432617188e-06,
+      1.6689300537109375e-06,
+      1.7285346984863281e-06,
+      1.1920928955078125e-06,
+      1.0728836059570312e-06,
+      1.0728836059570312e-06,
+      1.0728836059570312e-06,
+      1.1920928955078125e-06,
+      1.3709068298339844e-06,
+      1.430511474609375e-06,
+      1.430511474609375e-06,
+      9.5367431640625e-07,
+      2.2649765014648438e-06,
+      1.4901161193847656e-06,
+      1.7881393432617188e-06,
+      2.1457672119140625e-06
+    ],
+    "max_parseval_error": 2.2649765014648438e-06,
+    "parseval_conserved_lt_1e5": true,
+    "checkpoint_parity": {
+      "temporary_file_deleted_on_exit": true,
+      "sha256": "2016935f77b411490756a6002260627ff10c7d5fd5e2991f5b4f8806a91119e0",
+      "bytes": 26229783,
+      "reloaded_dim": 4096,
+      "logits_max_abs_diff": 0.0,
+      "psi_max_abs_diff": 0.0,
+      "bit_exact_logits": true,
+      "bit_exact_psi": true
+    },
+    "wall_seconds": 4.091595564000045,
+    "contract_ok": true
+  },
+  "core_physics_immutability": {
+    "all_unchanged": true,
+    "files": {
+      "henri/holarch/model.py": {
+        "expected_sha256": "18da661b81cf4f2caf0e272b5124512e5ed6a1ca7720df4750008d823accece5",
+        "actual_sha256": "18da661b81cf4f2caf0e272b5124512e5ed6a1ca7720df4750008d823accece5",
+        "unchanged": true
+      },
+      "henri/holarch/zone_a.py": {
+        "expected_sha256": "e6a0fa1cf4f7cfdb77fc3d5386b2312dfe2acec0f87784b8ce3a645794f8527e",
+        "actual_sha256": "e6a0fa1cf4f7cfdb77fc3d5386b2312dfe2acec0f87784b8ce3a645794f8527e",
+        "unchanged": true
+      },
+      "henri/holarch/zone_b.py": {
+        "expected_sha256": "38ee1740605e2c5a39d6f71fc21fec3894251045f59705b12c89e4fb11a88228",
+        "actual_sha256": "38ee1740605e2c5a39d6f71fc21fec3894251045f59705b12c89e4fb11a88228",
+        "unchanged": true
+      },
+      "henri/holarch/backends/__init__.py": {
+        "expected_sha256": "57c45d99782d915824ab82ebc93e6681fa41b4074c8f21a4c7e641974145b9b8",
+        "actual_sha256": "57c45d99782d915824ab82ebc93e6681fa41b4074c8f21a4c7e641974145b9b8",
+        "unchanged": true
+      },
+      "henri/holarch/backends/blackwell.py": {
+        "expected_sha256": "f457a3ecfbaf65a599d15f4038dd6afd5d1120bfc392cbac03bee669bf7647c1",
+        "actual_sha256": "f457a3ecfbaf65a599d15f4038dd6afd5d1120bfc392cbac03bee669bf7647c1",
+        "unchanged": true
+      },
+      "henri/holarch/backends/reference.py": {
+        "expected_sha256": "b92d978082226bb56edc28485e9058c484bf8bed9b212cf9e45aa6db400dc08d",
+        "actual_sha256": "b92d978082226bb56edc28485e9058c484bf8bed9b212cf9e45aa6db400dc08d",
+        "unchanged": true
+      }
+    }
+  },
+  "jev_challenges": {
+    "receipt": "ag_jev_mathematical_challenges.json",
+    "status": "BLOCKED_MISSING_RND_AGENT_PLUGIN",
+    "proposal_ids": [
+      "AG2-DIMENSIONAL-HOMOGENEITY-PROSE-EXTRACTION-INVARIANCE",
+      "AG3-100K-PACKED-RIEMANNIAN-L3-CACHE-BANDWIDTH-SCALING"
+    ],
+    "proposals_sha256": "dc15eef8e629d2b1b96fa77d81ff27ed584e4c836ce57c73c8993da4f4383d6c",
+    "proposals_built": true,
+    "accepted": false,
+    "scores": []
+  },
+  "pinned_snapshot": {
+    "path": "receipts/holarch/pinned_corpus_snapshot.json",
+    "sha256": "d675f3816bbf472493b25f885bbb56c62c5ec88a81ab31e31a9b87b3a0c23703",
+    "sha256_before": "d675f3816bbf472493b25f885bbb56c62c5ec88a81ab31e31a9b87b3a0c23703",
+    "expected_sha256": "d675f3816bbf472493b25f885bbb56c62c5ec88a81ab31e31a9b87b3a0c23703",
+    "expected_digest": "8f270f34e8f35ef84e415d076bea20a7bc15edff337f89ed72ad607447ba8554"
+  },
+  "gate": {
+    "ag4_policy_inspected_unmodified": true,
+    "ag4_allow_live_vast_respected": true,
+    "ag4_exact_policy_refusal_preserved": true,
+    "ag4_cuda_blocked_by_policy_stamped": true,
+    "ag4_zero_spend_and_zero_instances": true,
+    "ag4_no_cpu_relabelled_as_gpu": true,
+    "ag4_blackwell_software_abi_contract_ok": true,
+    "ag4_d4096_cpu_thermodynamic_contract_ok": true,
+    "ag4_core_physics_zero_bytes_mutated": true,
+    "ag4_jev_proposals_built_honestly": true,
+    "ag4_jev_plugin_accepted": false,
+    "ag4_pinned_snapshot_unchanged": true,
+    "passed": false
+  },
+  "local_policy_and_proposal_gates_passed": true,
+  "wall_seconds": 4.196230587999935,
+  "passed": false
+}

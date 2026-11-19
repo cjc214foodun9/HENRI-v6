@@ -1,0 +1,20 @@
+{
+  "expected_sheaf_violation_kind": "arity",
+  "files": {
+    "trap3/__init__.py": "",
+    "trap3/api.py": "from trap3.dispatch import dispatch_score\n\ndef score_entry(base: int, weight: int) -> int:\n    return dispatch_score(base, weight)\n",
+    "trap3/dispatch.py": "from trap3.worker import compute_score\n\ndef dispatch_score(base: int, weight: int) -> int:\n    return compute_score(base, weight)\n",
+    "trap3/worker.py": "def compute_score(base: int, weight: int, bonus: int) -> int:\n    return base * weight + bonus\n"
+  },
+  "hidden": {
+    "tests/test_hidden.py": "from trap3.api import score_entry\n\ndef test_score_hidden():\n    assert score_entry(5, 2) == 10\n"
+  },
+  "id": "trap_mf_03_cross_module_arity",
+  "issue": "Dispatcher invokes 3-argument worker with only 2 positional arguments.",
+  "kind": "cross_module_arity_mismatch",
+  "module_count": 3,
+  "public": {
+    "tests/test_public.py": "from trap3.api import score_entry\n\ndef test_score():\n    assert score_entry(3, 4) == 12\n"
+  },
+  "test_path": "tests/test_public.py"
+}

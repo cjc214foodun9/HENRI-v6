@@ -20,9 +20,12 @@ Composes:
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
 import math
+import re
 import threading
+import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
@@ -158,14 +161,24 @@ class UnifiedGatewayService:
         self._code_banks: Dict[str, Any] = {}
         self._zone_a_snapshots: Dict[str, Dict[str, Any]] = {}
         self._atlases: Dict[str, Any] = {}
+        self._atlas_persistence_meta: Dict[str, Dict[str, Any]] = {}
 
         # Bounded compute pool so heavy numpy/torch ops never stall SSE/MCP
         self._pool = ThreadPoolExecutor(
             max_workers=max(1, int(self.config.compute_workers)),
             thread_name_prefix="henri-compute",
         )
+        if self.config.atlas_persist_dir:
+            self._mount_persisted_atlases()
 
     def shutdown(self) -> None:
+        for atlas in list(self._atlases.values()):
+            close_fn = getattr(atlas, "close", None)
+            if callable(close_fn):
+                try:
+                    close_fn()
+                except Exception:
+                    pass
         self._pool.shutdown(wait=False)
         self.store.close()
 
@@ -338,6 +351,14 @@ class UnifiedGatewayService:
             },
             "auth_enforced": self.auth.is_auth_enforced(),
             "holarch": holarch_health,
+            "atlas_persistence": {
+                "enabled": bool(self.config.atlas_persist_dir),
+                "loaded_namespaces": sorted(self._atlases.keys()),
+                "rebuilt_charts_total": int(
+                    sum(int(getattr(a, "rebuilt_charts", 0)) for a in self._atlases.values())
+                ),
+                "namespaces": dict(self._atlas_persistence_meta),
+            },
             "evidence_label": "OBSERVED",
         }
 
@@ -819,11 +840,28 @@ class UnifiedGatewayService:
         self,
         *,
         policy: TenantPolicy,
-        problem: Dict[str, Any],
+        problem: Optional[Dict[str, Any]] = None,
+        prompt: Optional[str] = None,
+        target_unit: Optional[str] = None,
         namespace: str,
         cascade_policy: str = "wave_only",
     ) -> Dict[str, Any]:
-        arm0 = run_science_solve(problem)
+        prob_dict = dict(problem) if isinstance(problem, dict) else {}
+        raw_prompt = (
+            prompt
+            if prompt is not None and str(prompt).strip()
+            else prob_dict.get("problem_text") or prob_dict.get("prompt")
+        )
+        arm0 = run_science_solve(
+            prob_dict if prob_dict else None,
+            prompt=str(raw_prompt) if raw_prompt is not None else None,
+            target_unit=target_unit,
+        )
+        prompt_payload = (
+            prob_dict
+            if prob_dict
+            else {"prompt": str(raw_prompt or ""), "target_unit": target_unit}
+        )
         outcome = self.cascade.resolve(
             endpoint="/v1/holarch/science",
             policy=policy,
@@ -833,7 +871,7 @@ class UnifiedGatewayService:
             trap_detected=bool(arm0["trap_detected"]),
             prompt_messages=[
                 {"role": "system", "content": "Provide a JSON science problem specification."},
-                {"role": "user", "content": json.dumps(problem, default=str)},
+                {"role": "user", "content": json.dumps(prompt_payload, default=str)},
             ],
             verify_fn=lambda _text: (False, None, "science_requires_dimensional_proof"),
         )
@@ -842,7 +880,12 @@ class UnifiedGatewayService:
         signed = self.issue_signed_receipt(
             endpoint="/v1/holarch/science",
             namespace=namespace,
-            request_payload={"id": problem.get("id", ""), "domain": problem.get("domain", ""), "namespace": namespace},
+            request_payload={
+                "id": prob_dict.get("id", ""),
+                "domain": prob_dict.get("domain", ""),
+                "input_mode": result_body.get("input_mode", "structured"),
+                "namespace": namespace,
+            },
             result_payload={
                 "status": result_body.get("status"),
                 "abstained": outcome.abstained,
@@ -1211,7 +1254,88 @@ class UnifiedGatewayService:
         )
         return body
 
-    # ------------------------------------------ Packed RiemannianChartAtlas (AF1)
+    # ------------------------------------------ Packed RiemannianChartAtlas (AF1/AG3)
+    def _atlas_ns_dir(self, namespace: str) -> Optional[Path]:
+        if not self.config.atlas_persist_dir:
+            return None
+        base = Path(self.config.atlas_persist_dir).resolve()
+        ns = str(namespace)
+        safe = re.sub(r"[^A-Za-z0-9._-]", "_", ns).strip("._") or "ns"
+        if safe != ns:
+            digest = hashlib.sha256(ns.encode("utf-8")).hexdigest()[:10]
+            dirname = f"{safe}_{digest}"
+        else:
+            dirname = safe
+        return base / dirname
+
+    def _mount_persisted_atlases(self) -> None:
+        if not self.config.atlas_persist_dir:
+            return
+        base = Path(self.config.atlas_persist_dir).resolve()
+        if not base.exists() or not base.is_dir():
+            return
+        from henri.holarch.riemannian_atlas import RiemannianChartAtlas
+
+        for child in sorted(base.iterdir()):
+            if not child.is_dir():
+                continue
+            db_file = child / "atlas.sqlite3"
+            if not db_file.exists():
+                continue
+            ns_name = child.name
+            meta_file = child / "namespace.json"
+            if meta_file.exists():
+                try:
+                    ns_name = str(json.loads(meta_file.read_text(encoding="utf-8")).get("namespace", ns_name))
+                except Exception:
+                    pass
+            t0 = time.perf_counter()
+            atlas = RiemannianChartAtlas.load(child, mmap=True, verify_checksum="fast")
+            mount_s = float(time.perf_counter() - t0)
+            self._atlases[ns_name] = atlas
+            stats = atlas.stats()
+            self._atlas_persistence_meta[ns_name] = {
+                "loaded_from_disk": True,
+                "rebuilt_charts": int(atlas.rebuilt_charts),
+                "mount_seconds": mount_s,
+                "path": str(child),
+                "charts": int(stats["charts"]),
+                "rows": int(stats["rows"]),
+                "digest": str(stats["digest"]),
+            }
+
+    def _persist_atlas(self, namespace: str, atlas: Any) -> Optional[Dict[str, Any]]:
+        ns_dir = self._atlas_ns_dir(namespace)
+        if ns_dir is None:
+            return None
+        info = atlas.save(ns_dir)
+        (ns_dir / "namespace.json").write_text(
+            json.dumps({"namespace": str(namespace)}, sort_keys=True),
+            encoding="utf-8",
+        )
+        stats = atlas.stats()
+        self._atlas_persistence_meta[str(namespace)] = {
+            "loaded_from_disk": False,
+            "rebuilt_charts": int(getattr(atlas, "rebuilt_charts", 0)),
+            "save_seconds": float(info.get("save_seconds", 0.0)),
+            "path": str(ns_dir),
+            "charts": int(stats["charts"]),
+            "rows": int(stats["rows"]),
+            "digest": str(stats["digest"]),
+        }
+        return info
+
+    def atlas_save(self, *, namespace: str = "default") -> Dict[str, Any]:
+        """Explicitly flush a namespace's RiemannianChartAtlas to disk."""
+        with self._ns_lock(namespace).read_locked():
+            atlas = self._atlases.get(namespace)
+            if atlas is None:
+                raise KeyError(f"no RiemannianChartAtlas built for namespace {namespace!r}")
+            info = self._persist_atlas(namespace, atlas)
+        if info is None:
+            raise ValueError("atlas_persist_dir is not configured on this gateway")
+        return {"ok": True, "namespace": namespace, "persistence": info}
+
     @staticmethod
     def _parse_complex_vector(raw: Sequence[Any]) -> np.ndarray:
         arr = np.asarray(raw)
@@ -1259,10 +1383,15 @@ class UnifiedGatewayService:
         )
         with self._ns_lock(namespace).write_locked():
             stats = atlas.build(matrix, row_ids, namespace=namespace)
+            old = self._atlases.get(namespace)
+            if old is not None and hasattr(old, "close"):
+                old.close()
             self._atlases[namespace] = atlas
+            persisted = self._persist_atlas(namespace, atlas)
         result = {
             "namespace": namespace,
             "stats": stats,
+            "persisted": persisted,
             "evidence_label": "OBSERVED",
             "compute_device": self.compute_device,
         }
@@ -1303,11 +1432,13 @@ class UnifiedGatewayService:
                 self._atlases[namespace] = atlas
             outcome = atlas.observe(vec, int(row), namespace=namespace)
             condensed_final = int(atlas.finalize()) if bool(finalize) else 0
+            persisted = self._persist_atlas(namespace, atlas) if bool(finalize) else None
             stats = atlas.stats()
         result = {
             "namespace": namespace,
             "outcome": outcome,
             "finalized_charts": condensed_final,
+            "persisted": persisted,
             "stats": stats,
             "evidence_label": "OBSERVED",
             "compute_device": self.compute_device,
@@ -1389,10 +1520,12 @@ class UnifiedGatewayService:
         with self._ns_lock(namespace).read_locked():
             atlas = self._atlases.get(namespace)
             stats = atlas.stats() if atlas is not None else {"built": False, "charts": 0, "rows": 0}
+            persist_meta = self._atlas_persistence_meta.get(namespace)
         result = {
             "namespace": namespace,
             "built": atlas is not None,
             "stats": stats,
+            "persistence": persist_meta,
             "evidence_label": "OBSERVED",
             "compute_device": self.compute_device,
         }

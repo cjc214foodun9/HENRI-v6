@@ -1,0 +1,10 @@
+{
+  "answer_number": 0.139,
+  "id": "blind_sci_08",
+  "problem_text": "Two narrow slits are illuminated with red light of wavelength $694.3 \\mathrm{~nm}$ from a laser, producing a set of evenly placed bright bands on a screen located $3.00 \\mathrm{~m}$ beyond the slits. If the distance between the bands is $1.50 \\mathrm{~cm}$, then what is the distance between the slits?",
+  "source": "chemmc",
+  "unit": "mm ",
+  "upstream_file": "chemmc.json",
+  "upstream_file_sha256": "134baf281dc7636fd01729b7f3b52465a44ea55fec5cb00e76a5fe809da520a0",
+  "upstream_problemid": "1-45"
+}

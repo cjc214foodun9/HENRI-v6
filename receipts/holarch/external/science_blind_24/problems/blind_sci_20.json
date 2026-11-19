@@ -1,0 +1,10 @@
+{
+  "answer_number": 0.5117,
+  "id": "blind_sci_20",
+  "problem_text": "Let $X_1, X_2$ be independent random variables representing lifetimes (in hours) of two key components of a\r\ndevice that fails when and only when both components fail. Say each $X_i$ has an exponential distribution with mean 1000. Let $Y_1=\\min \\left(X_1, X_2\\right)$ and $Y_2=\\max \\left(X_1, X_2\\right)$, so that the space of $Y_1, Y_2$ is $ 0< y_1 < y_2 < \\infty $ Find $G\\left(y_1, y_2\\right)=P\\left(Y_1 \\leq y_1, Y_2 \\leq y_2\\right)$.",
+  "source": "stat",
+  "unit": " ",
+  "upstream_file": "stat.json",
+  "upstream_file_sha256": "a0f84cf8fbb94512174e4ecddb5a7bfa2b6ce7ddde0094c70d886a51a003dcfb",
+  "upstream_problemid": "5.2-13"
+}

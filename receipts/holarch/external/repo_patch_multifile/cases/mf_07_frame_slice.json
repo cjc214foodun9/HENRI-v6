@@ -1,0 +1,21 @@
+{
+  "call_chain": "codec.api:extract_body -> codec.parser:parse_packet -> codec.frame:strip_header -> codec.payload:copy_payload",
+  "defect_family": "slice_lower_bound",
+  "files": {
+    "codec/__init__.py": "",
+    "codec/api.py": "from codec.parser import parse_packet\n\ndef extract_body(packet: list, header_len: int) -> list:\n    return parse_packet(packet, header_len)\n",
+    "codec/frame.py": "from codec.payload import copy_payload\n\ndef strip_header(packet: list, header_len: int) -> list:\n    body = []\n    for idx, val in enumerate(packet):\n        if idx >= header_len:\n            body.append(val)\n    return copy_payload(list(body))\n",
+    "codec/parser.py": "from codec.frame import strip_header\n\ndef parse_packet(packet: list, header_len: int) -> list:\n    return strip_header(packet, header_len)\n",
+    "codec/payload.py": "def copy_payload(body: list) -> list:\n    kept = []\n    for item in body:\n        kept.append(item)\n    return kept[1:]\n"
+  },
+  "hidden": {
+    "tests/test_hidden.py": "from codec.api import extract_body\n\ndef test_header_one():\n    assert extract_body([7, 42], 1) == [42]\n\ndef test_header_three():\n    assert extract_body([1, 2, 3, 40, 50], 3) == [40, 50]\n\ndef test_empty_body():\n    assert extract_body([5, 6], 2) == []\n"
+  },
+  "id": "mf_07_frame_slice",
+  "issue": "Payload decoder drops the first byte of the already-stripped frame body.",
+  "module_count": 4,
+  "public": {
+    "tests/test_public.py": "from codec.api import extract_body\n\ndef test_header_two():\n    assert extract_body([9, 9, 10, 20, 30], 2) == [10, 20, 30]\n\ndef test_header_zero():\n    assert extract_body([1, 2, 3], 0) == [1, 2, 3]\n"
+  },
+  "test_path": "tests/test_public.py"
+}

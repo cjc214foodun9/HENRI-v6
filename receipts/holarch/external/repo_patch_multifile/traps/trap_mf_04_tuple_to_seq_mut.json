@@ -1,0 +1,20 @@
+{
+  "expected_sheaf_violation_kind": "capability",
+  "files": {
+    "trap4/__init__.py": "",
+    "trap4/api.py": "from trap4.pipeline import forward_event\n\ndef record_fixed() -> int:\n    return forward_event((1, 2), 3)\n",
+    "trap4/pipeline.py": "from trap4.sink import append_event\n\ndef forward_event(buf, item: int) -> int:\n    return append_event(buf, item)\n",
+    "trap4/sink.py": "def append_event(buf, item: int) -> int:\n    buf.append(item)\n    return len(buf)\n"
+  },
+  "hidden": {
+    "tests/test_hidden.py": "from trap4.api import record_fixed\n\ndef test_record_hidden():\n    assert record_fixed() == 3\n"
+  },
+  "id": "trap_mf_04_tuple_to_seq_mut",
+  "issue": "API passes an immutable tuple through pipeline into mutable append sink.",
+  "kind": "cross_module_transitive_tuple_to_append",
+  "module_count": 3,
+  "public": {
+    "tests/test_public.py": "from trap4.api import record_fixed\n\ndef test_record():\n    assert record_fixed() == 3\n"
+  },
+  "test_path": "tests/test_public.py"
+}

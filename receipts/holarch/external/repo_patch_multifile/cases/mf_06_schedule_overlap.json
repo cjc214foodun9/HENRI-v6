@@ -1,0 +1,20 @@
+{
+  "call_chain": "sched.api:has_conflict -> sched.planner:check_slots -> sched.intervals:intervals_overlap",
+  "defect_family": "boolop_inversion",
+  "files": {
+    "sched/__init__.py": "",
+    "sched/api.py": "from sched.planner import check_slots\n\ndef has_conflict(s1: int, e1: int, s2: int, e2: int) -> bool:\n    return check_slots(s1, e1, s2, e2)\n",
+    "sched/intervals.py": "def intervals_overlap(s1: int, e1: int, s2: int, e2: int) -> bool:\n    return s1 < e2 or s2 < e1\n",
+    "sched/planner.py": "from sched.intervals import intervals_overlap\n\ndef check_slots(s1: int, e1: int, s2: int, e2: int) -> bool:\n    return intervals_overlap(s1, e1, s2, e2)\n"
+  },
+  "hidden": {
+    "tests/test_hidden.py": "from sched.api import has_conflict\n\ndef test_touching_edges():\n    assert has_conflict(1, 4, 4, 6) is False\n\ndef test_nested():\n    assert has_conflict(2, 10, 4, 6) is True\n\ndef test_reversed_disjoint():\n    assert has_conflict(10, 12, 1, 5) is False\n"
+  },
+  "id": "mf_06_schedule_overlap",
+  "issue": "Disjoint time windows are falsely reported as conflicting due to boolean disjunction.",
+  "module_count": 3,
+  "public": {
+    "tests/test_public.py": "from sched.api import has_conflict\n\ndef test_disjoint():\n    assert has_conflict(1, 3, 5, 7) is False\n\ndef test_disjoint_reversed():\n    assert has_conflict(8, 10, 1, 3) is False\n\ndef test_overlapping():\n    assert has_conflict(1, 5, 4, 8) is True\n"
+  },
+  "test_path": "tests/test_public.py"
+}

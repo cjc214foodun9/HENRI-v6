@@ -82,7 +82,10 @@ class RepoPatchRequest(BaseModel):
 
 
 class ScienceSolveRequest(BaseModel):
-    problem: Dict[str, Any]
+    problem: Optional[Dict[str, Any]] = None
+    prompt: Optional[str] = None
+    problem_text: Optional[str] = None
+    target_unit: Optional[str] = None
     namespace: Optional[str] = None
     cascade_policy: str = "wave_only"
 
@@ -420,10 +423,18 @@ def create_gateway_app(
         req: ScienceSolveRequest, policy: TenantPolicy = Depends(require_tenant)
     ) -> Dict[str, Any]:
         ns = svc.auth.authorize_namespace(policy, req.namespace)
+        raw_prompt = req.prompt if req.prompt is not None else req.problem_text
+        if req.problem is None and (raw_prompt is None or not str(raw_prompt).strip()):
+            raise HTTPException(
+                status_code=422,
+                detail="either problem or prompt/problem_text is required",
+            )
         return await svc.run_in_pool(
             svc.science_solve,
             policy=policy,
             problem=req.problem,
+            prompt=raw_prompt,
+            target_unit=req.target_unit,
             namespace=ns,
             cascade_policy=req.cascade_policy,
         )

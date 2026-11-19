@@ -1,0 +1,10 @@
+{
+  "answer_number": 3.6,
+  "id": "blind_sci_05",
+  "problem_text": "Assume all gases are perfect unless stated otherwise. Note that 1 atm = 1.01325 bar. Unless otherwise stated, thermochemical data are for 298.15 K. Take nitrogen to be a van der Waals gas with $a=1.352 \\mathrm{dm}^6 \\mathrm{~atm} \\mathrm{\\textrm {mol } ^ { - 2 }}$ and $b=0.0387 \\mathrm{dm}^3 \\mathrm{~mol}^{-1}$, and calculate $\\Delta H_{\\mathrm{m}}$ when the pressure on the gas is decreased from $500 \\mathrm{~atm}$ to $1.00 \\mathrm{~atm}$ at $300 \\mathrm{~K}$. For a van der Waals gas, $\\mu=\\{(2 a / R T)-b\\} / C_{p, \\mathrm{~m}}$. Assume $C_{p, \\mathrm{~m}}=\\frac{7}{2} R$.",
+  "source": "atkins",
+  "unit": "$\\text{kJ}$ ",
+  "upstream_file": "atkins.json",
+  "upstream_file_sha256": "d2dd481ade7a3a2c6a108e2539bddaf2df83ecb5ef4021f04f520d55ec51f5ac",
+  "upstream_problemid": "p2.21"
+}

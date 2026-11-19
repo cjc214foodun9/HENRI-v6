@@ -1,0 +1,22 @@
+{
+  "call_chain": "mlops.api:center_feature -> mlops.pipeline:run_stage -> mlops.preprocess:shift_values -> mlops.stats:apply_offset -> mlops.kernel:signed_delta",
+  "defect_family": "binop_operand_order",
+  "files": {
+    "mlops/__init__.py": "",
+    "mlops/api.py": "from mlops.pipeline import run_stage\n\ndef center_feature(values: list, offset: float) -> list:\n    return run_stage(values, offset)\n",
+    "mlops/kernel.py": "def signed_delta(value: float, offset: float) -> float:\n    return offset - value\n",
+    "mlops/pipeline.py": "from mlops.preprocess import shift_values\n\ndef run_stage(values: list, offset: float) -> list:\n    return shift_values(values, offset)\n",
+    "mlops/preprocess.py": "from mlops.stats import apply_offset\n\ndef shift_values(values: list, offset: float) -> list:\n    return apply_offset(values, offset)\n",
+    "mlops/stats.py": "from mlops.kernel import signed_delta\n\ndef apply_offset(values: list, offset: float) -> list:\n    out = []\n    for item in values:\n        out.append(signed_delta(float(item), offset))\n    return out\n"
+  },
+  "hidden": {
+    "tests/test_hidden.py": "from mlops.api import center_feature\n\ndef test_zero_offset():\n    assert center_feature([-3.0, 4.0], 0.0) == [-3.0, 4.0]\n\ndef test_single_item():\n    assert center_feature([7.5], 2.5) == [5.0]\n"
+  },
+  "id": "mf_08_feature_norm",
+  "issue": "Five-module feature pipeline inverts the sign of centered deviations (offset - value instead of value - offset).",
+  "module_count": 5,
+  "public": {
+    "tests/test_public.py": "from mlops.api import center_feature\n\ndef test_positive_shift():\n    assert center_feature([10.0, 15.0, 20.0], 10.0) == [0.0, 5.0, 10.0]\n\ndef test_negative_result():\n    assert center_feature([2.0, 5.0], 4.0) == [-2.0, 1.0]\n"
+  },
+  "test_path": "tests/test_public.py"
+}

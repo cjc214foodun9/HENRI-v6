@@ -1,0 +1,20 @@
+{
+  "expected_sheaf_violation_kind": "capability",
+  "files": {
+    "trap1/__init__.py": "",
+    "trap1/api.py": "from trap1.service import aggregate\n\ndef run_report():\n    return aggregate('1234')\n",
+    "trap1/service.py": "from trap1.stats import total_cost\n\ndef aggregate(items):\n    return total_cost(items)\n",
+    "trap1/stats.py": "def total_cost(items):\n    return sum(items)\n"
+  },
+  "hidden": {
+    "tests/test_hidden.py": "from trap1.api import run_report\n\ndef test_report_hidden():\n    assert run_report() == 10\n"
+  },
+  "id": "trap_mf_01_str_to_numeric_sum",
+  "issue": "API passes a string literal across service into numeric sum kernel.",
+  "kind": "cross_module_capability_mismatch_str_to_sum",
+  "module_count": 3,
+  "public": {
+    "tests/test_public.py": "from trap1.api import run_report\n\ndef test_report():\n    assert run_report() == 10\n"
+  },
+  "test_path": "tests/test_public.py"
+}

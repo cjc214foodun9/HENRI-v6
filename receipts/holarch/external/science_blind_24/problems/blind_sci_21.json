@@ -1,0 +1,10 @@
+{
+  "answer_number": 0.6247,
+  "id": "blind_sci_21",
+  "problem_text": "Let $X$ equal the maximal oxygen intake of a human on a treadmill, where the measurements are in milliliters of oxygen per minute per kilogram of weight. Assume that, for a particular population, the mean of $X$ is $\\mu=$ 54.030 and the standard deviation is $\\sigma=5.8$. Let $\\bar{X}$ be the sample mean of a random sample of size $n=47$. Find $P(52.761 \\leq \\bar{X} \\leq 54.453)$, approximately.",
+  "source": "stat",
+  "unit": " ",
+  "upstream_file": "stat.json",
+  "upstream_file_sha256": "a0f84cf8fbb94512174e4ecddb5a7bfa2b6ce7ddde0094c70d886a51a003dcfb",
+  "upstream_problemid": "5.6-7"
+}

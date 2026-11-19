@@ -1,0 +1,10 @@
+{
+  "answer_number": 25.4,
+  "id": "blind_sci_09",
+  "problem_text": "An astronaut travels to the nearest star system, 4 light years away, and returns at a speed $0.3c$. How much has the astronaut aged relative to those people remaining on Earth?",
+  "source": "class",
+  "unit": "years ",
+  "upstream_file": "class.json",
+  "upstream_file_sha256": "113f73bf829e73ed4ab7ccb97a3a8cc50531075ebdb13e5421d62230a96e239a",
+  "upstream_problemid": "14.20"
+}

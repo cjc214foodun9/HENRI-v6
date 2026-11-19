@@ -1320,6 +1320,8 @@ def run_cleanroom_gauntlet_336() -> Dict[str, Any]:
                 arc_ram.append({"name": Path(rec["file"]).stem, "train": train, "test": test})
 
             af3_work = RECEIPTS / "_work_af" / "arc_af3" / "ac3_multiscale_external_arc.json"
+            if not af3_work.exists():
+                af3_work = RECEIPTS / "ac3_multiscale_external_arc.json"
             if af3_work.exists():
                 ac3_data = json.loads(af3_work.read_text(encoding="utf-8"))
                 solved_names = {r["name"] for r in ac3_data["external"]["rows"] if r.get("solved")}

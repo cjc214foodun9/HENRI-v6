@@ -1,0 +1,10 @@
+{
+  "answer_number": 5.0,
+  "id": "blind_sci_16",
+  "problem_text": "An infinite line of charge produces a field of magnitude $4.5 \\times$ $10^4 \\mathrm{~N} / \\mathrm{C}$ at distance $2.0 \\mathrm{~m}$. Find the linear charge density.",
+  "source": "fund",
+  "unit": "$\\mu \\mathrm{C} / \\mathrm{m}$",
+  "upstream_file": "fund.json",
+  "upstream_file_sha256": "d6b90173970bfa5ed04355c77731c5a28921a0224a0fb7240817f6cb18ea3790",
+  "upstream_problemid": "Question 23.25"
+}

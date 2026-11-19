@@ -55,7 +55,7 @@ from .sandbox import ExecutionRecord, SubprocessSandboxExecutor
 from .symbolic import CodeGraphIndexer
 from .zone_c import BoundaryAxiom
 
-MAX_CANDIDATES = 6
+MAX_CANDIDATES = 8
 MAX_ROLLOUTS = 48
 SHEAF_TOLERANCE = 0.0
 REPULSOR_SOURCE = "repo_patch_cegis"
@@ -377,7 +377,7 @@ class FaultLocalizer:
                 roots.append(qualname)
         expanded: List[str] = list(roots)
         for qualname in list(roots):
-            for callee in self._callees(qualname, depth=2):
+            for callee in self._callees(qualname, depth=4):
                 if callee not in expanded:
                     expanded.append(callee)
             for caller in self.indexer.impact(qualname, hops=1).get("callers", []):

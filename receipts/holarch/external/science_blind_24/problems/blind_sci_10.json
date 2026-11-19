@@ -1,0 +1,10 @@
+{
+  "answer_number": 2.26,
+  "id": "blind_sci_10",
+  "problem_text": "Shot towers were popular in the eighteenth and nineteenth centuries for dropping melted lead down tall towers to form spheres for bullets. The lead solidified while falling and often landed in water to cool the lead bullets. Many such shot towers were built in New York State. Assume a shot tower was constructed at latitude $42^{\\circ} \\mathrm{N}$, and the lead fell a distance of $27 \\mathrm{~m}$. How far did the lead bullets land from the direct vertical?",
+  "source": "class",
+  "unit": " $\\mathrm{~mm}$",
+  "upstream_file": "class.json",
+  "upstream_file_sha256": "113f73bf829e73ed4ab7ccb97a3a8cc50531075ebdb13e5421d62230a96e239a",
+  "upstream_problemid": "Problem 10.22"
+}

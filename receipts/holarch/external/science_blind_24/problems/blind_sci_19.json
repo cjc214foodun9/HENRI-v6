@@ -1,0 +1,10 @@
+{
+  "answer_number": -31.95,
+  "id": "blind_sci_19",
+  "problem_text": "Given that $D_e=4.75 \\mathrm{eV}$ and $R_e=0.741 \u00c5$ for the ground electronic state of $\\mathrm{H}_2$, find $U\\left(R_e\\right)$ for this state.",
+  "source": "quan",
+  "unit": " $\\mathrm{eV}$",
+  "upstream_file": "quan.json",
+  "upstream_file_sha256": "a3c4f483b5dd7ce162d3d95610bb56614b5003ecba80f450c79755811176e4f1",
+  "upstream_problemid": "14.35"
+}

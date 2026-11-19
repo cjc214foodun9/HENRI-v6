@@ -1,0 +1,10 @@
+{
+  "answer_number": 59.4,
+  "id": "blind_sci_07",
+  "problem_text": "The intensity of light with wavelength $\\lambda$ traveling through a diffraction grating with $N$ slits at an angle $\\theta$ is given by $I(\\theta)=N^2 \\sin ^2 k / k^2$, where $k=(\\pi N d \\sin \\theta) / \\lambda$ and $d$ is the distance between adjacent slits. A helium-neon laser with wavelength $\\lambda=632.8 \\times 10^{-9} \\mathrm{~m}$ is emitting a narrow band of light, given by $-10^{-6}<\\theta<10^{-6}$, through a grating with 10,000 slits spaced $10^{-4} \\mathrm{~m}$ apart. Use the Midpoint Rule with $n=10$ to estimate the total light intensity $\\int_{-10^{-6}}^{10^{-6}} I(\\theta) d \\theta$ emerging from the grating.",
+  "source": "calculus",
+  "unit": " ",
+  "upstream_file": "calculus.json",
+  "upstream_file_sha256": "69779c85d33afe2bf17d6f2a0cb7ccbb172e609cc21c3e86b17e1c21eb9fb2c6",
+  "upstream_problemid": "7.7.43"
+}
