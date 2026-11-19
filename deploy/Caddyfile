@@ -1,0 +1,20 @@
+# Caddy reverse proxy fronting henri-gateway
+# Set HENRI_DOMAIN in .env (e.g. api.example.com or :80 for local testing)
+{$HENRI_DOMAIN::80} {
+    request_body {
+        max_size 10MB
+    }
+
+    header {
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "no-referrer"
+        -Server
+    }
+
+    # Flush immediately for OpenAI SSE (/v1/chat/completions) and MCP (/mcp)
+    reverse_proxy henri-gateway:8080 {
+        flush_interval -1
+        header_up X-Request-ID {http.request.uuid}
+    }
+}
