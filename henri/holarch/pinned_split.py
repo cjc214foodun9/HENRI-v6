@@ -155,3 +155,63 @@ def verify_pinned(root: str | Path, recorded: Dict[str, Any]) -> Dict[str, Any]:
             str(recorded.get("live_corpus_digest", "")) != str(getattr(live, "digest", ""))
         ),
     }
+
+
+SNAPSHOT_NAME = "pinned_corpus_snapshot.json"
+"""The frozen evaluation corpus written by scripts/snapshot_pinned_corpus.py."""
+
+
+def load_snapshot(root: str | Path) -> Dict[str, Any]:
+    """Read the frozen pinned corpus snapshot.
+
+    The Z1 pin hashed the live tree, so an edit to any package file moved the
+    held-out stream.  Cycle AA freezes the exact bytes the digest was computed
+    over, so code edits cannot move the evaluation.  The recorded digest is
+    recomputed from the frozen records and returned with the payload.
+    """
+    path = Path(root) / "receipts" / "holarch" / SNAPSHOT_NAME
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    records = [
+        {
+            "name": str(row["name"]),
+            "bytes": int(row["bytes"]),
+            "sha256": str(row["sha256"]),
+        }
+        for row in payload.get("files") or []
+    ]
+    payload["_records"] = records
+    payload["_digest_recomputed"] = split_digest(records, payload.get("rule") or RULE)
+    payload["_path"] = str(path)
+    payload["_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+    return payload
+
+
+def snapshot_corpus(snapshot: Dict[str, Any]) -> CodeTextCorpus:
+    """Rebuild the frozen CodeTextCorpus from the snapshot bytes."""
+    texts = [str(row["text"]) for row in snapshot.get("files") or []]
+    names = [str(row["name"]) for row in snapshot.get("files") or []]
+    hasher = hashlib.sha256()
+    for text in texts:
+        hasher.update(text.encode("utf-8", errors="replace"))
+    return CodeTextCorpus(texts=texts, names=names, digest=hasher.hexdigest()[:16])
+
+
+def snapshot_segments(
+    snapshot: Dict[str, Any]
+) -> List[Tuple[str, List[int], List[int]]]:
+    """The frozen per-document train/validation token segments."""
+    return [
+        (
+            str(row["name"]),
+            [int(token) for token in row["train"]],
+            [int(token) for token in row["val"]],
+        )
+        for row in snapshot.get("segments") or []
+    ]
+
+
+def snapshot_train_ids(snapshot: Dict[str, Any]) -> List[int]:
+    out: List[int] = []
+    for _name, train, _val in snapshot_segments(snapshot):
+        out.extend(train)
+    return out

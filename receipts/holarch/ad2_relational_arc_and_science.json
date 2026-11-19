@@ -1,0 +1,840 @@
+{
+  "stage": "AD2",
+  "relational_arc": {
+    "slice_tasks": 48,
+    "solved": 24,
+    "emitted": 24,
+    "pass_at_1": 0.5,
+    "precision": 1.0,
+    "relational_families": [
+      "swap_object_palette",
+      "concentric_squares",
+      "fill_hole_lattice",
+      "border_line_completion",
+      "extend_to_wall",
+      "marker_wall_impact"
+    ],
+    "solved_by_relational_family": [
+      {
+        "name": "13713586",
+        "families": [
+          "extend_to_wall"
+        ]
+      },
+      {
+        "name": "3bd67248",
+        "families": [
+          "border_line_completion"
+        ]
+      },
+      {
+        "name": "45737921",
+        "families": [
+          "swap_object_palette"
+        ]
+      },
+      {
+        "name": "8a371977",
+        "families": [
+          "fill_hole_lattice"
+        ]
+      },
+      {
+        "name": "a3f84088",
+        "families": [
+          "concentric_squares"
+        ]
+      },
+      {
+        "name": "ecdecbb3",
+        "families": [
+          "marker_wall_impact"
+        ]
+      }
+    ],
+    "cycle_ac_baseline": {
+      "solved": 18,
+      "pass_at_1": 0.375,
+      "precision": 1.0
+    },
+    "delta": 6,
+    "audit": {
+      "string_literal_comparisons": 81,
+      "structural_vocabulary_comparisons": 8,
+      "unexplained_string_comparisons": 73,
+      "unexplained_samples": [
+        "kind == 'same_shape'",
+        "kind == 'fixed_shape'",
+        "kind == 'crop'",
+        "kind == 'crop_hole'",
+        "kind == 'panel'",
+        "kind == 'mirror_tile'",
+        "kind == 'kron_fractal'",
+        "kind == 'pad_edges'"
+      ],
+      "task_identity_comparisons": 0,
+      "compared_identifier_literals": [],
+      "compared_identifier_literal_count": 0,
+      "module_literal_overlap": [],
+      "module_literal_overlap_note": "informational only: an ordinary English word in the sketch tag vocabulary can coincide with a benchmark entry-point name. A tag is not a branch; the gated counters are the comparison ones.",
+      "branches": [],
+      "ok": false,
+      "file": "henri/holarch/arc_objects.py",
+      "sha256": "a07a46a4a521e44b67a4791318ac06dcb95e40092b208232fd34511912df153f"
+    },
+    "forbidden_imports": [],
+    "source_run": {
+      "exit_code": 0,
+      "receipt": "receipts\\holarch\\_work_ad2\\arc\\ac3_multiscale_external_arc.json",
+      "receipt_sha256": "52fcfa936e18ce0bfee3f6e3d0da05b98446b9cd26d0e26a18201e99d7605e93",
+      "tail": [
+        "[ac3] contradictions refused 4/4                               7.9 s",
+        "[ac3] external 24/48 precision 1.0000 emitted 24 codec errors 0 z3 16/16 refused 4/4",
+        "[ac3] passed=True failed=[] receipt=receipts\\holarch\\_work_ad2\\arc\\ac3_multiscale_external_arc.json"
+      ]
+    }
+  },
+  "science_solver": {
+    "tasks": 24,
+    "answerable": 18,
+    "traps": 6,
+    "answerable_solved": 18,
+    "traps_refused": 6,
+    "hallucinations": 0,
+    "llm_calls": 0,
+    "ontology": {
+      "primer": "docs/SCIENCE_PRIMER.md",
+      "passages": 39.0,
+      "vocabulary": 387.0
+    },
+    "method": {
+      "units": "exact base-dimension exponents",
+      "relations": "dimensionally selected library with inverse substitution",
+      "sandbox": "SubprocessSandboxExecutor, scientific_scicode and briefcase_workspace",
+      "ontology_gate": "OntologyVerifier over docs/SCIENCE_PRIMER.md",
+      "jev_dimensional_primitive": "exact homogeneity plus inverse residual < 1e-9"
+    },
+    "rows": [
+      {
+        "id": "sci01",
+        "domain": "kinematics",
+        "trap": false,
+        "trap_kind": "",
+        "status": "SOLVED",
+        "reason": "verified",
+        "relation": "speed",
+        "statement": "speed equals distance divided by time",
+        "answer": 20.833333333333332,
+        "unit": "m/s",
+        "expected": 20.833333333333332,
+        "correct": true,
+        "refused": false,
+        "dimensional_ok": true,
+        "residual": 0.0,
+        "parity": 0.0,
+        "ontology_supported": true,
+        "execution": {
+          "id": "sci01",
+          "profile": "scientific_scicode",
+          "ok": true,
+          "exit_code": 0,
+          "duration_ms": 43.78480000013951,
+          "script_sha256": "d8f3737151e253692582b09bb75154d7f1c9b5deb620de8896b2cc7acfe5d2bd",
+          "sandbox_value": {
+            "relation": "speed",
+            "unit": "m/s",
+            "value": 20.833333333333332
+          }
+        }
+      },
+      {
+        "id": "sci02",
+        "domain": "kinematics",
+        "trap": false,
+        "trap_kind": "",
+        "status": "SOLVED",
+        "reason": "verified",
+        "relation": "acceleration",
+        "statement": "acceleration equals the change of velocity divided by time",
+        "answer": 3.0,
+        "unit": "m/s^2",
+        "expected": 3.0,
+        "correct": true,
+        "refused": false,
+        "dimensional_ok": true,
+        "residual": 0.0,
+        "parity": 0.0,
+        "ontology_supported": true,
+        "execution": {
+          "id": "sci02",
+          "profile": "scientific_scicode",
+          "ok": true,
+          "exit_code": 0,
+          "duration_ms": 39.24200000255951,
+          "script_sha256": "5b7429751b837614ef34a78cbafa9da09a54d5f145ded0db6dc951a44e56c14e",
+          "sandbox_value": {
+            "relation": "acceleration",
+            "unit": "m/s^2",
+            "value": 3.0
+          }
+        }
+      },
+      {
+        "id": "sci03",
+        "domain": "dynamics",
+        "trap": false,
+        "trap_kind": "",
+        "status": "SOLVED",
+        "reason": "verified",
+        "relation": "force",
+        "statement": "force equals mass multiplied by acceleration",
+        "answer": 3600.0,
+        "unit": "N",
+        "expected": 3600.0,
+        "correct": true,
+        "refused": false,
+        "dimensional_ok": true,
+        "residual": 0.0,
+        "parity": 0.0,
+        "ontology_supported": true,
+        "execution": {
+          "id": "sci03",
+          "profile": "scientific_scicode",
+          "ok": true,
+          "exit_code": 0,
+          "duration_ms": 38.863000001583714,
+          "script_sha256": "e206f4c8d2b11325ea564e9639a7b20ce70073d181d41d431448154e17489c19",
+          "sandbox_value": {
+            "relation": "force",
+            "unit": "N",
+            "value": 3600.0
+          }
+        }
+      },
+      {
+        "id": "sci04",
+        "domain": "dynamics",
+        "trap": false,
+        "trap_kind": "",
+        "status": "SOLVED",
+        "reason": "verified",
+        "relation": "work",
+        "statement": "work equals force multiplied by distance",
+        "answer": 2000.0,
+        "unit": "J",
+        "expected": 2000.0,
+        "correct": true,
+        "refused": false,
+        "dimensional_ok": true,
+        "residual": 0.0,
+        "parity": 0.0,
+        "ontology_supported": true,
+        "execution": {
+          "id": "sci04",
+          "profile": "scientific_scicode",
+          "ok": true,
+          "exit_code": 0,
+          "duration_ms": 37.89169999799924,
+          "script_sha256": "738938b9d07a50a44d71608aaf5db4a71b60e2a1b3500f613aceafc5b8cd93a1",
+          "sandbox_value": {
+            "relation": "work",
+            "unit": "J",
+            "value": 2000.0
+          }
+        }
+      },
+      {
+        "id": "sci05",
+        "domain": "dynamics",
+        "trap": false,
+        "trap_kind": "",
+        "status": "SOLVED",
+        "reason": "verified",
+        "relation": "kinetic",
+        "statement": "kinetic energy equals one half mass multiplied by velocity squared",
+        "answer": 100.0,
+        "unit": "J",
+        "expected": 100.0,
+        "correct": true,
+        "refused": false,
+        "dimensional_ok": true,
+        "residual": 0.0,
+        "parity": 0.0,
+        "ontology_supported": true,
+        "execution": {
+          "id": "sci05",
+          "profile": "scientific_scicode",
+          "ok": true,
+          "exit_code": 0,
+          "duration_ms": 39.451000000553904,
+          "script_sha256": "ec6c74bd74147ff59fa720218f9bd22b8f576d400d1bf1dacd65ed4eddb9acd9",
+          "sandbox_value": {
+            "relation": "kinetic",
+            "unit": "J",
+            "value": 100.0
+          }
+        }
+      },
+      {
+        "id": "sci06",
+        "domain": "dynamics",
+        "trap": false,
+        "trap_kind": "",
+        "status": "SOLVED",
+        "reason": "verified",
+        "relation": "momentum",
+        "statement": "momentum equals mass multiplied by velocity",
+        "answer": 37500.0,
+        "unit": "kg*m/s",
+        "expected": 37500.0,
+        "correct": true,
+        "refused": false,
+        "dimensional_ok": true,
+        "residual": 0.0,
+        "parity": 0.0,
+        "ontology_supported": true,
+        "execution": {
+          "id": "sci06",
+          "profile": "scientific_scicode",
+          "ok": true,
+          "exit_code": 0,
+          "duration_ms": 38.761399999202695,
+          "script_sha256": "05f60bbb19c6cecf6736863c2969a12789751fc96142e50faf97a902175267bf",
+          "sandbox_value": {
+            "relation": "momentum",
+            "unit": "kg*m/s",
+            "value": 37500.0
+          }
+        }
+      },
+      {
+        "id": "sci07",
+        "domain": "dynamics",
+        "trap": false,
+        "trap_kind": "",
+        "status": "SOLVED",
+        "reason": "verified",
+        "relation": "weight",
+        "statement": "weight equals mass multiplied by gravitational acceleration",
+        "answer": 735.49875,
+        "unit": "N",
+        "expected": 735.49875,
+        "correct": true,
+        "refused": false,
+        "dimensional_ok": true,
+        "residual": 0.0,
+        "parity": 0.0,
+        "ontology_supported": true,
+        "execution": {
+          "id": "sci07",
+          "profile": "scientific_scicode",
+          "ok": true,
+          "exit_code": 0,
+          "duration_ms": 38.10249999878579,
+          "script_sha256": "3dc7cfa1c0ec27ea22229bed8faa93ed31512449bfc2a1f98031f7dd34b10318",
+          "sandbox_value": {
+            "relation": "weight",
+            "unit": "N",
+            "value": 735.49875
+          }
+        }
+      },
+      {
+        "id": "sci08",
+        "domain": "thermodynamics",
+        "trap": false,
+        "trap_kind": "",
+        "status": "SOLVED",
+        "reason": "verified",
+        "relation": "heat",
+        "statement": "heat equals mass multiplied by specific heat capacity multiplied by the change of temperature",
+        "answer": 209300.0,
+        "unit": "J",
+        "expected": 209300.0,
+        "correct": true,
+        "refused": false,
+        "dimensional_ok": true,
+        "residual": 0.0,
+        "parity": 0.0,
+        "ontology_supported": true,
+        "execution": {
+          "id": "sci08",
+          "profile": "scientific_scicode",
+          "ok": true,
+          "exit_code": 0,
+          "duration_ms": 38.330499999574386,
+          "script_sha256": "4e06aa5dde0aa6d5c407b7b8a5244497bb5ea9c3c74f611b56acbffd1f0117c8",
+          "sandbox_value": {
+            "relation": "heat",
+            "unit": "J",
+            "value": 209300.0
+          }
+        }
+      },
+      {
+        "id": "sci09",
+        "domain": "thermodynamics",
+        "trap": false,
+        "trap_kind": "",
+        "status": "SOLVED",
+        "reason": "verified",
+        "relation": "efficiency",
+        "statement": "efficiency equals useful work divided by total work",
+        "answer": 75.0,
+        "unit": "%",
+        "expected": 75.0,
+        "correct": true,
+        "refused": false,
+        "dimensional_ok": true,
+        "residual": 0.0,
+        "parity": 0.0,
+        "ontology_supported": true,
+        "execution": {
+          "id": "sci09",
+          "profile": "scientific_scicode",
+          "ok": true,
+          "exit_code": 0,
+          "duration_ms": 38.07990000132122,
+          "script_sha256": "0b1f35c2e7764b458f4e1525e1d24e2ece9a8403b3ebb1c588cee1fa3cb448c2",
+          "sandbox_value": {
+            "relation": "efficiency",
+            "unit": "%",
+            "value": 75.0
+          }
+        }
+      },
+      {
+        "id": "sci10",
+        "domain": "matter",
+        "trap": false,
+        "trap_kind": "",
+        "status": "SOLVED",
+        "reason": "verified",
+        "relation": "density",
+        "statement": "density equals mass divided by volume",
+        "answer": 1250.0,
+        "unit": "kg/m^3",
+        "expected": 1250.0,
+        "correct": true,
+        "refused": false,
+        "dimensional_ok": true,
+        "residual": 0.0,
+        "parity": 0.0,
+        "ontology_supported": true,
+        "execution": {
+          "id": "sci10",
+          "profile": "scientific_scicode",
+          "ok": true,
+          "exit_code": 0,
+          "duration_ms": 39.344500000879634,
+          "script_sha256": "137de7701cd21817c51968fb61bd57e19f31c17f2f213456138584b27b266062",
+          "sandbox_value": {
+            "relation": "density",
+            "unit": "kg/m^3",
+            "value": 1250.0
+          }
+        }
+      },
+      {
+        "id": "sci11",
+        "domain": "solutions",
+        "trap": false,
+        "trap_kind": "",
+        "status": "SOLVED",
+        "reason": "verified",
+        "relation": "molarity",
+        "statement": "molarity equals amount of substance divided by volume",
+        "answer": 0.25,
+        "unit": "mol/L",
+        "expected": 0.25,
+        "correct": true,
+        "refused": false,
+        "dimensional_ok": true,
+        "residual": 0.0,
+        "parity": 0.0,
+        "ontology_supported": true,
+        "execution": {
+          "id": "sci11",
+          "profile": "scientific_scicode",
+          "ok": true,
+          "exit_code": 0,
+          "duration_ms": 38.1956999990507,
+          "script_sha256": "dbcebe992ba1ac30a6aa1442e09b52897bc2df054fe8a64cb9c867fa4a8a8517",
+          "sandbox_value": {
+            "relation": "molarity",
+            "unit": "mol/L",
+            "value": 0.25
+          }
+        }
+      },
+      {
+        "id": "sci12",
+        "domain": "solutions",
+        "trap": false,
+        "trap_kind": "",
+        "status": "SOLVED",
+        "reason": "verified",
+        "relation": "moles",
+        "statement": "amount of substance equals mass divided by molar mass",
+        "answer": 2.0,
+        "unit": "mol",
+        "expected": 2.0,
+        "correct": true,
+        "refused": false,
+        "dimensional_ok": true,
+        "residual": 0.0,
+        "parity": 0.0,
+        "ontology_supported": true,
+        "execution": {
+          "id": "sci12",
+          "profile": "scientific_scicode",
+          "ok": true,
+          "exit_code": 0,
+          "duration_ms": 38.87699999904726,
+          "script_sha256": "ef18ec8f7fa4f2327ebf0ca3cb817fa3a0742651ee782bf6c54d13c3a6d38c7f",
+          "sandbox_value": {
+            "relation": "moles",
+            "unit": "mol",
+            "value": 2.0
+          }
+        }
+      },
+      {
+        "id": "sci13",
+        "domain": "solutions",
+        "trap": false,
+        "trap_kind": "",
+        "status": "SOLVED",
+        "reason": "verified",
+        "relation": "dilution",
+        "statement": "dilution conserves the amount of solute, so concentration times volume is constant",
+        "answer": 0.5,
+        "unit": "mol/L",
+        "expected": 0.5,
+        "correct": true,
+        "refused": false,
+        "dimensional_ok": true,
+        "residual": 0.0,
+        "parity": 0.0,
+        "ontology_supported": true,
+        "execution": {
+          "id": "sci13",
+          "profile": "scientific_scicode",
+          "ok": true,
+          "exit_code": 0,
+          "duration_ms": 38.284999998722924,
+          "script_sha256": "3610ca317f320febc49ee963c2f7c4312c24f02a546bef84f252f7ab7fbb6168",
+          "sandbox_value": {
+            "relation": "dilution",
+            "unit": "mol/L",
+            "value": 0.5
+          }
+        }
+      },
+      {
+        "id": "sci14",
+        "domain": "thermodynamics",
+        "trap": false,
+        "trap_kind": "",
+        "status": "SOLVED",
+        "reason": "verified",
+        "relation": "ideal_gas",
+        "statement": "the ideal gas pressure equals amount times the gas constant times temperature divided by volume",
+        "answer": 103930.78272500001,
+        "unit": "Pa",
+        "expected": 103930.782725,
+        "correct": true,
+        "refused": false,
+        "dimensional_ok": true,
+        "residual": 0.0,
+        "parity": 0.0,
+        "ontology_supported": true,
+        "execution": {
+          "id": "sci14",
+          "profile": "scientific_scicode",
+          "ok": true,
+          "exit_code": 0,
+          "duration_ms": 37.78310000052443,
+          "script_sha256": "6aefad9477f1d67b5d5f830d95f85267d425b1f9bd69e935879bf940ae8a382d",
+          "sandbox_value": {
+            "relation": "ideal_gas",
+            "unit": "Pa",
+            "value": 103930.78272500001
+          }
+        }
+      },
+      {
+        "id": "sci15",
+        "domain": "conservation",
+        "trap": false,
+        "trap_kind": "",
+        "status": "SOLVED",
+        "reason": "verified",
+        "relation": "inelastic",
+        "statement": "in a perfectly inelastic collision momentum is conserved, so the common velocity equals the total initial momentum divided by the total mass",
+        "answer": 1.0,
+        "unit": "m/s",
+        "expected": 1.0,
+        "correct": true,
+        "refused": false,
+        "dimensional_ok": true,
+        "residual": 0.0,
+        "parity": 0.0,
+        "ontology_supported": true,
+        "execution": {
+          "id": "sci15",
+          "profile": "scientific_scicode",
+          "ok": true,
+          "exit_code": 0,
+          "duration_ms": 38.74789999827044,
+          "script_sha256": "542441eb18862bed01ba7604ef1ed7fbc062a636c78a1916e8834da322399e91",
+          "sandbox_value": {
+            "relation": "inelastic",
+            "unit": "m/s",
+            "value": 1.0
+          }
+        }
+      },
+      {
+        "id": "sci16",
+        "domain": "combinatorics",
+        "trap": false,
+        "trap_kind": "",
+        "status": "SOLVED",
+        "reason": "verified",
+        "relation": "combination",
+        "statement": "a binomial coefficient counts the number of ways to choose k items from n items without replacement",
+        "answer": 120.0,
+        "unit": "",
+        "expected": 120.0,
+        "correct": true,
+        "refused": false,
+        "dimensional_ok": true,
+        "residual": 0.0,
+        "parity": 0.0,
+        "ontology_supported": true,
+        "execution": {
+          "id": "sci16",
+          "profile": "scientific_scicode",
+          "ok": true,
+          "exit_code": 0,
+          "duration_ms": 37.30580000046757,
+          "script_sha256": "f647c0c4b5fa65f675494b921293e928b48e53fb95b04e929819163c7aec9d12",
+          "sandbox_value": {
+            "relation": "combination",
+            "unit": "",
+            "value": 120.0
+          }
+        }
+      },
+      {
+        "id": "sci17",
+        "domain": "statistics",
+        "trap": false,
+        "trap_kind": "",
+        "status": "SOLVED",
+        "reason": "verified",
+        "relation": "confidence",
+        "statement": "a confidence interval half width equals the critical value multiplied by the standard deviation divided by the square root of the sample size",
+        "answer": 0.98,
+        "unit": "m/s",
+        "expected": 0.98,
+        "correct": true,
+        "refused": false,
+        "dimensional_ok": true,
+        "residual": 0.0,
+        "parity": 0.0,
+        "ontology_supported": true,
+        "execution": {
+          "id": "sci17",
+          "profile": "scientific_scicode",
+          "ok": true,
+          "exit_code": 0,
+          "duration_ms": 38.67029999673832,
+          "script_sha256": "23447b335321c5e5ef0b1bf404af4fd261982c894ce854a8f2919c35970f2614",
+          "sandbox_value": {
+            "relation": "confidence",
+            "unit": "m/s",
+            "value": 0.98
+          }
+        }
+      },
+      {
+        "id": "sci18",
+        "domain": "tabular",
+        "trap": false,
+        "trap_kind": "",
+        "status": "SOLVED",
+        "reason": "verified",
+        "relation": "table_mean",
+        "statement": "the arithmetic mean of a measured column is the sum of its values divided by the number of values",
+        "answer": 3.1,
+        "unit": "m/s",
+        "expected": 3.1,
+        "correct": true,
+        "refused": false,
+        "dimensional_ok": true,
+        "residual": 0.0,
+        "parity": 0.0,
+        "ontology_supported": true,
+        "execution": {
+          "id": "sci18",
+          "profile": "briefcase_workspace",
+          "ok": true,
+          "exit_code": 0,
+          "duration_ms": 47.12970000036876,
+          "script_sha256": "20b6110b7185a1f8714515f09ae807e2cd3d630ba6f6c75aa0416473807761c7",
+          "sandbox_value": {
+            "relation": "table_mean",
+            "unit": "m/s",
+            "value": 3.1
+          }
+        }
+      },
+      {
+        "id": "sci19",
+        "domain": "kinematics",
+        "trap": true,
+        "trap_kind": "underdetermined",
+        "status": "ABSTAIN",
+        "reason": "no_dimensionally_consistent_relation",
+        "relation": "",
+        "statement": "",
+        "answer": null,
+        "unit": "",
+        "expected": null,
+        "correct": false,
+        "refused": true,
+        "dimensional_ok": false,
+        "residual": 0.0,
+        "parity": 0.0,
+        "ontology_supported": false,
+        "execution": {}
+      },
+      {
+        "id": "sci20",
+        "domain": "kinematics",
+        "trap": true,
+        "trap_kind": "dimensionally_invalid_target",
+        "status": "ABSTAIN",
+        "reason": "no_dimensionally_consistent_relation",
+        "relation": "",
+        "statement": "",
+        "answer": null,
+        "unit": "",
+        "expected": null,
+        "correct": false,
+        "refused": true,
+        "dimensional_ok": false,
+        "residual": 0.0,
+        "parity": 0.0,
+        "ontology_supported": false,
+        "execution": {}
+      },
+      {
+        "id": "sci21",
+        "domain": "dynamics",
+        "trap": true,
+        "trap_kind": "contradictory_quantities",
+        "status": "ABSTAIN",
+        "reason": "contradictory_quantity_mass",
+        "relation": "",
+        "statement": "",
+        "answer": null,
+        "unit": "",
+        "expected": null,
+        "correct": false,
+        "refused": true,
+        "dimensional_ok": false,
+        "residual": 0.0,
+        "parity": 0.0,
+        "ontology_supported": false,
+        "execution": {}
+      },
+      {
+        "id": "sci22",
+        "domain": "thermodynamics",
+        "trap": true,
+        "trap_kind": "nonphysical_state",
+        "status": "ABSTAIN",
+        "reason": "nonphysical_negative_temperature",
+        "relation": "",
+        "statement": "",
+        "answer": null,
+        "unit": "",
+        "expected": null,
+        "correct": false,
+        "refused": true,
+        "dimensional_ok": false,
+        "residual": 0.0,
+        "parity": 0.0,
+        "ontology_supported": false,
+        "execution": {}
+      },
+      {
+        "id": "sci23",
+        "domain": "kinematics",
+        "trap": true,
+        "trap_kind": "unknown_unit",
+        "status": "ABSTAIN",
+        "reason": "unknown_unit_furlong",
+        "relation": "",
+        "statement": "",
+        "answer": null,
+        "unit": "",
+        "expected": null,
+        "correct": false,
+        "refused": true,
+        "dimensional_ok": false,
+        "residual": 0.0,
+        "parity": 0.0,
+        "ontology_supported": false,
+        "execution": {}
+      },
+      {
+        "id": "sci24",
+        "domain": "kinematics",
+        "trap": true,
+        "trap_kind": "ambiguous_relation",
+        "status": "ABSTAIN",
+        "reason": "ambiguous_relation",
+        "relation": "",
+        "statement": "",
+        "answer": null,
+        "unit": "",
+        "expected": null,
+        "correct": false,
+        "refused": true,
+        "dimensional_ok": false,
+        "residual": 0.0,
+        "parity": 0.0,
+        "ontology_supported": false,
+        "execution": {}
+      }
+    ]
+  },
+  "pinned_snapshot": {
+    "path": "receipts\\holarch\\pinned_corpus_snapshot.json",
+    "sha256": "d675f3816bbf472493b25f885bbb56c62c5ec88a81ab31e31a9b87b3a0c23703",
+    "sha256_before": "d675f3816bbf472493b25f885bbb56c62c5ec88a81ab31e31a9b87b3a0c23703",
+    "expected_sha256": "d675f3816bbf472493b25f885bbb56c62c5ec88a81ab31e31a9b87b3a0c23703",
+    "expected_digest": "8f270f34e8f35ef84e415d076bea20a7bc15edff337f89ed72ad607447ba8554"
+  },
+  "gate": {
+    "ad2_external_arc_pass_at_1_ge_24_of_48": true,
+    "ad2_external_arc_precision_eq_10000": true,
+    "ad2_zero_task_name_branches": true,
+    "ad2_arc_audit_passed": true,
+    "ad2_science_suite_ge_20_of_24": true,
+    "ad2_science_answerable_ge_16_of_18": true,
+    "ad2_science_traps_6_of_6": true,
+    "ad2_science_zero_hallucination": true,
+    "ad2_science_zero_llm_calls": true,
+    "ad2_science_every_emission_verified": true,
+    "ad2_pinned_snapshot_unchanged": true,
+    "passed": true
+  },
+  "wall_seconds": 11.257267400000273,
+  "evidence": "OBSERVED",
+  "passed": true
+}

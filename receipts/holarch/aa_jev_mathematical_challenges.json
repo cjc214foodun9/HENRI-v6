@@ -1,0 +1,359 @@
+{
+  "stage": "AA5",
+  "kind": "jev_mathematical_challenges",
+  "gate": "JEV Tier-1 ontological gate (henri_jev plugin)",
+  "challenges": [
+    {
+      "proposal_id": "AA1-PER-TOKEN-BORN-PHASE-TORQUE",
+      "claim": "Dimensional homogeneity, Parseval norm conservation on unit mode waves, and strictly positive non-vanishing Fisher information / entropy reduction for per-token phases phi[m, v] against band-partition phases theta_b.",
+      "equations": [
+        {
+          "lhs": "P",
+          "rhs": "A * A",
+          "dims": {
+            "P": [
+              1,
+              2,
+              -2,
+              0,
+              0,
+              0,
+              0
+            ],
+            "A": [
+              0.5,
+              1,
+              -1,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "lhs": "torque",
+          "rhs": "s * A",
+          "dims": {
+            "torque": [
+              1,
+              2,
+              -2,
+              0,
+              0,
+              0,
+              0
+            ],
+            "s": [
+              0.5,
+              1,
+              -1,
+              0,
+              0,
+              0,
+              0
+            ],
+            "A": [
+              0.5,
+              1,
+              -1,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "lhs": "phi",
+          "rhs": "phi",
+          "dims": {
+            "phi": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ],
+      "energy_series": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "energy_bound": 1.0,
+      "entropy_series": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.00026901694105518903
+      ],
+      "novelty": 0.72,
+      "verdict": {
+        "accepted": true,
+        "score": 0.9533,
+        "failed": [],
+        "primitives": {
+          "dimensional_homogeneity": true,
+          "parseval_energy_bound": true,
+          "entropy_production": true,
+          "complexity_ceiling": true,
+          "novelty": true,
+          "ste100_compliance": true
+        }
+      }
+    },
+    {
+      "proposal_id": "AA3-EXTERNAL-ARC-LEAVE-ONE-OUT-FALSIFIABILITY-BOUND",
+      "claim": "Under K >= 3 demonstration grids of H x W >= 9 the false consensus probability of the ranked operator space is bounded by p^K, so leave-one-out demo verification keeps emitted precision at or above 0.90.",
+      "equations": [
+        {
+          "lhs": "P",
+          "rhs": "p * p * p",
+          "dims": {
+            "P": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "p": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "lhs": "precision",
+          "rhs": "one",
+          "dims": {
+            "precision": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "one": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "lhs": "H",
+          "rhs": "H",
+          "dims": {
+            "H": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ],
+      "energy_series": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "energy_bound": 1.0,
+      "entropy_series": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "novelty": 0.68,
+      "verdict": {
+        "accepted": true,
+        "score": 0.9467,
+        "failed": [],
+        "primitives": {
+          "dimensional_homogeneity": true,
+          "parseval_energy_bound": true,
+          "entropy_production": true,
+          "complexity_ceiling": true,
+          "novelty": true,
+          "ste100_compliance": true
+        }
+      }
+    }
+  ],
+  "series": {
+    "aa1_phase_curve": [
+      0.8452425112815817,
+      0.8452425112815817,
+      0.8452425112815817,
+      0.8452425112815817,
+      0.8452425112815817,
+      0.8452425112815817,
+      0.8452425112815817,
+      0.8452425112815817,
+      0.8452425112815817,
+      0.8452425112815817,
+      0.8452425112815817,
+      0.8452425112815817,
+      0.8452425112815817,
+      0.8452425112815817,
+      0.8452425112815817,
+      0.8452425112815817,
+      0.8452425112815817,
+      0.8452425112815817,
+      0.8452425112815817,
+      0.8452133303093612,
+      0.845096415997873,
+      0.8449734943405265,
+      0.8448449394496886,
+      0.8447113467570634,
+      0.8445736876433517,
+      0.844433377267826,
+      0.8442922309317027
+    ],
+    "aa1_entropy_series": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.00026901694105518903
+    ],
+    "aa3_refuted_nodes": [
+      3491,
+      0,
+      4312,
+      15307,
+      0,
+      4347,
+      3804,
+      0,
+      2809,
+      781,
+      826,
+      4022,
+      2356,
+      4720,
+      4764,
+      2801,
+      3122,
+      0,
+      4,
+      2944,
+      0,
+      1444,
+      2842,
+      7268,
+      1455,
+      7428,
+      0,
+      10779,
+      0,
+      1314,
+      2526,
+      0,
+      2634,
+      0,
+      7737,
+      4194,
+      1660,
+      3153,
+      5592,
+      4823,
+      1453,
+      476,
+      4259,
+      7337,
+      2375,
+      13771,
+      1880,
+      2566
+    ],
+    "aa3_entropy_series": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "unit_mode_norm_series": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "evidence": "OBSERVED",
+  "accepted": true
+}

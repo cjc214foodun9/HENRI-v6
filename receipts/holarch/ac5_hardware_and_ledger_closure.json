@@ -1,0 +1,68 @@
+{
+  "stage": "AC5",
+  "authorization": {
+    "env_var": "HENRI_ALLOW_LIVE_VAST",
+    "env_value": "None",
+    "plugin_flag_allow_live_vast": false,
+    "authorized": false,
+    "decision": "NOT_AUTHORIZED_DO_NOT_RENT"
+  },
+  "hardware": {
+    "probe": {
+      "active_pcie_count": 0,
+      "ghost_registry_count": 4,
+      "active_amd": [],
+      "active_discrete_non_cuda": "",
+      "nvidia_pnp_count": 0,
+      "cuda_status": "BLOCKED_NO_PCIE_NVIDIA_DEVICE",
+      "verdict": "GHOST_REGISTRY_ENTRY"
+    },
+    "cuda_status": "BLOCKED_NO_PCIE_NVIDIA_DEVICE",
+    "vast_status": "DRY_RUN_READY_AWAITING_AUTHORIZATION",
+    "host_gpu": "AMD Radeon RX 9070 XT on the PCIe bus; no PCIe NVIDIA device is present"
+  },
+  "vast": {
+    "catalog_path": "C:\\Users\\chan\\Desktop\\HENRI v6\\receipts\\holarch\\_work_ac\\vast_offers.json",
+    "offers": 16,
+    "offers_under_ceiling": 16,
+    "max_hourly": 0.7,
+    "hard_ttl_minutes": 25,
+    "spend_cap_usd": 0.5,
+    "running_instances": 0,
+    "rented": false,
+    "plan": "One verified RTX 5090 (sm_120, GB202) inside a mandatory try/finally destroy block: BlackwellGB202TritonBackend, GB-5 zero-sync CUDAGraph capture, D in {2048, 4096} latency and VRAM, then destroy and verify zero running instances."
+  },
+  "ledger": {
+    "path": "C:\\Users\\chan\\Desktop\\HENRI v6\\receipts\\holarch\\_work_ac\\ledger_summary.json",
+    "present": true,
+    "summary": {
+      "decisions": {
+        "Engineer": 27,
+        "Good": 121,
+        "Bad": 82
+      }
+    }
+  },
+  "secret_scan": {
+    "files_scanned": 181,
+    "hits": [],
+    "zero_credentials": true
+  },
+  "gate": {
+    "ac5_authorization_checked": true,
+    "ac5_no_instance_rented": true,
+    "ac5_cuda_status_recorded": true,
+    "ac5_vast_status_recorded": true,
+    "ac5_hardware_provenance_present": true,
+    "ac5_zero_running_instances": true,
+    "ac5_offer_catalog_recorded": true,
+    "ac5_offer_price_ceiling_respected": true,
+    "ac5_zero_credentials_in_receipts": true,
+    "ac5_spend_cap_unchanged": true,
+    "ac5_ledger_read": true,
+    "passed": true
+  },
+  "wall_seconds": 0.8733612999785691,
+  "evidence": "OBSERVED",
+  "passed": true
+}

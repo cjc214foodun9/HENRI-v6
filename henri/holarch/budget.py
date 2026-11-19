@@ -407,6 +407,56 @@ def probe_pnp_display_state() -> Dict[str, object]:
         if "NVIDIA" in str(row.get("driver_desc", "")).upper()
     ]
     report["ghost_nvidia_driver_keys"] = ghost
+    # Directive AA5: separate the registry entry from the live PCIe device.
+    # A class key whose driver description matches no enumerated PnP display
+    # device is a GHOST_REGISTRY_ENTRY: no hardware is on the bus.
+    active = [
+        row for row in devices if row.get("config_manager_error_code") == 0
+    ]
+    report["active_pcie_devices"] = active
+    enumerated = " ".join(str(row.get("name", "")).upper() for row in devices)
+    report["ghost_registry_entries"] = [
+        row
+        for row in report["class_keys"]
+        if str(row.get("driver_desc", "")).strip()
+        and str(row.get("driver_desc", "")).upper() not in enumerated
+    ]
+    amd = [
+        row
+        for row in active
+        if "AMD" in str(row.get("name", "")).upper()
+        or "RADEON" in str(row.get("name", "")).upper()
+    ]
+    report["active_amd_adapters"] = [str(row.get("name", "")) for row in amd]
+    report["active_discrete_non_cuda"] = next(
+        (
+            str(row.get("name", ""))
+            for row in amd
+            if "RX" in str(row.get("name", "")).upper()
+        ),
+        "",
+    )
+    if nvidia and all(row.get("config_manager_error_code") == 0 for row in nvidia):
+        report["verdict"] = "NVIDIA_ACTIVE"
+    elif report["ghost_registry_entries"]:
+        report["verdict"] = "GHOST_REGISTRY_ENTRY"
+    else:
+        report["verdict"] = "NO_NVIDIA_DEVICE"
+    active_nvidia = [
+        row for row in nvidia if row.get("config_manager_error_code") == 0
+    ]
+    report["cuda_status"] = (
+        "BLOCKED_NO_PCIE_NVIDIA_DEVICE" if not active_nvidia else "NVIDIA_DEVICE_PRESENT"
+    )
+    report["hardware_provenance"] = {
+        "active_pcie_count": int(len(active)),
+        "ghost_registry_count": int(len(report["ghost_registry_entries"])),
+        "active_amd": list(report["active_amd_adapters"]),
+        "active_discrete_non_cuda": str(report["active_discrete_non_cuda"]),
+        "nvidia_pnp_count": int(len(nvidia)),
+        "cuda_status": str(report["cuda_status"]),
+        "verdict": str(report["verdict"]),
+    }
     if not devices:
         report["reason"] = "no display adapter enumerated"
     elif not nvidia and ghost:

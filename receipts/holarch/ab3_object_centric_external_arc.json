@@ -1,0 +1,1124 @@
+{
+  "stage": "AB3",
+  "slice": {
+    "manifest": "receipts\\holarch\\external\\arc_agi_public\\MANIFEST.json",
+    "digest": "e9b030a233bf7f46a0aca5e7576ebda2022f23f40726f701fccd0e3173721df6",
+    "tasks": 48,
+    "grids": 396,
+    "source": "official public ARC-AGI bundle vendored by scripts/vendor_arc_agi_public.py"
+  },
+  "codec": {
+    "grids": 396,
+    "skipped_over_30": 0,
+    "cell_errors": 0,
+    "max_residual": 1.3877787807814457e-15,
+    "max_isometry_error": 2.7465400791133423e-15,
+    "largest_cells": 900,
+    "z3_reference_grids": 206
+  },
+  "external": {
+    "tasks": 48,
+    "emitted": 6,
+    "solved": 6,
+    "pass_at_1": 0.125,
+    "precision": 1.0,
+    "rows": [
+      {
+        "name": "00576224",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no object program survives the Leave-One-Out gate",
+        "chain": [],
+        "nodes": 1254,
+        "folds": 2,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 1,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 2,
+        "seconds": 0.07994790002703667
+      },
+      {
+        "name": "070dd51e",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no object program survives the Leave-One-Out gate",
+        "chain": [],
+        "nodes": 1756,
+        "folds": 2,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 1,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 2,
+        "seconds": 3.703504899982363
+      },
+      {
+        "name": "0ca9ddb6",
+        "status": "INDUCED",
+        "reason": "",
+        "chain": [
+          "stamp(((1, ((-1, 0, 7), (0, -1, 7), (0, 1, 7), (1, 0, 7))), (2, ((-1, -1, 4), (-1, 1, 4), (1, -1, 4), (1, 1, 4)))))"
+        ],
+        "nodes": 276,
+        "folds": 3,
+        "loo_passed": true,
+        "test_exact": 1,
+        "test_total": 1,
+        "test_rows": [
+          {
+            "input_shape": [
+              9,
+              9
+            ],
+            "expected_shape": [
+              9,
+              9
+            ],
+            "predicted_shape": [
+              9,
+              9
+            ],
+            "exact": true
+          }
+        ],
+        "solved": true,
+        "emitted": true,
+        "train_pairs": 3,
+        "seconds": 0.3917256999993697
+      },
+      {
+        "name": "13713586",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no object program survives the Leave-One-Out gate",
+        "chain": [],
+        "nodes": 1444,
+        "folds": 3,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 1,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 3,
+        "seconds": 1.5577036999166012
+      },
+      {
+        "name": "1990f7a8",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no object program survives the Leave-One-Out gate",
+        "chain": [],
+        "nodes": 720,
+        "folds": 3,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 1,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 3,
+        "seconds": 1.3757283000741154
+      },
+      {
+        "name": "1d398264",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no object program survives the Leave-One-Out gate",
+        "chain": [],
+        "nodes": 1632,
+        "folds": 3,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 2,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 3,
+        "seconds": 2.153730999911204
+      },
+      {
+        "name": "212895b5",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no object program survives the Leave-One-Out gate",
+        "chain": [],
+        "nodes": 1247,
+        "folds": 3,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 1,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 3,
+        "seconds": 10.697467199992388
+      },
+      {
+        "name": "256b0a75",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: node budget exhausted",
+        "chain": [],
+        "nodes": 1169,
+        "folds": 3,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 1,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 3,
+        "seconds": 12.225220900028944
+      },
+      {
+        "name": "29623171",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no object program survives the Leave-One-Out gate",
+        "chain": [],
+        "nodes": 1052,
+        "folds": 3,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 1,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 3,
+        "seconds": 2.0906007000012323
+      },
+      {
+        "name": "3194b014",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: node budget exhausted",
+        "chain": [],
+        "nodes": 1103,
+        "folds": 3,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 1,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 3,
+        "seconds": 12.002578199957497
+      },
+      {
+        "name": "358ba94e",
+        "status": "INDUCED",
+        "reason": "",
+        "chain": [
+          "delete_objects(unique_mass)",
+          "crop_bbox"
+        ],
+        "nodes": 3498,
+        "folds": 4,
+        "loo_passed": true,
+        "test_exact": 1,
+        "test_total": 1,
+        "test_rows": [
+          {
+            "input_shape": [
+              17,
+              19
+            ],
+            "expected_shape": [
+              5,
+              5
+            ],
+            "predicted_shape": [
+              5,
+              5
+            ],
+            "exact": true
+          }
+        ],
+        "solved": true,
+        "emitted": true,
+        "train_pairs": 4,
+        "seconds": 2.077570899971761
+      },
+      {
+        "name": "3bd67248",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no object program survives the Leave-One-Out gate",
+        "chain": [],
+        "nodes": 991,
+        "folds": 3,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 1,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 3,
+        "seconds": 0.2702320000389591
+      },
+      {
+        "name": "41e4d17e",
+        "status": "INDUCED",
+        "reason": "",
+        "chain": [
+          "cross_center(1,6)"
+        ],
+        "nodes": 122,
+        "folds": 2,
+        "loo_passed": true,
+        "test_exact": 1,
+        "test_total": 1,
+        "test_rows": [
+          {
+            "input_shape": [
+              15,
+              15
+            ],
+            "expected_shape": [
+              15,
+              15
+            ],
+            "predicted_shape": [
+              15,
+              15
+            ],
+            "exact": true
+          }
+        ],
+        "solved": true,
+        "emitted": true,
+        "train_pairs": 2,
+        "seconds": 0.10895619995426387
+      },
+      {
+        "name": "45737921",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no object program survives the Leave-One-Out gate",
+        "chain": [],
+        "nodes": 1391,
+        "folds": 3,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 1,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 3,
+        "seconds": 0.9878909999970347
+      },
+      {
+        "name": "49d1d64f",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no object program survives the Leave-One-Out gate",
+        "chain": [],
+        "nodes": 1527,
+        "folds": 3,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 1,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 3,
+        "seconds": 0.11636730004101992
+      },
+      {
+        "name": "508bd3b6",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no object program survives the Leave-One-Out gate",
+        "chain": [],
+        "nodes": 1070,
+        "folds": 3,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 1,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 3,
+        "seconds": 0.7910808000015095
+      },
+      {
+        "name": "54db823b",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no object program survives the Leave-One-Out gate",
+        "chain": [],
+        "nodes": 948,
+        "folds": 4,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 1,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 4,
+        "seconds": 5.863777699996717
+      },
+      {
+        "name": "5a5a2103",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no object program survives the Leave-One-Out gate",
+        "chain": [],
+        "nodes": 2035,
+        "folds": 2,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 1,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 2,
+        "seconds": 4.243569300044328
+      },
+      {
+        "name": "6150a2bd",
+        "status": "INDUCED",
+        "reason": "",
+        "chain": [
+          "dihedral(2)"
+        ],
+        "nodes": 186,
+        "folds": 2,
+        "loo_passed": true,
+        "test_exact": 1,
+        "test_total": 1,
+        "test_rows": [
+          {
+            "input_shape": [
+              3,
+              3
+            ],
+            "expected_shape": [
+              3,
+              3
+            ],
+            "predicted_shape": [
+              3,
+              3
+            ],
+            "exact": true
+          }
+        ],
+        "solved": true,
+        "emitted": true,
+        "train_pairs": 2,
+        "seconds": 0.09874779998790473
+      },
+      {
+        "name": "67385a82",
+        "status": "INDUCED",
+        "reason": "",
+        "chain": [
+          "recolour_by_property(mass_ge,2,8)"
+        ],
+        "nodes": 208,
+        "folds": 4,
+        "loo_passed": true,
+        "test_exact": 1,
+        "test_total": 1,
+        "test_rows": [
+          {
+            "input_shape": [
+              5,
+              5
+            ],
+            "expected_shape": [
+              5,
+              5
+            ],
+            "predicted_shape": [
+              5,
+              5
+            ],
+            "exact": true
+          }
+        ],
+        "solved": true,
+        "emitted": true,
+        "train_pairs": 4,
+        "seconds": 0.13882709993049502
+      },
+      {
+        "name": "696d4842",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no object program survives the Leave-One-Out gate",
+        "chain": [],
+        "nodes": 1445,
+        "folds": 3,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 1,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 3,
+        "seconds": 2.9397912999847904
+      },
+      {
+        "name": "6e19193c",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no object program survives the Leave-One-Out gate",
+        "chain": [],
+        "nodes": 748,
+        "folds": 2,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 1,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 2,
+        "seconds": 0.2082147999899462
+      },
+      {
+        "name": "73c3b0d8",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no object program survives the Leave-One-Out gate",
+        "chain": [],
+        "nodes": 987,
+        "folds": 4,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 1,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 4,
+        "seconds": 0.280444800038822
+      },
+      {
+        "name": "79369cc6",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: node budget exhausted",
+        "chain": [],
+        "nodes": 383,
+        "folds": 3,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 1,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 3,
+        "seconds": 13.713711000047624
+      },
+      {
+        "name": "7e0986d6",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no object program survives the Leave-One-Out gate",
+        "chain": [],
+        "nodes": 982,
+        "folds": 2,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 1,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 2,
+        "seconds": 2.8599441000260413
+      },
+      {
+        "name": "84f2aca1",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no object program survives the Leave-One-Out gate",
+        "chain": [],
+        "nodes": 1126,
+        "folds": 4,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 1,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 4,
+        "seconds": 0.6047496000537649
+      },
+      {
+        "name": "8a371977",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no object program survives the Leave-One-Out gate",
+        "chain": [],
+        "nodes": 1030,
+        "folds": 3,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 1,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 3,
+        "seconds": 1.579140199930407
+      },
+      {
+        "name": "90347967",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no object program survives the Leave-One-Out gate",
+        "chain": [],
+        "nodes": 4850,
+        "folds": 3,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 1,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 3,
+        "seconds": 1.63567210000474
+      },
+      {
+        "name": "93c31fbe",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no object program survives the Leave-One-Out gate",
+        "chain": [],
+        "nodes": 1000,
+        "folds": 3,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 1,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 3,
+        "seconds": 10.659355500014499
+      },
+      {
+        "name": "97a05b5b",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no object program survives the Leave-One-Out gate",
+        "chain": [],
+        "nodes": 1170,
+        "folds": 3,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 1,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 3,
+        "seconds": 2.9319998999126256
+      },
+      {
+        "name": "9c56f360",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no object program survives the Leave-One-Out gate",
+        "chain": [],
+        "nodes": 994,
+        "folds": 3,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 1,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 3,
+        "seconds": 1.054479100042954
+      },
+      {
+        "name": "a3f84088",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no object program survives the Leave-One-Out gate",
+        "chain": [],
+        "nodes": 861,
+        "folds": 4,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 1,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 4,
+        "seconds": 0.47465300001204014
+      },
+      {
+        "name": "a78176bb",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no object program survives the Leave-One-Out gate",
+        "chain": [],
+        "nodes": 1007,
+        "folds": 3,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 1,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 3,
+        "seconds": 1.4520951999584213
+      },
+      {
+        "name": "ac0c5833",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: node budget exhausted",
+        "chain": [],
+        "nodes": 909,
+        "folds": 3,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 1,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 3,
+        "seconds": 12.041240299935453
+      },
+      {
+        "name": "b15fca0b",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no object program survives the Leave-One-Out gate",
+        "chain": [],
+        "nodes": 1078,
+        "folds": 5,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 1,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 5,
+        "seconds": 0.5604450000682846
+      },
+      {
+        "name": "b782dc8a",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no object program survives the Leave-One-Out gate",
+        "chain": [],
+        "nodes": 1250,
+        "folds": 2,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 1,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 2,
+        "seconds": 2.973696499946527
+      },
+      {
+        "name": "bb43febb",
+        "status": "INDUCED",
+        "reason": "",
+        "chain": [
+          "fill_interior(2)"
+        ],
+        "nodes": 100,
+        "folds": 2,
+        "loo_passed": true,
+        "test_exact": 1,
+        "test_total": 1,
+        "test_rows": [
+          {
+            "input_shape": [
+              10,
+              10
+            ],
+            "expected_shape": [
+              10,
+              10
+            ],
+            "predicted_shape": [
+              10,
+              10
+            ],
+            "exact": true
+          }
+        ],
+        "solved": true,
+        "emitted": true,
+        "train_pairs": 2,
+        "seconds": 0.11272970004938543
+      },
+      {
+        "name": "bf89d739",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no object program survives the Leave-One-Out gate",
+        "chain": [],
+        "nodes": 821,
+        "folds": 4,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 1,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 4,
+        "seconds": 1.1142585000488907
+      },
+      {
+        "name": "c6e1b8da",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no object program survives the Leave-One-Out gate",
+        "chain": [],
+        "nodes": 1639,
+        "folds": 3,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 1,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 3,
+        "seconds": 6.382498600054532
+      },
+      {
+        "name": "cbded52d",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no object program survives the Leave-One-Out gate",
+        "chain": [],
+        "nodes": 1178,
+        "folds": 3,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 1,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 3,
+        "seconds": 1.8750619000056759
+      },
+      {
+        "name": "d06dbe63",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no object program survives the Leave-One-Out gate",
+        "chain": [],
+        "nodes": 905,
+        "folds": 2,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 1,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 2,
+        "seconds": 0.26978080009575933
+      },
+      {
+        "name": "d4469b4b",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no object program survives the Leave-One-Out gate",
+        "chain": [],
+        "nodes": 993,
+        "folds": 7,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 2,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 7,
+        "seconds": 0.16373000002931803
+      },
+      {
+        "name": "d90796e8",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no object program survives the Leave-One-Out gate",
+        "chain": [],
+        "nodes": 2722,
+        "folds": 3,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 1,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 3,
+        "seconds": 1.04281620006077
+      },
+      {
+        "name": "dd2401ed",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no object program survives the Leave-One-Out gate",
+        "chain": [],
+        "nodes": 1182,
+        "folds": 4,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 1,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 4,
+        "seconds": 1.3936277999309823
+      },
+      {
+        "name": "e3497940",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no object program survives the Leave-One-Out gate",
+        "chain": [],
+        "nodes": 1241,
+        "folds": 3,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 1,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 3,
+        "seconds": 0.2538782999617979
+      },
+      {
+        "name": "e69241bd",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no object program survives the Leave-One-Out gate",
+        "chain": [],
+        "nodes": 1586,
+        "folds": 3,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 1,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 3,
+        "seconds": 4.236459200037643
+      },
+      {
+        "name": "e9614598",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no object program survives the Leave-One-Out gate",
+        "chain": [],
+        "nodes": 857,
+        "folds": 2,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 2,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 2,
+        "seconds": 0.27154839993454516
+      },
+      {
+        "name": "ecdecbb3",
+        "status": "ABSTAIN",
+        "reason": "ABSTAIN: no object program survives the Leave-One-Out gate",
+        "chain": [],
+        "nodes": 961,
+        "folds": 3,
+        "loo_passed": false,
+        "test_exact": 0,
+        "test_total": 1,
+        "test_rows": [],
+        "solved": false,
+        "emitted": false,
+        "train_pairs": 3,
+        "seconds": 0.5689413000363857
+      }
+    ]
+  },
+  "z3_regression": {
+    "induced": 16,
+    "total": 16,
+    "rows": [
+      {
+        "name": "z3_rot90_ccw",
+        "status": "INDUCED",
+        "chain": [
+          "dihedral(1)"
+        ],
+        "generalized": true,
+        "nodes": 4
+      },
+      {
+        "name": "z3_rot180_rect",
+        "status": "INDUCED",
+        "chain": [
+          "dihedral(2)"
+        ],
+        "generalized": true,
+        "nodes": 5
+      },
+      {
+        "name": "z3_reflect_h",
+        "status": "INDUCED",
+        "chain": [
+          "dihedral(4)"
+        ],
+        "generalized": true,
+        "nodes": 7
+      },
+      {
+        "name": "z3_reflect_diag",
+        "status": "INDUCED",
+        "chain": [
+          "dihedral(6)"
+        ],
+        "generalized": true,
+        "nodes": 9
+      },
+      {
+        "name": "z3_toroidal_shift_1_2",
+        "status": "INDUCED",
+        "chain": [
+          "toroidal_shift(1,2)"
+        ],
+        "generalized": true,
+        "nodes": 3
+      },
+      {
+        "name": "z3_bounded_shift_2_1",
+        "status": "INDUCED",
+        "chain": [
+          "bounded_shift(2,1,0)"
+        ],
+        "generalized": true,
+        "nodes": 17
+      },
+      {
+        "name": "z3_colour_swap_1_2",
+        "status": "INDUCED",
+        "chain": [
+          "colour_map(0,2,1,3,4,5,6,7,8,9)"
+        ],
+        "generalized": true,
+        "nodes": 41
+      },
+      {
+        "name": "z3_colour_cycle_123",
+        "status": "INDUCED",
+        "chain": [
+          "colour_map(0,2,3,1,4,5,6,7,8,9)"
+        ],
+        "generalized": true,
+        "nodes": 41
+      },
+      {
+        "name": "z3_crop_bbox",
+        "status": "INDUCED",
+        "chain": [
+          "crop_bbox"
+        ],
+        "generalized": true,
+        "nodes": 16
+      },
+      {
+        "name": "z3_tile_2x2",
+        "status": "INDUCED",
+        "chain": [
+          "tile(2,2)"
+        ],
+        "generalized": true,
+        "nodes": 5
+      },
+      {
+        "name": "z3_scale_2",
+        "status": "INDUCED",
+        "chain": [
+          "scale(2)"
+        ],
+        "generalized": true,
+        "nodes": 3
+      },
+      {
+        "name": "z3_interior_fill_3",
+        "status": "INDUCED",
+        "chain": [
+          "interior_flood_fill(3)"
+        ],
+        "generalized": true,
+        "nodes": 5
+      },
+      {
+        "name": "z3_mask_colour_2",
+        "status": "INDUCED",
+        "chain": [
+          "mask_by_colour(2)"
+        ],
+        "generalized": true,
+        "nodes": 4
+      },
+      {
+        "name": "z3_symmetry_completion",
+        "status": "INDUCED",
+        "chain": [
+          "symmetry_completion"
+        ],
+        "generalized": true,
+        "nodes": 3
+      },
+      {
+        "name": "z3_constant_fill_5",
+        "status": "INDUCED",
+        "chain": [
+          "constant_fill(5)"
+        ],
+        "generalized": true,
+        "nodes": 3
+      },
+      {
+        "name": "z3_rot90_then_swap",
+        "status": "INDUCED",
+        "chain": [
+          "dihedral(1)",
+          "colour_map(0,2,1,3,4,5,6,7,8,9)"
+        ],
+        "generalized": true,
+        "nodes": 77
+      }
+    ]
+  },
+  "contradictions": {
+    "refused_at_zero_nodes": 4,
+    "total": 4,
+    "rows": [
+      {
+        "name": "z3_contradiction_two_outputs",
+        "status": "ABSTAIN",
+        "nodes": 0
+      },
+      {
+        "name": "z3_contradiction_colour_only",
+        "status": "ABSTAIN",
+        "nodes": 0
+      },
+      {
+        "name": "z3_contradiction_shape_violation",
+        "status": "ABSTAIN",
+        "nodes": 0
+      },
+      {
+        "name": "z3_contradiction_declared_shape",
+        "status": "ABSTAIN",
+        "nodes": 0
+      }
+    ]
+  },
+  "audit": {
+    "string_literal_comparisons": 32,
+    "structural_vocabulary_comparisons": 4,
+    "unexplained_string_comparisons": 28,
+    "unexplained_samples": [
+      "kind == 'same_shape'",
+      "kind == 'fixed_shape'",
+      "kind == 'crop'",
+      "kind == 'crop_hole'",
+      "kind == 'panel'",
+      "rule == 'mass_rank'",
+      "rule == 'largest'",
+      "mode == 'and'"
+    ],
+    "task_identity_comparisons": 0,
+    "compared_identifier_literals": [],
+    "compared_identifier_literal_count": 0,
+    "module_literal_overlap": [],
+    "module_literal_overlap_note": "informational only: an ordinary English word in the sketch tag vocabulary can coincide with a benchmark entry-point name. A tag is not a branch; the gated counters are the comparison ones.",
+    "branches": [],
+    "ok": false,
+    "file": "henri/holarch/arc_objects.py",
+    "sha256": "15f5a915f5ab7267e8439f2426b13fd5fdfcb9e2c4a58a111701cad54b36b32f"
+  },
+  "forbidden_imports": [],
+  "gate": {
+    "ab3_runner_exit_zero": true,
+    "ab3_manifest_digest_e9b030a2": true,
+    "ab3_codec_zero_cell_error": true,
+    "ab3_codec_grids_396": true,
+    "ab3_external_pass_at_1_ge_16_of_48": false,
+    "ab3_emitted_precision_ge_095": true,
+    "ab3_loo_gate_on_every_emission": true,
+    "ab3_z3_16_of_16": true,
+    "ab3_contradictions_4_at_zero_nodes": true,
+    "ab3_zero_task_id_branches": true,
+    "ab3_zero_llm_imports": true,
+    "passed": false
+  },
+  "wall_seconds": 134.95320630003698,
+  "evidence": "OBSERVED",
+  "passed": false
+}

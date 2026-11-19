@@ -1,0 +1,317 @@
+{
+  "stage": "AA5",
+  "hardware": {
+    "pnp": {
+      "platform": "Windows-11-10.0.26300-SP0",
+      "display_class_guid": "{4d36e968-e325-11ce-bfc1-08002be10318}",
+      "queried": true,
+      "devices": [
+        {
+          "name": "AMD Radeon(TM) Graphics",
+          "device_id": "PCI\\VEN_1002&DEV_13C0&SUBSYS_D0001458&REV_CB\\4&16012499&0&0041",
+          "status": "OK",
+          "service": "amduw23g-205305-f16b1d83",
+          "pnp_class": "Display",
+          "config_manager_error_code": 0,
+          "problem": "working"
+        },
+        {
+          "name": "AMD Radeon RX 9070 XT",
+          "device_id": "PCI\\VEN_1002&DEV_7550&SUBSYS_24241458&REV_C0\\6&17CA0BD2&0&00000009",
+          "status": "OK",
+          "service": "amduw23g-205306-a9c55ce7",
+          "pnp_class": "Display",
+          "config_manager_error_code": 0,
+          "problem": "working"
+        }
+      ],
+      "class_keys": [
+        {
+          "key": "0000",
+          "driver_desc": "AMD Radeon(TM) Graphics"
+        },
+        {
+          "key": "0001",
+          "driver_desc": "AMD Radeon(TM) Graphics"
+        },
+        {
+          "key": "0002",
+          "driver_desc": "AMD Radeon RX 9070 XT"
+        },
+        {
+          "key": "0003",
+          "driver_desc": "NVIDIA GeForce RTX 5070 Ti"
+        },
+        {
+          "key": "Configuration",
+          "driver_desc": ""
+        }
+      ],
+      "reason": "the NVIDIA driver class key is registered for NVIDIA GeForce RTX 5070 Ti but no NVIDIA PnP display device is enumerated: the adapter is absent from the bus, disabled in firmware, or was removed after a driver install, so nvidia-smi lists no device and torch cannot reach CUDA",
+      "exit_code": 0,
+      "nvidia_devices": [],
+      "nvidia_problem_codes": [],
+      "ghost_nvidia_driver_keys": [
+        {
+          "key": "0003",
+          "driver_desc": "NVIDIA GeForce RTX 5070 Ti"
+        }
+      ],
+      "active_pcie_devices": [
+        {
+          "name": "AMD Radeon(TM) Graphics",
+          "device_id": "PCI\\VEN_1002&DEV_13C0&SUBSYS_D0001458&REV_CB\\4&16012499&0&0041",
+          "status": "OK",
+          "service": "amduw23g-205305-f16b1d83",
+          "pnp_class": "Display",
+          "config_manager_error_code": 0,
+          "problem": "working"
+        },
+        {
+          "name": "AMD Radeon RX 9070 XT",
+          "device_id": "PCI\\VEN_1002&DEV_7550&SUBSYS_24241458&REV_C0\\6&17CA0BD2&0&00000009",
+          "status": "OK",
+          "service": "amduw23g-205306-a9c55ce7",
+          "pnp_class": "Display",
+          "config_manager_error_code": 0,
+          "problem": "working"
+        }
+      ],
+      "ghost_registry_entries": [
+        {
+          "key": "0003",
+          "driver_desc": "NVIDIA GeForce RTX 5070 Ti"
+        }
+      ],
+      "active_amd_adapters": [
+        "AMD Radeon(TM) Graphics",
+        "AMD Radeon RX 9070 XT"
+      ],
+      "active_discrete_non_cuda": "AMD Radeon RX 9070 XT",
+      "verdict": "GHOST_REGISTRY_ENTRY",
+      "cuda_status": "BLOCKED_NO_PCIE_NVIDIA_DEVICE",
+      "hardware_provenance": {
+        "active_pcie_count": 2,
+        "ghost_registry_count": 1,
+        "active_amd": [
+          "AMD Radeon(TM) Graphics",
+          "AMD Radeon RX 9070 XT"
+        ],
+        "active_discrete_non_cuda": "AMD Radeon RX 9070 XT",
+        "nvidia_pnp_count": 0,
+        "cuda_status": "BLOCKED_NO_PCIE_NVIDIA_DEVICE",
+        "verdict": "GHOST_REGISTRY_ENTRY"
+      }
+    },
+    "driver": {
+      "platform": "Windows-11-10.0.26300-SP0",
+      "torch_version": "2.11.0+cu128",
+      "cuda_compiled_version": "12.8",
+      "torch_cuda_available": false,
+      "torch_device_count": 0,
+      "cuda_visible_devices": "",
+      "cuda_visible_devices_set": false,
+      "cuda_home": "",
+      "cuda_path_set": false,
+      "nvidia_smi_path": "C:\\WINDOWS\\system32\\nvidia-smi.EXE",
+      "nvidia_smi_reachable": true,
+      "nvidia_smi_devices": [],
+      "nvidia_smi_driver_version": "",
+      "nvidia_smi_error": "",
+      "driver_libraries": {
+        "C:\\Windows\\System32\\nvcuda.dll": true,
+        "C:\\Windows\\SysWOW64\\nvcuda.dll": true,
+        "C:\\Program Files\\NVIDIA Corporation\\NVSMI\\nvidia-smi.exe": false
+      },
+      "nvcuda_present": true,
+      "libcuda_present": false,
+      "driver_files_found": 2,
+      "on_windows": true,
+      "root_cause": "nvidia-smi ran but listed no device",
+      "verdict": "BLOCKED",
+      "pnp": {
+        "platform": "Windows-11-10.0.26300-SP0",
+        "display_class_guid": "{4d36e968-e325-11ce-bfc1-08002be10318}",
+        "queried": true,
+        "devices": [
+          {
+            "name": "AMD Radeon(TM) Graphics",
+            "device_id": "PCI\\VEN_1002&DEV_13C0&SUBSYS_D0001458&REV_CB\\4&16012499&0&0041",
+            "status": "OK",
+            "service": "amduw23g-205305-f16b1d83",
+            "pnp_class": "Display",
+            "config_manager_error_code": 0,
+            "problem": "working"
+          },
+          {
+            "name": "AMD Radeon RX 9070 XT",
+            "device_id": "PCI\\VEN_1002&DEV_7550&SUBSYS_24241458&REV_C0\\6&17CA0BD2&0&00000009",
+            "status": "OK",
+            "service": "amduw23g-205306-a9c55ce7",
+            "pnp_class": "Display",
+            "config_manager_error_code": 0,
+            "problem": "working"
+          }
+        ],
+        "class_keys": [
+          {
+            "key": "0000",
+            "driver_desc": "AMD Radeon(TM) Graphics"
+          },
+          {
+            "key": "0001",
+            "driver_desc": "AMD Radeon(TM) Graphics"
+          },
+          {
+            "key": "0002",
+            "driver_desc": "AMD Radeon RX 9070 XT"
+          },
+          {
+            "key": "0003",
+            "driver_desc": "NVIDIA GeForce RTX 5070 Ti"
+          },
+          {
+            "key": "Configuration",
+            "driver_desc": ""
+          }
+        ],
+        "reason": "the NVIDIA driver class key is registered for NVIDIA GeForce RTX 5070 Ti but no NVIDIA PnP display device is enumerated: the adapter is absent from the bus, disabled in firmware, or was removed after a driver install, so nvidia-smi lists no device and torch cannot reach CUDA",
+        "exit_code": 0,
+        "nvidia_devices": [],
+        "nvidia_problem_codes": [],
+        "ghost_nvidia_driver_keys": [
+          {
+            "key": "0003",
+            "driver_desc": "NVIDIA GeForce RTX 5070 Ti"
+          }
+        ],
+        "active_pcie_devices": [
+          {
+            "name": "AMD Radeon(TM) Graphics",
+            "device_id": "PCI\\VEN_1002&DEV_13C0&SUBSYS_D0001458&REV_CB\\4&16012499&0&0041",
+            "status": "OK",
+            "service": "amduw23g-205305-f16b1d83",
+            "pnp_class": "Display",
+            "config_manager_error_code": 0,
+            "problem": "working"
+          },
+          {
+            "name": "AMD Radeon RX 9070 XT",
+            "device_id": "PCI\\VEN_1002&DEV_7550&SUBSYS_24241458&REV_C0\\6&17CA0BD2&0&00000009",
+            "status": "OK",
+            "service": "amduw23g-205306-a9c55ce7",
+            "pnp_class": "Display",
+            "config_manager_error_code": 0,
+            "problem": "working"
+          }
+        ],
+        "ghost_registry_entries": [
+          {
+            "key": "0003",
+            "driver_desc": "NVIDIA GeForce RTX 5070 Ti"
+          }
+        ],
+        "active_amd_adapters": [
+          "AMD Radeon(TM) Graphics",
+          "AMD Radeon RX 9070 XT"
+        ],
+        "active_discrete_non_cuda": "AMD Radeon RX 9070 XT",
+        "verdict": "GHOST_REGISTRY_ENTRY",
+        "cuda_status": "BLOCKED_NO_PCIE_NVIDIA_DEVICE",
+        "hardware_provenance": {
+          "active_pcie_count": 2,
+          "ghost_registry_count": 1,
+          "active_amd": [
+            "AMD Radeon(TM) Graphics",
+            "AMD Radeon RX 9070 XT"
+          ],
+          "active_discrete_non_cuda": "AMD Radeon RX 9070 XT",
+          "nvidia_pnp_count": 0,
+          "cuda_status": "BLOCKED_NO_PCIE_NVIDIA_DEVICE",
+          "verdict": "GHOST_REGISTRY_ENTRY"
+        }
+      },
+      "evidence": "OBSERVED"
+    },
+    "cuda_receipt": {
+      "status": "BLOCKED_NO_PCIE_NVIDIA_DEVICE",
+      "reason": "torch.cuda.is_available() is False: no NVIDIA PCIe device on this host",
+      "sha256": "e81ae33dcd4a2f582e21df075a1e46d36677ba48487cdebaac652d90743cd9bc"
+    }
+  },
+  "jev": {
+    "accepted": true,
+    "receipt": {
+      "path": "receipts\\holarch\\aa_jev_mathematical_challenges.json",
+      "sha256": "695cd0ef577d977f06cf4eee8286981dedf86a749056a3553c61a72c6a974104"
+    }
+  },
+  "ledger": {
+    "cycles": {
+      "t": "True",
+      "u": "True",
+      "v": "True",
+      "w": "True",
+      "x": "True",
+      "y": "False",
+      "z": "False"
+    },
+    "pytest": {
+      "exit_code": 0,
+      "passed": 0,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 350.16557720000856,
+      "tail": [
+        "tests/test_holarch_d1_d4.py::test_relaxation_lowers_the_lyapunov_energy_and_the_dark_energy",
+        "  C:\\Users\\chan\\Desktop\\HENRI v6\\tests\\test_holarch_d1_d4.py:145: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.",
+        "  Consider using tensor.detach() first. (Triggered internally at C:\\actions-runner\\_work\\pytorch\\pytorch\\pytorch\\torch\\csrc\\autograd\\generated\\python_variable_methods.cpp:837.)",
+        "    assert float(energy_after.mean()) <= float(energy_before.mean()) + 1e-5",
+        "",
+        "-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html"
+      ]
+    },
+    "sidecar_parity": {
+      "checked": 169,
+      "matched": 169,
+      "missing": 0,
+      "parity": 1.0
+    },
+    "credential_scan": {
+      "scanned": 341,
+      "leaks": [],
+      "count": 0
+    },
+    "r3": {
+      "streaming_bpc": 1.1660408493237004,
+      "static_bpc": 1.1660408493237004
+    },
+    "pinned_digest": "8f270f34e8f35ef84e415d076bea20a7bc15edff337f89ed72ad607447ba8554",
+    "docs_section_42": true
+  },
+  "gate": {
+    "aa5_runner_exit_zero": true,
+    "aa5_active_pcie_devices_recorded": true,
+    "aa5_ghost_registry_separated": true,
+    "aa5_amd_discrete_recorded": true,
+    "aa5_cuda_honest": true,
+    "aa5_cuda_receipt_honest": true,
+    "aa5_remote_script_present": true,
+    "aa5_jev_two_challenges_accepted": true,
+    "aa5_prior_cycles_passed": true,
+    "aa5_yz_superseded_documented": true,
+    "aa5_pinned_split_unmoved": true,
+    "aa5_sidecar_parity_one": true,
+    "aa5_r3_stream_le_122": true,
+    "aa5_r3_static_le_142": true,
+    "aa5_zero_credential_leaks": true,
+    "aa5_docs_section_42": true,
+    "aa5_pytest_exit_zero": true,
+    "aa5_pytest_zero_failures": true,
+    "passed": true
+  },
+  "wall_seconds": 352.28884089994244,
+  "evidence": "OBSERVED",
+  "passed": true
+}

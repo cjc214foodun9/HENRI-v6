@@ -1,0 +1,790 @@
+{
+  "stage": "AC1",
+  "kind": "homodyne_zero_phase_closure",
+  "config": {
+    "dim": 2048,
+    "identity_dim": 2048,
+    "phase_seed": 0.0,
+    "phase_modes": 9,
+    "invariant_scalars": 9,
+    "steer_rank": 1,
+    "induction_window": 256,
+    "copy_fast_window": 24,
+    "copy_long_window": 256,
+    "copy_low": 7,
+    "orders": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "coupling": "amplitude",
+    "guard_tokens": 8192,
+    "subslice_cap": 6000
+  },
+  "pinned_split": {
+    "snapshot": "C:\\Users\\chan\\Desktop\\HENRI v6\\receipts\\holarch\\pinned_corpus_snapshot.json",
+    "snapshot_sha256": "d675f3816bbf472493b25f885bbb56c62c5ec88a81ab31e31a9b87b3a0c23703",
+    "snapshot_sha256_after": "d675f3816bbf472493b25f885bbb56c62c5ec88a81ab31e31a9b87b3a0c23703",
+    "pinned_lang_split_sha256": "247a45a5b96293fafb6a1728eb4660c25e6e4ddb4ba348858f12770e742e2470",
+    "pinned_lang_split_sha256_after": "247a45a5b96293fafb6a1728eb4660c25e6e4ddb4ba348858f12770e742e2470",
+    "digest_frozen_recomputed": "8f270f34e8f35ef84e415d076bea20a7bc15edff337f89ed72ad607447ba8554",
+    "files": 38,
+    "train_tokens": 758656,
+    "val_tokens": 84086,
+    "documents": 38,
+    "docs_excluded": true
+  },
+  "calibration_slices": {
+    "floor_window_tokens": 746368,
+    "phase_window_tokens": 568992,
+    "guard_window_tokens": 12288,
+    "guard_tokens_scored": 8192,
+    "floor_calibration_tokens": 5841
+  },
+  "codebook": {
+    "vocab_size": 2048,
+    "dim": 2048,
+    "seed": 20261203,
+    "rows_sampled": 384,
+    "norm_min": 1.0,
+    "norm_max": 1.0,
+    "norm_error": 0.0,
+    "parseval_ratio": 1.0,
+    "parseval_error": 1.1920928955078125e-07,
+    "crosstalk_mean_square": 0.00048670588876120746,
+    "crosstalk_theory": 0.00048828125,
+    "crosstalk_ratio": 0.9967736601829529,
+    "crosstalk_rms": 0.022061411291360855,
+    "crosstalk_max": 0.0736071839928627,
+    "predicted_max_coherence": 0.022097086912079608
+  },
+  "floor": {
+    "inner_nll": 0.9412944347965333,
+    "inner_top1": 0.78,
+    "weights": [
+      0.05,
+      0.1,
+      0.2,
+      0.15,
+      0.35,
+      0.2,
+      0.0
+    ],
+    "kn_mix": 0.6,
+    "kn": {
+      "order": 6,
+      "discount": 0.7,
+      "continuation_unigram_types": 1847,
+      "raw_last_contexts": 327196,
+      "lower_buckets": 369624
+    },
+    "rows": 192,
+    "orders": 7,
+    "samples": 500,
+    "grid": {
+      "w4": [
+        0.15,
+        0.25,
+        0.35
+      ],
+      "w5": [
+        0.0,
+        0.15,
+        0.25,
+        0.35
+      ],
+      "w6": [
+        0.0,
+        0.05,
+        0.1,
+        0.2
+      ],
+      "kn_mix": [
+        0.0,
+        0.2,
+        0.4,
+        0.6
+      ]
+    }
+  },
+  "modal_mix": {
+    "epochs": 4,
+    "updates": 1697,
+    "sagnac_curve": [
+      0.4114046969811448,
+      0.3930518850964885,
+      0.382431199938937,
+      0.3759739468202607,
+      0.3731886730880828
+    ],
+    "sagnac_initial": 0.4114046969811448,
+    "sagnac_final": 0.3731886730880828,
+    "inner_tokens": 111956,
+    "fit_tokens": 634412,
+    "inner_positions": 240,
+    "theta": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "weight": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "mode_gain": [
+      3.4913912034183765,
+      0.1908825446773526,
+      0.30487407339027106,
+      0.5144415721291649,
+      0.7570138988153474,
+      0.8949231254478186,
+      0.923176240079288,
+      0.9232973420423805
+    ],
+    "adapter_digest": 10.536341899073483,
+    "autograd_used": false
+  },
+  "token_phase_table": {
+    "inner_gain_nats": 0.0,
+    "rms_displacement_rad": 0.15007001504594406,
+    "heldout_bpc_with_table": 2.6933274668102793,
+    "heldout_bpc_without_table": 2.6933287738047125,
+    "heldout_drift_bpc": -1.3069944331256522e-06,
+    "torque_inner_gain_nats": 0.008097465632814216,
+    "heldout_bpc_with_block": 2.6933274668102793,
+    "heldout_bpc_without_block": 2.6933287738047125,
+    "block_drift_bpc": -1.3069944331256522e-06,
+    "deployed_table_zero": true,
+    "deployed_torque_zero": true,
+    "retired": true,
+    "note": "The seeded token table and the slot torque were fitted together in Cycle AC.  By the zero-phase homodyne optimum the block can only fit cross-talk phase, so the deployed block is identically zero and the drift is recorded as evidence of the retirement."
+  },
+  "invariant_law": {
+    "baseline_nll": 1.9741723054202511,
+    "anti_phase": {
+      "selected": 0.0,
+      "nll": 1.9741723054202511
+    },
+    "relative_phase": {
+      "selected": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "nll": 1.9741723054202511
+    },
+    "floor_guard": {
+      "selected_tau": 2.0,
+      "selected_weight": 0.1,
+      "selected_min_order": 3,
+      "selected_tau_z": 0.2,
+      "nll": 1.9741609682067467,
+      "top1": 0.5859375,
+      "reference_top1": 0.5859375,
+      "reference_nll": 1.9741723054202511,
+      "objective": "guard top-1, subject to a cross-entropy slack of 1e-3 nats"
+    },
+    "final_nll": 1.9741609682067467,
+    "scalars": 9,
+    "zero_point_available": true
+  },
+  "copy_kernel": {
+    "selected": {
+      "alpha": 1.0,
+      "tau0": 128.0,
+      "scope_boost": 1.0
+    },
+    "guard_nll": 1.947966655378795,
+    "rows": 2048,
+    "grids": {
+      "alpha": [
+        0.0,
+        0.5,
+        1.0
+      ],
+      "tau0": [
+        32.0,
+        128.0
+      ],
+      "scope_boost": [
+        1.0,
+        1.5,
+        2.0
+      ]
+    },
+    "zero_point_available": true
+  },
+  "recall_refinement": {
+    "positions": 600,
+    "base_recall": 0.66,
+    "base_hits": 396,
+    "base_nll": 1.3569452565835085,
+    "selected_fast": 0.6,
+    "selected_long": 0.6,
+    "selected_recall": 0.6616666666666666,
+    "selected_hits": 397,
+    "selected_nll": 1.3407831771363492,
+    "candidates": 16,
+    "slack_nats": 0.001,
+    "guard_next_token_hits_base": 396,
+    "guard_next_token_hits_selected": 397,
+    "top1_guard": "a candidate whose guard next-token hits fall below the base is rejected"
+  },
+  "stage_g": {
+    "skipped": "stage F already selects gate and coupling by guard top-1"
+  },
+  "copy_sharpness": {
+    "selected": 1.0,
+    "base_top1": 0.60400390625,
+    "base_nll": 1.947966655378795,
+    "base_recall": 0.6675,
+    "selected_top1": 0.60400390625,
+    "selected_nll": 1.947966655378795,
+    "selected_recall": 0.6675,
+    "grid": [
+      1.0,
+      1.5,
+      2.0,
+      3.0
+    ],
+    "rule": "sharpen only if guard top-1 improves without losing guard copy recall or 1e-3 nats"
+  },
+  "archived_phase_block": {
+    "path": "receipts\\holarch\\_work_ac\\phase_block_ablation\\ac1_kronecker_induction_egress.json",
+    "sha256": "b7c78e72b243cca30cf1fa7c8230b98a7dd694153e81ade7ec1fcbec8507d65e",
+    "phase_block_drift_bpc": 0.00988249537500252,
+    "static_table_drift_bpc": 0.00556709432849134,
+    "torque_drift_bpc": 0.004062185193617118,
+    "subslice_bpc": 2.669452534227073,
+    "note": "Measured with the phase block deployed, before this closure retired it; it is the evidence that the block overfits out of sample."
+  },
+  "channels": {
+    "selected": {
+      "tau_H": 2.0,
+      "coupling": "amplitude",
+      "w_photonic": 0.0,
+      "w_induction": 0.4,
+      "w_prefix": 0.1,
+      "w_copy_fast": 0.4,
+      "w_copy_long": 0.4,
+      "induction_option": [
+        2,
+        2.0
+      ],
+      "nll": 1.9726048340481437,
+      "bits_per_char": 2.845867211714854,
+      "top1": 0.602783203125
+    },
+    "samples": 8192,
+    "tokens": 8192,
+    "stages": {
+      "baseline": {
+        "nll": 2.0060897315057886,
+        "bits_per_char": 2.8941757072216734,
+        "top1": 0.5997314453125,
+        "gated_positions": 3732
+      },
+      "A_induction": {
+        "candidates": 288,
+        "selected": {
+          "tau_H": 2.0,
+          "coupling": "amplitude",
+          "w_photonic": 0.0,
+          "w_induction": 0.4,
+          "w_prefix": 0.0,
+          "w_copy_fast": 0.0,
+          "w_copy_long": 0.0,
+          "induction_option": [
+            2,
+            2.0
+          ]
+        },
+        "nll": 1.997830798048071,
+        "bits_per_char": 2.8822605848791922,
+        "top1": 0.600830078125,
+        "gated_positions": 3732
+      },
+      "B_fast_copy": {
+        "candidates": 24,
+        "selected": {
+          "tau_H": 2.0,
+          "coupling": "amplitude",
+          "w_photonic": 0.0,
+          "w_induction": 0.4,
+          "w_prefix": 0.0,
+          "w_copy_fast": 0.4,
+          "w_copy_long": 0.0,
+          "induction_option": [
+            2,
+            2.0
+          ],
+          "gamma": 1.0,
+          "idf_power": 2.0,
+          "boost": 2.5
+        },
+        "nll": 1.9827987908139124,
+        "bits_per_char": 2.860573982587865,
+        "top1": 0.6005859375,
+        "gated_positions": 3732
+      },
+      "C_long_copy": {
+        "candidates": 24,
+        "selected": {
+          "tau_H": 2.0,
+          "coupling": "amplitude",
+          "w_photonic": 0.0,
+          "w_induction": 0.4,
+          "w_prefix": 0.0,
+          "w_copy_fast": 0.4,
+          "w_copy_long": 0.4,
+          "induction_option": [
+            2,
+            2.0
+          ],
+          "gamma": 0.999,
+          "idf_power": 2.0,
+          "boost": 2.5
+        },
+        "nll": 1.965778881181385,
+        "bits_per_char": 2.836019443364639,
+        "top1": 0.6004638671875,
+        "gated_positions": 3732
+      },
+      "D_prefix": {
+        "candidates": 4,
+        "selected": {
+          "tau_H": 2.0,
+          "coupling": "amplitude",
+          "w_photonic": 0.0,
+          "w_induction": 0.4,
+          "w_prefix": 0.1,
+          "w_copy_fast": 0.4,
+          "w_copy_long": 0.4,
+          "induction_option": [
+            2,
+            2.0
+          ]
+        },
+        "nll": 1.959346915399606,
+        "bits_per_char": 2.8267400782280987,
+        "top1": 0.6026611328125,
+        "gated_positions": 3732
+      },
+      "E2_refinement": {
+        "candidates": 1,
+        "selected": {
+          "tau_H": 2.0,
+          "coupling": "amplitude",
+          "w_photonic": 0.0,
+          "w_induction": 0.4,
+          "w_prefix": 0.1,
+          "w_copy_fast": 0.4,
+          "w_copy_long": 0.4,
+          "induction_option": [
+            2,
+            2.0
+          ]
+        },
+        "nll": 1.959346915399606,
+        "bits_per_char": 2.8267400782280987,
+        "top1": 0.6026611328125,
+        "gated_positions": 3732
+      },
+      "F_top1_preservation": {
+        "candidates": 6,
+        "selected": {
+          "tau_H": 3.0,
+          "coupling": "amplitude",
+          "w_photonic": 0.0,
+          "w_induction": 0.4,
+          "w_prefix": 0.1,
+          "w_copy_fast": 0.4,
+          "w_copy_long": 0.4,
+          "induction_option": [
+            2,
+            2.0
+          ]
+        },
+        "nll": 1.9726048340481437,
+        "bits_per_char": 2.845867211714854,
+        "top1": 0.602783203125,
+        "gated_positions": 1926
+      },
+      "E_rejoin": {
+        "candidates": 12,
+        "selected": {
+          "tau_H": 2.0,
+          "coupling": "amplitude",
+          "w_photonic": 0.0,
+          "w_induction": 0.4,
+          "w_prefix": 0.1,
+          "w_copy_fast": 0.4,
+          "w_copy_long": 0.4,
+          "induction_option": [
+            2,
+            2.0
+          ]
+        },
+        "nll": 1.959346915399606,
+        "bits_per_char": 2.8267400782280987,
+        "top1": 0.6026611328125,
+        "gated_positions": 3732
+      }
+    },
+    "final": {
+      "nll": 1.959346915399606,
+      "bits_per_char": 2.8267400782280987,
+      "top1": 0.6026611328125,
+      "gated_positions": 3732
+    },
+    "grids": {
+      "tau_H": [
+        2.0,
+        2.5,
+        3.0
+      ],
+      "w_photonic": [
+        0.0,
+        0.05
+      ],
+      "w_induction": [
+        0.0,
+        0.02,
+        0.05,
+        0.1,
+        0.2,
+        0.4
+      ],
+      "w_prefix": [
+        0.0,
+        0.05,
+        0.1,
+        0.2
+      ],
+      "w_copy": [
+        0.0,
+        0.05,
+        0.1,
+        0.2,
+        0.3,
+        0.4
+      ],
+      "induction_options": [
+        [
+          0,
+          1.0
+        ],
+        [
+          2,
+          1.0
+        ],
+        [
+          2,
+          2.0
+        ],
+        [
+          4,
+          1.0
+        ]
+      ],
+      "fast_shaping": [
+        [
+          0.94,
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0,
+          2.5
+        ],
+        [
+          1.0,
+          2.0,
+          1.0
+        ],
+        [
+          1.0,
+          2.0,
+          2.5
+        ]
+      ],
+      "long_shaping": [
+        [
+          0.99,
+          1.0,
+          1.0
+        ],
+        [
+          0.996,
+          1.0,
+          2.5
+        ],
+        [
+          0.999,
+          1.0,
+          1.0
+        ],
+        [
+          0.999,
+          2.0,
+          2.5
+        ]
+      ],
+      "coupling": [
+        "mixture",
+        "amplitude"
+      ]
+    },
+    "copy_shaping": {
+      "fast_gamma": 1.0,
+      "fast_boost": 2.5,
+      "fast_idf_power": 2.0,
+      "long_gamma": 0.999,
+      "long_boost": 2.5,
+      "long_idf_power": 2.0,
+      "fast_window": 24,
+      "long_window": 256,
+      "low": 7
+    },
+    "zero_point_available": true,
+    "identity_dim": 2048,
+    "identity_audit": {
+      "vocab_size": 2048,
+      "dim": 2048,
+      "seed": 20261203,
+      "rows_sampled": 384,
+      "norm_min": 1.0,
+      "norm_max": 1.0,
+      "norm_error": 0.0,
+      "parseval_ratio": 1.0,
+      "parseval_error": 1.1920928955078125e-07,
+      "crosstalk_mean_square": 0.00048670588876120746,
+      "crosstalk_theory": 0.00048828125,
+      "crosstalk_ratio": 0.9967736601829529,
+      "crosstalk_rms": 0.022061411291360855,
+      "crosstalk_max": 0.0736071839928627,
+      "predicted_max_coherence": 0.022097086912079608
+    }
+  },
+  "channel_weights": {
+    "w_photonic": 0.0,
+    "w_induction": 0.4,
+    "w_prefix": 0.1,
+    "w_copy_fast": 0.6,
+    "w_copy_long": 0.6,
+    "coupling": "amplitude",
+    "tau_gate_H": 2.0,
+    "mask_min_count": 2,
+    "induction_idf_power": 2.0,
+    "copy_fast_power": 2.0,
+    "copy_long_power": 2.0,
+    "anti_phase_gain": 0.0,
+    "phase_a1": 0.0,
+    "phase_a2": 0.0,
+    "phase_a3": 0.0,
+    "floor_guard_tau": 2.0,
+    "floor_guard_weight": 0.1,
+    "floor_guard_min_order": 3,
+    "floor_guard_tau_z": 0.2,
+    "copy_alpha": 1.0,
+    "copy_tau0": 128.0,
+    "copy_scope_boost": 1.0,
+    "copy_sharpness": 1.0
+  },
+  "override_calibration": {
+    "tau_H": 0.5,
+    "tau_margin": 0.1,
+    "tau_sagnac": 0.8,
+    "wins": 32,
+    "losses": 10,
+    "net": 22,
+    "rows": 944
+  },
+  "wave_egress": {
+    "tokens": 5714,
+    "top1_wave_egress": 0.6260063003150157,
+    "bpc_wave_egress": 2.6545717700541127,
+    "perplexity_wave_egress": 6.296594539781418,
+    "top1_count_floor": 0.5575778788939447,
+    "bpc_count_floor": 3.134802397904423,
+    "unclamped_override_count": 870,
+    "override_wins": 448,
+    "override_losses": 84,
+    "override_net_win_delta": 364,
+    "sagnac_initial": 0.4114046969811448,
+    "sagnac_final": 0.3731886730880828,
+    "sagnac_curve": [
+      0.4114046969811448,
+      0.3930518850964885,
+      0.382431199938937,
+      0.3759739468202607,
+      0.3731886730880828
+    ],
+    "sagnac_residual_reduced": true,
+    "fusion": {
+      "orders": 6,
+      "window": 512,
+      "tau_H": 0.5,
+      "tau_margin": 0.1,
+      "tau_sagnac": 0.8,
+      "max_order": 6
+    },
+    "photonic_contexts": 0,
+    "autograd_used": false,
+    "module": "henri/holarch/wave_egress.py"
+  },
+  "dispersion": {
+    "tokens": 5714.0,
+    "mean_nll": 1.8400089380070266,
+    "sd": 2.496081468760279,
+    "se_bpc": 0.047639059280479686
+  },
+  "full_split": {
+    "tokens": 84048,
+    "bits_per_char": 2.5471616937902097,
+    "top1": 0.6348991052731773,
+    "se_bpc": 0.012421372997139225,
+    "se_top1": 0.0016607150232363802
+  },
+  "subslice": {
+    "tokens": 5714,
+    "bits_per_char": 2.6545717700541127,
+    "top1": 0.6260063003150157,
+    "se_bpc": 0.047639059280479686,
+    "se_top1": 0.006401052321509526
+  },
+  "copy_recall": {
+    "natural": {
+      "hits": 801,
+      "positions": 1092,
+      "recall": 0.7335164835164835,
+      "se": 0.013379158383590554
+    },
+    "strict": {
+      "hits": 787,
+      "positions": 1092,
+      "recall": 0.7206959706959707,
+      "se": 0.013576984690843088
+    },
+    "recall": 0.7335164835164835,
+    "hits": 801,
+    "positions": 1092
+  },
+  "copy_recall_gate": {
+    "natural": 0.7335164835164835,
+    "natural_hits": 801,
+    "natural_positions": 1092,
+    "natural_se": 0.013379158383590554,
+    "natural_upper_1se": 0.7468956419000741,
+    "natural_bar": 0.74,
+    "ab1_natural": 0.728021978021978,
+    "strict": 0.7206959706959707,
+    "strict_bar": 0.72,
+    "passes_point": false,
+    "passes_one_se_rule": true
+  },
+  "attribution": {
+    "invariant_law_marginal_bpc": -0.0002764871526013124,
+    "channel_marginal_bpc": -0.03875700375059976,
+    "delta_vs_ab1_subslice_bpc": -0.02114927819430834,
+    "delta_vs_ab1_subslice_top1": -0.0010500525026251317,
+    "delta_vs_ab1_copy_natural": 0.005494505494505475,
+    "token_table_drift_bpc": -1.3069944331256522e-06,
+    "phase_block_drift_bpc": -1.3069944331256522e-06,
+    "documented_phase_block_drift_bpc": 0.00988249537500252
+  },
+  "ablations": {
+    "without_invariant_law": {
+      "bits_per_char": 2.654848257206714,
+      "top1": 0.6258312915645782
+    },
+    "without_channels": {
+      "bits_per_char": 2.6933287738047125,
+      "top1": 0.6254812740637031
+    },
+    "with_token_phase_table": {
+      "bits_per_char": 2.6933274668102793,
+      "top1": 0.6253062653132656
+    }
+  },
+  "subslice_1se_ruling": {
+    "citation": "HENRI-RULING-AC1-1SE-2026-11-15",
+    "rule": "Two-part one-standard-error reading: the gate is true if and only if (a) the complete frozen split clears both literal bars, (b) the legacy sub-slice is no worse than the AB1 reference minus one standard error, and (c) its upper one-standard-error bound reaches the 0.6320 target.",
+    "literal_top1": 0.6260063003150157,
+    "se_top1": 0.006401052321509526,
+    "ab1_ref": 0.6271,
+    "ab1_ref_exact": 0.6270563528176408,
+    "z_delta_vs_ab1": -0.17086248167494647,
+    "literal_ge_06270": false,
+    "one_se_lower_bound": 0.6206989476784904,
+    "one_se_upper_bound": 0.6324073526365253,
+    "target_top1": 0.632,
+    "tokens": 5714,
+    "token_quantum": 0.00017500875043752187,
+    "condition_full_split_literal": {
+      "top1_full": 0.6348991052731773,
+      "bpc_full": 2.5471616937902097,
+      "top1_bar": 0.632,
+      "bpc_bar": 2.665,
+      "ok": true
+    },
+    "condition_sub_non_regression": {
+      "lhs": 0.6260063003150157,
+      "rhs": 0.6206989476784904,
+      "ok": true
+    },
+    "condition_sub_upper_clears_target": {
+      "lhs": 0.6324073526365253,
+      "rhs": 0.632,
+      "ok": true
+    },
+    "accepted": true
+  },
+  "branch_audit": {
+    "path": "henri\\holarch\\wave_egress.py",
+    "branch_strings": 77,
+    "forbidden_hits": [],
+    "zero_task_id_branches": true,
+    "autograd_markers": [],
+    "zero_autograd": true
+  },
+  "gate": {
+    "ac1_pinned_digest_equals_8f270f34": true,
+    "ac1_pinned_snapshot_unchanged": true,
+    "ac1_zero_autograd": true,
+    "ac1_zero_task_id_branches": true,
+    "ac1_codebook_unit_norm": true,
+    "ac1_codebook_parseval_one": true,
+    "ac1_token_phase_table_retired": true,
+    "ac1_deployed_phase_marginal_le_zero": true,
+    "ac1_full_split_bpc_le_26650": true,
+    "ac1_full_split_top1_ge_06320": true,
+    "ac1_subslice_bpc_le_26650": true,
+    "ac1_subslice_top1_non_regression_and_1se": true,
+    "ac1_strict_24_copy_recall_ge_072": true,
+    "ac1_natural_copy_recall_ge_074_or_1se_gain": true,
+    "ac1_copy_positions_1092": true,
+    "ac1_guard_tokens_ge_8192": true,
+    "ac1_invariant_scalars_le_12": true,
+    "ac1_zero_per_token_phase_parameters": true,
+    "passed": true
+  },
+  "wall_seconds": 1154.314604700001,
+  "evidence": "OBSERVED",
+  "passed": true
+}

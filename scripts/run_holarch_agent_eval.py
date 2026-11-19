@@ -5958,15 +5958,47 @@ def run_agent_eval(
                  and str(_z2_doctest.returns) == "bool"),
             evidence="henri.holarch.cold_synth.parse_problem on HumanEval/0",
         )
+        # Cycle AC closure C2B: this probe asserted the Z2 limitation that a
+        # prose-only prompt yields no public examples.  Cycle AA2 built
+        # henri/holarch/prose_examples.py precisely to remove that limitation
+        # (HOLARCH.md Section 42.3), and the Cycle AC4 standalone coding slice
+        # depends on it working.  The contract now verifies the authoritative
+        # AA2 boundary in its two halves: literal prose yields verifiable
+        # examples, and example-free prose still abstains fail-closed.
         _z2_prose = _z2_parse(str(_z2_by_id["HumanEval/101"]["prompt"]))
+        from henri.holarch.prose_examples import extract as _aa2_extract
+        from henri.holarch.cold_synth import ColdSynthesizer as _aa2_synth
+
+        _aa2_literal = _aa2_extract(
+            "Example: add(1, 2) == 3\nAlso add(4, 5) -> 9\n", "add", ["a", "b"]
+        )
+        _aa2_empty = _aa2_extract("add two numbers together", "add", ["a", "b"])
+        _aa2_refusal = _aa2_synth().synthesize(
+            "def add_numbers(a, b):\n    \"\"\"Add the two values together.\"\"\"\n"
+        )
+        _aa2_abstain = bool(
+            str(_aa2_refusal.get("status")) == "ABSTAIN"
+            and str(_aa2_refusal.get("reason")) == "no_verifiable_io_examples"
+        )
         _record_probe(
             "z2_prose_prompt_has_no_public_examples",
             "z2_external_synth",
-            "a prose-only prompt yields an empty public evidence set, which is why the Z4 rule abstains on it",
-            {"name": str(_z2_prose.name), "assertions": int(len(_z2_prose.assertions)),
-             "min_public_examples": 2},
-            bool(len(_z2_prose.assertions) == 0),
-            evidence="the vacuous-verification hazard the Z4 fail-closed rule removes",
+            "the AA2 prose boundary holds: literal prose yields verifiable examples, example-free prose abstains closed",
+            {
+                "name": str(_z2_prose.name),
+                "assertions": int(len(_z2_prose.assertions)),
+                "literal_examples": int(len(_aa2_literal["assertions"])),
+                "empty_examples": int(len(_aa2_empty["assertions"])),
+                "empty_reason": str(_aa2_empty.get("reason", "")),
+                "abstained": _aa2_abstain,
+                "abstain_reason": str(_aa2_refusal.get("reason", "")),
+            },
+            bool(
+                len(_aa2_literal["assertions"]) >= 1
+                and len(_aa2_empty["assertions"]) == 0
+                and _aa2_abstain
+            ),
+            evidence="Cycle AA2 prose_examples.extract, superseding the Z2 limitation (HOLARCH.md 42.3)",
         )
         from henri.holarch.cold_synth import ColdSynthesizer as _z2_synth
 
@@ -6150,6 +6182,523 @@ def run_agent_eval(
 
     _mark("Z probes done")
 
+    # =================== Cycle AC closure: 16 deterministic probes =========
+    # Four probes per Cycle AC stage: AC1 (orthogonal exact-ID induction, the
+    # IDF copy law, the codebook Parseval and cross-talk laws), AC2 (the joint
+    # MDL/sheaf composition selector), AC3 (external multi-scale object
+    # induction under the leave-one-out gate) and AC4/AC5 (the atomic spend
+    # guard and the receipt digest).  Every probe is measured in this process
+    # on fixed inputs; none of them reads a file at query time and none of them
+    # quotes a number from a receipt.
+
+    try:
+        from henri.holarch.wave_egress import (
+            OrthogonalExactCodebook as _ac1_codebook_cls,
+            document_frequencies as _ac1_df,
+            inverse_document_frequencies as _ac1_idf,
+        )
+
+        _ac1_codebook = _ac1_codebook_cls(2048, dim=2048, seed=20261203)
+        _ac1_audit = _ac1_codebook.audit(samples=128)
+        _ac1_roundtrip_counts = np.zeros(2048, dtype=np.float32)
+        for _ac1_token, _ac1_weight in ((7, 3.0), (19, 1.0), (1024, 2.0), (2047, 1.0)):
+            _ac1_roundtrip_counts[int(_ac1_token)] = float(_ac1_weight)
+        _ac1_scores = _ac1_codebook.project(_ac1_roundtrip_counts)
+        _ac1_top = int(np.argmax(_ac1_scores))
+        _ac1_gap = float(np.sort(_ac1_scores)[-1] - np.sort(_ac1_scores)[-2])
+        _record_probe(
+            "ac1_codebook_exact_identity_roundtrip",
+            "ac1_kronecker",
+            "the orthogonal exact-ID codebook recovers the dominant token of a "
+            "superposition and every row is a unit phasor",
+            {"vocab_size": 2048, "dim": 2048, "seed": 20261203,
+             "norm_error": float(_ac1_audit["norm_error"]),
+             "norm_min": float(_ac1_audit["norm_min"]),
+             "norm_max": float(_ac1_audit["norm_max"]),
+             "dominant_token": _ac1_top,
+             "top_score": float(np.max(_ac1_scores)),
+             "runner_up_gap": _ac1_gap},
+            bool(
+                int(_ac1_audit["vocab_size"]) == 2048
+                and float(_ac1_audit["norm_error"]) <= 1e-6
+                and _ac1_top == 7
+                and _ac1_gap > 0.0
+            ),
+            evidence="henri.holarch.wave_egress.OrthogonalExactCodebook.project",
+        )
+        _record_probe(
+            "ac1_codebook_parseval_one",
+            "ac1_kronecker",
+            "the unitary DFT of every sampled codebook row preserves energy at "
+            "ratio 1.000000",
+            {"parseval_ratio": float(_ac1_audit["parseval_ratio"]),
+             "parseval_error": float(_ac1_audit["parseval_error"]),
+             "rows_sampled": int(_ac1_audit["rows_sampled"])},
+            bool(
+                int(_ac1_audit["rows_sampled"]) >= 64
+                and float(_ac1_audit["parseval_error"]) <= 1e-5
+                and abs(float(_ac1_audit["parseval_ratio"]) - 1.0) <= 1e-6
+            ),
+            evidence="the audit the AC1 receipt gates on",
+        )
+        _record_probe(
+            "ac1_codebook_crosstalk_law",
+            "ac1_kronecker",
+            "the measured mean-square cross-talk of distinct codebook rows is "
+            "1/D times the qFHRR constant",
+            {"crosstalk_mean_square": float(_ac1_audit["crosstalk_mean_square"]),
+             "crosstalk_theory": float(_ac1_audit["crosstalk_theory"]),
+             "crosstalk_ratio": float(_ac1_audit["crosstalk_ratio"]),
+             "crosstalk_rms": float(_ac1_audit["crosstalk_rms"])},
+            bool(
+                0.5 <= float(_ac1_audit["crosstalk_ratio"]) <= 1.5
+                and float(_ac1_audit["crosstalk_rms"]) <= 0.1
+            ),
+            evidence="E|Re<chi(u), chi(v)>|^2 = 1/D for u != v",
+        )
+        _ac1_segments = [[0, 1, 2], [0, 1], [0, 3], [0, 2]]
+        _ac1_freq = _ac1_df(_ac1_segments, 4)
+        _ac1_weights = _ac1_idf(_ac1_freq, 4)
+        _ac1_expected = np.log(
+            (1.0 + float(_ac1_freq["documents"]))
+            / (1.0 + np.asarray(_ac1_freq["counts"], dtype=np.float64))
+        ) + 1.0
+        _ac1_counts = [float(_ac1_freq["counts"][i]) for i in range(4)]
+        _record_probe(
+            "ac1_idf_copy_law",
+            "ac1_kronecker",
+            "the smoothed IDF is exactly log((1+N)/(1+df))+1 and strictly falls as "
+            "document frequency rises",
+            {"documents": float(_ac1_freq["documents"]),
+             "counts": _ac1_counts,
+             "idf": [float(_ac1_weights[i]) for i in range(4)],
+             "expected": [float(_ac1_expected[i]) for i in range(4)],
+             "max_abs_error": float(np.max(np.abs(_ac1_weights - _ac1_expected)))},
+            bool(
+                float(np.max(np.abs(_ac1_weights - _ac1_expected))) <= 1e-12
+                and _ac1_counts[0] == 4.0
+                and _ac1_counts[1] == _ac1_counts[2] == 2.0
+                and _ac1_counts[3] == 1.0
+                and float(_ac1_weights[0]) < float(_ac1_weights[1]) < float(_ac1_weights[3])
+                and abs(float(_ac1_weights[0]) - 1.0) <= 1e-12
+            ),
+            evidence="henri.holarch.wave_egress.inverse_document_frequencies",
+        )
+    except Exception as _error:  # noqa: BLE001
+        _record_probe("ac1_codebook_exact_identity_roundtrip", "ac1_kronecker",
+                      "the AC1 identity codebook is unitary",
+                      {"error": f"{type(_error).__name__}: {_error}"}, False)
+
+    try:
+        from henri.holarch import joint_selector as _ac2_js
+
+        _ac2_intent = (
+            "Write a function pick that takes argument text and first returns the "
+            "number of distinct characters in the text then returns True when that "
+            "number is a perfect square."
+        )
+        _ac2_single = "def pick(text):\n    return len(set(text))\n"
+        _ac2_redundant = (
+            "def _z2_stage_1(value):\n    return len(set(value))\n\n\n"
+            "def _z2_stage_2(value):\n    return sorted(value)[1] if value else value\n\n\n"
+            "def pick(text):\n    return _z2_stage_2(_z2_stage_1(text))\n"
+        )
+        _ac2_needed = (
+            "def count_distinct_characters(value):\n    return len(set(value))\n\n\n"
+            "def is_perfect_square(value):\n    root = int(value ** 0.5)\n"
+            "    return root * root == value\n\n\n"
+            "def pick(text):\n    return is_perfect_square(count_distinct_characters(text))\n"
+        )
+        _ac2_constant = "def pick(text):\n    return False\n"
+        _ac2_candidates = [
+            {"label": "adapt:is_decimal", "kind": "single", "names": ["is_decimal"],
+             "source": _ac2_constant, "verified": True, "sheaf_violations": 0},
+            {"label": "adapt:count_distinct_characters", "kind": "single",
+             "names": ["count_distinct_characters"], "source": _ac2_single,
+             "verified": True, "sheaf_violations": 0},
+            {"label": "compose:count_distinct_characters+second_smallest",
+             "kind": "compose",
+             "names": ["count_distinct_characters", "second_smallest"],
+             "source": _ac2_redundant, "verified": True, "sheaf_violations": 0},
+            {"label": "dag:count_distinct_characters+is_perfect_square",
+             "kind": "compose",
+             "names": ["count_distinct_characters", "is_perfect_square"],
+             "source": _ac2_needed, "verified": True, "sheaf_violations": 0},
+            {"label": "compose:is_perfect_square+count_distinct_characters",
+             "kind": "compose",
+             "names": ["is_perfect_square", "count_distinct_characters"],
+             "source": _ac2_needed, "verified": True, "sheaf_violations": 1},
+        ]
+        _ac2_idf = _ac2_js.PromptIDF.from_intents(
+            [_ac2_intent,
+             "Write a function that returns the sha256 field of an epistemic receipt.",
+             "Write a function that returns the arithmetic mean of a list of floats.",
+             "Write a function that clips a number into a closed interval."],
+            source="ac2_probe_prompts",
+        )
+        _ac2_clauses = int(_ac2_js.discourse_report(_ac2_intent)["clause_count"])
+        _ac2_table = _ac2_js.score_table(
+            _ac2_intent, _ac2_clauses, _ac2_candidates, _ac2_idf
+        )
+        _ac2_rows = {str(row["label"]): row for row in _ac2_table["rows"]}
+        _ac2_single_row = _ac2_rows["adapt:count_distinct_characters"]
+        _ac2_redundant_row = _ac2_rows["compose:count_distinct_characters+second_smallest"]
+        _ac2_needed_row = _ac2_rows["dag:count_distinct_characters+is_perfect_square"]
+        _ac2_masked_row = _ac2_rows["compose:is_perfect_square+count_distinct_characters"]
+        _ac2_public = ["assert pick('abc') == False", "assert pick('abcde') == False"]
+        _ac2_hidden = "assert pick('aabbccdd') == True"
+
+        def _ac2_exec(source_text, tests):
+            scope = {"__builtins__": __builtins__}
+            try:
+                exec(str(source_text), scope)
+                for _line in tests:
+                    exec(str(_line), scope)
+            except Exception as _failure:  # noqa: BLE001 - the failure is the measurement
+                return False, f"{type(_failure).__name__}: {_failure}"
+            return True, ""
+
+        _ac2_constant_public = _ac2_exec(_ac2_constant, _ac2_public)
+        _ac2_constant_hidden = _ac2_exec(_ac2_constant, [_ac2_hidden])
+        _ac2_needed_public = _ac2_exec(_ac2_needed, _ac2_public)
+        _ac2_needed_hidden = _ac2_exec(_ac2_needed, [_ac2_hidden])
+        _ac2_chosen = str((_ac2_table["chosen"] or {}).get("label", ""))
+        _ac2_first = str((_ac2_table["first_pass"] or {}).get("label", ""))
+        _record_probe(
+            "ac2_joint_rejects_redundant_stage",
+            "ac2_mdl_sheaf",
+            "a second stage that covers nothing new loses to the single adaptation "
+            "on J because MDL charges its nodes",
+            {"lambda_mdl": float(_ac2_table["lambda_mdl"]),
+             "clause_count": int(_ac2_clauses),
+             "redundant_delta_residue": float(_ac2_redundant_row["delta_residue"]),
+             "redundant_j": float(_ac2_redundant_row["j"]),
+             "single_j": float(_ac2_single_row["j"]),
+             "margin": float(_ac2_redundant_row["j"]) - float(_ac2_single_row["j"])},
+            bool(
+                float(_ac2_redundant_row["delta_residue"]) <= 1e-12
+                and int(_ac2_redundant_row["ast_nodes"]) > int(_ac2_single_row["ast_nodes"])
+                and float(_ac2_redundant_row["j"]) < float(_ac2_single_row["j"])
+            ),
+            evidence="J(h) = Cov_IDF + eta*DeltaResidue_IDF - lambda_MDL*|h|_AST",
+        )
+        _record_probe(
+            "ac2_joint_accepts_needed_stage",
+            "ac2_mdl_sheaf",
+            "a composition that covers the second clause outranks the single "
+            "adaptation on J",
+            {"needed_delta_residue": float(_ac2_needed_row["delta_residue"]),
+             "needed_j": float(_ac2_needed_row["j"]),
+             "single_j": float(_ac2_single_row["j"]),
+             "needed_ast_nodes": int(_ac2_needed_row["ast_nodes"]),
+             "single_ast_nodes": int(_ac2_single_row["ast_nodes"])},
+            bool(
+                float(_ac2_needed_row["delta_residue"]) > 0.0
+                and float(_ac2_needed_row["j"]) > float(_ac2_single_row["j"])
+            ),
+            evidence="the residue gain has to beat the MDL charge",
+        )
+        _record_probe(
+            "ac2_sheaf_masks_incompatible_composition",
+            "ac2_mdl_sheaf",
+            "a candidate with a non-zero RepoSheaf energy is not admissible even "
+            "at the top coverage",
+            {"masked_label": str(_ac2_masked_row["label"]),
+             "masked_sheaf_energy": int(_ac2_masked_row["sheaf_energy"]),
+             "masked_cov_idf": float(_ac2_masked_row["cov_idf"]),
+             "masked_admissible": bool(_ac2_masked_row["admissible"]),
+             "chosen_label": _ac2_chosen},
+            bool(
+                int(_ac2_masked_row["sheaf_energy"]) > 0
+                and not bool(_ac2_masked_row["admissible"])
+                and _ac2_chosen != str(_ac2_masked_row["label"])
+            ),
+            evidence="E_sheaf == 0 is a hard admissibility gate, not a tie-break",
+        )
+        _record_probe(
+            "ac2_joint_beats_first_pass_on_hidden",
+            "ac2_mdl_sheaf",
+            "the first admissible candidate passes both public examples and fails "
+            "the hidden one; the joint argmax passes both",
+            {"first_pass": _ac2_first, "chosen": _ac2_chosen,
+             "constant_public": bool(_ac2_constant_public[0]),
+             "constant_hidden": bool(_ac2_constant_hidden[0]),
+             "needed_public": bool(_ac2_needed_public[0]),
+             "needed_hidden": bool(_ac2_needed_hidden[0]),
+             "delta_residue": float(_ac2_needed_row["delta_residue"])},
+            bool(
+                _ac2_first == "adapt:is_decimal"
+                and _ac2_chosen == "dag:count_distinct_characters+is_perfect_square"
+                and bool(_ac2_constant_public[0]) and not bool(_ac2_constant_hidden[0])
+                and bool(_ac2_needed_public[0]) and bool(_ac2_needed_hidden[0])
+            ),
+            evidence="both candidates executed on the public and the hidden example",
+        )
+    except Exception as _error:  # noqa: BLE001
+        _record_probe("ac2_joint_rejects_redundant_stage", "ac2_mdl_sheaf",
+                      "the joint selector is auditable",
+                      {"error": f"{type(_error).__name__}: {_error}"}, False)
+
+    try:
+        from henri.holarch import arc_objects as _ac3_ao
+        from henri.holarch.arc_objects import ObjectLooInducer as _ac3_loo
+        from henri.holarch.spatial_induction import as_grid as _ac3_as_grid
+
+        def _ac3_run(train_pairs, test_in, budget_nodes=60000, seconds=8.0):
+            engine = _ac3_loo(node_budget=int(budget_nodes), head_cap=16, depth=2,
+                              time_budget=float(seconds))
+            seen = []
+            original = _ac3_ao.apply_chain
+
+            def spy(ops, grid):
+                value = original(ops, grid)
+                seen.append((list(ops), value))
+                return value
+
+            _ac3_ao.apply_chain = spy
+            try:
+                outcome = engine.induce(train_pairs, [(test_in, test_in)])
+            finally:
+                _ac3_ao.apply_chain = original
+            grid = None
+            if str(outcome["status"]) == "INDUCED" and seen:
+                ops, value = seen[-1]
+                if [str(op.label()) for op in ops] == [str(x) for x in outcome["chain"]]:
+                    grid = value
+            return outcome, grid
+
+        def _ac3_exact(grid, expected):
+            return bool(grid is not None and grid.shape == expected.shape
+                        and np.array_equal(grid, expected))
+
+        _ac3_a = _ac3_as_grid(np.array([[1, 0], [0, 2]], dtype=np.int64))
+        _ac3_b = _ac3_as_grid(np.array([[0, 3], [4, 0]], dtype=np.int64))
+        _ac3_c = _ac3_as_grid(np.array([[5, 0, 5], [0, 6, 0], [5, 0, 5]], dtype=np.int64))
+        _ac3_mirror_train = [
+            (_ac3_a, _ac3_ao.op_mirror_tile(_ac3_a, 2, 2, "rows")),
+            (_ac3_b, _ac3_ao.op_mirror_tile(_ac3_b, 2, 2, "rows")),
+        ]
+        _ac3_mirror_truth = _ac3_ao.op_mirror_tile(_ac3_c, 2, 2, "rows")
+        _ac3_mirror_out, _ac3_mirror_grid = _ac3_run(_ac3_mirror_train, _ac3_c)
+        _record_probe(
+            "ac3_loo_induces_mirror_tile",
+            "ac3_external_arc",
+            "two demonstration pairs are enough to recover a 2x2 mirror tiling and "
+            "predict a held-out grid exactly",
+            {"status": str(_ac3_mirror_out["status"]),
+             "chain": [str(x)[:48] for x in _ac3_mirror_out["chain"]],
+             "nodes": int(_ac3_mirror_out["nodes"]),
+             "loo_passed": bool(_ac3_mirror_out.get("loo_passed", False)),
+             "exact": _ac3_exact(_ac3_mirror_grid, _ac3_mirror_truth)},
+            bool(
+                str(_ac3_mirror_out["status"]) == "INDUCED"
+                and bool(_ac3_mirror_out.get("loo_passed", False))
+                and str(_ac3_mirror_out["chain"][0]).startswith("mirror_tile")
+                and _ac3_exact(_ac3_mirror_grid, _ac3_mirror_truth)
+            ),
+            evidence="henri.holarch.arc_objects.ObjectLooInducer",
+        )
+        _ac3_kron_train = [
+            (_ac3_a, _ac3_ao.op_kron_fractal(_ac3_a, 2, 2)),
+            (_ac3_b, _ac3_ao.op_kron_fractal(_ac3_b, 2, 2)),
+        ]
+        _ac3_kron_truth = _ac3_ao.op_kron_fractal(_ac3_c, 2, 2)
+        _ac3_kron_out, _ac3_kron_grid = _ac3_run(_ac3_kron_train, _ac3_c)
+        _record_probe(
+            "ac3_loo_induces_kron_fractal",
+            "ac3_external_arc",
+            "the depth-1 search recovers a self-Kronecker fractal tiling and "
+            "predicts the held-out grid exactly",
+            {"status": str(_ac3_kron_out["status"]),
+             "chain": [str(x)[:48] for x in _ac3_kron_out["chain"]],
+             "nodes": int(_ac3_kron_out["nodes"]),
+             "exact": _ac3_exact(_ac3_kron_grid, _ac3_kron_truth)},
+            bool(
+                str(_ac3_kron_out["status"]) == "INDUCED"
+                and str(_ac3_kron_out["chain"][0]).startswith("kron_fractal")
+                and _ac3_exact(_ac3_kron_grid, _ac3_kron_truth)
+            ),
+            evidence="the AC3 dimension-morphism family",
+        )
+        _ac3_contradiction = [
+            (_ac3_a, _ac3_ao.op_dihedral(_ac3_a, 1)),
+            (_ac3_a, _ac3_ao.op_dihedral(_ac3_a, 4)),
+        ]
+        _ac3_bad_out, _ac3_bad_grid = _ac3_run(_ac3_contradiction, _ac3_c)
+        _record_probe(
+            "ac3_loo_refuses_contradiction",
+            "ac3_external_arc",
+            "one input with two declared outputs is refused with no emission",
+            {"status": str(_ac3_bad_out["status"]),
+             "reason": str(_ac3_bad_out["reason"])[:80],
+             "nodes": int(_ac3_bad_out["nodes"]),
+             "emitted_grid": _ac3_bad_grid is not None},
+            bool(
+                str(_ac3_bad_out["status"]) == "ABSTAIN"
+                and _ac3_bad_grid is None
+                and not bool(_ac3_bad_out.get("loo_passed", False))
+            ),
+            evidence="the fail-closed refusal the Z4/AC4 ARC trap relies on",
+        )
+        _ac3_dihedral_truth = _ac3_as_grid(np.rot90(_ac3_c, 2))
+        _ac3_pad_input = _ac3_as_grid(np.array([[2, 3], [4, 5]], dtype=np.int64))
+        _ac3_pad_truth = _ac3_ao.op_pad_edges(_ac3_pad_input, 1, 0)
+        _ac3_cases = [
+            (_ac3_mirror_train, _ac3_c, _ac3_mirror_truth),
+            (_ac3_kron_train, _ac3_c, _ac3_kron_truth),
+            ([( _ac3_a, _ac3_as_grid(np.rot90(_ac3_a, 2))),
+              (_ac3_b, _ac3_as_grid(np.rot90(_ac3_b, 2)))], _ac3_c, _ac3_dihedral_truth),
+            ([( _ac3_as_grid(np.array([[1, 2], [3, 4]], dtype=np.int64)),
+                _ac3_ao.op_pad_edges(
+                    _ac3_as_grid(np.array([[1, 2], [3, 4]], dtype=np.int64)), 1, 0)),
+               (_ac3_as_grid(np.array([[5, 6, 7], [8, 9, 1]], dtype=np.int64)),
+                _ac3_ao.op_pad_edges(
+                    _ac3_as_grid(np.array([[5, 6, 7], [8, 9, 1]], dtype=np.int64)), 1, 0))],
+             _ac3_pad_input, _ac3_pad_truth),
+        ]
+        _ac3_emitted = 0
+        _ac3_correct = 0
+        _ac3_detail = []
+        for _train, _test_in, _truth in _ac3_cases:
+            _out, _grid = _ac3_run(_train, _test_in)
+            if str(_out["status"]) == "INDUCED":
+                _ac3_emitted += 1
+                _ac3_correct += int(_ac3_exact(_grid, _truth))
+                _ac3_detail.append({"chain": [str(x)[:32] for x in _out["chain"]],
+                                    "exact": _ac3_exact(_grid, _truth)})
+            else:
+                _ac3_detail.append({"chain": [], "exact": False,
+                                    "reason": str(_out["reason"])[:40]})
+        _record_probe(
+            "ac3_loo_precision_on_four",
+            "ac3_external_arc",
+            "over four declared multi-scale tasks every emitted program is exact "
+            "on the held-out grid, so the emitted precision is 1.0000",
+            {"tasks": len(_ac3_cases), "emitted": int(_ac3_emitted),
+             "exact": int(_ac3_correct),
+             "precision": float(_ac3_correct / max(_ac3_emitted, 1)),
+             "rows": _ac3_detail},
+            bool(
+                _ac3_emitted >= 3
+                and _ac3_correct == _ac3_emitted
+                and len(_ac3_detail) == len(_ac3_cases)
+            ),
+            evidence="an honest abstention is not an error; a wrong emission is",
+        )
+    except Exception as _error:  # noqa: BLE001
+        _record_probe("ac3_loo_induces_mirror_tile", "ac3_external_arc",
+                      "the object leave-one-out inducer recovers a declared tiling",
+                      {"error": f"{type(_error).__name__}: {_error}"}, False)
+
+    try:
+        from henri.holarch.spend_guard import (
+            SpendGuard as _ac4_guard_cls,
+            SpendGuardError as _ac4_guard_error,
+        )
+
+        _ac4_lock_root = Path(scratch_dir) / "ac4_probe_locks"
+        _ac4_lock_root.mkdir(parents=True, exist_ok=True)
+        _ac4_lock_a = _ac4_lock_root / "duplicate.lock"
+        for _stale in (_ac4_lock_a,):
+            try:
+                _stale.unlink()
+            except OSError:
+                pass
+        _ac4_holder = _ac4_guard_cls(_ac4_lock_a, budget=5, label="probe-holder")
+        _ac4_holder.acquire()
+        _ac4_second = _ac4_guard_cls(_ac4_lock_a, budget=5, label="probe-second")
+        _ac4_refused = False
+        try:
+            _ac4_second.acquire()
+        except _ac4_guard_error:
+            _ac4_refused = True
+        _ac4_holder.release()
+        _record_probe(
+            "ac4_spend_guard_duplicate_refused",
+            "ac4_backend_cascade",
+            "a second runner on the same lock is refused before it can spend",
+            {"refused": bool(_ac4_refused), "second_calls": int(_ac4_second.calls),
+             "second_acquired": bool(_ac4_second.acquired),
+             "holder_released": bool(_ac4_holder.acquired is False)},
+            bool(_ac4_refused and int(_ac4_second.calls) == 0
+                 and not bool(_ac4_second.acquired)),
+            evidence="henri.holarch.spend_guard.SpendGuard.acquire",
+        )
+        _ac4_lock_b = _ac4_lock_root / "budget.lock"
+        try:
+            _ac4_lock_b.unlink()
+        except OSError:
+            pass
+        _ac4_budget_guard = _ac4_guard_cls(_ac4_lock_b, budget=2, label="probe-budget")
+        _ac4_budget_guard.acquire()
+        _ac4_budget_guard.spend()
+        _ac4_budget_guard.spend()
+        _ac4_overrun = False
+        try:
+            _ac4_budget_guard.spend()
+        except _ac4_guard_error:
+            _ac4_overrun = True
+        _ac4_report = _ac4_budget_guard.report()
+        _ac4_budget_guard.release()
+        _record_probe(
+            "ac4_spend_guard_budget_enforced",
+            "ac4_backend_cascade",
+            "a 2-call guard admits exactly two calls and raises before the third",
+            {"calls": int(_ac4_report["calls"]), "budget": int(_ac4_report["budget"]),
+             "overrun_refused": bool(_ac4_overrun),
+             "remaining": int(_ac4_report["remaining"])},
+            bool(int(_ac4_report["calls"]) == 2 and int(_ac4_report["budget"]) == 2
+                 and _ac4_overrun and int(_ac4_report["remaining"]) == 0),
+            evidence="the hard counter the AC4 escalation path spends against",
+        )
+        _ac4_lock_c = _ac4_lock_root / "stale.lock"
+        _ac4_lock_c.write_text(
+            json.dumps({"pid": 999999, "started": 0.0, "label": "dead"}), encoding="utf-8"
+        )
+        _ac4_stale_guard = _ac4_guard_cls(_ac4_lock_c, budget=3, label="probe-stale")
+        _ac4_reclaimed = False
+        try:
+            _ac4_stale_guard.acquire()
+            _ac4_reclaimed = bool(_ac4_stale_guard.reclaimed_stale)
+        finally:
+            _ac4_stale_guard.release()
+        _record_probe(
+            "ac4_spend_guard_stale_lock_reclaimed",
+            "ac4_backend_cascade",
+            "a lockfile whose pid no longer exists is reclaimed once, not deadlocked",
+            {"reclaimed_stale": bool(_ac4_reclaimed),
+             "acquired": bool(_ac4_stale_guard.acquired is False)},
+            bool(_ac4_reclaimed),
+            evidence="the stale-lock path of the same guard",
+        )
+        from henri.holarch.server import ReceiptLedger as _ac4_ledger_cls
+
+        _ac4_ledger = _ac4_ledger_cls()
+        _ac4_receipt = _ac4_ledger.issue(
+            "/v1/ac4-probe", {"probe": "digest"}, {"ok": True}
+        )
+        _ac4_before = bool(verify_receipt(_ac4_receipt))
+        _ac4_tampered = json.loads(json.dumps(_ac4_receipt))
+        _ac4_tampered["result"] = {"ok": False}
+        _ac4_after = bool(verify_receipt(_ac4_tampered))
+        _record_probe(
+            "ac4_receipt_digest_recomputed",
+            "ac4_backend_cascade",
+            "a receipt verifies against its own digest and stops verifying when one "
+            "field is edited",
+            {"valid_before": bool(_ac4_before), "valid_after_edit": bool(_ac4_after),
+             "sha256": str(_ac4_receipt["sha256"])[:16],
+             "chain_length": int(_ac4_ledger.count)},
+            bool(_ac4_before and not _ac4_after),
+            evidence="henri.holarch.server.verify_receipt",
+        )
+    except Exception as _error:  # noqa: BLE001
+        _record_probe("ac4_spend_guard_duplicate_refused", "ac4_backend_cascade",
+                      "the atomic spend guard refuses a duplicate runner",
+                      {"error": f"{type(_error).__name__}: {_error}"}, False)
+
+    _mark("AC probes done")
+
     _mark("U probes done")
 
     _mark("T probes done")
@@ -6260,6 +6809,10 @@ def run_agent_eval(
             "z2_external_synth": 4,
             "z3_spatial": 4,
             "z4_stress": 4,
+            "ac1_kronecker": 4,
+            "ac2_mdl_sheaf": 4,
+            "ac3_external_arc": 4,
+            "ac4_backend_cascade": 4,
             "setup_receipts": 2,
         },
         "code_index": {
@@ -6417,6 +6970,10 @@ def run_agent_eval(
                     "z2_external_synth",
                     "z3_spatial",
                     "z4_stress",
+                    "ac1_kronecker",
+                    "ac2_mdl_sheaf",
+                    "ac3_external_arc",
+                    "ac4_backend_cascade",
                 )
             ],
             "rows": probe_rows,
@@ -6496,18 +7053,19 @@ def run_agent_eval(
         for category in sorted({str(row["category"]) for row in probe_rows})
     }
     # Directive Y4 grew the gauntlet from 256 to 272 slots.  Directive Z4 adds
-    # sixteen Cycle Z probes and grows it again, from 272 to 288.  The legacy 76
+    # sixteen Cycle Z probes and grows it again, from 272 to 288.  Cycle AC4
+    # adds sixteen Cycle AC closure probes and grows it to 304.  The legacy 76
     # receipts and the 212 probes of Cycles J..Z are unchanged in meaning; the
     # count gate is updated, never weakened.
-    payload["gate"]["queries_288"] = bool(
-        int(payload["total_queries"]) == 288
-        and int(payload["probe_slots"]) == 212
+    payload["gate"]["queries_304"] = bool(
+        int(payload["total_queries"]) == 304
+        and int(payload["probe_slots"]) == 228
         and int(payload["ledger_receipts"]) == 76
-        and sum(int(value) for value in payload["query_mix"].values()) == 240
+        and sum(int(value) for value in payload["query_mix"].values()) == 256
     )
-    payload["gate"]["probes_212_present"] = bool(
-        len(probe_rows) == 212
-        and len({str(row["category"]) for row in probe_rows}) >= 58
+    payload["gate"]["probes_228_present"] = bool(
+        len(probe_rows) == 228
+        and len({str(row["category"]) for row in probe_rows}) >= 62
         and all(
             {"name", "category", "expected", "measured", "correct"}.issubset(row)
             for row in probe_rows
@@ -6533,6 +7091,17 @@ def run_agent_eval(
         )
         and all(bool(row["correct"]) for row in _z4_rows)
     )
+    _ac_categories = ("ac1_kronecker", "ac2_mdl_sheaf", "ac3_external_arc",
+                      "ac4_backend_cascade")
+    _ac_rows = [row for row in probe_rows if str(row["category"]) in _ac_categories]
+    payload["gate"]["cycle_ac_probes_16"] = bool(
+        len(_ac_rows) == 16
+        and all(
+            sum(1 for row in _ac_rows if str(row["category"]) == category) == 4
+            for category in _ac_categories
+        )
+        and all(bool(row["correct"]) for row in _ac_rows)
+    )
     payload["gate"]["wall_le_160"] = bool(float(payload["wall_seconds"]) <= 160.0)
     payload["gate"]["passed"] = bool(
         payload["gate"]["mcp_zero_query_reads"]
@@ -6555,10 +7124,11 @@ def run_agent_eval(
         and payload["gate"]["verification_mcp_perfect"]
         and payload["gate"]["synthesis_multiplan_verified"]
         and payload["gate"]["delta_blast_radius_perfect"]
-        and payload["gate"]["queries_288"]
-        and payload["gate"]["probes_212_present"]
+        and payload["gate"]["queries_304"]
+        and payload["gate"]["probes_228_present"]
         and payload["gate"]["cycle_y_probes_16"]
         and payload["gate"]["cycle_z_probes_16"]
+        and payload["gate"]["cycle_ac_probes_16"]
         and payload["gate"]["wall_le_160"]
         and all(payload["gate"][str(row["name"])] for row in probe_rows)
     )

@@ -1696,6 +1696,9 @@ class ActionTransitionRotor:
         self.phi = np.ones((self.n_actions, self.n_slots, self.grid, self.grid), dtype=np.complex64)
         self.counts = np.zeros(self.n_actions, dtype=np.int64)
         self.fitted = False
+        # Cycle AB5: the device basis cache is invalidated by this counter only.
+        self.weight_epoch = 0
+        self._phi_cache = None
 
     # ------------------------------------------------------------- geometry
     def _slots(self, wave: torch.Tensor) -> np.ndarray:
@@ -1722,6 +1725,8 @@ class ActionTransitionRotor:
             unit = np.where(magnitude > 1e-8, accumulator[index] / np.maximum(magnitude, 1e-8), 1.0)
             self.phi[index] = unit.astype(np.complex64)
         self.counts = counts
+        self.weight_epoch = int(getattr(self, "weight_epoch", 0)) + 1
+        self._phi_cache = None
         self.fitted = bool(counts.sum() > 0)
         return {
             "transitions": float(counts.sum()),
@@ -1730,8 +1735,29 @@ class ActionTransitionRotor:
         }
 
     # ------------------------------------------------------------ inference
+    def _device_phi(self, device: torch.device) -> torch.Tensor:
+        """Cycle AB5: the planar rotor basis cached per device and epoch."""
+        key = (str(device), int(self.weight_epoch))
+        cached = getattr(self, "_phi_cache", None)
+        if cached is not None and cached[0] == key:
+            return cached[1]
+        tensor = torch.from_numpy(np.asarray(self.phi, dtype=np.complex64)).to(device)
+        self._phi_cache = (key, tensor)
+        return tensor
+
     def predict(self, psi: torch.Tensor, action: int) -> torch.Tensor:
         index = int(action) % self.n_actions
+        if psi.is_cuda:
+            # Zero host sync: the 2D toroidal FFT and the phase product stay on
+            # the device, so a CUDA-graph capture sees no .cpu().numpy() call.
+            slots = psi.reshape(-1)[: self.dim].reshape(
+                self.n_slots, self.grid, self.grid
+            ).to(torch.complex64)
+            phi = self._device_phi(psi.device)[index]
+            spectrum = torch.fft.fft2(slots)
+            out = torch.fft.ifft2(spectrum * phi)
+            flat = out.real.reshape(1, self.dim).to(torch.complex64)
+            return _unit_tensor(flat)
         spectrum = np.fft.fft2(self._slots(psi))
         out = np.fft.ifft2(spectrum * self.phi[index])
         return self._from_slots(out.real.astype(np.float32).astype(np.complex64))
@@ -1744,6 +1770,17 @@ class ActionTransitionRotor:
         the Python loop that dominated the 16-branch depth-2 rollout.
         """
         indices = [int(action) % self.n_actions for action in actions]
+        if psi.is_cuda:
+            # Device-native batched toroidal rollout (Cycle AB5).
+            flat = psi.reshape(-1)[: self.dim].reshape(1, self.n_slots, self.grid, self.grid)
+            if len(indices) > 1:
+                flat = flat.expand(len(indices), -1, -1, -1)
+            slots = flat.to(torch.complex64)
+            phi = self._device_phi(psi.device)[torch.as_tensor(indices, device=psi.device)]
+            spectrum = torch.fft.fft2(slots)
+            out = torch.fft.ifft2(spectrum * phi)
+            flat_out = out.real.reshape(len(indices), self.dim).to(torch.complex64)
+            return _unit_tensor(flat_out)
         batch = psi.detach().cpu().numpy().reshape(-1, self.dim)[:, : self.dim]
         count = int(batch.shape[0])
         slots = batch.reshape(count, self.n_slots, self.grid, self.grid).astype(np.complex64)

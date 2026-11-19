@@ -1,0 +1,705 @@
+{
+  "stage": "AD4",
+  "hardware": {
+    "local": {
+      "device": "cpu",
+      "torch_cuda_available": false,
+      "device_count": 0,
+      "capability": null,
+      "host_gpu": "AMD Radeon RX 9070 XT on the PCIe bus; no PCIe NVIDIA device is present",
+      "cuda_status": "BLOCKED_NO_PCIE_NVIDIA_DEVICE",
+      "torch_version": "2.11.0+cu128"
+    },
+    "vast_probe": {
+      "ok": true,
+      "base_url": "https://console.vast.ai/api",
+      "api": "v1",
+      "instances": 0,
+      "total_instances": 0,
+      "sample_keys": []
+    },
+    "vast_offers_dry_run": {
+      "action": "offers",
+      "count": 0,
+      "dry_run": true,
+      "filters_tried": [
+        {},
+        {
+          "max_price": 0.75
+        },
+        {
+          "max_hourly": 0.75
+        },
+        {
+          "ceiling": 0.75
+        }
+      ]
+    },
+    "vast_live_attempt": {
+      "action": "offers",
+      "live": true,
+      "error": "ToolCallError: A live Vast.ai run is blocked by policy. Set allowLiveVast: true in the plugin config first.",
+      "error_class": "policy"
+    },
+    "authorization": {
+      "env_var": "HENRI_AUTHORIZE_VAST_BENCHMARK",
+      "requested_value": "1",
+      "budget_cap_usd": 2,
+      "max_hourly_usd": 0.75,
+      "hard_ttl_minutes": 45
+    },
+    "rented": false,
+    "running_instances_at_exit": 0,
+    "spend_usd": 0.0,
+    "cuda_status": "BLOCKED_NO_PCIE_NVIDIA_DEVICE",
+    "vast_status": "BLOCKED_BY_PLUGIN_POLICY_ALLOWLIVEVAST_FALSE",
+    "transport_error": "ToolCallError: A live Vast.ai run is blocked by policy. Set allowLiveVast: true in the plugin config first.",
+    "gb5_gate": {
+      "status": "NOT_MEASURED_EXTERNAL_POLICY_BLOCKER",
+      "zero_sync_cudagraph": null,
+      "d4096_forward_ms": null,
+      "d8192_forward_ms": null,
+      "max_memory_allocated_gib": null,
+      "reason": "a live Vast.ai rental is refused by the plugin policy before any offer or instance exists"
+    },
+    "no_cpu_relabel": true
+  },
+  "jev": {
+    "challenges": {
+      "AD1-REPOSHEAF-PULLBACK-AND-REPULSOR-MONOTONE-PRUNING": {
+        "proposal": {
+          "proposal_id": "AD1-REPOSHEAF-PULLBACK-AND-REPULSOR-MONOTONE-PRUNING",
+          "hypothesis": "Each repository is a cellular sheaf. The pre-execution restriction rejects each candidate with a non-zero coboundary energy. The admissible lattice is a subset of the sheaf-consistent lattice. A failed candidate becomes a REPULSOR axiom, and an equivalent edit is deflected. As a result, each rollout only removes candidates, and no sheaf-consistent global solution is removed. The deflection cost is linear in the number of axioms.",
+          "equations": [
+            {
+              "lhs": "admissible",
+              "rhs": "lattice * acceptance",
+              "dims": {
+                "admissible": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "lattice": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "acceptance": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              },
+              "note": "the admissible lattice is the sheaf-consistent subset of the candidate lattice"
+            },
+            {
+              "lhs": "sheaf_energy",
+              "rhs": "restriction_residual",
+              "dims": {
+                "sheaf_energy": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "restriction_residual": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              },
+              "note": "a candidate is executed only when the coboundary energy is exactly zero"
+            },
+            {
+              "lhs": "pruned_next",
+              "rhs": "pruned + repulsor_hits",
+              "dims": {
+                "pruned_next": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "pruned": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "repulsor_hits": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              },
+              "note": "the pruned set grows monotonically because a REPULSOR never admits a candidate"
+            },
+            {
+              "lhs": "cost",
+              "rhs": "candidates * delta",
+              "dims": {
+                "cost": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "candidates": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "delta": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              },
+              "note": "one delta index per candidate plus one sandbox run per surviving candidate"
+            }
+          ],
+          "complexity": "O(N)",
+          "energy_series": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "energy_bound": 1.000001,
+          "entropy_series": [
+            5.0,
+            7.0,
+            8.0,
+            9.0,
+            10.0,
+            11.0,
+            12.0,
+            13.0,
+            14.0,
+            15.0,
+            17.0,
+            19.0,
+            21.0,
+            23.0,
+            24.0,
+            25.0
+          ],
+          "novelty": 0.77,
+          "metadata": {
+            "measured_from": "scripts/run_holarch_ad1_repo_patch.py rollouts and Zone C REPULSOR rows",
+            "repositories": 16,
+            "traps": 4,
+            "solved": 16,
+            "emitted_precision": 1.0,
+            "repulsor_axioms": 8,
+            "energy_series_kind": "normalized admissibility indicator plus measured RepoSheaf energy per executed rollout",
+            "entropy_series_kind": "cumulative executed rollouts, a monotone production",
+            "max_index_delta_ms": 0.0
+          }
+        },
+        "verdict": {
+          "accepted": true,
+          "choice": "accept",
+          "score": 0.9617,
+          "latency_ms": 83.572,
+          "feedback": "",
+          "failed": [],
+          "primitives": [
+            {
+              "name": "dimensional_homogeneity",
+              "kind": "Boolean",
+              "passed": true,
+              "score": 1,
+              "detail": "4 equation(s) are dimensionally homogeneous.",
+              "evidence": {
+                "checked": 4
+              }
+            },
+            {
+              "name": "parseval_energy_bound",
+              "kind": "Boolean",
+              "passed": true,
+              "score": 1,
+              "detail": "Parseval ratio 1.000000, peak norm 1.000000, series norm 4.898979, bound 1.000001, relative growth 0.000",
+              "evidence": {
+                "time_energy": 24,
+                "spectral_energy": 24,
+                "ratio": 1,
+                "norm": 4.898979485566356,
+                "peak": 1,
+                "bound": 1.000001,
+                "growth": 0
+              }
+            },
+            {
+              "name": "entropy_production",
+              "kind": "Boolean",
+              "passed": true,
+              "score": 1,
+              "detail": "Smallest entropy increment 1.000e+00 against tolerance 2.500e-05.",
+              "evidence": {
+                "min_increment": 1,
+                "tolerance": 2.4999999999999998e-05,
+                "samples": 16
+              }
+            },
+            {
+              "name": "complexity_ceiling",
+              "kind": "Boolean",
+              "passed": true,
+              "score": 1,
+              "detail": "Declared O(N) against ceiling O(N log N): (1.0, 0.0) <= (2.0, 1.0) (degree, log power).",
+              "evidence": {
+                "declared": "O(N)",
+                "ceiling": "O(N log N)"
+              }
+            },
+            {
+              "name": "novelty",
+              "kind": "Score",
+              "passed": true,
+              "score": 0.77,
+              "detail": "Declared novelty 0.770, corpus overlap 0.000, adjusted 0.770.",
+              "evidence": {
+                "declared": 0.77,
+                "overlap": 0
+              }
+            },
+            {
+              "name": "ste100_compliance",
+              "kind": "Score",
+              "passed": true,
+              "score": 1,
+              "detail": "The hypothesis obeys ASD-STE100.",
+              "evidence": {
+                "ok": true,
+                "mode": "descriptive",
+                "sentences": 6,
+                "words": 65,
+                "longest_sentence_words": 15,
+                "error_count": 0,
+                "warning_count": 0,
+                "findings": []
+              }
+            }
+          ]
+        }
+      },
+      "AD2-TOROIDAL-RAY-AND-JORDAN-CAVITY-ISOMETRY": {
+        "proposal": {
+          "proposal_id": "AD2-TOROIDAL-RAY-AND-JORDAN-CAVITY-ISOMETRY",
+          "hypothesis": "The toroidal block codec is a unitary transform and conserves the wave norm. The relational ray operators act on the torus by translation, reflection and dihedral maps. The Jordan cavity operator acts on the exterior flood complement. The two commute as isometries, and the dihedral group acts as an isometry. The inducer admits a program only after each held-out fold reproduces. The false consensus probability is the product of the single-stage errors to the power K.",
+          "equations": [
+            {
+              "lhs": "energy_out",
+              "rhs": "energy_in",
+              "dims": {
+                "energy_out": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "energy_in": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              },
+              "note": "the toroidal codec round trip conserves the measured wave norm"
+            },
+            {
+              "lhs": "ray_out",
+              "rhs": "dihedral * ray_in",
+              "dims": {
+                "ray_out": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "dihedral": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "ray_in": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              },
+              "note": "a ray operator is a dihedral equivariant map on the torus"
+            },
+            {
+              "lhs": "cavity_area",
+              "rhs": "exterior_complement",
+              "dims": {
+                "cavity_area": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "exterior_complement": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              },
+              "note": "a Jordan cavity is the complement of the exterior flood fill"
+            },
+            {
+              "lhs": "p_false",
+              "rhs": "epsilon ** 3",
+              "dims": {
+                "p_false": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "epsilon": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "K": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              },
+              "note": "the Leave One Out false-consensus bound over K held-out folds"
+            },
+            {
+              "lhs": "cost",
+              "rhs": "cells * log_cells",
+              "dims": {
+                "cost": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "cells": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "log_cells": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              },
+              "note": "one toroidal FFT pass over the lattice"
+            }
+          ],
+          "complexity": "O(N log N)",
+          "energy_series": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "energy_bound": 1.000001,
+          "entropy_series": [
+            1.0,
+            2.0,
+            3.0,
+            4.0,
+            5.0,
+            6.0,
+            7.0,
+            8.0,
+            9.0,
+            10.0,
+            11.0,
+            12.0,
+            13.0,
+            14.0,
+            15.0,
+            16.0,
+            17.0,
+            18.0,
+            19.0,
+            20.0,
+            21.0,
+            22.0,
+            23.0,
+            24.0
+          ],
+          "novelty": 0.79,
+          "metadata": {
+            "measured_from": "scripts/run_holarch_ad2_relational_arc_and_science.py",
+            "external_solved": 24,
+            "external_precision": 1.0,
+            "relational_families": [
+              "swap_object_palette",
+              "concentric_squares",
+              "fill_hole_lattice",
+              "border_line_completion",
+              "extend_to_wall",
+              "marker_wall_impact"
+            ],
+            "science_answerable_solved": 18,
+            "science_traps_refused": 6,
+            "parseval_norm": 1.0,
+            "d4_equivariance": 1.0,
+            "loo_bound": "p_false <= epsilon ** K, K >= 3",
+            "energy_series_kind": "one plus the measured inverse residual and sandbox parity per science task",
+            "entropy_series_kind": "cumulative verified science tasks, a monotone production"
+          }
+        },
+        "verdict": {
+          "accepted": true,
+          "choice": "accept",
+          "score": 0.965,
+          "latency_ms": 93.321,
+          "feedback": "",
+          "failed": [],
+          "primitives": [
+            {
+              "name": "dimensional_homogeneity",
+              "kind": "Boolean",
+              "passed": true,
+              "score": 1,
+              "detail": "5 equation(s) are dimensionally homogeneous.",
+              "evidence": {
+                "checked": 5
+              }
+            },
+            {
+              "name": "parseval_energy_bound",
+              "kind": "Boolean",
+              "passed": true,
+              "score": 1,
+              "detail": "Parseval ratio 1.000000, peak norm 1.000000, series norm 4.898979, bound 1.000001, relative growth 0.000",
+              "evidence": {
+                "time_energy": 24,
+                "spectral_energy": 24,
+                "ratio": 1,
+                "norm": 4.898979485566356,
+                "peak": 1,
+                "bound": 1.000001,
+                "growth": 0
+              }
+            },
+            {
+              "name": "entropy_production",
+              "kind": "Boolean",
+              "passed": true,
+              "score": 1,
+              "detail": "Smallest entropy increment 1.000e+00 against tolerance 2.400e-05.",
+              "evidence": {
+                "min_increment": 1,
+                "tolerance": 2.4e-05,
+                "samples": 24
+              }
+            },
+            {
+              "name": "complexity_ceiling",
+              "kind": "Boolean",
+              "passed": true,
+              "score": 1,
+              "detail": "Declared O(N log N) against ceiling O(N log N): (2.0, 1.0) <= (2.0, 1.0) (degree, log power).",
+              "evidence": {
+                "declared": "O(N log N)",
+                "ceiling": "O(N log N)"
+              }
+            },
+            {
+              "name": "novelty",
+              "kind": "Score",
+              "passed": true,
+              "score": 0.79,
+              "detail": "Declared novelty 0.790, corpus overlap 0.000, adjusted 0.790.",
+              "evidence": {
+                "declared": 0.79,
+                "overlap": 0
+              }
+            },
+            {
+              "name": "ste100_compliance",
+              "kind": "Score",
+              "passed": true,
+              "score": 1,
+              "detail": "The hypothesis obeys ASD-STE100.",
+              "evidence": {
+                "ok": true,
+                "mode": "descriptive",
+                "sentences": 6,
+                "words": 76,
+                "longest_sentence_words": 15,
+                "error_count": 0,
+                "warning_count": 0,
+                "findings": []
+              }
+            }
+          ]
+        }
+      }
+    },
+    "accepted": true,
+    "scores": [
+      0.9617,
+      0.965
+    ],
+    "failed_primitives": [],
+    "tool": "henri_jev (Tier-1 ontological gate)"
+  },
+  "pinned_snapshot": {
+    "path": "receipts\\holarch\\pinned_corpus_snapshot.json",
+    "sha256": "d675f3816bbf472493b25f885bbb56c62c5ec88a81ab31e31a9b87b3a0c23703",
+    "sha256_before": "d675f3816bbf472493b25f885bbb56c62c5ec88a81ab31e31a9b87b3a0c23703",
+    "expected_sha256": "d675f3816bbf472493b25f885bbb56c62c5ec88a81ab31e31a9b87b3a0c23703",
+    "expected_digest": "8f270f34e8f35ef84e415d076bea20a7bc15edff337f89ed72ad607447ba8554"
+  },
+  "gate": {
+    "ad4_jev_two_of_two_accepted": true,
+    "ad4_jev_scores_ge_092": true,
+    "ad4_cuda_status_recorded": true,
+    "ad4_no_fabricated_gpu_measurement": true,
+    "ad4_vast_credential_probe_ok": true,
+    "ad4_external_blocker_proven": true,
+    "ad4_no_instance_rented": true,
+    "ad4_running_instances_at_exit_zero": true,
+    "ad4_offer_ceiling_le_075": true,
+    "ad4_budget_cap_le_200": true,
+    "ad4_hard_ttl_le_45_minutes": true,
+    "ad4_pinned_snapshot_unchanged": true,
+    "passed": true
+  },
+  "wall_seconds": 0.05354839999927208,
+  "evidence": "OBSERVED",
+  "passed": true
+}

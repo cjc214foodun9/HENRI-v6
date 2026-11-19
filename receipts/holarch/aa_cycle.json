@@ -1,0 +1,223 @@
+{
+  "cycle": "AA",
+  "supersedes": [
+    "y_cycle.json",
+    "z_cycle.json"
+  ],
+  "stages": {
+    "aa1": {
+      "receipt": "receipts\\holarch\\aa1_per_token_phase_egress.json",
+      "sha256": "cd795a78aac57a2c9ff1e390e28eb4626de129602fd82a521ec47d3f3c264511",
+      "sidecar_ok": true,
+      "passed": true,
+      "gate": {
+        "aa1_pinned_digest_equals_8f270f34": true,
+        "aa1_pinned_snapshot_unchanged": true,
+        "aa1_zero_autograd": true,
+        "aa1_channel_weight_positive": true,
+        "aa1_phase_rms_gt_001": true,
+        "aa1_bpc_beats_z1": true,
+        "aa1_top1_beats_z1": true,
+        "aa1_copy_recall_ge_072": true,
+        "aa1_copy_positions_1092": true,
+        "aa1_held_out_tokens": true,
+        "passed": true
+      },
+      "failed_gates": [],
+      "wall_seconds": 101.9369290000759
+    },
+    "aa2": {
+      "receipt": "receipts\\holarch\\aa2_external_prose_and_loop_synthesis.json",
+      "sha256": "0515c57d1ae7d515ab58978f5e37a8deba923a2f800885a123c88a51a9c40935",
+      "sidecar_ok": true,
+      "passed": false,
+      "gate": {
+        "aa2_runner_exit_zero": true,
+        "aa2_zero_external_llm_calls": true,
+        "aa2_budget_le_64": true,
+        "aa2_mbpp_pass_at_1_ge_0875": true,
+        "aa2_humaneval_pass_at_1_ge_04688": true,
+        "aa2_precision_ge_095": true,
+        "aa2_traps_6_of_6": true,
+        "aa2_no_task_identity_branches": true,
+        "aa2_same_vendored_slices": true,
+        "aa2_arm_b_transfer_12_of_12": false,
+        "aa2_arm_b_beats_arm_a": true,
+        "passed": false
+      },
+      "failed_gates": [
+        "aa2_arm_b_transfer_12_of_12",
+        "passed"
+      ],
+      "wall_seconds": 101.78747739992104
+    },
+    "aa3": {
+      "receipt": "receipts\\holarch\\aa3_external_arc_agi_audit.json",
+      "sha256": "672b3aab520ec4fcca07d576f8588d45bc854a89ded3c449ce6d467a0264f98c",
+      "sidecar_ok": true,
+      "passed": false,
+      "gate": {
+        "aa3_runner_exit_zero": true,
+        "aa3_codec_zero_cell_error": true,
+        "aa3_external_pass_at_1_ge_04583": false,
+        "aa3_emitted_precision_ge_090": true,
+        "aa3_z3_sixteen_of_sixteen": true,
+        "aa3_contradictions_4_of_4_at_zero_nodes": true,
+        "aa3_zero_task_id_branches": true,
+        "aa3_zero_llm_calls": true,
+        "aa3_slice_48": true,
+        "passed": false
+      },
+      "failed_gates": [
+        "aa3_external_pass_at_1_ge_04583",
+        "passed"
+      ],
+      "wall_seconds": 11.928445400088094
+    },
+    "aa4": {
+      "receipt": "receipts\\holarch\\aa4_complete_cascade_and_aaii80.json",
+      "sha256": "8adeef034679918150741adc1fd45be4e2b738b4c2b0272f2efd06d360650f56",
+      "sidecar_ok": true,
+      "passed": false,
+      "gate": {
+        "aa4_runner_exit_zero": true,
+        "aa4_spend_guard_held": true,
+        "aa4_arm0_answerable_ge_52": false,
+        "aa4_arm0_traps_all": true,
+        "aa4_arm0_hallucination_zero": false,
+        "aa4_arm4_answerable_ge_58": false,
+        "aa4_arm4_traps_all": true,
+        "aa4_arm4_hallucination_zero": false,
+        "aa4_arm4_beats_every_arm": false,
+        "aa4_call_reduction_ge_075": true,
+        "aa4_stress_zero_5xx": true,
+        "aa4_stress_p99_le_120": true,
+        "aa4_gauntlet_304": false,
+        "aa4_battery_80": false,
+        "passed": false
+      },
+      "failed_gates": [
+        "aa4_arm0_answerable_ge_52",
+        "aa4_arm0_hallucination_zero",
+        "aa4_arm4_answerable_ge_58",
+        "aa4_arm4_hallucination_zero",
+        "aa4_arm4_beats_every_arm",
+        "aa4_gauntlet_304",
+        "aa4_battery_80",
+        "passed"
+      ],
+      "wall_seconds": 773.7524619000033
+    },
+    "aa5": {
+      "receipt": "receipts\\holarch\\aa5_hardware_and_ledger_closure.json",
+      "sha256": "d83312836890f53ea22475769897e45cbc6e6b5327fbb86b517afe65ea0af99a",
+      "sidecar_ok": true,
+      "passed": true,
+      "gate": {
+        "aa5_runner_exit_zero": true,
+        "aa5_active_pcie_devices_recorded": true,
+        "aa5_ghost_registry_separated": true,
+        "aa5_amd_discrete_recorded": true,
+        "aa5_cuda_honest": true,
+        "aa5_cuda_receipt_honest": true,
+        "aa5_remote_script_present": true,
+        "aa5_jev_two_challenges_accepted": true,
+        "aa5_prior_cycles_passed": true,
+        "aa5_yz_superseded_documented": true,
+        "aa5_pinned_split_unmoved": true,
+        "aa5_sidecar_parity_one": true,
+        "aa5_r3_stream_le_122": true,
+        "aa5_r3_static_le_142": true,
+        "aa5_zero_credential_leaks": true,
+        "aa5_docs_section_42": true,
+        "aa5_pytest_exit_zero": true,
+        "aa5_pytest_zero_failures": true,
+        "passed": true
+      },
+      "failed_gates": [],
+      "wall_seconds": 352.28884089994244
+    }
+  },
+  "history": {
+    "t": {
+      "passed": true,
+      "present": true
+    },
+    "u": {
+      "passed": true,
+      "present": true
+    },
+    "v": {
+      "passed": true,
+      "present": true
+    },
+    "w": {
+      "passed": true,
+      "present": true
+    },
+    "x": {
+      "passed": true,
+      "present": true
+    },
+    "y": {
+      "passed": false,
+      "present": true
+    },
+    "z": {
+      "passed": false,
+      "present": true
+    }
+  },
+  "closure": {
+    "docs_section_42": true,
+    "credential_leaks": [],
+    "prior_cycles": {
+      "t": {
+        "passed": true,
+        "present": true
+      },
+      "u": {
+        "passed": true,
+        "present": true
+      },
+      "v": {
+        "passed": true,
+        "present": true
+      },
+      "w": {
+        "passed": true,
+        "present": true
+      },
+      "x": {
+        "passed": true,
+        "present": true
+      },
+      "y": {
+        "passed": false,
+        "present": true
+      },
+      "z": {
+        "passed": false,
+        "present": true
+      }
+    }
+  },
+  "gate": {
+    "aa_prior_cycles_passed": true,
+    "aa_yz_historical_false": true,
+    "aa_all_stage_sidecars_match": true,
+    "aa_docs_section_42": true,
+    "aa_zero_credential_leaks": true,
+    "passed": true
+  },
+  "passed": false,
+  "stage_summary": {
+    "aa1": true,
+    "aa2": false,
+    "aa3": false,
+    "aa4": false,
+    "aa5": true
+  },
+  "wall_seconds": 0.037731299991719425,
+  "evidence": "OBSERVED"
+}

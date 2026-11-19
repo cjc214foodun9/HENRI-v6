@@ -1,0 +1,11 @@
+{
+  "stage": "AA5",
+  "kind": "cuda_benchmark",
+  "status": "BLOCKED_NO_PCIE_NVIDIA_DEVICE",
+  "reason": "torch.cuda.is_available() is False: no NVIDIA PCIe device on this host",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "evidence": "BLOCKED",
+  "dims": [],
+  "torch": "2.11.0+cu128",
+  "compiled_cuda": "12.8"
+}

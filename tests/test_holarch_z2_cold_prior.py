@@ -60,7 +60,9 @@ def test_no_public_example_is_a_fail_closed_refusal():
     assert not spec.assertions
     outcome = ColdSynthesizer(budget=8).synthesize(prompt)
     assert outcome["status"] == "ABSTAIN"
-    assert outcome["reason"] == "no_public_examples"
+    # Cycle AA2 renamed the refusal to the exact reason the directive names:
+    # zero verifiable I/O examples is a clean abstention, not a guess.
+    assert outcome["reason"] == "no_verifiable_io_examples"
     assert outcome["rollouts"] == 0
 
 

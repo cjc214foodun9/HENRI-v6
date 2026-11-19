@@ -69,3 +69,40 @@ z1_stage_pointer_egress.json  z2_stage_external_synthesis.json
 z3_stage_spatial_induction.json  z4_stage_live_aaii_and_stress.json
 z5_hardware_ledger_closure.json  z_cycle.json
 pinned_lang_split.json
+
+## Cycle AA (per-token phase egress, prose grounding, external ARC, cascade safety)
+
+| receipt | stage | content |
+| :--- | :--- | :--- |
+| pinned_corpus_snapshot.json | AA1 | frozen bytes of the 38 package files and the 758,656 / 84,086 token split |
+| aa1_per_token_phase_egress.json | AA1 | token-indexed phase table, gated long-range channels, held-out metrics and ablations |
+| aa2_external_prose_and_loop_synthesis.json | AA2 | prose/doctest extractor, stateful schemas, MBPP and HumanEval slices, trap and transfer results |
+| aa3_external_arc_agi_audit.json | AA3 | 48-task official ARC-AGI slice, codec audit, pass@1, precision, Z3 regression |
+| aa4_complete_cascade_and_aaii80.json | AA4 | five-arm live battery, cascade escalation, spend guard, HTTP/SSE stress, gauntlet |
+| aa5_cuda_benchmark.json | AA5 | CUDA probe and D = 2048 / D = 4096 benchmark, or the honest blocked state |
+| aa5_hardware_and_ledger_closure.json | AA5 | PnP provenance, JEV pointer, sidecar parity, pytest, credential scan |
+| aa_jev_mathematical_challenges.json | AA5 | the two JEV Tier-1 challenges and their verdicts |
+| aa_cycle.json | AA | aggregate ledger that supersedes y_cycle.json and z_cycle.json |
+
+## Cycle AB (object-centric ARC, context phase, sheaf retrieval, portable Blackwell backend)
+
+| receipt | stage | content |
+| :--- | :--- | :--- |
+| ab1_contextual_phase_egress.json | AB1 | frozen-snapshot held-out bpc and top-1, static phase marginal, rank-8 steering with the validation veto, dual 24/256-token copy recall |
+| ab2_sheaf_retrieval_and_loop_synthesis.json | AB2 | in-retrieval domain/codomain sheaf filter, boundary consensus gate, extended loop schemas, MBPP and HumanEval slices, Arm B transfer |
+| ab3_object_centric_external_arc.json | AB3 | object scene graph, canvas dimension induction, strict Leave-One-Out inducer, 48-task official ARC audit |
+| ab5_cuda_benchmark.json | AB5 | dual-backend probe, PnP provenance and the honest BLOCKED_NO_PCIE_NVIDIA_DEVICE state |
+| ab_jev_mathematical_challenges.json | AB5 | the two JEV Tier-1 challenges and their verdicts |
+| ab_cycle.json | AB | aggregate ledger that supersedes aa_cycle.json |
+
+## Cycle AC (orthogonal exact-ID induction, MDL-sheaf selection, multi-scale ARC, 80-task suite)
+
+| receipt | stage | content |
+| :--- | :--- | :--- |
+| ac1_kronecker_induction_egress.json | AC1 | exact-identity phasor codebook audit, exact-ID causal induction, IDF dual copy caches, mode-phase torque, held-out bpc/top-1, phase and channel marginals, copy recall |
+| ac2_mdl_sheaf_synthesis.json | AC2 | IDF intent coverage, no premature single-plan exit, joint MDL-sheaf posterior over verified candidates, MBPP and HumanEval slices, Arm B transfer |
+| ac3_multiscale_external_arc.json | AC3 | four universal morphism families, wave-invariant router, residual depth-2 Leave-One-Out composition, 48-task official ARC audit |
+| ac4_cascade_and_aaii80.json | AC4 | 80-task five-arm battery, arm0 standalone AC2/AC3 engines, arm4 cascade, spend guard, HTTP/SSE stress, 304-query gauntlet |
+| ac5_hardware_and_ledger_closure.json | AC5 | authorization flag, PnP provenance, Vast.ai dry-run catalog, credential scan |
+| ac_jev_mathematical_challenges.json | AC5 | the two Cycle AC JEV Tier-1 challenges and their verdicts |
+| ac_cycle.json | AC | aggregate ledger that supersedes ab_cycle.json |

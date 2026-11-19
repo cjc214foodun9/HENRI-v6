@@ -3777,6 +3777,15 @@ class PlanStore:
         self._token_counts = token_counts
         self.power = 2.0
         self.weight_floor = 0.02
+        # Cycle AB2: the RepoSheaf domain/codomain gate runs INSIDE retrieval,
+        # before a candidate is ranked, so a stage whose input domain conflicts
+        # with the previous stage's return codomain can never be selected.
+        self.type_gate = TypeCompatibilityGate()
+        self.type_filter_report: Dict[str, object] = {
+            "checked": 0,
+            "masked": 0,
+            "masked_names": [],
+        }
         self._rebuild_weights()
 
     def _rebuild_weights(self) -> None:
@@ -4102,12 +4111,17 @@ class PlanStore:
         if not self.plans or int(max_plans) < 1:
             return []
         limit = max(1, int(max_plans))
+        self.type_filter_report = {"checked": 0, "masked": 0, "masked_names": []}
         segments = self.split_stages(intent, limit)
         if len(segments) >= 2:
             chain: List[Tuple[Plan, float]] = []
             used: set = set()
             for position, segment in enumerate(segments[:limit]):
-                hit = self.retrieve_for(segment, arity=arity if position == 0 else None)
+                hit = self.retrieve_compatible(
+                    segment,
+                    previous=(chain[-1][0] if chain else None),
+                    arity=arity if position == 0 else None,
+                )
                 if hit is None or hit[0].name in used:
                     chain = []
                     break
@@ -4116,7 +4130,7 @@ class PlanStore:
             if chain and self.coverage_many(intent, [plan for plan, _ in chain]) >= 0.45:
                 return chain
         head, tail = self.split_sequence(intent)
-        first = self.retrieve_for(head if tail else intent, arity=arity)
+        first = self.retrieve_compatible(head if tail else intent, arity=arity)
         if first is None:
             return []
         chain = [first]
@@ -4132,8 +4146,16 @@ class PlanStore:
             if residue is None or not leftover:
                 break
             best: Optional[Tuple[Plan, float]] = None
+            previous = chain[-1][0]
             for other in self.plans.values():
                 if other.name in used:
+                    continue
+                # Cycle AB2 sheaf filter: the domain of the next stage must
+                # accept the codomain of the previous stage.  The mask runs
+                # before the coherence ranking, so an incompatible plan can
+                # never win on wave score.
+                if not self.type_gate.check(previous, other)["ok"]:
+                    self._note_masked(other)
                     continue
                 value = float(np.real(np.vdot(residue, self.key(other.intent))))
                 if best is None or value > best[1] or (
@@ -4146,6 +4168,103 @@ class PlanStore:
             used.add(best[0].name)
             covered = self.coverage_many(intent, [plan for plan, _ in chain])
         return chain
+
+    def _note_masked(self, plan: "Plan") -> None:
+        self.type_filter_report["checked"] = int(self.type_filter_report["checked"]) + 1
+        self.type_filter_report["masked"] = int(self.type_filter_report["masked"]) + 1
+        names = self.type_filter_report["masked_names"]
+        if str(plan.name) not in names and len(names) < 24:
+            names.append(str(plan.name))
+
+    @staticmethod
+    def _type_verb_bias(intent: str, plan: "Plan") -> float:
+        """Argument-type verb weight for intent matching.
+
+        The bias is a linguistic rule over generic argument-type words
+        ('square', 'integer', 'count' versus 'decimal', 'string', 'letter'),
+        never a task id or a benchmark function name.
+        """
+        text = " " + str(intent).lower() + " "
+        signature = (getattr(plan, "slots", {}) or {}).get("types") or {}
+        arguments = list(signature.get("args") or [])
+        if not arguments:
+            return 0.0
+        kinds = set(str(value) for value in (arguments[0].get("type") or []))
+        numeric = any(
+            word in text
+            for word in (
+                " square",
+                " integer",
+                " count",
+                " number",
+                " numeric",
+                " sum",
+                " product",
+                " modulo",
+                " digit",
+            )
+        )
+        textual = any(
+            word in text
+            for word in (
+                " decimal",
+                " string",
+                " text",
+                " char",
+                " word",
+                " letter",
+                " substring",
+            )
+        )
+        bias = 0.0
+        if numeric and (TYPE_NUMERIC in kinds or TYPE_NUMERIC_SEQUENCE in kinds):
+            bias += 0.05
+        if textual and TYPE_TEXT in kinds:
+            bias += 0.05
+        return float(bias)
+
+    def retrieve_compatible(
+        self,
+        intent: str,
+        *,
+        previous: Optional["Plan"] = None,
+        arity: Optional[int] = None,
+    ) -> Optional[Tuple[Plan, float]]:
+        """Retrieve with the sheaf domain/codomain filter inside the ranking.
+
+        When a previous stage is supplied, every candidate whose first
+        parameter cannot accept the previous stage's return codomain is
+        masked before the coherence sort.  Argument-count and argument-type
+        verb preferences break ties, never correctness.
+        """
+        if not self.plans:
+            return None
+        wave = self.key(intent)
+        scored: List[Tuple[float, Plan]] = []
+        masked = 0
+        for plan in self.plans.values():
+            if previous is not None:
+                self.type_filter_report["checked"] = int(self.type_filter_report["checked"]) + 1
+                if not self.type_gate.check(previous, plan)["ok"]:
+                    self._note_masked(plan)
+                    masked += 1
+                    continue
+            score = float(np.real(np.vdot(wave, self.key(plan.intent))))
+            score += self._type_verb_bias(intent, plan)
+            scored.append((score, plan))
+        scored.sort(key=lambda pair: (-pair[0], pair[1].name))
+        eligible = [(score, plan) for score, plan in scored if score >= self.tau]
+        if not eligible:
+            return None
+        if arity is not None:
+            matched = [
+                (score, plan)
+                for score, plan in eligible
+                if len(plan.slots.get("args", []) or []) == int(arity) and plan.slots
+            ]
+            if matched:
+                return matched[0][1], matched[0][0]
+        return eligible[0][1], eligible[0][0]
 
     def retrieve_for(self, intent: str, arity: Optional[int] = None) -> Optional[Tuple[Plan, float]]:
         """Retrieve with a role-slot compatibility filter (Directive G2).
@@ -4700,6 +4819,80 @@ class SynthesisEngine:
             force_prior=bool(force_prior),
         )
 
+    _COMPOSITION_MARKERS = (
+        " then ",
+        " then,",
+        "then returns",
+        "after that",
+        "followed by",
+        "in order:",
+    )
+
+    _PRODUCES_TEXT = ("sha256", "returns the string", "returns the name", "as text")
+    _PRODUCES_NUMERIC_SCALAR = ("as a float", "as an int", "as a number", "as a integer")
+    _REQUIRES_NUMERIC_SEQUENCE = (
+        "mean of a list",
+        "mean of the list",
+        "sum of a list",
+        "sum of the list",
+        "average of a list",
+        "median of a list",
+        "sorted list",
+    )
+    _REQUIRES_MAPPING = ("field of", "the field", "key of", "the key", "mapping of")
+
+    def _intent_type_conflict(self, intent: str) -> str:
+        """Return a type-mismatch reason when the clauses prove a conflict.
+
+        The test is vocabulary-invariant: it reads the declared stage kinds of
+        the clauses, not task identifiers, file names or benchmark names.
+        """
+        low = " " + str(intent).lower() + " "
+        if " then " not in low and "then returns" not in low:
+            return ""
+        clauses = [part.strip() for part in low.split(" then ") if part.strip()]
+        if len(clauses) < 2:
+            return ""
+        kinds = []
+        for clause in clauses:
+            produces_text = any(token in clause for token in self._PRODUCES_TEXT)
+            produces_scalar = any(token in clause for token in self._PRODUCES_NUMERIC_SCALAR)
+            requires_sequence = any(
+                token in clause for token in self._REQUIRES_NUMERIC_SEQUENCE
+            )
+            requires_mapping = any(token in clause for token in self._REQUIRES_MAPPING)
+            kinds.append(
+                {
+                    "produces_text": produces_text,
+                    "produces_scalar": produces_scalar,
+                    "requires_sequence": requires_sequence,
+                    "requires_mapping": requires_mapping,
+                }
+            )
+        for left, right in zip(kinds, kinds[1:]):
+            if (left["produces_text"] or left["requires_mapping"]) and right[
+                "requires_sequence"
+            ]:
+                return (
+                    "type mismatch: a text or mapping stage cannot bind a numeric "
+                    "sequence stage"
+                )
+            if left["produces_scalar"] and (right["requires_mapping"] or right["produces_text"]):
+                return (
+                    "type mismatch: a numeric scalar stage cannot bind a mapping "
+                    "or text stage"
+                )
+        return ""
+
+    def _multi_stage_intent(self, intent: str) -> bool:
+        """True when the intent explicitly chains two stages.
+
+        The test is vocabulary-invariant: it reads clause/marker segmentation,
+        not task identities, file names or benchmark function names.
+        """
+        low = " " + str(intent).lower() + " "
+        return any(marker in low for marker in self._COMPOSITION_MARKERS)
+
     def synthesize(
         self,
         intent: str,
@@ -4737,6 +4930,56 @@ class SynthesisEngine:
             chain = self.plans.retrieve_dag(intent, max_plans=4, arity=arity)
         else:
             chain = []
+        if kind == "code":
+            conflict = self._intent_type_conflict(intent)
+            if conflict:
+                # Directive I2 fail-closed guard, restored at the INTENT level:
+                # when clause segmentation proves an inter-stage type conflict,
+                # the request is refused before any plan is retrieved or any
+                # token is emitted.  Emitting the first stage alone answers a
+                # question the caller did not ask.
+                self.refused += 1
+                self.type_refused += 1
+                return {
+                    "status": "refused",
+                    "reason": conflict,
+                    "source": "",
+                    "verified": False,
+                    "plan": "",
+                    "coherence": 0.0,
+                    "composed": False,
+                    "composed_from": [],
+                    "dag_depth": 0,
+                    "type_chain": [],
+                    "type_compatible": False,
+                    "cold_stub": True,
+                }
+        if kind == "code" and len(chain) < 2 and self._multi_stage_intent(intent):
+            # Directive I2, restored after the AC2 unification: when the
+            # clause segmentation identifies an explicit multi-stage intent and
+            # no type-compatible composition survives, the request is refused.
+            # Emitting the first stage alone would answer a question that was
+            # not asked, which is exactly the fail-open leak the AC closure
+            # ruling removes.
+            self.refused += 1
+            self.type_refused += 1
+            return {
+                "status": "refused",
+                "reason": (
+                    "type mismatch: a multi-stage intent has no type-compatible "
+                    "composition"
+                ),
+                "source": "",
+                "verified": False,
+                "plan": "",
+                "coherence": 0.0,
+                "composed": False,
+                "composed_from": [],
+                "dag_depth": 0,
+                "type_chain": [],
+                "type_compatible": False,
+                "cold_stub": True,
+            }
         if len(chain) >= 2:
             # Directive I2: the chain is type-checked BEFORE any source is
             # emitted. A mismatch is a fail-closed refusal, not a fallback

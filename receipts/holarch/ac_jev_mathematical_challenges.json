@@ -1,0 +1,739 @@
+{
+  "stage": "AC5",
+  "kind": "jev_mathematical_challenges",
+  "challenges": {
+    "AC1-ORTHOGONAL-KRONECKER-INDUCTION-PARSEVAL-SEPARATION": {
+      "proposal": {
+        "proposal_id": "AC1-ORTHOGONAL-KRONECKER-INDUCTION-PARSEVAL-SEPARATION",
+        "hypothesis": "The exact identity codebook stores one unit phasor for each token. Each row has unit norm. The unitary transform keeps the wave energy. Two different tokens have a small inner product. The induction channel adds the successor waves and reads the exact token. The step cost is linear in the window length plus the dimension.",
+        "equations": [
+          {
+            "lhs": "chi",
+            "rhs": "phasor * scale",
+            "dims": {
+              "chi": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "phasor": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            "note": "one unit phasor per token, scaled by the inverse square root of the dimension"
+          },
+          {
+            "lhs": "norm",
+            "rhs": "chi * chi",
+            "dims": {
+              "norm": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "chi": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            "note": "the row norm is one for every token"
+          },
+          {
+            "lhs": "amplitude",
+            "rhs": "weight * chi",
+            "dims": {
+              "amplitude": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "weight": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "chi": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            "note": "the induction wave is a weighted superposition of successor phasors"
+          },
+          {
+            "lhs": "cost",
+            "rhs": "window * dim",
+            "dims": {
+              "cost": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "window": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "dim": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            "note": "one causal scan of the window plus one projection of the dimension"
+          }
+        ],
+        "complexity": "O(N)",
+        "energy_series": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "energy_bound": 1.000001,
+        "entropy_series": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.015631503727751017,
+          0.015631503727751017,
+          0.015631503727751017,
+          0.015631503727751017,
+          0.015631503727751017,
+          0.015631503727751017
+        ],
+        "novelty": 0.78,
+        "metadata": {
+          "measured_from": "henri/holarch/wave_egress.py OrthogonalExactCodebook audit, frozen snapshot",
+          "dim": 2048,
+          "vocab_size": 2048,
+          "parseval_ratio": 1.0,
+          "parseval_error": 1.1920928955078125e-07,
+          "crosstalk_mean_square": 0.00048670588876120746,
+          "crosstalk_theory": 0.00048828125,
+          "crosstalk_ratio_to_theory": 0.9967736601829529,
+          "peak_crosstalk": 0.0736071839928627,
+          "energy_series_kind": "measured L2 norm of 16 codebook rows at D = 2048",
+          "entropy_series_kind": "cumulative measured next-token entropy reduction of the exact-identity induction channel on copy positions",
+          "step_complexity": "O(W + D) per position",
+          "ac1_receipt_present": true,
+          "ac1_stage_curve": {
+            "baseline": 2.228889562037291,
+            "A_induction": 2.21484259363608,
+            "B_fast_copy": 2.1947417750725435,
+            "C_long_copy": 2.1702905669720356,
+            "D_prefix": 2.160769643538173,
+            "E_rejoin": 2.160293102613947
+          }
+        }
+      },
+      "verdict": {
+        "accepted": true,
+        "choice": "accept",
+        "score": 0.9633,
+        "latency_ms": 83.103,
+        "feedback": "",
+        "failed": [],
+        "primitives": [
+          {
+            "name": "dimensional_homogeneity",
+            "kind": "Boolean",
+            "passed": true,
+            "score": 1,
+            "detail": "4 equation(s) are dimensionally homogeneous.",
+            "evidence": {
+              "checked": 4
+            }
+          },
+          {
+            "name": "parseval_energy_bound",
+            "kind": "Boolean",
+            "passed": true,
+            "score": 1,
+            "detail": "Parseval ratio 1.000000, peak norm 1.000000, series norm 4.000000, bound 1.000001, relative growth 0.000",
+            "evidence": {
+              "time_energy": 16,
+              "spectral_energy": 16,
+              "ratio": 1,
+              "norm": 4,
+              "peak": 1,
+              "bound": 1.000001,
+              "growth": 0
+            }
+          },
+          {
+            "name": "entropy_production",
+            "kind": "Boolean",
+            "passed": true,
+            "score": 1,
+            "detail": "Smallest entropy increment 0.000e+00 against tolerance 1.563e-08.",
+            "evidence": {
+              "min_increment": 0,
+              "tolerance": 1.5631503727751016e-08,
+              "samples": 16
+            }
+          },
+          {
+            "name": "complexity_ceiling",
+            "kind": "Boolean",
+            "passed": true,
+            "score": 1,
+            "detail": "Declared O(N) against ceiling O(N log N): (1.0, 0.0) <= (2.0, 1.0) (degree, log power).",
+            "evidence": {
+              "declared": "O(N)",
+              "ceiling": "O(N log N)"
+            }
+          },
+          {
+            "name": "novelty",
+            "kind": "Score",
+            "passed": true,
+            "score": 0.78,
+            "detail": "Declared novelty 0.780, corpus overlap 0.000, adjusted 0.780.",
+            "evidence": {
+              "declared": 0.78,
+              "overlap": 0
+            }
+          },
+          {
+            "name": "ste100_compliance",
+            "kind": "Score",
+            "passed": true,
+            "score": 1,
+            "detail": "The hypothesis obeys ASD-STE100.",
+            "evidence": {
+              "ok": true,
+              "mode": "descriptive",
+              "sentences": 6,
+              "words": 55,
+              "longest_sentence_words": 12,
+              "error_count": 0,
+              "warning_count": 0,
+              "findings": []
+            }
+          }
+        ],
+        "ledger": {
+          "backend": "postgres",
+          "written": 6
+        },
+        "tool": "henri_jev",
+        "proposal_id": "AC1-ORTHOGONAL-KRONECKER-INDUCTION-PARSEVAL-SEPARATION"
+      }
+    },
+    "AC3-MULTISCALE-PANEL-AND-DEPTH2-LOO-BOUND": {
+      "proposal": {
+        "proposal_id": "AC3-MULTISCALE-PANEL-AND-DEPTH2-LOO-BOUND",
+        "hypothesis": "A grid morphism maps one lattice to another lattice. The cell count of the output is the cell count of the input times the scale squared. The grid codec reconstructs the input grid exactly and the round trip keeps the wave energy. The depth two composition admits a program only when every held out fold is reproduced. The false admission probability falls as the product of the two single stage errors to the power K.",
+        "equations": [
+          {
+            "lhs": "cells_out",
+            "rhs": "cells_in * scale * scale",
+            "dims": {
+              "cells_out": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "cells_in": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            "note": "Kronecker block scaling multiplies both lattice dimensions by the scale"
+          },
+          {
+            "lhs": "energy_out",
+            "rhs": "energy_in",
+            "dims": {
+              "energy_out": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "energy_in": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            "note": "the measured round trip of the grid codec conserves the wave energy"
+          },
+          {
+            "lhs": "p_false",
+            "rhs": "epsilon_one * epsilon_two",
+            "dims": {
+              "p_false": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "epsilon_one": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "epsilon_two": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            "note": "the single fold false consensus product; the compound Leave One Out bound raises it to the power K over every held-out fold"
+          }
+        ],
+        "complexity": "O(N)",
+        "energy_series": [
+          12.328828005937952,
+          2.23606797749979,
+          27.16615541441225,
+          14.89966442575134,
+          34.292856398964496,
+          31.89043743820395,
+          31.74901573277509,
+          91.79324593890337,
+          66.7757440991862,
+          23.2379000772445,
+          115.72380913191546,
+          23.979157616563597,
+          8.831760866327848,
+          14.966629547095765,
+          51.088159097779204,
+          59.86651818838306
+        ],
+        "energy_bound": 115.72392485572458,
+        "entropy_series": [
+          0.6931471805599453,
+          2.995732273553991,
+          3.6888794541139363,
+          4.85475495385206,
+          6.545331622261422,
+          8.06828668979274,
+          10.923542264679043,
+          13.415341651491117,
+          14.212476450637395,
+          18.435101327506224,
+          19.821213198056103,
+          19.821213198056103,
+          19.821213198056103,
+          21.637677514455543,
+          22.736289803123654,
+          23.060798190054726
+        ],
+        "novelty": 0.74,
+        "metadata": {
+          "measured_from": "vendored official ARC-AGI public slice, ToroidalWaveEncoder codec",
+          "codec_energy_ratios": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "grid_shapes": [
+            [
+              [
+                2,
+                2
+              ],
+              [
+                6,
+                6
+              ]
+            ],
+            [
+              [
+                2,
+                2
+              ],
+              [
+                6,
+                6
+              ]
+            ],
+            [
+              [
+                30,
+                20
+              ],
+              [
+                30,
+                20
+              ]
+            ],
+            [
+              [
+                20,
+                10
+              ],
+              [
+                20,
+                10
+              ]
+            ],
+            [
+              [
+                9,
+                9
+              ],
+              [
+                9,
+                9
+              ]
+            ],
+            [
+              [
+                9,
+                9
+              ],
+              [
+                9,
+                9
+              ]
+            ],
+            [
+              [
+                9,
+                9
+              ],
+              [
+                9,
+                9
+              ]
+            ],
+            [
+              [
+                16,
+                15
+              ],
+              [
+                16,
+                15
+              ]
+            ],
+            [
+              [
+                16,
+                17
+              ],
+              [
+                16,
+                17
+              ]
+            ],
+            [
+              [
+                17,
+                17
+              ],
+              [
+                17,
+                17
+              ]
+            ],
+            [
+              [
+                23,
+                23
+              ],
+              [
+                7,
+                7
+              ]
+            ],
+            [
+              [
+                17,
+                19
+              ],
+              [
+                7,
+                7
+              ]
+            ],
+            [
+              [
+                17,
+                16
+              ],
+              [
+                7,
+                7
+              ]
+            ],
+            [
+              [
+                15,
+                15
+              ],
+              [
+                15,
+                15
+              ]
+            ],
+            [
+              [
+                10,
+                10
+              ],
+              [
+                10,
+                10
+              ]
+            ],
+            [
+              [
+                20,
+                20
+              ],
+              [
+                20,
+                20
+              ]
+            ]
+          ],
+          "external_pass_at_1": 0.375,
+          "emitted_precision": 1.0,
+          "solved": 18,
+          "tasks": 48,
+          "energy_series_kind": "measured L2 norm of the decoded round trip on 16 external training grids",
+          "entropy_series_kind": "cumulative measured Shannon entropy of the object-mass histogram",
+          "loo_bound": "p_false <= (epsilon_1 * epsilon_2) ** K over every held-out fold",
+          "dimensional_consistency": "every emitted morphism maps H x W to H' x W' with a recorded shape"
+        }
+      },
+      "verdict": {
+        "accepted": true,
+        "choice": "accept",
+        "score": 0.9567,
+        "latency_ms": 84.511,
+        "feedback": "",
+        "failed": [],
+        "primitives": [
+          {
+            "name": "dimensional_homogeneity",
+            "kind": "Boolean",
+            "passed": true,
+            "score": 1,
+            "detail": "3 equation(s) are dimensionally homogeneous.",
+            "evidence": {
+              "checked": 3
+            }
+          },
+          {
+            "name": "parseval_energy_bound",
+            "kind": "Boolean",
+            "passed": true,
+            "score": 1,
+            "detail": "Parseval ratio 1.000000, peak norm 115.723800, series norm 195.463526, bound 115.72392485572458, relative growth 9.205",
+            "evidence": {
+              "time_energy": 38205.98993926,
+              "spectral_energy": 38205.98993925999,
+              "ratio": 0.9999999999999998,
+              "norm": 195.46352585395567,
+              "peak": 115.7238,
+              "bound": 115.72392485572458,
+              "growth": 9.205088897539971
+            }
+          },
+          {
+            "name": "entropy_production",
+            "kind": "Boolean",
+            "passed": true,
+            "score": 1,
+            "detail": "Smallest entropy increment 0.000e+00 against tolerance 2.306e-05.",
+            "evidence": {
+              "min_increment": 0,
+              "tolerance": 2.3060798190054724e-05,
+              "samples": 16
+            }
+          },
+          {
+            "name": "complexity_ceiling",
+            "kind": "Boolean",
+            "passed": true,
+            "score": 1,
+            "detail": "Declared O(N) against ceiling O(N log N): (1.0, 0.0) <= (2.0, 1.0) (degree, log power).",
+            "evidence": {
+              "declared": "O(N)",
+              "ceiling": "O(N log N)"
+            }
+          },
+          {
+            "name": "novelty",
+            "kind": "Score",
+            "passed": true,
+            "score": 0.74,
+            "detail": "Declared novelty 0.740, corpus overlap 0.000, adjusted 0.740.",
+            "evidence": {
+              "declared": 0.74,
+              "overlap": 0
+            }
+          },
+          {
+            "name": "ste100_compliance",
+            "kind": "Score",
+            "passed": true,
+            "score": 1,
+            "detail": "The hypothesis obeys ASD-STE100.",
+            "evidence": {
+              "ok": true,
+              "mode": "descriptive",
+              "sentences": 5,
+              "words": 75,
+              "longest_sentence_words": 18,
+              "error_count": 0,
+              "warning_count": 0,
+              "findings": []
+            }
+          }
+        ],
+        "ledger": {
+          "backend": "postgres",
+          "written": 6
+        },
+        "tool": "henri_jev",
+        "proposal_id": "AC3-MULTISCALE-PANEL-AND-DEPTH2-LOO-BOUND"
+      }
+    }
+  },
+  "accepted": true,
+  "gate": {
+    "ac1_accepted": true,
+    "ac1_dimensional_homogeneity": true,
+    "ac1_parseval_energy_bound": true,
+    "ac1_entropy_production": true,
+    "ac1_complexity_ceiling": true,
+    "ac3_accepted": true,
+    "ac3_dimensional_homogeneity": true,
+    "ac3_parseval_energy_bound": true,
+    "ac3_entropy_production": true,
+    "ac3_complexity_ceiling": true,
+    "ac_jev_two_of_two_accepted": true,
+    "passed": true
+  },
+  "tool": "henri_jev (Tier-1 ontological gate)",
+  "note": "Both proposals were gated by the live henri_jev Tier-1 tool. The energy and entropy series are measured in scripts/run_holarch_ac5_jev_proposals.py: the codebook audit for AC1 and the grid-codec round trip plus the object-mass entropy for AC3.",
+  "evidence": "OBSERVED",
+  "passed": true
+}

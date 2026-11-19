@@ -147,10 +147,11 @@ def test_agent_eval_contract(tmp_path):
     # Cycle X adds sixteen shared-stem, wave-egress, one-cell and Pass-0 batch
     # probes; Cycle Y adds sixteen wave-egress, cold-synthesis, cascade and
     # scaled-battery probes; Cycle Z adds sixteen wave-arithmetic, external
-    # synthesis, spatial-induction and stress-arithmetic probes.  The total is
-    # 76 legacy receipts plus 212 probes = 288 queries.  The legacy 256 slots
-    # are unchanged.
-    assert payload["queries_total"] == 288
+    # synthesis, spatial-induction and stress-arithmetic probes; Cycle AC adds
+    # sixteen exact-identity induction, MDL-sheaf selection, multi-scale ARC and
+    # backend/cascade probes.  The total is 76 legacy receipts plus 228 probes =
+    # 304 queries.  The legacy 256 slots are unchanged.
+    assert payload["queries_total"] == 304
     assert payload["composite"]["mcp_accuracy"] >= 0.90
     assert payload["composite"]["mcp_refused"] == payload["composite"]["traps_total"]
     # Every declared category must still carry at least one scored query. The

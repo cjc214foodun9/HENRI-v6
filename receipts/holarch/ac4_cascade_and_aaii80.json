@@ -1,0 +1,961 @@
+{
+  "stage": "AC4",
+  "head": "f819fb1db8f9e86e755a7c291490849a8aac320e",
+  "battery": {
+    "tasks": 80,
+    "answerable": 64,
+    "traps": 16,
+    "slices": {
+      "factual": 16,
+      "briefcase": 16,
+      "external_coding": 16,
+      "arc": 16
+    },
+    "coding": {
+      "corpus": "receipts/holarch/external/mbpp_sanitized.json",
+      "corpus_sha256": "ca95deaa9a01ef0a6f439f88bcf0dd3db3563d22f22aad6cae04ebb9a8d8c8e9",
+      "rows": 427,
+      "eligible": 30,
+      "selected": 16,
+      "rule": "ascending integer task id, rows with >= 4 assert examples, first 16",
+      "public_assertions": 36,
+      "hidden_assertions": 32,
+      "min_public": 2
+    },
+    "arc": {
+      "corpus": "receipts/holarch/external/arc_agi_public",
+      "manifest": "receipts/holarch/external/arc_agi_public/MANIFEST.json",
+      "manifest_sha256": "ef482911ecc8064eb10766a788f0efb6c72aec6777381cea8a29448dfd707602",
+      "digest": "e9b030a233bf7f46a0aca5e7576ebda2022f23f40726f701fccd0e3173721df6",
+      "upstream": "https://github.com/fchollet/ARC-AGI.git",
+      "commit": "399030444e0ab0cc8b4e199870fb20b863846f34",
+      "rule": "the first 16 tasks in manifest order (the prefix of the AC3 slice)",
+      "selected": 16,
+      "tasks": [
+        "arcx_00576224",
+        "arcx_070dd51e",
+        "arcx_0ca9ddb6",
+        "arcx_13713586",
+        "arcx_1990f7a8",
+        "arcx_1d398264",
+        "arcx_212895b5",
+        "arcx_256b0a75",
+        "arcx_29623171",
+        "arcx_3194b014",
+        "arcx_358ba94e",
+        "arcx_3bd67248",
+        "arcx_41e4d17e",
+        "arcx_45737921",
+        "arcx_49d1d64f",
+        "arcx_508bd3b6"
+      ],
+      "grids": 62,
+      "largest_test_cells": 650
+    },
+    "traps_design": {
+      "total": 16,
+      "per_pillar": {
+        "factual": 4,
+        "briefcase": 4,
+        "external_coding": 4,
+        "arc": 4
+      },
+      "legacy_kept": 12,
+      "added": 4,
+      "added_ids": [
+        "t13_blocked_ctypes",
+        "t14_arc_palette_contradiction",
+        "t15_arc_shape_contradiction",
+        "t16_arc_fill_contradiction"
+      ],
+      "design": "one target_pillar per trap names the slice whose evidence the trap forges; the 4/4/4/4 split is counted over this list"
+    },
+    "sealed_reused": {
+      "factual": 12,
+      "briefcase": 12,
+      "note": "the twelve AA4 factual and twelve briefcase tasks are reused byte for byte; the AA4 HumanEval and synthetic-ARC slices are replaced by the external MBPP and official ARC-AGI slices"
+    },
+    "declared": {
+      "tasks": 80,
+      "answerable": 64,
+      "traps": 16,
+      "slices": {
+        "factual": 16,
+        "briefcase": 16,
+        "external_coding": 16,
+        "arc": 16
+      }
+    },
+    "trap_per_pillar": {
+      "factual": 4,
+      "briefcase": 4,
+      "external_coding": 4,
+      "arc": 4
+    }
+  },
+  "arms": {
+    "arm0_henri_standalone": {
+      "arm": "arm0_henri_standalone",
+      "tasks": 80,
+      "points": 70,
+      "composite_score": 0.875,
+      "answerable_solved": 54,
+      "answerable_total": 64,
+      "answerable_solved_rate": 0.84375,
+      "trap_refused": 16,
+      "trap_total": 16,
+      "trap_refusal_rate": 1.0,
+      "blocked_rows": 0,
+      "hallucinations": 0,
+      "hallucination_rate": 0.0,
+      "abstentions": 26,
+      "correct": 70,
+      "llm_derived_count": 0,
+      "llm_derived_correct": 0,
+      "external_api_calls": 0,
+      "retries": 0,
+      "escalations": 0,
+      "deterministic_fallback": 0,
+      "per_slice": {
+        "factual": {
+          "tasks": 16,
+          "solved": 16,
+          "solved_rate": 1.0,
+          "points": 16,
+          "hallucinations": 0,
+          "abstentions": 0
+        },
+        "briefcase": {
+          "tasks": 16,
+          "solved": 16,
+          "solved_rate": 1.0,
+          "points": 16,
+          "hallucinations": 0,
+          "abstentions": 0
+        },
+        "external_coding": {
+          "tasks": 16,
+          "solved": 14,
+          "solved_rate": 0.875,
+          "points": 14,
+          "hallucinations": 0,
+          "abstentions": 2
+        },
+        "arc": {
+          "tasks": 16,
+          "solved": 8,
+          "solved_rate": 0.5,
+          "points": 8,
+          "hallucinations": 0,
+          "abstentions": 8
+        }
+      }
+    },
+    "arm1_raw_llm": {
+      "arm": "arm1_raw_llm",
+      "tasks": 80,
+      "points": 31,
+      "composite_score": 0.3875,
+      "answerable_solved": 20,
+      "answerable_total": 64,
+      "answerable_solved_rate": 0.3125,
+      "trap_refused": 14,
+      "trap_total": 16,
+      "trap_refusal_rate": 0.875,
+      "blocked_rows": 0,
+      "hallucinations": 3,
+      "hallucination_rate": 0.0375,
+      "abstentions": 57,
+      "correct": 34,
+      "llm_derived_count": 0,
+      "llm_derived_correct": 0,
+      "external_api_calls": 80,
+      "retries": 0,
+      "escalations": 0,
+      "deterministic_fallback": 0,
+      "per_slice": {
+        "factual": {
+          "tasks": 16,
+          "solved": 6,
+          "solved_rate": 0.375,
+          "points": 6,
+          "hallucinations": 0,
+          "abstentions": 10
+        },
+        "briefcase": {
+          "tasks": 16,
+          "solved": 0,
+          "solved_rate": 0.0,
+          "points": 0,
+          "hallucinations": 0,
+          "abstentions": 16
+        },
+        "external_coding": {
+          "tasks": 16,
+          "solved": 14,
+          "solved_rate": 0.875,
+          "points": 13,
+          "hallucinations": 1,
+          "abstentions": 1
+        },
+        "arc": {
+          "tasks": 16,
+          "solved": 0,
+          "solved_rate": 0.0,
+          "points": 0,
+          "hallucinations": 0,
+          "abstentions": 16
+        }
+      }
+    },
+    "arm2_rag_llm": {
+      "arm": "arm2_rag_llm",
+      "tasks": 80,
+      "points": 36,
+      "composite_score": 0.45,
+      "answerable_solved": 22,
+      "answerable_total": 64,
+      "answerable_solved_rate": 0.34375,
+      "trap_refused": 15,
+      "trap_total": 16,
+      "trap_refusal_rate": 0.9375,
+      "blocked_rows": 0,
+      "hallucinations": 1,
+      "hallucination_rate": 0.0125,
+      "abstentions": 57,
+      "correct": 37,
+      "llm_derived_count": 0,
+      "llm_derived_correct": 0,
+      "external_api_calls": 80,
+      "retries": 0,
+      "escalations": 0,
+      "deterministic_fallback": 0,
+      "per_slice": {
+        "factual": {
+          "tasks": 16,
+          "solved": 6,
+          "solved_rate": 0.375,
+          "points": 6,
+          "hallucinations": 0,
+          "abstentions": 10
+        },
+        "briefcase": {
+          "tasks": 16,
+          "solved": 0,
+          "solved_rate": 0.0,
+          "points": 0,
+          "hallucinations": 0,
+          "abstentions": 16
+        },
+        "external_coding": {
+          "tasks": 16,
+          "solved": 16,
+          "solved_rate": 1.0,
+          "points": 16,
+          "hallucinations": 0,
+          "abstentions": 0
+        },
+        "arc": {
+          "tasks": 16,
+          "solved": 0,
+          "solved_rate": 0.0,
+          "points": 0,
+          "hallucinations": 0,
+          "abstentions": 16
+        }
+      }
+    },
+    "arm3_henri_coprocessor": {
+      "arm": "arm3_henri_coprocessor",
+      "tasks": 80,
+      "points": 64,
+      "composite_score": 0.8,
+      "answerable_solved": 48,
+      "answerable_total": 64,
+      "answerable_solved_rate": 0.75,
+      "trap_refused": 16,
+      "trap_total": 16,
+      "trap_refusal_rate": 1.0,
+      "blocked_rows": 0,
+      "hallucinations": 0,
+      "hallucination_rate": 0.0,
+      "abstentions": 32,
+      "correct": 64,
+      "llm_derived_count": 22,
+      "llm_derived_correct": 22,
+      "external_api_calls": 72,
+      "retries": 8,
+      "escalations": 0,
+      "deterministic_fallback": 26,
+      "per_slice": {
+        "factual": {
+          "tasks": 16,
+          "solved": 16,
+          "solved_rate": 1.0,
+          "points": 16,
+          "hallucinations": 0,
+          "abstentions": 0
+        },
+        "briefcase": {
+          "tasks": 16,
+          "solved": 16,
+          "solved_rate": 1.0,
+          "points": 16,
+          "hallucinations": 0,
+          "abstentions": 0
+        },
+        "external_coding": {
+          "tasks": 16,
+          "solved": 16,
+          "solved_rate": 1.0,
+          "points": 16,
+          "hallucinations": 0,
+          "abstentions": 0
+        },
+        "arc": {
+          "tasks": 16,
+          "solved": 0,
+          "solved_rate": 0.0,
+          "points": 0,
+          "hallucinations": 0,
+          "abstentions": 16
+        }
+      }
+    },
+    "arm4_henri_cascade": {
+      "arm": "arm4_henri_cascade",
+      "tasks": 80,
+      "points": 72,
+      "composite_score": 0.9,
+      "answerable_solved": 56,
+      "answerable_total": 64,
+      "answerable_solved_rate": 0.875,
+      "trap_refused": 16,
+      "trap_total": 16,
+      "trap_refusal_rate": 1.0,
+      "blocked_rows": 0,
+      "hallucinations": 0,
+      "hallucination_rate": 0.0,
+      "abstentions": 24,
+      "correct": 72,
+      "llm_derived_count": 2,
+      "llm_derived_correct": 2,
+      "external_api_calls": 2,
+      "retries": 0,
+      "escalations": 2,
+      "deterministic_fallback": 0,
+      "per_slice": {
+        "factual": {
+          "tasks": 16,
+          "solved": 16,
+          "solved_rate": 1.0,
+          "points": 16,
+          "hallucinations": 0,
+          "abstentions": 0
+        },
+        "briefcase": {
+          "tasks": 16,
+          "solved": 16,
+          "solved_rate": 1.0,
+          "points": 16,
+          "hallucinations": 0,
+          "abstentions": 0
+        },
+        "external_coding": {
+          "tasks": 16,
+          "solved": 16,
+          "solved_rate": 1.0,
+          "points": 16,
+          "hallucinations": 0,
+          "abstentions": 0
+        },
+        "arc": {
+          "tasks": 16,
+          "solved": 8,
+          "solved_rate": 0.5,
+          "points": 8,
+          "hallucinations": 0,
+          "abstentions": 8
+        }
+      }
+    }
+  },
+  "slice_matrix": {
+    "factual": {
+      "arm0_henri_standalone": {
+        "tasks": 16,
+        "solved": 16,
+        "solved_rate": 1.0,
+        "points": 16,
+        "hallucinations": 0,
+        "calls": 0
+      },
+      "arm1_raw_llm": {
+        "tasks": 16,
+        "solved": 6,
+        "solved_rate": 0.375,
+        "points": 6,
+        "hallucinations": 0,
+        "calls": 16
+      },
+      "arm2_rag_llm": {
+        "tasks": 16,
+        "solved": 6,
+        "solved_rate": 0.375,
+        "points": 6,
+        "hallucinations": 0,
+        "calls": 16
+      },
+      "arm3_henri_coprocessor": {
+        "tasks": 16,
+        "solved": 16,
+        "solved_rate": 1.0,
+        "points": 16,
+        "hallucinations": 0,
+        "calls": 16
+      },
+      "arm4_henri_cascade": {
+        "tasks": 16,
+        "solved": 16,
+        "solved_rate": 1.0,
+        "points": 16,
+        "hallucinations": 0,
+        "calls": 0
+      }
+    },
+    "briefcase": {
+      "arm0_henri_standalone": {
+        "tasks": 16,
+        "solved": 16,
+        "solved_rate": 1.0,
+        "points": 16,
+        "hallucinations": 0,
+        "calls": 0
+      },
+      "arm1_raw_llm": {
+        "tasks": 16,
+        "solved": 0,
+        "solved_rate": 0.0,
+        "points": 0,
+        "hallucinations": 0,
+        "calls": 16
+      },
+      "arm2_rag_llm": {
+        "tasks": 16,
+        "solved": 0,
+        "solved_rate": 0.0,
+        "points": 0,
+        "hallucinations": 0,
+        "calls": 16
+      },
+      "arm3_henri_coprocessor": {
+        "tasks": 16,
+        "solved": 16,
+        "solved_rate": 1.0,
+        "points": 16,
+        "hallucinations": 0,
+        "calls": 16
+      },
+      "arm4_henri_cascade": {
+        "tasks": 16,
+        "solved": 16,
+        "solved_rate": 1.0,
+        "points": 16,
+        "hallucinations": 0,
+        "calls": 0
+      }
+    },
+    "external_coding": {
+      "arm0_henri_standalone": {
+        "tasks": 16,
+        "solved": 14,
+        "solved_rate": 0.875,
+        "points": 14,
+        "hallucinations": 0,
+        "calls": 0
+      },
+      "arm1_raw_llm": {
+        "tasks": 16,
+        "solved": 14,
+        "solved_rate": 0.875,
+        "points": 13,
+        "hallucinations": 1,
+        "calls": 16
+      },
+      "arm2_rag_llm": {
+        "tasks": 16,
+        "solved": 16,
+        "solved_rate": 1.0,
+        "points": 16,
+        "hallucinations": 0,
+        "calls": 16
+      },
+      "arm3_henri_coprocessor": {
+        "tasks": 16,
+        "solved": 16,
+        "solved_rate": 1.0,
+        "points": 16,
+        "hallucinations": 0,
+        "calls": 16
+      },
+      "arm4_henri_cascade": {
+        "tasks": 16,
+        "solved": 16,
+        "solved_rate": 1.0,
+        "points": 16,
+        "hallucinations": 0,
+        "calls": 2
+      }
+    },
+    "arc": {
+      "arm0_henri_standalone": {
+        "tasks": 16,
+        "solved": 8,
+        "solved_rate": 0.5,
+        "points": 8,
+        "hallucinations": 0,
+        "calls": 0
+      },
+      "arm1_raw_llm": {
+        "tasks": 16,
+        "solved": 0,
+        "solved_rate": 0.0,
+        "points": 0,
+        "hallucinations": 0,
+        "calls": 16
+      },
+      "arm2_rag_llm": {
+        "tasks": 16,
+        "solved": 0,
+        "solved_rate": 0.0,
+        "points": 0,
+        "hallucinations": 0,
+        "calls": 16
+      },
+      "arm3_henri_coprocessor": {
+        "tasks": 16,
+        "solved": 0,
+        "solved_rate": 0.0,
+        "points": 0,
+        "hallucinations": 0,
+        "calls": 24
+      },
+      "arm4_henri_cascade": {
+        "tasks": 16,
+        "solved": 8,
+        "solved_rate": 0.5,
+        "points": 8,
+        "hallucinations": 0,
+        "calls": 0
+      }
+    },
+    "trap": {
+      "arm0_henri_standalone": {
+        "tasks": 16,
+        "solved": 16,
+        "solved_rate": 1.0,
+        "points": 16,
+        "hallucinations": 0,
+        "calls": 0
+      },
+      "arm1_raw_llm": {
+        "tasks": 16,
+        "solved": 14,
+        "solved_rate": 0.875,
+        "points": 12,
+        "hallucinations": 2,
+        "calls": 16
+      },
+      "arm2_rag_llm": {
+        "tasks": 16,
+        "solved": 15,
+        "solved_rate": 0.9375,
+        "points": 14,
+        "hallucinations": 1,
+        "calls": 16
+      },
+      "arm3_henri_coprocessor": {
+        "tasks": 16,
+        "solved": 16,
+        "solved_rate": 1.0,
+        "points": 16,
+        "hallucinations": 0,
+        "calls": 0
+      },
+      "arm4_henri_cascade": {
+        "tasks": 16,
+        "solved": 16,
+        "solved_rate": 1.0,
+        "points": 16,
+        "hallucinations": 0,
+        "calls": 0
+      }
+    }
+  },
+  "external_coding": {
+    "arm0_solved": 14,
+    "arm0_total": 16,
+    "arm0_solved_rate": 0.875,
+    "bar": 9,
+    "summary": {
+      "corpus": "receipts/holarch/external/mbpp_sanitized.json",
+      "corpus_sha256": "ca95deaa9a01ef0a6f439f88bcf0dd3db3563d22f22aad6cae04ebb9a8d8c8e9",
+      "rows": 427,
+      "eligible": 30,
+      "selected": 16,
+      "rule": "ascending integer task id, rows with >= 4 assert examples, first 16",
+      "public_assertions": 36,
+      "hidden_assertions": 32,
+      "min_public": 2
+    }
+  },
+  "call_reduction": {
+    "arm3_calls": 72,
+    "arm4_calls": 2,
+    "reduction": 0.9722222222222222,
+    "arm4_over_arm3": 0.027777777777777776,
+    "bar": 0.2,
+    "definition": "(arm3_calls - arm4_calls) / arm3_calls; arm4 escalates only a non-trap arm0 abstention of an eligible kind",
+    "escalated_tasks": [
+      "mbpp_721",
+      "mbpp_735"
+    ]
+  },
+  "ac2_engine": {
+    "engine": "henri.holarch.cold_synth.ColdSynthesizer",
+    "selection_policy": "joint_mdl_sheaf",
+    "budget": 64,
+    "idf": {
+      "source": "ac4_external_coding_prompt_intents",
+      "documents": 16,
+      "vocabulary": 145,
+      "idf_max": 3.1400661634962708,
+      "idf_min": 1.0
+    },
+    "plans_compiled": 14,
+    "rollouts": 171,
+    "tasks_with_warm_engagement": 15,
+    "warm_emissions": 0,
+    "llm_calls": 0
+  },
+  "ac3_engine": {
+    "engine": "henri.holarch.arc_objects.ObjectLooInducer",
+    "node_budget": 200000,
+    "head_cap": 16,
+    "depth": 2,
+    "time_budget_seconds": 10.0,
+    "arc_tasks": 16,
+    "loo_passed_rows": 8,
+    "llm_calls": 0
+  },
+  "cascade": {
+    "eligible_kinds": [
+      "briefcase",
+      "code",
+      "quantity"
+    ],
+    "trap_veto": "a proven trap is never escalated",
+    "max_retries": 1,
+    "consolidation": "verified code compiled into the arm4 PlanStore"
+  },
+  "arm0_live_call_probe": {
+    "interposer": "z4._chat counted while the arm0 path is active",
+    "live_calls_during_arm0": 0,
+    "events_total": 234,
+    "arm0_ledger_rows": 0,
+    "arm0_external_api_calls": 0
+  },
+  "provenance": {
+    "rule": "fresh = the row spent at least one live completion; cached = it reused a measured one; none = zero calls",
+    "fresh_rows": 226,
+    "cached_rows": 0,
+    "none_rows": 174,
+    "cache_available": false,
+    "note": "the Z4/AC4 harness keeps no response cache, so no row could be answered from a cached completion and every counted call is fresh"
+  },
+  "stress": {
+    "requests": 1000,
+    "completed": 1000,
+    "ok_200": 1000,
+    "five_xx": 0,
+    "transport_errors": 0,
+    "latency_ms": {
+      "p50": 14.457649958785623,
+      "p95": 56.873145053395994,
+      "p99": 66.64013705216347,
+      "mean": 21.244873799965717,
+      "max": 77.34399999026209
+    },
+    "sse": {
+      "streams": 250,
+      "verified_streams": 250,
+      "done_seen": 250,
+      "min_data_lines": 12,
+      "max_data_lines": 12
+    },
+    "wall_seconds": 1.3350823000073433,
+    "rss_delta_bytes": 1916928,
+    "ledger": {
+      "count": 1504,
+      "head": "980156a96062f5fc82bd1e45f23cd2a717982ed2c6748f96248e3fe518d2a73c",
+      "chain_valid": true
+    }
+  },
+  "gauntlet": {
+    "path": "receipts\\holarch\\agent_eval.json",
+    "present": true,
+    "sha256_sidecar": "eed6ab1a02c2adda5a204a56ba5df6810ecd6fa78ded3d966c75a500167d1258",
+    "digest_matches": true,
+    "fresh": true,
+    "total_queries": 304,
+    "probe_slots": 228,
+    "ledger_receipts": 76,
+    "wall_seconds": 138.77699149993714,
+    "query_reads": 0,
+    "passed": true,
+    "sha256": "eed6ab1a02c2adda5a204a56ba5df6810ecd6fa78ded3d966c75a500167d1258",
+    "gate_queries_288": false,
+    "mcp_reachable": 1.0,
+    "hallucination_rate": 0.0,
+    "gate_passed": true,
+    "probe_categories": 24,
+    "expected": {
+      "queries": 304,
+      "probes": 228,
+      "ledger_receipts": 76,
+      "wall_bar_seconds": 160.0
+    }
+  },
+  "spend_guard": {
+    "label": "ac4",
+    "budget": 96,
+    "calls": 2,
+    "retries": 0,
+    "remaining": 94,
+    "acquired": false,
+    "reclaimed_stale_lock": false,
+    "lock": "C:\\Users\\chan\\Desktop\\HENRI v6\\receipts\\holarch\\.live_runner.lock",
+    "wall_seconds": 1139.8839402198792,
+    "acquired_during_run": true
+  },
+  "spend_guard_scope": {
+    "covers": "every arm4 cascade escalation and its one governed retry",
+    "suite_max_calls": 240,
+    "suite_budget": {
+      "calls": 234,
+      "max_calls": 240,
+      "retries": 8,
+      "max_retries": 8,
+      "errors": 0
+    },
+    "note": "the guard is the hard budget of the escalation path; the suite cap bounds arm1+arm2+arm3+arm4 together and is reported as suite_budget (measured)"
+  },
+  "sandbox_scratch": {
+    "installed": true,
+    "replaced": "tempfile.mkdtemp",
+    "reason": "CPython 3.14 creates the sandbox scratch directory with an owner-only DACL that the DSH file sandbox denies to the creating process; the replacement creates the same unique directory with the inherited ACL. Sandbox semantics are unchanged.",
+    "original": "mkdtemp"
+  },
+  "pinned_snapshot": {
+    "path": "receipts\\holarch\\pinned_corpus_snapshot.json",
+    "expected_sha256": "d675f3816bbf472493b25f885bbb56c62c5ec88a81ab31e31a9b87b3a0c23703",
+    "before": "d675f3816bbf472493b25f885bbb56c62c5ec88a81ab31e31a9b87b3a0c23703",
+    "after": "d675f3816bbf472493b25f885bbb56c62c5ec88a81ab31e31a9b87b3a0c23703",
+    "unchanged": true
+  },
+  "suite": {
+    "stage": "Z4",
+    "mode": "live",
+    "shared_stem": {
+      "build_seconds": 10.676783900009468,
+      "build_ms": 10673.490599961951,
+      "describe": {
+        "root": "C:\\Users\\chan\\Desktop\\HENRI v6",
+        "build_ms": 10673.490599961951,
+        "mounts": 5,
+        "stats": {
+          "corpus_digest": "cca7060832deb023",
+          "files": 37,
+          "tokens": 972719,
+          "train_tokens": 875447,
+          "vocabulary_size": 2048,
+          "vocabulary_digest": "d5a64f73b97c6aab",
+          "vocab_locked": true,
+          "vocab_lock_path": "C:\\Users\\chan\\Desktop\\HENRI v6\\receipts\\holarch\\vocab_lock.json",
+          "verifier_passages": 2540,
+          "index": {
+            "built": true,
+            "package": "henri",
+            "modules": 103,
+            "functions": 4143,
+            "edges": 5336,
+            "nodes": 4145,
+            "seconds": 0.9387722000246868
+          },
+          "max_fit_tokens": 0
+        },
+        "signatures": 4143,
+        "symbol_table": 4145
+      },
+      "mounts": [
+        {
+          "namespace": "arm0_henri_standalone",
+          "mount_ms": 1.419000094756484,
+          "plans": 0,
+          "boundary_axioms": 2.0,
+          "fast_weight_bytes": 16777216
+        },
+        {
+          "namespace": "arm1_raw_llm",
+          "mount_ms": 1.2104000197723508,
+          "plans": 0,
+          "boundary_axioms": 2.0,
+          "fast_weight_bytes": 16777216
+        },
+        {
+          "namespace": "arm2_rag_llm",
+          "mount_ms": 1.501500024460256,
+          "plans": 0,
+          "boundary_axioms": 2.0,
+          "fast_weight_bytes": 16777216
+        },
+        {
+          "namespace": "arm3_henri_coprocessor",
+          "mount_ms": 1.3895001029595733,
+          "plans": 0,
+          "boundary_axioms": 2.0,
+          "fast_weight_bytes": 16777216
+        },
+        {
+          "namespace": "arm4_henri_cascade",
+          "mount_ms": 1.2163000646978617,
+          "plans": 0,
+          "boundary_axioms": 2.0,
+          "fast_weight_bytes": 16777216
+        }
+      ],
+      "isolation": {
+        "distinct_fast_weights": true,
+        "distinct_namespaces": true,
+        "shared_count_lm": true
+      }
+    },
+    "cold_path": {
+      "engine": "henri.holarch.cold_synth.ColdSynthesizer",
+      "llm_calls": 0,
+      "rollout_budget": 24,
+      "rollouts": 171,
+      "repulsors": 136,
+      "crystallized": 14,
+      "sandbox": "SubprocessSandboxExecutor(pure_algorithmic)"
+    },
+    "spatial_path": {
+      "engine": "henri.holarch.spatial_induction.SpatialCegisInducer",
+      "llm_calls": 0,
+      "tasks": 16,
+      "induced": 0,
+      "node_budget": 200000
+    },
+    "credential": {
+      "source": "plugin_secret_store:openrouter_api_key",
+      "base_url": "https://openrouter.ai/api/v1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "api_key_present": true,
+      "api_key_len": 73,
+      "api_key_sha256_8": "ccde6aef"
+    },
+    "live_calls": 234,
+    "budget": {
+      "calls": 234,
+      "max_calls": 240,
+      "retries": 8,
+      "max_retries": 8,
+      "errors": 0
+    },
+    "call_ledger": {
+      "cap": 200,
+      "calls": 234,
+      "retries": 8,
+      "errors": 0,
+      "per_arm": {
+        "arm0_henri_standalone": 0,
+        "arm1_raw_llm": 80,
+        "arm2_rag_llm": 80,
+        "arm3_henri_coprocessor": 72,
+        "arm4_henri_cascade": 2
+      },
+      "entries": 234
+    },
+    "arm_seconds": 1124.6679965000367,
+    "security": {
+      "api_key_sha256_8": "ccde6aef",
+      "receipt_leak_scan": {
+        "scanned": 369,
+        "leaks": [],
+        "count": 0,
+        "secret_len": 73
+      },
+      "secret_leak_count": 0,
+      "prompt_response_hashed": true
+    },
+    "raw_payload": "receipts\\holarch\\_work\\ac4_suite_payload.json",
+    "z4_internal_gate": {
+      "z4_mode_live": true,
+      "z4_battery_64": true,
+      "z4_zero_credential_leaks": true,
+      "z4_digests_recorded": true,
+      "z4_arm0_hallucination_zero": true,
+      "z4_arm0_traps_12": false,
+      "z4_arm0_zero_calls": true,
+      "z4_arm4_beats_arm1": true,
+      "z4_arm4_beats_arm2": true,
+      "z4_arm4_hallucination_zero": true,
+      "z4_arm4_call_reduction_ge_80pct": true,
+      "z4_stress_1000_ok": true,
+      "z4_stress_zero_5xx": true,
+      "z4_receipt_chain_1000": true,
+      "z4_sse_verified": true,
+      "z4_rss_drift_bounded": true,
+      "z4_gauntlet_288": true,
+      "z4_gauntlet_wall_le_160": true,
+      "z4_gauntlet_zero_reads": true,
+      "passed": false
+    },
+    "z4_internal_note": "the nested gate is the Cycle Z4 contract evaluated on the AC4 battery: the battery-size and gauntlet-count expectations were passed in, so its verdict is measured against 80 tasks and 304 queries, not against the sealed 64/288 numbers"
+  },
+  "gate": {
+    "ac4_runner_exit_zero": true,
+    "arm0_zero_llm_calls": true,
+    "tasks_total_80": true,
+    "arm0_external_coding_positive": true,
+    "arm0_hallucination_zero": true,
+    "arm0_traps_all": true,
+    "arm4_hallucination_zero": true,
+    "arm4_traps_all": true,
+    "arm4_composite_gt_arm3": true,
+    "arm4_live_calls_le_20pct_arm3": true,
+    "http_sse_stress_green": true,
+    "gauntlet_304_of_304": true,
+    "spend_guard_max_calls_96": true,
+    "spend_guard_held": true,
+    "pinned_snapshot_unchanged": true,
+    "passed": true
+  },
+  "gate_bars": {
+    "tasks_total_80": "80 tasks, 64 answerable (16 per slice), 16 traps (4 per pillar)",
+    "arm0_external_coding_positive": ">= 9 of 16 with 0 LLM calls",
+    "arm0_hallucination_zero": "0",
+    "arm4_hallucination_zero": "0",
+    "arm4_composite_gt_arm3": "strictly greater composite",
+    "arm4_live_calls_le_20pct_arm3": "arm4 calls <= 20% of arm3 calls",
+    "http_sse_stress_green": "1000/1000, 0 5xx, P99 <= 100 ms, 250/250 SSE verified",
+    "gauntlet_304_of_304": "304 queries, reachable 1.0000, hallucination 0.0000, 0 query-time reads, wall <= 160.0 s",
+    "spend_guard_max_calls_96": "declared guard budget <= 96",
+    "spend_guard_held": "the guard was acquired, never overrun, and released",
+    "arm0_zero_llm_calls": "0 arm0 ledger rows, 0 arm0 calls, 0 interposed calls",
+    "pinned_snapshot_unchanged": "d675f3816bbf472493b25f885bbb56c62c5ec88a81ab31e31a9b87b3a0c23703"
+  },
+  "wall_seconds": 1139.8606704999693,
+  "evidence": "OBSERVED",
+  "passed": true
+}

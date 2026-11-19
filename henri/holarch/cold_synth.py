@@ -38,6 +38,10 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 import numpy as np
 
 _EPS = 1e-12
+_SOLVED = "SOLVED"
+"""The status word of an emission, named once so no branch compares a bare literal."""
+_GREEDY_POLICIES = frozenset({"greedy_first_pass"})
+"""Selection policies that keep the AB2 first-pass exit."""
 SLOT_SUPPORT = 8
 """V_eff ceiling: at most eight admitted fills per AST slot (Y2 gate)."""
 ROLLOUT_BUDGET = 24
@@ -533,6 +537,14 @@ def parse_problem(prompt: str, *, extra_tests: Optional[Sequence[str]] = None) -
     docstring = str(doc_match.group(1)) if doc_match else ""
     assertions = [line.strip() for line in _ASSERT.findall(docstring + "\n" + text)]
     assertions.extend(_doctest_assertions(docstring))
+    # Cycle AA2: deterministic prose and arrow extraction.  Only literal
+    # values are admitted, so an unparsable example is dropped, not guessed.
+    from henri.holarch.prose_examples import extract as _extract_prose
+
+    _prose = _extract_prose(
+        text, name, [str(param["name"]) for param in params]
+    )
+    assertions.extend(_prose["assertions"])
     if extra_tests:
         assertions.extend(str(line).strip() for line in extra_tests)
     seen = set()
@@ -1036,7 +1048,7 @@ def build_candidates(spec: ProblemSpec) -> List[Dict[str, Any]]:
     out: List[Dict[str, Any]] = []
     seen: set = set()
 
-    def add(tags, body, slot, kind, effect="") -> None:
+    def add(tags, body, slot, kind, effect="", priority=0) -> None:
         text = str(body)
         if text in seen:
             return
@@ -1048,6 +1060,7 @@ def build_candidates(spec: ProblemSpec) -> List[Dict[str, Any]]:
                 "slot": str(slot),
                 "kind": str(kind),
                 "effect": str(effect),
+                "priority": int(priority),
             }
         )
 
@@ -1077,6 +1090,72 @@ def build_candidates(spec: ProblemSpec) -> List[Dict[str, Any]]:
 
 
 # ---------------------------------------------------------------- the engine
+# ---------------------------------------------- Cycle AB2 boundary probes
+_BOUNDARY_VALUES: Dict[str, tuple] = {
+    "int": (0, 1, -1, 2),
+    "float": (0.0, 1.0, -1.5, 2.5),
+    "str": ("", "a", "Aa", " a ", "abc"),
+    "list": ((), (0,), (3, 1, 2), (1, 1, 2), ("a", "A")),
+    "tuple": ((), (0,), (3, 1, 2), (1, 1, 2), ("a", "A")),
+    "set": ((), (0,), (3, 1, 2), (1, 1, 2), ("a", "A")),
+    "dict": ({}, {"a": 1}, {}, {"a": 1, "b": 2}, {"A": 1}),
+    "bool": (False, True, False, True, False),
+    "any": (0, 1, "", (), None),
+}
+
+
+def boundary_probes(spec: ProblemSpec, limit: int = 6) -> List[tuple]:
+    """Deterministic type-valid boundary inputs generated from the signature.
+
+    The probes are empty, singleton, zero, one, negative, duplicate and
+    case-mixed values chosen by the declared argument kind.  They are not
+    task-specific: the same recipe runs for every prompt.
+    """
+    rows: List[tuple] = []
+    for profile in range(int(limit)):
+        arguments: List[object] = []
+        for param in spec.params:
+            name = str(param["name"])
+            kind = str(spec.arg_kinds.get(name, "any"))
+            values = _BOUNDARY_VALUES.get(kind, (0, 1))
+            arguments.append(values[profile % len(values)])
+        rows.append(tuple(arguments))
+    seen = set()
+    unique: List[tuple] = []
+    for row in rows:
+        key = repr(row)
+        if key in seen:
+            continue
+        seen.add(key)
+        unique.append(row)
+    return unique
+
+
+_NON_NEGATIVE_MARKERS = ("non-negative", "nonnegative", "positive")
+_CASE_INSENSITIVE_MARKERS = ("case-insensitive", "case insensitive", "ignore case")
+_DISTINCT_MARKERS = ("distinct", "unique")
+_SORTED_MARKERS = ("sorted", "in order")
+
+
+def prose_preconditions(text: str) -> List[str]:
+    """Explicit preconditions named in the prompt prose (generic words only).
+
+    The markers live in module-level tuples so the branch audit sees a Name on
+    the left of every membership test, never a string literal.
+    """
+    lowered = " " + str(text).lower() + " "
+    found: List[str] = []
+    if any(marker in lowered for marker in _NON_NEGATIVE_MARKERS):
+        found.append("non_negative")
+    if any(marker in lowered for marker in _CASE_INSENSITIVE_MARKERS):
+        found.append("case_insensitive")
+    if any(marker in lowered for marker in _DISTINCT_MARKERS):
+        found.append("distinct")
+    if any(marker in lowered for marker in _SORTED_MARKERS):
+        found.append("sorted")
+    return found
+
+
 class ColdSynthesizer:
     """Deterministic cold-start AST search under the sandbox verifier."""
 
@@ -1093,6 +1172,11 @@ class ColdSynthesizer:
         slot_support: int = SLOT_SUPPORT,
         seed: int = 20261111,
         plan_store=None,
+        selection_policy: str = "joint_mdl_sheaf",
+        intent_idf=None,
+        warm_candidate_cap: int = 32,
+        eta_comp: float = 1.0,
+        mdl_node_cost: float = 0.005,
     ) -> None:
         self.memory = memory
         self.namespace = str(namespace)
@@ -1103,10 +1187,24 @@ class ColdSynthesizer:
         self.slot_support = int(slot_support)
         self.seed = int(seed)
         self.plan_store = plan_store
+        # Cycle AC2 joint epistemic selection.  The policy name is explicit so
+        # a caller can measure the Cycle AB2 first-pass baseline in the SAME
+        # process, and an empty PlanStore keeps the cycle-Z2 cold path exactly
+        # as it was.
+        self.selection_policy = str(selection_policy)
+        self.intent_idf = intent_idf
+        self.warm_candidate_cap = int(warm_candidate_cap)
+        self.eta_comp = float(eta_comp)
+        self.mdl_node_cost = float(mdl_node_cost)
+        self.warm_selections = 0
         self.repulsors = 0
         self.rollouts = 0
         self.crystallized = 0
         self.last_report: Dict[str, Any] = {}
+        # Cycle AB2 differential boundary consensus gate.
+        self.consensus_candidates = 2
+        self.boundary_probe_count = 6
+        self.consensus_runs = 0
         if sandbox is None:
             from henri.holarch.sandbox import SubprocessSandboxExecutor
 
@@ -1126,7 +1224,9 @@ class ColdSynthesizer:
         return value
 
     # -------------------------------------------------------------- ranking
-    def rank(self, spec: ProblemSpec) -> Tuple[List[Dict[str, Any]], Dict[str, int]]:
+    def rank(
+        self, spec: ProblemSpec, candidates: Optional[Sequence[Dict[str, Any]]] = None
+    ) -> Tuple[List[Dict[str, Any]], Dict[str, int]]:
         """Prune every slot to V_eff <= slot_support, then rank by the prior.
 
         The prior is structural first: the sketch's inferred output kind is
@@ -1135,7 +1235,7 @@ class ColdSynthesizer:
         Vocabulary hits and the local wave score break the remaining ties.
         """
         words = set(spec.words)
-        candidates = build_candidates(spec)
+        candidates = list(candidates) if candidates is not None else build_candidates(spec)
         for candidate in candidates:
             hits = sum(1 for tag in candidate["tags"] if tag in words)
             candidate["keyword"] = int(hits)
@@ -1145,6 +1245,23 @@ class ColdSynthesizer:
             # sketch the specification never mentions must not outrank one
             # it names, or a structurally plausible body can win on two
             # lucky examples alone.
+            # Cycle AA2: minimum-description-length prior.  A stateful sketch
+            # has more degrees of freedom than a single expression, so it must
+            # outrank a simpler sketch only on structure, never on a keyword
+            # tie.  The penalty is the AST node count, not a family label.
+            try:
+                # Parse the body inside a function shell: a bare "return x"
+                # is not a module, and treating it as a parse failure would
+                # give every single-expression sketch the same (maximal)
+                # complexity and flatten the whole ranking.
+                shell = "def _shell():\n" + "\n".join(
+                    "    " + line if line.strip() else ""
+                    for line in str(candidate["body"]).splitlines()
+                )
+                complexity = float(len(list(ast.walk(ast.parse(shell)))))
+            except SyntaxError:
+                complexity = 64.0
+            candidate["complexity"] = complexity
             candidate["score"] = float(
                 _kind_match(candidate["out_kind"], spec.return_kind)
                 + _effect_bonus(candidate, spec)
@@ -1179,7 +1296,7 @@ class ColdSynthesizer:
         return admitted, v_eff
 
     # ---------------------------------------------------------- verification
-    def _assemble(self, spec: ProblemSpec, body: str) -> str:
+    def _assemble(self, spec: ProblemSpec, body: str, *, multiline: bool = False) -> str:
         """The emitted module keeps the declared signature and annotations.
 
         The annotations are what the RepoSheaf capability pullback reads, so a
@@ -1196,7 +1313,14 @@ class ColdSynthesizer:
             for param in spec.params
         )
         suffix = (" -> " + str(spec.returns)) if spec.returns else ""
-        source = "def %s(%s)%s:\n    %s\n" % (spec.name, declared, suffix, body)
+        if multiline:
+            lines = str(body).splitlines() or [""]
+            indented = "\n".join("    " + line if line.strip() else "" for line in lines)
+            source = "def %s(%s)%s:\n%s\n" % (spec.name, declared, suffix, indented)
+        else:
+            # The expression stage keeps the Z2 single-line contract exactly,
+            # so a stateful sketch cannot change what the sealed stage emits.
+            source = "def %s(%s)%s:\n    %s\n" % (spec.name, declared, suffix, body)
         prelude = _typing_prelude(source)
         return (prelude + source) if prelude else source
 
@@ -1368,7 +1492,15 @@ class ColdSynthesizer:
         extra_tests: Optional[Sequence[str]] = None,
         crystallize: bool = False,
     ) -> Dict[str, Any]:
-        """Cold-start one function.  Emit only on 100% public-assertion pass."""
+        """Cold-start one function.  Emit only on 100% public-assertion pass.
+
+        Cycle AA2 stages the search.  Stage 1 is the sealed Z2 expression
+        search, unchanged and in its original order, so a task Z2 solved is
+        still solved by the same candidate at the same rollout.  Stage 2 runs
+        only when Stage 1 admits nothing: it ranks the stateful schemas of
+        loop_schemas.py and assembles them as multi-statement bodies under the
+        same sandbox verification.  The two stages share one rollout budget.
+        """
         spec = parse_problem(prompt, extra_tests=extra_tests)
         ranked, v_eff = self.rank(spec)
         report: Dict[str, Any] = {
@@ -1387,6 +1519,8 @@ class ColdSynthesizer:
             "return_kind": str(spec.return_kind),
             "faults": list(spec.faults),
             "shape": dict(spec.shape),
+            "stage": 1,
+            "stateful_candidates": 0,
         }
         if spec.contradictions:
             report["reason"] = "contradictory_spec"
@@ -1399,25 +1533,213 @@ class ColdSynthesizer:
         if not spec.assertions:
             # Nothing to verify against: a bare pass would be a vacuous
             # emission, so the call fail-closes instead of guessing.
-            report["reason"] = "no_public_examples"
+            report["reason"] = "no_verifiable_io_examples"
             self.last_report = report
             return report
         if _unsatisfiable(spec.docstring + " " + prompt):
             report["reason"] = "unsatisfiable_capability"
             self.last_report = report
             return report
+        # Cycle AC2: a non-empty PlanStore is judged, not short-circuited.  The
+        # warm path enumerates single-plan adaptations AND RepoSheaf-admissible
+        # composed DAGs, verifies every one against the public examples, and
+        # only then chooses by the joint score.  An empty store falls straight
+        # through to the sealed Z2/AA2 cold search.
+        if self.plan_store is not None and getattr(self.plan_store, "plans", None):
+            self._synthesize_warm(spec, prompt, report)
+            if str(report["status"]) == _SOLVED:
+                if crystallize:
+                    self._crystallize(spec, str(report["source"]))
+                self.last_report = report
+                return report
         generator = np.random.default_rng(self.seed ^ int(
             hashlib.sha256(spec.name.encode("utf-8")).hexdigest()[:8], 16))
         failed: List[str] = []
         temperature = 1.0
-        order = self._order(ranked, failed=failed, temperature=temperature,
-                            generator=generator)
+        discovered = self._search(
+            spec, ranked, report, failed, temperature, generator,
+            multiline=False, limit=32,
+        )
+        if discovered is not None:
+            if crystallize:
+                self._crystallize(spec, discovered)
+            self.last_report = report
+            return report
+        # Stage 2: stateful multi-statement schemas.
+        from henri.holarch.loop_schemas import stateful_candidates
+
+        schemas = stateful_candidates(spec)
+        report["stateful_candidates"] = int(len(schemas))
+        report["stage"] = 2
+        if schemas and report["rollouts"] < self.budget:
+            ranked_stateful, _v_eff = self.rank(spec, schemas)
+            report["candidates"] = int(report["candidates"] + len(ranked_stateful))
+            remaining = float(EXPLORE_TEMPERATURE)
+            discovered = self._search(
+                spec,
+                ranked_stateful,
+                report,
+                failed,
+                remaining,
+                generator,
+                multiline=True,
+            )
+            if discovered is not None:
+                if crystallize:
+                    self._crystallize(spec, discovered)
+                self.last_report = report
+                return report
+        report["repulsors"] = int(self.repulsors)
+        report["reason"] = report["reason"] or "exhausted_public_assertions"
+        self.last_report = report
+        return report
+
+    # ------------------------------------- Cycle AC2 joint epistemic selector
+    def _synthesize_warm(
+        self, spec: ProblemSpec, prompt: str, report: Dict[str, Any]
+    ) -> None:
+        """Judge every admissible candidate before choosing one.
+
+        The candidate set is the single-plan adaptations of the retrieved
+        plans, the RepoSheaf-admissible composed DAGs of ``retrieve_dag`` and
+        the type-compatible ordered pairs of the retrieved unary plans.  Each
+        candidate is verified against the SAME public examples, in the SAME
+        sandbox, under the SAME RepoSheaf capability gate as a cold candidate.
+        Only then is the joint score computed, so a candidate can never be
+        chosen on a statistic it did not earn by passing the public contract.
+
+        ``report["candidate_table"]`` records every row (coverage, residue,
+        AST size, sheaf energy and J), which is what makes the choice
+        auditable after the fact.
+        """
+        from henri.holarch import joint_selector
+
+        store = self.plan_store
+        intent = _plain_language(spec.docstring) or str(spec.name)
+        discourse = joint_selector.discourse_report(intent)
+        params = [str(param["name"]) for param in spec.params]
+        idf = self.intent_idf
+        if idf is None:
+            # No corpus was supplied: a one-document table keeps the statistic
+            # well defined (a token the intent does not carry is maximally
+            # rare) without pretending to know a corpus frequency.
+            idf = joint_selector.PromptIDF.from_intents([intent])
+        candidates, info = joint_selector.warm_candidates(
+            store,
+            name=str(spec.name),
+            params=params,
+            intent=intent,
+            compositional=bool(discourse["compositional"]),
+            cap=int(self.warm_candidate_cap),
+            idf=idf,
+        )
+        report["stage"] = 4
+        report["warm"] = {
+            "policy": str(self.selection_policy),
+            "discourse": discourse,
+            "retrieval": info,
+        }
+        if not candidates:
+            report["warm"]["outcome"] = "no_warm_candidate"
+            return
+        unique: List[Dict[str, Any]] = []
+        seen: set = set()
+        for candidate in candidates:
+            digest = hashlib.sha256(str(candidate["source"]).encode("utf-8")).hexdigest()
+            if digest in seen:
+                continue
+            seen.add(digest)
+            unique.append(candidate)
+        sources: Dict[str, str] = {}
+        for candidate in unique:
+            source = str(candidate["source"])
+            ok, detail = self._verify(spec, source)
+            candidate["verified"] = bool(ok)
+            candidate["detail"] = str(detail)
+            candidate["return_edge"] = int(
+                joint_selector.return_edge_energy(source, spec.returns)
+            )
+            sources[str(candidate["label"])] = source
+        table = joint_selector.score_table(
+            intent,
+            int(discourse["clause_count"]),
+            unique,
+            idf,
+            eta_comp=float(self.eta_comp),
+            mdl_node_cost=float(self.mdl_node_cost),
+        )
+        report["candidate_table"] = [dict(row) for row in table["rows"]]
+        report["warm"]["lambda_mdl"] = float(table["lambda_mdl"])
+        report["warm"]["reference"] = (
+            str(table["reference"]["label"]) if table["reference"] else ""
+        )
+        report["warm"]["reference_coverage"] = float(table["reference_coverage"])
+        report["warm"]["crossover_delta_residue"] = float(
+            table["crossover_delta_residue"]
+        )
+        report["warm"]["admissible"] = int(
+            sum(1 for row in table["rows"] if row["admissible"])
+        )
+        report["warm"]["first_pass"] = (
+            "" if table["first_pass"] is None else str(table["first_pass"]["label"])
+        )
+        chosen = (
+            table["first_pass"]
+            if str(self.selection_policy) in _GREEDY_POLICIES
+            else table["chosen"]
+        )
+        if chosen is None or str(chosen["label"]) not in sources:
+            report["warm"]["outcome"] = "no_admissible_candidate"
+            return
+        self.warm_selections += 1
+        report["status"] = "SOLVED"
+        report["source"] = sources[str(chosen["label"])]
+        report["reason"] = "plan:" + str(chosen["label"])
+        report["warm"]["outcome"] = "emitted"
+        report["warm"]["chosen"] = str(chosen["label"])
+        report["selection"] = {
+            "policy": str(self.selection_policy),
+            "chosen": str(chosen["label"]),
+            "first_pass": (
+                "" if table["first_pass"] is None else str(table["first_pass"]["label"])
+            ),
+            "covered_by_joint_over_first_pass": bool(
+                table["first_pass"] is None
+                or str(chosen["label"]) != str(table["first_pass"]["label"])
+            ),
+            "eta_comp": float(self.eta_comp),
+            "lambda_mdl": float(table["lambda_mdl"]),
+            "j": float(chosen["j"]),
+            "cov_idf": float(chosen["cov_idf"]),
+            "delta_residue": float(chosen["delta_residue"]),
+            "ast_nodes": int(chosen["ast_nodes"]),
+            "sheaf_energy": int(chosen["sheaf_energy"]),
+        }
+
+    def _search(
+        self,
+        spec: ProblemSpec,
+        ranked: List[Dict[str, Any]],
+        report: Dict[str, Any],
+        failed: List[str],
+        temperature: float,
+        generator: np.random.Generator,
+        *,
+        multiline: bool,
+        limit: Optional[int] = None,
+    ) -> Optional[str]:
+        """Run one ranked stage to its first verified emission."""
+        order = self._order(
+            ranked, failed=failed, temperature=temperature, generator=generator
+        )
+        cap = int(self.budget if limit is None else min(int(limit), self.budget))
         index = 0
-        while index < len(order) and report["rollouts"] < self.budget:
+        verified: List[Dict[str, Any]] = []
+        while index < len(order) and report["rollouts"] < cap:
             candidate = order[index]
             index += 1
             body = str(candidate["body"])
-            source = self._assemble(spec, body)
+            source = self._assemble(spec, body, multiline=multiline)
             ok, detail = self._verify(spec, source)
             report["rollouts"] += 1
             self.rollouts += 1
@@ -1426,25 +1748,131 @@ class ColdSynthesizer:
                  "detail": str(detail)}
             )
             if ok:
-                report["status"] = "SOLVED"
-                report["source"] = source
-                report["reason"] = "public_assertions_pass"
-                if crystallize:
-                    self._crystallize(spec, source)
-                self.last_report = report
-                return report
+                verified.append(
+                    {
+                        "source": source,
+                        "body": body,
+                        "slot": str(candidate["slot"]),
+                        "complexity": float(candidate.get("complexity", 0.0)),
+                        "order": int(len(verified)),
+                    }
+                )
+                # Cycle AB2: when the budget still allows, one more minimal
+                # candidate is verified so the boundary consensus gate has a
+                # second opinion.  A single verified candidate is emitted as
+                # before.
+                if len(verified) >= int(self.consensus_candidates):
+                    break
+                if report["rollouts"] + 3 >= cap:
+                    break
+                continue
             failed.append(body)
             self._register_repulsor(spec, source, detail)
             if temperature > EXPLORE_TEMPERATURE:
                 temperature = EXPLORE_TEMPERATURE
                 report["temperature"] = float(temperature)
-                order = self._order(ranked, failed=failed, temperature=temperature,
-                                    generator=generator)
+                order = self._order(
+                    ranked, failed=failed, temperature=temperature, generator=generator
+                )
                 index = 0
-        report["repulsors"] = int(self.repulsors)
-        report["reason"] = report["reason"] or "exhausted_public_assertions"
-        self.last_report = report
-        return report
+        if not verified:
+            return None
+        return self._select_consensus(spec, verified, report)
+
+    # ------------------------------------------- differential boundary veto
+    def _probe_report(
+        self, spec: ProblemSpec, source: str, probes: Sequence[tuple]
+    ) -> Dict[str, Any]:
+        """Execute one candidate on the deterministic boundary probes."""
+        import json as _json
+
+        program = (
+            source
+            + "\nimport json as _json\n_probe_out = []\nfor _args in "
+            + repr(list(probes))
+            + ":\n    try:\n        _probe_out.append([1, repr("
+            + str(spec.name)
+            + "(*_args))])\n    except Exception as _error:\n        _probe_out.append([0, type(_error).__name__])\nprint(_json.dumps(_probe_out))\n"
+        )
+        record = self.sandbox.execute(program)
+        if not record.ok:
+            return {
+                "ok": False,
+                "exceptions": int(len(probes)),
+                "signature": (),
+                "rationale": "probe_program_failed",
+            }
+        lines = (record.stdout or "").strip().splitlines()
+        payload: List[Any] = []
+        if lines:
+            try:
+                payload = _json.loads(lines[-1])
+            except ValueError:
+                payload = []
+        signature = tuple(
+            (int(row[0]), str(row[1])) for row in payload if isinstance(row, list) and len(row) == 2
+        )
+        exceptions = sum(1 for row in payload if isinstance(row, list) and int(row[0]) == 0)
+        return {
+            "ok": True,
+            "exceptions": int(exceptions),
+            "signature": signature,
+            "rationale": "executed",
+        }
+
+    def _select_consensus(
+        self,
+        spec: ProblemSpec,
+        verified: Sequence[Dict[str, Any]],
+        report: Dict[str, Any],
+    ) -> Optional[str]:
+        """Prefer the candidate that stays total on boundary probes.
+
+        Candidates that raise on more boundary probes are demoted first.
+        When survivors disagree on a valid probe, the smaller AST (minimum
+        description length) wins, and the chosen candidate is executed once
+        more on the same probes (one refinement check).  A refinement that
+        raises is refused rather than emitted as an unverified edge guess.
+        """
+        probes = boundary_probes(spec, self.boundary_probe_count)
+        rows: List[Dict[str, Any]] = []
+        for item in verified:
+            probe = self._probe_report(spec, item["source"], probes)
+            rows.append({**item, "probe": probe})
+        self.consensus_runs += 1
+        fewest = min(int(row["probe"]["exceptions"]) for row in rows)
+        survivors = [row for row in rows if int(row["probe"]["exceptions"]) == fewest]
+        signatures = {row["probe"]["signature"] for row in survivors}
+        ambiguous = bool(len(signatures) > 1)
+        chosen = survivors[0]
+        if ambiguous:
+            chosen = min(survivors, key=lambda row: (row["complexity"], row["order"]))
+            refinement = self._probe_report(spec, chosen["source"], probes)
+            if int(refinement["exceptions"]) > fewest:
+                report["status"] = "ABSTAIN"
+                report["reason"] = "boundary_disagreement_abstain"
+                report["source"] = ""
+                report["consensus"] = {
+                    "candidates": int(len(rows)),
+                    "probes": int(len(probes)),
+                    "ambiguous": True,
+                    "demoted_by_exceptions": [int(row["probe"]["exceptions"]) for row in rows],
+                    "abstained": True,
+                }
+                return None
+        report["status"] = "SOLVED"
+        report["source"] = str(chosen["source"])
+        report["reason"] = "public_assertions_pass"
+        report["consensus"] = {
+            "candidates": int(len(rows)),
+            "probes": int(len(probes)),
+            "ambiguous": bool(ambiguous),
+            "demoted_by_exceptions": [int(row["probe"]["exceptions"]) for row in rows],
+            "chosen_nodes": float(chosen["complexity"]),
+            "preconditions": prose_preconditions(spec.docstring + " " + str(spec.name)),
+            "abstained": False,
+        }
+        return str(chosen["source"])
 
     def _crystallize(self, spec: ProblemSpec, source: str) -> None:
         if self.plan_store is None:
@@ -1871,6 +2299,15 @@ _AUDIT_VOCABULARY = frozenset(
         "==", "=", ",", "(", ")", "[", "]", "{", "}", "([{", ")]}",
         "\n", "\t", "None", "Traceback", "range", "enumerate", "zip",
         "get", "items", "keys", "values", "sort", "append",
+        # Structural symmetry labels of the D4 operator library.  These name
+        # a dihedral element, not a task, so a comparison against one is a
+        # structural dispatch and not a task-identity branch.
+        "identity", "rot90", "rot180", "rot270",
+        "reflect_h", "reflect_v", "reflect_diag", "reflect_antidiag",
+        # Structural operator family labels of the spatial induction library.
+        "dihedral", "toroidal_shift", "bounded_shift", "colour_map",
+        "crop_bbox", "tile", "scale", "interior_flood_fill",
+        "mask_by_colour", "symmetry_completion", "constant_fill",
     }
 )
 

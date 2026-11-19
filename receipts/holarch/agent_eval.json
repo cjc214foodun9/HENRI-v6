@@ -34,11 +34,11 @@
       }
     }
   },
-  "queries_total": 288,
-  "query_slots": 288,
-  "queries": 288,
-  "total_queries": 288,
-  "probe_slots": 212,
+  "queries_total": 304,
+  "query_slots": 304,
+  "queries": 304,
+  "total_queries": 304,
+  "probe_slots": 228,
   "ledger_receipts": 76,
   "query_mix": {
     "code_call_flow": 8,
@@ -106,21 +106,25 @@
     "z2_external_synth": 4,
     "z3_spatial": 4,
     "z4_stress": 4,
+    "ac1_kronecker": 4,
+    "ac2_mdl_sheaf": 4,
+    "ac3_external_arc": 4,
+    "ac4_backend_cascade": 4,
     "setup_receipts": 2
   },
   "code_index": {
-    "seconds": 6.766974400030449,
-    "files": 38.0,
-    "lines": 46702.0,
-    "nodes": 1192.0,
-    "edges": 2934.0,
+    "seconds": 8.493136800010689,
+    "files": 47.0,
+    "lines": 56220.0,
+    "nodes": 1407.0,
+    "edges": 3530.0,
     "edges_ingested": 72.0
   },
   "baseline_unindexed": {
-    "query_file_reads": 608,
-    "bytes_read_at_query_time": 31613360,
-    "response_bytes": 870,
-    "latency_ms_total": 121.28079985268414,
+    "query_file_reads": 752,
+    "bytes_read_at_query_time": 38002112,
+    "response_bytes": 868,
+    "latency_ms_total": 151.49780095089227,
     "reachable_accuracy": 0.5333333333333333,
     "hallucination_rate": 0.9926470588235294,
     "playbook_exact": 0.0
@@ -128,8 +132,8 @@
   "holarch_mcp": {
     "query_file_reads": 0,
     "bytes_read_at_query_time": 0,
-    "response_bytes": 34728,
-    "latency_ms_total": 302.74020007345825,
+    "response_bytes": 36051,
+    "latency_ms_total": 319.5208996767178,
     "reachable_accuracy": 1.0,
     "hallucination_rate": 0.0,
     "playbook_exact": 1.0,
@@ -152,7 +156,7 @@
     },
     "memory_fixture": {
       "source": "data\\holarch\\zone_c.sqlite3",
-      "path": "C:\\Users\\chan\\AppData\\Local\\Temp\\henri_planner_memory_6912.sqlite3",
+      "path": "C:\\Users\\chan\\AppData\\Local\\Temp\\henri_planner_memory_31044.sqlite3",
       "sha256": "d0863a4179bb37dd1199a08dd8f1c5997cbd693161a32bfa439030bcf4064c80",
       "bytes": 21590016,
       "engrams": 2467,
@@ -187,7 +191,7 @@
         "trap": true,
         "strong_trap": true,
         "correct": true,
-        "receipt_sha256": "820c29e3d96168c7e1866f8ca16aa9e4c1f5ff4e9a98437b9c54aef048a60de7"
+        "receipt_sha256": "cd465895b65a424a7c941f9c7fde73f5757eeeeefa124dd23a0cdb7bb9596b64"
       },
       {
         "id": "plan02",
@@ -208,7 +212,7 @@
         "trap": true,
         "strong_trap": true,
         "correct": true,
-        "receipt_sha256": "6eced3ea64d7bd6e87e02490714c1954becbb5f8c66ced268ffe5e109ff6f08e"
+        "receipt_sha256": "594cd9b22eedef06cc7a5a652cd445f110fa533c0dea081fc1f624fd20814327"
       },
       {
         "id": "plan03",
@@ -229,7 +233,7 @@
         "trap": true,
         "strong_trap": true,
         "correct": true,
-        "receipt_sha256": "e6be1e5b2ce08b9da44a87652c290da518aa776efbe1097a9c4862d66d125fec"
+        "receipt_sha256": "fda98717ed2923ef77358baf2e86cf4c0731c7ea664ae9b31d15a89d5d4130e6"
       },
       {
         "id": "plan04",
@@ -250,7 +254,7 @@
         "trap": true,
         "strong_trap": true,
         "correct": true,
-        "receipt_sha256": "4a4d8aa9666aaaba11eed12b70fcb626c482c12ae3709997ba860853383aba89"
+        "receipt_sha256": "85d7a682287f274f6451d0431eb0ad6706e43dae63bdb5a444bfd990c5a550d0"
       }
     ]
   },
@@ -268,7 +272,7 @@
         "status": "supported",
         "reason": "all rare terms and all quantities present in evidence",
         "correct": true,
-        "receipt_sha256": "915a19e45b49b80d155378f9607964646193bab903e486afa8ace563924ade94"
+        "receipt_sha256": "f64463e71b88cd08170713927ed9f4c5c8ff918303675c83695612f192b1d6de"
       },
       {
         "id": "verify02",
@@ -278,7 +282,7 @@
         "status": "supported",
         "reason": "all rare terms and all quantities present in evidence",
         "correct": true,
-        "receipt_sha256": "dc594496cfc33aa431c86912ec54ce28774eebe940d9dfa6483638f42e02dc2a"
+        "receipt_sha256": "f651afc8cb67201cec258eb442f6c1f8d8c49d5a22aab5f5cd721f122c834e10"
       },
       {
         "id": "verify03",
@@ -288,7 +292,7 @@
         "status": "contradicted",
         "reason": "quantity 1020381 is stated differently in the evidence",
         "correct": true,
-        "receipt_sha256": "579b1ae63ef3c067927900be78b7f110b40dccefa8a9866eb815f5a2194f86cd"
+        "receipt_sha256": "72663d482d79b7eb4223afc6e7e49e4b9643a29893a684d2608083a1f0d5ed4a"
       },
       {
         "id": "verify04",
@@ -298,7 +302,7 @@
         "status": "unsupported",
         "reason": "signature: ZoneCMemory.query does not accept keyword 'widget'; declared parameters are ['self', 'wave', 'k', 'avoid_ids', 'candidate_multiplier', 'task', 'names",
         "correct": true,
-        "receipt_sha256": "f63b4c1120640d4e8c67c9e4d1e5cf6b43669603a51049ee891142a64c2c5d6d"
+        "receipt_sha256": "3cabe7c82019f033e7c300b8fa32a51c9aa1feb9494a238dc9c92bcedd717d4a"
       }
     ]
   },
@@ -316,7 +320,7 @@
         "reason": "",
         "source": "def distinct_caller_count(links):\n    step_1 = sorted({_s0_edge.source for _s0_edge in links})\n    return int(len(step_1))\n",
         "correct": true,
-        "receipt_sha256": "ceac5fbdf0ffe95b744cffe818078c4d63f4582804005e1f3ee5cf5a5ed17d4d"
+        "receipt_sha256": "d535380eeebf73f6a6456a47fbfd56f2e706dd35c4d21bc9b645d28ec7fdf81e"
       },
       {
         "id": "synth02",
@@ -327,14 +331,14 @@
         "reason": "",
         "source": "def bounded_mean(sample):\n    step_1 = float(sum(sample) / max(len(sample), 1))\n    return max(0.0, min(2.5, float(step_1)))\n",
         "correct": true,
-        "receipt_sha256": "7794df6917c92a72e208eea6eb3a823f5b5fbebc585edf2d491d1139bfdc2fd4"
+        "receipt_sha256": "ff3b5b253f12b98d25e6b2c952b909af17618f6378aca732d873d0ee95d91ac1"
       }
     ]
   },
   "delta": {
     "queries": 2,
     "correct": 2,
-    "max_ms": 0.29779993928968906,
+    "max_ms": 0.2859999658539891,
     "rows": [
       {
         "id": "delta01",
@@ -342,9 +346,9 @@
         "target": "beta",
         "truth": [],
         "callers": [],
-        "delta_ms": 0.29779993928968906,
+        "delta_ms": 0.2859999658539891,
         "correct": true,
-        "receipt_sha256": "2e0768beb079939e62b7ddd2d79d3606fcdcce51ce4b157f465f38ba6d4c31f7"
+        "receipt_sha256": "8fb8d1cbf53bbfeb626651ca740f8049f7c2289bd1d0f3208bcb976a08142e38"
       },
       {
         "id": "delta02",
@@ -356,9 +360,9 @@
         "callers": [
           "delta:delta"
         ],
-        "delta_ms": 0.25779998395591974,
+        "delta_ms": 0.24500000290572643,
         "correct": true,
-        "receipt_sha256": "7d14c7c107d1727df15ef31deba447eba2ac0b44ed19e75e74470dc01a937de6"
+        "receipt_sha256": "7d42e7d6bebd67e022bc1a075a025d00da480640bd6ed7795683e873072490f3"
       }
     ]
   },
@@ -384,7 +388,7 @@
         "reason": "",
         "source": "def tri_agent(links):\n    step_1 = sorted({_s0_edge.source for _s0_edge in links})\n    step_2 = int(len(step_1))\n    return max(0.0, min(2.5, float(step_2)))\n",
         "correct": true,
-        "receipt_sha256": "605680ca5b352b4ee8d7ccbc8eabbd3442a7167b2669e4361491ceba39344063"
+        "receipt_sha256": "d0a8e642f614c4681b05631505bd55dd7409192b6ef1ba8dbb390167292641ea"
       },
       {
         "id": "dag02",
@@ -401,39 +405,33 @@
         "reason": "",
         "source": "def bounded_sources(edges):\n    step_1 = sorted({_s0_edge.source for _s0_edge in edges})\n    step_2 = int(len(step_1))\n    return max(0.0, min(1.0, float(step_2)))\n",
         "correct": true,
-        "receipt_sha256": "2fe028ecf239dba7a635366fafb34d9d860e86dc67023ead2ee7016ee4d4ade3"
+        "receipt_sha256": "5950f7efa9353cf40afc8b33d555dbc4252373e768bc2818f92d06865102d79c"
       },
       {
         "id": "dag03",
         "kind": "type_trap",
-        "plans": [
-          "core04",
-          "core10"
-        ],
-        "dag_depth": 2,
+        "plans": [],
+        "dag_depth": 0,
         "type_compatible": false,
         "verified": false,
         "refused": true,
-        "reason": "type mismatch: core04.returns ['text'] cannot bind core10.values ['numeric_sequence']",
+        "reason": "type mismatch: a text or mapping stage cannot bind a numeric sequence stage",
         "note": "text -> numeric_sequence (mean of a list)",
         "correct": true,
-        "receipt_sha256": "17c0ac02302202fe650a530f87ddafef1d484a366ae15a66e069bb262e8beba5"
+        "receipt_sha256": "e934ed23c2078c48f22296ca5e37e4b22c41ddaba4d3f71dd96c6018e4fd689d"
       },
       {
         "id": "dag04",
         "kind": "type_trap",
-        "plans": [
-          "core10",
-          "core04"
-        ],
-        "dag_depth": 2,
+        "plans": [],
+        "dag_depth": 0,
         "type_compatible": false,
         "verified": false,
         "refused": true,
-        "reason": "type mismatch: core10.returns ['numeric'] cannot bind core04.receipt ['mapping']",
+        "reason": "type mismatch: a numeric scalar stage cannot bind a mapping or text stage",
         "note": "numeric -> mapping (a receipt field is subscripted)",
         "correct": true,
-        "receipt_sha256": "7b90d4dc25c85e9a5d462d7b975c671abf7c6dbc65e5e85e4f01fe764f518805"
+        "receipt_sha256": "626e6c671122c9c638b37172451c2a191492dd92812b0a1979121996e94442d4"
       }
     ]
   },
@@ -441,10 +439,10 @@
     "queries": 4,
     "correct": 4,
     "workspace": {
-      "files": 287,
-      "nodes": 3682,
-      "edges": 12159,
-      "seconds": 1.8480352000333369
+      "files": 322,
+      "nodes": 4077,
+      "edges": 13713,
+      "seconds": 2.137721600010991
     },
     "rows": [
       {
@@ -458,6 +456,12 @@
           "henri.holarch.code_gen:evaluate_bochner_language",
           "henri.holarch.code_lang:fit",
           "henri.holarch.pinned_split:build_pinned_split",
+          "scripts.run_holarch_aa1_per_token_phase_egress:measure",
+          "scripts.run_holarch_ab1_contextual_phase_egress:measure",
+          "scripts.run_holarch_ab_jev_proposals:measured_norms",
+          "scripts.run_holarch_ac1_homodyne_egress:measure",
+          "scripts.run_holarch_ac1_kronecker_induction_egress:measure",
+          "scripts.run_holarch_ac5_jev_proposals:induction_entropy",
           "scripts.run_holarch_agent_eval:run_agent_eval",
           "scripts.run_holarch_code_lang:stage_l1",
           "scripts.run_holarch_code_lang:stage_l3",
@@ -487,6 +491,12 @@
           "henri.holarch.code_gen:evaluate_bochner_language",
           "henri.holarch.code_lang:fit",
           "henri.holarch.pinned_split:build_pinned_split",
+          "scripts.run_holarch_aa1_per_token_phase_egress:measure",
+          "scripts.run_holarch_ab1_contextual_phase_egress:measure",
+          "scripts.run_holarch_ab_jev_proposals:measured_norms",
+          "scripts.run_holarch_ac1_homodyne_egress:measure",
+          "scripts.run_holarch_ac1_kronecker_induction_egress:measure",
+          "scripts.run_holarch_ac5_jev_proposals:induction_entropy",
           "scripts.run_holarch_agent_eval:run_agent_eval",
           "scripts.run_holarch_code_lang:stage_l1",
           "scripts.run_holarch_code_lang:stage_l3",
@@ -511,7 +521,7 @@
           "tests.test_holarch_s_cycle:generator"
         ],
         "correct": true,
-        "receipt_sha256": "8a92d90d96c701f354d8bd0c2b8c1dba093075b1375ea658abecc34bac033c77"
+        "receipt_sha256": "43139ca2f7d5a8a98ee67f34c3fb1637c2b19512b6e0c7639c2a0efad53cce55"
       },
       {
         "id": "xp02",
@@ -561,7 +571,7 @@
           "tests.test_holarch_o_swat:test_holonic_discovery_accepts_one_and_refuses_one"
         ],
         "correct": true,
-        "receipt_sha256": "ee5f0b64e4904ac8722c36651a604ad73020ac4994aa422e5be34f06ddeb306c"
+        "receipt_sha256": "9d9bd6f7497040c1549c3fa48d9c82431a56bbf5bec160280faed9cf1b5c0679"
       },
       {
         "id": "xp03",
@@ -569,7 +579,7 @@
         "claim": "def use_locked_tokenizer(cfg):\n    return build_tokenizer(cfg)\n",
         "status": "supported",
         "correct": true,
-        "receipt_sha256": "e2373b718ba91790a82853a1bf5b6ee54fb03e3e04b399d717d3024a493bf5e1"
+        "receipt_sha256": "6c2b2b8d1a53ca8ad7edf28d40a6e0294ef697f296c731ef043eac5e519b16d7"
       },
       {
         "id": "xp04",
@@ -578,7 +588,7 @@
         "action_chosen": 0,
         "truth": 0,
         "correct": true,
-        "receipt_sha256": "c255f6fe5a07aee98e38f68823219a93709964dc9f3dda4c8e2e47f3cd335572"
+        "receipt_sha256": "5e1bb37bda820d3155ac08bba5c22d7f8f1480340e0eb138f65140bb8d863906"
       }
     ]
   },
@@ -595,7 +605,7 @@
         "returned_token_id": 1765,
         "ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
         "correct": true,
-        "receipt_sha256": "3beb756cebc36e87772fc38c5348a86a8ac6e35cd8cb828f5217131fad07fcd8"
+        "receipt_sha256": "4b4c43610996552d58dfefe0b6419caef4cc09baaff97b140ec620f7a35633b9"
       },
       {
         "id": "vocab02",
@@ -604,7 +614,7 @@
         "returned_token_id": 1373,
         "ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
         "correct": true,
-        "receipt_sha256": "9d9e780ec031f1db4b04402791767a0bf0144710809badecfd6c7873d885ceb2"
+        "receipt_sha256": "be1a03d38efe926f788ba29c2a9aedebfe52fbfebc7e1562dfc24800b540df3d"
       },
       {
         "id": "vocab03",
@@ -613,7 +623,7 @@
         "returned_token_id": 1674,
         "ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
         "correct": true,
-        "receipt_sha256": "d2689b4bd56b659b0d94c094ec7f7a45dcf06b92ac3a050ace635d0ac9e1b353"
+        "receipt_sha256": "9fb41bcef9be95c97c089ecdeaf5c06aa8e7e09acada3f161727d141180900b4"
       },
       {
         "id": "vocab04",
@@ -622,11 +632,11 @@
         "returned_token_id": null,
         "status": "unsupported",
         "correct": true,
-        "receipt_sha256": "ab8b276120453478c0a5c778345b326cb4e077cd59862b74073fcede150e4c21"
+        "receipt_sha256": "5d364b15ee845d4156121a07dd042cec6717c5fe6bc1375196615271ee0975d6"
       }
     ]
   },
-  "context_compression_ratio": 910.3132918682331,
+  "context_compression_ratio": 1054.1208843027932,
   "composite": {
     "ingested": 200.0,
     "tau_composite": 0.9799999573120018,
@@ -710,7 +720,7 @@
           "trap": true,
           "strong_trap": true,
           "correct": true,
-          "receipt_sha256": "820c29e3d96168c7e1866f8ca16aa9e4c1f5ff4e9a98437b9c54aef048a60de7"
+          "receipt_sha256": "cd465895b65a424a7c941f9c7fde73f5757eeeeefa124dd23a0cdb7bb9596b64"
         },
         {
           "id": "plan02",
@@ -731,7 +741,7 @@
           "trap": true,
           "strong_trap": true,
           "correct": true,
-          "receipt_sha256": "6eced3ea64d7bd6e87e02490714c1954becbb5f8c66ced268ffe5e109ff6f08e"
+          "receipt_sha256": "594cd9b22eedef06cc7a5a652cd445f110fa533c0dea081fc1f624fd20814327"
         },
         {
           "id": "plan03",
@@ -752,7 +762,7 @@
           "trap": true,
           "strong_trap": true,
           "correct": true,
-          "receipt_sha256": "e6be1e5b2ce08b9da44a87652c290da518aa776efbe1097a9c4862d66d125fec"
+          "receipt_sha256": "fda98717ed2923ef77358baf2e86cf4c0731c7ea664ae9b31d15a89d5d4130e6"
         },
         {
           "id": "plan04",
@@ -773,7 +783,7 @@
           "trap": true,
           "strong_trap": true,
           "correct": true,
-          "receipt_sha256": "4a4d8aa9666aaaba11eed12b70fcb626c482c12ae3709997ba860853383aba89"
+          "receipt_sha256": "85d7a682287f274f6451d0431eb0ad6706e43dae63bdb5a444bfd990c5a550d0"
         }
       ]
     },
@@ -790,7 +800,7 @@
           "status": "supported",
           "reason": "all rare terms and all quantities present in evidence",
           "correct": true,
-          "receipt_sha256": "915a19e45b49b80d155378f9607964646193bab903e486afa8ace563924ade94"
+          "receipt_sha256": "f64463e71b88cd08170713927ed9f4c5c8ff918303675c83695612f192b1d6de"
         },
         {
           "id": "verify02",
@@ -800,7 +810,7 @@
           "status": "supported",
           "reason": "all rare terms and all quantities present in evidence",
           "correct": true,
-          "receipt_sha256": "dc594496cfc33aa431c86912ec54ce28774eebe940d9dfa6483638f42e02dc2a"
+          "receipt_sha256": "f651afc8cb67201cec258eb442f6c1f8d8c49d5a22aab5f5cd721f122c834e10"
         },
         {
           "id": "verify03",
@@ -810,7 +820,7 @@
           "status": "contradicted",
           "reason": "quantity 1020381 is stated differently in the evidence",
           "correct": true,
-          "receipt_sha256": "579b1ae63ef3c067927900be78b7f110b40dccefa8a9866eb815f5a2194f86cd"
+          "receipt_sha256": "72663d482d79b7eb4223afc6e7e49e4b9643a29893a684d2608083a1f0d5ed4a"
         },
         {
           "id": "verify04",
@@ -820,7 +830,7 @@
           "status": "unsupported",
           "reason": "signature: ZoneCMemory.query does not accept keyword 'widget'; declared parameters are ['self', 'wave', 'k', 'avoid_ids', 'candidate_multiplier', 'task', 'names",
           "correct": true,
-          "receipt_sha256": "f63b4c1120640d4e8c67c9e4d1e5cf6b43669603a51049ee891142a64c2c5d6d"
+          "receipt_sha256": "3cabe7c82019f033e7c300b8fa32a51c9aa1feb9494a238dc9c92bcedd717d4a"
         }
       ]
     },
@@ -838,7 +848,7 @@
           "reason": "",
           "source": "def distinct_caller_count(links):\n    step_1 = sorted({_s0_edge.source for _s0_edge in links})\n    return int(len(step_1))\n",
           "correct": true,
-          "receipt_sha256": "ceac5fbdf0ffe95b744cffe818078c4d63f4582804005e1f3ee5cf5a5ed17d4d"
+          "receipt_sha256": "d535380eeebf73f6a6456a47fbfd56f2e706dd35c4d21bc9b645d28ec7fdf81e"
         },
         {
           "id": "synth02",
@@ -849,7 +859,7 @@
           "reason": "",
           "source": "def bounded_mean(sample):\n    step_1 = float(sum(sample) / max(len(sample), 1))\n    return max(0.0, min(2.5, float(step_1)))\n",
           "correct": true,
-          "receipt_sha256": "7794df6917c92a72e208eea6eb3a823f5b5fbebc585edf2d491d1139bfdc2fd4"
+          "receipt_sha256": "ff3b5b253f12b98d25e6b2c952b909af17618f6378aca732d873d0ee95d91ac1"
         }
       ]
     },
@@ -864,9 +874,9 @@
           "target": "beta",
           "truth": [],
           "callers": [],
-          "delta_ms": 0.29779993928968906,
+          "delta_ms": 0.2859999658539891,
           "correct": true,
-          "receipt_sha256": "2e0768beb079939e62b7ddd2d79d3606fcdcce51ce4b157f465f38ba6d4c31f7"
+          "receipt_sha256": "8fb8d1cbf53bbfeb626651ca740f8049f7c2289bd1d0f3208bcb976a08142e38"
         },
         {
           "id": "delta02",
@@ -878,9 +888,9 @@
           "callers": [
             "delta:delta"
           ],
-          "delta_ms": 0.25779998395591974,
+          "delta_ms": 0.24500000290572643,
           "correct": true,
-          "receipt_sha256": "7d14c7c107d1727df15ef31deba447eba2ac0b44ed19e75e74470dc01a937de6"
+          "receipt_sha256": "7d42e7d6bebd67e022bc1a075a025d00da480640bd6ed7795683e873072490f3"
         }
       ]
     },
@@ -904,7 +914,7 @@
           "reason": "",
           "source": "def tri_agent(links):\n    step_1 = sorted({_s0_edge.source for _s0_edge in links})\n    step_2 = int(len(step_1))\n    return max(0.0, min(2.5, float(step_2)))\n",
           "correct": true,
-          "receipt_sha256": "605680ca5b352b4ee8d7ccbc8eabbd3442a7167b2669e4361491ceba39344063"
+          "receipt_sha256": "d0a8e642f614c4681b05631505bd55dd7409192b6ef1ba8dbb390167292641ea"
         },
         {
           "id": "dag02",
@@ -921,39 +931,33 @@
           "reason": "",
           "source": "def bounded_sources(edges):\n    step_1 = sorted({_s0_edge.source for _s0_edge in edges})\n    step_2 = int(len(step_1))\n    return max(0.0, min(1.0, float(step_2)))\n",
           "correct": true,
-          "receipt_sha256": "2fe028ecf239dba7a635366fafb34d9d860e86dc67023ead2ee7016ee4d4ade3"
+          "receipt_sha256": "5950f7efa9353cf40afc8b33d555dbc4252373e768bc2818f92d06865102d79c"
         },
         {
           "id": "dag03",
           "kind": "type_trap",
-          "plans": [
-            "core04",
-            "core10"
-          ],
-          "dag_depth": 2,
+          "plans": [],
+          "dag_depth": 0,
           "type_compatible": false,
           "verified": false,
           "refused": true,
-          "reason": "type mismatch: core04.returns ['text'] cannot bind core10.values ['numeric_sequence']",
+          "reason": "type mismatch: a text or mapping stage cannot bind a numeric sequence stage",
           "note": "text -> numeric_sequence (mean of a list)",
           "correct": true,
-          "receipt_sha256": "17c0ac02302202fe650a530f87ddafef1d484a366ae15a66e069bb262e8beba5"
+          "receipt_sha256": "e934ed23c2078c48f22296ca5e37e4b22c41ddaba4d3f71dd96c6018e4fd689d"
         },
         {
           "id": "dag04",
           "kind": "type_trap",
-          "plans": [
-            "core10",
-            "core04"
-          ],
-          "dag_depth": 2,
+          "plans": [],
+          "dag_depth": 0,
           "type_compatible": false,
           "verified": false,
           "refused": true,
-          "reason": "type mismatch: core10.returns ['numeric'] cannot bind core04.receipt ['mapping']",
+          "reason": "type mismatch: a numeric scalar stage cannot bind a mapping or text stage",
           "note": "numeric -> mapping (a receipt field is subscripted)",
           "correct": true,
-          "receipt_sha256": "7b90d4dc25c85e9a5d462d7b975c671abf7c6dbc65e5e85e4f01fe764f518805"
+          "receipt_sha256": "626e6c671122c9c638b37172451c2a191492dd92812b0a1979121996e94442d4"
         }
       ],
       "pipelines_executed": 2,
@@ -975,6 +979,12 @@
             "henri.holarch.code_gen:evaluate_bochner_language",
             "henri.holarch.code_lang:fit",
             "henri.holarch.pinned_split:build_pinned_split",
+            "scripts.run_holarch_aa1_per_token_phase_egress:measure",
+            "scripts.run_holarch_ab1_contextual_phase_egress:measure",
+            "scripts.run_holarch_ab_jev_proposals:measured_norms",
+            "scripts.run_holarch_ac1_homodyne_egress:measure",
+            "scripts.run_holarch_ac1_kronecker_induction_egress:measure",
+            "scripts.run_holarch_ac5_jev_proposals:induction_entropy",
             "scripts.run_holarch_agent_eval:run_agent_eval",
             "scripts.run_holarch_code_lang:stage_l1",
             "scripts.run_holarch_code_lang:stage_l3",
@@ -1004,6 +1014,12 @@
             "henri.holarch.code_gen:evaluate_bochner_language",
             "henri.holarch.code_lang:fit",
             "henri.holarch.pinned_split:build_pinned_split",
+            "scripts.run_holarch_aa1_per_token_phase_egress:measure",
+            "scripts.run_holarch_ab1_contextual_phase_egress:measure",
+            "scripts.run_holarch_ab_jev_proposals:measured_norms",
+            "scripts.run_holarch_ac1_homodyne_egress:measure",
+            "scripts.run_holarch_ac1_kronecker_induction_egress:measure",
+            "scripts.run_holarch_ac5_jev_proposals:induction_entropy",
             "scripts.run_holarch_agent_eval:run_agent_eval",
             "scripts.run_holarch_code_lang:stage_l1",
             "scripts.run_holarch_code_lang:stage_l3",
@@ -1028,7 +1044,7 @@
             "tests.test_holarch_s_cycle:generator"
           ],
           "correct": true,
-          "receipt_sha256": "8a92d90d96c701f354d8bd0c2b8c1dba093075b1375ea658abecc34bac033c77"
+          "receipt_sha256": "43139ca2f7d5a8a98ee67f34c3fb1637c2b19512b6e0c7639c2a0efad53cce55"
         },
         {
           "id": "xp02",
@@ -1078,7 +1094,7 @@
             "tests.test_holarch_o_swat:test_holonic_discovery_accepts_one_and_refuses_one"
           ],
           "correct": true,
-          "receipt_sha256": "ee5f0b64e4904ac8722c36651a604ad73020ac4994aa422e5be34f06ddeb306c"
+          "receipt_sha256": "9d9bd6f7497040c1549c3fa48d9c82431a56bbf5bec160280faed9cf1b5c0679"
         },
         {
           "id": "xp03",
@@ -1086,7 +1102,7 @@
           "claim": "def use_locked_tokenizer(cfg):\n    return build_tokenizer(cfg)\n",
           "status": "supported",
           "correct": true,
-          "receipt_sha256": "e2373b718ba91790a82853a1bf5b6ee54fb03e3e04b399d717d3024a493bf5e1"
+          "receipt_sha256": "6c2b2b8d1a53ca8ad7edf28d40a6e0294ef697f296c731ef043eac5e519b16d7"
         },
         {
           "id": "xp04",
@@ -1095,14 +1111,14 @@
           "action_chosen": 0,
           "truth": 0,
           "correct": true,
-          "receipt_sha256": "c255f6fe5a07aee98e38f68823219a93709964dc9f3dda4c8e2e47f3cd335572"
+          "receipt_sha256": "5e1bb37bda820d3155ac08bba5c22d7f8f1480340e0eb138f65140bb8d863906"
         }
       ],
       "workspace": {
-        "files": 287,
-        "nodes": 3682,
-        "edges": 12159,
-        "seconds": 1.8480352000333369
+        "files": 322,
+        "nodes": 4077,
+        "edges": 13713,
+        "seconds": 2.137721600010991
       }
     },
     "vocab_lock": {
@@ -1117,7 +1133,7 @@
           "returned_token_id": 1765,
           "ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
           "correct": true,
-          "receipt_sha256": "3beb756cebc36e87772fc38c5348a86a8ac6e35cd8cb828f5217131fad07fcd8"
+          "receipt_sha256": "4b4c43610996552d58dfefe0b6419caef4cc09baaff97b140ec620f7a35633b9"
         },
         {
           "id": "vocab02",
@@ -1126,7 +1142,7 @@
           "returned_token_id": 1373,
           "ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
           "correct": true,
-          "receipt_sha256": "9d9e780ec031f1db4b04402791767a0bf0144710809badecfd6c7873d885ceb2"
+          "receipt_sha256": "be1a03d38efe926f788ba29c2a9aedebfe52fbfebc7e1562dfc24800b540df3d"
         },
         {
           "id": "vocab03",
@@ -1135,7 +1151,7 @@
           "returned_token_id": 1674,
           "ledger_digest": "7be8a664d9c95363f01cd581241f7b8872349b59dda6c9e9085da54196a9da35",
           "correct": true,
-          "receipt_sha256": "d2689b4bd56b659b0d94c094ec7f7a45dcf06b92ac3a050ace635d0ac9e1b353"
+          "receipt_sha256": "9fb41bcef9be95c97c089ecdeaf5c06aa8e7e09acada3f161727d141180900b4"
         },
         {
           "id": "vocab04",
@@ -1144,7 +1160,7 @@
           "returned_token_id": null,
           "status": "unsupported",
           "correct": true,
-          "receipt_sha256": "ab8b276120453478c0a5c778345b326cb4e077cd59862b74073fcede150e4c21"
+          "receipt_sha256": "5d364b15ee845d4156121a07dd042cec6717c5fe6bc1375196615271ee0975d6"
         }
       ],
       "locked": true,
@@ -1195,7 +1211,7 @@
             "correct_thread8": 8
           },
           "correct": true,
-          "seconds": 1.2195950000314042,
+          "seconds": 1.2547751000383869,
           "evidence": "depth-2 wall-masked rotor planner on the clean-room store"
         },
         {
@@ -1222,7 +1238,7 @@
             ]
           },
           "correct": true,
-          "seconds": 13.111642000032589,
+          "seconds": 13.256404799991287,
           "evidence": "trace=True per-episode comparison; the 48-episode arm runs once"
         },
         {
@@ -1246,7 +1262,7 @@
             }
           },
           "correct": true,
-          "seconds": 1.0499963536858559e-05,
+          "seconds": 1.309998333454132e-05,
           "evidence": "open_clean_room_memory created a new SQLite file; no fixture copy"
         },
         {
@@ -1260,7 +1276,7 @@
             "seed_limit": 1536
           },
           "correct": true,
-          "seconds": 2.100015990436077e-06,
+          "seconds": 2.600019797682762e-06,
           "evidence": "row count read from the clean-room Zone C store after the mount"
         }
       ]
@@ -1287,7 +1303,7 @@
             "ledger_digest": "1b1494fe28a29d7257e18c909105613988bdf7fe73432206bff47f1712385e72"
           },
           "correct": true,
-          "seconds": 0.04717819998040795,
+          "seconds": 0.05143359990324825,
           "evidence": "640 generated functions synced into the Zone C vocabulary metadata"
         },
         {
@@ -1305,7 +1321,7 @@
             "reingestion_calls": 0
           },
           "correct": true,
-          "seconds": 0.02045670000370592,
+          "seconds": 0.02126400009728968,
           "evidence": "fresh tokenizer restored from the Zone C vocab_ledger payload only"
         }
       ]
@@ -1337,7 +1353,7 @@
             "source_sha256": "ccfe1c63fcb06d387d581a2b369436bd1d491d98369183b39f9a3a3b67ed9749"
           },
           "correct": true,
-          "seconds": 0.027214700006879866,
+          "seconds": 0.03611359989736229,
           "evidence": "run_diverse_dag_battery three-stage row"
         },
         {
@@ -1362,7 +1378,7 @@
             "source_sha256": "a1f30e87ccc77becd71964fa8aa998b8ebc46585ed0815e2eed28a0bf4a542aa"
           },
           "correct": true,
-          "seconds": 5.500041879713535e-06,
+          "seconds": 5.400041118264198e-06,
           "evidence": "run_diverse_dag_battery three-stage row"
         },
         {
@@ -1387,7 +1403,7 @@
             "source_sha256": "0584a69430a2043dbd0caefe42a403eb71be80a56710ca7c1c9029913c639298"
           },
           "correct": true,
-          "seconds": 2.600019797682762e-06,
+          "seconds": 2.500019036233425e-06,
           "evidence": "run_diverse_dag_battery three-stage row"
         },
         {
@@ -1412,7 +1428,7 @@
             "battery_drift": 0.0
           },
           "correct": true,
-          "seconds": 0.00017689995002001524,
+          "seconds": 0.00024500000290572643,
           "evidence": "compose_plan_dag refuses before splicing a single stage"
         }
       ]
@@ -1433,12 +1449,12 @@
             "status": "supported",
             "receipt_valid": true,
             "agent_receipt_valid": true,
-            "receipt_sha256": "5ac9dfd96c1fc90ee9b8761b826e326277cc1f1796878a1f049456cf68e0994c",
-            "agent_receipt_sha256": "a2ffd8f5c3f6f50e9386eca798c28dcf047cb7edc6070fac856ae82697202397",
+            "receipt_sha256": "484238d5ece6aebe3433b59e6a4592712cfd5a497f9b7ad958de7945a0a51bd8",
+            "agent_receipt_sha256": "1ae32876671d9a173dda2b49c285e81aa507d5c01cba4f7b2605b3f7f2058023",
             "error": ""
           },
           "correct": true,
-          "seconds": 0.34155959996860474,
+          "seconds": 0.4098416999913752,
           "evidence": "fastapi TestClient, bearer key agent-eval-j4"
         },
         {
@@ -1455,12 +1471,12 @@
             "matches_reference": true,
             "receipt_valid": true,
             "agent_receipt_valid": true,
-            "receipt_sha256": "26e8ba679771f313140999f5e7bdc6b567981bfd20495ff048d705e603a87b67",
-            "agent_receipt_sha256": "d414e0a5ad0bdfe0e6f36c1986045d4dd46c0ed460840f32d2d150e2ddf3c528",
+            "receipt_sha256": "15b03ea48780ddfd65016cf6152df0bba9c1936ca8647f9a3e02523710830968",
+            "agent_receipt_sha256": "3a07cf946dcf8b3cfb3aeda92e22df6d4f1830d28336921da6210074031675f9",
             "error": ""
           },
           "correct": true,
-          "seconds": 7.6000578701496124e-06,
+          "seconds": 7.900060154497623e-06,
           "evidence": "planner mounted on the clean-room store at 1 thread"
         }
       ]
@@ -1481,7 +1497,7 @@
             "pre_mount_rows": 0
           },
           "correct": true,
-          "seconds": 8.171877400018275,
+          "seconds": 8.001757899997756,
           "evidence": "evaluate(clean_model, tasks, 'test') on the hydrated cartridge"
         },
         {
@@ -1493,7 +1509,7 @@
             "relational_veto_rate": 0.09859154929577464
           },
           "correct": true,
-          "seconds": 6.8999361246824265e-06,
+          "seconds": 6.7999353632330894e-06,
           "evidence": "evaluate(clean_model, tasks, 'test') on the hydrated cartridge"
         },
         {
@@ -1508,7 +1524,7 @@
             "total": 0
           },
           "correct": true,
-          "seconds": 3.900029696524143e-06,
+          "seconds": 4.00003045797348e-06,
           "evidence": "per-sample veto AND NOT memory_mask over the validation splits"
         },
         {
@@ -1527,7 +1543,7 @@
             "dtype": "v3-action-int12-sqrt4-support-int8-exact16-zlib9"
           },
           "correct": true,
-          "seconds": 0.0001417000312358141,
+          "seconds": 0.0002031000331044197,
           "evidence": "label histogram of the mounted seed block"
         }
       ]
@@ -1553,7 +1569,7 @@
             }
           },
           "correct": true,
-          "seconds": 1.2416141999419779,
+          "seconds": 1.339376899995841,
           "evidence": "Zone B relax_discovery under Zone C LAW/ATTRACTOR/REPULSOR axioms"
         },
         {
@@ -1566,7 +1582,7 @@
             "weight_updates": 0
           },
           "correct": true,
-          "seconds": 6.300047971308231e-06,
+          "seconds": 7.2999391704797745e-06,
           "evidence": "Zone B relax_discovery over type-compatible operator candidates"
         }
       ]
@@ -1588,7 +1604,7 @@
             "source_chars": 425
           },
           "correct": true,
-          "seconds": 0.0009134999709203839,
+          "seconds": 0.0011899999808520079,
           "evidence": "AST alpha-renaming + terminal-return splicing, then execution"
         },
         {
@@ -1601,7 +1617,7 @@
             "source_chars": 420
           },
           "correct": true,
-          "seconds": 0.0007196000078693032,
+          "seconds": 0.0009840000420808792,
           "evidence": "scoped AST NodeTransformer rename"
         }
       ]
@@ -1623,7 +1639,7 @@
             "added_from_b": 300
           },
           "correct": true,
-          "seconds": 0.035818499978631735,
+          "seconds": 0.032486399984918535,
           "evidence": "rebase_tenant_vocabulary + id_map translation, decode equality"
         },
         {
@@ -1633,11 +1649,11 @@
           "measured": {
             "top4_parity": 4,
             "claims": 4,
-            "passages": 2233,
-            "vocabulary": 6031
+            "passages": 2540,
+            "vocabulary": 6536
           },
           "correct": true,
-          "seconds": 1.014072300051339,
+          "seconds": 1.1315103999804705,
           "evidence": "matrix-vector product vs the retained per-passage loop"
         },
         {
@@ -1651,7 +1667,7 @@
             "chain_valid": true
           },
           "correct": true,
-          "seconds": 0.7694929999997839,
+          "seconds": 0.7481051000067964,
           "evidence": "16 threads x 8 mixed verify/plan/veto/solve requests"
         },
         {
@@ -1664,7 +1680,7 @@
             "tier2": 0
           },
           "correct": true,
-          "seconds": 0.0013265999732539058,
+          "seconds": 0.0013560999650508165,
           "evidence": "Zone C metadata copy, one envelope receipt"
         }
       ]
@@ -1765,7 +1781,7 @@
             "control_correct": 0
           },
           "correct": true,
-          "seconds": 1.0874739999417216,
+          "seconds": 1.1176827000454068,
           "evidence": "discover_escape with a test-time REPULSOR and goal attraction"
         },
         {
@@ -1779,7 +1795,7 @@
             "discoveries": 16
           },
           "correct": true,
-          "seconds": 14.687896700110286,
+          "seconds": 14.479129399987869,
           "evidence": "4-layout subset; the full 48-layout measurement is sealed in m1_online_repulsor_vla.json"
         },
         {
@@ -1792,7 +1808,7 @@
             "hallucination_rate": 0.0
           },
           "correct": true,
-          "seconds": 20.883277499931864,
+          "seconds": 21.36794450005982,
           "evidence": "online REPULSOR agents inside the unified VLA pipeline"
         }
       ]
@@ -1815,7 +1831,7 @@
             "rows": 4
           },
           "correct": true,
-          "seconds": 0.012849500053562224,
+          "seconds": 0.010982199921272695,
           "evidence": "one Gram product over four waves versus four per-row reads"
         },
         {
@@ -1825,11 +1841,11 @@
           "measured": {
             "requests": 64,
             "errors": [],
-            "p50_ms": 1.124249945860356,
-            "p95_ms": 1783.1677850103006
+            "p50_ms": 1.0010000551119447,
+            "p95_ms": 1840.5200800683815
           },
           "correct": true,
-          "seconds": 1.9165948999579996,
+          "seconds": 1.9321559000527486,
           "evidence": "reader thread guard plus the lock-free Zone C snapshot"
         },
         {
@@ -1841,7 +1857,7 @@
             "chain_valid": true
           },
           "correct": true,
-          "seconds": 0.03366760001517832,
+          "seconds": 0.033975500031374395,
           "evidence": "ReceiptLedger chain verification after the burst"
         }
       ]
@@ -1867,7 +1883,7 @@
             "format": "henri-seed-engrams-v3"
           },
           "correct": true,
-          "seconds": 0.0002136999974027276,
+          "seconds": 0.00021550001110881567,
           "evidence": "v3 prototype-residual action rows plus int8 support rows"
         },
         {
@@ -1878,7 +1894,7 @@
             "vision_accuracy": 0.9797979797979798
           },
           "correct": true,
-          "seconds": 4.00003045797348e-06,
+          "seconds": 3.899913281202316e-06,
           "evidence": "full 610-row vision block in the clean room"
         },
         {
@@ -3050,7 +3066,7 @@
             "live_dim": 1024
           },
           "correct": true,
-          "seconds": 0.0009533999254927039,
+          "seconds": 0.0010710000060498714,
           "evidence": "Zone-B-coupled generator on a held-out corpus slice"
         }
       ]
@@ -3071,7 +3087,7 @@
             "error": ""
           },
           "correct": true,
-          "seconds": 0.001049000071361661,
+          "seconds": 0.0010344000766053796,
           "evidence": "guard return rewritten to a step_i assignment inside if/else"
         },
         {
@@ -3094,7 +3110,7 @@
             "drift": 0.0
           },
           "correct": true,
-          "seconds": 0.05288969993125647,
+          "seconds": 0.05582519993185997,
           "evidence": "run_diverse_dag_battery(guard_pipelines=True)"
         },
         {
@@ -3106,7 +3122,7 @@
             "source_empty": true
           },
           "correct": true,
-          "seconds": 0.00011750007979571819,
+          "seconds": 0.00013459997717291117,
           "evidence": "fail-closed splicer contract retained"
         }
       ]
@@ -3132,7 +3148,7 @@
             "prefill_tokens": 0
           },
           "correct": true,
-          "seconds": 0.15397939993999898,
+          "seconds": 0.1447171000763774,
           "evidence": "SwarmTelepathyBus.transmit"
         },
         {
@@ -3150,7 +3166,7 @@
             "budget": 4
           },
           "correct": true,
-          "seconds": 0.00030429998878389597,
+          "seconds": 0.0003693000180646777,
           "evidence": "AttentionMatchingCompactor Eq. 8"
         },
         {
@@ -3170,7 +3186,7 @@
             }
           },
           "correct": true,
-          "seconds": 0.1435619000112638,
+          "seconds": 0.14967869990505278,
           "evidence": "SagnacKVGate.check"
         },
         {
@@ -3182,7 +3198,7 @@
             "expected": 6
           },
           "correct": true,
-          "seconds": 0.06767410004977137,
+          "seconds": 0.09153390000574291,
           "evidence": "vision cache -> prototype read"
         }
       ]
@@ -3203,7 +3219,7 @@
             "digest": "c654cb6554486294"
           },
           "correct": true,
-          "seconds": 0.1672275000018999,
+          "seconds": 0.18040449998807162,
           "evidence": "SidecarService.plan(online_repulsor=True)"
         },
         {
@@ -3215,7 +3231,7 @@
             "deployed": 1
           },
           "correct": true,
-          "seconds": 0.09769510000478476,
+          "seconds": 0.10610289999749511,
           "evidence": "plan lookahead_depth arm"
         },
         {
@@ -3228,7 +3244,7 @@
             "seen": 38
           },
           "correct": true,
-          "seconds": 0.0001490999711677432,
+          "seconds": 0.00016060005873441696,
           "evidence": "ZoneCMemory.bump_state_epoch -> SidecarService._sync_global_epoch"
         },
         {
@@ -3256,7 +3272,7 @@
             ]
           },
           "correct": true,
-          "seconds": 8.499948307871819e-06,
+          "seconds": 9.599956683814526e-06,
           "evidence": "H4 delta path"
         }
       ]
@@ -3276,7 +3292,7 @@
             "elastic_cap": 4096
           },
           "correct": true,
-          "seconds": 0.4576208000071347,
+          "seconds": 0.3934186000842601,
           "evidence": "build_tokenizer(vocab_lock, elastic_cap=4096)"
         },
         {
@@ -3290,7 +3306,7 @@
             "corpus_revision": "67e9b25"
           },
           "correct": true,
-          "seconds": 0.0003535000141710043,
+          "seconds": 0.00033379998058080673,
           "evidence": "o3 receipt / evaluate_bochner_language"
         },
         {
@@ -3302,7 +3318,7 @@
             "bits_per_char": 1.2735599219987657
           },
           "correct": true,
-          "seconds": 4.100031219422817e-06,
+          "seconds": 4.499917849898338e-06,
           "evidence": "o3 receipt"
         },
         {
@@ -3314,7 +3330,7 @@
             "char96": 0.1943359375
           },
           "correct": true,
-          "seconds": 2.300017513334751e-06,
+          "seconds": 2.700020559132099e-06,
           "evidence": "o3 receipt"
         }
       ]
@@ -3331,14 +3347,14 @@
           "measured": {
             "status": "accepted",
             "accepted": [
-              "split_identifiers",
-              "sequence_length",
+              "strip_comments",
+              "unique_count",
               "clamp_unit"
             ],
             "plan": "holonic_holon_len"
           },
           "correct": true,
-          "seconds": 0.06682989990804344,
+          "seconds": 0.0618804000550881,
           "evidence": "SynthesisEngine.holonic_discover"
         },
         {
@@ -3350,7 +3366,7 @@
             "source": ""
           },
           "correct": true,
-          "seconds": 0.21126460004597902,
+          "seconds": 0.2184499999275431,
           "evidence": "holonic_discover refuses"
         },
         {
@@ -3362,7 +3378,7 @@
             "name": "holonic_holon_len"
           },
           "correct": true,
-          "seconds": 4.200031980872154e-06,
+          "seconds": 4.700035788118839e-06,
           "evidence": "PlanStore.compile"
         },
         {
@@ -3376,7 +3392,7 @@
             "refused": 4
           },
           "correct": true,
-          "seconds": 0.9070426999824122,
+          "seconds": 0.971580500015989,
           "evidence": "run_diverse_dag_battery + holonic_discover"
         }
       ]
@@ -3396,7 +3412,7 @@
             "train_tokens": 600473
           },
           "correct": true,
-          "seconds": 4.269997589290142e-05,
+          "seconds": 3.93999507650733e-05,
           "evidence": "evaluate_bochner_language live_elastic arm"
         },
         {
@@ -3409,7 +3425,7 @@
             "beta": 0.02
           },
           "correct": true,
-          "seconds": 3.400025889277458e-06,
+          "seconds": 3.200024366378784e-06,
           "evidence": "evaluate_bochner_language live_elastic arm"
         },
         {
@@ -3423,7 +3439,7 @@
             "elastic_bpc": 1.0828467630776455
           },
           "correct": true,
-          "seconds": 2.600019797682762e-06,
+          "seconds": 3.00002284348011e-06,
           "evidence": "evaluate_bochner_language pinned arms"
         }
       ]
@@ -3444,7 +3460,7 @@
             "bridges": 2
           },
           "correct": true,
-          "seconds": 0.22348709998186678,
+          "seconds": 0.22373790002893656,
           "evidence": "POST /v1/holarch/telepathy equivalent"
         },
         {
@@ -3457,7 +3473,7 @@
             ]
           },
           "correct": true,
-          "seconds": 5.800044164061546e-06,
+          "seconds": 5.599926225841045e-06,
           "evidence": "SagnacKVGate.check"
         },
         {
@@ -3469,7 +3485,7 @@
             "slots_u": 6
           },
           "correct": true,
-          "seconds": 2.199900336563587e-06,
+          "seconds": 2.300017513334751e-06,
           "evidence": "TelepathicReader read over the compacted cache"
         }
       ]
@@ -3488,7 +3504,7 @@
             "steps": 14
           },
           "correct": true,
-          "seconds": 2.267118400079198,
+          "seconds": 2.1318972000153735,
           "evidence": "online-REPULSOR closed loop"
         },
         {
@@ -3507,7 +3523,7 @@
             }
           },
           "correct": true,
-          "seconds": 6.3999323174357414e-06,
+          "seconds": 4.300032742321491e-06,
           "evidence": "SynthesisEngine.synthesize_from_telepathy"
         },
         {
@@ -3519,7 +3535,7 @@
             "receiver_prefill_tokens": 0
           },
           "correct": true,
-          "seconds": 2.400018274784088e-06,
+          "seconds": 1.9000144675374031e-06,
           "evidence": "SwarmKVCache handoff only"
         }
       ]
@@ -3539,7 +3555,7 @@
             "candidates": 15
           },
           "correct": true,
-          "seconds": 0.09019080002326518,
+          "seconds": 0.05522819992620498,
           "evidence": "SynthesisEngine.holonic_discover"
         },
         {
@@ -3552,7 +3568,7 @@
             "effects": 32
           },
           "correct": true,
-          "seconds": 0.23419790004845709,
+          "seconds": 0.25212329998612404,
           "evidence": "ctx.effect rollback"
         },
         {
@@ -3564,7 +3580,7 @@
             "plans_after": 29
           },
           "correct": true,
-          "seconds": 4.499917849898338e-06,
+          "seconds": 4.600035026669502e-06,
           "evidence": "PlanStore size before and after"
         }
       ]
@@ -3594,7 +3610,7 @@
             "bridge_slots": 125
           },
           "correct": true,
-          "seconds": 0.2057378999888897,
+          "seconds": 0.2035409000236541,
           "evidence": "POST /v1/holarch/telepathy mode=ingest_chunks with query=None"
         },
         {
@@ -3619,7 +3635,7 @@
             ]
           },
           "correct": true,
-          "seconds": 7.70005863159895e-06,
+          "seconds": 6.3999323174357414e-06,
           "evidence": "bridge index resolved after ingest, zero re-ingest"
         },
         {
@@ -3642,12 +3658,12 @@
               "fact",
               "fact"
             ],
-            "resolve_p50_ms": 0.11060002725571394,
-            "ttft_p50_ms": 0.521700014360249,
+            "resolve_p50_ms": 0.10960001964122057,
+            "ttft_p50_ms": 0.5637999856844544,
             "receiver_prefill_tokens": 0
           },
           "correct": true,
-          "seconds": 8.749996777623892e-05,
+          "seconds": 7.940002251416445e-05,
           "evidence": "SagnacKVGate fact_consistency + resolve_bridges"
         }
       ]
@@ -3675,7 +3691,7 @@
             "executed": true
           },
           "correct": true,
-          "seconds": 2.5157243000576273,
+          "seconds": 2.5092112000565976,
           "evidence": "SynthesisEngine.synthesize_from_telepathy regime bank"
         },
         {
@@ -3684,8 +3700,8 @@
           "expected": "holding the Vision KV fixed and swapping the Action KV changes the emitted operator",
           "measured": {
             "pass0_count": 4,
-            "pass0_ms": 6.621499895118177,
-            "pass0_scan_ms": 619.4344999967143,
+            "pass0_ms": 6.272400030866265,
+            "pass0_scan_ms": 596.1130999494344,
             "pass0_regimes": [
               0,
               1
@@ -3742,7 +3758,7 @@
             "status": "verified"
           },
           "correct": true,
-          "seconds": 0.0006213999586179852,
+          "seconds": 0.0004900000058114529,
           "evidence": "paired Action-KV counterfactual"
         },
         {
@@ -3755,7 +3771,7 @@
             "admitted": false
           },
           "correct": true,
-          "seconds": 1.3543826000532135,
+          "seconds": 1.373775799991563,
           "evidence": "SagnacKVGate binding condition on the action sender"
         }
       ]
@@ -3782,7 +3798,7 @@
             ]
           },
           "correct": true,
-          "seconds": 1.3199984095990658e-05,
+          "seconds": 1.5300000086426735e-05,
           "evidence": "calibration_test_overlap_tokens"
         },
         {
@@ -3796,7 +3812,7 @@
             "elastic_bpc": 1.0828467630776455
           },
           "correct": true,
-          "seconds": 3.899913281202316e-06,
+          "seconds": 4.900037311017513e-06,
           "evidence": "evaluate_bochner_language pinned tail arms"
         },
         {
@@ -3813,7 +3829,7 @@
             "receipt_present": true
           },
           "correct": true,
-          "seconds": 0.0006594000151380897,
+          "seconds": 0.0006730998866260052,
           "evidence": "Q3 receipt full decile, or the live arm's selected Q3 mechanism"
         }
       ]
@@ -3832,11 +3848,11 @@
             "accepted": 4,
             "traps": 4,
             "refused": 4,
-            "median_tick_ms": 0.025749963242560625,
+            "median_tick_ms": 0.029699993319809437,
             "residual_state": 0
           },
           "correct": true,
-          "seconds": 12.789679900044575,
+          "seconds": 13.113842400023714,
           "evidence": "henri_holon.HolonDaemon resident tick"
         },
         {
@@ -3851,7 +3867,7 @@
             "receipt_present": true
           },
           "correct": true,
-          "seconds": 0.0009220000356435776,
+          "seconds": 0.0008810000726953149,
           "evidence": "receipts/holarch/aaii_v5_eval.json Pillar A"
         },
         {
@@ -3864,7 +3880,7 @@
             "passed": true
           },
           "correct": true,
-          "seconds": 8.299946784973145e-06,
+          "seconds": 4.899920895695686e-06,
           "evidence": "receipts/holarch/aaii_v5_eval.json Pillar B"
         }
       ]
@@ -3896,7 +3912,7 @@
             "registry_facts": 562
           },
           "correct": true,
-          "seconds": 0.00034110003616660833,
+          "seconds": 0.00027650000993162394,
           "evidence": "receipts/holarch/r1_unstructured_telepathy_and_wave_fact_veto.json"
         },
         {
@@ -3909,7 +3925,7 @@
             "string_rule_enforced": false
           },
           "correct": true,
-          "seconds": 6.9999368861317635e-06,
+          "seconds": 7.00005330145359e-06,
           "evidence": "physical-only ingest, string belt disabled"
         },
         {
@@ -3923,7 +3939,7 @@
             "prefill": 0
           },
           "correct": true,
-          "seconds": 3.600027412176132e-06,
+          "seconds": 3.200024366378784e-06,
           "evidence": "resolve_bridges p50 and faithful T2T prefill ratio"
         }
       ]
@@ -3943,7 +3959,7 @@
             "persisted": true
           },
           "correct": true,
-          "seconds": 0.00020240002777427435,
+          "seconds": 0.00019339995924383402,
           "evidence": "ActionRegimeReadout fitted + checkpoint payload"
         },
         {
@@ -3963,7 +3979,7 @@
             }
           },
           "correct": true,
-          "seconds": 6.8999361246824265e-06,
+          "seconds": 6.500049494206905e-06,
           "evidence": "balanced 6 x 3 Action KV swaps"
         },
         {
@@ -3976,7 +3992,7 @@
             "hallucinated": 0
           },
           "correct": true,
-          "seconds": 2.100015990436077e-06,
+          "seconds": 2.09989957511425e-06,
           "evidence": "binding gate refusal before the AST binder"
         }
       ]
@@ -3997,7 +4013,7 @@
             "scored_tokens": 61417
           },
           "correct": true,
-          "seconds": 0.00033379998058080673,
+          "seconds": 0.00033380009699612856,
           "evidence": "receipts/holarch/r3_static_and_streaming_full_decile_language.json"
         },
         {
@@ -4010,7 +4026,7 @@
             "stream_weight": 0.2
           },
           "correct": true,
-          "seconds": 4.600035026669502e-06,
+          "seconds": 4.09991480410099e-06,
           "evidence": "deployed adaptive arm on the same scored decile"
         },
         {
@@ -4029,7 +4045,7 @@
             }
           },
           "correct": true,
-          "seconds": 3.700028173625469e-06,
+          "seconds": 3.100023604929447e-06,
           "evidence": "CountLanguageModel role discounts + token_logits recency + suffix floor"
         }
       ]
@@ -4050,7 +4066,7 @@
             "omni": 100.0
           },
           "correct": true,
-          "seconds": 0.0008443000260740519,
+          "seconds": 0.0008509999606758356,
           "evidence": "real MMLU cartridge, 200 scored queries"
         },
         {
@@ -4064,7 +4080,7 @@
             "t2t": 0.0
           },
           "correct": true,
-          "seconds": 5.09992241859436e-06,
+          "seconds": 5.200039595365524e-06,
           "evidence": "DocumentFactExtractor ingest, query=None"
         },
         {
@@ -4078,7 +4094,7 @@
             "false_acceptance": 0
           },
           "correct": true,
-          "seconds": 2.800021320581436e-06,
+          "seconds": 3.400025889277458e-06,
           "evidence": "32-task synthesis + SidecarService.verify + sandbox critic"
         }
       ]
@@ -4262,11 +4278,31 @@
       "baseline_correct": 0,
       "mcp_correct": 4,
       "total": 4
+    },
+    "ac1_kronecker": {
+      "baseline_correct": 0,
+      "mcp_correct": 4,
+      "total": 4
+    },
+    "ac2_mdl_sheaf": {
+      "baseline_correct": 0,
+      "mcp_correct": 4,
+      "total": 4
+    },
+    "ac3_external_arc": {
+      "baseline_correct": 0,
+      "mcp_correct": 4,
+      "total": 4
+    },
+    "ac4_backend_cascade": {
+      "baseline_correct": 0,
+      "mcp_correct": 4,
+      "total": 4
     }
   },
   "probes": {
-    "queries": 212,
-    "correct": 212,
+    "queries": 228,
+    "correct": 228,
     "categories": [
       {
         "category": "j1_cleanroom",
@@ -4367,6 +4403,26 @@
         "category": "z4_stress",
         "total": 4,
         "correct": 4
+      },
+      {
+        "category": "ac1_kronecker",
+        "total": 4,
+        "correct": 4
+      },
+      {
+        "category": "ac2_mdl_sheaf",
+        "total": 4,
+        "correct": 4
+      },
+      {
+        "category": "ac3_external_arc",
+        "total": 4,
+        "correct": 4
+      },
+      {
+        "category": "ac4_backend_cascade",
+        "total": 4,
+        "correct": 4
       }
     ],
     "rows": [
@@ -4410,7 +4466,7 @@
           "correct_thread8": 8
         },
         "correct": true,
-        "seconds": 1.2195950000314042,
+        "seconds": 1.2547751000383869,
         "evidence": "depth-2 wall-masked rotor planner on the clean-room store"
       },
       {
@@ -4437,7 +4493,7 @@
           ]
         },
         "correct": true,
-        "seconds": 13.111642000032589,
+        "seconds": 13.256404799991287,
         "evidence": "trace=True per-episode comparison; the 48-episode arm runs once"
       },
       {
@@ -4461,7 +4517,7 @@
           }
         },
         "correct": true,
-        "seconds": 1.0499963536858559e-05,
+        "seconds": 1.309998333454132e-05,
         "evidence": "open_clean_room_memory created a new SQLite file; no fixture copy"
       },
       {
@@ -4475,7 +4531,7 @@
           "seed_limit": 1536
         },
         "correct": true,
-        "seconds": 2.100015990436077e-06,
+        "seconds": 2.600019797682762e-06,
         "evidence": "row count read from the clean-room Zone C store after the mount"
       },
       {
@@ -4495,7 +4551,7 @@
           "ledger_digest": "1b1494fe28a29d7257e18c909105613988bdf7fe73432206bff47f1712385e72"
         },
         "correct": true,
-        "seconds": 0.04717819998040795,
+        "seconds": 0.05143359990324825,
         "evidence": "640 generated functions synced into the Zone C vocabulary metadata"
       },
       {
@@ -4513,7 +4569,7 @@
           "reingestion_calls": 0
         },
         "correct": true,
-        "seconds": 0.02045670000370592,
+        "seconds": 0.02126400009728968,
         "evidence": "fresh tokenizer restored from the Zone C vocab_ledger payload only"
       },
       {
@@ -4538,7 +4594,7 @@
           "source_sha256": "ccfe1c63fcb06d387d581a2b369436bd1d491d98369183b39f9a3a3b67ed9749"
         },
         "correct": true,
-        "seconds": 0.027214700006879866,
+        "seconds": 0.03611359989736229,
         "evidence": "run_diverse_dag_battery three-stage row"
       },
       {
@@ -4563,7 +4619,7 @@
           "source_sha256": "a1f30e87ccc77becd71964fa8aa998b8ebc46585ed0815e2eed28a0bf4a542aa"
         },
         "correct": true,
-        "seconds": 5.500041879713535e-06,
+        "seconds": 5.400041118264198e-06,
         "evidence": "run_diverse_dag_battery three-stage row"
       },
       {
@@ -4588,7 +4644,7 @@
           "source_sha256": "0584a69430a2043dbd0caefe42a403eb71be80a56710ca7c1c9029913c639298"
         },
         "correct": true,
-        "seconds": 2.600019797682762e-06,
+        "seconds": 2.500019036233425e-06,
         "evidence": "run_diverse_dag_battery three-stage row"
       },
       {
@@ -4613,7 +4669,7 @@
           "battery_drift": 0.0
         },
         "correct": true,
-        "seconds": 0.00017689995002001524,
+        "seconds": 0.00024500000290572643,
         "evidence": "compose_plan_dag refuses before splicing a single stage"
       },
       {
@@ -4627,12 +4683,12 @@
           "status": "supported",
           "receipt_valid": true,
           "agent_receipt_valid": true,
-          "receipt_sha256": "5ac9dfd96c1fc90ee9b8761b826e326277cc1f1796878a1f049456cf68e0994c",
-          "agent_receipt_sha256": "a2ffd8f5c3f6f50e9386eca798c28dcf047cb7edc6070fac856ae82697202397",
+          "receipt_sha256": "484238d5ece6aebe3433b59e6a4592712cfd5a497f9b7ad958de7945a0a51bd8",
+          "agent_receipt_sha256": "1ae32876671d9a173dda2b49c285e81aa507d5c01cba4f7b2605b3f7f2058023",
           "error": ""
         },
         "correct": true,
-        "seconds": 0.34155959996860474,
+        "seconds": 0.4098416999913752,
         "evidence": "fastapi TestClient, bearer key agent-eval-j4"
       },
       {
@@ -4649,12 +4705,12 @@
           "matches_reference": true,
           "receipt_valid": true,
           "agent_receipt_valid": true,
-          "receipt_sha256": "26e8ba679771f313140999f5e7bdc6b567981bfd20495ff048d705e603a87b67",
-          "agent_receipt_sha256": "d414e0a5ad0bdfe0e6f36c1986045d4dd46c0ed460840f32d2d150e2ddf3c528",
+          "receipt_sha256": "15b03ea48780ddfd65016cf6152df0bba9c1936ca8647f9a3e02523710830968",
+          "agent_receipt_sha256": "3a07cf946dcf8b3cfb3aeda92e22df6d4f1830d28336921da6210074031675f9",
           "error": ""
         },
         "correct": true,
-        "seconds": 7.6000578701496124e-06,
+        "seconds": 7.900060154497623e-06,
         "evidence": "planner mounted on the clean-room store at 1 thread"
       },
       {
@@ -4668,7 +4724,7 @@
           "pre_mount_rows": 0
         },
         "correct": true,
-        "seconds": 8.171877400018275,
+        "seconds": 8.001757899997756,
         "evidence": "evaluate(clean_model, tasks, 'test') on the hydrated cartridge"
       },
       {
@@ -4680,7 +4736,7 @@
           "relational_veto_rate": 0.09859154929577464
         },
         "correct": true,
-        "seconds": 6.8999361246824265e-06,
+        "seconds": 6.7999353632330894e-06,
         "evidence": "evaluate(clean_model, tasks, 'test') on the hydrated cartridge"
       },
       {
@@ -4695,7 +4751,7 @@
           "total": 0
         },
         "correct": true,
-        "seconds": 3.900029696524143e-06,
+        "seconds": 4.00003045797348e-06,
         "evidence": "per-sample veto AND NOT memory_mask over the validation splits"
       },
       {
@@ -4714,7 +4770,7 @@
           "dtype": "v3-action-int12-sqrt4-support-int8-exact16-zlib9"
         },
         "correct": true,
-        "seconds": 0.0001417000312358141,
+        "seconds": 0.0002031000331044197,
         "evidence": "label histogram of the mounted seed block"
       },
       {
@@ -4733,7 +4789,7 @@
           }
         },
         "correct": true,
-        "seconds": 1.2416141999419779,
+        "seconds": 1.339376899995841,
         "evidence": "Zone B relax_discovery under Zone C LAW/ATTRACTOR/REPULSOR axioms"
       },
       {
@@ -4746,7 +4802,7 @@
           "weight_updates": 0
         },
         "correct": true,
-        "seconds": 6.300047971308231e-06,
+        "seconds": 7.2999391704797745e-06,
         "evidence": "Zone B relax_discovery over type-compatible operator candidates"
       },
       {
@@ -4761,7 +4817,7 @@
           "source_chars": 425
         },
         "correct": true,
-        "seconds": 0.0009134999709203839,
+        "seconds": 0.0011899999808520079,
         "evidence": "AST alpha-renaming + terminal-return splicing, then execution"
       },
       {
@@ -4774,7 +4830,7 @@
           "source_chars": 420
         },
         "correct": true,
-        "seconds": 0.0007196000078693032,
+        "seconds": 0.0009840000420808792,
         "evidence": "scoped AST NodeTransformer rename"
       },
       {
@@ -4789,7 +4845,7 @@
           "added_from_b": 300
         },
         "correct": true,
-        "seconds": 0.035818499978631735,
+        "seconds": 0.032486399984918535,
         "evidence": "rebase_tenant_vocabulary + id_map translation, decode equality"
       },
       {
@@ -4799,11 +4855,11 @@
         "measured": {
           "top4_parity": 4,
           "claims": 4,
-          "passages": 2233,
-          "vocabulary": 6031
+          "passages": 2540,
+          "vocabulary": 6536
         },
         "correct": true,
-        "seconds": 1.014072300051339,
+        "seconds": 1.1315103999804705,
         "evidence": "matrix-vector product vs the retained per-passage loop"
       },
       {
@@ -4817,7 +4873,7 @@
           "chain_valid": true
         },
         "correct": true,
-        "seconds": 0.7694929999997839,
+        "seconds": 0.7481051000067964,
         "evidence": "16 threads x 8 mixed verify/plan/veto/solve requests"
       },
       {
@@ -4830,7 +4886,7 @@
           "tier2": 0
         },
         "correct": true,
-        "seconds": 0.0013265999732539058,
+        "seconds": 0.0013560999650508165,
         "evidence": "Zone C metadata copy, one envelope receipt"
       },
       {
@@ -4924,7 +4980,7 @@
           "control_correct": 0
         },
         "correct": true,
-        "seconds": 1.0874739999417216,
+        "seconds": 1.1176827000454068,
         "evidence": "discover_escape with a test-time REPULSOR and goal attraction"
       },
       {
@@ -4938,7 +4994,7 @@
           "discoveries": 16
         },
         "correct": true,
-        "seconds": 14.687896700110286,
+        "seconds": 14.479129399987869,
         "evidence": "4-layout subset; the full 48-layout measurement is sealed in m1_online_repulsor_vla.json"
       },
       {
@@ -4951,7 +5007,7 @@
           "hallucination_rate": 0.0
         },
         "correct": true,
-        "seconds": 20.883277499931864,
+        "seconds": 21.36794450005982,
         "evidence": "online REPULSOR agents inside the unified VLA pipeline"
       },
       {
@@ -4967,7 +5023,7 @@
           "rows": 4
         },
         "correct": true,
-        "seconds": 0.012849500053562224,
+        "seconds": 0.010982199921272695,
         "evidence": "one Gram product over four waves versus four per-row reads"
       },
       {
@@ -4977,11 +5033,11 @@
         "measured": {
           "requests": 64,
           "errors": [],
-          "p50_ms": 1.124249945860356,
-          "p95_ms": 1783.1677850103006
+          "p50_ms": 1.0010000551119447,
+          "p95_ms": 1840.5200800683815
         },
         "correct": true,
-        "seconds": 1.9165948999579996,
+        "seconds": 1.9321559000527486,
         "evidence": "reader thread guard plus the lock-free Zone C snapshot"
       },
       {
@@ -4993,7 +5049,7 @@
           "chain_valid": true
         },
         "correct": true,
-        "seconds": 0.03366760001517832,
+        "seconds": 0.033975500031374395,
         "evidence": "ReceiptLedger chain verification after the burst"
       },
       {
@@ -5012,7 +5068,7 @@
           "format": "henri-seed-engrams-v3"
         },
         "correct": true,
-        "seconds": 0.0002136999974027276,
+        "seconds": 0.00021550001110881567,
         "evidence": "v3 prototype-residual action rows plus int8 support rows"
       },
       {
@@ -5023,7 +5079,7 @@
           "vision_accuracy": 0.9797979797979798
         },
         "correct": true,
-        "seconds": 4.00003045797348e-06,
+        "seconds": 3.899913281202316e-06,
         "evidence": "full 610-row vision block in the clean room"
       },
       {
@@ -6195,7 +6251,7 @@
           "live_dim": 1024
         },
         "correct": true,
-        "seconds": 0.0009533999254927039,
+        "seconds": 0.0010710000060498714,
         "evidence": "Zone-B-coupled generator on a held-out corpus slice"
       },
       {
@@ -6209,7 +6265,7 @@
           "error": ""
         },
         "correct": true,
-        "seconds": 0.001049000071361661,
+        "seconds": 0.0010344000766053796,
         "evidence": "guard return rewritten to a step_i assignment inside if/else"
       },
       {
@@ -6232,7 +6288,7 @@
           "drift": 0.0
         },
         "correct": true,
-        "seconds": 0.05288969993125647,
+        "seconds": 0.05582519993185997,
         "evidence": "run_diverse_dag_battery(guard_pipelines=True)"
       },
       {
@@ -6244,7 +6300,7 @@
           "source_empty": true
         },
         "correct": true,
-        "seconds": 0.00011750007979571819,
+        "seconds": 0.00013459997717291117,
         "evidence": "fail-closed splicer contract retained"
       },
       {
@@ -6263,7 +6319,7 @@
           "prefill_tokens": 0
         },
         "correct": true,
-        "seconds": 0.15397939993999898,
+        "seconds": 0.1447171000763774,
         "evidence": "SwarmTelepathyBus.transmit"
       },
       {
@@ -6281,7 +6337,7 @@
           "budget": 4
         },
         "correct": true,
-        "seconds": 0.00030429998878389597,
+        "seconds": 0.0003693000180646777,
         "evidence": "AttentionMatchingCompactor Eq. 8"
       },
       {
@@ -6301,7 +6357,7 @@
           }
         },
         "correct": true,
-        "seconds": 0.1435619000112638,
+        "seconds": 0.14967869990505278,
         "evidence": "SagnacKVGate.check"
       },
       {
@@ -6313,7 +6369,7 @@
           "expected": 6
         },
         "correct": true,
-        "seconds": 0.06767410004977137,
+        "seconds": 0.09153390000574291,
         "evidence": "vision cache -> prototype read"
       },
       {
@@ -6327,7 +6383,7 @@
           "digest": "c654cb6554486294"
         },
         "correct": true,
-        "seconds": 0.1672275000018999,
+        "seconds": 0.18040449998807162,
         "evidence": "SidecarService.plan(online_repulsor=True)"
       },
       {
@@ -6339,7 +6395,7 @@
           "deployed": 1
         },
         "correct": true,
-        "seconds": 0.09769510000478476,
+        "seconds": 0.10610289999749511,
         "evidence": "plan lookahead_depth arm"
       },
       {
@@ -6352,7 +6408,7 @@
           "seen": 38
         },
         "correct": true,
-        "seconds": 0.0001490999711677432,
+        "seconds": 0.00016060005873441696,
         "evidence": "ZoneCMemory.bump_state_epoch -> SidecarService._sync_global_epoch"
       },
       {
@@ -6380,7 +6436,7 @@
           ]
         },
         "correct": true,
-        "seconds": 8.499948307871819e-06,
+        "seconds": 9.599956683814526e-06,
         "evidence": "H4 delta path"
       },
       {
@@ -6393,7 +6449,7 @@
           "elastic_cap": 4096
         },
         "correct": true,
-        "seconds": 0.4576208000071347,
+        "seconds": 0.3934186000842601,
         "evidence": "build_tokenizer(vocab_lock, elastic_cap=4096)"
       },
       {
@@ -6407,7 +6463,7 @@
           "corpus_revision": "67e9b25"
         },
         "correct": true,
-        "seconds": 0.0003535000141710043,
+        "seconds": 0.00033379998058080673,
         "evidence": "o3 receipt / evaluate_bochner_language"
       },
       {
@@ -6419,7 +6475,7 @@
           "bits_per_char": 1.2735599219987657
         },
         "correct": true,
-        "seconds": 4.100031219422817e-06,
+        "seconds": 4.499917849898338e-06,
         "evidence": "o3 receipt"
       },
       {
@@ -6431,7 +6487,7 @@
           "char96": 0.1943359375
         },
         "correct": true,
-        "seconds": 2.300017513334751e-06,
+        "seconds": 2.700020559132099e-06,
         "evidence": "o3 receipt"
       },
       {
@@ -6441,14 +6497,14 @@
         "measured": {
           "status": "accepted",
           "accepted": [
-            "split_identifiers",
-            "sequence_length",
+            "strip_comments",
+            "unique_count",
             "clamp_unit"
           ],
           "plan": "holonic_holon_len"
         },
         "correct": true,
-        "seconds": 0.06682989990804344,
+        "seconds": 0.0618804000550881,
         "evidence": "SynthesisEngine.holonic_discover"
       },
       {
@@ -6460,7 +6516,7 @@
           "source": ""
         },
         "correct": true,
-        "seconds": 0.21126460004597902,
+        "seconds": 0.2184499999275431,
         "evidence": "holonic_discover refuses"
       },
       {
@@ -6472,7 +6528,7 @@
           "name": "holonic_holon_len"
         },
         "correct": true,
-        "seconds": 4.200031980872154e-06,
+        "seconds": 4.700035788118839e-06,
         "evidence": "PlanStore.compile"
       },
       {
@@ -6486,7 +6542,7 @@
           "refused": 4
         },
         "correct": true,
-        "seconds": 0.9070426999824122,
+        "seconds": 0.971580500015989,
         "evidence": "run_diverse_dag_battery + holonic_discover"
       },
       {
@@ -6499,7 +6555,7 @@
           "train_tokens": 600473
         },
         "correct": true,
-        "seconds": 4.269997589290142e-05,
+        "seconds": 3.93999507650733e-05,
         "evidence": "evaluate_bochner_language live_elastic arm"
       },
       {
@@ -6512,7 +6568,7 @@
           "beta": 0.02
         },
         "correct": true,
-        "seconds": 3.400025889277458e-06,
+        "seconds": 3.200024366378784e-06,
         "evidence": "evaluate_bochner_language live_elastic arm"
       },
       {
@@ -6526,7 +6582,7 @@
           "elastic_bpc": 1.0828467630776455
         },
         "correct": true,
-        "seconds": 2.600019797682762e-06,
+        "seconds": 3.00002284348011e-06,
         "evidence": "evaluate_bochner_language pinned arms"
       },
       {
@@ -6540,7 +6596,7 @@
           "bridges": 2
         },
         "correct": true,
-        "seconds": 0.22348709998186678,
+        "seconds": 0.22373790002893656,
         "evidence": "POST /v1/holarch/telepathy equivalent"
       },
       {
@@ -6553,7 +6609,7 @@
           ]
         },
         "correct": true,
-        "seconds": 5.800044164061546e-06,
+        "seconds": 5.599926225841045e-06,
         "evidence": "SagnacKVGate.check"
       },
       {
@@ -6565,7 +6621,7 @@
           "slots_u": 6
         },
         "correct": true,
-        "seconds": 2.199900336563587e-06,
+        "seconds": 2.300017513334751e-06,
         "evidence": "TelepathicReader read over the compacted cache"
       },
       {
@@ -6577,7 +6633,7 @@
           "steps": 14
         },
         "correct": true,
-        "seconds": 2.267118400079198,
+        "seconds": 2.1318972000153735,
         "evidence": "online-REPULSOR closed loop"
       },
       {
@@ -6596,7 +6652,7 @@
           }
         },
         "correct": true,
-        "seconds": 6.3999323174357414e-06,
+        "seconds": 4.300032742321491e-06,
         "evidence": "SynthesisEngine.synthesize_from_telepathy"
       },
       {
@@ -6608,7 +6664,7 @@
           "receiver_prefill_tokens": 0
         },
         "correct": true,
-        "seconds": 2.400018274784088e-06,
+        "seconds": 1.9000144675374031e-06,
         "evidence": "SwarmKVCache handoff only"
       },
       {
@@ -6621,7 +6677,7 @@
           "candidates": 15
         },
         "correct": true,
-        "seconds": 0.09019080002326518,
+        "seconds": 0.05522819992620498,
         "evidence": "SynthesisEngine.holonic_discover"
       },
       {
@@ -6634,7 +6690,7 @@
           "effects": 32
         },
         "correct": true,
-        "seconds": 0.23419790004845709,
+        "seconds": 0.25212329998612404,
         "evidence": "ctx.effect rollback"
       },
       {
@@ -6646,7 +6702,7 @@
           "plans_after": 29
         },
         "correct": true,
-        "seconds": 4.499917849898338e-06,
+        "seconds": 4.600035026669502e-06,
         "evidence": "PlanStore size before and after"
       },
       {
@@ -6669,7 +6725,7 @@
           "bridge_slots": 125
         },
         "correct": true,
-        "seconds": 0.2057378999888897,
+        "seconds": 0.2035409000236541,
         "evidence": "POST /v1/holarch/telepathy mode=ingest_chunks with query=None"
       },
       {
@@ -6694,7 +6750,7 @@
           ]
         },
         "correct": true,
-        "seconds": 7.70005863159895e-06,
+        "seconds": 6.3999323174357414e-06,
         "evidence": "bridge index resolved after ingest, zero re-ingest"
       },
       {
@@ -6717,12 +6773,12 @@
             "fact",
             "fact"
           ],
-          "resolve_p50_ms": 0.11060002725571394,
-          "ttft_p50_ms": 0.521700014360249,
+          "resolve_p50_ms": 0.10960001964122057,
+          "ttft_p50_ms": 0.5637999856844544,
           "receiver_prefill_tokens": 0
         },
         "correct": true,
-        "seconds": 8.749996777623892e-05,
+        "seconds": 7.940002251416445e-05,
         "evidence": "SagnacKVGate fact_consistency + resolve_bridges"
       },
       {
@@ -6743,7 +6799,7 @@
           "executed": true
         },
         "correct": true,
-        "seconds": 2.5157243000576273,
+        "seconds": 2.5092112000565976,
         "evidence": "SynthesisEngine.synthesize_from_telepathy regime bank"
       },
       {
@@ -6752,8 +6808,8 @@
         "expected": "holding the Vision KV fixed and swapping the Action KV changes the emitted operator",
         "measured": {
           "pass0_count": 4,
-          "pass0_ms": 6.621499895118177,
-          "pass0_scan_ms": 619.4344999967143,
+          "pass0_ms": 6.272400030866265,
+          "pass0_scan_ms": 596.1130999494344,
           "pass0_regimes": [
             0,
             1
@@ -6810,7 +6866,7 @@
           "status": "verified"
         },
         "correct": true,
-        "seconds": 0.0006213999586179852,
+        "seconds": 0.0004900000058114529,
         "evidence": "paired Action-KV counterfactual"
       },
       {
@@ -6823,7 +6879,7 @@
           "admitted": false
         },
         "correct": true,
-        "seconds": 1.3543826000532135,
+        "seconds": 1.373775799991563,
         "evidence": "SagnacKVGate binding condition on the action sender"
       },
       {
@@ -6843,7 +6899,7 @@
           ]
         },
         "correct": true,
-        "seconds": 1.3199984095990658e-05,
+        "seconds": 1.5300000086426735e-05,
         "evidence": "calibration_test_overlap_tokens"
       },
       {
@@ -6857,7 +6913,7 @@
           "elastic_bpc": 1.0828467630776455
         },
         "correct": true,
-        "seconds": 3.899913281202316e-06,
+        "seconds": 4.900037311017513e-06,
         "evidence": "evaluate_bochner_language pinned tail arms"
       },
       {
@@ -6874,7 +6930,7 @@
           "receipt_present": true
         },
         "correct": true,
-        "seconds": 0.0006594000151380897,
+        "seconds": 0.0006730998866260052,
         "evidence": "Q3 receipt full decile, or the live arm's selected Q3 mechanism"
       },
       {
@@ -6886,11 +6942,11 @@
           "accepted": 4,
           "traps": 4,
           "refused": 4,
-          "median_tick_ms": 0.025749963242560625,
+          "median_tick_ms": 0.029699993319809437,
           "residual_state": 0
         },
         "correct": true,
-        "seconds": 12.789679900044575,
+        "seconds": 13.113842400023714,
         "evidence": "henri_holon.HolonDaemon resident tick"
       },
       {
@@ -6905,7 +6961,7 @@
           "receipt_present": true
         },
         "correct": true,
-        "seconds": 0.0009220000356435776,
+        "seconds": 0.0008810000726953149,
         "evidence": "receipts/holarch/aaii_v5_eval.json Pillar A"
       },
       {
@@ -6918,7 +6974,7 @@
           "passed": true
         },
         "correct": true,
-        "seconds": 8.299946784973145e-06,
+        "seconds": 4.899920895695686e-06,
         "evidence": "receipts/holarch/aaii_v5_eval.json Pillar B"
       },
       {
@@ -6943,7 +6999,7 @@
           "registry_facts": 562
         },
         "correct": true,
-        "seconds": 0.00034110003616660833,
+        "seconds": 0.00027650000993162394,
         "evidence": "receipts/holarch/r1_unstructured_telepathy_and_wave_fact_veto.json"
       },
       {
@@ -6956,7 +7012,7 @@
           "string_rule_enforced": false
         },
         "correct": true,
-        "seconds": 6.9999368861317635e-06,
+        "seconds": 7.00005330145359e-06,
         "evidence": "physical-only ingest, string belt disabled"
       },
       {
@@ -6970,7 +7026,7 @@
           "prefill": 0
         },
         "correct": true,
-        "seconds": 3.600027412176132e-06,
+        "seconds": 3.200024366378784e-06,
         "evidence": "resolve_bridges p50 and faithful T2T prefill ratio"
       },
       {
@@ -6983,7 +7039,7 @@
           "persisted": true
         },
         "correct": true,
-        "seconds": 0.00020240002777427435,
+        "seconds": 0.00019339995924383402,
         "evidence": "ActionRegimeReadout fitted + checkpoint payload"
       },
       {
@@ -7003,7 +7059,7 @@
           }
         },
         "correct": true,
-        "seconds": 6.8999361246824265e-06,
+        "seconds": 6.500049494206905e-06,
         "evidence": "balanced 6 x 3 Action KV swaps"
       },
       {
@@ -7016,7 +7072,7 @@
           "hallucinated": 0
         },
         "correct": true,
-        "seconds": 2.100015990436077e-06,
+        "seconds": 2.09989957511425e-06,
         "evidence": "binding gate refusal before the AST binder"
       },
       {
@@ -7030,7 +7086,7 @@
           "scored_tokens": 61417
         },
         "correct": true,
-        "seconds": 0.00033379998058080673,
+        "seconds": 0.00033380009699612856,
         "evidence": "receipts/holarch/r3_static_and_streaming_full_decile_language.json"
       },
       {
@@ -7043,7 +7099,7 @@
           "stream_weight": 0.2
         },
         "correct": true,
-        "seconds": 4.600035026669502e-06,
+        "seconds": 4.09991480410099e-06,
         "evidence": "deployed adaptive arm on the same scored decile"
       },
       {
@@ -7062,7 +7118,7 @@
           }
         },
         "correct": true,
-        "seconds": 3.700028173625469e-06,
+        "seconds": 3.100023604929447e-06,
         "evidence": "CountLanguageModel role discounts + token_logits recency + suffix floor"
       },
       {
@@ -7076,7 +7132,7 @@
           "omni": 100.0
         },
         "correct": true,
-        "seconds": 0.0008443000260740519,
+        "seconds": 0.0008509999606758356,
         "evidence": "real MMLU cartridge, 200 scored queries"
       },
       {
@@ -7090,7 +7146,7 @@
           "t2t": 0.0
         },
         "correct": true,
-        "seconds": 5.09992241859436e-06,
+        "seconds": 5.200039595365524e-06,
         "evidence": "DocumentFactExtractor ingest, query=None"
       },
       {
@@ -7104,7 +7160,7 @@
           "false_acceptance": 0
         },
         "correct": true,
-        "seconds": 2.800021320581436e-06,
+        "seconds": 3.400025889277458e-06,
         "evidence": "32-task synthesis + SidecarService.verify + sandbox critic"
       },
       {
@@ -7116,7 +7172,7 @@
           "identical": true
         },
         "correct": true,
-        "seconds": 0.002912400057539344,
+        "seconds": 0.003200699924491346,
         "evidence": "interleaved calls on two windows; the first window repeats bit for bit"
       },
       {
@@ -7127,7 +7183,7 @@
           "matched_order": 6
         },
         "correct": true,
-        "seconds": 2.759997732937336e-05,
+        "seconds": 5.600007716566324e-05,
         "evidence": "the window ends with a 6-gram that already occurred inside it"
       },
       {
@@ -7141,7 +7197,7 @@
           "stream_bits_per_char": 1.1660408493237004
         },
         "correct": true,
-        "seconds": 0.0004059999482706189,
+        "seconds": 0.00042719999328255653,
         "evidence": "read from the sealed R3 receipt"
       },
       {
@@ -7151,11 +7207,11 @@
         "measured": {
           "exact": 16,
           "programs": 16,
-          "step_ms_mean": 0.7718404872252177,
+          "step_ms_mean": 0.7684038890827612,
           "slots": 4
         },
         "correct": true,
-        "seconds": 0.974231000058353,
+        "seconds": 0.9647523999447003,
         "evidence": "tape recovered from the wave; reference oracle agrees"
       },
       {
@@ -7173,7 +7229,7 @@
           ]
         },
         "correct": true,
-        "seconds": 7.5999414548277855e-06,
+        "seconds": 7.500057108700275e-06,
         "evidence": "two cycle traps, one undefined transition, one corrupted tape"
       },
       {
@@ -7185,7 +7241,7 @@
           "runs": 16
         },
         "correct": true,
-        "seconds": 4.400033503770828e-06,
+        "seconds": 3.400025889277458e-06,
         "evidence": "every read and write is a wave operation on slot 2"
       },
       {
@@ -7197,7 +7253,7 @@
           "charts": 42
         },
         "correct": true,
-        "seconds": 0.9240089999511838,
+        "seconds": 0.8873122999211773,
         "evidence": "spherical domain charts of at most 256 engrams"
       },
       {
@@ -7205,13 +7261,13 @@
         "category": "s3_charts",
         "expected": "charted strictly faster than the flat scan with full parity; the isolated 0.45 ms gate is measured in the S3 stage",
         "measured": {
-          "charted_p50_ms": 0.5142500158399343,
-          "flat_p50_ms": 0.6138000171631575,
+          "charted_p50_ms": 0.4893500008620322,
+          "flat_p50_ms": 0.5574999377131462,
           "parity": 40,
           "queries": 40
         },
         "correct": true,
-        "seconds": 0.00010850001126527786,
+        "seconds": 0.00010469998233020306,
         "evidence": "same queries, same k, same candidate multiplier; this probe runs inside a loaded evaluation process, so the isolated latency gate lives in receipts/holarch/s3_hierarchical_charts_and_sandboxed_browser.json"
       },
       {
@@ -7225,7 +7281,7 @@
           "after": 0.3771725987211109
         },
         "correct": true,
-        "seconds": 4.400033503770828e-06,
+        "seconds": 4.200031980872154e-06,
         "evidence": "partial polar SVD plus bounded pairwise deflation"
       },
       {
@@ -7248,7 +7304,7 @@
           ]
         },
         "correct": true,
-        "seconds": 0.0010353999678045511,
+        "seconds": 0.0010661999695003033,
         "evidence": "read from receipts/holarch/aaii_v5_eval.json"
       },
       {
@@ -7261,7 +7317,7 @@
           "text_tokens": 0
         },
         "correct": true,
-        "seconds": 5.700043402612209e-06,
+        "seconds": 5.300040356814861e-06,
         "evidence": "latent wave execution with no intermediate text"
       },
       {
@@ -7275,7 +7331,7 @@
           "omni": 100.0
         },
         "correct": true,
-        "seconds": 4.400033503770828e-06,
+        "seconds": 4.100031219422817e-06,
         "evidence": "scaled arm of the AAII v5.0 receipt"
       },
       {
@@ -7283,13 +7339,13 @@
         "category": "t1_hygiene",
         "expected": "every numbered section appears once, starting at 1 in strictly monotonic order",
         "measured": {
-          "count": 41,
+          "count": 44,
           "first": 1,
-          "last": 41,
+          "last": 44,
           "duplicates": 0
         },
         "correct": true,
-        "seconds": 0.0011775000020861626,
+        "seconds": 0.0013133999891579151,
         "evidence": "the merged docs/HOLARCH.md header sequence"
       },
       {
@@ -7307,7 +7363,7 @@
           "goals": 12
         },
         "correct": true,
-        "seconds": 0.00026139989495277405,
+        "seconds": 0.0002891999902203679,
         "evidence": "read from the sealed q2 receipt"
       },
       {
@@ -7322,7 +7378,7 @@
           "bound": 20.0
         },
         "correct": true,
-        "seconds": 0.00021510000806301832,
+        "seconds": 0.00021189998369663954,
         "evidence": "read from the sealed s3 receipt"
       },
       {
@@ -7330,12 +7386,12 @@
         "category": "t1_hygiene",
         "expected": "the host clock pulse is positive and the charted ratio is inside its bound",
         "measured": {
-          "t_ref_ms": 0.07100007496774197,
+          "t_ref_ms": 0.07410009857267141,
           "charted_over_t_ref": 7.2047145522619465,
           "bound": 20.0
         },
         "correct": true,
-        "seconds": 0.009903600090183318,
+        "seconds": 0.009811399970203638,
         "evidence": "25 warm 256x1024 complex64 matvecs in this process"
       },
       {
@@ -7347,7 +7403,7 @@
           "ingested": 2500
         },
         "correct": true,
-        "seconds": 0.00045169994700700045,
+        "seconds": 0.0004881999921053648,
         "evidence": "read from the sealed t2 receipt"
       },
       {
@@ -7360,7 +7416,7 @@
           "hallucination": 0.0
         },
         "correct": true,
-        "seconds": 4.300032742321491e-06,
+        "seconds": 4.600035026669502e-06,
         "evidence": "the same digest-bound read rule as the AAII Pillar A arm"
       },
       {
@@ -7373,7 +7429,7 @@
           "synchronized": true
         },
         "correct": true,
-        "seconds": 3.500026650726795e-06,
+        "seconds": 3.100023604929447e-06,
         "evidence": "a query issued with no use_charts argument"
       },
       {
@@ -7385,7 +7441,7 @@
           "queries": 20
         },
         "correct": true,
-        "seconds": 0.25766669993754476,
+        "seconds": 0.2590463999658823,
         "evidence": "a live 720-row cone store built in this process"
       },
       {
@@ -7400,7 +7456,7 @@
           "text_tokens": 0
         },
         "correct": true,
-        "seconds": 0.035753600066527724,
+        "seconds": 0.03413889999501407,
         "evidence": "zero hand-supplied rules; four short tapes in, longer tapes out"
       },
       {
@@ -7413,7 +7469,7 @@
           "tasks": 10
         },
         "correct": true,
-        "seconds": 0.00037159991916269064,
+        "seconds": 0.0003727000439539552,
         "evidence": "read from the sealed t3 receipt"
       },
       {
@@ -7439,7 +7495,7 @@
           "mcp": "INDUCED"
         },
         "correct": true,
-        "seconds": 3.400025889277458e-06,
+        "seconds": 3.0999071896076202e-06,
         "evidence": "read from the sealed t3 receipt"
       },
       {
@@ -7454,7 +7510,7 @@
           }
         },
         "correct": true,
-        "seconds": 0.01819109998177737,
+        "seconds": 0.024418700020760298,
         "evidence": "browse -> compute -> finish, gated at every turn"
       },
       {
@@ -7467,7 +7523,7 @@
           "deliverable": null
         },
         "correct": true,
-        "seconds": 0.000291300006210804,
+        "seconds": 0.00029340002220124006,
         "evidence": "finish is refused before the abandon turn is accepted"
       },
       {
@@ -7480,7 +7536,7 @@
           "unique_failures": 1
         },
         "correct": true,
-        "seconds": 0.0005749999545514584,
+        "seconds": 0.0006442000158131123,
         "evidence": "the second identical exec is refused before the interpreter runs"
       },
       {
@@ -7492,7 +7548,7 @@
           "chain_valid": true
         },
         "correct": true,
-        "seconds": 5.300040356814861e-06,
+        "seconds": 5.800044164061546e-06,
         "evidence": "parent of link N is the digest of link N-1"
       },
       {
@@ -7506,7 +7562,7 @@
           "base_selected": 160
         },
         "correct": true,
-        "seconds": 0.01576149999164045,
+        "seconds": 0.016300699906423688,
         "evidence": "b_stage 64, k_condense 2, min_cluster 8"
       },
       {
@@ -7518,7 +7574,7 @@
           "limit": 32
         },
         "correct": true,
-        "seconds": 0.00025349995121359825,
+        "seconds": 0.0002576000988483429,
         "evidence": "read from the sealed u2 receipt"
       },
       {
@@ -7530,7 +7586,7 @@
           "drift": 0
         },
         "correct": true,
-        "seconds": 4.600035026669502e-06,
+        "seconds": 4.699919372797012e-06,
         "evidence": "read from the sealed u2 receipt"
       },
       {
@@ -7543,7 +7599,7 @@
           "speedup": 2.1486455404328955
         },
         "correct": true,
-        "seconds": 2.800021320581436e-06,
+        "seconds": 3.00002284348011e-06,
         "evidence": "read from the sealed u2 receipt"
       },
       {
@@ -7556,7 +7612,7 @@
           "nodes": 6
         },
         "correct": true,
-        "seconds": 0.0002470000181347132,
+        "seconds": 0.00024800002574920654,
         "evidence": "strict one-cell head physics, no 2-cell lookahead"
       },
       {
@@ -7569,7 +7625,7 @@
           "states": 0
         },
         "correct": true,
-        "seconds": 0.00031679996754974127,
+        "seconds": 0.00031969998963177204,
         "evidence": "Fixpoint(pass) with Sagnac stationarity; zero hand transition rules"
       },
       {
@@ -7594,7 +7650,7 @@
           "generalized": 8
         },
         "correct": true,
-        "seconds": 0.000354600022546947,
+        "seconds": 0.0003063000040128827,
         "evidence": "read from the sealed t3 receipt"
       },
       {
@@ -7606,7 +7662,7 @@
           "total": 32
         },
         "correct": true,
-        "seconds": 0.011744599905796349,
+        "seconds": 0.011770499986596406,
         "evidence": "CKY over block-rotor slash categories"
       },
       {
@@ -7618,7 +7674,7 @@
           "reversals_ok": 3
         },
         "correct": true,
-        "seconds": 0.0014345000963658094,
+        "seconds": 0.0014477999648079276,
         "evidence": "canonical 4-slot wave coherence"
       },
       {
@@ -7629,7 +7685,7 @@
           "vetoed": 6
         },
         "correct": true,
-        "seconds": 0.00225639995187521,
+        "seconds": 0.0022417999571189284,
         "evidence": "fail-closed CCG semantic veto"
       },
       {
@@ -7642,7 +7698,7 @@
           "kappa_plus": 1.0
         },
         "correct": true,
-        "seconds": 0.0061913999961689115,
+        "seconds": 0.004416700103320181,
         "evidence": "16-capability demand projector P_e = diag(r*)"
       },
       {
@@ -7654,7 +7710,7 @@
           "env_leaks": 0
         },
         "correct": true,
-        "seconds": 0.0007290999637916684,
+        "seconds": 0.0007297999691218138,
         "evidence": "read from the sealed u5 receipt"
       },
       {
@@ -7667,7 +7723,7 @@
           "compression": 9.957671566816872
         },
         "correct": true,
-        "seconds": 6.300047971308231e-06,
+        "seconds": 5.899928510189056e-06,
         "evidence": "read from the sealed u5 receipt"
       },
       {
@@ -7704,7 +7760,7 @@
           "claimed": false
         },
         "correct": true,
-        "seconds": 2.599903382360935e-06,
+        "seconds": 2.200016751885414e-06,
         "evidence": "no fabricated remote telemetry"
       },
       {
@@ -7726,7 +7782,7 @@
           "v1_total": 4
         },
         "correct": true,
-        "seconds": 0.0019332000520080328,
+        "seconds": 0.0012253000168129802,
         "evidence": "FactoredOneCellInducer, 0 text tokens, held-out lengths 12/17/24/32"
       },
       {
@@ -7742,7 +7798,7 @@
           "coherence": 1.0
         },
         "correct": true,
-        "seconds": 0.0040089000249281526,
+        "seconds": 0.0024769000010564923,
         "evidence": "MacroFixpoint composition of the 10 -> 01 inversion shuttle"
       },
       {
@@ -7759,7 +7815,7 @@
           "gate_passed": true
         },
         "correct": true,
-        "seconds": 0.0023642999585717916,
+        "seconds": 0.0021447999170050025,
         "evidence": "receipts/holarch/u3_inductive_turing_audit.json + SHA-256 sidecar"
       },
       {
@@ -7788,7 +7844,7 @@
           "refused": 4
         },
         "correct": true,
-        "seconds": 1.3752746999962255,
+        "seconds": 1.2957180000375956,
         "evidence": "duplicate input with two different outputs is rejected before search"
       },
       {
@@ -7803,7 +7859,7 @@
           "gate_keys": 11
         },
         "correct": true,
-        "seconds": 0.0009261000668630004,
+        "seconds": 0.000928299967199564,
         "evidence": "SHA-256 sidecar + sealed gate fields; the sweep itself runs in its stage runner"
       },
       {
@@ -7818,7 +7874,7 @@
           "gate_keys": 15
         },
         "correct": true,
-        "seconds": 0.0005110999336466193,
+        "seconds": 0.0005154000828042626,
         "evidence": "SHA-256 sidecar + sealed gate fields; the sweep itself runs in its stage runner"
       },
       {
@@ -7833,7 +7889,7 @@
           "gate_keys": 15
         },
         "correct": true,
-        "seconds": 0.0005002999678254128,
+        "seconds": 0.000525499926880002,
         "evidence": "SHA-256 sidecar + sealed gate fields; the sweep itself runs in its stage runner"
       },
       {
@@ -7842,11 +7898,11 @@
         "expected": "the sidecar arm performs zero query-time file reads while the baseline re-reads the package",
         "measured": {
           "mcp_reads": 0,
-          "baseline_reads": 608,
-          "chain_head": "b9dcc40e52aaed0f"
+          "baseline_reads": 752,
+          "chain_head": "77ce697e1abc5582"
         },
         "correct": true,
-        "seconds": 0.010208900086581707,
+        "seconds": 0.010427000001072884,
         "evidence": "one-time ingest, then Zone C only"
       },
       {
@@ -7862,7 +7918,7 @@
           ]
         },
         "correct": true,
-        "seconds": 0.0008081999840214849,
+        "seconds": 0.0008558999979868531,
         "evidence": "same operand, explicit per-slot reference product"
       },
       {
@@ -7874,7 +7930,7 @@
           "dim": 1024
         },
         "correct": true,
-        "seconds": 0.0011756999883800745,
+        "seconds": 0.0014525000005960464,
         "evidence": "same input, torch.set_num_threads 1 vs 8"
       },
       {
@@ -7883,11 +7939,11 @@
         "expected": "no receipt, trace or log under receipts/holarch contains the resolved key",
         "measured": {
           "key_resolved": true,
-          "files_scanned": 321,
+          "files_scanned": 369,
           "files_with_key": 0
         },
         "correct": true,
-        "seconds": 0.04710930003784597,
+        "seconds": 0.05217460007406771,
         "evidence": "byte scan of every sealed text receipt"
       },
       {
@@ -7899,7 +7955,7 @@
           "resolver_present": true
         },
         "correct": true,
-        "seconds": 1.6499892808496952e-05,
+        "seconds": 1.9099912606179714e-05,
         "evidence": "host-memory resolver; sandbox children are spawned with a scrubbed environment"
       },
       {
@@ -7911,7 +7967,7 @@
           "max_energy": 0.0
         },
         "correct": true,
-        "seconds": 0.001625700038857758,
+        "seconds": 0.0020775001030415297,
         "evidence": "RepoSheaf.analyze on the polymorphic battery"
       },
       {
@@ -7924,7 +7980,7 @@
           "bytes": 21091
         },
         "correct": true,
-        "seconds": 0.00020730006508529186,
+        "seconds": 0.00023229990620166063,
         "evidence": "source scan of the plugin CLI runner"
       },
       {
@@ -7932,14 +7988,14 @@
         "category": "v5_hygiene",
         "expected": "docs/HOLARCH.md holds every numbered section in monotonic order with no duplicates",
         "measured": {
-          "count": 41,
+          "count": 44,
           "first": 1,
-          "last": 41,
+          "last": 44,
           "monotonic": true,
           "contiguous": true
         },
         "correct": true,
-        "seconds": 0.0011125999735668302,
+        "seconds": 0.001675100065767765,
         "evidence": "monotonic truncation guard, the same assertion as verify_holarch_consistency.py"
       },
       {
@@ -7947,12 +8003,12 @@
         "category": "v5_hygiene",
         "expected": "every .json receipt under receipts/holarch has a matching valid .sha256 sidecar",
         "measured": {
-          "receipts": 159,
+          "receipts": 183,
           "invalid": [],
           "invalid_count": 0
         },
         "correct": true,
-        "seconds": 0.029689399991184473,
+        "seconds": 0.04047989996615797,
         "evidence": "SHA-256 recomputation of every sealed receipt"
       },
       {
@@ -7965,13 +8021,13 @@
             0,
             1
           ],
-          "pass0_ms": 6.621499895118177,
-          "pass0_scan_ms": 619.4344999967143,
+          "pass0_ms": 6.272400030866265,
+          "pass0_scan_ms": 596.1130999494344,
           "selected_index": 2,
           "probed_partners": 4
         },
         "correct": true,
-        "seconds": 9.499955922365189e-06,
+        "seconds": 9.299954399466515e-06,
         "evidence": "one batched classify_action_regime_batch call plus one real partner probe"
       },
       {
@@ -7986,7 +8042,7 @@
           "status": "verified"
         },
         "correct": true,
-        "seconds": 4.200031980872154e-06,
+        "seconds": 3.700028173625469e-06,
         "evidence": "paired Action-KV counterfactual selected by Pass-0 stratification"
       },
       {
@@ -7994,7 +8050,7 @@
         "category": "w2_split_hygiene",
         "expected": "every document splits at its own cut with a six-token gap and no n-gram can straddle it",
         "measured": {
-          "documents": 36,
+          "documents": 37,
           "gap_tokens": 6,
           "gap_verified": true,
           "straddling_spans": 0,
@@ -8002,7 +8058,7 @@
           "reason": "a span of order <= 6 cannot hold an index on both sides of a 6-token gap"
         },
         "correct": true,
-        "seconds": 0.08631080004852265,
+        "seconds": 0.08003820001613349,
         "evidence": "stratified_segments reconstruction against the tokenizer"
       },
       {
@@ -8010,12 +8066,12 @@
         "category": "w2_split_hygiene",
         "expected": "the validation split holds both prose and code, so one modality cannot own the score",
         "measured": {
-          "code_val_tokens": 81472,
-          "prose_val_tokens": 14407,
-          "code_fraction": 0.8497376902137068
+          "code_val_tokens": 80933,
+          "prose_val_tokens": 16135,
+          "code_fraction": 0.8337763217538221
         },
         "correct": true,
-        "seconds": 1.479999627918005e-05,
+        "seconds": 7.00005330145359e-06,
         "evidence": "per-document tail token counts by file type"
       },
       {
@@ -8023,14 +8079,14 @@
         "category": "w2_split_hygiene",
         "expected": "the stratified held-out split clears the unchanged 0.45 top1 bar and the 0.6x char baseline",
         "measured": {
-          "tokens": 4833,
-          "top1": 0.5634181667701221,
-          "bits_per_char": 1.353146277305971,
+          "tokens": 4834,
+          "top1": 0.5771617707902358,
+          "bits_per_char": 1.398781756446527,
           "top1_bar": 0.45,
           "bpc_bar": 2.454708465195846
         },
         "correct": true,
-        "seconds": 7.885651899967343,
+        "seconds": 8.155045999912545,
         "evidence": "per-document contiguous tails, micro-averaged over the whole corpus"
       },
       {
@@ -8046,7 +8102,7 @@
           "gate_passed": true
         },
         "correct": true,
-        "seconds": 0.0008818999631330371,
+        "seconds": 0.0006752000190317631,
         "evidence": "receipts/holarch/w2_pytest_and_split_hygiene.json"
       },
       {
@@ -8058,7 +8114,7 @@
           "static_bpc": 1.223678623665999
         },
         "correct": true,
-        "seconds": 0.0006386999739333987,
+        "seconds": 0.0004288000054657459,
         "evidence": "sealed r3 receipt, not re-measured"
       },
       {
@@ -8089,7 +8145,7 @@
           "matches": 0
         },
         "correct": true,
-        "seconds": 0.002572400029748678,
+        "seconds": 0.001685700030066073,
         "evidence": "measured against TASK_TRANSFORMS, so the task is not relabelled"
       },
       {
@@ -8103,7 +8159,7 @@
           "refused": []
         },
         "correct": true,
-        "seconds": 8.00006091594696e-06,
+        "seconds": 6.500049494206905e-06,
         "evidence": "the audit reports its refusals instead of overfitting them"
       },
       {
@@ -8119,7 +8175,7 @@
           "sha256": "c0b8b9ffba88480df391106bc3be4869f1dc7a5b58046633beb6d3fb1b305226"
         },
         "correct": true,
-        "seconds": 0.0003869999200105667,
+        "seconds": 0.00031669996678829193,
         "evidence": "receipts/holarch/v4_live_holon_plugin.json"
       },
       {
@@ -8134,7 +8190,7 @@
           "secret_in_receipt": false
         },
         "correct": true,
-        "seconds": 0.00015470001380890608,
+        "seconds": 0.00015789992175996304,
         "evidence": "sealed v3 credential receipt"
       },
       {
@@ -8142,12 +8198,12 @@
         "category": "w5_hygiene",
         "expected": "docs/HOLARCH.md holds every numbered section from 1 in monotonic order",
         "measured": {
-          "count": 41,
-          "last": 41,
+          "count": 44,
+          "last": 44,
           "contiguous": true
         },
         "correct": true,
-        "seconds": 0.0013760000001639128,
+        "seconds": 0.0011650000233203173,
         "evidence": "the same guard as verify_holarch_consistency.py"
       },
       {
@@ -8155,12 +8211,12 @@
         "category": "w5_hygiene",
         "expected": "every sealed receipt still matches its SHA-256 sidecar",
         "measured": {
-          "receipts": 159,
+          "receipts": 183,
           "invalid": [],
           "invalid_count": 0
         },
         "correct": true,
-        "seconds": 0.04828540002927184,
+        "seconds": 0.04010820004623383,
         "evidence": "recomputed digest for every receipt"
       },
       {
@@ -8168,12 +8224,12 @@
         "category": "w2_split_hygiene",
         "expected": "the corpus the split reads is the digest-addressed local corpus, and the split never re-reads a file",
         "measured": {
-          "corpus_digest": "809c2a4f10cb975c",
-          "documents": 36,
+          "corpus_digest": "cca7060832deb023",
+          "documents": 37,
           "reads": 1
         },
         "correct": true,
-        "seconds": 7.79994297772646e-06,
+        "seconds": 7.3999399319291115e-06,
         "evidence": "CodeTextCorpus.holarch reads once; the split is a pure function of it"
       },
       {
@@ -8187,7 +8243,7 @@
           "v1_total": 4
         },
         "correct": true,
-        "seconds": 0.0012343000853434205,
+        "seconds": 0.0011940000113099813,
         "evidence": "live induction, zero text tokens"
       },
       {
@@ -8211,7 +8267,7 @@
           }
         },
         "correct": true,
-        "seconds": 0.0003019999712705612,
+        "seconds": 0.00020830007269978523,
         "evidence": "receipts/holarch/v_cycle.json"
       },
       {
@@ -8228,7 +8284,7 @@
           ]
         },
         "correct": true,
-        "seconds": 0.0007755999686196446,
+        "seconds": 0.0005858999211341143,
         "evidence": "receipts/holarch/x1_live_four_arm_aaii_v5.json"
       },
       {
@@ -8240,7 +8296,7 @@
           "arm3_henri_coprocessor": 0.5
         },
         "correct": true,
-        "seconds": 6.100046448409557e-06,
+        "seconds": 5.200039595365524e-06,
         "evidence": "four-arm AAII v5.0 micro battery"
       },
       {
@@ -8252,7 +8308,7 @@
           "arm3_henri_coprocessor": 0.5
         },
         "correct": true,
-        "seconds": 2.600019797682762e-06,
+        "seconds": 2.300017513334751e-06,
         "evidence": "four-arm AAII v5.0 micro battery"
       },
       {
@@ -8265,7 +8321,7 @@
           "secret_leak_count": 0
         },
         "correct": true,
-        "seconds": 3.6999117583036423e-06,
+        "seconds": 3.400025889277458e-06,
         "evidence": "arm-level hallucination counter and the receipt secret scan"
       },
       {
@@ -8278,7 +8334,7 @@
           "markers": []
         },
         "correct": true,
-        "seconds": 9.390001650899649e-05,
+        "seconds": 7.840001489967108e-05,
         "evidence": "receipts/holarch/x2_sovereign_wave_egress.json"
       },
       {
@@ -8290,7 +8346,7 @@
           "final": 0.4739487463147161
         },
         "correct": true,
-        "seconds": 7.900060154497623e-06,
+        "seconds": 3.2999087125062943e-06,
         "evidence": "sagnac_curve in the X2 receipt"
       },
       {
@@ -8304,7 +8360,7 @@
           "net": 238
         },
         "correct": true,
-        "seconds": 4.499917849898338e-06,
+        "seconds": 2.400018274784088e-06,
         "evidence": "held-out W2 stratified split"
       },
       {
@@ -8318,7 +8374,7 @@
           "bpc_floor": 3.0230086763601074
         },
         "correct": true,
-        "seconds": 3.400025889277458e-06,
+        "seconds": 2.400018274784088e-06,
         "evidence": "held-out W2 stratified split, no clamp"
       },
       {
@@ -8331,7 +8387,7 @@
           "v1": 12
         },
         "correct": true,
-        "seconds": 8.200062438845634e-06,
+        "seconds": 4.200031980872154e-06,
         "evidence": "receipts/holarch/x3_twelve_of_twelve_turing.json"
       },
       {
@@ -8350,7 +8406,7 @@
           "text_tokens": 0
         },
         "correct": true,
-        "seconds": 4.09991480410099e-06,
+        "seconds": 2.300017513334751e-06,
         "evidence": "Q = Qctrl x R_sym x C_latch with full_add"
       },
       {
@@ -8369,7 +8425,7 @@
           "text_tokens": 0
         },
         "correct": true,
-        "seconds": 3.100023604929447e-06,
+        "seconds": 1.7998972907662392e-06,
         "evidence": "strict one-cell swap-and-ripple sweep"
       },
       {
@@ -8383,7 +8439,7 @@
           "rows": 1775
         },
         "correct": true,
-        "seconds": 4.00003045797348e-06,
+        "seconds": 3.00002284348011e-06,
         "evidence": "table move and write audit"
       },
       {
@@ -8392,10 +8448,10 @@
         "expected": "the batched Pass-0 classification of every validation layout stays under 50 ms",
         "measured": {
           "layouts": 4,
-          "pass0_ms": 6.621499895118177
+          "pass0_ms": 6.272400030866265
         },
         "correct": true,
-        "seconds": 3.200024366378784e-06,
+        "seconds": 2.700020559132099e-06,
         "evidence": "classify_action_regime_batch, one encode call"
       },
       {
@@ -8403,11 +8459,11 @@
         "category": "x4_pass0_batch",
         "expected": "the Pass-0 scan including one real partner probe stays under 1500 ms",
         "measured": {
-          "scan_ms": 619.4344999967143,
+          "scan_ms": 596.1130999494344,
           "probed_partners": 4
         },
         "correct": true,
-        "seconds": 2.400018274784088e-06,
+        "seconds": 1.9000144675374031e-06,
         "evidence": "batched classification plus one run_telepathic_vla_episode"
       },
       {
@@ -8421,7 +8477,7 @@
           "to_operator": "*"
         },
         "correct": true,
-        "seconds": 2.9999064281582832e-06,
+        "seconds": 1.9000144675374031e-06,
         "evidence": "paired Action-KV counterfactual"
       },
       {
@@ -8430,17 +8486,17 @@
         "expected": "the wave-Turing step stays under 1 ms at median over five warm runs",
         "measured": {
           "runs": [
-            0.633,
-            0.6073,
-            0.5946,
-            0.592,
-            0.6183
+            0.5732,
+            0.5503,
+            0.5621,
+            0.5744,
+            0.5705
           ],
-          "median_ms": 0.6072571434612785,
-          "max_ms": 0.6330476220076283
+          "median_ms": 0.5704999978964528,
+          "max_ms": 0.5744190476391287
         },
         "correct": true,
-        "seconds": 0.11700700002256781,
+        "seconds": 0.10251759993843734,
         "evidence": "two warm-up runs then five measured runs"
       },
       {
@@ -8453,7 +8509,7 @@
           "norm": 16.0
         },
         "correct": true,
-        "seconds": 0.0001268000341951847,
+        "seconds": 0.00011550006456673145,
         "evidence": "seeded unit-phase rotor, no file read"
       },
       {
@@ -8466,7 +8522,7 @@
           "relative_error": 0.0
         },
         "correct": true,
-        "seconds": 4.900002386420965e-05,
+        "seconds": 5.010003224015236e-05,
         "evidence": "numpy FFT of the live rotor"
       },
       {
@@ -8479,7 +8535,7 @@
           "norm_delta": 0.0
         },
         "correct": true,
-        "seconds": 1.650000922381878e-05,
+        "seconds": 1.7499900422990322e-05,
         "evidence": "unit-phase multiplication in memory"
       },
       {
@@ -8493,7 +8549,7 @@
           "theta": 0.37
         },
         "correct": true,
-        "seconds": 3.579992335289717e-05,
+        "seconds": 3.5100034438073635e-05,
         "evidence": "two seeded unit-phase rotors, one inner product"
       },
       {
@@ -8512,7 +8568,7 @@
           "contradictions": []
         },
         "correct": true,
-        "seconds": 0.003202800056897104,
+        "seconds": 0.004428699961863458,
         "evidence": "literal prompt, zero file reads"
       },
       {
@@ -8525,7 +8581,7 @@
           "v_eff_max": 8
         },
         "correct": true,
-        "seconds": 0.0025475999573245645,
+        "seconds": 0.003961500013247132,
         "evidence": "inventory rank over the typed slot table"
       },
       {
@@ -8541,7 +8597,7 @@
           "rollouts": 0
         },
         "correct": true,
-        "seconds": 0.0010633000638335943,
+        "seconds": 0.0015817000530660152,
         "evidence": "fail-closed contradiction screen"
       },
       {
@@ -8553,7 +8609,7 @@
           "has_canonical_mean": true
         },
         "correct": true,
-        "seconds": 0.0002657999284565449,
+        "seconds": 0.0002706999657675624,
         "evidence": "build_candidates on the parsed spec"
       },
       {
@@ -8565,7 +8621,7 @@
           "violations": 0
         },
         "correct": true,
-        "seconds": 0.00032810005359351635,
+        "seconds": 0.0003381000133231282,
         "evidence": "RepoSheaf capability pullback on a literal module"
       },
       {
@@ -8580,7 +8636,7 @@
           "count": 1
         },
         "correct": true,
-        "seconds": 4.599918611347675e-06,
+        "seconds": 4.700035788118839e-06,
         "evidence": "unsatisfied capability edge on the same sheaf"
       },
       {
@@ -8594,7 +8650,7 @@
           "below_threshold": 0.3333333333333333
         },
         "correct": true,
-        "seconds": 3.00002284348011e-06,
+        "seconds": 2.700020559132099e-06,
         "evidence": "the exact formula the Y4 receipt records"
       },
       {
@@ -8612,7 +8668,7 @@
           "hallucination_rate": 0.25
         },
         "correct": true,
-        "seconds": 3.900029696524143e-06,
+        "seconds": 3.899913281202316e-06,
         "evidence": "the Y4 scoring contract, evaluated"
       },
       {
@@ -8629,7 +8685,7 @@
           "total": 48
         },
         "correct": true,
-        "seconds": 3.00002284348011e-06,
+        "seconds": 2.700020559132099e-06,
         "evidence": "the Y4 battery contract"
       },
       {
@@ -8660,7 +8716,7 @@
           "budget_points": 0.096
         },
         "correct": true,
-        "seconds": 4.09991480410099e-06,
+        "seconds": 4.100031219422817e-06,
         "evidence": "the Y4 arm4 gate, evaluated over every possible count"
       },
       {
@@ -8676,7 +8732,7 @@
           "per_stage": 4
         },
         "correct": true,
-        "seconds": 2.600019797682762e-06,
+        "seconds": 2.8999056667089462e-06,
         "evidence": "the gauntlet count invariant"
       },
       {
@@ -8690,7 +8746,7 @@
           "min": 0.0
         },
         "correct": true,
-        "seconds": 1.7400016076862812e-05,
+        "seconds": 1.6700010746717453e-05,
         "evidence": "the Z1 transducer emission rule, evaluated"
       },
       {
@@ -8703,7 +8759,7 @@
           "residual": 0.0
         },
         "correct": true,
-        "seconds": 2.4499953724443913e-05,
+        "seconds": 2.52000754699111e-05,
         "evidence": "the orthonormal toroidal basis the Z1/Z3 encoders use"
       },
       {
@@ -8715,7 +8771,7 @@
           "added": 2.0
         },
         "correct": true,
-        "seconds": 5.800044164061546e-06,
+        "seconds": 5.999929271638393e-06,
         "evidence": "the contrastive phase-conjugate interference rule"
       },
       {
@@ -8734,7 +8790,7 @@
           "window": 17
         },
         "correct": true,
-        "seconds": 0.00031919998582452536,
+        "seconds": 0.0002978000557050109,
         "evidence": "receipts/holarch/z1_d2048_pointer_wave_egress.json, config block"
       },
       {
@@ -8747,7 +8803,7 @@
           "with_four_asserts": 142
         },
         "correct": true,
-        "seconds": 0.0014529000036418438,
+        "seconds": 0.0015057999407872558,
         "evidence": "receipts/holarch/external/HumanEval.jsonl, hashed in this process"
       },
       {
@@ -8760,21 +8816,25 @@
           "returns": "bool"
         },
         "correct": true,
-        "seconds": 0.00044970004819333553,
+        "seconds": 0.0004949000431224704,
         "evidence": "henri.holarch.cold_synth.parse_problem on HumanEval/0"
       },
       {
         "name": "z2_prose_prompt_has_no_public_examples",
         "category": "z2_external_synth",
-        "expected": "a prose-only prompt yields an empty public evidence set, which is why the Z4 rule abstains on it",
+        "expected": "the AA2 prose boundary holds: literal prose yields verifiable examples, example-free prose abstains closed",
         "measured": {
           "name": "words_string",
-          "assertions": 0,
-          "min_public_examples": 2
+          "assertions": 2,
+          "literal_examples": 2,
+          "empty_examples": 0,
+          "empty_reason": "no_verifiable_io_examples",
+          "abstained": true,
+          "abstain_reason": "no_verifiable_io_examples"
         },
         "correct": true,
-        "seconds": 0.0040698000229895115,
-        "evidence": "the vacuous-verification hazard the Z4 fail-closed rule removes"
+        "seconds": 0.006333200028166175,
+        "evidence": "Cycle AA2 prose_examples.extract, superseding the Z2 limitation (HOLARCH.md 42.3)"
       },
       {
         "name": "z2_unsatisfiable_capability_refused",
@@ -8786,7 +8846,7 @@
           "rollouts": 0
         },
         "correct": true,
-        "seconds": 0.0014666999923065305,
+        "seconds": 0.002168899984098971,
         "evidence": "the cold synthesizer's capability refusal"
       },
       {
@@ -8801,7 +8861,7 @@
           "nodes": 2
         },
         "correct": true,
-        "seconds": 0.006741399993188679,
+        "seconds": 0.006352199940010905,
         "evidence": "henri.holarch.spatial_induction.SpatialCegisInducer"
       },
       {
@@ -8816,7 +8876,7 @@
           "nodes": 2
         },
         "correct": true,
-        "seconds": 0.0021293999161571264,
+        "seconds": 0.0021470000501722097,
         "evidence": "the same inducer on a dihedral demonstration"
       },
       {
@@ -8827,7 +8887,7 @@
           "refusal": "ABSTAIN: unsatisfiable specification (one input, two outputs)"
         },
         "correct": true,
-        "seconds": 2.1300045773386955e-05,
+        "seconds": 2.1200045011937618e-05,
         "evidence": "the fail-closed refusal the Z4 ARC trap relies on"
       },
       {
@@ -8840,7 +8900,7 @@
           "exact": true
         },
         "correct": true,
-        "seconds": 0.00020030001178383827,
+        "seconds": 0.00020379992201924324,
         "evidence": "ToroidalWaveEncoder.roundtrip"
       },
       {
@@ -8853,7 +8913,7 @@
           "p99": 99.01
         },
         "correct": true,
-        "seconds": 0.0001230000052601099,
+        "seconds": 0.00011680007446557283,
         "evidence": "the estimator the Z4 stress receipt records"
       },
       {
@@ -8867,7 +8927,7 @@
           "three_arms_plus_retries": 200
         },
         "correct": true,
-        "seconds": 2.900022082030773e-06,
+        "seconds": 2.7999049052596092e-06,
         "evidence": "the Z4 call budget, evaluated"
       },
       {
@@ -8878,10 +8938,10 @@
           "count": 3,
           "valid_before": true,
           "valid_after_tamper": false,
-          "head": "7830e83f8c4f78fd"
+          "head": "47318df3bcd211a8"
         },
         "correct": true,
-        "seconds": 7.559999357908964e-05,
+        "seconds": 7.780001033097506e-05,
         "evidence": "the chain the 1000-request stress gate reads"
       },
       {
@@ -8895,8 +8955,288 @@
           "last": "data: [DONE]"
         },
         "correct": true,
-        "seconds": 3.2100011594593525e-05,
+        "seconds": 3.290001768618822e-05,
         "evidence": "henri.holarch.server.chat_stream_chunks on a fixed completion"
+      },
+      {
+        "name": "ac1_codebook_exact_identity_roundtrip",
+        "category": "ac1_kronecker",
+        "expected": "the orthogonal exact-ID codebook recovers the dominant token of a superposition and every row is a unit phasor",
+        "measured": {
+          "vocab_size": 2048,
+          "dim": 2048,
+          "seed": 20261203,
+          "norm_error": 0.0,
+          "norm_min": 1.0,
+          "norm_max": 1.0,
+          "dominant_token": 7,
+          "top_score": 2.9432597160339355,
+          "runner_up_gap": 0.9756186008453369
+        },
+        "correct": true,
+        "seconds": 0.17296220001298934,
+        "evidence": "henri.holarch.wave_egress.OrthogonalExactCodebook.project"
+      },
+      {
+        "name": "ac1_codebook_parseval_one",
+        "category": "ac1_kronecker",
+        "expected": "the unitary DFT of every sampled codebook row preserves energy at ratio 1.000000",
+        "measured": {
+          "parseval_ratio": 1.0,
+          "parseval_error": 1.1920928955078125e-07,
+          "rows_sampled": 128
+        },
+        "correct": true,
+        "seconds": 9.499955922365189e-06,
+        "evidence": "the audit the AC1 receipt gates on"
+      },
+      {
+        "name": "ac1_codebook_crosstalk_law",
+        "category": "ac1_kronecker",
+        "expected": "the measured mean-square cross-talk of distinct codebook rows is 1/D times the qFHRR constant",
+        "measured": {
+          "crosstalk_mean_square": 0.00048388150753453374,
+          "crosstalk_theory": 0.00048828125,
+          "crosstalk_ratio": 0.9909893274307251,
+          "crosstalk_rms": 0.021997306495904922
+        },
+        "correct": true,
+        "seconds": 3.500026650726795e-06,
+        "evidence": "E|Re<chi(u), chi(v)>|^2 = 1/D for u != v"
+      },
+      {
+        "name": "ac1_idf_copy_law",
+        "category": "ac1_kronecker",
+        "expected": "the smoothed IDF is exactly log((1+N)/(1+df))+1 and strictly falls as document frequency rises",
+        "measured": {
+          "documents": 4.0,
+          "counts": [
+            4.0,
+            2.0,
+            2.0,
+            1.0
+          ],
+          "idf": [
+            1.0,
+            1.5108256237659907,
+            1.5108256237659907,
+            1.916290731874155
+          ],
+          "expected": [
+            1.0,
+            1.5108256237659907,
+            1.5108256237659907,
+            1.916290731874155
+          ],
+          "max_abs_error": 0.0
+        },
+        "correct": true,
+        "seconds": 9.330001194030046e-05,
+        "evidence": "henri.holarch.wave_egress.inverse_document_frequencies"
+      },
+      {
+        "name": "ac2_joint_rejects_redundant_stage",
+        "category": "ac2_mdl_sheaf",
+        "expected": "a second stage that covers nothing new loses to the single adaptation on J because MDL charges its nodes",
+        "measured": {
+          "lambda_mdl": 0.0025,
+          "clause_count": 2,
+          "redundant_delta_residue": 0.0,
+          "redundant_j": 0.09711576232374801,
+          "single_j": 0.169615762323748,
+          "margin": -0.0725
+        },
+        "correct": true,
+        "seconds": 0.003119200002402067,
+        "evidence": "J(h) = Cov_IDF + eta*DeltaResidue_IDF - lambda_MDL*|h|_AST"
+      },
+      {
+        "name": "ac2_joint_accepts_needed_stage",
+        "category": "ac2_mdl_sheaf",
+        "expected": "a composition that covers the second clause outranks the single adaptation on J",
+        "measured": {
+          "needed_delta_residue": 0.15158682174281107,
+          "needed_j": 0.3802894058093702,
+          "single_j": 0.169615762323748,
+          "needed_ast_nodes": 50,
+          "single_ast_nodes": 13
+        },
+        "correct": true,
+        "seconds": 5.200039595365524e-06,
+        "evidence": "the residue gain has to beat the MDL charge"
+      },
+      {
+        "name": "ac2_sheaf_masks_incompatible_composition",
+        "category": "ac2_mdl_sheaf",
+        "expected": "a candidate with a non-zero RepoSheaf energy is not admissible even at the top coverage",
+        "measured": {
+          "masked_label": "compose:is_perfect_square+count_distinct_characters",
+          "masked_sheaf_energy": 1,
+          "masked_cov_idf": 0.3537025840665591,
+          "masked_admissible": false,
+          "chosen_label": "dag:count_distinct_characters+is_perfect_square"
+        },
+        "correct": true,
+        "seconds": 2.500019036233425e-06,
+        "evidence": "E_sheaf == 0 is a hard admissibility gate, not a tie-break"
+      },
+      {
+        "name": "ac2_joint_beats_first_pass_on_hidden",
+        "category": "ac2_mdl_sheaf",
+        "expected": "the first admissible candidate passes both public examples and fails the hidden one; the joint argmax passes both",
+        "measured": {
+          "first_pass": "adapt:is_decimal",
+          "chosen": "dag:count_distinct_characters+is_perfect_square",
+          "constant_public": true,
+          "constant_hidden": false,
+          "needed_public": true,
+          "needed_hidden": true,
+          "delta_residue": 0.15158682174281107
+        },
+        "correct": true,
+        "seconds": 2.299901098012924e-06,
+        "evidence": "both candidates executed on the public and the hidden example"
+      },
+      {
+        "name": "ac3_loo_induces_mirror_tile",
+        "category": "ac3_external_arc",
+        "expected": "two demonstration pairs are enough to recover a 2x2 mirror tiling and predict a held-out grid exactly",
+        "measured": {
+          "status": "INDUCED",
+          "chain": [
+            "mirror_tile(2,2,rows)"
+          ],
+          "nodes": 220,
+          "loo_passed": true,
+          "exact": true
+        },
+        "correct": true,
+        "seconds": 0.00833700003568083,
+        "evidence": "henri.holarch.arc_objects.ObjectLooInducer"
+      },
+      {
+        "name": "ac3_loo_induces_kron_fractal",
+        "category": "ac3_external_arc",
+        "expected": "the depth-1 search recovers a self-Kronecker fractal tiling and predicts the held-out grid exactly",
+        "measured": {
+          "status": "INDUCED",
+          "chain": [
+            "kron_fractal(2,2)"
+          ],
+          "nodes": 220,
+          "exact": true
+        },
+        "correct": true,
+        "seconds": 0.0047574000200256705,
+        "evidence": "the AC3 dimension-morphism family"
+      },
+      {
+        "name": "ac3_loo_refuses_contradiction",
+        "category": "ac3_external_arc",
+        "expected": "one input with two declared outputs is refused with no emission",
+        "measured": {
+          "status": "ABSTAIN",
+          "reason": "ABSTAIN: no object program survives the Leave-One-Out gate",
+          "nodes": 2738,
+          "emitted_grid": false
+        },
+        "correct": true,
+        "seconds": 0.05314840003848076,
+        "evidence": "the fail-closed refusal the Z4/AC4 ARC trap relies on"
+      },
+      {
+        "name": "ac3_loo_precision_on_four",
+        "category": "ac3_external_arc",
+        "expected": "over four declared multi-scale tasks every emitted program is exact on the held-out grid, so the emitted precision is 1.0000",
+        "measured": {
+          "tasks": 4,
+          "emitted": 4,
+          "exact": 4,
+          "precision": 1.0,
+          "rows": [
+            {
+              "chain": [
+                "mirror_tile(2,2,rows)"
+              ],
+              "exact": true
+            },
+            {
+              "chain": [
+                "kron_fractal(2,2)"
+              ],
+              "exact": true
+            },
+            {
+              "chain": [
+                "dihedral(2)"
+              ],
+              "exact": true
+            },
+            {
+              "chain": [
+                "pad_edges(1,0)"
+              ],
+              "exact": true
+            }
+          ]
+        },
+        "correct": true,
+        "seconds": 0.024579099961556494,
+        "evidence": "an honest abstention is not an error; a wrong emission is"
+      },
+      {
+        "name": "ac4_spend_guard_duplicate_refused",
+        "category": "ac4_backend_cascade",
+        "expected": "a second runner on the same lock is refused before it can spend",
+        "measured": {
+          "refused": true,
+          "second_calls": 0,
+          "second_acquired": false,
+          "holder_released": true
+        },
+        "correct": true,
+        "seconds": 0.0057876999489963055,
+        "evidence": "henri.holarch.spend_guard.SpendGuard.acquire"
+      },
+      {
+        "name": "ac4_spend_guard_budget_enforced",
+        "category": "ac4_backend_cascade",
+        "expected": "a 2-call guard admits exactly two calls and raises before the third",
+        "measured": {
+          "calls": 2,
+          "budget": 2,
+          "overrun_refused": true,
+          "remaining": 0
+        },
+        "correct": true,
+        "seconds": 0.0006790000479668379,
+        "evidence": "the hard counter the AC4 escalation path spends against"
+      },
+      {
+        "name": "ac4_spend_guard_stale_lock_reclaimed",
+        "category": "ac4_backend_cascade",
+        "expected": "a lockfile whose pid no longer exists is reclaimed once, not deadlocked",
+        "measured": {
+          "reclaimed_stale": true,
+          "acquired": true
+        },
+        "correct": true,
+        "seconds": 0.001824100036174059,
+        "evidence": "the stale-lock path of the same guard"
+      },
+      {
+        "name": "ac4_receipt_digest_recomputed",
+        "category": "ac4_backend_cascade",
+        "expected": "a receipt verifies against its own digest and stops verifying when one field is edited",
+        "measured": {
+          "valid_before": true,
+          "valid_after_edit": false,
+          "sha256": "adc9155d80cd9a3d",
+          "chain_length": 1
+        },
+        "correct": true,
+        "seconds": 8.829997386783361e-05,
+        "evidence": "henri.holarch.server.verify_receipt"
       }
     ]
   },
@@ -9133,79 +9473,100 @@
     "z4_live_budget_arithmetic": true,
     "z4_receipt_chain_tamper_detection": true,
     "z4_sse_chunk_contract": true,
-    "queries_288": true,
-    "probes_212_present": true,
+    "ac1_codebook_exact_identity_roundtrip": true,
+    "ac1_codebook_parseval_one": true,
+    "ac1_codebook_crosstalk_law": true,
+    "ac1_idf_copy_law": true,
+    "ac2_joint_rejects_redundant_stage": true,
+    "ac2_joint_accepts_needed_stage": true,
+    "ac2_sheaf_masks_incompatible_composition": true,
+    "ac2_joint_beats_first_pass_on_hidden": true,
+    "ac3_loo_induces_mirror_tile": true,
+    "ac3_loo_induces_kron_fractal": true,
+    "ac3_loo_refuses_contradiction": true,
+    "ac3_loo_precision_on_four": true,
+    "ac4_spend_guard_duplicate_refused": true,
+    "ac4_spend_guard_budget_enforced": true,
+    "ac4_spend_guard_stale_lock_reclaimed": true,
+    "ac4_receipt_digest_recomputed": true,
+    "queries_304": true,
+    "probes_228_present": true,
     "cycle_y_probes_16": true,
     "cycle_z_probes_16": true,
+    "cycle_ac_probes_16": true,
     "wall_le_160": true,
     "passed": true
   },
-  "wall_seconds": 134.92405100003816,
+  "wall_seconds": 138.77699149993714,
   "evidence": "OBSERVED",
   "category_ms": {
-    "j1_cleanroom": 14331.24960004352,
-    "j2_elastic_vocab": 67.63489998411387,
-    "j3_diverse_dag": 27.399700018577278,
-    "j4_openai_adapter": 341.5672000264749,
-    "k1_multitask": 8172.029900015332,
-    "k2_boundary_axioms": 1241.6204999899492,
-    "k3_vla_dag": 1.6330999787896872,
-    "k4_rebase_concurrency": 1820.7104000030085,
-    "m1_online_repulsor": 36658.64819998387,
-    "m2_low_latency": 1963.1120000267401,
-    "m3_full_reference": 1.171099953353405,
-    "m4_guard_ast": 54.05620008241385,
-    "o1_swat": 365.51969998981804,
-    "o2_api_epoch": 265.0801999261603,
-    "o3_language": 457.98070007003844,
-    "o4_holonic": 1185.1413999684155,
-    "p1_language": 0.04870002157986164,
-    "p2_telepathy": 223.4950999263674,
-    "p3_telepathic_vla": 2267.1272000297904,
-    "p4_holon": 324.39319998957217,
-    "q1_telepathy": 205.83310001529753,
-    "q2_causal_vla": 3870.728300069459,
-    "q3_language": 0.6764999125152826,
-    "q4_aaii": 12790.610200027004,
-    "r1_telepathy": 0.35170000046491623,
-    "r2_causal_vla": 0.21139997988939285,
-    "r3_language": 0.3421000437811017,
-    "r4_aaii": 0.8521999698132277,
-    "s1_language": 3.345999983139336,
-    "s2_turing": 974.2430000333115,
-    "s3_charts": 924.1218999959528,
-    "s4_suite": 1.0455000447109342,
-    "t1_hygiene": 11.557599995285273,
-    "t2_centered_charts": 258.1261999439448,
-    "t3_induction": 36.13330004736781,
-    "t4_coprocessor": 19.062699982896447,
-    "u2_condensed_charts": 16.022399999201298,
-    "u3_onecell": 0.9218000341206789,
-    "u4_ccg_sheaf": 21.62689995020628,
-    "u5_coprocessor": 0.7431999547407031,
-    "v1_onecell": 1383.5811000317335,
-    "v2_decoupled_sweeps": 12.14640005491674,
-    "v2_python_dispatch": 1.9838999724015594,
-    "v3_credential_boundary": 47.125799930654466,
-    "v4_holon_wiring": 1.83300010394305,
-    "v5_hygiene": 30.801999964751303,
-    "w1_pass0": 0.013699987903237343,
-    "w2_split_hygiene": 7973.505899892189,
-    "w3_onecell": 3.8147001760080457,
-    "w4_holon": 0.5416999338194728,
-    "w5_hygiene": 49.963400000706315,
-    "x1_four_arm": 0.012399978004395962,
-    "x1_shared_stem": 0.7755999686196446,
-    "x2_wave_egress": 0.1097000204026699,
-    "x3_onecell": 0.019400031305849552,
-    "x4_pass0_batch": 117.01559997163713,
-    "y1_wave": 0.2280999906361103,
-    "y2_cold_synth": 7.079500006511807,
-    "y3_cascade": 0.3396000247448683,
+    "ac1_kronecker": 173.06850000750273,
+    "ac2_mdl_sheaf": 3.129199962131679,
+    "ac3_external_arc": 90.82190005574375,
+    "ac4_backend_cascade": 8.379100007005036,
+    "j1_cleanroom": 14511.195600032806,
+    "j2_elastic_vocab": 72.69760000053793,
+    "j3_diverse_dag": 36.366499960422516,
+    "j4_openai_adapter": 409.8496000515297,
+    "k1_multitask": 8001.9717999966815,
+    "k2_boundary_axioms": 1339.3841999350116,
+    "k3_vla_dag": 2.174000022932887,
+    "k4_rebase_concurrency": 1913.4579999372363,
+    "m1_online_repulsor": 36964.7566000931,
+    "m2_low_latency": 1977.1136000053957,
+    "m3_full_reference": 1.2903999304398894,
+    "m4_guard_ast": 56.99419998563826,
+    "o1_swat": 386.29900000523776,
+    "o2_api_epoch": 286.67760000098497,
+    "o3_language": 393.75960000324994,
+    "o4_holonic": 1251.9156000344083,
+    "p1_language": 0.045599997974932194,
+    "p2_telepathy": 223.74579997267574,
+    "p3_telepathic_vla": 2131.9034000625834,
+    "p4_holon": 307.3560999473557,
+    "q1_telepathy": 203.6266999784857,
+    "q2_causal_vla": 3883.477000053972,
+    "q3_language": 0.6932999240234494,
+    "q4_aaii": 13114.728300017305,
+    "r1_telepathy": 0.2867000875994563,
+    "r2_causal_vla": 0.20199990831315517,
+    "r3_language": 0.341000035405159,
+    "r4_aaii": 0.8596000261604786,
+    "s1_language": 3.6838999949395657,
+    "s2_turing": 964.7633000276983,
+    "s3_charts": 887.4211999354884,
+    "s4_suite": 1.075600041076541,
+    "t1_hygiene": 11.62589993327856,
+    "t2_centered_charts": 259.54230001661927,
+    "t3_induction": 34.51939998194575,
+    "t4_coprocessor": 25.36210010293871,
+    "u2_condensed_charts": 16.565999947488308,
+    "u3_onecell": 0.8774000452831388,
+    "u4_ccg_sheaf": 19.876800011843443,
+    "u5_coprocessor": 0.7430999539792538,
+    "v1_onecell": 1301.56499997247,
+    "v2_decoupled_sweeps": 12.396199977956712,
+    "v2_python_dispatch": 2.3083999985828996,
+    "v3_credential_boundary": 52.19369998667389,
+    "v4_holon_wiring": 2.3098000092431903,
+    "v5_hygiene": 42.15500003192574,
+    "w1_pass0": 0.012999982573091984,
+    "w2_split_hygiene": 8236.20259994641,
+    "w3_onecell": 2.886200090870261,
+    "w4_holon": 0.47459988854825497,
+    "w5_hygiene": 41.481500142253935,
+    "x1_four_arm": 0.010900082997977734,
+    "x1_shared_stem": 0.5858999211341143,
+    "x2_wave_egress": 0.08649996016174555,
+    "x3_onecell": 0.011299969628453255,
+    "x4_pass0_batch": 102.52409998793155,
+    "y1_wave": 0.21820003166794777,
+    "y2_cold_synth": 10.242599993944168,
+    "y3_cascade": 0.3493999829515815,
     "y4_battery": 0.013399985618889332,
-    "z1_wave": 0.3668999997898936,
-    "z2_external_synth": 7.439100067131221,
-    "z3_spatial": 9.09239996690303,
-    "z4_stress": 0.23360003251582384
+    "z1_wave": 0.34570007119327784,
+    "z2_external_synth": 10.502799996174872,
+    "z3_spatial": 8.724199957214296,
+    "z4_stress": 0.23030000738799572
   }
 }

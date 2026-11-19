@@ -127,6 +127,7 @@ BOUNDARY_SOURCES = (
     "test_time_learned",
     "library_prototype",
     "cold_synth",
+    "repo_patch_cegis",
 )
 """Where an axiom came from. A learned trap is never labelled as a human rule."""
 

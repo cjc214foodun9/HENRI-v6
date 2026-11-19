@@ -1,0 +1,2703 @@
+{
+  "stage": "AA2",
+  "config": {
+    "budget": 64,
+    "slot_support": 8
+  },
+  "primary": {
+    "name": "mbpp_sanitized",
+    "path": "receipts\\holarch\\external\\mbpp_sanitized.json",
+    "sha256": "ca95deaa9a01ef0a6f439f88bcf0dd3db3563d22f22aad6cae04ebb9a8d8c8e9",
+    "rows": 427,
+    "eligible": 30,
+    "selected": 30,
+    "digest": "f2cb5c932f27d35a6791fb02090141adcc805303da918db38623c4f39dcc76e5",
+    "counts": {
+      "selected": 30,
+      "solved": 28,
+      "abstained": 2,
+      "emitted": 28,
+      "emitted_but_failed_hidden": 0,
+      "pass_at_1_over_slice_size": 0.875,
+      "pass_at_1_over_selected": 0.9333333333333333,
+      "precision": 1.0
+    },
+    "tasks": [
+      {
+        "suite": "primary",
+        "task_id": "3",
+        "entry": "is_not_prime",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 1,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Write a python function to identify non-prime numbers.",
+        "params": [
+          "n"
+        ],
+        "param_kinds": [
+          "int"
+        ],
+        "return_kind": "bool",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def is_not_prime(n):\n    return n < 2 or any(n % d == 0 for d in range(2, int(n ** 0.5) + 1))\n",
+        "source_sha256": "852137df9e8514939600ce0fd6f3416759babbb7ec0f7142b9cd4ea311dc7a8a",
+        "seconds": 0.03928670007735491
+      },
+      {
+        "suite": "primary",
+        "task_id": "6",
+        "entry": "differ_At_One_Bit_Pos",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 1,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Write a python function to check whether the two numbers differ at one bit position only or not.",
+        "params": [
+          "a",
+          "b"
+        ],
+        "param_kinds": [
+          "int",
+          "int"
+        ],
+        "return_kind": "bool",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def differ_At_One_Bit_Pos(a, b):\n    value = a ^ b\n    return value != 0 and (value & (value - 1)) == 0\n",
+        "source_sha256": "617122d0bb4844d554fe9939f4945e9da3702e64935b538174851bb4c610d53d",
+        "seconds": 0.03917199990246445
+      },
+      {
+        "suite": "primary",
+        "task_id": "58",
+        "entry": "opposite_Signs",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 1,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Write a python function to check whether the given two integers have opposite sign or not.",
+        "params": [
+          "x",
+          "y"
+        ],
+        "param_kinds": [
+          "int",
+          "int"
+        ],
+        "return_kind": "bool",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def opposite_Signs(x, y):\n    return (x >= 0) != (y >= 0)\n",
+        "source_sha256": "f93f0972cca2467cfb32003cafaca9e8ed16c69e07435735470c1c7c763b8eb3",
+        "seconds": 0.05073249991983175
+      },
+      {
+        "suite": "primary",
+        "task_id": "172",
+        "entry": "count_occurance",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 1,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Write a function to count the number of occurence of the string 'std' in a given string.",
+        "params": [
+          "s"
+        ],
+        "param_kinds": [
+          "str"
+        ],
+        "return_kind": "int",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def count_occurance(s):\n    return s.count('std')\n",
+        "source_sha256": "97a3a71509cd7839395ac52eda3ec911f48bef68dd712d591d66bfe02111bbab",
+        "seconds": 0.04314549989067018
+      },
+      {
+        "suite": "primary",
+        "task_id": "223",
+        "entry": "is_majority",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 1,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Write a function that takes in a sorted array, its length (n), and an element and returns whether the element is the majority element in the given sorted array. (The majority element is the element that occurs more than n/2 times.)",
+        "params": [
+          "arr",
+          "n",
+          "x"
+        ],
+        "param_kinds": [
+          "list",
+          "int",
+          "int"
+        ],
+        "return_kind": "bool",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def is_majority(arr, n, x):\n    return arr.count(x) * 2 > n\n",
+        "source_sha256": "e81fe38079fdd783b9935f0b7a169e1064d2ae1d83d7958abfd0f2381e6faf06",
+        "seconds": 0.04763379995711148
+      },
+      {
+        "suite": "primary",
+        "task_id": "226",
+        "entry": "odd_values_string",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 1,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Write a python function to remove the characters which have odd index values of a given string.",
+        "params": [
+          "str"
+        ],
+        "param_kinds": [
+          "str"
+        ],
+        "return_kind": "str",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def odd_values_string(str):\n    return str[::2]\n",
+        "source_sha256": "8761371e02f4e0cf135b349e3a05dec2ae9df306378c9ee285108689ece7ff32",
+        "seconds": 0.042885800008662045
+      },
+      {
+        "suite": "primary",
+        "task_id": "721",
+        "entry": "maxAverageOfPath",
+        "status": "ABSTAIN",
+        "reason": "exhausted_public_assertions",
+        "rollouts": 64,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Given a square matrix of size N*N given as a list of lists, where each cell is associated with a specific cost. A path is defined as a specific sequence of cells that starts from the top-left cell move only right or down and ends on bottom right cell. We want to find a path with the maximum average over all existing paths. Average is computed as total cost divided by the number of cells visited in the path.",
+        "params": [
+          "cost"
+        ],
+        "param_kinds": [
+          "list"
+        ],
+        "return_kind": "float",
+        "emitted": false,
+        "hidden_ok": false,
+        "hidden_detail": "not_emitted",
+        "syntax_ok": true,
+        "source": "",
+        "source_sha256": "",
+        "seconds": 4.137520399992354
+      },
+      {
+        "suite": "primary",
+        "task_id": "723",
+        "entry": "count_same_pair",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 1,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "The input is defined as two lists of the same length. Write a function to count indices where the lists have the same values.",
+        "params": [
+          "nums1",
+          "nums2"
+        ],
+        "param_kinds": [
+          "list",
+          "list"
+        ],
+        "return_kind": "int",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def count_same_pair(nums1, nums2):\n    return sum(1 for a, b in zip(nums1, nums2) if a == b)\n",
+        "source_sha256": "4f0886972a91915f6ed05bddb09ea1841844c4e506d221a96e86b15cc73476d1",
+        "seconds": 0.044056799961254
+      },
+      {
+        "suite": "primary",
+        "task_id": "724",
+        "entry": "power_base_sum",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 1,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Write a function that takes base and power as arguments and calculate the sum of all digits of the base to the specified power.",
+        "params": [
+          "base",
+          "power"
+        ],
+        "param_kinds": [
+          "int",
+          "int"
+        ],
+        "return_kind": "int",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def power_base_sum(base, power):\n    return sum(int(c) for c in str(base ** power))\n",
+        "source_sha256": "d5ecdddacd1666ce491cbb42dd643d9a334ff5061f6f41550113d6736da1c399",
+        "seconds": 0.04561300005298108
+      },
+      {
+        "suite": "primary",
+        "task_id": "725",
+        "entry": "extract_quotation",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 1,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Write a function to extract values between quotation marks \" \" of the given string.",
+        "params": [
+          "text1"
+        ],
+        "param_kinds": [
+          "str"
+        ],
+        "return_kind": "list",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def extract_quotation(text1):\n    import re\n    return re.findall('\"(.*?)\"', text1)\n",
+        "source_sha256": "9d0cbaf59145f026099af841da300cc3fabd07b25b025c1f2c2d9502fa2dc673",
+        "seconds": 0.039184799999929965
+      },
+      {
+        "suite": "primary",
+        "task_id": "726",
+        "entry": "multiply_elements",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 1,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Write a function that takes as input a tuple of numbers (t_1,...,t_{N+1}) and returns a tuple of length N where the i-th element of the tuple is equal to t_i * t_{i+1}.",
+        "params": [
+          "test_tup"
+        ],
+        "param_kinds": [
+          "tuple"
+        ],
+        "return_kind": "tuple",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def multiply_elements(test_tup):\n    return tuple(a * b for a, b in zip(test_tup, test_tup[1:]))\n",
+        "source_sha256": "5e6af84dbbf36b435ab0b668d1bc20ed37e7658ea4f4d0b2a5de09281838b748",
+        "seconds": 0.0427491000154987
+      },
+      {
+        "suite": "primary",
+        "task_id": "730",
+        "entry": "consecutive_duplicates",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 1,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Write a function to remove consecutive duplicates of a given list.",
+        "params": [
+          "nums"
+        ],
+        "param_kinds": [
+          "list"
+        ],
+        "return_kind": "list",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def consecutive_duplicates(nums):\n    out = []\n    for index, value in enumerate(nums):\n        if index == 0 or value != nums[index - 1]:\n            out.append(value)\n    return out\n",
+        "source_sha256": "c1fa2c77517b1f0c33db1bcb12bd008049f375b4591a91e45d6879b8879a7a6d",
+        "seconds": 0.04210920003242791
+      },
+      {
+        "suite": "primary",
+        "task_id": "735",
+        "entry": "toggle_middle_bits",
+        "status": "ABSTAIN",
+        "reason": "exhausted_public_assertions",
+        "rollouts": 24,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Write a python function to toggle bits of the number except the first and the last bit. https://www.geeksforgeeks.org/toggle-bits-number-expect-first-last-bits/",
+        "params": [
+          "n"
+        ],
+        "param_kinds": [
+          "int"
+        ],
+        "return_kind": "int",
+        "emitted": false,
+        "hidden_ok": false,
+        "hidden_detail": "not_emitted",
+        "syntax_ok": true,
+        "source": "",
+        "source_sha256": "",
+        "seconds": 1.4965660000452772
+      },
+      {
+        "suite": "primary",
+        "task_id": "752",
+        "entry": "jacobsthal_num",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 4,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Write a function to find the nth jacobsthal number. https://www.geeksforgeeks.org/jacobsthal-and-jacobsthal-lucas-numbers/ 0, 1, 1, 3, 5, 11, 21, 43, 85, 171, 341, 683, 1365, 2731, ...",
+        "params": [
+          "n"
+        ],
+        "param_kinds": [
+          "int"
+        ],
+        "return_kind": "int",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def jacobsthal_num(n):\n    if n < 2:\n        return 0 if n == 0 else 1\n    table = [0, 1]\n    for i in range(2, n + 1):\n        table.append(1 * table[i - 1] + 2 * table[i - 2])\n    return table[n]\n",
+        "source_sha256": "11cf9eb246d5c9e3a97612b898aa9d584ab57c902aa755e29c3e85c9083b7571",
+        "seconds": 0.2246441999450326
+      },
+      {
+        "suite": "primary",
+        "task_id": "754",
+        "entry": "extract_index_list",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 1,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "We say that an element is common for lists l1, l2, l3 if it appears in all three lists under the same index. Write a function to find common elements from three lists. The function should return a list.",
+        "params": [
+          "l1",
+          "l2",
+          "l3"
+        ],
+        "param_kinds": [
+          "list",
+          "list",
+          "list"
+        ],
+        "return_kind": "list",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def extract_index_list(l1, l2, l3):\n    return [a for a, b, c in zip(l1, l2, l3) if a == b == c]\n",
+        "source_sha256": "114689ae7ea21269604110754c84af3e9180db721bbd578a43920d8e059e6c22",
+        "seconds": 0.04832119995262474
+      },
+      {
+        "suite": "primary",
+        "task_id": "755",
+        "entry": "second_smallest",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 22,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Write a function to find the second smallest number in a list.",
+        "params": [
+          "numbers"
+        ],
+        "param_kinds": [
+          "list"
+        ],
+        "return_kind": "num",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def second_smallest(numbers):\n    values = sorted(set(numbers))\n    if len(values) < 2:\n        return None\n    return values[1]\n",
+        "source_sha256": "34bf97bde0f1c6f4f193fe962a93083a6f01893caecf00cb40dc7887ae082825",
+        "seconds": 1.4785692000295967
+      },
+      {
+        "suite": "primary",
+        "task_id": "756",
+        "entry": "text_match_zero_one",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 1,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Write a function that matches a string that has an 'a' followed by one or more 'b's. https://www.w3resource.com/python-exercises/re/python-re-exercise-3.php",
+        "params": [
+          "text"
+        ],
+        "param_kinds": [
+          "str"
+        ],
+        "return_kind": "bool",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def text_match_zero_one(text):\n    import re\n    return bool(re.search(r'ab+', text))\n",
+        "source_sha256": "9f9ae5cf055ebdeafe1df291f19870df6da7417d38b2c95e582d33dbce8f44e4",
+        "seconds": 0.05012979998718947
+      },
+      {
+        "suite": "primary",
+        "task_id": "758",
+        "entry": "unique_sublists",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 1,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Write a function to count lists within a list. The function should return a dictionary where every list is converted to a tuple and the value of such tuple is the number of its occurencies in the original list.",
+        "params": [
+          "list1"
+        ],
+        "param_kinds": [
+          "list"
+        ],
+        "return_kind": "dict",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def unique_sublists(list1):\n    out = {}\n    for item in list1:\n        key = tuple(item)\n        out[key] = out.get(key, 0) + 1\n    return out\n",
+        "source_sha256": "3892f1d9db97c980a4613ba05b81d58bdc81ff3adbf338458aaa8feee5995533",
+        "seconds": 0.04644329997245222
+      },
+      {
+        "suite": "primary",
+        "task_id": "759",
+        "entry": "is_decimal",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 1,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Write a function to check whether a given string is a decimal number with a precision of 2.",
+        "params": [
+          "num"
+        ],
+        "param_kinds": [
+          "str"
+        ],
+        "return_kind": "bool",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def is_decimal(num):\n    import re\n    return bool(re.fullmatch(r'\\d+(\\.\\d{1,2})?', num))\n",
+        "source_sha256": "e5f65d3cebdc6c8303a191ebd5d9e720135b0e2a2c8b6cf305c0825898736a0d",
+        "seconds": 0.04415510001126677
+      },
+      {
+        "suite": "primary",
+        "task_id": "764",
+        "entry": "number_ctr",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 1,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Write a python function to count number of digits in a given string.",
+        "params": [
+          "str"
+        ],
+        "param_kinds": [
+          "str"
+        ],
+        "return_kind": "int",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def number_ctr(str):\n    return sum(1 for c in str if c.isdigit())\n",
+        "source_sha256": "ae42905f3965c7abf80abb03d922cf5442ac236b0b9212e82543487ed3b61205",
+        "seconds": 0.040118300006724894
+      },
+      {
+        "suite": "primary",
+        "task_id": "766",
+        "entry": "pair_wise",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 1,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Write a function to return a list of all pairs of consecutive items in a given list.",
+        "params": [
+          "l1"
+        ],
+        "param_kinds": [
+          "list"
+        ],
+        "return_kind": "list",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def pair_wise(l1):\n    return list(zip(l1, l1[1:]))\n",
+        "source_sha256": "9200090d582dbb40b2e1e08c6984488f81b3e6d9009f754ecf96f42a7b70eaf5",
+        "seconds": 0.045477199950255454
+      },
+      {
+        "suite": "primary",
+        "task_id": "767",
+        "entry": "get_pairs_count",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 1,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Write a python function to count the number of pairs whose sum is equal to \u2018sum\u2019. The funtion gets as input a list of numbers and the sum,",
+        "params": [
+          "arr",
+          "sum"
+        ],
+        "param_kinds": [
+          "list",
+          "int"
+        ],
+        "return_kind": "int",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def get_pairs_count(arr, sum):\n    total = 0\n    for i in range(len(arr)):\n        for j in range(i + 1, len(arr)):\n            if arr[i] + arr[j] == sum:\n                total += 1\n    return total\n",
+        "source_sha256": "a926a9692f42af98f793ac68308b7c2b5a1aa91f570f493d45e4c80282fd486c",
+        "seconds": 0.04863329988438636
+      },
+      {
+        "suite": "primary",
+        "task_id": "773",
+        "entry": "occurance_substring",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 1,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Write a function to find the occurrence and position of the substrings within a string. Return None if there is no match.",
+        "params": [
+          "text",
+          "pattern"
+        ],
+        "param_kinds": [
+          "str",
+          "str"
+        ],
+        "return_kind": "tuple",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def occurance_substring(text, pattern):\n    import re\n    match = re.search(pattern, text)\n    if match is None:\n        return None\n    return (match.group(0), match.start(), match.end())\n",
+        "source_sha256": "82ce6c5bf77db449f4a39548d0b93abeb0ee76ac1c34f56af0d521c0f5767673",
+        "seconds": 0.045933400047942996
+      },
+      {
+        "suite": "primary",
+        "task_id": "785",
+        "entry": "tuple_str_int",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 1,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Write a function to convert tuple string to integer tuple.",
+        "params": [
+          "test_str"
+        ],
+        "param_kinds": [
+          "str"
+        ],
+        "return_kind": "tuple",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def tuple_str_int(test_str):\n    return tuple(int(part) for part in test_str.replace('(', '').replace(')', '').split(','))\n",
+        "source_sha256": "b37d09c154d0cdff06838de2bd94f7a600dfb2b3c4d540e4e01342fefc171bd0",
+        "seconds": 0.04144039994571358
+      },
+      {
+        "suite": "primary",
+        "task_id": "787",
+        "entry": "text_match_three",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 1,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Write a function that matches a string that has an a followed by three 'b'.",
+        "params": [
+          "text"
+        ],
+        "param_kinds": [
+          "str"
+        ],
+        "return_kind": "bool",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def text_match_three(text):\n    import re\n    return bool(re.search(r'ab{3}', text))\n",
+        "source_sha256": "4fd96c7d837bb41299c775d2cc63cc289b8cf7baf4dd6facf665bc7ce87c2571",
+        "seconds": 0.042928599985316396
+      },
+      {
+        "suite": "primary",
+        "task_id": "791",
+        "entry": "remove_nested",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 1,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Write a function to remove tuples from the given tuple.",
+        "params": [
+          "test_tup"
+        ],
+        "param_kinds": [
+          "tuple"
+        ],
+        "return_kind": "tuple",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def remove_nested(test_tup):\n    return tuple(item for item in test_tup if not isinstance(item, tuple))\n",
+        "source_sha256": "2e44e49caf8ef172e31b77092ff32d5e617cab1fcaf03207ebf5757dd36242b5",
+        "seconds": 0.04070870007853955
+      },
+      {
+        "suite": "primary",
+        "task_id": "799",
+        "entry": "left_rotate",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 1,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Write a function to that rotate left bits by d bits a given number. We assume that the number is 32 bit.",
+        "params": [
+          "n",
+          "d"
+        ],
+        "param_kinds": [
+          "int",
+          "int"
+        ],
+        "return_kind": "int",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def left_rotate(n, d):\n    return (n << d) | (n >> (32 - d))\n",
+        "source_sha256": "c816d5a1b770f51babe1e7ae2673beffcf04fe9dd9816bdbed62d167e227cc37",
+        "seconds": 0.04448220005724579
+      },
+      {
+        "suite": "primary",
+        "task_id": "800",
+        "entry": "remove_all_spaces",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 1,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Write a function to remove all whitespaces from a string.",
+        "params": [
+          "text"
+        ],
+        "param_kinds": [
+          "str"
+        ],
+        "return_kind": "str",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def remove_all_spaces(text):\n    return ''.join(ch for ch in text if not ch.isspace())\n",
+        "source_sha256": "b6dd98c96a32615a1c99e0c1fdd3d7ab0a5dbe4c41bed765cd74c15b77d4af03",
+        "seconds": 0.046312900027260184
+      },
+      {
+        "suite": "primary",
+        "task_id": "802",
+        "entry": "count_rotation",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 1,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Write a python function to count the number of rotations required to generate a sorted array. https://www.geeksforgeeks.org/count-of-rotations-required-to-generate-a-sorted-array/",
+        "params": [
+          "arr"
+        ],
+        "param_kinds": [
+          "list"
+        ],
+        "return_kind": "int",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def count_rotation(arr):\n    for i in range(1, len(arr)):\n        if arr[i] < arr[i - 1]:\n            return i\n    return 0\n",
+        "source_sha256": "0d3321544e9861ffec48428055b15fb655e08ce51f7fa5a8a961946955236445",
+        "seconds": 0.040998300071805716
+      },
+      {
+        "suite": "primary",
+        "task_id": "803",
+        "entry": "is_perfect_square",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 2,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Write a function to check whether the given number is a perfect square or not. https://www.geeksforgeeks.org/check-if-given-number-is-perfect-square-in-cpp/",
+        "params": [
+          "n"
+        ],
+        "param_kinds": [
+          "int"
+        ],
+        "return_kind": "bool",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def is_perfect_square(n):\n    root = int(n ** 0.5)\n    return root * root == n\n",
+        "source_sha256": "478ef3197b7f49e8e4f194f9ac1a30a08718a77b2a299c90ec0451a8d5d1f76a",
+        "seconds": 0.10629040002822876
+      }
+    ]
+  },
+  "secondary": {
+    "name": "humaneval",
+    "path": "receipts\\holarch\\external\\HumanEval.jsonl",
+    "sha256": "1d49078ba3e2b196b9344535bef34a43021f038fad9561d6ee7c53450609a6a2",
+    "rows": 164,
+    "eligible": 142,
+    "selected": 32,
+    "digest": "9a52e19ad8416676c18f172d29c78f9a7dce3e2f6fe3b62b6def560e4aac3781",
+    "counts": {
+      "selected": 32,
+      "solved": 20,
+      "abstained": 10,
+      "emitted": 22,
+      "emitted_but_failed_hidden": 2,
+      "pass_at_1_over_slice_size": 0.625,
+      "pass_at_1_over_selected": 0.625,
+      "precision": 0.9090909090909091
+    },
+    "tasks": [
+      {
+        "suite": "secondary",
+        "task_id": "HumanEval/0",
+        "entry": "has_close_elements",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 38,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Check if in given list of numbers, are any two numbers closer to each other than given threshold. False True",
+        "params": [
+          "numbers",
+          "threshold"
+        ],
+        "param_kinds": [
+          "list",
+          "float"
+        ],
+        "return_kind": "bool",
+        "emitted": true,
+        "hidden_ok": false,
+        "hidden_detail": "AssertionError",
+        "syntax_ok": true,
+        "source": "from typing import List\n\ndef has_close_elements(numbers: List[float], threshold: float) -> bool:\n    for i in range(len(numbers) - 1):\n        if abs(numbers[i] - numbers[i + 1]) < threshold:\n            return True\n    return False\n",
+        "source_sha256": "fdb6aa9857e260bfe92c0cf476b3d184a1535f8525eab60e38a36a38211f3836",
+        "seconds": 2.146635300014168
+      },
+      {
+        "suite": "secondary",
+        "task_id": "HumanEval/1",
+        "entry": "separate_paren_groups",
+        "status": "ABSTAIN",
+        "reason": "exhausted_public_assertions",
+        "rollouts": 36,
+        "examples": 1,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Input to this function is a string containing multiple groups of nested parentheses. Your goal is to separate those group into separate strings and return the list of those. Separate groups are balanced (each open brace is properly closed) and not nested within each other Ignore any spaces in the input string. ['()', '(())', '(()())']",
+        "params": [
+          "paren_string"
+        ],
+        "param_kinds": [
+          "str"
+        ],
+        "return_kind": "list",
+        "emitted": false,
+        "hidden_ok": false,
+        "hidden_detail": "not_emitted",
+        "syntax_ok": true,
+        "source": "",
+        "source_sha256": "",
+        "seconds": 1.646342599997297
+      },
+      {
+        "suite": "secondary",
+        "task_id": "HumanEval/3",
+        "entry": "below_zero",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 45,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "You're given a list of deposit and withdrawal operations on a bank account that starts with zero balance. Your task is to detect if at any point the balance of account fallls below zero, and at that point function should return True. Otherwise it should return False. False True",
+        "params": [
+          "operations"
+        ],
+        "param_kinds": [
+          "list"
+        ],
+        "return_kind": "bool",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "from typing import List\n\ndef below_zero(operations: List[int]) -> bool:\n    total = 0\n    for x in operations:\n        total += x\n        if total < 0:\n            return True\n    return False\n",
+        "source_sha256": "d9b4088b12ac7ed06eb7e213ae8f3b9d5a44632f4a02ebf42bbbbb36c144dd0e",
+        "seconds": 2.2713743000058457
+      },
+      {
+        "suite": "secondary",
+        "task_id": "HumanEval/7",
+        "entry": "filter_by_substring",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 31,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Filter an input list of strings only for ones that contain given substring [] ['abc', 'bacd', 'array']",
+        "params": [
+          "strings",
+          "substring"
+        ],
+        "param_kinds": [
+          "list",
+          "str"
+        ],
+        "return_kind": "list",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "from typing import List\n\ndef filter_by_substring(strings: List[str], substring: str) -> List[str]:\n    return [x for x in strings if substring in x]\n",
+        "source_sha256": "6e88c6ddf47c2cf3ac08f93ef0c5e64d5a545efe8f9e31074d1554ce30236353",
+        "seconds": 1.2449548000004143
+      },
+      {
+        "suite": "secondary",
+        "task_id": "HumanEval/8",
+        "entry": "sum_product",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 33,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "For a given list of integers, return a tuple consisting of a sum and a product of all the integers in a list. Empty sum should be equal to 0 and empty product should be equal to 1. (0, 1) (10, 24)",
+        "params": [
+          "numbers"
+        ],
+        "param_kinds": [
+          "list"
+        ],
+        "return_kind": "tuple",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "from typing import List, Tuple\n\ndef sum_product(numbers: List[int]) -> Tuple[int, int]:\n    total = 0\n    product = 1\n    for x in numbers:\n        total += x\n        product *= x\n    return (total, product)\n",
+        "source_sha256": "4f1c19f1f07febbda517bf1c958796607e66b04aa3985307f071cd47831f0818",
+        "seconds": 1.52307680004742
+      },
+      {
+        "suite": "secondary",
+        "task_id": "HumanEval/9",
+        "entry": "rolling_max",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 2,
+        "examples": 1,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "From a given list of integers, generate a list of rolling maximum element found until given moment in the sequence. [1, 2, 3, 3, 3, 4, 4]",
+        "params": [
+          "numbers"
+        ],
+        "param_kinds": [
+          "list"
+        ],
+        "return_kind": "list",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "from typing import List\n\ndef rolling_max(numbers: List[int]) -> List[int]:\n    out = []\n    best = None\n    for x in numbers:\n        best = x if best is None else max(best, x)\n        out.append(best)\n    return out\n",
+        "source_sha256": "f1ec5aab897c840b1db6053e143682ddf28c737ddc5c44596e4b833a0b5fcbce",
+        "seconds": 0.11843030003365129
+      },
+      {
+        "suite": "secondary",
+        "task_id": "HumanEval/10",
+        "entry": "make_palindrome",
+        "status": "ABSTAIN",
+        "reason": "exhausted_public_assertions",
+        "rollouts": 35,
+        "examples": 3,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Find the shortest palindrome that begins with a supplied string. Algorithm idea is simple: - Find the longest postfix of supplied string that is a palindrome. - Append to the end of the string reverse of a string prefix that comes before the palindromic suffix. '' 'catac' 'catac'",
+        "params": [
+          "string"
+        ],
+        "param_kinds": [
+          "str"
+        ],
+        "return_kind": "str",
+        "emitted": false,
+        "hidden_ok": false,
+        "hidden_detail": "not_emitted",
+        "syntax_ok": true,
+        "source": "",
+        "source_sha256": "",
+        "seconds": 1.682669899892062
+      },
+      {
+        "suite": "secondary",
+        "task_id": "HumanEval/13",
+        "entry": "greatest_common_divisor",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 17,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Return a greatest common divisor of two integers a and b 1 5",
+        "params": [
+          "a",
+          "b"
+        ],
+        "param_kinds": [
+          "int",
+          "int"
+        ],
+        "return_kind": "int",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def greatest_common_divisor(a: int, b: int) -> int:\n    a, b = abs(a), abs(b)\n    while b:\n        a, b = b, a % b\n    return a\n",
+        "source_sha256": "3a0782ea9a1a350e2f0b1eaec1cbe4476f89ea9e498c1f5d272208eff031af9e",
+        "seconds": 1.0690589000005275
+      },
+      {
+        "suite": "secondary",
+        "task_id": "HumanEval/16",
+        "entry": "count_distinct_characters",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 28,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Given a string, find out how many distinct characters (regardless of case) does it consist of 3 4",
+        "params": [
+          "string"
+        ],
+        "param_kinds": [
+          "str"
+        ],
+        "return_kind": "int",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def count_distinct_characters(string: str) -> int:\n    return len(set(string.lower()))\n",
+        "source_sha256": "851e913a5b61409187017933f52188c09b9f6c1d69b2fef62468fd39de63734f",
+        "seconds": 1.347272599930875
+      },
+      {
+        "suite": "secondary",
+        "task_id": "HumanEval/17",
+        "entry": "parse_music",
+        "status": "ABSTAIN",
+        "reason": "exhausted_public_assertions",
+        "rollouts": 36,
+        "examples": 1,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Input to this function is a string representing musical notes in a special ASCII format. Your task is to parse this string and return list of integers corresponding to how many beats does each not last. Here is a legend: 'o' - whole note, lasts four beats 'o|' - half note, lasts two beats '.|' - quater note, lasts one beat [4, 2, 1, 2, 2, 1, 1, 1, 1, 4, 4]",
+        "params": [
+          "music_string"
+        ],
+        "param_kinds": [
+          "str"
+        ],
+        "return_kind": "list",
+        "emitted": false,
+        "hidden_ok": false,
+        "hidden_detail": "not_emitted",
+        "syntax_ok": true,
+        "source": "",
+        "source_sha256": "",
+        "seconds": 1.6741217001108453
+      },
+      {
+        "suite": "secondary",
+        "task_id": "HumanEval/18",
+        "entry": "how_many_times",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 34,
+        "examples": 3,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Find how many times a given substring can be found in the original string. Count overlaping cases. 0 3 3",
+        "params": [
+          "string",
+          "substring"
+        ],
+        "param_kinds": [
+          "str",
+          "str"
+        ],
+        "return_kind": "int",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def how_many_times(string: str, substring: str) -> int:\n    count = 0\n    for i in range(len(string) - len(substring) + 1):\n        if string[i:i + len(substring)] == substring:\n            count += 1\n    return count\n",
+        "source_sha256": "ed86a7780613843f4c3b3fd02abb40b6da9989da6ce0076f4790f5071f280e26",
+        "seconds": 1.5565020000794902
+      },
+      {
+        "suite": "secondary",
+        "task_id": "HumanEval/19",
+        "entry": "sort_numbers",
+        "status": "ABSTAIN",
+        "reason": "exhausted_public_assertions",
+        "rollouts": 35,
+        "examples": 1,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Input is a space-delimited string of numberals from 'zero' to 'nine'. Valid choices are 'zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight' and 'nine'. Return the string with numbers sorted from smallest to largest 'one three five'",
+        "params": [
+          "numbers"
+        ],
+        "param_kinds": [
+          "str"
+        ],
+        "return_kind": "str",
+        "emitted": false,
+        "hidden_ok": false,
+        "hidden_detail": "not_emitted",
+        "syntax_ok": true,
+        "source": "",
+        "source_sha256": "",
+        "seconds": 1.6811558000044897
+      },
+      {
+        "suite": "secondary",
+        "task_id": "HumanEval/20",
+        "entry": "find_closest_elements",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 35,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "From a supplied list of numbers (of length at least two) select and return two that are the closest to each other and return them in order (smaller number, larger number). (2.0, 2.2) (2.0, 2.0)",
+        "params": [
+          "numbers"
+        ],
+        "param_kinds": [
+          "list"
+        ],
+        "return_kind": "tuple",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "from typing import List, Tuple\n\ndef find_closest_elements(numbers: List[float]) -> Tuple[float, float]:\n    ordered = sorted(numbers)\n    best = None\n    for i in range(len(ordered) - 1):\n        gap = ordered[i + 1] - ordered[i]\n        if best is None or gap < best[0]:\n            best = (gap, ordered[i], ordered[i + 1])\n    if best is None:\n        return ()\n    return (best[1], best[2])\n",
+        "source_sha256": "dec239c70df4ccf7dbc1c063ba1a3ad79793f8d6676de251f45685b4abb3b7d1",
+        "seconds": 1.5592990000732243
+      },
+      {
+        "suite": "secondary",
+        "task_id": "HumanEval/21",
+        "entry": "rescale_to_unit",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 43,
+        "examples": 1,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Given list of numbers (of at least two elements), apply a linear transform to that list, such that the smallest number will become 0 and the largest will become 1 [0.0, 0.25, 0.5, 0.75, 1.0]",
+        "params": [
+          "numbers"
+        ],
+        "param_kinds": [
+          "list"
+        ],
+        "return_kind": "list",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "from typing import List\n\ndef rescale_to_unit(numbers: List[float]) -> List[float]:\n    low = min(numbers)\n    high = max(numbers)\n    if high == low:\n        return [0.0 for x in numbers]\n    return [(x - low) / (high - low) for x in numbers]\n",
+        "source_sha256": "dfbea3eb1d5f69740ef2df067ace245f86e767356bbe70555721db95c7005153",
+        "seconds": 2.472328700008802
+      },
+      {
+        "suite": "secondary",
+        "task_id": "HumanEval/24",
+        "entry": "largest_divisor",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 19,
+        "examples": 1,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "For a given number n, find the largest number that divides n evenly, smaller than n 5",
+        "params": [
+          "n"
+        ],
+        "param_kinds": [
+          "int"
+        ],
+        "return_kind": "int",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def largest_divisor(n: int) -> int:\n    for i in range(n - 1, 0, -1):\n        if n % i == 0:\n            return i\n    return 1\n",
+        "source_sha256": "e233b8fe0960e45987f80c7dbd749e74f182ac330d8d331246750291e966e8d5",
+        "seconds": 1.122957400046289
+      },
+      {
+        "suite": "secondary",
+        "task_id": "HumanEval/25",
+        "entry": "factorize",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 16,
+        "examples": 3,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Return list of prime factors of given integer in the order from smallest to largest. Each of the factors should be listed number of times corresponding to how many times it appeares in factorization. Input number should be equal to the product of all factors [2, 2, 2] [5, 5] [2, 5, 7]",
+        "params": [
+          "n"
+        ],
+        "param_kinds": [
+          "int"
+        ],
+        "return_kind": "list",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "from typing import List\n\ndef factorize(n: int) -> List[int]:\n    out = []\n    n = n\n    i = 2\n    while i * i <= n:\n        while n % i == 0:\n            out.append(i)\n            n //= i\n        i += 1\n    if n > 1:\n        out.append(n)\n    return out\n",
+        "source_sha256": "6797309924d00fbafc73eb780b4767ae73aaf4d39c713148333e1f4e86634fd3",
+        "seconds": 0.6394390999339521
+      },
+      {
+        "suite": "secondary",
+        "task_id": "HumanEval/30",
+        "entry": "get_positive",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 1,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Return only positive numbers in the list. [2, 5, 6] [5, 3, 2, 3, 9, 123, 1]",
+        "params": [
+          "l"
+        ],
+        "param_kinds": [
+          "list"
+        ],
+        "return_kind": "list",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def get_positive(l: list):\n    return [x for x in l if x > 0]\n",
+        "source_sha256": "6e1ee0506d0298cc5875839ae1d27806ee068ab19b436e317a539d2f2465a6f7",
+        "seconds": 0.042273800005204976
+      },
+      {
+        "suite": "secondary",
+        "task_id": "HumanEval/31",
+        "entry": "is_prime",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 2,
+        "examples": 7,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Return true if a given number is prime, and false otherwise. False True True True True False False",
+        "params": [
+          "n"
+        ],
+        "param_kinds": [
+          "int"
+        ],
+        "return_kind": "bool",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def is_prime(n):\n    return n >= 2 and not any(n % d == 0 for d in range(2, int(n ** 0.5) + 1))\n",
+        "source_sha256": "8555b265a7b0e9cced758cca7318e1634b176b25e2221e72d062af514162efb4",
+        "seconds": 0.0986507999477908
+      },
+      {
+        "suite": "secondary",
+        "task_id": "HumanEval/33",
+        "entry": "sort_third",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 44,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "This function takes a list l and returns a list l' such that l' is identical to l in the indicies that are not divisible by three, while its values at the indicies that are divisible by three are equal to the values of the corresponding indicies of l, but sorted. [1, 2, 3] [2, 6, 3, 4, 8, 9, 5]",
+        "params": [
+          "l"
+        ],
+        "param_kinds": [
+          "list"
+        ],
+        "return_kind": "list",
+        "emitted": true,
+        "hidden_ok": false,
+        "hidden_detail": "AssertionError",
+        "syntax_ok": true,
+        "source": "def sort_third(l: list):\n    out = list(l)\n    for start in range(3):\n        block = sorted(out[start::3])\n        out[start::3] = block\n    return out\n",
+        "source_sha256": "8d236dd59c52e15b44575ac4a7739e59486534dd7d749ba110683097deed86fd",
+        "seconds": 2.5336518000112846
+      },
+      {
+        "suite": "secondary",
+        "task_id": "HumanEval/36",
+        "entry": "fizz_buzz",
+        "status": "ABSTAIN",
+        "reason": "exhausted_public_assertions",
+        "rollouts": 24,
+        "examples": 3,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Return the number of times the digit 7 appears in integers less than n which are divisible by 11 or 13. 0 2 3",
+        "params": [
+          "n"
+        ],
+        "param_kinds": [
+          "int"
+        ],
+        "return_kind": "int",
+        "emitted": false,
+        "hidden_ok": false,
+        "hidden_detail": "not_emitted",
+        "syntax_ok": true,
+        "source": "",
+        "source_sha256": "",
+        "seconds": 9.600445199990645
+      },
+      {
+        "suite": "secondary",
+        "task_id": "HumanEval/39",
+        "entry": "prime_fib",
+        "status": "ABSTAIN",
+        "reason": "exhausted_public_assertions",
+        "rollouts": 24,
+        "examples": 5,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "prime_fib returns n-th number that is a Fibonacci number and it's also prime. 2 3 5 13 89",
+        "params": [
+          "n"
+        ],
+        "param_kinds": [
+          "int"
+        ],
+        "return_kind": "int",
+        "emitted": false,
+        "hidden_ok": false,
+        "hidden_detail": "not_emitted",
+        "syntax_ok": true,
+        "source": "",
+        "source_sha256": "",
+        "seconds": 1.550046099931933
+      },
+      {
+        "suite": "secondary",
+        "task_id": "HumanEval/40",
+        "entry": "triples_sum_to_zero",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 38,
+        "examples": 5,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "triples_sum_to_zero takes a list of integers as an input. it returns True if there are three distinct elements in the list that sum to zero, and False otherwise. False True False True False",
+        "params": [
+          "l"
+        ],
+        "param_kinds": [
+          "list"
+        ],
+        "return_kind": "bool",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def triples_sum_to_zero(l: list):\n    for i in range(len(l)):\n        for j in range(i + 1, len(l)):\n            for k in range(j + 1, len(l)):\n                if l[i] + l[j] + l[k] == 0:\n                    return True\n    return False\n",
+        "source_sha256": "a3da37296b7c3faca782251bc3f8591cb02586151e82819e7929457274d4d43d",
+        "seconds": 1.8222742000361905
+      },
+      {
+        "suite": "secondary",
+        "task_id": "HumanEval/41",
+        "entry": "car_race_collision",
+        "status": "ABSTAIN",
+        "reason": "no_verifiable_io_examples",
+        "rollouts": 0,
+        "examples": 0,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Imagine a road that's a perfectly straight infinitely long line. n cars are driving left to right; simultaneously, a different set of n cars are driving right to left. The two sets of cars start out being very far from each other. All cars move in the same speed. Two cars are said to collide when a car that's moving left to right hits a car that's moving right to left. However, the cars are infinitely sturdy and strong; as a result, they continue moving in their trajectory as if they did not collide. This function outputs the number of such collisions.",
+        "params": [
+          "n"
+        ],
+        "param_kinds": [
+          "num"
+        ],
+        "return_kind": "any",
+        "emitted": false,
+        "hidden_ok": false,
+        "hidden_detail": "not_emitted",
+        "syntax_ok": true,
+        "source": "",
+        "source_sha256": "",
+        "seconds": 0.04781219991855323
+      },
+      {
+        "suite": "secondary",
+        "task_id": "HumanEval/43",
+        "entry": "pairs_sum_to_zero",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 39,
+        "examples": 5,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "pairs_sum_to_zero takes a list of integers as an input. it returns True if there are two distinct elements in the list that sum to zero, and False otherwise. False False False True False",
+        "params": [
+          "l"
+        ],
+        "param_kinds": [
+          "list"
+        ],
+        "return_kind": "bool",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def pairs_sum_to_zero(l):\n    for i in range(len(l)):\n        for j in range(i + 1, len(l)):\n            if l[i] + l[j] == 0:\n                return True\n    return False\n",
+        "source_sha256": "08ac62b4513f1f8996b2b700c0de2ed12c6a9f851e724c05ebad373f3c6a0d01",
+        "seconds": 2.4318196000531316
+      },
+      {
+        "suite": "secondary",
+        "task_id": "HumanEval/44",
+        "entry": "change_base",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 21,
+        "examples": 3,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Change numerical base of input number x to base. return string representation after the conversion. base numbers are less than 10. '22' '1000' '111'",
+        "params": [
+          "x",
+          "base"
+        ],
+        "param_kinds": [
+          "int",
+          "int"
+        ],
+        "return_kind": "str",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def change_base(x: int, base: int):\n    digits = \"0123456789abcdefghijklmnopqrstuvwxyz\"\n    value = x\n    base = base\n    if value == 0:\n        return \"0\"\n    out = \"\"\n    while value > 0:\n        out = digits[value % base] + out\n        value //= base\n    return out\n",
+        "source_sha256": "c0a667c6ec58da3789f31f48c9aa4a39af2e15c7d3965932af0ad272de09e614",
+        "seconds": 1.32279759994708
+      },
+      {
+        "suite": "secondary",
+        "task_id": "HumanEval/46",
+        "entry": "fib4",
+        "status": "ABSTAIN",
+        "reason": "exhausted_public_assertions",
+        "rollouts": 24,
+        "examples": 7,
+        "prose_assertions": 4,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 4,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "The Fib4 number sequence is a sequence similar to the Fibbonacci sequnece that's defined as follows: fib4(0) -> 0 fib4(1) -> 0 fib4(2) -> 2 fib4(3) -> 0 fib4(n) -> fib4(n-1) + fib4(n-2) + fib4(n-3) + fib4(n-4). Please write a function to efficiently compute the n-th element of the fib4 number sequence. Do not use recursion. 4 8 14",
+        "params": [
+          "n"
+        ],
+        "param_kinds": [
+          "int"
+        ],
+        "return_kind": "int",
+        "emitted": false,
+        "hidden_ok": false,
+        "hidden_detail": "not_emitted",
+        "syntax_ok": true,
+        "source": "",
+        "source_sha256": "",
+        "seconds": 1.5314894000766799
+      },
+      {
+        "suite": "secondary",
+        "task_id": "HumanEval/47",
+        "entry": "median",
+        "status": "ABSTAIN",
+        "reason": "exhausted_public_assertions",
+        "rollouts": 64,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Return median of elements in the list l. 3 15.0",
+        "params": [
+          "l"
+        ],
+        "param_kinds": [
+          "list"
+        ],
+        "return_kind": "num",
+        "emitted": false,
+        "hidden_ok": false,
+        "hidden_detail": "not_emitted",
+        "syntax_ok": true,
+        "source": "",
+        "source_sha256": "",
+        "seconds": 3.4861014999914914
+      },
+      {
+        "suite": "secondary",
+        "task_id": "HumanEval/48",
+        "entry": "is_palindrome",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 2,
+        "examples": 4,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Checks if given string is a palindrome True True True False",
+        "params": [
+          "text"
+        ],
+        "param_kinds": [
+          "str"
+        ],
+        "return_kind": "bool",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def is_palindrome(text: str):\n    return text == text[::-1]\n",
+        "source_sha256": "8e6b362f06ab781cea20cf338dbf85d4daebc6c2ed31b4bcc8c811df10f0df6b",
+        "seconds": 0.105295299901627
+      },
+      {
+        "suite": "secondary",
+        "task_id": "HumanEval/49",
+        "entry": "modp",
+        "status": "ABSTAIN",
+        "reason": "exhausted_public_assertions",
+        "rollouts": 41,
+        "examples": 5,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Return 2^n modulo p (be aware of numerics). 3 2 1 8 1",
+        "params": [
+          "n",
+          "p"
+        ],
+        "param_kinds": [
+          "int",
+          "int"
+        ],
+        "return_kind": "int",
+        "emitted": false,
+        "hidden_ok": false,
+        "hidden_detail": "not_emitted",
+        "syntax_ok": true,
+        "source": "",
+        "source_sha256": "",
+        "seconds": 2.59646759997122
+      },
+      {
+        "suite": "secondary",
+        "task_id": "HumanEval/51",
+        "entry": "remove_vowels",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 29,
+        "examples": 6,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "remove_vowels is a function that takes string and returns string without vowels. '' 'bcdf\\nghjklm' 'bcdf' '' 'B' 'zbcd'",
+        "params": [
+          "text"
+        ],
+        "param_kinds": [
+          "str"
+        ],
+        "return_kind": "str",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def remove_vowels(text):\n    out = []\n    for ch in text:\n        if ch not in \"aeiouAEIOU\":\n            out.append(ch)\n    return \"\".join(out)\n",
+        "source_sha256": "3213d2860cac0436748f8fe3201d134d256a9a02dc57e8147541484bbcff2f8c",
+        "seconds": 1.778599200071767
+      },
+      {
+        "suite": "secondary",
+        "task_id": "HumanEval/52",
+        "entry": "below_threshold",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 1,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Return True if all numbers in the list l are below threshold t. True False",
+        "params": [
+          "l",
+          "t"
+        ],
+        "param_kinds": [
+          "list",
+          "int"
+        ],
+        "return_kind": "bool",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def below_threshold(l: list, t: int):\n    return all(item < t for item in l)\n",
+        "source_sha256": "d913d350a42c643fc984488837238256e45cb02182b90c1f9f1a183ffe156c47",
+        "seconds": 0.04247319989372045
+      },
+      {
+        "suite": "secondary",
+        "task_id": "HumanEval/53",
+        "entry": "add",
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "rollouts": 1,
+        "examples": 2,
+        "prose_assertions": 0,
+        "prose_formats": {
+          "call_equals": 0,
+          "call_arrow": 0,
+          "input_output": 0,
+          "example_block": 0
+        },
+        "contradictions": [],
+        "intent": "Add two numbers x and y 5 12",
+        "params": [
+          "x",
+          "y"
+        ],
+        "param_kinds": [
+          "int",
+          "int"
+        ],
+        "return_kind": "int",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "source": "def add(x: int, y: int):\n    return x + y\n",
+        "source_sha256": "3c946328b4a5eab26b25c8ebe95ddbb948e1bbeeb7e12246f71f4f4625f5070d",
+        "seconds": 0.040094700059853494
+      }
+    ]
+  },
+  "combined": {
+    "emitted": 50,
+    "solved": 48,
+    "emitted_but_failed_hidden": 2,
+    "precision": 0.96,
+    "abstain_reasons": {
+      "exhausted_public_assertions": 11,
+      "no_verifiable_io_examples": 1
+    },
+    "prose_assertions_total": {
+      "call_equals": 0,
+      "call_arrow": 4,
+      "input_output": 0,
+      "example_block": 0
+    }
+  },
+  "traps": [
+    {
+      "name": "nonexistent_api_import",
+      "kind": "missing_capability",
+      "status": "ABSTAIN",
+      "reason": "spec_fault:missing_import:nonexistent_quantum_api",
+      "refused": true
+    },
+    {
+      "name": "blocked_module_import",
+      "kind": "blocked_capability",
+      "status": "ABSTAIN",
+      "reason": "spec_fault:blocked_import:socket",
+      "refused": true
+    },
+    {
+      "name": "tuple_return_for_int_annotation",
+      "kind": "type_contradiction",
+      "status": "ABSTAIN",
+      "reason": "exhausted_public_assertions",
+      "refused": true
+    },
+    {
+      "name": "contradictory_examples",
+      "kind": "contradiction",
+      "status": "ABSTAIN",
+      "reason": "contradictory_spec",
+      "refused": true
+    },
+    {
+      "name": "wrong_arity",
+      "kind": "arity_contradiction",
+      "status": "ABSTAIN",
+      "reason": "spec_fault:arity_mismatch:2,3",
+      "refused": true
+    },
+    {
+      "name": "unsatisfiable_capability",
+      "kind": "unsatisfiable_capability",
+      "status": "ABSTAIN",
+      "reason": "unsatisfiable_capability",
+      "refused": true
+    }
+  ],
+  "transfer": {
+    "engine": "ready",
+    "checkpoint": "receipts\\holarch\\holarch_medium.pt",
+    "plans_before": 0,
+    "plans_after": 50,
+    "plans_compiled": 50,
+    "held_out": {
+      "requested": 12,
+      "built": 12,
+      "compositions": 9,
+      "mutations": 3,
+      "verified_plans": 48,
+      "unary_plans": 33,
+      "chained_pairs": 431,
+      "composition_skipped_degenerate": 32,
+      "mutation_skipped_symmetric": 7,
+      "mutation_skipped_other": 0
+    },
+    "arm_a": {
+      "tasks": 12,
+      "solved": 1,
+      "emitted": 2,
+      "abstained": 10,
+      "emitted_but_failed_hidden": 1,
+      "transfer_accuracy": 0.08333333333333333
+    },
+    "arm_b": {
+      "tasks": 12,
+      "solved": 11,
+      "emitted": 12,
+      "abstained": 0,
+      "emitted_but_failed_hidden": 1,
+      "transfer_accuracy": 0.9166666666666666
+    },
+    "rows_a": [
+      {
+        "name": "z2_composed_01",
+        "kind": "composition",
+        "from": [
+          "count_distinct_characters",
+          "factorize"
+        ],
+        "status": "ABSTAIN",
+        "reason": "exhausted_public_assertions",
+        "emitted": false,
+        "hidden_ok": false,
+        "hidden_detail": "not_emitted",
+        "syntax_ok": true,
+        "rollouts": 32,
+        "candidates": 0,
+        "source_sha256": "",
+        "source_head": "",
+        "seconds": 2.167141900048591
+      },
+      {
+        "name": "z2_composed_02",
+        "kind": "composition",
+        "from": [
+          "count_distinct_characters",
+          "is_not_prime"
+        ],
+        "status": "ABSTAIN",
+        "reason": "exhausted_public_assertions",
+        "emitted": false,
+        "hidden_ok": false,
+        "hidden_detail": "not_emitted",
+        "syntax_ok": true,
+        "rollouts": 32,
+        "candidates": 0,
+        "source_sha256": "",
+        "source_head": "",
+        "seconds": 2.1685640000505373
+      },
+      {
+        "name": "z2_composed_03",
+        "kind": "composition",
+        "from": [
+          "count_distinct_characters",
+          "is_perfect_square"
+        ],
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "emitted": true,
+        "hidden_ok": false,
+        "hidden_detail": "AssertionError",
+        "syntax_ok": true,
+        "rollouts": 1,
+        "candidates": 0,
+        "source_sha256": "7954c0aa00019ffd81a7ca6f45222798cb6702dbbf1185504b9bcc2ff300ca3b",
+        "source_head": "def z2_composed_03(value):\n    import re\n    return bool(re.fullmatch(r'\\d+(\\.\\d{1,2})?', value))\n",
+        "seconds": 0.11015490000136197
+      },
+      {
+        "name": "z2_composed_04",
+        "kind": "composition",
+        "from": [
+          "count_distinct_characters",
+          "is_prime"
+        ],
+        "status": "ABSTAIN",
+        "reason": "exhausted_public_assertions",
+        "emitted": false,
+        "hidden_ok": false,
+        "hidden_detail": "not_emitted",
+        "syntax_ok": true,
+        "rollouts": 32,
+        "candidates": 0,
+        "source_sha256": "",
+        "source_head": "",
+        "seconds": 2.140491700032726
+      },
+      {
+        "name": "z2_composed_05",
+        "kind": "composition",
+        "from": [
+          "count_distinct_characters",
+          "jacobsthal_num"
+        ],
+        "status": "ABSTAIN",
+        "reason": "exhausted_public_assertions",
+        "emitted": false,
+        "hidden_ok": false,
+        "hidden_detail": "not_emitted",
+        "syntax_ok": true,
+        "rollouts": 32,
+        "candidates": 0,
+        "source_sha256": "",
+        "source_head": "",
+        "seconds": 2.1759984000818804
+      },
+      {
+        "name": "z2_composed_06",
+        "kind": "composition",
+        "from": [
+          "count_distinct_characters",
+          "largest_divisor"
+        ],
+        "status": "ABSTAIN",
+        "reason": "exhausted_public_assertions",
+        "emitted": false,
+        "hidden_ok": false,
+        "hidden_detail": "not_emitted",
+        "syntax_ok": true,
+        "rollouts": 32,
+        "candidates": 0,
+        "source_sha256": "",
+        "source_head": "",
+        "seconds": 2.1810808000154793
+      },
+      {
+        "name": "z2_composed_07",
+        "kind": "composition",
+        "from": [
+          "count_rotation",
+          "factorize"
+        ],
+        "status": "ABSTAIN",
+        "reason": "exhausted_public_assertions",
+        "emitted": false,
+        "hidden_ok": false,
+        "hidden_detail": "not_emitted",
+        "syntax_ok": true,
+        "rollouts": 32,
+        "candidates": 0,
+        "source_sha256": "",
+        "source_head": "",
+        "seconds": 2.1631052000448108
+      },
+      {
+        "name": "z2_composed_08",
+        "kind": "composition",
+        "from": [
+          "count_rotation",
+          "is_not_prime"
+        ],
+        "status": "ABSTAIN",
+        "reason": "exhausted_public_assertions",
+        "emitted": false,
+        "hidden_ok": false,
+        "hidden_detail": "not_emitted",
+        "syntax_ok": true,
+        "rollouts": 32,
+        "candidates": 0,
+        "source_sha256": "",
+        "source_head": "",
+        "seconds": 2.1619974999921396
+      },
+      {
+        "name": "z2_composed_09",
+        "kind": "composition",
+        "from": [
+          "count_rotation",
+          "is_perfect_square"
+        ],
+        "status": "ABSTAIN",
+        "reason": "exhausted_public_assertions",
+        "emitted": false,
+        "hidden_ok": false,
+        "hidden_detail": "not_emitted",
+        "syntax_ok": true,
+        "rollouts": 32,
+        "candidates": 0,
+        "source_sha256": "",
+        "source_head": "",
+        "seconds": 2.186163399950601
+      },
+      {
+        "name": "z2_mutated_01",
+        "kind": "mutation",
+        "from": [
+          "change_base"
+        ],
+        "status": "SOLVED",
+        "reason": "public_assertions_pass",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "rollouts": 21,
+        "candidates": 0,
+        "source_sha256": "36cda0b2ff31670f153809a1295c36b83d61d648baa395b4ce12ded70c9dcb06",
+        "source_head": "def z2_mutated_01(base, x):\n    digits = \"0123456789abcdefghijklmnopqrstuvwxyz\"\n    value = x\n    base = base\n    if value == 0:\n        return \"0\"\n    out = \"\"\n    while value > 0:\n        out = digits[value % base] + out\n        value //=",
+        "seconds": 1.4327353000408038
+      },
+      {
+        "name": "z2_mutated_02",
+        "kind": "mutation",
+        "from": [
+          "left_rotate"
+        ],
+        "status": "ABSTAIN",
+        "reason": "exhausted_public_assertions",
+        "emitted": false,
+        "hidden_ok": false,
+        "hidden_detail": "not_emitted",
+        "syntax_ok": true,
+        "rollouts": 32,
+        "candidates": 0,
+        "source_sha256": "",
+        "source_head": "",
+        "seconds": 2.168125999975018
+      },
+      {
+        "name": "z2_mutated_03",
+        "kind": "mutation",
+        "from": [
+          "power_base_sum"
+        ],
+        "status": "ABSTAIN",
+        "reason": "exhausted_public_assertions",
+        "emitted": false,
+        "hidden_ok": false,
+        "hidden_detail": "not_emitted",
+        "syntax_ok": true,
+        "rollouts": 32,
+        "candidates": 0,
+        "source_sha256": "",
+        "source_head": "",
+        "seconds": 2.170777600025758
+      }
+    ],
+    "rows_b": [
+      {
+        "name": "z2_composed_01",
+        "kind": "composition",
+        "from": [
+          "count_distinct_characters",
+          "factorize"
+        ],
+        "status": "SOLVED",
+        "reason": "plan:compose:count_distinct_characters+factorize",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "rollouts": 0,
+        "candidates": 9,
+        "source_sha256": "663df0cb110b0729e3fed06fb5b1878a11cfb83a0c27061aa40e16fb199d58d5",
+        "source_head": "def _z2_stage_1(value: str) -> int:\n    return len(set(value.lower()))\n\n\nfrom typing import List\n\ndef _z2_stage_2(value: int) -> List[int]:\n    out = []\n    value = value\n    i = 2\n    while i * i <= value:\n        while value % i == 0:\n   ",
+        "seconds": 1.04349509999156
+      },
+      {
+        "name": "z2_composed_02",
+        "kind": "composition",
+        "from": [
+          "count_distinct_characters",
+          "is_not_prime"
+        ],
+        "status": "SOLVED",
+        "reason": "plan:compose:count_distinct_characters+is_not_prime",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "rollouts": 0,
+        "candidates": 9,
+        "source_sha256": "f98fd009ebc67337fc0817ab2de69fcd01b71372be0e7d92e343ec85d69ac8f2",
+        "source_head": "def _z2_stage_1(value: str) -> int:\n    return len(set(value.lower()))\n\n\ndef _z2_stage_2(value):\n    return value < 2 or any((value % d == 0 for d in range(2, int(value ** 0.5) + 1)))\n\n\ndef z2_composed_02(value):\n    return _z2_stage_2(_z2_",
+        "seconds": 0.6626499999547377
+      },
+      {
+        "name": "z2_composed_03",
+        "kind": "composition",
+        "from": [
+          "count_distinct_characters",
+          "is_perfect_square"
+        ],
+        "status": "SOLVED",
+        "reason": "plan:adapt:is_decimal",
+        "emitted": true,
+        "hidden_ok": false,
+        "hidden_detail": "AssertionError",
+        "syntax_ok": true,
+        "rollouts": 0,
+        "candidates": 3,
+        "source_sha256": "a5759706eb07345bd65dbd2ad96c567aa038361f2ae5709f351470177bf9a947",
+        "source_head": "def z2_composed_03(value):\n    import re\n    return bool(re.fullmatch('\\\\d+(\\\\.\\\\d{1,2})?', value))\n",
+        "seconds": 0.27847680007107556
+      },
+      {
+        "name": "z2_composed_04",
+        "kind": "composition",
+        "from": [
+          "count_distinct_characters",
+          "is_prime"
+        ],
+        "status": "SOLVED",
+        "reason": "plan:compose:count_distinct_characters+is_prime",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "rollouts": 0,
+        "candidates": 7,
+        "source_sha256": "f4a8819380c5293cbe4fb5c1a950276f24d918424e89174206783934b3baaf22",
+        "source_head": "def _z2_stage_1(value: str) -> int:\n    return len(set(value.lower()))\n\n\ndef _z2_stage_2(value):\n    return value >= 2 and (not any((value % d == 0 for d in range(2, int(value ** 0.5) + 1))))\n\n\ndef z2_composed_04(value):\n    return _z2_stag",
+        "seconds": 0.500346599961631
+      },
+      {
+        "name": "z2_composed_05",
+        "kind": "composition",
+        "from": [
+          "count_distinct_characters",
+          "jacobsthal_num"
+        ],
+        "status": "SOLVED",
+        "reason": "plan:compose:count_distinct_characters+jacobsthal_num",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "rollouts": 0,
+        "candidates": 9,
+        "source_sha256": "2ff7143dbe9d354c8c4e3fd8ba22f0a0df41ada4ad2d85e0775c7251458fdb5e",
+        "source_head": "def _z2_stage_1(value: str) -> int:\n    return len(set(value.lower()))\n\n\ndef _z2_stage_2(value):\n    if value < 2:\n        return 0 if value == 0 else 1\n    table = [0, 1]\n    for i in range(2, value + 1):\n        table.append(1 * table[i -",
+        "seconds": 0.6509372999425977
+      },
+      {
+        "name": "z2_composed_06",
+        "kind": "composition",
+        "from": [
+          "count_distinct_characters",
+          "largest_divisor"
+        ],
+        "status": "SOLVED",
+        "reason": "plan:compose:count_distinct_characters+largest_divisor",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "rollouts": 0,
+        "candidates": 9,
+        "source_sha256": "079e82fa345a58971294e79c655460b9e713485848ec8c417ca60857468f6c6c",
+        "source_head": "def _z2_stage_1(value: str) -> int:\n    return len(set(value.lower()))\n\n\ndef _z2_stage_2(value: int) -> int:\n    for i in range(value - 1, 0, -1):\n        if value % i == 0:\n            return i\n    return 1\n\n\ndef z2_composed_06(value):\n   ",
+        "seconds": 0.647929499973543
+      },
+      {
+        "name": "z2_composed_07",
+        "kind": "composition",
+        "from": [
+          "count_rotation",
+          "factorize"
+        ],
+        "status": "SOLVED",
+        "reason": "plan:compose:count_rotation+factorize",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "rollouts": 0,
+        "candidates": 9,
+        "source_sha256": "9e2436ce0d4be646066cb612ab97beb68eea291f6b2ea29faf177ad36e5e31f2",
+        "source_head": "def _z2_stage_1(value):\n    for i in range(1, len(value)):\n        if value[i] < value[i - 1]:\n            return i\n    return 0\n\n\nfrom typing import List\n\ndef _z2_stage_2(value: int) -> List[int]:\n    out = []\n    value = value\n    i = 2\n ",
+        "seconds": 0.6554398000007495
+      },
+      {
+        "name": "z2_composed_08",
+        "kind": "composition",
+        "from": [
+          "count_rotation",
+          "is_not_prime"
+        ],
+        "status": "SOLVED",
+        "reason": "plan:compose:count_rotation+is_not_prime",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "rollouts": 0,
+        "candidates": 8,
+        "source_sha256": "8149f08ee67798575b82a1b159281c505888169487bd2e8b08bb217bd52897fc",
+        "source_head": "def _z2_stage_1(value):\n    for i in range(1, len(value)):\n        if value[i] < value[i - 1]:\n            return i\n    return 0\n\n\ndef _z2_stage_2(value):\n    return value < 2 or any((value % d == 0 for d in range(2, int(value ** 0.5) + 1))",
+        "seconds": 0.5847131999908015
+      },
+      {
+        "name": "z2_composed_09",
+        "kind": "composition",
+        "from": [
+          "count_rotation",
+          "is_perfect_square"
+        ],
+        "status": "SOLVED",
+        "reason": "plan:compose:count_rotation+is_perfect_square",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "rollouts": 0,
+        "candidates": 8,
+        "source_sha256": "7a11dfb2ee449c5f460594ea379e3609ff4e43cfbefcf9054f4ba6cfaa9799ca",
+        "source_head": "def _z2_stage_1(value):\n    for i in range(1, len(value)):\n        if value[i] < value[i - 1]:\n            return i\n    return 0\n\n\ndef _z2_stage_2(value):\n    root = int(value ** 0.5)\n    return root * root == value\n\n\ndef z2_composed_09(val",
+        "seconds": 0.5630983000155538
+      },
+      {
+        "name": "z2_mutated_01",
+        "kind": "mutation",
+        "from": [
+          "change_base"
+        ],
+        "status": "SOLVED",
+        "reason": "plan:adapt:change_base",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "rollouts": 0,
+        "candidates": 1,
+        "source_sha256": "8a4670f57d60c3d987f1d512a2ed1d2c1ae2843c33f153456b9b26996add3ffd",
+        "source_head": "def z2_mutated_01(base: int, x: int):\n    digits = '0123456789abcdefghijklmnopqrstuvwxyz'\n    value = x\n    base = base\n    if value == 0:\n        return '0'\n    out = ''\n    while value > 0:\n        out = digits[value % base] + out\n       ",
+        "seconds": 0.09446509997360408
+      },
+      {
+        "name": "z2_mutated_02",
+        "kind": "mutation",
+        "from": [
+          "left_rotate"
+        ],
+        "status": "SOLVED",
+        "reason": "plan:adapt:left_rotate",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "rollouts": 0,
+        "candidates": 1,
+        "source_sha256": "a2c8c7150f40e2e2fa901686a9a5101379d5fbf321ecd5e69a41811b28341704",
+        "source_head": "def z2_mutated_02(d, n):\n    return n << d | n >> 32 - d\n",
+        "seconds": 0.0938006000360474
+      },
+      {
+        "name": "z2_mutated_03",
+        "kind": "mutation",
+        "from": [
+          "power_base_sum"
+        ],
+        "status": "SOLVED",
+        "reason": "plan:adapt:power_base_sum",
+        "emitted": true,
+        "hidden_ok": true,
+        "hidden_detail": "pass",
+        "syntax_ok": true,
+        "rollouts": 0,
+        "candidates": 1,
+        "source_sha256": "8704ac691dc96fcb3c5dde247ca95e2cce279e9021656019cb0c02ae2a1b2d0d",
+        "source_head": "def z2_mutated_03(power, base):\n    return sum((int(c) for c in str(base ** power)))\n",
+        "seconds": 0.0942437999183312
+      }
+    ],
+    "memory": {
+      "path": "C:\\Users\\chan\\Desktop\\HENRI v6\\receipts\\holarch\\_work\\aa2\\aa2_arm_b_3044_15083.sqlite3",
+      "pre_mount_rows": 0,
+      "checkpoint": "receipts\\holarch\\holarch_medium.pt",
+      "empty": true,
+      "hydrated": 1349,
+      "post_mount_rows": 1349
+    }
+  },
+  "audit": {
+    "files": [
+      {
+        "string_literal_comparisons": 43,
+        "structural_vocabulary_comparisons": 43,
+        "unexplained_string_comparisons": 0,
+        "unexplained_samples": [],
+        "task_identity_comparisons": 0,
+        "compared_identifier_literals": [],
+        "compared_identifier_literal_count": 0,
+        "module_literal_overlap": [
+          "add",
+          "median"
+        ],
+        "module_literal_overlap_note": "informational only: an ordinary English word in the sketch tag vocabulary can coincide with a benchmark entry-point name. A tag is not a branch; the gated counters are the comparison ones.",
+        "branches": [],
+        "ok": true,
+        "file": "henri\\holarch\\cold_synth.py",
+        "sha256": "127ff3041b2cd7704bf3a9e233e798f5df681c984570b22496f961f52c9230a7"
+      },
+      {
+        "string_literal_comparisons": 0,
+        "structural_vocabulary_comparisons": 0,
+        "unexplained_string_comparisons": 0,
+        "unexplained_samples": [],
+        "task_identity_comparisons": 0,
+        "compared_identifier_literals": [],
+        "compared_identifier_literal_count": 0,
+        "module_literal_overlap": [
+          "add",
+          "factorize",
+          "median"
+        ],
+        "module_literal_overlap_note": "informational only: an ordinary English word in the sketch tag vocabulary can coincide with a benchmark entry-point name. A tag is not a branch; the gated counters are the comparison ones.",
+        "branches": [],
+        "ok": true,
+        "file": "henri\\holarch\\loop_schemas.py",
+        "sha256": "051ffe8985867b1859abeb6a460a66702203fc21b31bd9b9e65cf8a9fe2657fb"
+      },
+      {
+        "string_literal_comparisons": 4,
+        "structural_vocabulary_comparisons": 4,
+        "unexplained_string_comparisons": 0,
+        "unexplained_samples": [],
+        "task_identity_comparisons": 0,
+        "compared_identifier_literals": [],
+        "compared_identifier_literal_count": 0,
+        "module_literal_overlap": [],
+        "module_literal_overlap_note": "informational only: an ordinary English word in the sketch tag vocabulary can coincide with a benchmark entry-point name. A tag is not a branch; the gated counters are the comparison ones.",
+        "branches": [],
+        "ok": true,
+        "file": "henri\\holarch\\prose_examples.py",
+        "sha256": "1669635a3f125cc289f16512a257008d6604e63ccb9d0f9ac17e3394b35e25c0"
+      }
+    ],
+    "findings": 0,
+    "clean": true
+  },
+  "gate": {
+    "aa2_runner_exit_zero": true,
+    "aa2_zero_external_llm_calls": true,
+    "aa2_budget_le_64": true,
+    "aa2_mbpp_pass_at_1_ge_0875": true,
+    "aa2_humaneval_pass_at_1_ge_04688": true,
+    "aa2_precision_ge_095": true,
+    "aa2_traps_6_of_6": true,
+    "aa2_no_task_identity_branches": true,
+    "aa2_same_vendored_slices": true,
+    "aa2_arm_b_transfer_12_of_12": false,
+    "aa2_arm_b_beats_arm_a": true,
+    "passed": false
+  },
+  "wall_seconds": 101.78747739992104,
+  "evidence": "OBSERVED",
+  "passed": false
+}

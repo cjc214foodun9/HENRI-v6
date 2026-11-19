@@ -1,0 +1,103 @@
+{
+  "stage": "AB5",
+  "kind": "cuda_benchmark",
+  "status": "BLOCKED_NO_PCIE_NVIDIA_DEVICE",
+  "reason": "torch.cuda.is_available() is False: no NVIDIA PCIe device on this host",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "evidence": "BLOCKED",
+  "dims": [],
+  "torch": "2.11.0+cu128",
+  "compiled_cuda": "12.8",
+  "backend_parity": {
+    "backend": "reference",
+    "profile": {
+      "vendor": "cpu",
+      "name": "cpu",
+      "capability": [
+        0,
+        0
+      ],
+      "sm_count": 0,
+      "l2_bytes": 0,
+      "smem_optin": 0,
+      "device": "cpu",
+      "triton_available": false,
+      "is_gb202": false,
+      "provenance": "BLOCKED_NO_PCIE_NVIDIA_DEVICE: torch.cuda.is_available() is False"
+    },
+    "parity": {
+      "max_abs_delta": 0.0,
+      "tol": 1e-05,
+      "parity_ok": true,
+      "note": "the reference backend is compared with itself on this host"
+    },
+    "selection": {
+      "requested": "auto",
+      "selected": "reference",
+      "rule": "BlackwellGB202TritonBackend only on capability == (12, 0) with 170 or 188 SMs"
+    }
+  },
+  "pnp": {
+    "platform": "Windows",
+    "adapters": [
+      {
+        "Status": "Unknown",
+        "FriendlyName": "NVIDIA GeForce RTX 5070 Ti",
+        "InstanceId": "PCI\\VEN_10DE&DEV_2C05&SUBSYS_41831458&REV_A1\\5C66D37E452DB04800"
+      },
+      {
+        "Status": "OK",
+        "FriendlyName": "AMD Radeon(TM) Graphics",
+        "InstanceId": "PCI\\VEN_1002&DEV_13C0&SUBSYS_D0001458&REV_CB\\4&16012499&0&0041"
+      },
+      {
+        "Status": "OK",
+        "FriendlyName": "AMD Radeon RX 9070 XT",
+        "InstanceId": "PCI\\VEN_1002&DEV_7550&SUBSYS_24241458&REV_C0\\6&17CA0BD2&0&00000009"
+      },
+      {
+        "Status": "Unknown",
+        "FriendlyName": "AMD Radeon(TM) Graphics",
+        "InstanceId": "PCI\\VEN_1002&DEV_1638&SUBSYS_D0001458&REV_C9\\4&12C9051D&0&0041"
+      }
+    ],
+    "nvidia_adapters": [
+      {
+        "Status": "Unknown",
+        "FriendlyName": "NVIDIA GeForce RTX 5070 Ti",
+        "InstanceId": "PCI\\VEN_10DE&DEV_2C05&SUBSYS_41831458&REV_A1\\5C66D37E452DB04800"
+      }
+    ],
+    "amd_adapters": [
+      {
+        "Status": "OK",
+        "FriendlyName": "AMD Radeon(TM) Graphics",
+        "InstanceId": "PCI\\VEN_1002&DEV_13C0&SUBSYS_D0001458&REV_CB\\4&16012499&0&0041"
+      },
+      {
+        "Status": "OK",
+        "FriendlyName": "AMD Radeon RX 9070 XT",
+        "InstanceId": "PCI\\VEN_1002&DEV_7550&SUBSYS_24241458&REV_C0\\6&17CA0BD2&0&00000009"
+      },
+      {
+        "Status": "Unknown",
+        "FriendlyName": "AMD Radeon(TM) Graphics",
+        "InstanceId": "PCI\\VEN_1002&DEV_1638&SUBSYS_D0001458&REV_C9\\4&12C9051D&0&0041"
+      }
+    ],
+    "active_pcie_accelerator": "AMD Radeon(TM) Graphics",
+    "ghost_registry_entry": true
+  },
+  "graph_capture": {
+    "captured": false,
+    "reason": "no CUDA device: a CUDAGraph cannot be captured on the CPU reference"
+  },
+  "gb_gates": {
+    "GB-1_planar_layout": "reference CPU path green",
+    "GB-2_no_cusolver_on_inference": "reference backend owns no qr/solve",
+    "GB-3_persistent_grid": "Triton backend not instantiated on this host",
+    "GB-4_smem_le_99KiB": true,
+    "GB-5_zero_sync_graph": "BLOCKED_NO_PCIE_NVIDIA_DEVICE",
+    "GB-6_parity_le_1e-5": true
+  }
+}

@@ -1,0 +1,1198 @@
+{
+  "stage": "AA3",
+  "slice": {
+    "manifest": "receipts\\holarch\\external\\arc_agi_public\\MANIFEST.json",
+    "upstream": "https://github.com/fchollet/ARC-AGI.git",
+    "commit": "399030444e0ab0cc8b4e199870fb20b863846f34",
+    "rule": "union of data/training and data/evaluation, sorted by filename, every 16th file from index 0, 48 tasks",
+    "count": 48,
+    "digest": "e9b030a233bf7f46a0aca5e7576ebda2022f23f40726f701fccd0e3173721df6",
+    "tasks": [
+      {
+        "file": "00576224.json",
+        "sha256": "7ba34ffeebc522cccfe74ab4d7e06088ef6e057581b242cd8b5a7a01a77ac8eb",
+        "train_pairs": 2,
+        "test_pairs": 1
+      },
+      {
+        "file": "070dd51e.json",
+        "sha256": "fc5436bdcbc0e8e85f97b3bc8da562a892700148c7a9d6c2c0ce86e65eda6133",
+        "train_pairs": 2,
+        "test_pairs": 1
+      },
+      {
+        "file": "0ca9ddb6.json",
+        "sha256": "14d874e772f5732280adfc00ae685da308ff31d04da884c1e2669c93737716c3",
+        "train_pairs": 3,
+        "test_pairs": 1
+      },
+      {
+        "file": "13713586.json",
+        "sha256": "229a87f5c41756cf5ecab43f79b37d05188cc3e9a0fd193f18d554e4fb5fce70",
+        "train_pairs": 3,
+        "test_pairs": 1
+      },
+      {
+        "file": "1990f7a8.json",
+        "sha256": "3a595aca85c423e6b379fbec8b6b8e303dcd3102325e97ef57568f2ecd42407a",
+        "train_pairs": 3,
+        "test_pairs": 1
+      },
+      {
+        "file": "1d398264.json",
+        "sha256": "928544832030bb3b5de6b1c20df7c4667f840496289af2128a13a9b677dca75a",
+        "train_pairs": 3,
+        "test_pairs": 2
+      },
+      {
+        "file": "212895b5.json",
+        "sha256": "dd74d74a7ec9b2d37950c108af7ce733c27aba92ebaece0df75ddcdb504b4b27",
+        "train_pairs": 3,
+        "test_pairs": 1
+      },
+      {
+        "file": "256b0a75.json",
+        "sha256": "75487915b607ba4a839b72f2f81cbbbbb6dd9f0c20434a36b796d4df1e592aff",
+        "train_pairs": 3,
+        "test_pairs": 1
+      },
+      {
+        "file": "29623171.json",
+        "sha256": "f4ec9ae6be3efff41db43388a8ed654f743e3d5902d1b5688df276436ce27417",
+        "train_pairs": 3,
+        "test_pairs": 1
+      },
+      {
+        "file": "3194b014.json",
+        "sha256": "082716ecb0e845b8bb05e159f637f748323dd4d8d32f28ca7c554f293f2df33f",
+        "train_pairs": 3,
+        "test_pairs": 1
+      },
+      {
+        "file": "358ba94e.json",
+        "sha256": "d66a2a2304bd0c7f8594c0300c146646435977d4f46ed3cb0abaff632b2b556e",
+        "train_pairs": 4,
+        "test_pairs": 1
+      },
+      {
+        "file": "3bd67248.json",
+        "sha256": "ea9e44b04f843b1cbf5f9957d7c52a70880a13ee8e714279dcf7cf3e95236534",
+        "train_pairs": 3,
+        "test_pairs": 1
+      },
+      {
+        "file": "41e4d17e.json",
+        "sha256": "847868ed0668d486444ee787a7e91002db349022bec82a35f32eaedac1428e70",
+        "train_pairs": 2,
+        "test_pairs": 1
+      },
+      {
+        "file": "45737921.json",
+        "sha256": "c0a3fd768e9e9aa2242b209992c4ae372d28d4cceea99f0232c9f79dec461ff3",
+        "train_pairs": 3,
+        "test_pairs": 1
+      },
+      {
+        "file": "49d1d64f.json",
+        "sha256": "e6e72382f7bfc9b885642f706a655a5384b63a7dc6a8515dc534697e7f184c68",
+        "train_pairs": 3,
+        "test_pairs": 1
+      },
+      {
+        "file": "508bd3b6.json",
+        "sha256": "92bd1362f220bd7c63958d93a71329ead98300d46d726313fdfc13e102e58c55",
+        "train_pairs": 3,
+        "test_pairs": 1
+      },
+      {
+        "file": "54db823b.json",
+        "sha256": "e1a5ba17d84238621d7d12029fe0763321d5ceb4d110846cdd8e79191454f901",
+        "train_pairs": 4,
+        "test_pairs": 1
+      },
+      {
+        "file": "5a5a2103.json",
+        "sha256": "69ad1641b39f26eb95b72298faec13e2cd41b91750e0d30806495cbab9a8bdb0",
+        "train_pairs": 2,
+        "test_pairs": 1
+      },
+      {
+        "file": "6150a2bd.json",
+        "sha256": "ee8fb3115ca58c61089bb04e81459735b0cedf5707077cb435dc371f88df7f66",
+        "train_pairs": 2,
+        "test_pairs": 1
+      },
+      {
+        "file": "67385a82.json",
+        "sha256": "a84c816ef4db40440595ad42ed16b355fa214b1f0cac9ccb832e9ed20a097583",
+        "train_pairs": 4,
+        "test_pairs": 1
+      },
+      {
+        "file": "696d4842.json",
+        "sha256": "25ca7be81aaee644af0433685ad33890b8d194a822e12bbe21612bfaa2a9a99f",
+        "train_pairs": 3,
+        "test_pairs": 1
+      },
+      {
+        "file": "6e19193c.json",
+        "sha256": "2aa24160650167de54d8f2c9f080c1724427a0ce758b1645aba78975da2367e2",
+        "train_pairs": 2,
+        "test_pairs": 1
+      },
+      {
+        "file": "73c3b0d8.json",
+        "sha256": "72d8bb6545d8a510eb2625202d485a95f80a1ff1be9b0394c9a8efe6e9ec6a1b",
+        "train_pairs": 4,
+        "test_pairs": 1
+      },
+      {
+        "file": "79369cc6.json",
+        "sha256": "d5ed110d3cbd23f7fd1dc31324e399cd735d79a523e3ea937400300eb133c4b0",
+        "train_pairs": 3,
+        "test_pairs": 1
+      },
+      {
+        "file": "7e0986d6.json",
+        "sha256": "0f6827a56a05fb9c229bcd5078ceb8b4ff68afbaf9b60400e73878a0820206c8",
+        "train_pairs": 2,
+        "test_pairs": 1
+      },
+      {
+        "file": "84f2aca1.json",
+        "sha256": "5913481d8e45d13bd3091c72a9519fb6fe0c6aae442eae9f81f5218ef21a7ba4",
+        "train_pairs": 4,
+        "test_pairs": 1
+      },
+      {
+        "file": "8a371977.json",
+        "sha256": "5421c4f7c1d9433dc6ab2941c84084ad41de83beafdfc316af59646e2776f82b",
+        "train_pairs": 3,
+        "test_pairs": 1
+      },
+      {
+        "file": "90347967.json",
+        "sha256": "deca0a92152de275c1e0580edaaabe2b0200ac4a489f3478b963fd1d324fa450",
+        "train_pairs": 3,
+        "test_pairs": 1
+      },
+      {
+        "file": "93c31fbe.json",
+        "sha256": "d15687a59f1d8dd5939524d121732cfd6742fffc69e5f38f86b15d6f0c83def9",
+        "train_pairs": 3,
+        "test_pairs": 1
+      },
+      {
+        "file": "97a05b5b.json",
+        "sha256": "b2738660397bd60f762fafd1eac9c2303e1897bcaf4c6297a611d8a050ca8c77",
+        "train_pairs": 3,
+        "test_pairs": 1
+      },
+      {
+        "file": "9c56f360.json",
+        "sha256": "f897c3651e07888e54c6e305ad34febe7f19e82684c7bf50c0553f8a5cfb8f7e",
+        "train_pairs": 3,
+        "test_pairs": 1
+      },
+      {
+        "file": "a3f84088.json",
+        "sha256": "863b316542b2529f697d9d2ae3795030f39f7ca4a33adbcd147ee878f281164f",
+        "train_pairs": 4,
+        "test_pairs": 1
+      },
+      {
+        "file": "a78176bb.json",
+        "sha256": "1b81d1d8d8aeebb8792c6850d7f5b6cc5eef620833436c21576f5d030cd1c1a0",
+        "train_pairs": 3,
+        "test_pairs": 1
+      },
+      {
+        "file": "ac0c5833.json",
+        "sha256": "81863003aa5c495414ee81784742acc7186e608158bde5eb451fa69901922ffe",
+        "train_pairs": 3,
+        "test_pairs": 1
+      },
+      {
+        "file": "b15fca0b.json",
+        "sha256": "61fe6d485465130be0185d37183853f3cee8e6a1b12add0047028ac4cbf9a08a",
+        "train_pairs": 5,
+        "test_pairs": 1
+      },
+      {
+        "file": "b782dc8a.json",
+        "sha256": "5ebb25359bb7b1ab4654c644efdbeb04211399edda7d1979c38ef51dc38b0574",
+        "train_pairs": 2,
+        "test_pairs": 1
+      },
+      {
+        "file": "bb43febb.json",
+        "sha256": "0279bc84a0f9099d3af848897174ae365f6d5fc32f5ab8cef384bfd64b75bf6c",
+        "train_pairs": 2,
+        "test_pairs": 1
+      },
+      {
+        "file": "bf89d739.json",
+        "sha256": "31903a50428c1ed5636c51c9b565da7ba34508be22dbab1d487bb6ab5c58f1d1",
+        "train_pairs": 4,
+        "test_pairs": 1
+      },
+      {
+        "file": "c6e1b8da.json",
+        "sha256": "7eeed3840ecc21938dd92a27042f5bcf6d8982d787872307952377448ce4ae01",
+        "train_pairs": 3,
+        "test_pairs": 1
+      },
+      {
+        "file": "cbded52d.json",
+        "sha256": "be459eea2c8389b7755b7e34f0747232c9c917f376f49764d0e821a699fbdf3d",
+        "train_pairs": 3,
+        "test_pairs": 1
+      },
+      {
+        "file": "d06dbe63.json",
+        "sha256": "eb30652f1833d0d2f4c39c104d805968c3d0698ba3af37fda1a45ea813a7d001",
+        "train_pairs": 2,
+        "test_pairs": 1
+      },
+      {
+        "file": "d4469b4b.json",
+        "sha256": "deb226c2a8b450bbd53a937c2021bc8e39f00f5540048fc2bd1de48e39b1305c",
+        "train_pairs": 7,
+        "test_pairs": 2
+      },
+      {
+        "file": "d90796e8.json",
+        "sha256": "5c70091ade33d1e8ceac543dcb0a4d645a2d9e93066133bc208f21c841afeb30",
+        "train_pairs": 3,
+        "test_pairs": 1
+      },
+      {
+        "file": "dd2401ed.json",
+        "sha256": "ff77a42fe8c24c7770313f95a9c13ccae182358e26f1c05b6288699b96981e19",
+        "train_pairs": 4,
+        "test_pairs": 1
+      },
+      {
+        "file": "e3497940.json",
+        "sha256": "77b9401aa9befa71409848e97a23d4148c47599f1c9e500042407aaabc432ce1",
+        "train_pairs": 3,
+        "test_pairs": 1
+      },
+      {
+        "file": "e69241bd.json",
+        "sha256": "8dc1f2671aee89ab9da15032c3c3e60cc585882cbbbb1cfd747380c772027790",
+        "train_pairs": 3,
+        "test_pairs": 1
+      },
+      {
+        "file": "e9614598.json",
+        "sha256": "eece5b30c4f394180288f97fa241972f6a464eebfeb52a03deeb23d9101e21df",
+        "train_pairs": 2,
+        "test_pairs": 2
+      },
+      {
+        "file": "ecdecbb3.json",
+        "sha256": "17597df6a1bda37831780b29f74b6fcdad095937eb41f20c1c3c2d654e4c25ab",
+        "train_pairs": 3,
+        "test_pairs": 1
+      }
+    ]
+  },
+  "codec": {
+    "grids": 396,
+    "skipped_over_30": 0,
+    "cell_errors": 0,
+    "max_residual": 1.3877787807814457e-15,
+    "max_isometry_error": 2.7465400791133423e-15,
+    "largest_cells": 900,
+    "z3_reference_grids": 206
+  },
+  "results": [
+    {
+      "name": "00576224",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: no consistent operator chain",
+      "chain": [],
+      "families": [],
+      "nodes": 3491,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 2,
+      "signed_emission": false
+    },
+    {
+      "name": "070dd51e",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: grid exceeds one 512-cell induction slot",
+      "chain": [],
+      "nodes": 0,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 2
+    },
+    {
+      "name": "0ca9ddb6",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: no consistent operator chain",
+      "chain": [],
+      "families": [],
+      "nodes": 4312,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 3,
+      "signed_emission": false
+    },
+    {
+      "name": "13713586",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: no consistent operator chain",
+      "chain": [],
+      "families": [],
+      "nodes": 15307,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 3,
+      "signed_emission": false
+    },
+    {
+      "name": "1990f7a8",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: grid exceeds one 512-cell induction slot",
+      "chain": [],
+      "nodes": 0,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 3
+    },
+    {
+      "name": "1d398264",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: no consistent operator chain",
+      "chain": [],
+      "families": [],
+      "nodes": 4347,
+      "test_exact": 0,
+      "test_total": 2,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 3,
+      "signed_emission": false
+    },
+    {
+      "name": "212895b5",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: no consistent operator chain",
+      "chain": [],
+      "families": [],
+      "nodes": 3804,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 3,
+      "signed_emission": false
+    },
+    {
+      "name": "256b0a75",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: grid exceeds one 512-cell induction slot",
+      "chain": [],
+      "nodes": 0,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 3
+    },
+    {
+      "name": "29623171",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: no consistent operator chain",
+      "chain": [],
+      "families": [],
+      "nodes": 2809,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 3,
+      "signed_emission": false
+    },
+    {
+      "name": "3194b014",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: no consistent operator chain",
+      "chain": [],
+      "families": [],
+      "nodes": 781,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 3,
+      "signed_emission": false
+    },
+    {
+      "name": "358ba94e",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: no consistent operator chain",
+      "chain": [],
+      "families": [],
+      "nodes": 826,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 4,
+      "signed_emission": false
+    },
+    {
+      "name": "3bd67248",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: no consistent operator chain",
+      "chain": [],
+      "families": [],
+      "nodes": 4022,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 3,
+      "signed_emission": false
+    },
+    {
+      "name": "41e4d17e",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: no consistent operator chain",
+      "chain": [],
+      "families": [],
+      "nodes": 2356,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 2,
+      "signed_emission": false
+    },
+    {
+      "name": "45737921",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: no consistent operator chain",
+      "chain": [],
+      "families": [],
+      "nodes": 4720,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 3,
+      "signed_emission": false
+    },
+    {
+      "name": "49d1d64f",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: no consistent operator chain",
+      "chain": [],
+      "families": [],
+      "nodes": 4764,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 3,
+      "signed_emission": false
+    },
+    {
+      "name": "508bd3b6",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: no consistent operator chain",
+      "chain": [],
+      "families": [],
+      "nodes": 2801,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 3,
+      "signed_emission": false
+    },
+    {
+      "name": "54db823b",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: no consistent operator chain",
+      "chain": [],
+      "families": [],
+      "nodes": 3122,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 4,
+      "signed_emission": false
+    },
+    {
+      "name": "5a5a2103",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: grid exceeds one 512-cell induction slot",
+      "chain": [],
+      "nodes": 0,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 2
+    },
+    {
+      "name": "6150a2bd",
+      "status": "INDUCED",
+      "reason": "",
+      "chain": [
+        "dihedral(2)"
+      ],
+      "families": [
+        "dihedral"
+      ],
+      "nodes": 4,
+      "test_exact": 1,
+      "test_total": 1,
+      "solved": true,
+      "emitted": true,
+      "train_pairs": 2,
+      "signed_emission": true
+    },
+    {
+      "name": "67385a82",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: no consistent operator chain",
+      "chain": [],
+      "families": [],
+      "nodes": 2944,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 4,
+      "signed_emission": false
+    },
+    {
+      "name": "696d4842",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: grid exceeds one 512-cell induction slot",
+      "chain": [],
+      "nodes": 0,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 3
+    },
+    {
+      "name": "6e19193c",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: no consistent operator chain",
+      "chain": [],
+      "families": [],
+      "nodes": 1444,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 2,
+      "signed_emission": false
+    },
+    {
+      "name": "73c3b0d8",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: no consistent operator chain",
+      "chain": [],
+      "families": [],
+      "nodes": 2842,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 4,
+      "signed_emission": false
+    },
+    {
+      "name": "79369cc6",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: no consistent operator chain",
+      "chain": [],
+      "families": [],
+      "nodes": 7268,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 3,
+      "signed_emission": false
+    },
+    {
+      "name": "7e0986d6",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: no consistent operator chain",
+      "chain": [],
+      "families": [],
+      "nodes": 1455,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 2,
+      "signed_emission": false
+    },
+    {
+      "name": "84f2aca1",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: no consistent operator chain",
+      "chain": [],
+      "families": [],
+      "nodes": 7428,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 4,
+      "signed_emission": false
+    },
+    {
+      "name": "8a371977",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: grid exceeds one 512-cell induction slot",
+      "chain": [],
+      "nodes": 0,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 3
+    },
+    {
+      "name": "90347967",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: no consistent operator chain",
+      "chain": [],
+      "families": [],
+      "nodes": 10779,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 3,
+      "signed_emission": false
+    },
+    {
+      "name": "93c31fbe",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: grid exceeds one 512-cell induction slot",
+      "chain": [],
+      "nodes": 0,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 3
+    },
+    {
+      "name": "97a05b5b",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: no consistent operator chain",
+      "chain": [],
+      "families": [],
+      "nodes": 1314,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 3,
+      "signed_emission": false
+    },
+    {
+      "name": "9c56f360",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: no consistent operator chain",
+      "chain": [],
+      "families": [],
+      "nodes": 2526,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 3,
+      "signed_emission": false
+    },
+    {
+      "name": "a3f84088",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: grid exceeds one 512-cell induction slot",
+      "chain": [],
+      "nodes": 0,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 4
+    },
+    {
+      "name": "a78176bb",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: no consistent operator chain",
+      "chain": [],
+      "families": [],
+      "nodes": 2634,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 3,
+      "signed_emission": false
+    },
+    {
+      "name": "ac0c5833",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: grid exceeds one 512-cell induction slot",
+      "chain": [],
+      "nodes": 0,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 3
+    },
+    {
+      "name": "b15fca0b",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: no consistent operator chain",
+      "chain": [],
+      "families": [],
+      "nodes": 7737,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 5,
+      "signed_emission": false
+    },
+    {
+      "name": "b782dc8a",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: no consistent operator chain",
+      "chain": [],
+      "families": [],
+      "nodes": 4194,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 2,
+      "signed_emission": false
+    },
+    {
+      "name": "bb43febb",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: no consistent operator chain",
+      "chain": [],
+      "families": [],
+      "nodes": 1660,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 2,
+      "signed_emission": false
+    },
+    {
+      "name": "bf89d739",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: no consistent operator chain",
+      "chain": [],
+      "families": [],
+      "nodes": 3153,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 4,
+      "signed_emission": false
+    },
+    {
+      "name": "c6e1b8da",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: no consistent operator chain",
+      "chain": [],
+      "families": [],
+      "nodes": 5592,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 3,
+      "signed_emission": false
+    },
+    {
+      "name": "cbded52d",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: no consistent operator chain",
+      "chain": [],
+      "families": [],
+      "nodes": 4823,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 3,
+      "signed_emission": false
+    },
+    {
+      "name": "d06dbe63",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: no consistent operator chain",
+      "chain": [],
+      "families": [],
+      "nodes": 1453,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 2,
+      "signed_emission": false
+    },
+    {
+      "name": "d4469b4b",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: no consistent operator chain",
+      "chain": [],
+      "families": [],
+      "nodes": 476,
+      "test_exact": 0,
+      "test_total": 2,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 7,
+      "signed_emission": false
+    },
+    {
+      "name": "d90796e8",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: no consistent operator chain",
+      "chain": [],
+      "families": [],
+      "nodes": 4259,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 3,
+      "signed_emission": false
+    },
+    {
+      "name": "dd2401ed",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: no consistent operator chain",
+      "chain": [],
+      "families": [],
+      "nodes": 7337,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 4,
+      "signed_emission": false
+    },
+    {
+      "name": "e3497940",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: no consistent operator chain",
+      "chain": [],
+      "families": [],
+      "nodes": 2375,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 3,
+      "signed_emission": false
+    },
+    {
+      "name": "e69241bd",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: no consistent operator chain",
+      "chain": [],
+      "families": [],
+      "nodes": 13771,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 3,
+      "signed_emission": false
+    },
+    {
+      "name": "e9614598",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: no consistent operator chain",
+      "chain": [],
+      "families": [],
+      "nodes": 1880,
+      "test_exact": 0,
+      "test_total": 2,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 2,
+      "signed_emission": false
+    },
+    {
+      "name": "ecdecbb3",
+      "status": "ABSTAIN",
+      "reason": "ABSTAIN: no consistent operator chain",
+      "chain": [],
+      "families": [],
+      "nodes": 2566,
+      "test_exact": 0,
+      "test_total": 1,
+      "solved": false,
+      "emitted": false,
+      "train_pairs": 3,
+      "signed_emission": false
+    }
+  ],
+  "counts": {
+    "tasks": 48,
+    "emitted": 1,
+    "solved": 1,
+    "abstained": 47,
+    "pass_at_1": 0.020833333333333332,
+    "precision": 1.0,
+    "wrong_emissions": 0
+  },
+  "z3_regression": {
+    "induced": 16,
+    "rows": [
+      {
+        "name": "z3_rot90_ccw",
+        "status": "INDUCED",
+        "chain": [
+          "dihedral(1)"
+        ],
+        "generalized": true,
+        "nodes": 4
+      },
+      {
+        "name": "z3_rot180_rect",
+        "status": "INDUCED",
+        "chain": [
+          "dihedral(2)"
+        ],
+        "generalized": true,
+        "nodes": 5
+      },
+      {
+        "name": "z3_reflect_h",
+        "status": "INDUCED",
+        "chain": [
+          "dihedral(4)"
+        ],
+        "generalized": true,
+        "nodes": 7
+      },
+      {
+        "name": "z3_reflect_diag",
+        "status": "INDUCED",
+        "chain": [
+          "dihedral(6)"
+        ],
+        "generalized": true,
+        "nodes": 9
+      },
+      {
+        "name": "z3_toroidal_shift_1_2",
+        "status": "INDUCED",
+        "chain": [
+          "toroidal_shift(1,2)"
+        ],
+        "generalized": true,
+        "nodes": 3
+      },
+      {
+        "name": "z3_bounded_shift_2_1",
+        "status": "INDUCED",
+        "chain": [
+          "bounded_shift(2,1,0)"
+        ],
+        "generalized": true,
+        "nodes": 17
+      },
+      {
+        "name": "z3_colour_swap_1_2",
+        "status": "INDUCED",
+        "chain": [
+          "colour_map(0,2,1,3,4,5,6,7,8,9)"
+        ],
+        "generalized": true,
+        "nodes": 41
+      },
+      {
+        "name": "z3_colour_cycle_123",
+        "status": "INDUCED",
+        "chain": [
+          "colour_map(0,2,3,1,4,5,6,7,8,9)"
+        ],
+        "generalized": true,
+        "nodes": 41
+      },
+      {
+        "name": "z3_crop_bbox",
+        "status": "INDUCED",
+        "chain": [
+          "crop_bbox"
+        ],
+        "generalized": true,
+        "nodes": 16
+      },
+      {
+        "name": "z3_tile_2x2",
+        "status": "INDUCED",
+        "chain": [
+          "tile(2,2)"
+        ],
+        "generalized": true,
+        "nodes": 5
+      },
+      {
+        "name": "z3_scale_2",
+        "status": "INDUCED",
+        "chain": [
+          "scale(2)"
+        ],
+        "generalized": true,
+        "nodes": 3
+      },
+      {
+        "name": "z3_interior_fill_3",
+        "status": "INDUCED",
+        "chain": [
+          "interior_flood_fill(3)"
+        ],
+        "generalized": true,
+        "nodes": 5
+      },
+      {
+        "name": "z3_mask_colour_2",
+        "status": "INDUCED",
+        "chain": [
+          "mask_by_colour(2)"
+        ],
+        "generalized": true,
+        "nodes": 4
+      },
+      {
+        "name": "z3_symmetry_completion",
+        "status": "INDUCED",
+        "chain": [
+          "symmetry_completion"
+        ],
+        "generalized": true,
+        "nodes": 3
+      },
+      {
+        "name": "z3_constant_fill_5",
+        "status": "INDUCED",
+        "chain": [
+          "constant_fill(5)"
+        ],
+        "generalized": true,
+        "nodes": 3
+      },
+      {
+        "name": "z3_rot90_then_swap",
+        "status": "INDUCED",
+        "chain": [
+          "dihedral(1)",
+          "colour_map(0,2,1,3,4,5,6,7,8,9)"
+        ],
+        "generalized": true,
+        "nodes": 77
+      }
+    ]
+  },
+  "contradictions": [
+    {
+      "name": "z3_contradiction_two_outputs",
+      "status": "ABSTAIN",
+      "nodes": 0
+    },
+    {
+      "name": "z3_contradiction_colour_only",
+      "status": "ABSTAIN",
+      "nodes": 0
+    },
+    {
+      "name": "z3_contradiction_shape_violation",
+      "status": "ABSTAIN",
+      "nodes": 0
+    },
+    {
+      "name": "z3_contradiction_declared_shape",
+      "status": "ABSTAIN",
+      "nodes": 0
+    }
+  ],
+  "audit": {
+    "string_literal_comparisons": 22,
+    "structural_vocabulary_comparisons": 22,
+    "unexplained_string_comparisons": 0,
+    "unexplained_samples": [],
+    "task_identity_comparisons": 0,
+    "compared_identifier_literals": [],
+    "compared_identifier_literal_count": 0,
+    "module_literal_overlap": [],
+    "module_literal_overlap_note": "informational only: an ordinary English word in the sketch tag vocabulary can coincide with a benchmark entry-point name. A tag is not a branch; the gated counters are the comparison ones.",
+    "branches": [],
+    "ok": true,
+    "file": "henri/holarch/spatial_induction.py",
+    "sha256": "a754f6e270c4029fd95aaef585fd0df95b38b35660cbf0f786cc3e76442b52d8"
+  },
+  "imports": {
+    "imports": [
+      "__future__",
+      "dataclasses",
+      "hashlib",
+      "itertools",
+      "json",
+      "numpy",
+      "time",
+      "typing"
+    ],
+    "forbidden_imports": [],
+    "llm_calls": 0,
+    "network_calls": 0,
+    "passed": true
+  },
+  "node_budget": 200000,
+  "gate": {
+    "aa3_runner_exit_zero": true,
+    "aa3_codec_zero_cell_error": true,
+    "aa3_external_pass_at_1_ge_04583": false,
+    "aa3_emitted_precision_ge_090": true,
+    "aa3_z3_sixteen_of_sixteen": true,
+    "aa3_contradictions_4_of_4_at_zero_nodes": true,
+    "aa3_zero_task_id_branches": true,
+    "aa3_zero_llm_calls": true,
+    "aa3_slice_48": true,
+    "passed": false
+  },
+  "wall_seconds": 11.928445400088094,
+  "evidence": "OBSERVED",
+  "passed": false
+}

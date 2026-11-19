@@ -1,0 +1,142 @@
+{
+  "stage": "AD3",
+  "status": "MANIFEST_COMPLETE_LIVE_EXECUTION_NOT_RUN",
+  "manifest": {
+    "pillars": [
+      {
+        "pillar": "knowledge_work",
+        "answerable": 20,
+        "sources": {
+          "briefcase": 20,
+          "origin": "sealed AA4/AC4 Briefcase workspaces"
+        }
+      },
+      {
+        "pillar": "coding",
+        "answerable": 20,
+        "sources": {
+          "pinned_external": 10,
+          "repository_patch": 10,
+          "repository_suite": [
+            "pipeline_drop_tail",
+            "ledger_accumulator",
+            "chunk_boundary",
+            "dedupe_none_guard",
+            "router_attribute",
+            "router_callee",
+            "numeric_sign",
+            "numeric_compare",
+            "numeric_scale",
+            "parser_index"
+          ],
+          "origin": "pinned HumanEval/MBPP plus the AD1 sixteen-repository suite"
+        }
+      },
+      {
+        "pillar": "science",
+        "answerable": 20,
+        "sources": {
+          "compute_verified": 18,
+          "planned_variants": 2,
+          "task_ids": [
+            "sci01",
+            "sci02",
+            "sci03",
+            "sci04",
+            "sci05",
+            "sci06",
+            "sci07",
+            "sci08",
+            "sci09",
+            "sci10",
+            "sci11",
+            "sci12",
+            "sci13",
+            "sci14",
+            "sci15",
+            "sci16",
+            "sci17",
+            "sci18"
+          ],
+          "origin": "AD2 dimensional solver and tabular aggregation"
+        }
+      },
+      {
+        "pillar": "general",
+        "answerable": 20,
+        "sources": {
+          "grounded_factual": 10,
+          "official_arc": 10,
+          "origin": "sealed AA4 factual store and the official ARC-AGI slice"
+        }
+      }
+    ],
+    "answerable": 80,
+    "traps": {
+      "total": 16,
+      "sources": {
+        "contradictory_arc": 4,
+        "contradictory_public_assertions": 2,
+        "stale_issue": 1,
+        "sheaf_conflict": 1,
+        "unsatisfiable_factual": 2,
+        "underdetermined_science": 1,
+        "dimensionally_invalid_science": 1,
+        "nonphysical_science": 1,
+        "ambiguous_science": 1,
+        "unknown_unit_science": 1,
+        "contradictory_quantities_science": 1
+      }
+    },
+    "total": 96,
+    "five_arms": [
+      "arm0_henri_standalone",
+      "arm1_raw_llm",
+      "arm2_rag_llm",
+      "arm3_henri_coprocessor",
+      "arm4_henri_cascade"
+    ],
+    "stress": {
+      "http_requests": 1000,
+      "sse_streams": 250,
+      "gauntlet_queries": 320,
+      "gauntlet_split": {
+        "prior": 304,
+        "cycle_ad_probes": 16
+      }
+    }
+  },
+  "executed": {
+    "arms": [],
+    "arm0_tasks": 0,
+    "http_requests": 0,
+    "sse_streams": 0,
+    "gauntlet_queries": 0,
+    "deliverables": 0
+  },
+  "reason": "The 96-task manifest is complete. The fresh five-arm live run, the structured deliverable composer pass and the 1,000-request plus 320-query campaign were not executed in this session, so no gate that depends on them is claimed.",
+  "reference_evidence": {
+    "cycle_ac_five_arm_suite": "receipts/holarch/ac4_cascade_and_aaii80.json",
+    "cycle_ad_repository_arm0": "receipts/holarch/ad1_standalone_repo_patch.json",
+    "cycle_ad_science_arm0": "receipts/holarch/ad2_relational_arc_and_science.json"
+  },
+  "pinned_snapshot": {
+    "path": "receipts\\holarch\\pinned_corpus_snapshot.json",
+    "sha256": "d675f3816bbf472493b25f885bbb56c62c5ec88a81ab31e31a9b87b3a0c23703",
+    "sha256_before": "d675f3816bbf472493b25f885bbb56c62c5ec88a81ab31e31a9b87b3a0c23703",
+    "expected_sha256": "d675f3816bbf472493b25f885bbb56c62c5ec88a81ab31e31a9b87b3a0c23703",
+    "expected_digest": "8f270f34e8f35ef84e415d076bea20a7bc15edff337f89ed72ad607447ba8554"
+  },
+  "gate": {
+    "ad3_total_tasks_eq_96": true,
+    "ad3_arm0_standalone_ge_66_of_80": false,
+    "ad3_arm4_beats_arm3_composite": false,
+    "ad3_http_stress_and_gauntlet_320": false,
+    "ad3_deliverable_composer_executed": false,
+    "ad3_pinned_snapshot_unchanged": true,
+    "passed": false
+  },
+  "wall_seconds": 0.0435029999971448,
+  "evidence": "OBSERVED",
+  "passed": false
+}

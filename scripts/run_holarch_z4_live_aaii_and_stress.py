@@ -111,6 +111,13 @@ STRESS_WORKERS = 16
 GAUNTLET_QUERIES = 288
 GAUNTLET_PROBES = 212
 GAUNTLET_LEGACY = 76
+Z4_BATTERY: Dict[str, Any] = {
+    "tasks": 64,
+    "answerable": 52,
+    "traps": 12,
+    "slices": {"factual": 12, "briefcase": 12, "external_coding": 16, "arc": 12},
+}
+"""The sealed Cycle Z4 battery size.  A caller may pass its own expectation."""
 GAUNTLET_WALL_BAR = 160.0
 RSS_DRIFT_BAR = 256 * 1024 * 1024
 FENCE = chr(96) * 3
@@ -1210,8 +1217,15 @@ def _zero_result(task: Dict[str, Any], arm: str, reason: str) -> Dict[str, Any]:
 
 
 def run_arm0(task: Dict[str, Any], stem: SharedCorpusStem, synthesizer: ColdSynthesizer,
-             sandbox: SubprocessSandboxExecutor, inducer: SpatialCegisInducer) -> Dict[str, Any]:
-    """The zero-call standalone arm: recompute, synthesize, induce, or abstain."""
+             sandbox: SubprocessSandboxExecutor, inducer: SpatialCegisInducer,
+             ooi: Optional[Any] = None) -> Dict[str, Any]:
+    """The zero-call standalone arm: recompute, synthesize, induce, or abstain.
+
+    ``ooi`` is the Cycle AC3 object-centric leave-one-out inducer.  It is unused
+    here so the Cycle Z4 path is byte-identical; a caller that passes a custom
+    ``arm0_runner`` to :func:`run_suite` receives it and may use it for the
+    external ARC slice.
+    """
     arm = ARM_NAMES[0]
     if task["kind"] == "quantity":
         return {
@@ -2086,11 +2100,26 @@ def _slice_matrix(rows: Sequence[Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
 
 
 # -------------------------------------------------------------------- suite
-def run_suite(directory: Path, *, use_llm: bool = True) -> Dict[str, Any]:
+def run_suite(directory: Path, *, use_llm: bool = True,
+              battery: Optional[Sequence[Dict[str, Any]]] = None,
+              arm0_runner: Optional[Callable[..., Dict[str, Any]]] = None,
+              max_calls: Optional[int] = None,
+              synthesizer_options: Optional[Dict[str, Any]] = None,
+              ooi: Optional[Any] = None,
+              expected: Optional[Dict[str, Any]] = None,
+              gauntlet_expectation: Optional[Sequence[int]] = None) -> Dict[str, Any]:
+    """Run the five-arm suite.
+
+    Every keyword below defaults to the sealed Cycle Z4 configuration, so a
+    caller that passes nothing gets the 64-task battery, the 24-rollout cold
+    synthesizer, the 200-call cap and the 288-query gauntlet expectation
+    unchanged.  Cycle AC4 passes the 80-task battery, the 64-rollout AC2
+    engine, the AC3 ARC inducer and the 304-query gauntlet expectation.
+    """
     started = time.perf_counter()
     stem = SharedCorpusStem.build(ROOT)
     stem_seconds = time.perf_counter() - started
-    tasks = build_battery(ROOT)
+    tasks = build_battery(ROOT) if battery is None else list(battery)
     chunks = build_chunks(ROOT)
     bm25 = BM25(chunks)
     sheaf = RepoSheaf()
@@ -2112,6 +2141,7 @@ def run_suite(directory: Path, *, use_llm: bool = True) -> Dict[str, Any]:
         engine, report = stem.mount(memory, namespace)
         engines[namespace] = engine
         mounts.append(report)
+    synth_options = dict(synthesizer_options or {})
     synthesizer = ColdSynthesizer(
         memory=memory,
         namespace=ARM_NAMES[0],
@@ -2119,18 +2149,22 @@ def run_suite(directory: Path, *, use_llm: bool = True) -> Dict[str, Any]:
         tokenizer=stem.tokenizer,
         sandbox=SubprocessSandboxExecutor("pure_algorithmic", timeout_s=8.0,
                                           workdir=str(work)),
-        budget=24,
+        budget=int(synth_options.pop("budget", 24)),
         plan_store=engines[ARM_NAMES[0]].plans,
+        **synth_options,
     )
     credential = resolve_llm_credentials() if bool(use_llm) else None
     rows: List[Dict[str, Any]] = []
     ledger: List[Dict[str, Any]] = []
-    budget = {"calls": 0, "max_calls": MAX_CALLS, "retries": 0,
+    budget = {"calls": 0,
+              "max_calls": int(MAX_CALLS if max_calls is None else int(max_calls)),
+              "retries": 0,
               "max_retries": MAX_RETRIES, "errors": 0}
     live_error = "" if credential is not None else "BLOCKED_NO_API_KEY"
+    runner = run_arm0 if arm0_runner is None else arm0_runner
     arms_started = time.perf_counter()
     for task in tasks:
-        arm0 = run_arm0(task, stem, synthesizer, sandbox, inducer)
+        arm0 = runner(task, stem, synthesizer, sandbox, inducer, ooi)
         score0 = score_task(task, arm0, sandbox)
         rows.append(dict(arm0, score=int(score0["value"]), detail=str(score0["detail"])))
         context = ""
@@ -2178,16 +2212,26 @@ def run_suite(directory: Path, *, use_llm: bool = True) -> Dict[str, Any]:
     suite_executed = bool(
         credential is not None
         and all(int(by_arm[arm]["tasks"]) == len(tasks) for arm in ARM_NAMES)
-        and len(ledger) >= 64
+        and len(ledger) >= min(64, len(tasks))
+    )
+    expect = dict(Z4_BATTERY) if expected is None else dict(expected)
+    expect_slices = dict(expect.get("slices") or {})
+    g_queries, g_probes, g_legacy = (
+        (GAUNTLET_QUERIES, GAUNTLET_PROBES, GAUNTLET_LEGACY)
+        if gauntlet_expectation is None
+        else (int(gauntlet_expectation[0]), int(gauntlet_expectation[1]),
+              int(gauntlet_expectation[2]))
     )
     gates = {
         "z4_mode_live": bool(
-            credential is not None and len(ledger) > 0 and int(budget["calls"]) <= int(MAX_CALLS)
+            credential is not None and len(ledger) > 0
+            and int(budget["calls"]) <= int(budget["max_calls"])
         ),
         "z4_battery_64": bool(
-            len(tasks) == 64 and answerable_total == 52 and traps_total == 12
-            and slices["factual"] == 12 and slices["briefcase"] == 12
-            and slices["external_coding"] == 16 and slices["arc"] == 12
+            len(tasks) == int(expect["tasks"])
+            and answerable_total == int(expect["answerable"])
+            and traps_total == int(expect["traps"])
+            and all(slices[key] == int(value) for key, value in expect_slices.items())
         ),
         "z4_zero_credential_leaks": bool(int(scan["count"]) == 0 and not scan["leaks"]),
         "z4_digests_recorded": digests_ok,
@@ -2237,9 +2281,9 @@ def run_suite(directory: Path, *, use_llm: bool = True) -> Dict[str, Any]:
         "z4_gauntlet_288": bool(
             bool(gauntlet["present"]) and bool(gauntlet["digest_matches"])
             and bool(gauntlet["fresh"])
-            and int(gauntlet["total_queries"]) == GAUNTLET_QUERIES
-            and int(gauntlet["probe_slots"]) == GAUNTLET_PROBES
-            and int(gauntlet["ledger_receipts"]) == GAUNTLET_LEGACY
+            and int(gauntlet["total_queries"]) == int(g_queries)
+            and int(gauntlet["probe_slots"]) == int(g_probes)
+            and int(gauntlet["ledger_receipts"]) == int(g_legacy)
             and bool(gauntlet["passed"])
         ),
         "z4_gauntlet_wall_le_160": bool(
@@ -2316,10 +2360,11 @@ def run_suite(directory: Path, *, use_llm: bool = True) -> Dict[str, Any]:
         },
         "scoring": {
             "rule": "+1 correct, -1 hallucination, 0 abstain",
-            "normalisation": "composite_score = sum(points) / 64, so the range is [-1, 1]",
-            "answerable_solved_rate": "correct answerable tasks / 52",
-            "trap_refusal_rate": "refused traps / 12",
-            "hallucination_rate": "tasks scored -1 / 64",
+            "normalisation": "composite_score = sum(points) / %d, so the range is [-1, 1]"
+                             % int(len(tasks)),
+            "answerable_solved_rate": "correct answerable tasks / %d" % int(answerable_total),
+            "trap_refusal_rate": "refused traps / %d" % int(traps_total),
+            "hallucination_rate": "tasks scored -1 / %d" % int(len(tasks)),
             "llm_derived_count": "tasks whose final answer came from a verified live candidate",
             "external_api_calls": "live completions the arm spent",
             "fail_closed_coding_rule": (

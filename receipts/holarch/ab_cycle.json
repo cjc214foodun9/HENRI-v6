@@ -1,0 +1,147 @@
+{
+  "cycle": "AB",
+  "specification": "HENRI-SPEC-CYCLE-AB-OBJECT-ARC-CONTEXT-PHASE-AND-TRITON-V3",
+  "stages": {
+    "AB1": {
+      "receipt": "ab1_contextual_phase_egress.json",
+      "sha256": "504f52ffd6533b1f64da290bc29a3eedbb7c104a9d5b68eb19dd08356f366ff4",
+      "present": true,
+      "passed": false,
+      "gates": {
+        "ab1_pinned_digest_equals_8f270f34": true,
+        "ab1_pinned_snapshot_unchanged": true,
+        "ab1_zero_autograd": true,
+        "ab1_zero_task_id_branches": true,
+        "ab1_bpc_le_26650": false,
+        "ab1_top1_ge_06320": false,
+        "ab1_context_phase_marginal_le_-00040": false,
+        "ab1_steering_marginal_recorded": false,
+        "ab1_prefix_weight_positive": false,
+        "ab1_copy_fast_weight_positive": true,
+        "ab1_copy_long_weight_positive": false,
+        "ab1_natural_copy_recall_ge_074": false,
+        "ab1_strict_copy_recall_ge_072": false,
+        "ab1_copy_positions_1092": true,
+        "ab1_held_out_tokens": true,
+        "passed": false
+      },
+      "failed_gates": [
+        "ab1_bpc_le_26650",
+        "ab1_top1_ge_06320",
+        "ab1_context_phase_marginal_le_-00040",
+        "ab1_steering_marginal_recorded",
+        "ab1_prefix_weight_positive",
+        "ab1_copy_long_weight_positive",
+        "ab1_natural_copy_recall_ge_074",
+        "ab1_strict_copy_recall_ge_072",
+        "passed"
+      ]
+    },
+    "AB2": {
+      "receipt": "ab2_sheaf_retrieval_and_loop_synthesis.json",
+      "sha256": "af2bff23f46becec235a7c31ac342c429223e62599a269bd2794972e865ea8d8",
+      "present": true,
+      "passed": false,
+      "gates": {
+        "ab2_runner_exit_zero": true,
+        "ab2_zero_external_llm_calls": true,
+        "ab2_staged_budget_le_96": true,
+        "ab2_mbpp_ge_28_of_30": true,
+        "ab2_humaneval_ge_22_of_32": true,
+        "ab2_precision_ge_098": true,
+        "ab2_hidden_misses_le_1": true,
+        "ab2_traps_6_of_6": true,
+        "ab2_no_task_identity_branches": true,
+        "ab2_code_gen_no_task_identity": true,
+        "ab2_same_vendored_slices": true,
+        "ab2_sheaf_filter_engaged": true,
+        "ab2_arm_b_transfer_12_of_12": false,
+        "ab2_arm_b_beats_arm_a": true,
+        "passed": false
+      },
+      "failed_gates": [
+        "ab2_arm_b_transfer_12_of_12",
+        "passed"
+      ]
+    },
+    "AB3": {
+      "receipt": "ab3_object_centric_external_arc.json",
+      "sha256": "07c0fc9aac88f6546ae878411a8dfaad7bc1eacf7497f1413ec116dd9828e010",
+      "present": true,
+      "passed": false,
+      "gates": {
+        "ab3_runner_exit_zero": true,
+        "ab3_manifest_digest_e9b030a2": true,
+        "ab3_codec_zero_cell_error": true,
+        "ab3_codec_grids_396": true,
+        "ab3_external_pass_at_1_ge_16_of_48": false,
+        "ab3_emitted_precision_ge_095": true,
+        "ab3_loo_gate_on_every_emission": true,
+        "ab3_z3_16_of_16": true,
+        "ab3_contradictions_4_at_zero_nodes": true,
+        "ab3_zero_task_id_branches": true,
+        "ab3_zero_llm_imports": true,
+        "passed": false
+      },
+      "failed_gates": [
+        "ab3_external_pass_at_1_ge_16_of_48",
+        "passed"
+      ]
+    },
+    "AB5": {
+      "receipt": "ab5_cuda_benchmark.json",
+      "sha256": "27488a9d11eabf25e137f3a3e0429607a8e3ad20fdb8f39ab1cfff61ddebfe7b",
+      "present": true,
+      "passed": false,
+      "gates": {},
+      "failed_gates": []
+    }
+  },
+  "jev": {
+    "receipt": "ab_jev_mathematical_challenges.json",
+    "sha256": "dbb743f1d0432311392e867f8413752d51369dc3835848b3bf32511eadfb20c7",
+    "accepted": true,
+    "challenges": [
+      "AB1-CONTEXT-STEERED-BORN-PHASE-UNITARITY",
+      "AB3-OBJECT-SHEAF-EULER-INVARIANCE-AND-LOO-BOUND"
+    ]
+  },
+  "hardware": {
+    "receipt": "ab5_cuda_benchmark.json",
+    "status": "BLOCKED_NO_PCIE_NVIDIA_DEVICE",
+    "provenance": "BLOCKED_NO_PCIE_NVIDIA_DEVICE on the Windows host; see the receipt for the PnP adapters"
+  },
+  "hygiene": {
+    "pinned_corpus_snapshot_sha256": "d675f3816bbf472493b25f885bbb56c62c5ec88a81ab31e31a9b87b3a0c23703",
+    "pinned_corpus_pin_ok": true,
+    "pinned_snapshot_file_sha256_note": "the file hash covers the metadata; the pin is the recorded content digest",
+    "pinned_lang_split_sha256": "247a45a5b96293fafb6a1728eb4660c25e6e4ddb4ba348858f12770e742e2470",
+    "docs_holarch_excluded_from_split": true,
+    "r3_static_bpc": 1.1660408493237004,
+    "r3_streaming_bpc": 1.1660408493237004,
+    "r3_static_bar_green": true,
+    "r3_streaming_bar_green": true,
+    "r3_receipt_sha256": "d074511d012f2d9dc11bbf04816200349c2d9381ffca5c693f6e6e96f9c683d5",
+    "pytest_exit": 0,
+    "pytest_tail": [
+      "380 tests passed, 0 failures, warnings only"
+    ],
+    "live_api_calls": 0,
+    "live_call_budget": 96,
+    "credential_leaks": 0
+  },
+  "gate": {
+    "ab_cycle_ab1_passed": false,
+    "ab_cycle_ab2_passed": false,
+    "ab_cycle_ab3_passed": false,
+    "ab_cycle_ab5_receipt_present": true,
+    "ab_cycle_pinned_pin_ok": true,
+    "ab_cycle_r3_bars_green": true,
+    "ab_cycle_pytest_zero": true,
+    "ab_cycle_jev_2_of_2": true,
+    "ab_cycle_zero_credential_leaks": true,
+    "ab_cycle_live_budget_respected": true
+  },
+  "evidence": "OBSERVED",
+  "passed": false
+}

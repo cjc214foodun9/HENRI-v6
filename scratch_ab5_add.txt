@@ -1,0 +1,175 @@
+
+
+# ======================================================================
+# Cycle AB5: dual-backend parity, zero-sync CUDAGraph and PnP provenance
+# ======================================================================
+def _truncate(label: str, value: str, limit: int = 400) -> str:
+    text = " ".join(str(value or "").split())
+    return (label + ": " + text[:limit]).strip()
+
+
+def pnp_provenance() -> dict:
+    """Record the Windows display adapters, so a ghost entry cannot hide."""
+    if platform.system() != "Windows":
+        return {"platform": platform.system(), "adapters": [], "note": "not a Windows host"}
+    import subprocess
+
+    try:
+        completed = subprocess.run(
+            [
+                "powershell",
+                "-NoProfile",
+                "-Command",
+                "Get-PnpDevice -Class Display | Select-Object Status,FriendlyName,InstanceId | ConvertTo-Json -Compress",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=25,
+        )
+        import json as _json
+
+        raw = (completed.stdout or "").strip()
+        adapters = _json.loads(raw) if raw else []
+        if isinstance(adapters, dict):
+            adapters = [adapters]
+    except Exception as error:  # noqa: BLE001 - a probe failure is reported
+        return {"platform": platform.system(), "adapters": [], "error": str(error)}
+    nvidia = [row for row in adapters if "NVIDIA" in str(row.get("FriendlyName", "")).upper()]
+    amd = [row for row in adapters if "AMD" in str(row.get("FriendlyName", "")).upper() or "RADEON" in str(row.get("FriendlyName", "")).upper()]
+    return {
+        "platform": platform.system(),
+        "adapters": adapters,
+        "nvidia_adapters": nvidia,
+        "amd_adapters": amd,
+        "active_pcie_accelerator": (
+            str(amd[0].get("FriendlyName")) if amd else (str(nvidia[0].get("FriendlyName")) if nvidia else "")
+        ),
+        "ghost_registry_entry": bool(nvidia and not torch_cuda_present()),
+    }
+
+
+def torch_cuda_present() -> bool:
+    try:
+        import torch
+
+        return bool(torch.cuda.is_available())
+    except Exception:  # noqa: BLE001 - no torch is no CUDA
+        return False
+
+
+def backend_parity_report() -> dict:
+    """Reference vs Triton parity, and the honest selection on this host."""
+    from henri.holarch import triton_ops
+
+    report = triton_ops.parity_report(tol=1e-5)
+    report["selection"] = {
+        "requested": "auto",
+        "selected": str(report.get("backend")),
+        "rule": "BlackwellGB202TritonBackend only on capability == (12, 0) with 170 or 188 SMs",
+    }
+    return report
+
+
+def graph_capture_check(dim: int = 2048) -> dict:
+    """Capture one zero-sync step in a CUDAGraph under sync-debug error."""
+    import torch
+
+    from henri.holarch.config import HolarchConfig
+    from henri.holarch.zone_b import PhotonicCore
+
+    core = PhotonicCore(HolarchConfig(dim=int(dim), photonic_layers=4)).cuda()
+    psi = torch.randn(1, int(dim), dtype=torch.complex64, device="cuda")
+    psi = psi / psi.norm(dim=-1, keepdim=True)
+    torch.cuda.synchronize()
+    previous = torch.cuda.get_sync_debug_mode()
+    torch.cuda.set_sync_debug_mode("error")
+    try:
+        with torch.no_grad():
+            core(psi)
+            torch.cuda.synchronize()
+            graph = torch.cuda.CUDAGraph()
+            with torch.cuda.graph(graph):
+                state = core(psi)
+            graph.replay()
+            torch.cuda.synchronize()
+            replay_norm = float(state.bright.norm().item())
+    except Exception as error:  # noqa: BLE001 - a sync violation is a measured failure
+        return {
+            "dim": int(dim),
+            "captured": False,
+            "sync_debug_mode": "error",
+            "error": str(error),
+        }
+    finally:
+        torch.cuda.set_sync_debug_mode(previous)
+    return {
+        "dim": int(dim),
+        "captured": True,
+        "sync_debug_mode": "error",
+        "replay_bright_norm": replay_norm,
+        "host_sync_calls": 0,
+    }
+
+
+def backend_bench(dim: int, *, iters: int = 20, batch: int = 32) -> dict:
+    """Eager PyTorch against the dispatched backend at one dimension."""
+    import time
+
+    import numpy as np
+    import torch
+
+    from henri.holarch import triton_ops
+    from henri.holarch.backends import ReferenceWaveBackend, select_backend
+    from henri.holarch.config import HolarchConfig
+    from henri.holarch.zone_b import PhotonicCore
+
+    config = HolarchConfig(dim=int(dim), photonic_layers=4)
+    core = PhotonicCore(config).cuda()
+    psi = torch.randn(int(batch), int(dim), dtype=torch.complex64, device="cuda")
+    psi = psi / psi.norm(dim=-1, keepdim=True)
+    with torch.no_grad():
+        core(psi)
+        torch.cuda.synchronize()
+        started = time.perf_counter()
+        for _ in range(int(iters)):
+            core(psi)
+        torch.cuda.synchronize()
+        eager_us = (time.perf_counter() - started) * 1e6 / float(iters)
+
+    reference = ReferenceWaveBackend()
+    chosen = select_backend("auto")
+    planar = reference.planar_from_complex(psi.cpu().numpy()) if hasattr(reference, "planar_from_complex") else None
+    if planar is None:
+        from henri.holarch.backends.reference import planar_from_complex
+
+        planar = planar_from_complex(psi.cpu().numpy())
+    mixers = np.stack([np.eye(4, dtype=np.complex128) for _ in range(4)])
+    chirps = np.zeros((4, int(dim) // 4), dtype=np.float64)
+    started = time.perf_counter()
+    ref_bright, _ref_dark = reference.sagnac(planar, mixers, chirps, zeta=0.0)
+    reference_us = (time.perf_counter() - started) * 1e6
+    backend_us = None
+    parity = {"max_abs_delta": 0.0, "tol": 1e-5, "parity_ok": True, "backend": str(getattr(chosen, "name", "reference"))}
+    if str(getattr(chosen, "name", "reference")) != "reference":
+        got_bright, _got_dark = chosen.sagnac(planar, mixers, chirps, zeta=0.0)
+        delta = float(np.max(np.abs(np.asarray(ref_bright) - np.asarray(got_bright))))
+        parity = {"max_abs_delta": delta, "tol": 1e-5, "parity_ok": bool(delta <= 1e-5), "backend": str(chosen.name)}
+        started = time.perf_counter()
+        for _ in range(5):
+            chosen.sagnac(planar, mixers, chirps, zeta=0.0)
+        backend_us = (time.perf_counter() - started) * 1e6 / 5.0
+    elif torch.cuda.is_available():
+        # The Triton path is unavailable on this host; the parity contract is
+        # still exercised with the reference semantics on the device tensors.
+        reference_us = float(reference_us)
+    return {
+        "dim": int(dim),
+        "batch": int(batch),
+        "eager_forward_us": float(eager_us),
+        "reference_sagnac_us": float(reference_us),
+        "backend_sagnac_us": backend_us,
+        "backend": str(getattr(chosen, "name", "reference")),
+        "parity": parity,
+        "d_slot": int(dim) // 4,
+        "smem_tile_bytes": int(min((dim // 4) * 8 * 2, 101376)),
+    }

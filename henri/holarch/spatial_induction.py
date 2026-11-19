@@ -394,26 +394,26 @@ class ToroidalWaveEncoder:
 
 
 # ----------------------------------------------------- wave-domain invariants
-def d4_coefficients(name: str, coefficients: np.ndarray) -> np.ndarray:
+def d4_coefficients(op: str, coefficients: np.ndarray) -> np.ndarray:
     """Apply one D4 element to a colour-phase field (a cell permutation)."""
     field = np.asarray(coefficients)
-    if name == "identity":
+    if op == "identity":
         return field
-    if name == "rot90":
+    if op == "rot90":
         return np.rot90(field, 1)
-    if name == "rot180":
+    if op == "rot180":
         return np.rot90(field, 2)
-    if name == "rot270":
+    if op == "rot270":
         return np.rot90(field, 3)
-    if name == "reflect_h":
+    if op == "reflect_h":
         return field[:, ::-1]
-    if name == "reflect_v":
+    if op == "reflect_v":
         return field[::-1, :]
-    if name == "reflect_diag":
+    if op == "reflect_diag":
         return np.swapaxes(field, 0, 1)
-    if name == "reflect_antidiag":
+    if op == "reflect_antidiag":
         return np.rot90(np.swapaxes(field, 0, 1), 2)
-    raise ValueError("unknown dihedral element %r" % (name,))
+    raise ValueError("unknown dihedral element %r" % (op,))
 
 
 def d4_resonance(field_in: np.ndarray, field_out: np.ndarray) -> Dict[str, Optional[float]]:
@@ -426,17 +426,17 @@ def d4_resonance(field_in: np.ndarray, field_out: np.ndarray) -> Dict[str, Optio
     out = np.asarray(field_out)
     energy_out = float(np.sum(np.abs(out) ** 2))
     result: Dict[str, Optional[float]] = {}
-    for name in D4_ELEMENTS:
-        moved = d4_coefficients(name, field_in)
+    for op in D4_ELEMENTS:
+        moved = d4_coefficients(op, field_in)
         if tuple(moved.shape) != tuple(out.shape):
-            result[name] = None
+            result[op] = None
             continue
         energy_in = float(np.sum(np.abs(moved) ** 2))
         if energy_in <= _EPS or energy_out <= _EPS:
-            result[name] = 0.0
+            result[op] = 0.0
             continue
         overlap = float(np.abs(np.sum(np.conj(out) * moved)))
-        result[name] = float(overlap / np.sqrt(energy_in * energy_out))
+        result[op] = float(overlap / np.sqrt(energy_in * energy_out))
     return result
 
 

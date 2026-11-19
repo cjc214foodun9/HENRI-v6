@@ -1,0 +1,667 @@
+{
+  "stage": "AB1",
+  "config": {
+    "dim": 2048,
+    "freq_bands": 32,
+    "photonic_layers": 4,
+    "phase_modes": 9,
+    "steer_rank": 8,
+    "steer_ctx_dim": 42,
+    "induction_window": 256,
+    "copy_fast_window": 24,
+    "copy_long_window": 256,
+    "copy_low": 7,
+    "orders": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "coupling": "amplitude"
+  },
+  "pinned_split": {
+    "snapshot": "C:\\Users\\chan\\Desktop\\HENRI v6\\receipts\\holarch\\pinned_corpus_snapshot.json",
+    "snapshot_sha256": "d675f3816bbf472493b25f885bbb56c62c5ec88a81ab31e31a9b87b3a0c23703",
+    "snapshot_sha256_after": "d675f3816bbf472493b25f885bbb56c62c5ec88a81ab31e31a9b87b3a0c23703",
+    "pinned_lang_split_sha256": "247a45a5b96293fafb6a1728eb4660c25e6e4ddb4ba348858f12770e742e2470",
+    "pinned_lang_split_sha256_after": "247a45a5b96293fafb6a1728eb4660c25e6e4ddb4ba348858f12770e742e2470",
+    "digest_frozen_recomputed": "8f270f34e8f35ef84e415d076bea20a7bc15edff337f89ed72ad607447ba8554",
+    "files": 38,
+    "train_tokens": 758656,
+    "val_tokens": 84086,
+    "documents": 38,
+    "docs_excluded": true
+  },
+  "photonic_cartridge": {
+    "before_imprint": {
+      "ridge": 0.1,
+      "contexts": 600,
+      "slots": [
+        {
+          "slot": 0,
+          "contexts": 600,
+          "raw_port_cosine": 0.2671111464659026,
+          "aligned_port_cosine": 0.939855802368003,
+          "aligner_norm": 20.220777022046132,
+          "phase_displacement": 1.262509854162551
+        },
+        {
+          "slot": 1,
+          "contexts": 600,
+          "raw_port_cosine": 0.5078547009684999,
+          "aligned_port_cosine": 0.9770102433088613,
+          "aligner_norm": 13.394381498174662,
+          "phase_displacement": 1.194877322284138
+        },
+        {
+          "slot": 2,
+          "contexts": 600,
+          "raw_port_cosine": 0.16022995094839987,
+          "aligned_port_cosine": 0.9449387989186826,
+          "aligner_norm": 6.923373365854554,
+          "phase_displacement": 0.776881642048117
+        },
+        {
+          "slot": 3,
+          "contexts": 600,
+          "raw_port_cosine": 0.18996155427466396,
+          "aligned_port_cosine": 0.8979137926970119,
+          "aligner_norm": 11.253830974638392,
+          "phase_displacement": 0.6307178253255772
+        }
+      ],
+      "mean_raw_cosine": 0.2812893381643666,
+      "mean_aligned_cosine": 0.9399296593231397,
+      "mean_phase_displacement": 0.9662466609550959,
+      "checkpoint_bytes_touched": 0
+    },
+    "after_imprint": {
+      "ridge": 0.1,
+      "contexts": 600,
+      "slots": [
+        {
+          "slot": 0,
+          "contexts": 600,
+          "raw_port_cosine": 0.27842881057816543,
+          "aligned_port_cosine": 0.9398401119524347,
+          "aligner_norm": 20.214093306708595,
+          "phase_displacement": 0.6324083411374161
+        },
+        {
+          "slot": 1,
+          "contexts": 600,
+          "raw_port_cosine": 0.5188330639289453,
+          "aligned_port_cosine": 0.9770126450463568,
+          "aligner_norm": 13.394561611713387,
+          "phase_displacement": 0.35568407131217505
+        },
+        {
+          "slot": 2,
+          "contexts": 600,
+          "raw_port_cosine": 0.18317491038112416,
+          "aligned_port_cosine": 0.9448402639132072,
+          "aligner_norm": 6.922769947885662,
+          "phase_displacement": 1.8797156906116717
+        },
+        {
+          "slot": 3,
+          "contexts": 600,
+          "raw_port_cosine": 0.20392493287985364,
+          "aligned_port_cosine": 0.8979195168174824,
+          "aligner_norm": 11.253150250868776,
+          "phase_displacement": 0.7261745252720329
+        }
+      ],
+      "mean_raw_cosine": 0.29609042944202213,
+      "mean_aligned_cosine": 0.9399031344323703,
+      "mean_phase_displacement": 0.8984956570833239,
+      "checkpoint_bytes_touched": 0
+    },
+    "imprint_residuals": [
+      1.565114140510559,
+      1.6321344375610352,
+      1.6932244300842285,
+      1.5791699886322021,
+      1.5303772687911987,
+      1.6350561380386353,
+      1.614086627960205,
+      1.5271029472351074,
+      1.5039387941360474,
+      1.5619874000549316,
+      1.4703037738800049,
+      1.5316791534423828,
+      1.5153793096542358,
+      1.5625026226043701,
+      1.5620728731155396,
+      1.555182933807373,
+      1.6304216384887695,
+      1.5113381147384644,
+      1.6272276639938354,
+      1.4381171464920044,
+      1.5413519144058228,
+      1.4677213430404663,
+      1.5128741264343262,
+      1.4983386993408203,
+      1.4846214056015015,
+      1.5955334901809692,
+      1.471291184425354,
+      1.5253005027770996,
+      1.5353056192398071,
+      1.4641399383544922,
+      1.465225100517273,
+      1.4544475078582764,
+      1.5310863256454468,
+      1.4728381633758545,
+      1.4721794128417969,
+      1.503846287727356,
+      1.4330343008041382,
+      1.5045218467712402,
+      1.551175832748413,
+      1.5265661478042603,
+      1.4896421432495117,
+      1.5265558958053589,
+      1.5601823329925537,
+      1.570289134979248,
+      1.5302276611328125,
+      1.5250096321105957,
+      1.5020335912704468,
+      1.461991786956787,
+      1.4848705530166626,
+      1.4813276529312134,
+      1.528126835823059,
+      1.5462493896484375,
+      1.4304876327514648,
+      1.5917658805847168,
+      1.47142493724823,
+      1.5556650161743164,
+      1.489469289779663,
+      1.4723334312438965,
+      1.4893743991851807,
+      1.4538803100585938,
+      1.5022510290145874,
+      1.4903476238250732,
+      1.5274313688278198,
+      1.4503799676895142
+    ]
+  },
+  "floor": {
+    "inner_nll": 0.7363889051621657,
+    "inner_top1": 0.83,
+    "weights": [
+      0.05,
+      0.1,
+      0.2,
+      0.15,
+      0.35,
+      0.2,
+      0.0
+    ],
+    "kn_mix": 0.6,
+    "kn": {
+      "order": 6,
+      "discount": 0.7,
+      "continuation_unigram_types": 1847,
+      "raw_last_contexts": 331554,
+      "lower_buckets": 373427
+    },
+    "rows": 192,
+    "orders": 7,
+    "samples": 500,
+    "grid": {
+      "w4": [
+        0.15,
+        0.25,
+        0.35
+      ],
+      "w5": [
+        0.0,
+        0.15,
+        0.25,
+        0.35
+      ],
+      "w6": [
+        0.0,
+        0.05,
+        0.1,
+        0.2
+      ],
+      "kn_mix": [
+        0.0,
+        0.2,
+        0.4,
+        0.6
+      ]
+    }
+  },
+  "modal_mix": {
+    "epochs": 4,
+    "updates": 1552,
+    "sagnac_curve": [
+      0.37881762174391664,
+      0.36073924541432684,
+      0.3513410796163459,
+      0.34638382596430245,
+      0.345100367433635
+    ],
+    "sagnac_initial": 0.37881762174391664,
+    "sagnac_final": 0.345100367433635,
+    "inner_tokens": 113799,
+    "fit_tokens": 644857,
+    "inner_positions": 240,
+    "theta": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "weight": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "mode_gain": [
+      3.4387627157642284,
+      0.18958486883261963,
+      0.3099488369441162,
+      0.5592052774113058,
+      0.7959273121418405,
+      0.8460096111123843,
+      0.9490253911500854,
+      0.9115359866434183
+    ],
+    "adapter_digest": 10.536341899073483,
+    "autograd_used": false
+  },
+  "phase_table": {
+    "inner_nll_initial": 0.8452425112815817,
+    "inner_nll_final": 0.8442922309317027,
+    "inner_nll_gain": 0.0009502803498789847,
+    "accepted_by_line_search": true,
+    "rms_displacement_rad": 0.15516547689756963,
+    "updates": 52000,
+    "epochs": 26,
+    "samples": 2000,
+    "curve": [
+      0.8452425112815817,
+      0.8452425112815817,
+      0.8452425112815817,
+      0.8452425112815817,
+      0.8452425112815817,
+      0.8452425112815817,
+      0.8452425112815817,
+      0.8452425112815817,
+      0.8452425112815817,
+      0.8452425112815817,
+      0.8452425112815817,
+      0.8452425112815817,
+      0.8452425112815817,
+      0.8452425112815817,
+      0.8452425112815817,
+      0.8452425112815817,
+      0.8452425112815817,
+      0.8452425112815817,
+      0.8452425112815817,
+      0.8452133303093612,
+      0.845096415997873,
+      0.8449734943405265,
+      0.8448449394496886,
+      0.8447113467570634,
+      0.8445736876433517,
+      0.844433377267826,
+      0.8442922309317027
+    ],
+    "gradient": "exact analytic Born-rule cross-term phase gradient",
+    "autograd_used": false,
+    "inner_top1_initial": 0.79,
+    "inner_top1_final": 0.79
+  },
+  "context_steering": {
+    "epochs": 16,
+    "samples": 2400,
+    "inner_samples": 600,
+    "rank": 8,
+    "ctx_dim": 42,
+    "inner_initial_nll": 0.8155547167996241,
+    "inner_final_nll": 0.8155534553296184,
+    "inner_initial_top1": 0.8,
+    "inner_final_top1": 0.8,
+    "accepted_steps": 1,
+    "updates": 38400,
+    "curve": [
+      0.8155547167996241,
+      0.8155547167996241,
+      0.8155534553296184,
+      0.8155534553296184,
+      0.8155534553296184,
+      0.8155534553296184,
+      0.8155534553296184,
+      0.8155534553296184,
+      0.8155534553296184,
+      0.8155534553296184,
+      0.8155534553296184,
+      0.8155534553296184,
+      0.8155534553296184,
+      0.8155534553296184,
+      0.8155534553296184,
+      0.8155534553296184,
+      0.8155534553296184
+    ],
+    "phase_rms_rad": 0.15516547689756963,
+    "steer_rms_rad": 0.0,
+    "steer_weight_norm": 0.0,
+    "steer_value_norm": 0.23563651946361988,
+    "accepted_by_inner_slice": true,
+    "validation": {
+      "rows": 300,
+      "admitted": false,
+      "baseline_nll": 0.7257654523875402,
+      "steered_nll": 0.7257658962700421,
+      "baseline_top1": 0.84,
+      "steered_top1": 0.84
+    },
+    "zero_init_epoch0_equals_aa1": true
+  },
+  "channels": {
+    "selected": {
+      "tau_H": 3.0,
+      "coupling": "amplitude",
+      "w_photonic": 0.0,
+      "w_induction": 0.05,
+      "w_prefix": 0.0,
+      "w_copy_fast": 0.2,
+      "w_copy_long": 0.0,
+      "nll": 0.8409376757847521,
+      "bits_per_char": 1.2132166145513528,
+      "top1": 0.79
+    },
+    "samples": 800,
+    "stages": {
+      "A_port_and_induction": {
+        "rows": 96,
+        "selected": {
+          "tau_H": 3.0,
+          "coupling": "amplitude",
+          "w_photonic": 0.0,
+          "w_induction": 0.05,
+          "w_prefix": 0.0,
+          "w_copy_fast": 0.0,
+          "w_copy_long": 0.0,
+          "w_copy": 0.0
+        },
+        "nll": 0.8409074775201154,
+        "bits_per_char": 1.213173047664718,
+        "top1": 0.79
+      },
+      "B_fast_copy": {
+        "rows": 45,
+        "selected": {
+          "w_copy_fast": 0.2,
+          "gamma": 1.0,
+          "boost": 2.5
+        },
+        "nll": 0.8404536630287898,
+        "bits_per_char": 1.212518331748599,
+        "top1": 0.78875
+      },
+      "C_long_copy": {
+        "rows": 45,
+        "selected": {
+          "w_copy_long": 0.0,
+          "gamma": 0.99,
+          "boost": 1.0
+        },
+        "nll": 0.8404536630287898,
+        "bits_per_char": 1.212518331748599,
+        "top1": 0.78875
+      },
+      "D_copy_protocol_report": {
+        "positions": 266,
+        "natural": 0.8834586466165414,
+        "strict": 0.9022556390977443
+      },
+      "D_role_prefix": {
+        "rows": 5,
+        "selected": {
+          "tau_H": 3.0,
+          "coupling": "amplitude",
+          "w_photonic": 0.0,
+          "w_induction": 0.05,
+          "w_prefix": 0.0,
+          "w_copy_fast": 0.2,
+          "w_copy_long": 0.0,
+          "w_copy": 0.0
+        },
+        "nll": 0.8409074775201154,
+        "bits_per_char": 1.213173047664718,
+        "top1": 0.79
+      },
+      "E_rejoin": {
+        "rows": 96,
+        "selected": {
+          "tau_H": 3.0,
+          "coupling": "amplitude",
+          "w_photonic": 0.0,
+          "w_induction": 0.05,
+          "w_prefix": 0.0,
+          "w_copy_fast": 0.2,
+          "w_copy_long": 0.0,
+          "w_copy": 0.0
+        },
+        "nll": 0.8409074775201154,
+        "bits_per_char": 1.213173047664718,
+        "top1": 0.79
+      }
+    },
+    "grids": {
+      "tau_H": [
+        1.5,
+        2.0,
+        2.5,
+        3.0
+      ],
+      "w_photonic": [
+        0.0,
+        0.05,
+        0.1
+      ],
+      "w_induction": [
+        0.0,
+        0.05,
+        0.1,
+        0.2
+      ],
+      "w_prefix": [
+        0.0,
+        0.05,
+        0.1,
+        0.2,
+        0.4
+      ],
+      "w_copy": [
+        0.0,
+        0.02,
+        0.05,
+        0.1,
+        0.2
+      ],
+      "fast_gamma": [
+        0.88,
+        0.94,
+        1.0
+      ],
+      "long_gamma": [
+        0.99,
+        0.994,
+        0.998
+      ],
+      "boost": [
+        1.0,
+        1.5,
+        2.5
+      ],
+      "coupling": [
+        "mixture",
+        "amplitude"
+      ]
+    },
+    "copy_shaping": {
+      "fast_gamma": 1.0,
+      "fast_boost": 2.5,
+      "long_gamma": 0.99,
+      "long_boost": 1.0,
+      "fast_window": 24,
+      "long_window": 256,
+      "low": 7
+    },
+    "prefix": {
+      "window": 256,
+      "lambda": 1.0,
+      "local_exclusion": 7,
+      "roles": 5
+    },
+    "zero_point_available": true
+  },
+  "channel_weights": {
+    "w_photonic": 0.0,
+    "w_induction": 0.05,
+    "w_prefix": 0.0,
+    "w_copy_fast": 0.2,
+    "w_copy_long": 0.0,
+    "w_copy_legacy": 0.0,
+    "coupling": "amplitude",
+    "tau_gate_H": 3.0
+  },
+  "override_calibration": {
+    "tau_H": 0.5,
+    "tau_margin": 0.02,
+    "tau_sagnac": 0.8,
+    "wins": 72,
+    "losses": 7,
+    "net": 65,
+    "rows": 903
+  },
+  "wave_egress": {
+    "tokens": 5714,
+    "top1_wave_egress": 0.6270563528176408,
+    "bpc_wave_egress": 2.675721048248421,
+    "perplexity_wave_egress": 6.389579757378332,
+    "top1_count_floor": 0.5582779138956948,
+    "bpc_count_floor": 3.1319814937722383,
+    "unclamped_override_count": 891,
+    "override_wins": 447,
+    "override_losses": 88,
+    "override_net_win_delta": 359,
+    "sagnac_initial": 0.37881762174391664,
+    "sagnac_final": 0.345100367433635,
+    "sagnac_curve": [
+      0.37881762174391664,
+      0.36073924541432684,
+      0.3513410796163459,
+      0.34638382596430245,
+      0.345100367433635
+    ],
+    "sagnac_residual_reduced": true,
+    "fusion": {
+      "orders": 6,
+      "window": 512,
+      "tau_H": 0.5,
+      "tau_margin": 0.02,
+      "tau_sagnac": 0.8,
+      "max_order": 6
+    },
+    "photonic_contexts": 0,
+    "autograd_used": false,
+    "module": "henri/holarch/wave_egress.py"
+  },
+  "copy_recall": {
+    "natural": {
+      "hits": 795,
+      "positions": 1092,
+      "recall": 0.728021978021978
+    },
+    "strict": {
+      "hits": 766,
+      "positions": 1092,
+      "recall": 0.7014652014652014
+    },
+    "recall": 0.728021978021978,
+    "hits": 795,
+    "positions": 1092
+  },
+  "aa1_baseline": {
+    "bits_per_char": 2.6848,
+    "top1": 0.6271,
+    "phase_delta_bpc": -0.00042,
+    "copy_natural": 0.7253,
+    "copy_strict": 0.7005,
+    "source": "receipts/holarch/aa1_per_token_phase_egress.json"
+  },
+  "ablations": {
+    "without_steering": {
+      "top1": 0.6270563528176408,
+      "bits_per_char": 2.675721048248421
+    },
+    "without_phase_block": {
+      "top1": 0.6260063003150157,
+      "bits_per_char": 2.6761949893140016
+    },
+    "without_channels": {
+      "top1": 0.6270563528176408,
+      "bits_per_char": 2.691127673578864
+    },
+    "floor_only": {
+      "top1": 0.6260063003150157,
+      "bits_per_char": 2.6914050411723673
+    }
+  },
+  "attribution": {
+    "steering_delta_bpc": 0.0,
+    "phase_block_delta_bpc": -0.00047394106558051874,
+    "channel_delta_bpc": -0.015406625330443013,
+    "floor_delta_bpc": -0.01568399292394629,
+    "delta_vs_aa1_bpc": -0.009078951751579023,
+    "delta_vs_aa1_top1": -4.364718235916332e-05,
+    "delta_vs_z1_copy": 0.043040293040293,
+    "phase_improvement_factor_vs_aa1": 1.1284311085250445
+  },
+  "branch_audit": {
+    "path": "henri\\holarch\\wave_egress.py",
+    "branch_strings": 43,
+    "forbidden_hits": [],
+    "zero_task_id_branches": true,
+    "autograd_markers": [],
+    "zero_autograd": true
+  },
+  "gate": {
+    "ab1_pinned_digest_equals_8f270f34": true,
+    "ab1_pinned_snapshot_unchanged": true,
+    "ab1_zero_autograd": true,
+    "ab1_zero_task_id_branches": true,
+    "ab1_bpc_le_26650": false,
+    "ab1_top1_ge_06320": false,
+    "ab1_context_phase_marginal_le_-00040": false,
+    "ab1_steering_marginal_recorded": false,
+    "ab1_prefix_weight_positive": false,
+    "ab1_copy_fast_weight_positive": true,
+    "ab1_copy_long_weight_positive": false,
+    "ab1_natural_copy_recall_ge_074": false,
+    "ab1_strict_copy_recall_ge_072": false,
+    "ab1_copy_positions_1092": true,
+    "ab1_held_out_tokens": true,
+    "passed": false
+  },
+  "wall_seconds": 203.43019310000818,
+  "evidence": "OBSERVED",
+  "passed": false
+}

@@ -1,0 +1,1899 @@
+{
+  "stage": "AD1",
+  "suite": {
+    "repositories": 16,
+    "traps": 4,
+    "modules_per_repository": [
+      4,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3
+    ],
+    "module_range": [
+      3,
+      4
+    ],
+    "public_assertions": 16,
+    "hidden_suites": 16,
+    "hidden_withheld_from_engine": true
+  },
+  "method": {
+    "localizer": "traceback frames plus test call graph over CodeGraphIndexer.impact",
+    "candidate_set_cap": 6,
+    "rollout_budget": 48,
+    "sheaf_gate": "RepoSheaf coboundary energy must equal 0.0 before a test process is spawned",
+    "delta_mode": "CodeGraphIndexer.update_file measured per candidate",
+    "repulsor": "BoundaryAxiom(polarity=REPULSOR, source=repo_patch_cegis)",
+    "zonec_backend": "sqlite"
+  },
+  "cases": [
+    {
+      "name": "pipeline_drop_tail",
+      "issue": "The batch pipeline reports one fewer row than it receives; the final row of every batch disappears from the aggregate.",
+      "modules": 4,
+      "module_paths": [
+        "pipeline.py",
+        "rows.py",
+        "service.py",
+        "stats.py"
+      ],
+      "status": "emitted",
+      "reason": "verified_public_suite",
+      "rollouts": 5,
+      "candidates_proposed": 5,
+      "localization": {
+        "failing_test": "test_every_row_is_counted",
+        "frames": [
+          {
+            "file": "_ad1_runner.py",
+            "line": 21,
+            "func": "<module>"
+          },
+          {
+            "file": "tests/test_public.py",
+            "line": 6,
+            "func": "test_every_row_is_counted"
+          },
+          {
+            "file": "tests/test_public.py",
+            "line": 10,
+            "func": "test_single_row"
+          }
+        ],
+        "failure_kind": "AssertionError",
+        "assert_detail": "",
+        "numeric_delta": null,
+        "candidates": [
+          "pipeline:run_batches",
+          "service:summarize",
+          "pipeline:select",
+          "rows:normalize",
+          "stats:total_score",
+          "tests.test_public:test_every_row_is_counted"
+        ],
+        "test_calls": [
+          "run_batches"
+        ],
+        "seconds": 0.0013567000023613218
+      },
+      "sheaf_before": 0.0,
+      "sheaf_after": 0.0,
+      "provenance": {},
+      "patch": {
+        "path": "pipeline.py",
+        "qualname": "pipeline:select",
+        "kind": "slice",
+        "line": 9,
+        "note": "slice upper bound removed",
+        "diff": "--- a/pipeline.py\n+++ b/pipeline.py\n@@ -6,7 +6,7 @@\n     kept = []\n     for item in rows:\n         kept.append(item)\n-    return kept[:-1]\n+    return kept[:]\n \n \n def run_batches(rows: list) -> float:\n",
+        "ast_signature": "98003d3fe394ab8b",
+        "source_sha256": "5fdbaf13ba8104b5c6b6c358c4b56d010a7b00ba50f828382bbf6f47134e4b4b"
+      },
+      "hidden": {
+        "available": true,
+        "passed": true,
+        "failures": 0,
+        "total": 2,
+        "duration_ms": 78.30830000239075
+      },
+      "solved": true,
+      "files_unchanged_on_abstain": true,
+      "repulsors": 3,
+      "seconds": 0.4037328000013076,
+      "rollout_detail": [
+        {
+          "rollout": 1,
+          "qualname": "pipeline:select",
+          "kind": "int",
+          "sheaf_energy": 0.0,
+          "delta_ms": 0.3364000003784895,
+          "public_ok": false,
+          "blocked": "",
+          "failure_kind": "AssertionError",
+          "deflected": false
+        },
+        {
+          "rollout": 2,
+          "qualname": "pipeline:select",
+          "kind": "int",
+          "sheaf_energy": 0.0,
+          "delta_ms": 0.27319999935571104,
+          "public_ok": false,
+          "blocked": "",
+          "failure_kind": "AssertionError",
+          "deflected": false
+        },
+        {
+          "rollout": 3,
+          "qualname": "service:summarize",
+          "kind": "call",
+          "sheaf_energy": 2.0,
+          "delta_ms": 0.1846999984991271,
+          "public_ok": false,
+          "blocked": "sheaf_gate",
+          "failure_kind": "",
+          "deflected": false
+        },
+        {
+          "rollout": 4,
+          "qualname": "service:summarize",
+          "kind": "call",
+          "sheaf_energy": 0.0,
+          "delta_ms": 0.12150000111432746,
+          "public_ok": false,
+          "blocked": "",
+          "failure_kind": "AssertionError",
+          "deflected": false
+        },
+        {
+          "rollout": 5,
+          "qualname": "pipeline:select",
+          "kind": "slice",
+          "sheaf_energy": 0.0,
+          "delta_ms": 0.4210999977658503,
+          "public_ok": true,
+          "blocked": "",
+          "failure_kind": "",
+          "deflected": false
+        }
+      ]
+    },
+    {
+      "name": "ledger_accumulator",
+      "issue": "The ledger counter is one too high for every entry set: its running total starts from the wrong value.",
+      "modules": 3,
+      "module_paths": [
+        "audit.py",
+        "ledger.py",
+        "report.py"
+      ],
+      "status": "emitted",
+      "reason": "verified_public_suite",
+      "rollouts": 2,
+      "candidates_proposed": 4,
+      "localization": {
+        "failing_test": "test_one_entry",
+        "frames": [
+          {
+            "file": "_ad1_runner.py",
+            "line": 21,
+            "func": "<module>"
+          },
+          {
+            "file": "tests/test_public.py",
+            "line": 9,
+            "func": "test_one_entry"
+          },
+          {
+            "file": "tests/test_public.py",
+            "line": 5,
+            "func": "test_three_entries"
+          }
+        ],
+        "failure_kind": "AssertionError",
+        "assert_detail": "",
+        "numeric_delta": null,
+        "candidates": [
+          "report:line_count",
+          "audit:audited",
+          "ledger:count_entries",
+          "tests.test_public:test_one_entry",
+          "tests.test_public:test_three_entries"
+        ],
+        "test_calls": [
+          "line_count"
+        ],
+        "seconds": 0.0014256999966164585
+      },
+      "sheaf_before": 0.0,
+      "sheaf_after": 0.0,
+      "provenance": {},
+      "patch": {
+        "path": "ledger.py",
+        "qualname": "ledger:count_entries",
+        "kind": "int",
+        "line": 5,
+        "note": "integer constant -1",
+        "diff": "--- a/ledger.py\n+++ b/ledger.py\n@@ -2,7 +2,7 @@\n \n \n def count_entries(entries: list) -> int:\n-    total = 1\n+    total = 0\n     for _entry in entries:\n         total += 1\n     return total\n",
+        "ast_signature": "4d9e69d4b61b69a8",
+        "source_sha256": "45441a42e3c6c11dea08c2c47b000318bce60810df9f3ff2bc7c077a31582193"
+      },
+      "hidden": {
+        "available": true,
+        "passed": true,
+        "failures": 0,
+        "total": 2,
+        "duration_ms": 76.65579999957117
+      },
+      "solved": true,
+      "files_unchanged_on_abstain": true,
+      "repulsors": 1,
+      "seconds": 0.23489759999938542,
+      "rollout_detail": [
+        {
+          "rollout": 1,
+          "qualname": "ledger:count_entries",
+          "kind": "int",
+          "sheaf_energy": 0.0,
+          "delta_ms": 0.20669999867095612,
+          "public_ok": false,
+          "blocked": "",
+          "failure_kind": "AssertionError",
+          "deflected": false
+        },
+        {
+          "rollout": 2,
+          "qualname": "ledger:count_entries",
+          "kind": "int",
+          "sheaf_energy": 0.0,
+          "delta_ms": 0.1809999994293321,
+          "public_ok": true,
+          "blocked": "",
+          "failure_kind": "",
+          "deflected": false
+        }
+      ]
+    },
+    {
+      "name": "chunk_boundary",
+      "issue": "A chunk whose length equals the requested size is reported as too large, so an exact fit is rejected.",
+      "modules": 3,
+      "module_paths": [
+        "planner.py",
+        "service.py",
+        "sizing.py"
+      ],
+      "status": "emitted",
+      "reason": "verified_public_suite",
+      "rollouts": 1,
+      "candidates_proposed": 1,
+      "localization": {
+        "failing_test": "test_exact_fit_is_accepted",
+        "frames": [
+          {
+            "file": "_ad1_runner.py",
+            "line": 21,
+            "func": "<module>"
+          },
+          {
+            "file": "tests/test_public.py",
+            "line": 5,
+            "func": "test_exact_fit_is_accepted"
+          }
+        ],
+        "failure_kind": "AssertionError",
+        "assert_detail": "",
+        "numeric_delta": null,
+        "candidates": [
+          "service:enqueue",
+          "planner:accepts",
+          "sizing:fits",
+          "tests.test_public:test_exact_fit_is_accepted",
+          "tests.test_public:test_under_fit_is_accepted"
+        ],
+        "test_calls": [
+          "enqueue"
+        ],
+        "seconds": 0.0009155999978247564
+      },
+      "sheaf_before": 0.0,
+      "sheaf_after": 0.0,
+      "provenance": {},
+      "patch": {
+        "path": "sizing.py",
+        "qualname": "sizing:fits",
+        "kind": "compare",
+        "line": 5,
+        "note": "compare operator swap",
+        "diff": "--- a/sizing.py\n+++ b/sizing.py\n@@ -2,4 +2,4 @@\n \n \n def fits(items: list, size: int) -> bool:\n-    return len(items) < size\n+    return len(items) <= size\n",
+        "ast_signature": "7d5864288a7dc688",
+        "source_sha256": "dc5c964859bcf659779c0f405f97e9e482d5d3f74f9a9e61222a2005cd19fdfa"
+      },
+      "hidden": {
+        "available": true,
+        "passed": true,
+        "failures": 0,
+        "total": 2,
+        "duration_ms": 77.58630000171252
+      },
+      "solved": true,
+      "files_unchanged_on_abstain": true,
+      "repulsors": 0,
+      "seconds": 0.15651740000248537,
+      "rollout_detail": [
+        {
+          "rollout": 1,
+          "qualname": "sizing:fits",
+          "kind": "compare",
+          "sheaf_energy": 0.0,
+          "delta_ms": 0.1419000000169035,
+          "public_ok": true,
+          "blocked": "",
+          "failure_kind": "",
+          "deflected": false
+        }
+      ]
+    },
+    {
+      "name": "dedupe_none_guard",
+      "issue": "Deduplicating an absent sequence raises a type error instead of returning an empty sequence.",
+      "modules": 3,
+      "module_paths": [
+        "collect.py",
+        "dedupe.py",
+        "service.py"
+      ],
+      "status": "emitted",
+      "reason": "verified_public_suite",
+      "rollouts": 1,
+      "candidates_proposed": 7,
+      "localization": {
+        "failing_test": "test_absent_sequence",
+        "frames": [
+          {
+            "file": "_ad1_runner.py",
+            "line": 21,
+            "func": "<module>"
+          },
+          {
+            "file": "tests/test_public.py",
+            "line": 5,
+            "func": "test_absent_sequence"
+          },
+          {
+            "file": "service.py",
+            "line": 6,
+            "func": "normalise"
+          },
+          {
+            "file": "collect.py",
+            "line": 6,
+            "func": "distinct"
+          },
+          {
+            "file": "dedupe.py",
+            "line": 6,
+            "func": "unique"
+          }
+        ],
+        "failure_kind": "TypeError",
+        "assert_detail": "",
+        "numeric_delta": null,
+        "candidates": [
+          "service:normalise",
+          "collect:distinct",
+          "dedupe:unique",
+          "tests.test_public:test_absent_sequence",
+          "tests.test_public:test_repeated_values"
+        ],
+        "test_calls": [
+          "normalise"
+        ],
+        "seconds": 0.001896000001579523
+      },
+      "sheaf_before": 0.0,
+      "sheaf_after": 0.0,
+      "provenance": {},
+      "patch": {
+        "path": "service.py",
+        "qualname": "service:normalise",
+        "kind": "guard_none",
+        "line": 5,
+        "note": "insert guard items is None",
+        "diff": "--- a/service.py\n+++ b/service.py\n@@ -3,4 +3,6 @@\n \n \n def normalise(items: list) -> list:\n+    if items is None:\n+        return []\n     return distinct(items)\n",
+        "ast_signature": "ef35560bd362bd89",
+        "source_sha256": "7283d4d359a77c05bd3bd53bf7a489d22b08978b44f863a9360d2a844daf5fbe"
+      },
+      "hidden": {
+        "available": true,
+        "passed": true,
+        "failures": 0,
+        "total": 2,
+        "duration_ms": 74.57550000253832
+      },
+      "solved": true,
+      "files_unchanged_on_abstain": true,
+      "repulsors": 0,
+      "seconds": 0.15922870000213152,
+      "rollout_detail": [
+        {
+          "rollout": 1,
+          "qualname": "service:normalise",
+          "kind": "guard_none",
+          "sheaf_energy": 0.0,
+          "delta_ms": 0.18700000146054663,
+          "public_ok": true,
+          "blocked": "",
+          "failure_kind": "",
+          "deflected": false
+        }
+      ]
+    },
+    {
+      "name": "router_attribute",
+      "issue": "The router always answers with the fallback route; it reads the secondary attribute where the primary route is required.",
+      "modules": 3,
+      "module_paths": [
+        "router.py",
+        "service.py",
+        "settings.py"
+      ],
+      "status": "emitted",
+      "reason": "verified_public_suite",
+      "rollouts": 1,
+      "candidates_proposed": 1,
+      "localization": {
+        "failing_test": "test_primary_route_is_used",
+        "frames": [
+          {
+            "file": "_ad1_runner.py",
+            "line": 21,
+            "func": "<module>"
+          },
+          {
+            "file": "tests/test_public.py",
+            "line": 6,
+            "func": "test_primary_route_is_used"
+          }
+        ],
+        "failure_kind": "AssertionError",
+        "assert_detail": "",
+        "numeric_delta": null,
+        "candidates": [
+          "service:plan",
+          "router:choose",
+          "tests.test_public:test_primary_route_is_used"
+        ],
+        "test_calls": [
+          "plan",
+          "Settings"
+        ],
+        "seconds": 0.0012051999983668793
+      },
+      "sheaf_before": 0.0,
+      "sheaf_after": 0.0,
+      "provenance": {},
+      "patch": {
+        "path": "router.py",
+        "qualname": "router:choose",
+        "kind": "attr",
+        "line": 10,
+        "note": "attribute self.primary",
+        "diff": "--- a/router.py\n+++ b/router.py\n@@ -7,4 +7,4 @@\n \n \n def choose(settings: Settings) -> str:\n-    return settings.secondary\n+    return settings.primary\n",
+        "ast_signature": "d5363662fffc47fb",
+        "source_sha256": "4c7216e59fb4418ef88b415bfc9336ee40f6b579f6d0b799235965873fd839bf"
+      },
+      "hidden": {
+        "available": true,
+        "passed": true,
+        "failures": 0,
+        "total": 2,
+        "duration_ms": 75.32829999763635
+      },
+      "solved": true,
+      "files_unchanged_on_abstain": true,
+      "repulsors": 0,
+      "seconds": 0.15960350000023027,
+      "rollout_detail": [
+        {
+          "rollout": 1,
+          "qualname": "router:choose",
+          "kind": "attr",
+          "sheaf_energy": 0.0,
+          "delta_ms": 0.16089999917312525,
+          "public_ok": true,
+          "blocked": "",
+          "failure_kind": "",
+          "deflected": false
+        }
+      ]
+    },
+    {
+      "name": "router_callee",
+      "issue": "Enqueuing one item stores it twice: the router calls the replay primitive instead of the record primitive.",
+      "modules": 3,
+      "module_paths": [
+        "queue.py",
+        "router.py",
+        "service.py"
+      ],
+      "status": "emitted",
+      "reason": "verified_public_suite",
+      "rollouts": 1,
+      "candidates_proposed": 2,
+      "localization": {
+        "failing_test": "test_enqueue_keeps_prior_items",
+        "frames": [
+          {
+            "file": "_ad1_runner.py",
+            "line": 21,
+            "func": "<module>"
+          },
+          {
+            "file": "tests/test_public.py",
+            "line": 9,
+            "func": "test_enqueue_keeps_prior_items"
+          },
+          {
+            "file": "tests/test_public.py",
+            "line": 5,
+            "func": "test_single_enqueue"
+          }
+        ],
+        "failure_kind": "AssertionError",
+        "assert_detail": "",
+        "numeric_delta": null,
+        "candidates": [
+          "service:enqueue",
+          "router:push",
+          "queue:replay",
+          "tests.test_public:test_enqueue_keeps_prior_items",
+          "tests.test_public:test_single_enqueue"
+        ],
+        "test_calls": [
+          "enqueue"
+        ],
+        "seconds": 0.0014437999998335727
+      },
+      "sheaf_before": 0.0,
+      "sheaf_after": 0.0,
+      "provenance": {},
+      "patch": {
+        "path": "router.py",
+        "qualname": "router:push",
+        "kind": "call",
+        "line": 6,
+        "note": "callee record",
+        "diff": "--- a/router.py\n+++ b/router.py\n@@ -3,4 +3,4 @@\n \n \n def push(queue: list, item: str) -> list:\n-    return replay(queue, item)\n+    return record(queue, item)\n",
+        "ast_signature": "81d0bdad88a7446c",
+        "source_sha256": "f772152d32614cd1215a13f296dfde995fff54aab090b69769ce5b30ebeccad2"
+      },
+      "hidden": {
+        "available": true,
+        "passed": true,
+        "failures": 0,
+        "total": 2,
+        "duration_ms": 80.12149999922258
+      },
+      "solved": true,
+      "files_unchanged_on_abstain": true,
+      "repulsors": 0,
+      "seconds": 0.17525920000116457,
+      "rollout_detail": [
+        {
+          "rollout": 1,
+          "qualname": "router:push",
+          "kind": "call",
+          "sheaf_energy": 0.0,
+          "delta_ms": 0.15690000145696104,
+          "public_ok": true,
+          "blocked": "",
+          "failure_kind": "",
+          "deflected": false
+        }
+      ]
+    },
+    {
+      "name": "numeric_sign",
+      "issue": "The upper tolerance is below the mean instead of above it; the validator subtracts the tolerance where it must add it.",
+      "modules": 3,
+      "module_paths": [
+        "report.py",
+        "service.py",
+        "tolerance.py"
+      ],
+      "status": "emitted",
+      "reason": "verified_public_suite",
+      "rollouts": 1,
+      "candidates_proposed": 1,
+      "localization": {
+        "failing_test": "test_upper_bound_is_above_the_mean",
+        "frames": [
+          {
+            "file": "_ad1_runner.py",
+            "line": 21,
+            "func": "<module>"
+          },
+          {
+            "file": "tests/test_public.py",
+            "line": 5,
+            "func": "test_upper_bound_is_above_the_mean"
+          }
+        ],
+        "failure_kind": "AssertionError",
+        "assert_detail": "",
+        "numeric_delta": null,
+        "candidates": [
+          "service:acceptance_limit",
+          "report:limit",
+          "tolerance:upper_bound",
+          "tests.test_public:test_upper_bound_is_above_the_mean",
+          "tests.test_public:test_zero_tolerance"
+        ],
+        "test_calls": [
+          "acceptance_limit"
+        ],
+        "seconds": 0.0009184999980789144
+      },
+      "sheaf_before": 0.0,
+      "sheaf_after": 0.0,
+      "provenance": {},
+      "patch": {
+        "path": "tolerance.py",
+        "qualname": "tolerance:upper_bound",
+        "kind": "binop",
+        "line": 5,
+        "note": "binary operator swap",
+        "diff": "--- a/tolerance.py\n+++ b/tolerance.py\n@@ -2,4 +2,4 @@\n \n \n def upper_bound(mean: float, delta: float) -> float:\n-    return mean - delta\n+    return mean + delta\n",
+        "ast_signature": "70f1802191bf25b4",
+        "source_sha256": "4d3aad24171b64b072b2bc836259885719c732c1ff4a027be42c03bed7140739"
+      },
+      "hidden": {
+        "available": true,
+        "passed": true,
+        "failures": 0,
+        "total": 2,
+        "duration_ms": 76.64140000269981
+      },
+      "solved": true,
+      "files_unchanged_on_abstain": true,
+      "repulsors": 0,
+      "seconds": 0.15659000000232481,
+      "rollout_detail": [
+        {
+          "rollout": 1,
+          "qualname": "tolerance:upper_bound",
+          "kind": "binop",
+          "sheaf_energy": 0.0,
+          "delta_ms": 0.15929999790387228,
+          "public_ok": true,
+          "blocked": "",
+          "failure_kind": "",
+          "deflected": false
+        }
+      ]
+    },
+    {
+      "name": "numeric_compare",
+      "issue": "A value exactly at the limit is reported as over the limit; the validator uses an inclusive comparison where a strict one is required.",
+      "modules": 3,
+      "module_paths": [
+        "review.py",
+        "service.py",
+        "validator.py"
+      ],
+      "status": "emitted",
+      "reason": "verified_public_suite",
+      "rollouts": 1,
+      "candidates_proposed": 1,
+      "localization": {
+        "failing_test": "test_value_at_the_limit_is_not_over",
+        "frames": [
+          {
+            "file": "_ad1_runner.py",
+            "line": 21,
+            "func": "<module>"
+          },
+          {
+            "file": "tests/test_public.py",
+            "line": 5,
+            "func": "test_value_at_the_limit_is_not_over"
+          }
+        ],
+        "failure_kind": "AssertionError",
+        "assert_detail": "",
+        "numeric_delta": null,
+        "candidates": [
+          "service:over_limit",
+          "review:check",
+          "validator:exceeds",
+          "tests.test_public:test_value_above_the_limit_is_over",
+          "tests.test_public:test_value_at_the_limit_is_not_over"
+        ],
+        "test_calls": [
+          "over_limit"
+        ],
+        "seconds": 0.0009239000028173905
+      },
+      "sheaf_before": 0.0,
+      "sheaf_after": 0.0,
+      "provenance": {},
+      "patch": {
+        "path": "validator.py",
+        "qualname": "validator:exceeds",
+        "kind": "compare",
+        "line": 5,
+        "note": "compare operator swap",
+        "diff": "--- a/validator.py\n+++ b/validator.py\n@@ -2,4 +2,4 @@\n \n \n def exceeds(value: float, limit: float) -> bool:\n-    return value >= limit\n+    return value > limit\n",
+        "ast_signature": "9c6e8c936c63bdc5",
+        "source_sha256": "91bafe81826e49807d67b00fc37ae1b1c877650a57d0e7ec55fd6daecb7ba46f"
+      },
+      "hidden": {
+        "available": true,
+        "passed": true,
+        "failures": 0,
+        "total": 2,
+        "duration_ms": 78.2123999997566
+      },
+      "solved": true,
+      "files_unchanged_on_abstain": true,
+      "repulsors": 0,
+      "seconds": 0.16273379999984172,
+      "rollout_detail": [
+        {
+          "rollout": 1,
+          "qualname": "validator:exceeds",
+          "kind": "compare",
+          "sheaf_energy": 0.0,
+          "delta_ms": 0.13360000230022706,
+          "public_ok": true,
+          "blocked": "",
+          "failure_kind": "",
+          "deflected": false
+        }
+      ]
+    },
+    {
+      "name": "numeric_scale",
+      "issue": "Scaling divides by the factor instead of multiplying; every scaled quantity moves in the wrong direction.",
+      "modules": 3,
+      "module_paths": [
+        "report.py",
+        "scaling.py",
+        "service.py"
+      ],
+      "status": "emitted",
+      "reason": "verified_public_suite",
+      "rollouts": 1,
+      "candidates_proposed": 1,
+      "localization": {
+        "failing_test": "test_doubling",
+        "frames": [
+          {
+            "file": "_ad1_runner.py",
+            "line": 21,
+            "func": "<module>"
+          },
+          {
+            "file": "tests/test_public.py",
+            "line": 5,
+            "func": "test_doubling"
+          },
+          {
+            "file": "tests/test_public.py",
+            "line": 9,
+            "func": "test_fractional_factor"
+          }
+        ],
+        "failure_kind": "AssertionError",
+        "assert_detail": "",
+        "numeric_delta": null,
+        "candidates": [
+          "service:projected",
+          "report:total",
+          "scaling:scale",
+          "tests.test_public:test_doubling",
+          "tests.test_public:test_fractional_factor"
+        ],
+        "test_calls": [
+          "projected"
+        ],
+        "seconds": 0.0013203000016801525
+      },
+      "sheaf_before": 0.0,
+      "sheaf_after": 0.0,
+      "provenance": {},
+      "patch": {
+        "path": "scaling.py",
+        "qualname": "scaling:scale",
+        "kind": "binop",
+        "line": 5,
+        "note": "binary operator swap",
+        "diff": "--- a/scaling.py\n+++ b/scaling.py\n@@ -2,4 +2,4 @@\n \n \n def scale(value: float, factor: float) -> float:\n-    return value / factor\n+    return value * factor\n",
+        "ast_signature": "44df02b1c4dd1110",
+        "source_sha256": "45459979a8f6fc5c30152f64ce7451f706d44b38303b0ee5b118c9aeacc949ae"
+      },
+      "hidden": {
+        "available": true,
+        "passed": true,
+        "failures": 0,
+        "total": 2,
+        "duration_ms": 75.69759999751113
+      },
+      "solved": true,
+      "files_unchanged_on_abstain": true,
+      "repulsors": 0,
+      "seconds": 0.15916709999874,
+      "rollout_detail": [
+        {
+          "rollout": 1,
+          "qualname": "scaling:scale",
+          "kind": "binop",
+          "sheaf_energy": 0.0,
+          "delta_ms": 0.12589999823831022,
+          "public_ok": true,
+          "blocked": "",
+          "failure_kind": "",
+          "deflected": false
+        }
+      ]
+    },
+    {
+      "name": "parser_index",
+      "issue": "The parsed record names the quantity field instead of the name field; the wrong element of the split line is read.",
+      "modules": 3,
+      "module_paths": [
+        "fields.py",
+        "record.py",
+        "service.py"
+      ],
+      "status": "emitted",
+      "reason": "verified_public_suite",
+      "rollouts": 1,
+      "candidates_proposed": 7,
+      "localization": {
+        "failing_test": "test_name_field",
+        "frames": [
+          {
+            "file": "_ad1_runner.py",
+            "line": 21,
+            "func": "<module>"
+          },
+          {
+            "file": "tests/test_public.py",
+            "line": 5,
+            "func": "test_name_field"
+          }
+        ],
+        "failure_kind": "AssertionError",
+        "assert_detail": "",
+        "numeric_delta": null,
+        "candidates": [
+          "service:load_line",
+          "record:parse_line",
+          "fields:split_fields",
+          "tests.test_public:test_name_field",
+          "tests.test_public:test_quantity_field"
+        ],
+        "test_calls": [
+          "load_line"
+        ],
+        "seconds": 0.0010526000005484093
+      },
+      "sheaf_before": 0.0,
+      "sheaf_after": 0.0,
+      "provenance": {},
+      "patch": {
+        "path": "record.py",
+        "qualname": "record:parse_line",
+        "kind": "int",
+        "line": 7,
+        "note": "integer constant -1",
+        "diff": "--- a/record.py\n+++ b/record.py\n@@ -4,4 +4,4 @@\n \n def parse_line(line: str) -> dict:\n     parts = split_fields(line)\n-    return {\"name\": parts[1].strip(), \"quantity\": len(parts)}\n+    return {'name': parts[0].strip(), 'quantity': len(parts)}\n",
+        "ast_signature": "51a848ad12a5c895",
+        "source_sha256": "50b782257b969f9607826bf3ecb4b6e64d07c7651cf63905dd22d864b4e847d7"
+      },
+      "hidden": {
+        "available": true,
+        "passed": true,
+        "failures": 0,
+        "total": 2,
+        "duration_ms": 74.43039999998291
+      },
+      "solved": true,
+      "files_unchanged_on_abstain": true,
+      "repulsors": 0,
+      "seconds": 0.1554729999988922,
+      "rollout_detail": [
+        {
+          "rollout": 1,
+          "qualname": "record:parse_line",
+          "kind": "int",
+          "sheaf_energy": 0.0,
+          "delta_ms": 0.22840000019641593,
+          "public_ok": true,
+          "blocked": "",
+          "failure_kind": "",
+          "deflected": false
+        }
+      ]
+    },
+    {
+      "name": "parser_empty_guard",
+      "issue": "Decoding an empty payload raises a key error instead of returning an empty record.",
+      "modules": 3,
+      "module_paths": [
+        "codec.py",
+        "record.py",
+        "service.py"
+      ],
+      "status": "emitted",
+      "reason": "verified_public_suite",
+      "rollouts": 2,
+      "candidates_proposed": 9,
+      "localization": {
+        "failing_test": "test_empty_payload",
+        "frames": [
+          {
+            "file": "_ad1_runner.py",
+            "line": 21,
+            "func": "<module>"
+          },
+          {
+            "file": "tests/test_public.py",
+            "line": 5,
+            "func": "test_empty_payload"
+          },
+          {
+            "file": "service.py",
+            "line": 6,
+            "func": "ingest"
+          },
+          {
+            "file": "record.py",
+            "line": 6,
+            "func": "load"
+          },
+          {
+            "file": "codec.py",
+            "line": 5,
+            "func": "decode"
+          }
+        ],
+        "failure_kind": "KeyError",
+        "assert_detail": "",
+        "numeric_delta": null,
+        "candidates": [
+          "service:ingest",
+          "record:load",
+          "codec:decode",
+          "tests.test_public:test_empty_payload",
+          "tests.test_public:test_named_payload"
+        ],
+        "test_calls": [
+          "ingest"
+        ],
+        "seconds": 0.0015023999985714909
+      },
+      "sheaf_before": 0.0,
+      "sheaf_after": 0.0,
+      "provenance": {},
+      "patch": {
+        "path": "service.py",
+        "qualname": "service:ingest",
+        "kind": "guard_empty",
+        "line": 5,
+        "note": "insert guard not payload",
+        "diff": "--- a/service.py\n+++ b/service.py\n@@ -3,4 +3,6 @@\n \n \n def ingest(payload: dict) -> dict:\n+    if not payload:\n+        return {}\n     return load(payload)\n",
+        "ast_signature": "9ec4d580734e2c1a",
+        "source_sha256": "f61bade6a9c8617ac15abe0ec174ff7ecb357ec459d3b7c49469f690e020af91"
+      },
+      "hidden": {
+        "available": true,
+        "passed": true,
+        "failures": 0,
+        "total": 2,
+        "duration_ms": 81.20409999901312
+      },
+      "solved": true,
+      "files_unchanged_on_abstain": true,
+      "repulsors": 1,
+      "seconds": 0.23441259999890462,
+      "rollout_detail": [
+        {
+          "rollout": 1,
+          "qualname": "service:ingest",
+          "kind": "guard_none",
+          "sheaf_energy": 0.0,
+          "delta_ms": 0.14630000077886507,
+          "public_ok": false,
+          "blocked": "",
+          "failure_kind": "AssertionError",
+          "deflected": false
+        },
+        {
+          "rollout": 2,
+          "qualname": "service:ingest",
+          "kind": "guard_empty",
+          "sheaf_energy": 0.0,
+          "delta_ms": 0.21670000205631368,
+          "public_ok": true,
+          "blocked": "",
+          "failure_kind": "",
+          "deflected": false
+        }
+      ]
+    },
+    {
+      "name": "parser_slice",
+      "issue": "Text normalisation silently drops the first character of every value because the slice starts one element late.",
+      "modules": 3,
+      "module_paths": [
+        "record.py",
+        "service.py",
+        "textnorm.py"
+      ],
+      "status": "emitted",
+      "reason": "verified_public_suite",
+      "rollouts": 2,
+      "candidates_proposed": 3,
+      "localization": {
+        "failing_test": "test_first_character_is_kept",
+        "frames": [
+          {
+            "file": "_ad1_runner.py",
+            "line": 21,
+            "func": "<module>"
+          },
+          {
+            "file": "tests/test_public.py",
+            "line": 5,
+            "func": "test_first_character_is_kept"
+          }
+        ],
+        "failure_kind": "AssertionError",
+        "assert_detail": "",
+        "numeric_delta": null,
+        "candidates": [
+          "service:normalize",
+          "record:tidy",
+          "textnorm:clean",
+          "tests.test_public:test_first_character_is_kept",
+          "tests.test_public:test_padding_is_removed"
+        ],
+        "test_calls": [
+          "normalize"
+        ],
+        "seconds": 0.0009191000026476104
+      },
+      "sheaf_before": 0.0,
+      "sheaf_after": 0.0,
+      "provenance": {},
+      "patch": {
+        "path": "textnorm.py",
+        "qualname": "textnorm:clean",
+        "kind": "int",
+        "line": 6,
+        "note": "integer constant -1",
+        "diff": "--- a/textnorm.py\n+++ b/textnorm.py\n@@ -3,4 +3,4 @@\n \n def clean(text: str) -> str:\n     chars = list(text)\n-    return \"\".join(chars[1:]).strip()\n+    return ''.join(chars[0:]).strip()\n",
+        "ast_signature": "ae393d20499b5a4e",
+        "source_sha256": "fa0b559cf23ced7c268ae3d2c049d56a4ae329b779ac68779a5a5e59161ace58"
+      },
+      "hidden": {
+        "available": true,
+        "passed": true,
+        "failures": 0,
+        "total": 2,
+        "duration_ms": 75.43380000061006
+      },
+      "solved": true,
+      "files_unchanged_on_abstain": true,
+      "repulsors": 1,
+      "seconds": 0.23562690000107978,
+      "rollout_detail": [
+        {
+          "rollout": 1,
+          "qualname": "textnorm:clean",
+          "kind": "int",
+          "sheaf_energy": 0.0,
+          "delta_ms": 0.15269999857991934,
+          "public_ok": false,
+          "blocked": "",
+          "failure_kind": "AssertionError",
+          "deflected": false
+        },
+        {
+          "rollout": 2,
+          "qualname": "textnorm:clean",
+          "kind": "int",
+          "sheaf_energy": 0.0,
+          "delta_ms": 0.21099999867146835,
+          "public_ok": true,
+          "blocked": "",
+          "failure_kind": "",
+          "deflected": false
+        }
+      ]
+    },
+    {
+      "name": "fsm_string",
+      "issue": "A freshly created machine reports the terminal state instead of the initial state.",
+      "modules": 3,
+      "module_paths": [
+        "machine.py",
+        "service.py",
+        "states.py"
+      ],
+      "status": "emitted",
+      "reason": "verified_public_suite",
+      "rollouts": 2,
+      "candidates_proposed": 2,
+      "localization": {
+        "failing_test": "test_boot_reports_idle",
+        "frames": [
+          {
+            "file": "_ad1_runner.py",
+            "line": 21,
+            "func": "<module>"
+          },
+          {
+            "file": "tests/test_public.py",
+            "line": 5,
+            "func": "test_boot_reports_idle"
+          }
+        ],
+        "failure_kind": "AssertionError",
+        "assert_detail": "",
+        "numeric_delta": null,
+        "candidates": [
+          "service:boot",
+          "machine:start",
+          "states:initial",
+          "tests.test_public:test_boot_reports_idle"
+        ],
+        "test_calls": [
+          "boot"
+        ],
+        "seconds": 0.0009161999987554736
+      },
+      "sheaf_before": 0.0,
+      "sheaf_after": 0.0,
+      "provenance": {},
+      "patch": {
+        "path": "states.py",
+        "qualname": "states:initial",
+        "kind": "str",
+        "line": 5,
+        "note": "string literal 'idle'",
+        "diff": "--- a/states.py\n+++ b/states.py\n@@ -2,7 +2,7 @@\n \n \n def initial() -> str:\n-    return \"done\"\n+    return 'idle'\n \n \n def advance(state: str) -> str:\n",
+        "ast_signature": "d6c31a15d43c28f4",
+        "source_sha256": "bd948be16ce8ce104ba9622d3e2c406ec4b9e5362582c452bfa84715409a4180"
+      },
+      "hidden": {
+        "available": true,
+        "passed": true,
+        "failures": 0,
+        "total": 2,
+        "duration_ms": 76.57610000023851
+      },
+      "solved": true,
+      "files_unchanged_on_abstain": true,
+      "repulsors": 1,
+      "seconds": 0.2311136999996961,
+      "rollout_detail": [
+        {
+          "rollout": 1,
+          "qualname": "states:initial",
+          "kind": "str",
+          "sheaf_energy": 0.0,
+          "delta_ms": 0.16399999731220305,
+          "public_ok": false,
+          "blocked": "",
+          "failure_kind": "AssertionError",
+          "deflected": false
+        },
+        {
+          "rollout": 2,
+          "qualname": "states:initial",
+          "kind": "str",
+          "sheaf_energy": 0.0,
+          "delta_ms": 0.21109999943291768,
+          "public_ok": true,
+          "blocked": "",
+          "failure_kind": "",
+          "deflected": false
+        }
+      ]
+    },
+    {
+      "name": "machine_accumulator",
+      "issue": "The tick counter reports one extra step for every limit because its accumulator starts at the wrong value.",
+      "modules": 3,
+      "module_paths": [
+        "machine.py",
+        "planner.py",
+        "service.py"
+      ],
+      "status": "emitted",
+      "reason": "verified_public_suite",
+      "rollouts": 2,
+      "candidates_proposed": 4,
+      "localization": {
+        "failing_test": "test_one_tick",
+        "frames": [
+          {
+            "file": "_ad1_runner.py",
+            "line": 21,
+            "func": "<module>"
+          },
+          {
+            "file": "tests/test_public.py",
+            "line": 9,
+            "func": "test_one_tick"
+          },
+          {
+            "file": "tests/test_public.py",
+            "line": 5,
+            "func": "test_three_ticks"
+          }
+        ],
+        "failure_kind": "AssertionError",
+        "assert_detail": "",
+        "numeric_delta": null,
+        "candidates": [
+          "service:steps",
+          "planner:budget",
+          "machine:ticks",
+          "tests.test_public:test_one_tick",
+          "tests.test_public:test_three_ticks"
+        ],
+        "test_calls": [
+          "steps"
+        ],
+        "seconds": 0.0018230000023322646
+      },
+      "sheaf_before": 0.0,
+      "sheaf_after": 0.0,
+      "provenance": {},
+      "patch": {
+        "path": "machine.py",
+        "qualname": "machine:ticks",
+        "kind": "int",
+        "line": 5,
+        "note": "integer constant -1",
+        "diff": "--- a/machine.py\n+++ b/machine.py\n@@ -2,7 +2,7 @@\n \n \n def ticks(limit: int) -> int:\n-    count = 1\n+    count = 0\n     for _step in range(limit):\n         count += 1\n     return count\n",
+        "ast_signature": "908ffa1d597b60fe",
+        "source_sha256": "e3584c6946284d8138f541250f4f0d2ba5874be01832ca82cbd128a01a1b4981"
+      },
+      "hidden": {
+        "available": true,
+        "passed": true,
+        "failures": 0,
+        "total": 2,
+        "duration_ms": 75.62379999944824
+      },
+      "solved": true,
+      "files_unchanged_on_abstain": true,
+      "repulsors": 1,
+      "seconds": 0.23458340000070166,
+      "rollout_detail": [
+        {
+          "rollout": 1,
+          "qualname": "machine:ticks",
+          "kind": "int",
+          "sheaf_energy": 0.0,
+          "delta_ms": 0.1472000003559515,
+          "public_ok": false,
+          "blocked": "",
+          "failure_kind": "AssertionError",
+          "deflected": false
+        },
+        {
+          "rollout": 2,
+          "qualname": "machine:ticks",
+          "kind": "int",
+          "sheaf_energy": 0.0,
+          "delta_ms": 0.20120000044698827,
+          "public_ok": true,
+          "blocked": "",
+          "failure_kind": "",
+          "deflected": false
+        }
+      ]
+    },
+    {
+      "name": "queue_offbyone",
+      "issue": "Draining a queue leaves its final element behind; the loop stops one element early.",
+      "modules": 3,
+      "module_paths": [
+        "batch.py",
+        "drain.py",
+        "service.py"
+      ],
+      "status": "emitted",
+      "reason": "verified_public_suite",
+      "rollouts": 1,
+      "candidates_proposed": 10,
+      "localization": {
+        "failing_test": "test_three_elements_are_drained",
+        "frames": [
+          {
+            "file": "_ad1_runner.py",
+            "line": 21,
+            "func": "<module>"
+          },
+          {
+            "file": "tests/test_public.py",
+            "line": 5,
+            "func": "test_three_elements_are_drained"
+          },
+          {
+            "file": "tests/test_public.py",
+            "line": 9,
+            "func": "test_two_elements_are_drained"
+          }
+        ],
+        "failure_kind": "AssertionError",
+        "assert_detail": "",
+        "numeric_delta": null,
+        "candidates": [
+          "service:flush",
+          "batch:drain_all",
+          "drain:drain",
+          "tests.test_public:test_three_elements_are_drained",
+          "tests.test_public:test_two_elements_are_drained"
+        ],
+        "test_calls": [
+          "flush"
+        ],
+        "seconds": 0.0014860999981465284
+      },
+      "sheaf_before": 0.0,
+      "sheaf_after": 0.0,
+      "provenance": {},
+      "patch": {
+        "path": "drain.py",
+        "qualname": "drain:drain",
+        "kind": "compare",
+        "line": 7,
+        "note": "compare operator swap",
+        "diff": "--- a/drain.py\n+++ b/drain.py\n@@ -4,7 +4,7 @@\n def drain(items: list) -> list:\n     kept = list(items)\n     out = []\n-    while len(kept) > 1:\n+    while len(kept) >= 1:\n         out.append(kept[0])\n         kept = kept[1:]\n     return out\n",
+        "ast_signature": "b3945f022abece80",
+        "source_sha256": "501a382291c5476c35050eaba09a1d1c3cbbf63ff79f86a2260271cd1b6373dd"
+      },
+      "hidden": {
+        "available": true,
+        "passed": true,
+        "failures": 0,
+        "total": 2,
+        "duration_ms": 74.79169999714941
+      },
+      "solved": true,
+      "files_unchanged_on_abstain": true,
+      "repulsors": 0,
+      "seconds": 0.16637429999900633,
+      "rollout_detail": [
+        {
+          "rollout": 1,
+          "qualname": "drain:drain",
+          "kind": "compare",
+          "sheaf_energy": 0.0,
+          "delta_ms": 0.20629999926313758,
+          "public_ok": true,
+          "blocked": "",
+          "failure_kind": "",
+          "deflected": false
+        }
+      ]
+    },
+    {
+      "name": "counter_reset",
+      "issue": "Resetting a counter leaves it at one instead of zero.",
+      "modules": 3,
+      "module_paths": [
+        "counter.py",
+        "service.py",
+        "store.py"
+      ],
+      "status": "emitted",
+      "reason": "verified_public_suite",
+      "rollouts": 1,
+      "candidates_proposed": 2,
+      "localization": {
+        "failing_test": "test_reset_new_counter",
+        "frames": [
+          {
+            "file": "_ad1_runner.py",
+            "line": 21,
+            "func": "<module>"
+          },
+          {
+            "file": "tests/test_public.py",
+            "line": 9,
+            "func": "test_reset_new_counter"
+          },
+          {
+            "file": "tests/test_public.py",
+            "line": 5,
+            "func": "test_reset_zeroes_the_counter"
+          }
+        ],
+        "failure_kind": "AssertionError",
+        "assert_detail": "",
+        "numeric_delta": null,
+        "candidates": [
+          "service:clear",
+          "store:clear_store",
+          "counter:reset",
+          "tests.test_public:test_reset_new_counter",
+          "tests.test_public:test_reset_zeroes_the_counter"
+        ],
+        "test_calls": [
+          "clear"
+        ],
+        "seconds": 0.0013668999999936204
+      },
+      "sheaf_before": 0.0,
+      "sheaf_after": 0.0,
+      "provenance": {},
+      "patch": {
+        "path": "counter.py",
+        "qualname": "counter:reset",
+        "kind": "int",
+        "line": 5,
+        "note": "integer constant -1",
+        "diff": "--- a/counter.py\n+++ b/counter.py\n@@ -2,5 +2,5 @@\n \n \n def reset(counter: dict) -> dict:\n-    counter[\"count\"] = 1\n+    counter['count'] = 0\n     return counter\n",
+        "ast_signature": "0a1ae1d3db2cd325",
+        "source_sha256": "561d95c60430ead99aac1637002e5d514aca0caff9a2108c36f99fd8d969c6de"
+      },
+      "hidden": {
+        "available": true,
+        "passed": true,
+        "failures": 0,
+        "total": 2,
+        "duration_ms": 79.6262999974715
+      },
+      "solved": true,
+      "files_unchanged_on_abstain": true,
+      "repulsors": 0,
+      "seconds": 0.16600870000183932,
+      "rollout_detail": [
+        {
+          "rollout": 1,
+          "qualname": "counter:reset",
+          "kind": "int",
+          "sheaf_energy": 0.0,
+          "delta_ms": 0.12350000179139897,
+          "public_ok": true,
+          "blocked": "",
+          "failure_kind": "",
+          "deflected": false
+        }
+      ]
+    }
+  ],
+  "traps": [
+    {
+      "name": "trap_conflicting_assertions",
+      "issue": "The aggregate is reported as wrong, but the published expectations contradict each other.",
+      "modules": 2,
+      "module_paths": [
+        "service.py",
+        "stats.py"
+      ],
+      "status": "abstained",
+      "reason": "contradictory_public_specification",
+      "rollouts": 0,
+      "candidates_proposed": 0,
+      "localization": {},
+      "sheaf_before": 0.0,
+      "sheaf_after": 0.0,
+      "provenance": {
+        "kind": "conflicting_assertions",
+        "detail": [
+          {
+            "expression": "service.sum_total([1, 2])",
+            "values": [
+              "Constant(3)",
+              "Constant(4)"
+            ],
+            "assertions": [
+              {
+                "path": "tests/test_public.py",
+                "line": 5
+              },
+              {
+                "path": "tests/test_public.py",
+                "line": 9
+              }
+            ]
+          }
+        ]
+      },
+      "patch": null,
+      "hidden": {
+        "available": false,
+        "passed": false,
+        "failures": 0
+      },
+      "solved": false,
+      "files_unchanged_on_abstain": true,
+      "repulsors": 0,
+      "seconds": 0.0021340999992389698,
+      "rollout_detail": []
+    },
+    {
+      "name": "trap_impossible_assert",
+      "issue": "One assertion demands two different values of the same expression.",
+      "modules": 2,
+      "module_paths": [
+        "service.py",
+        "stats.py"
+      ],
+      "status": "abstained",
+      "reason": "contradictory_public_specification",
+      "rollouts": 0,
+      "candidates_proposed": 0,
+      "localization": {},
+      "sheaf_before": 0.0,
+      "sheaf_after": 0.0,
+      "provenance": {
+        "kind": "conflicting_assertions",
+        "detail": [
+          {
+            "expression": "service.sum_total([1])",
+            "values": [
+              "Constant(1)",
+              "Constant(2)"
+            ],
+            "assertions": [
+              {
+                "path": "tests/test_public.py",
+                "line": 5
+              },
+              {
+                "path": "tests/test_public.py",
+                "line": 5
+              }
+            ]
+          }
+        ]
+      },
+      "patch": null,
+      "hidden": {
+        "available": false,
+        "passed": false,
+        "failures": 0
+      },
+      "solved": false,
+      "files_unchanged_on_abstain": true,
+      "repulsors": 0,
+      "seconds": 0.002461899999616435,
+      "rollout_detail": []
+    },
+    {
+      "name": "trap_stale_issue",
+      "issue": "The issue reports a broken average, but the published reproduction suite already passes on the current tree.",
+      "modules": 2,
+      "module_paths": [
+        "service.py",
+        "stats.py"
+      ],
+      "status": "abstained",
+      "reason": "issue_conflict_public_tests_pass",
+      "rollouts": 0,
+      "candidates_proposed": 0,
+      "localization": {},
+      "sheaf_before": 0.0,
+      "sheaf_after": 0.0,
+      "provenance": {
+        "kind": "stale_issue",
+        "detail": "the published reproduction suite already passes; no patch can be verified"
+      },
+      "patch": null,
+      "hidden": {
+        "available": false,
+        "passed": false,
+        "failures": 0
+      },
+      "solved": false,
+      "files_unchanged_on_abstain": true,
+      "repulsors": 0,
+      "seconds": 0.07761259999824688,
+      "rollout_detail": []
+    },
+    {
+      "name": "trap_sheaf_conflict",
+      "issue": "The issue asks the api to forward its text payload into the row store, which demands a mutable sequence the text cannot provide.",
+      "modules": 2,
+      "module_paths": [
+        "api.py",
+        "store.py"
+      ],
+      "status": "abstained",
+      "reason": "sheaf_gate_blocked_all_candidates",
+      "rollouts": 6,
+      "candidates_proposed": 6,
+      "localization": {
+        "failing_test": "test_forwarding_appends_one",
+        "frames": [
+          {
+            "file": "_ad1_runner.py",
+            "line": 21,
+            "func": "<module>"
+          },
+          {
+            "file": "tests/test_public.py",
+            "line": 5,
+            "func": "test_forwarding_appends_one"
+          },
+          {
+            "file": "api.py",
+            "line": 6,
+            "func": "run"
+          },
+          {
+            "file": "store.py",
+            "line": 5,
+            "func": "push"
+          }
+        ],
+        "failure_kind": "AttributeError",
+        "assert_detail": "",
+        "numeric_delta": null,
+        "candidates": [
+          "api:run",
+          "store:push",
+          "tests.test_public:test_forwarding_appends_one"
+        ],
+        "test_calls": [
+          "run"
+        ],
+        "seconds": 0.001368400000501424
+      },
+      "sheaf_before": 1.0,
+      "sheaf_after": 0.0,
+      "provenance": {
+        "kind": "pre_execution_sheaf_gate",
+        "baseline_energy": 1.0,
+        "blocked_by_sheaf": 6,
+        "rollouts": 6
+      },
+      "patch": null,
+      "hidden": {
+        "available": false,
+        "passed": false,
+        "failures": 0
+      },
+      "solved": false,
+      "files_unchanged_on_abstain": true,
+      "repulsors": 0,
+      "seconds": 0.08581879999837838,
+      "rollout_detail": [
+        {
+          "rollout": 1,
+          "qualname": "api:run",
+          "kind": "guard_none",
+          "sheaf_energy": 1.0,
+          "delta_ms": 0.19489999976940453,
+          "public_ok": false,
+          "blocked": "sheaf_gate",
+          "failure_kind": "",
+          "deflected": false
+        },
+        {
+          "rollout": 2,
+          "qualname": "api:run",
+          "kind": "guard_empty",
+          "sheaf_energy": 1.0,
+          "delta_ms": 0.10370000018156134,
+          "public_ok": false,
+          "blocked": "sheaf_gate",
+          "failure_kind": "",
+          "deflected": false
+        },
+        {
+          "rollout": 3,
+          "qualname": "store:push",
+          "kind": "guard_none",
+          "sheaf_energy": 1.0,
+          "delta_ms": 0.14110000120126642,
+          "public_ok": false,
+          "blocked": "sheaf_gate",
+          "failure_kind": "",
+          "deflected": false
+        },
+        {
+          "rollout": 4,
+          "qualname": "store:push",
+          "kind": "guard_empty",
+          "sheaf_energy": 1.0,
+          "delta_ms": 0.0959999997576233,
+          "public_ok": false,
+          "blocked": "sheaf_gate",
+          "failure_kind": "",
+          "deflected": false
+        },
+        {
+          "rollout": 5,
+          "qualname": "store:push",
+          "kind": "int",
+          "sheaf_energy": 1.0,
+          "delta_ms": 0.08589999924879521,
+          "public_ok": false,
+          "blocked": "sheaf_gate",
+          "failure_kind": "",
+          "deflected": false
+        },
+        {
+          "rollout": 6,
+          "qualname": "store:push",
+          "kind": "int",
+          "sheaf_energy": 1.0,
+          "delta_ms": 0.0760000002628658,
+          "public_ok": false,
+          "blocked": "sheaf_gate",
+          "failure_kind": "",
+          "deflected": false
+        }
+      ]
+    }
+  ],
+  "trap_provenance": {
+    "trap_conflicting_assertions": "conflicting_assertions",
+    "trap_impossible_assert": "conflicting_assertions",
+    "trap_stale_issue": "stale_issue",
+    "trap_sheaf_conflict": "pre_execution_sheaf_gate"
+  },
+  "aggregate": {
+    "public_solved": 16,
+    "hidden_solved": 16,
+    "pass_at_1": 1.0,
+    "emitted": 16,
+    "emitted_precision": 1.0,
+    "abstained": 0,
+    "traps_refused": 4
+  },
+  "repulsors": {
+    "total": 8,
+    "zonec_rows": 8,
+    "rows_before": 0,
+    "rows_after": 8,
+    "deflections": 0,
+    "axioms": [
+      {
+        "qualname": "pipeline:select",
+        "patch_ast_signature": "167b3d1f1f840d8b",
+        "failure_kind": "AssertionError",
+        "axiom_id": "repo_patch_pipeline_drop_tail:REPULSOR:repo_patch_repulsor_d4ab713ee810",
+        "name": "repo_patch_repulsor_d4ab713ee810",
+        "engram_id": 1,
+        "polarity": "REPULSOR",
+        "source": "repo_patch_cegis"
+      },
+      {
+        "qualname": "pipeline:select",
+        "patch_ast_signature": "284b2077f6623504",
+        "failure_kind": "AssertionError",
+        "axiom_id": "repo_patch_pipeline_drop_tail:REPULSOR:repo_patch_repulsor_a49ed63402fe",
+        "name": "repo_patch_repulsor_a49ed63402fe",
+        "engram_id": 2,
+        "polarity": "REPULSOR",
+        "source": "repo_patch_cegis"
+      },
+      {
+        "qualname": "service:summarize",
+        "patch_ast_signature": "b6cd4475db6306e2",
+        "failure_kind": "AssertionError",
+        "axiom_id": "repo_patch_pipeline_drop_tail:REPULSOR:repo_patch_repulsor_e020bcb4e73d",
+        "name": "repo_patch_repulsor_e020bcb4e73d",
+        "engram_id": 3,
+        "polarity": "REPULSOR",
+        "source": "repo_patch_cegis"
+      },
+      {
+        "qualname": "ledger:count_entries",
+        "patch_ast_signature": "3782a2c4bbb24e13",
+        "failure_kind": "AssertionError",
+        "axiom_id": "repo_patch_ledger_accumulator:REPULSOR:repo_patch_repulsor_87313557cb28",
+        "name": "repo_patch_repulsor_87313557cb28",
+        "engram_id": 4,
+        "polarity": "REPULSOR",
+        "source": "repo_patch_cegis"
+      },
+      {
+        "qualname": "service:ingest",
+        "patch_ast_signature": "19b73e92fe253d66",
+        "failure_kind": "AssertionError",
+        "axiom_id": "repo_patch_parser_empty_guard:REPULSOR:repo_patch_repulsor_7559401aa5d9",
+        "name": "repo_patch_repulsor_7559401aa5d9",
+        "engram_id": 5,
+        "polarity": "REPULSOR",
+        "source": "repo_patch_cegis"
+      },
+      {
+        "qualname": "textnorm:clean",
+        "patch_ast_signature": "1a8623f107c646a8",
+        "failure_kind": "AssertionError",
+        "axiom_id": "repo_patch_parser_slice:REPULSOR:repo_patch_repulsor_085651523934",
+        "name": "repo_patch_repulsor_085651523934",
+        "engram_id": 6,
+        "polarity": "REPULSOR",
+        "source": "repo_patch_cegis"
+      },
+      {
+        "qualname": "states:initial",
+        "patch_ast_signature": "3d10f52de76ebbd2",
+        "failure_kind": "AssertionError",
+        "axiom_id": "repo_patch_fsm_string:REPULSOR:repo_patch_repulsor_95cddacacc27",
+        "name": "repo_patch_repulsor_95cddacacc27",
+        "engram_id": 7,
+        "polarity": "REPULSOR",
+        "source": "repo_patch_cegis"
+      },
+      {
+        "qualname": "machine:ticks",
+        "patch_ast_signature": "5814e1fd96a9080b",
+        "failure_kind": "AssertionError",
+        "axiom_id": "repo_patch_machine_accumulator:REPULSOR:repo_patch_repulsor_a4395b9e2b57",
+        "name": "repo_patch_repulsor_a4395b9e2b57",
+        "engram_id": 8,
+        "polarity": "REPULSOR",
+        "source": "repo_patch_cegis"
+      }
+    ]
+  },
+  "audit": {
+    "file": "henri/holarch/repo_patch.py",
+    "sha256": "aab9715cb93c4e258b63f57f32267e0d274fb42239cb598dade26d50502bf396",
+    "case_name_literals": [],
+    "identifier_comparisons": 0,
+    "suspicious_tokens": [],
+    "forbidden_imports": [],
+    "zero_task_id_branches": true
+  },
+  "ac2_non_regression": {
+    "mbpp": 28,
+    "humaneval": 22,
+    "precision": 1.0,
+    "arm_b_transfer": 12,
+    "receipt_sha256": "55ddb0c8432bcdbd8f2596de5205c46970267da493fbaad15211ef3af4c7ef39"
+  },
+  "pinned_snapshot": {
+    "path": "receipts\\holarch\\pinned_corpus_snapshot.json",
+    "sha256": "d675f3816bbf472493b25f885bbb56c62c5ec88a81ab31e31a9b87b3a0c23703",
+    "sha256_before": "d675f3816bbf472493b25f885bbb56c62c5ec88a81ab31e31a9b87b3a0c23703",
+    "expected_sha256": "d675f3816bbf472493b25f885bbb56c62c5ec88a81ab31e31a9b87b3a0c23703",
+    "expected_digest": "8f270f34e8f35ef84e415d076bea20a7bc15edff337f89ed72ad607447ba8554"
+  },
+  "gate": {
+    "ad1_zero_llm_calls": true,
+    "ad1_repo_pass_at_1_ge_12_of_16": true,
+    "ad1_emitted_precision_eq_10000": true,
+    "ad1_contradiction_traps_4_of_4": true,
+    "ad1_ac2_non_regression": true,
+    "ad1_sheaf_gate_on_every_executed_rollout": true,
+    "ad1_index_delta_le_15ms": true,
+    "ad1_zero_task_id_branches": true,
+    "ad1_abstained_repos_unchanged": true,
+    "ad1_zonec_repulsor_rows_present": true,
+    "ad1_suite_modules_three_to_six": true,
+    "ad1_pinned_snapshot_unchanged": true,
+    "passed": true
+  },
+  "wall_seconds": 4.750271199998679,
+  "evidence": "OBSERVED",
+  "passed": true
+}

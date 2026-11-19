@@ -82,3 +82,12 @@ rerun_log.txt
 verification_log.txt
 *.sqlite3-wal
 *.sqlite3-shm
+arc_tmp/
+scratch_aa1_phi.npy
+
+# Cycle AD scratch working directories: logs and SQLite stores, never evidence.
+receipts/holarch/_work_*/
+/_ac/
+/_ac2/
+/_ac3/
+/_ac4/

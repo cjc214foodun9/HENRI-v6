@@ -614,7 +614,16 @@ def _plan_ranking(engine: SynthesisEngine, intent: str) -> List[Any]:
                 hit += weight
         containment = float(hit / total) if total > 0.0 else 0.0
         coherence = float(np.real(np.vdot(key, engine.plans.key(plan.intent))))
-        scored.append((containment, coherence, plan))
+        # Cycle AB2: argument-type verbs ("square", "integer", "count" versus
+        # "decimal", "string", "letter") weight the intent match, so a
+        # text -> bool predicate cannot outrank a numeric predicate for a
+        # request that names a numeric argument.
+        bias = 0.0
+        try:
+            bias = float(engine.plans._type_verb_bias(str(intent), plan))
+        except Exception:  # noqa: BLE001 - the bias is optional
+            bias = 0.0
+        scored.append((min(1.0, containment + bias), coherence + bias, plan))
     scored.sort(key=lambda row: (-row[0], -row[1], row[2].name))
     return [plan for _containment, _coherence, plan in scored]
 
@@ -669,7 +678,24 @@ def arm_b_synthesize(
                     (first_index + second_index, first_index, second_index, first, second)
                 )
         ordered.sort(key=lambda item: (item[0], item[1], item[2]))
+        # Cycle AB2: the RepoSheaf domain/codomain gate runs INSIDE the plan
+        # selection.  A second stage whose first parameter cannot accept the
+        # first stage's return codomain is masked before it is composed, so a
+        # text -> bool predicate can never follow a text -> numeric stage.
+        type_gate = getattr(engine.plans, "type_gate", None)
+        report_state = getattr(engine.plans, "type_filter_report", None)
         for _cost, _first_index, _second_index, first, second in ordered:
+            if type_gate is not None:
+                verdict = type_gate.check(first, second)
+                if report_state is not None:
+                    report_state["checked"] = int(report_state.get("checked", 0)) + 1
+                    if not verdict.get("ok", True):
+                        report_state["masked"] = int(report_state.get("masked", 0)) + 1
+                        names = report_state.setdefault("masked_names", [])
+                        if str(second.name) not in names and len(names) < 24:
+                            names.append(str(second.name))
+                if not verdict.get("ok", True):
+                    continue
             composed = _compose_sources(
                 first.source, second.source, spec.name, params[0]
             )
