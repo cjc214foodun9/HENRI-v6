@@ -2,7 +2,7 @@
 
 Exit 0 only when every JSON receipt has a matching .sha256 sidecar, every
 receipt filename appears in docs/HOLARCH.md or RECEIPT_INDEX.md, and Sections
-1..45 are contiguous, monotonic and unique. This is the closure command.
+1..46 are contiguous, monotonic and unique. This is the closure command.
 
     python scripts/verify_holarch_consistency.py
 """
@@ -42,7 +42,7 @@ def main() -> int:
     numbers = [int(value) for value in re.findall(r"^## (\d+)\.", text, flags=re.M)]
     monotonic = all(numbers[index] < numbers[index + 1] for index in range(len(numbers) - 1))
     unique = len(numbers) == len(set(numbers))
-    sections = bool(numbers == list(range(1, 46)) and monotonic and unique)
+    sections = bool(numbers == list(range(1, 47)) and monotonic and unique)
     # Monotonic truncation guard: the section list must be contiguous from 1,
     # and the language metrics must still hold their sealed bars.
     r3 = json.loads((RECEIPTS / "r3_static_and_streaming_full_decile_language.json")
@@ -61,7 +61,7 @@ def main() -> int:
         "invalid_sidecars": invalid,
         "undocumented_receipts": undocumented,
         "doc_sections": numbers,
-        "sections_1_to_45": sections,
+        "sections_1_to_46": sections,
         "r3_streaming_bits_per_char": streaming_bpc,
         "r3_static_bits_per_char": static_bpc,
         "language_guard": language_guard,

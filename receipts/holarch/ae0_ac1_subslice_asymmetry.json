@@ -1,0 +1,146 @@
+{
+  "stage": "AE0.3",
+  "full_population": {
+    "tokens": 84086,
+    "tier1": 84086,
+    "tier2": 0,
+    "tier1_fraction": 1.0,
+    "tier2_fraction": 0.0,
+    "byte_fraction": 0.18382370430273767,
+    "identifier_tokens": 36013,
+    "identifier_density_per_1000": 428.28770544442597,
+    "unique_token_fraction": 0.013831077706157982,
+    "predicted_positions": 84048,
+    "mean_backoff": {
+      "positions": 84048,
+      "mean_order": 4.5935655815724346,
+      "sd_order": 0.7562812065648771,
+      "definition": "1 + matched_order from the fitted floor counts; 1 is the unigram backoff"
+    },
+    "top1": 0.6348991052731773,
+    "bpc": 2.5471616937902075
+  },
+  "sub_slice": {
+    "tokens": 5752,
+    "tier1": 5752,
+    "tier2": 0,
+    "tier1_fraction": 1.0,
+    "tier2_fraction": 0.0,
+    "byte_fraction": 0.18567454798331015,
+    "identifier_tokens": 2559,
+    "identifier_density_per_1000": 444.88873435326843,
+    "unique_token_fraction": 0.09127260083449235,
+    "predicted_positions": 5714,
+    "mean_backoff": {
+      "positions": 5714,
+      "mean_order": 4.627931396569829,
+      "sd_order": 0.7390528980073804,
+      "definition": "1 + matched_order from the fitted floor counts; 1 is the unigram backoff"
+    },
+    "top1": 0.6260063003150157,
+    "bpc": 2.6545717700541056
+  },
+  "bootstrap": {
+    "full": {
+      "tokens": 84048,
+      "top1": 0.6348991052731773,
+      "bpc": 2.5471616937902075,
+      "windows": 14,
+      "window_top1": [
+        0.6510325516275813,
+        0.6926846342317116,
+        0.6240812040602031,
+        0.6109555477773889,
+        0.6487574378718935,
+        0.6307315365768288,
+        0.6282814140707035,
+        0.6358067903395169,
+        0.6475323766188309,
+        0.6051802590129507,
+        0.6295064753237661,
+        0.6071053552677634,
+        0.6655582779138957,
+        0.6333566678333916
+      ],
+      "window_bpc": [
+        2.4352657686056816,
+        2.1034101099071587,
+        2.593319094173039,
+        2.7357464373083413,
+        2.522701830680258,
+        2.5306894653090297,
+        2.5306767942679023,
+        2.4911106153612854,
+        2.529842444425684,
+        2.9005446276565503,
+        2.49143553523813,
+        2.783864333056056,
+        2.324227060850691,
+        2.59161371225126
+      ],
+      "ci95_top1": [
+        0.6251918845942296,
+        0.648982761638082
+      ],
+      "ci95_bpc": [
+        2.443401387534189,
+        2.635976014142231
+      ],
+      "bootstrap_samples": 5000
+    },
+    "sub": {
+      "tokens": 5714,
+      "top1": 0.6260063003150157,
+      "bpc": 2.6545717700541056,
+      "windows": 1,
+      "window_top1": [
+        0.6260063003150157
+      ],
+      "window_bpc": [
+        2.6545717700541056
+      ],
+      "ci95_top1": [
+        0.6260063003150157,
+        0.6260063003150157
+      ],
+      "ci95_bpc": [
+        2.6545717700541056,
+        2.6545717700541056
+      ],
+      "bootstrap_samples": 5000
+    }
+  },
+  "comparison": {
+    "identifier_density_delta_per_1000": 16.601028908842466,
+    "identifier_density_ratio": 1.0387613949637333,
+    "top1_gap_full_minus_sub": 0.008892804958161582,
+    "bpc_gap_sub_minus_full": 0.10741007626389809,
+    "window_density_vs_top1_pearson": -0.6014551414318823,
+    "sub_top1_inside_full_ci95": true,
+    "sub_bpc_inside_full_ci95": false
+  },
+  "verdict": {
+    "hypothesis": "the legacy sub-slice carries a higher identifier density that explains part of its top-1 gap",
+    "decision": "CONFIRMED",
+    "rule": "CONFIRMED iff the sub-slice identifier density exceeds the full population and the window-level density/top-1 Pearson correlation is at most -0.2"
+  },
+  "pinned_snapshot": {
+    "sha256": "d675f3816bbf472493b25f885bbb56c62c5ec88a81ab31e31a9b87b3a0c23703",
+    "sha256_before": "d675f3816bbf472493b25f885bbb56c62c5ec88a81ab31e31a9b87b3a0c23703",
+    "expected_sha256": "d675f3816bbf472493b25f885bbb56c62c5ec88a81ab31e31a9b87b3a0c23703",
+    "expected_digest": "8f270f34e8f35ef84e415d076bea20a7bc15edff337f89ed72ad607447ba8554"
+  },
+  "gate": {
+    "ae0_dump_present": true,
+    "ae0_full_predicted_84048": true,
+    "ae0_subslice_predicted_5714": true,
+    "ae0_subslice_matches_sealed": true,
+    "ae0_bootstrap_computed": true,
+    "ae0_hypothesis_decided": true,
+    "ae0_pinned_snapshot_unchanged": true,
+    "passed": true
+  },
+  "wall_seconds": 2.9482668999698944,
+  "evidence": "OBSERVED",
+  "passed": true
+}

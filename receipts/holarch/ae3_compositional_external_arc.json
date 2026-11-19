@@ -1,0 +1,32 @@
+{
+  "stage": "AE3",
+  "status": "COMPOSITIONAL_DEPTH3_NOT_EXECUTED",
+  "target": {
+    "external_solved": 30,
+    "external_total": 48,
+    "precision": 1.0
+  },
+  "baseline": {
+    "external_solved": 24,
+    "external_total": 48,
+    "precision": 1.0
+  },
+  "executed": {
+    "depth3_search": false,
+    "external_solved": 24
+  },
+  "reason": "A bounded depth-three composition experiment was run outside the sealed runner and did not produce a new LOO-admitted task family within the session budget. The sealed AD2 24/48 result is unchanged and no new operator was added.",
+  "gate": {
+    "ae3_depth2_depth3_implemented": false,
+    "ae3_external_pass_ge_30_of_48": false,
+    "ae3_precision_eq_10000": true,
+    "ae3_zero_task_name_branches": true,
+    "ae3_zero_llm_calls": true,
+    "ae3_ad2_24_retained": true,
+    "ae3_pass": false,
+    "passed": false
+  },
+  "wall_seconds": 8.999952115118504e-06,
+  "evidence": "OBSERVED",
+  "passed": false
+}

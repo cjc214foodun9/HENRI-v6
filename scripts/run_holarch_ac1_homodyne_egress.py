@@ -517,7 +517,9 @@ def calibrate_copy_kernel(egress, guard_ids: Sequence[int], started: float) -> D
     }
 
 
-def measure(directory: Path, *, guard_tokens: int = 8192) -> Dict[str, Any]:
+def measure(
+    directory: Path, *, guard_tokens: int = 8192, dump_per_token: str = ""
+) -> Dict[str, Any]:
     started = time.perf_counter()
     snapshot_path = directory / SNAPSHOT_NAME
     sha_before = _sha(snapshot_path)
@@ -673,6 +675,11 @@ def measure(directory: Path, *, guard_tokens: int = 8192) -> Dict[str, Any]:
     _mark("sub-slice evaluation (deployed)", started)
     deployed_full = egress.evaluate(full_slices, floor_fn=floor_fn, model=None)
     _mark("full-split evaluation (deployed)", started)
+    if dump_per_token:
+        _dump_per_token(
+            egress, {"full": full_slices, "sub": subslices}, Path(dump_per_token)
+        )
+        _mark("per-token dump", started)
 
     saved_law = (
         float(egress.anti_phase_gain),
@@ -977,6 +984,32 @@ def measure(directory: Path, *, guard_tokens: int = 8192) -> Dict[str, Any]:
         "evidence": "OBSERVED",
         "passed": bool(all(gates.values())),
     }
+
+
+def _dump_per_token(egress, groups: Dict[str, List[List[int]]], path: Path) -> None:
+    """Write per-token NLL and correctness for an unmodified evaluation pass."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload: Dict[str, Any] = {"window": int(getattr(egress, "window", 512)), "groups": {}}
+    for label, sequences in groups.items():
+        rows = []
+        for document, sequence in enumerate(sequences):
+            ids = [int(token) for token in sequence]
+            for index in range(1, len(ids)):
+                window = ids[max(0, index - int(getattr(egress, "window", 512))) : index]
+                probability = egress.distribution(window, None)
+                target = int(ids[index])
+                value = float(probability[target])
+                rows.append(
+                    {
+                        "doc": int(document),
+                        "index": int(index),
+                        "token": target,
+                        "nll": float(-math.log(max(value, 1e-12))),
+                        "correct": int(int(np.argmax(probability)) == target),
+                    }
+                )
+        payload["groups"][label] = rows
+    path.write_text(json.dumps(payload), encoding="utf-8")
 
 
 def token_sd(egress, sequences: Sequence[Sequence[int]]) -> Dict[str, float]:

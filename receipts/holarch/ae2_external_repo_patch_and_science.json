@@ -1,0 +1,32 @@
+{
+  "stage": "AE2",
+  "status": "EXTERNAL_SLICE_NOT_VENDORED_NOT_EXECUTED",
+  "targets": {
+    "external_repositories": 12,
+    "external_science_problems": 24,
+    "repo_traps": 4,
+    "science_traps": 6
+  },
+  "executed": {
+    "repositories": 0,
+    "science_problems": 0,
+    "traps": 0,
+    "llm_calls": 0
+  },
+  "reason": "The pinned external slices were not vendored in this session. No external pass@1, precision or trap number is claimed. AD1 16/16 and AD2 18/18 remain internal and unchanged.",
+  "gate": {
+    "ae2_external_repos_vendored": false,
+    "ae2_external_repo_pass_ge_8_of_12": false,
+    "ae2_external_repo_precision_ge_095": false,
+    "ae2_external_repo_traps_4_of_4": false,
+    "ae2_external_science_vendored": false,
+    "ae2_external_science_pass_ge_14_of_24": false,
+    "ae2_external_science_traps_6_of_6": false,
+    "ae2_zero_llm_calls": true,
+    "ae2_pass": false,
+    "passed": false
+  },
+  "wall_seconds": 4.8999791033566e-06,
+  "evidence": "OBSERVED",
+  "passed": false
+}

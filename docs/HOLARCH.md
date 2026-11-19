@@ -4690,3 +4690,57 @@ See `ad_cycle.json` for the pytest counts, the consistency exit code, the .sha25
 * Gate GB-5 and the D = 4096 / 8192 Blackwell measurements are not measured because the plugin policy refuses a live Vast.ai rental in this runner. The exact refusal string is sealed in `ad4_blackwell_cuda_and_jev.json`.
 * The external ARC pass@1 is 24/48, not the whole slice; the remaining tasks need operator families that the current algebra does not express.
 
+## 46. Cycle AE: the sub-slice asymmetry diagnostic, the Vast.ai offer repair, the external-audit boundary and the 10,000-engram atlas
+
+* **Document ID:** HENRI-SPEC-CYCLE-AE-AD3-CLOSURE-EXTERNAL-DECOUPLING-COMPOSITIONAL-ARC-AND-BLACKWELL-EXECUTION-V1
+* **Baseline:** Cycle AD. Every number below is OBSERVED in this process and sealed under receipts/holarch/.
+
+### 46.1 Stage verdicts
+
+| Stage | Receipt | Verdict | Failing gates |
+| :--- | :--- | :---: | :--- |
+| AE0 AC1 asymmetry diagnostic | `ae0_ac1_subslice_asymmetry.json` | **PASS** | none |
+| AE1 Vast repair and Blackwell contract | `ae1_blackwell_cuda_and_d4096.json` | **PASS** | none |
+| AE2 external audits | `ae2_external_repo_patch_and_science.json` | **OPEN** | ae2_external_repos_vendored, ae2_external_repo_pass_ge_8_of_12, ae2_external_repo_precision_ge_095, ae2_external_repo_traps_4_of_4, ae2_external_science_vendored, ae2_external_science_pass_ge_14_of_24, ae2_external_science_traps_6_of_6, ae2_pass |
+| AE3 compositional ARC | `ae3_compositional_external_arc.json` | **OPEN** | ae3_depth2_depth3_implemented, ae3_external_pass_ge_30_of_48, ae3_pass |
+| AE4 API and 10k atlas | `ae4_api_and_10k_atlas.json` | **OPEN** | ae4_online_recall_one, ae4_rescore_fraction_le_005, ae4_speedup_ge_25, ae4_api_verbs_executed, ae4_gauntlet_336_executed |
+| AE5 JEV Tier-1 | `ae_jev_mathematical_challenges.json` | **PASS** | none |
+| AE hygiene seal | `ae_cycle.json` | **OPEN** | ae0_ad3_closed_and_ad_cycle_passed, ae2_passed, ae3_passed, ae4_passed, ae_all_stages_passed, ae_previous_cycles_passed |
+
+### 46.2 AE0.3: the AC1 identifier-density diagnostic
+
+* Full population: 84086 tokens, Tier-2 fraction **0.0000**, byte fraction **0.183824**, identifier density **428.29** per 1,000 tokens, mean backoff order **4.594**.
+* Legacy sub-slice: 5752 tokens, Tier-2 fraction **0.0000**, byte fraction **0.185675**, identifier density **444.89** per 1,000 tokens, mean backoff order **4.628**.
+* Identifier-density delta **16.60** per 1,000 tokens (ratio 1.039); window-level density/top-1 Pearson **-0.601**. Verdict: **CONFIRMED** under the pre-registered rule.
+* Bootstrap of contiguous 14 windows: top-1 95% CI [0.625192, 0.648983], bpc 95% CI [2.443401, 2.635976]. Sub-slice inside full top-1 CI: True; inside bpc CI: False.
+
+### 46.3 AE1: the Vast.ai offer repair and the policy-respecting Blackwell contract
+
+* Repaired dry-run discovery: **20** offers, cheapest **$0.4363/h**, GPU names ['RTX 5090'], compute capabilities [1200].
+* Root cause: `the old default searched only B200, which has no live offers, and the plugin repeated --gpu so argparse kept only the last name`. The default search now covers the live Blackwell workstation market and the plugin passes one GPU list.
+* Policy flag `allowLiveVast` is **False**; the live attempt is sealed as `A live Vast.ai run is blocked by policy. Set allowLiveVast: true in the plugin config first.`. Spend **$0.00**, rented False, instances at exit 0.
+* Software contract: capability exact on (12, 0) with 170/188 SMs, shared-memory budget {'D2048': 8192, 'D4096': 16384, 'D8192': 32768, 'D56000': 101376} B under the 101376 B wall, production D = 4096 with 5886556 parameters, and FFT energy parity on D = 2048/4096/8192. No GPU number is claimed.
+
+### 46.4 AE2 and AE3: the external-audit and compositional-ARC boundary
+
+* AE2 status `EXTERNAL_SLICE_NOT_VENDORED_NOT_EXECUTED`: no external repository or science slice was vendored, so no external pass@1, precision or trap number is claimed. AD1 16/16 and AD2 18/18 remain internal and unchanged.
+* AE3 status `COMPOSITIONAL_DEPTH3_NOT_EXECUTED`: the sealed external ARC result stays at 24/48 at precision 1.0000. No depth-three family was admitted inside the session budget.
+
+### 46.5 AE4: the 10,000-engram Riemannian atlas measurement
+
+* Atlas: 10000 world rows plus 2000 online writes; charts 117. Grounded top-1 parity **1.0000**, drift **0/200**, online recall **198/200**, OOD hallucination **0/100**, candidate rescore fraction mean **0.0324** (max 0.0655), measured speedup **0.29x**.
+* The REST/MCP/OpenAI verbs and the 336-query gauntlet are `NOT_EXECUTED_IN_THIS_STAGE` and no gate that depends on them is claimed.
+
+### 46.6 AE5: the two JEV Tier-1 seals and the ledger
+
+* `AE3-COMPOSITIONAL-TOROIDAL-OPERATOR-LOO-GENERALIZATION`: **ACCEPT** at score 0.9683, failed primitives [].
+* `AE4-RIEMANNIAN-CHART-SUBLINEAR-SCALING-AND-DRIFT-INVARIANCE`: **ACCEPT** at score 0.9667, failed primitives [].
+* `ae_cycle.json` records pytest {'passed': 1072, 'failed': 0, 'error': 0, 'skipped': 14, 'collected': 1086}, consistency exit 0, sidecar parity 1.0000 and R3 static 1.2237 bpc, streaming 1.1660 bpc.
+
+### 46.7 Boundaries that stay open in Cycle AE
+
+* AD3 remains open, so `ad_cycle.json` is **False** and the AE seal cannot close on the AD3 gate.
+* AE2 and AE3 remain unexecuted; the external-audit and depth-three gates are false by construction, not by a lowered bar.
+* The live Blackwell GB-5 measurement is blocked by the plugin policy flag, not by the repaired offer discovery.
+* The AE4 atlas reaches parity, zero drift and zero OOD hallucination but the measured wall-clock speedup is 0.29x and the API/gauntlet stages are not executed.
+

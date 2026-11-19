@@ -1,0 +1,250 @@
+{
+  "stage": "AE1",
+  "policy": {
+    "config_path": "RND AGENT\\harness\\plugins\\henri-holon\\cordis.patch.yml",
+    "allowLiveVast": false,
+    "sha256": "6d88966fb8244c4cb1712ef915c4b38b23dc9069643d2f78dd046c84146e8c72"
+  },
+  "vast_probe": {
+    "exit_code": 0,
+    "payload": {
+      "ok": true,
+      "base_url": "https://console.vast.ai/api",
+      "api": "v1",
+      "instances": 0,
+      "total_instances": 0,
+      "sample_keys": []
+    }
+  },
+  "offers": {
+    "exit_code": 0,
+    "count": 20,
+    "cheapest_hourly": 0.4363,
+    "gpu_names": [
+      "RTX 5090"
+    ],
+    "compute_caps": [
+      1200
+    ],
+    "top": [
+      {
+        "id": 56870886,
+        "gpu_name": "RTX 5090",
+        "num_gpus": 1,
+        "dph_total": 0.4363,
+        "cuda_max_good": 13.0,
+        "compute_cap": 1200,
+        "reliability": 0.8860932,
+        "inet_down": 785.8,
+        "geolocation": "China, CN",
+        "machine_id": 68879,
+        "gpu_ram": 32607
+      },
+      {
+        "id": 45043247,
+        "gpu_name": "RTX 5090",
+        "num_gpus": 1,
+        "dph_total": 0.497,
+        "cuda_max_good": 13.0,
+        "compute_cap": 1200,
+        "reliability": 0.9936583,
+        "inet_down": 510.4,
+        "geolocation": "South Korea, KR",
+        "machine_id": 143995,
+        "gpu_ram": 32607
+      },
+      {
+        "id": 45669520,
+        "gpu_name": "RTX 5090",
+        "num_gpus": 1,
+        "dph_total": 0.497,
+        "cuda_max_good": 13.0,
+        "compute_cap": 1200,
+        "reliability": 0.9630343,
+        "inet_down": 512.2,
+        "geolocation": "South Korea, KR",
+        "machine_id": 145068,
+        "gpu_ram": 32607
+      },
+      {
+        "id": 36229490,
+        "gpu_name": "RTX 5090",
+        "num_gpus": 1,
+        "dph_total": 0.497,
+        "cuda_max_good": 13.0,
+        "compute_cap": 1200,
+        "reliability": 0.9869244,
+        "inet_down": 566.2,
+        "geolocation": "South Korea, KR",
+        "machine_id": 100731,
+        "gpu_ram": 32607
+      },
+      {
+        "id": 45669111,
+        "gpu_name": "RTX 5090",
+        "num_gpus": 1,
+        "dph_total": 0.497,
+        "cuda_max_good": 13.0,
+        "compute_cap": 1200,
+        "reliability": 0.998125,
+        "inet_down": 451.4,
+        "geolocation": "South Korea, KR",
+        "machine_id": 145153,
+        "gpu_ram": 32607
+      },
+      {
+        "id": 51405134,
+        "gpu_name": "RTX 5090",
+        "num_gpus": 1,
+        "dph_total": 0.5089,
+        "cuda_max_good": 13.2,
+        "compute_cap": 1200,
+        "reliability": 0.9793357,
+        "inet_down": 794.3,
+        "geolocation": "South Korea, KR",
+        "machine_id": 149269,
+        "gpu_ram": 32607
+      },
+      {
+        "id": 59166711,
+        "gpu_name": "RTX 5090",
+        "num_gpus": 1,
+        "dph_total": 0.5348,
+        "cuda_max_good": 13.2,
+        "compute_cap": 1200,
+        "reliability": 0.9871238,
+        "inet_down": 872.6,
+        "geolocation": "California, US",
+        "machine_id": 156196,
+        "gpu_ram": 32607
+      },
+      {
+        "id": 61217052,
+        "gpu_name": "RTX 5090",
+        "num_gpus": 1,
+        "dph_total": 0.5348,
+        "cuda_max_good": 13.0,
+        "compute_cap": 1200,
+        "reliability": 0.8546993,
+        "inet_down": 1698.1,
+        "geolocation": "Sichuan, CN",
+        "machine_id": 150231,
+        "gpu_ram": 32607
+      }
+    ],
+    "repair": {
+      "cli_default_gpus": [
+        "RTX 5090",
+        "RTX PRO 6000 WS",
+        "B200"
+      ],
+      "plugin_multi_gpu_arg": "one --gpu flag carries every requested name",
+      "root_cause": "the old default searched only B200, which has no live offers, and the plugin repeated --gpu so argparse kept only the last name"
+    }
+  },
+  "live_attempt": {
+    "observed_at": "2026-11-19T02:16:07.275Z",
+    "action": "probe",
+    "live": true,
+    "error": "A live Vast.ai run is blocked by policy. Set allowLiveVast: true in the plugin config first.",
+    "error_class": "policy",
+    "observed_via": "henri_vast tool call in the Cycle AE session",
+    "running_instances_at_observation": 0
+  },
+  "hardware": {
+    "local": {
+      "torch_cuda_available": false,
+      "device_count": 0,
+      "capability": null,
+      "cuda_status": "BLOCKED_NO_PCIE_NVIDIA_DEVICE",
+      "torch_version": "2.11.0+cu128"
+    },
+    "rented": false,
+    "running_instances_at_exit": 0,
+    "spend_usd": 0.0,
+    "cuda_status": "BLOCKED_NO_PCIE_NVIDIA_DEVICE",
+    "gb5": {
+      "status": "BLOCKED_BY_PLUGIN_POLICY",
+      "measured": false
+    }
+  },
+  "software_contract": {
+    "capability": {
+      "sm120_170": true,
+      "sm120_188": true,
+      "sm120_160": false,
+      "sm100_170": false,
+      "sm90_170": false
+    },
+    "shared_memory_bytes": {
+      "D2048": 8192,
+      "D4096": 16384,
+      "D8192": 32768,
+      "D56000": 101376
+    },
+    "max_smem_bytes": 101376,
+    "sm_targets": {
+      "170": "RTX 5090",
+      "188": "RTX PRO 6000 Blackwell"
+    },
+    "forbidden_tokens": [],
+    "fft_parity": {
+      "2048": {
+        "dim": 2048,
+        "energy_in": 8305.16209767615,
+        "energy_out": 16610.3241902198,
+        "energy_ratio": 1.9999999993820108,
+        "deterministic": true,
+        "identity_delta": 2.0621485881240495e-07
+      },
+      "4096": {
+        "dim": 4096,
+        "energy_in": 16302.322417809522,
+        "energy_out": 32604.644856296578,
+        "energy_ratio": 2.0000000012683796,
+        "deterministic": true,
+        "identity_delta": 2.3747734655084714e-07
+      },
+      "8192": {
+        "dim": 8192,
+        "energy_in": 32832.83377705609,
+        "energy_out": 65665.66753566603,
+        "energy_ratio": 1.9999999994381796,
+        "deterministic": true,
+        "identity_delta": 2.134391970779415e-07
+      }
+    },
+    "production": {
+      "dim": 4096,
+      "photonic_layers": 4,
+      "parameters": 5886556
+    },
+    "reference_backend": "reference",
+    "abi_ok": true
+  },
+  "pinned_snapshot": {
+    "sha256": "d675f3816bbf472493b25f885bbb56c62c5ec88a81ab31e31a9b87b3a0c23703",
+    "sha256_before": "d675f3816bbf472493b25f885bbb56c62c5ec88a81ab31e31a9b87b3a0c23703",
+    "expected_sha256": "d675f3816bbf472493b25f885bbb56c62c5ec88a81ab31e31a9b87b3a0c23703",
+    "expected_digest": "8f270f34e8f35ef84e415d076bea20a7bc15edff337f89ed72ad607447ba8554"
+  },
+  "gate": {
+    "ae1_offer_discovery_positive": true,
+    "ae1_offers_are_sm120": true,
+    "ae1_offer_ceiling_le_100": true,
+    "ae1_policy_checked": true,
+    "ae1_policy_refusal_recorded": true,
+    "ae1_no_instance_rented": true,
+    "ae1_running_instances_at_exit_zero": true,
+    "ae1_spend_zero": true,
+    "ae1_software_abi_contract": true,
+    "ae1_capability_gate_exact": true,
+    "ae1_production_config": true,
+    "ae1_no_gpu_numbers_claimed": true,
+    "ae1_pinned_snapshot_unchanged": true,
+    "passed": true
+  },
+  "wall_seconds": 1.7064033999922685,
+  "evidence": "OBSERVED",
+  "passed": true
+}
