@@ -1,0 +1,20 @@
+# Hardened HENRI-v6 Code Execution Sandbox Sidecar
+# Designed to run with: network_mode: none, read_only: true, cap_drop: ALL, user: 65532:65532
+FROM python:3.11-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    HENRI_SANDBOX_SOCKET=/run/henri-sandbox/exec.sock
+
+WORKDIR /sandbox
+COPY henri/__init__.py ./henri/__init__.py
+COPY henri/holarch/__init__.py ./henri/holarch/__init__.py
+COPY henri/holarch/sandbox.py ./henri/holarch/sandbox.py
+COPY henri/gateway/sandbox_worker.py ./henri/gateway/sandbox_worker.py
+
+# Remove package installers so even a compromised child process has minimal tooling
+RUN rm -rf /usr/local/bin/pip* /usr/local/lib/python3.11/ensurepip
+
+USER 65532:65532
+
+CMD ["python", "-I", "/sandbox/henri/gateway/sandbox_worker.py", "--socket", "/run/henri-sandbox/exec.sock"]
