@@ -1,0 +1,102 @@
+# Production single-node stack for HENRI-v6 Unified Gateway
+# Launch: docker compose -f deploy/docker-compose.prod.yml up --build -d
+services:
+  caddy:
+    image: caddy:2.8-alpine
+    container_name: henri-caddy
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      HENRI_DOMAIN: ${HENRI_DOMAIN:-:80}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      henri-gateway:
+        condition: service_healthy
+    restart: unless-stopped
+
+  henri-gateway:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.gateway
+    container_name: henri-gateway
+    environment:
+      HENRI_HOST: "0.0.0.0"
+      HENRI_PORT: "8080"
+      HENRI_ZONEC_BACKEND: timescaledb
+      HENRI_TIMESCALE_DSN: postgresql://postgres:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}@timescaledb:5432/henri
+      HENRI_SANDBOX_SOCKET: /run/henri-sandbox/exec.sock
+      HENRI_SIGNING_PRIVATE_KEY_PATH: ${HENRI_SIGNING_PRIVATE_KEY_PATH:-/run/secrets/henri_ed25519.pem}
+      HENRI_REQUIRE_AUTH: ${HENRI_REQUIRE_AUTH:-true}
+      HENRI_GATEWAY_KEYS_JSON: ${HENRI_GATEWAY_KEYS_JSON:-}
+      HENRI_OPS_TOKEN: ${HENRI_OPS_TOKEN:-}
+      HENRI_HOLARCH_DEVICE: ${HENRI_HOLARCH_DEVICE:-cpu}
+      HENRI_WORKERS_COMPUTE: ${HENRI_WORKERS_COMPUTE:-2}
+      HENRI_UPSTREAM_BASE_URL: ${HENRI_UPSTREAM_BASE_URL:-}
+      HENRI_UPSTREAM_MODEL: ${HENRI_UPSTREAM_MODEL:-}
+      HENRI_UPSTREAM_API_KEY: ${HENRI_UPSTREAM_API_KEY:-}
+      HENRI_CASCADE_MAX_RETRIES: ${HENRI_CASCADE_MAX_RETRIES:-1}
+      HENRI_ENABLE_METRICS: "true"
+    volumes:
+      - sandbox_ipc:/run/henri-sandbox
+      - henri_data:/app/data
+      - henri_checkpoints:/app/checkpoints:ro
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+      henri-sandbox:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/healthz', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  henri-sandbox:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.sandbox
+    container_name: henri-sandbox
+    network_mode: "none"
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    user: "65532:65532"
+    mem_limit: 512m
+    cpus: 1.0
+    pids_limit: 32
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=64m
+    volumes:
+      - sandbox_ipc:/run/henri-sandbox
+    restart: unless-stopped
+
+  timescaledb:
+    image: timescale/timescaledb:latest-pg16
+    container_name: henri-timescaledb
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+      POSTGRES_DB: henri
+      POSTGRES_USER: postgres
+    volumes:
+      - henri_tsdb:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d henri"]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+    restart: unless-stopped
+
+volumes:
+  caddy_data:
+  caddy_config:
+  sandbox_ipc:
+  henri_data:
+  henri_checkpoints:
+  henri_tsdb:

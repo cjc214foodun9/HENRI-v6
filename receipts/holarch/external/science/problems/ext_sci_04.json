@@ -1,0 +1,38 @@
+{
+  "domain": "thermodynamics",
+  "expected": 9.14,
+  "id": "ext_sci_04",
+  "prompt": "A constant-volume perfect gas thermometer indicates a pressure of $6.69 \\mathrm{kPa}$ at the triple point temperature of water (273.16 K). What pressure indicates a temperature of $100.00^{\\circ} \\mathrm{C}$?",
+  "quantities": [
+    {
+      "symbol": "p1",
+      "unit": "kPa",
+      "value": 6.69
+    },
+    {
+      "symbol": "t1",
+      "unit": "K",
+      "value": 273.16
+    },
+    {
+      "symbol": "t2",
+      "unit": "K",
+      "value": 373.15
+    }
+  ],
+  "rel_tol": 0.01,
+  "target": {
+    "symbol": "p2",
+    "unit": "kPa"
+  },
+  "upstream_answer_number": "9.14",
+  "upstream_commit": "e14e0ca3d3db0f02928a18d435b9c3d15656a7c5",
+  "upstream_dataset": "mandyyyyii/scibench",
+  "upstream_file": "atkins.json",
+  "upstream_file_sha256": "d2dd481ade7a3a2c6a108e2539bddaf2df83ecb5ef4021f04f520d55ec51f5ac",
+  "upstream_index": 82,
+  "upstream_problemid": "p1.5(b)",
+  "upstream_source": "atkins",
+  "upstream_unit_raw": "$\\mathrm{kPa}$ ",
+  "upstream_url": "https://github.com/mandyyyyii/scibench/blob/e14e0ca3d3db0f02928a18d435b9c3d15656a7c5/dataset/original/atkins.json"
+}

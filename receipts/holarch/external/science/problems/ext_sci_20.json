@@ -1,0 +1,28 @@
+{
+  "domain": "quantum_chemistry",
+  "expected": 399.0,
+  "id": "ext_sci_20",
+  "prompt": "Calculate the energy of one mole of UV photons of wavelength $300 \\mathrm{~nm}$ and compare it with a typical single-bond energy of $400 \\mathrm{~kJ} / \\mathrm{mol}$.",
+  "quantities": [
+    {
+      "symbol": "wavelength",
+      "unit": "nm",
+      "value": 300.0
+    }
+  ],
+  "rel_tol": 0.01,
+  "target": {
+    "symbol": "molar_energy",
+    "unit": "kJ/mol"
+  },
+  "upstream_answer_number": "399",
+  "upstream_commit": "e14e0ca3d3db0f02928a18d435b9c3d15656a7c5",
+  "upstream_dataset": "mandyyyyii/scibench",
+  "upstream_file": "quan.json",
+  "upstream_file_sha256": "a3c4f483b5dd7ce162d3d95610bb56614b5003ecba80f450c79755811176e4f1",
+  "upstream_index": 1,
+  "upstream_problemid": "1.3",
+  "upstream_source": "quan",
+  "upstream_unit_raw": " $\\mathrm{~kJ} / \\mathrm{mol}$",
+  "upstream_url": "https://github.com/mandyyyyii/scibench/blob/e14e0ca3d3db0f02928a18d435b9c3d15656a7c5/dataset/original/quan.json"
+}

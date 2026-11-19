@@ -455,6 +455,23 @@ def _default_provision(expr: ast.AST, env: Dict[str, np.ndarray],
             base[CAP_ELEM_TEXT] = 0
             base[CAP_ELEM_ATTR] = 0
         return base
+    if isinstance(expr, ast.ListComp):
+        base = TYPE_PROVISION["list"].copy()
+        for gen in expr.generators:
+            iter_prov = _default_provision(gen.iter, env, functions)
+            if iter_prov[CAP_INT_INDEX]:
+                base[CAP_INT_INDEX] = 1
+        return base
+    if isinstance(expr, ast.Subscript) and isinstance(expr.slice, ast.Slice):
+        return _default_provision(expr.value, env, functions)
+    if isinstance(expr, ast.BinOp):
+        if isinstance(expr.op, (ast.Mod, ast.FloorDiv, ast.BitAnd, ast.BitOr, ast.BitXor, ast.LShift, ast.RShift)):
+            return TYPE_PROVISION["int"].copy()
+        left_p = _default_provision(expr.left, env, functions)
+        right_p = _default_provision(expr.right, env, functions)
+        if left_p.any() or right_p.any():
+            return np.maximum(left_p, right_p)
+        return ZERO.copy()
     if isinstance(expr, ast.Dict):
         return TYPE_PROVISION["dict"].copy()
     if isinstance(expr, ast.Tuple):
@@ -545,6 +562,11 @@ class RepoSheaf:
                         violations.append(Violation(name, target.name, callee_name,
                                                     ["ARITY"], 1.0, "arity"))
                         continue
+                    call_env = dict(env)
+                    if callee is profile:
+                        for param_name, param_demand in profile.demand.items():
+                            if param_name not in call_env and param_demand.any():
+                                call_env[param_name] = param_demand.copy()
                     for index, argument in enumerate(arguments):
                         demand = callee.demand.get(callee.params[index], ZERO)
                         # A literal None on a guarded parameter is accepted: the
@@ -552,10 +574,10 @@ class RepoSheaf:
                         if (isinstance(argument, ast.Constant) and argument.value is None
                                 and callee.params[index] in callee.guarded):
                             continue
-                        if isinstance(argument, ast.Name) and argument.id in env:
-                            provision = env[argument.id].copy()
+                        if isinstance(argument, ast.Name) and argument.id in call_env:
+                            provision = call_env[argument.id].copy()
                         else:
-                            provision = _default_provision(argument, env, pool)
+                            provision = _default_provision(argument, call_env, pool)
                         missing = demand & (1 - np.clip(provision, 0, 1))
                         if missing.any():
                             energy = float(missing.sum())

@@ -1,0 +1,123 @@
+{
+  "stage": "AF4",
+  "spec": "HENRI-SPEC-CYCLE-AF-GATEWAY-SEAL-AD3-CLOSURE-FAST-ATLAS-AND-EXTERNAL-DECOUPLING-V1",
+  "evidence_label": "OBSERVED",
+  "compute_device": "cpu",
+  "cuda_status": "CUDA: BLOCKED_BY_POLICY",
+  "policy": {
+    "plugin_present": false,
+    "config_path": "RND AGENT\\harness\\plugins\\henri-holon\\cordis.patch.yml",
+    "allowLiveVast": false,
+    "sealed_ae1_policy_sha256": "6d88966fb8244c4cb1712ef915c4b38b23dc9069643d2f78dd046c84146e8c72",
+    "policy_modified": false,
+    "refusal_string": "A live Vast.ai run is blocked by policy. Set allowLiveVast: true in the plugin config first.",
+    "reason": "External plugin directory RND AGENT is absent in this clean-room VM; preserving Cycle AE1 allowLiveVast=false policy refusal without modification."
+  },
+  "hardware": {
+    "local": {
+      "torch_cuda_available": false,
+      "device_count": 0,
+      "capability": null,
+      "cuda_status": "BLOCKED_NO_PCIE_NVIDIA_DEVICE",
+      "torch_version": "2.15.0+cu132"
+    },
+    "rented": false,
+    "running_instances_at_exit": 0,
+    "spend_usd": 0.0,
+    "cuda_status": "CUDA: BLOCKED_BY_POLICY",
+    "gb5": {
+      "status": "BLOCKED_BY_POLICY",
+      "measured": false,
+      "reason": "A live Vast.ai run is blocked by policy. Set allowLiveVast: true in the plugin config first."
+    }
+  },
+  "blackwell_software_contract": {
+    "capability": {
+      "sm120_170": true,
+      "sm120_188": true,
+      "sm120_160": false,
+      "sm100_170": false,
+      "sm90_170": false
+    },
+    "shared_memory_bytes": {
+      "D2048": 8192,
+      "D4096": 16384,
+      "D8192": 32768,
+      "D56000": 101376
+    },
+    "max_smem_bytes": 101376,
+    "sm_targets": {
+      "170": "RTX 5090",
+      "188": "RTX PRO 6000 Blackwell"
+    },
+    "forbidden_tokens": [],
+    "fft_parity": {
+      "2048": {
+        "dim": 2048,
+        "compute_device": "cpu_reference_only_not_gpu",
+        "energy_in": 8212.261859673128,
+        "energy_out": 16424.5237175815,
+        "energy_ratio": 1.999999999785107,
+        "deterministic": true,
+        "identity_delta": 2.009714112417343e-07
+      },
+      "4096": {
+        "dim": 4096,
+        "compute_device": "cpu_reference_only_not_gpu",
+        "energy_in": 16109.457373530899,
+        "energy_out": 32218.91476828669,
+        "energy_ratio": 2.0000000013175425,
+        "deterministic": true,
+        "identity_delta": 2.0525874358920373e-07
+      },
+      "8192": {
+        "dim": 8192,
+        "compute_device": "cpu_reference_only_not_gpu",
+        "energy_in": 32791.71805921207,
+        "energy_out": 65583.4361316119,
+        "energy_ratio": 2.0000000004021676,
+        "deterministic": true,
+        "identity_delta": 2.043425829194119e-07
+      }
+    },
+    "production": {
+      "dim": 4096,
+      "photonic_layers": 4
+    },
+    "abi_ok": true
+  },
+  "jev_challenges": {
+    "receipt": "af_jev_mathematical_challenges.json",
+    "status": "BLOCKED_MISSING_RND_AGENT_PLUGIN",
+    "proposal_ids": [
+      "AF1-PACKED-RIEMANNIAN-CONTIGUOUS-BLAS-SUBLINEAR-BOUND",
+      "AF3-DEPTH3-COMPOSITIONAL-LOO-FALSE-CONSENSUS-BOUND"
+    ],
+    "proposals_built": true,
+    "accepted": false,
+    "scores": []
+  },
+  "pinned_snapshot": {
+    "path": "receipts/holarch/pinned_corpus_snapshot.json",
+    "sha256": "d675f3816bbf472493b25f885bbb56c62c5ec88a81ab31e31a9b87b3a0c23703",
+    "sha256_before": "d675f3816bbf472493b25f885bbb56c62c5ec88a81ab31e31a9b87b3a0c23703",
+    "expected_sha256": "d675f3816bbf472493b25f885bbb56c62c5ec88a81ab31e31a9b87b3a0c23703",
+    "expected_digest": "8f270f34e8f35ef84e415d076bea20a7bc15edff337f89ed72ad607447ba8554"
+  },
+  "gate": {
+    "af4_policy_inspected_unmodified": true,
+    "af4_allow_live_vast_respected": true,
+    "af4_exact_policy_refusal_preserved": true,
+    "af4_cuda_blocked_by_policy_stamped": true,
+    "af4_zero_spend_and_zero_instances": true,
+    "af4_no_cpu_relabelled_as_gpu": true,
+    "af4_blackwell_software_abi_contract_ok": true,
+    "af4_jev_proposals_built_honestly": true,
+    "af4_jev_plugin_accepted": false,
+    "af4_pinned_snapshot_unchanged": true,
+    "passed": false
+  },
+  "local_policy_and_proposal_gates_passed": true,
+  "wall_seconds": 0.23438530600014928,
+  "passed": false
+}

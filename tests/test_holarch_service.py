@@ -112,6 +112,10 @@ def test_agent_eval_contract(tmp_path):
     """Decision B3: the paired benchmark measures both arms and receipts."""
     import importlib.util
 
+    mmlu_csv = ROOT / "data" / "official_benchmarks" / "canonical" / "mmlu" / "mmlu.csv"
+    if not mmlu_csv.exists():
+        pytest.skip("BLOCKED_MISSING_GITIGNORED_MMLU_CSV")
+
     spec = importlib.util.spec_from_file_location(
         "run_holarch_agent_eval", ROOT / "scripts" / "run_holarch_agent_eval.py"
     )

@@ -93,6 +93,8 @@ def test_r1_zero_weight_is_a_no_op(bb):
 
 def test_r1_zero_weight_matches_the_prior_api(api):
     """The default path must reproduce the pre-Phase-10 selection exactly."""
+    if api.backbone.stem.kind != "sentence_transformer":
+        pytest.skip("BLOCKED_MISSING_SENTENCE_TRANSFORMERS_MODEL: char_ngram_fallback active")
     r = api.rank_options(Q_OP, OPTS_OP).payload
     assert r["channel_weight"] == 0.0
     assert r["channel_added"] is False

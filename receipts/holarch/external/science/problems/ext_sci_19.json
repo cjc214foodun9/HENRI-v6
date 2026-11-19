@@ -1,0 +1,28 @@
+{
+  "domain": "electromagnetism",
+  "expected": 200000.0,
+  "id": "ext_sci_19",
+  "prompt": "A particle of charge $1.8 \\mu \\mathrm{C}$ is at the center of a Gaussian cube $55 \\mathrm{~cm}$ on edge. What is the net electric flux through the surface?",
+  "quantities": [
+    {
+      "symbol": "charge",
+      "unit": "uC",
+      "value": 1.8
+    }
+  ],
+  "rel_tol": 0.025,
+  "target": {
+    "symbol": "flux",
+    "unit": "N*m^2/C"
+  },
+  "upstream_answer_number": "2.0",
+  "upstream_commit": "e14e0ca3d3db0f02928a18d435b9c3d15656a7c5",
+  "upstream_dataset": "mandyyyyii/scibench",
+  "upstream_file": "fund.json",
+  "upstream_file_sha256": "d6b90173970bfa5ed04355c77731c5a28921a0224a0fb7240817f6cb18ea3790",
+  "upstream_index": 52,
+  "upstream_problemid": "Question 23.7",
+  "upstream_source": "fund",
+  "upstream_unit_raw": "$10^5 \\mathrm{~N} \\cdot \\mathrm{m}^2 / \\mathrm{C}$ ",
+  "upstream_url": "https://github.com/mandyyyyii/scibench/blob/e14e0ca3d3db0f02928a18d435b9c3d15656a7c5/dataset/original/fund.json"
+}

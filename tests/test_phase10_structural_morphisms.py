@@ -95,21 +95,20 @@ def _pinned_digest(key: str) -> str:
             f"embedding pin recorded under revision {recorded}, code pins {MODEL_REVISION}"
         )
 
-    import sentence_transformers
-    import torch
-    import transformers
-
-    running = {
-        "sentence_transformers": sentence_transformers.__version__,
-        "transformers": transformers.__version__,
-        "torch": torch.__version__,
-    }
+    running = {}
+    for mod_name in ("sentence_transformers", "transformers", "torch"):
+        try:
+            mod = __import__(mod_name)
+            running[mod_name] = getattr(mod, "__version__", "unknown")
+        except ImportError:
+            running[mod_name] = "absent"
     for name, expected in payload["versions"].items():
         if name == "python":
             continue
         actual = running.get(name, "absent")
         if str(actual) != str(expected):
             pytest.skip(
+                f"BLOCKED_MISSING_SENTENCE_TRANSFORMERS_MODEL: "
                 f"embedding pin recorded under {name} {expected}, running {actual}"
             )
     return payload["digests"][key]

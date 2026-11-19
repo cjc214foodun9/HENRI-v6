@@ -1,0 +1,22 @@
+{
+  "domain": "mathematics",
+  "id": "trap_sci_divergent_series",
+  "kind": "divergent_series",
+  "prompt": "Evaluate the divergent geometric series with a=1 and r=1.5.",
+  "quantities": [
+    {
+      "symbol": "first_term",
+      "unit": "1",
+      "value": 1.0
+    },
+    {
+      "symbol": "ratio",
+      "unit": "1",
+      "value": 1.5
+    }
+  ],
+  "target": {
+    "symbol": "series_sum",
+    "unit": "1"
+  }
+}

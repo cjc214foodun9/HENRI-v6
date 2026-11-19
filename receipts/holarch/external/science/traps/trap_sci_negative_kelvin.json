@@ -1,0 +1,17 @@
+{
+  "domain": "thermodynamics",
+  "id": "trap_sci_negative_kelvin",
+  "kind": "nonphysical_negative_temperature",
+  "prompt": "Compute blackbody peak wavelength at -25 K.",
+  "quantities": [
+    {
+      "symbol": "temperature",
+      "unit": "K",
+      "value": -25.0
+    }
+  ],
+  "target": {
+    "symbol": "wavelength",
+    "unit": "m"
+  }
+}

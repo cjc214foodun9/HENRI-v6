@@ -54,22 +54,61 @@ UNIT_TABLE: Dict[str, Tuple[float, Dims]] = {
     "m": (1.0, _d(length=1)),
     "cm": (0.01, _d(length=1)),
     "mm": (0.001, _d(length=1)),
+    "um": (1e-6, _d(length=1)),
+    "nm": (1e-9, _d(length=1)),
+    "pm": (1e-12, _d(length=1)),
+    "A_ang": (1e-10, _d(length=1)),
     "km": (1000.0, _d(length=1)),
     "s": (1.0, _d(time=1)),
     "ms": (0.001, _d(time=1)),
     "min": (60.0, _d(time=1)),
     "h": (3600.0, _d(time=1)),
+    "Hz": (1.0, _d(time=-1)),
+    "1/s": (1.0, _d(time=-1)),
+    "GHz": (1e9, _d(time=-1)),
     "kg": (1.0, _d(mass=1)),
     "g": (0.001, _d(mass=1)),
     "mg": (1e-6, _d(mass=1)),
+    "u": (1.66053906660e-27, _d(mass=1)),
     "K": (1.0, _d(temperature=1)),
     "mol": (1.0, _d(amount=1)),
     "A": (1.0, _d(current=1)),
+    "C": (1.0, _d(time=1, current=1)),
+    "mC": (1e-3, _d(time=1, current=1)),
+    "uC": (1e-6, _d(time=1, current=1)),
+    "nC": (1e-9, _d(time=1, current=1)),
+    "pC": (1e-12, _d(time=1, current=1)),
+    "MC": (1e6, _d(time=1, current=1)),
+    "e": (1.602176634e-19, _d(time=1, current=1)),
     "N": (1.0, _d(mass=1, length=1, time=-2)),
+    "N/m": (1.0, _d(mass=1, time=-2)),
     "J": (1.0, _d(mass=1, length=2, time=-2)),
+    "mJ": (1e-3, _d(mass=1, length=2, time=-2)),
+    "kJ": (1e3, _d(mass=1, length=2, time=-2)),
+    "eV": (1.602176634e-19, _d(mass=1, length=2, time=-2)),
+    "MeV": (1.602176634e-13, _d(mass=1, length=2, time=-2)),
+    "J/mol": (1.0, _d(mass=1, length=2, time=-2, amount=-1)),
+    "kJ/mol": (1e3, _d(mass=1, length=2, time=-2, amount=-1)),
+    "J/K": (1.0, _d(mass=1, length=2, time=-2, temperature=-1)),
+    "J/(mol*K)": (1.0, _d(mass=1, length=2, time=-2, temperature=-1, amount=-1)),
+    "J*s": (1.0, _d(mass=1, length=2, time=-1)),
     "W": (1.0, _d(mass=1, length=2, time=-3)),
     "Pa": (1.0, _d(mass=1, length=-1, time=-2)),
+    "kPa": (1e3, _d(mass=1, length=-1, time=-2)),
+    "bar": (1e5, _d(mass=1, length=-1, time=-2)),
+    "atm": (101325.0, _d(mass=1, length=-1, time=-2)),
+    "Torr": (101325.0 / 760.0, _d(mass=1, length=-1, time=-2)),
+    "V": (1.0, _d(mass=1, length=2, time=-3, current=-1)),
+    "N/C": (1.0, _d(mass=1, length=1, time=-3, current=-1)),
+    "V/m": (1.0, _d(mass=1, length=1, time=-3, current=-1)),
+    "C*m": (1.0, _d(length=1, time=1, current=1)),
+    "N*m^2/C": (1.0, _d(mass=1, length=3, time=-3, current=-1)),
+    "N*m^2/C^2": (1.0, _d(mass=1, length=3, time=-4, current=-2)),
+    "F/m": (1.0, _d(mass=-1, length=-3, time=4, current=2)),
+    "m*K": (1.0, _d(length=1, temperature=1)),
+    "1/mol": (1.0, _d(amount=-1)),
     "L": (0.001, _d(length=3)),
+    "dm^3": (0.001, _d(length=3)),
     "mL": (1e-6, _d(length=3)),
     "m^3": (1.0, _d(length=3)),
     "cm^3": (1e-6, _d(length=3)),
@@ -84,9 +123,17 @@ UNIT_TABLE: Dict[str, Tuple[float, Dims]] = {
     "g/mol": (0.001, _d(mass=1, amount=-1)),
 }
 
-CONSTANTS = {
+CONSTANTS: Dict[str, Tuple[float, str]] = {
     "g": (9.80665, "m/s^2"),
     "R": (8.314462618, "J/(mol*K)"),
+    "c": (299792458.0, "m/s"),
+    "h": (6.62607015e-34, "J*s"),
+    "k_B": (1.380649e-23, "J/K"),
+    "N_A": (6.02214076e23, "1/mol"),
+    "e_charge": (1.602176634e-19, "C"),
+    "eps0": (8.8541878128e-12, "F/m"),
+    "k_e": (8.9875517923e9, "N*m^2/C^2"),
+    "b_wien": (2.897771955e-3, "m*K"),
 }
 
 
@@ -114,6 +161,24 @@ def _fmt_dims(dims: Sequence[float]) -> str:
         if abs(float(exponent)) > 1e-12:
             parts.append("%s^%g" % (name, float(exponent)))
     return " ".join(parts) if parts else "dimensionless"
+
+
+def _checked_geom(first_term: float, ratio: float) -> float:
+    if abs(float(ratio)) >= 1.0:
+        raise ValueError("geometric series diverges for |ratio| >= 1")
+    return float(first_term) / (1.0 - float(ratio))
+
+
+def _checked_cond_prob(p_intersection: float, p_condition: float) -> float:
+    if p_intersection < 0.0 or p_condition <= 0.0 or p_condition > 1.0 or p_intersection > p_condition:
+        raise ValueError("invalid probability domain")
+    return float(p_intersection) / float(p_condition)
+
+
+def _checked_indep_prob(p_a: float, p_b: float) -> float:
+    if p_a < 0.0 or p_a > 1.0 or p_b < 0.0 or p_b > 1.0:
+        raise ValueError("invalid probability domain")
+    return float(p_a) * float(p_b)
 
 
 # ------------------------------------------------------------------ relations
@@ -181,6 +246,22 @@ RELATIONS: Tuple[Relation, ...] = (
         lambda work, force, distance: work / force,
     ),
     Relation(
+        "potential_work", "gravitational potential work equals mass multiplied by gravitational acceleration multiplied by height",
+        (("mass", _d(mass=1)), ("g", _d(length=1, time=-2)), ("height", _d(length=1))),
+        _d(mass=1, length=2, time=-2), "mass * g * height",
+        "height", "potential_work / (mass * g)",
+        lambda mass, g, height: mass * g * height,
+        lambda potential_work, mass, g, height: potential_work / (mass * g),
+    ),
+    Relation(
+        "hooke_work", "elastic spring work equals one half spring constant multiplied by displacement squared",
+        (("spring_constant", _d(mass=1, time=-2)), ("displacement", _d(length=1))),
+        _d(mass=1, length=2, time=-2), "0.5 * spring_constant * displacement ** 2",
+        "displacement", "sqrt(2 * hooke_work / spring_constant)",
+        lambda spring_constant, displacement: 0.5 * spring_constant * displacement * displacement,
+        lambda hooke_work, spring_constant, displacement: math.sqrt(2.0 * hooke_work / spring_constant),
+    ),
+    Relation(
         "kinetic", "kinetic energy equals one half mass multiplied by velocity squared",
         (("mass", _d(mass=1)), ("velocity", _d(length=1, time=-1))),
         _d(mass=1, length=2, time=-2), "0.5 * mass * velocity ** 2",
@@ -204,6 +285,14 @@ RELATIONS: Tuple[Relation, ...] = (
         "delta_temperature", "heat / (mass * specific_heat)",
         lambda mass, specific_heat, delta_temperature: mass * specific_heat * delta_temperature,
         lambda heat, mass, specific_heat, delta_temperature: heat / (mass * specific_heat),
+    ),
+    Relation(
+        "isothermal_entropy", "isothermal entropy change equals reversible heat divided by temperature",
+        (("heat", _d(mass=1, length=2, time=-2)), ("temperature", _d(temperature=1))),
+        _d(mass=1, length=2, time=-2, temperature=-1), "heat / temperature",
+        "temperature", "heat / entropy",
+        lambda heat, temperature: heat / temperature,
+        lambda entropy, heat, temperature: heat / entropy,
     ),
     Relation(
         "efficiency", "efficiency equals useful work divided by total work",
@@ -254,6 +343,146 @@ RELATIONS: Tuple[Relation, ...] = (
         lambda pressure, amount, temperature, volume: pressure * volume / (amount * 8.314462618),
     ),
     Relation(
+        "ideal_gas_mass", "the ideal gas pressure from sample mass equals mass divided by molar mass times the gas constant times temperature divided by volume",
+        (("mass", _d(mass=1)), ("molar_mass", _d(mass=1, amount=-1)),
+         ("temperature", _d(temperature=1)), ("volume", _d(length=3))),
+        _d(mass=1, length=-1, time=-2), "(mass / molar_mass) * R * temperature / volume",
+        "temperature", "pressure * volume * molar_mass / (mass * R)",
+        lambda mass, molar_mass, temperature, volume: (mass / molar_mass) * 8.314462618 * temperature / volume,
+        lambda pressure, mass, molar_mass, temperature, volume: pressure * volume * molar_mass / (mass * 8.314462618),
+    ),
+    Relation(
+        "gay_lussac_pressure", "at constant volume ideal gas pressure is proportional to absolute temperature",
+        (("p1", _d(mass=1, length=-1, time=-2)), ("t1", _d(temperature=1)), ("t2", _d(temperature=1))),
+        _d(mass=1, length=-1, time=-2), "p1 * t2 / t1",
+        "t2", "p2 * t1 / p1",
+        lambda p1, t1, t2: p1 * t2 / t1,
+        lambda p2, p1, t1, t2: p2 * t1 / p1,
+    ),
+    Relation(
+        "wave_frequency", "electromagnetic wave frequency equals the speed of light divided by wavelength",
+        (("c", _d(length=1, time=-1)), ("wavelength", _d(length=1))),
+        _d(time=-1), "c / wavelength",
+        "wavelength", "c / frequency",
+        lambda c, wavelength: c / wavelength,
+        lambda frequency, c, wavelength: c / frequency,
+    ),
+    Relation(
+        "photon_energy", "photon energy equals Planck constant multiplied by the speed of light divided by wavelength",
+        (("h", _d(mass=1, length=2, time=-1)), ("c", _d(length=1, time=-1)), ("wavelength", _d(length=1))),
+        _d(mass=1, length=2, time=-2), "h * c / wavelength",
+        "wavelength", "h * c / energy",
+        lambda h, c, wavelength: h * c / wavelength,
+        lambda energy, h, c, wavelength: h * c / energy,
+    ),
+    Relation(
+        "molar_photon_energy", "molar photon energy equals Avogadro constant times Planck constant times the speed of light divided by wavelength",
+        (("N_A", _d(amount=-1)), ("h", _d(mass=1, length=2, time=-1)),
+         ("c", _d(length=1, time=-1)), ("wavelength", _d(length=1))),
+        _d(mass=1, length=2, time=-2, amount=-1), "N_A * h * c / wavelength",
+        "wavelength", "N_A * h * c / molar_energy",
+        lambda N_A, h, c, wavelength: N_A * h * c / wavelength,
+        lambda molar_energy, N_A, h, c, wavelength: N_A * h * c / molar_energy,
+    ),
+    Relation(
+        "wien_temperature", "blackbody temperature equals the Wien displacement constant divided by peak wavelength",
+        (("b_wien", _d(length=1, temperature=1)), ("wavelength", _d(length=1))),
+        _d(temperature=1), "b_wien / wavelength",
+        "wavelength", "b_wien / temperature",
+        lambda b_wien, wavelength: b_wien / wavelength,
+        lambda temperature, b_wien, wavelength: b_wien / temperature,
+    ),
+    Relation(
+        "wien_wavelength", "peak blackbody wavelength equals the Wien displacement constant divided by temperature",
+        (("b_wien", _d(length=1, temperature=1)), ("temperature", _d(temperature=1))),
+        _d(length=1), "b_wien / temperature",
+        "temperature", "b_wien / wavelength",
+        lambda b_wien, temperature: b_wien / temperature,
+        lambda wavelength, b_wien, temperature: b_wien / wavelength,
+    ),
+    Relation(
+        "de_broglie_velocity", "de Broglie wavelength equals Planck constant divided by mass multiplied by velocity",
+        (("h", _d(mass=1, length=2, time=-1)), ("mass", _d(mass=1)), ("velocity", _d(length=1, time=-1))),
+        _d(length=1), "h / (mass * velocity)",
+        "velocity", "h / (mass * wavelength)",
+        lambda h, mass, velocity: h / (mass * velocity),
+        lambda wavelength, h, mass, velocity: h / (mass * wavelength),
+    ),
+    Relation(
+        "de_broglie_energy", "de Broglie wavelength from kinetic energy equals Planck constant divided by the square root of two times mass times kinetic energy",
+        (("h", _d(mass=1, length=2, time=-1)), ("mass", _d(mass=1)), ("kinetic_energy", _d(mass=1, length=2, time=-2))),
+        _d(length=1), "h / sqrt(2.0 * mass * kinetic_energy)",
+        "kinetic_energy", "(h / wavelength) ** 2 / (2.0 * mass)",
+        lambda h, mass, kinetic_energy: h / math.sqrt(2.0 * mass * kinetic_energy),
+        lambda wavelength, h, mass, kinetic_energy: (h / wavelength) ** 2 / (2.0 * mass),
+    ),
+    Relation(
+        "electrostatic_energy", "electrostatic work equals electric charge multiplied by potential difference",
+        (("charge", _d(time=1, current=1)), ("voltage", _d(mass=1, length=2, time=-3, current=-1))),
+        _d(mass=1, length=2, time=-2), "abs(charge) * voltage",
+        "voltage", "energy / abs(charge)",
+        lambda charge, voltage: abs(charge) * voltage,
+        lambda energy, charge, voltage: energy / abs(charge),
+    ),
+    Relation(
+        "coulomb_force", "electrostatic force equals Coulomb constant times the product of charge magnitudes divided by distance squared",
+        (("k_e", _d(mass=1, length=3, time=-4, current=-2)),
+         ("q1", _d(time=1, current=1)), ("q2", _d(time=1, current=1)), ("distance", _d(length=1))),
+        _d(mass=1, length=1, time=-2), "k_e * abs(q1 * q2) / (distance ** 2)",
+        "distance", "sqrt(k_e * abs(q1 * q2) / force)",
+        lambda k_e, q1, q2, distance: k_e * abs(q1 * q2) / (distance * distance),
+        lambda force, k_e, q1, q2, distance: math.sqrt(k_e * abs(q1 * q2) / force),
+    ),
+    Relation(
+        "coulomb_distance", "separation between point charges equals the square root of Coulomb constant times the product of charge magnitudes divided by force",
+        (("k_e", _d(mass=1, length=3, time=-4, current=-2)),
+         ("q1", _d(time=1, current=1)), ("q2", _d(time=1, current=1)), ("force", _d(mass=1, length=1, time=-2))),
+        _d(length=1), "sqrt(k_e * abs(q1 * q2) / force)",
+        "force", "k_e * abs(q1 * q2) / (distance ** 2)",
+        lambda k_e, q1, q2, force: math.sqrt(k_e * abs(q1 * q2) / force),
+        lambda distance, k_e, q1, q2, force: k_e * abs(q1 * q2) / (distance * distance),
+    ),
+    Relation(
+        "electric_acceleration", "acceleration in a uniform electric field equals charge magnitude multiplied by electric field divided by mass",
+        (("charge", _d(time=1, current=1)), ("electric_field", _d(mass=1, length=1, time=-3, current=-1)), ("mass", _d(mass=1))),
+        _d(length=1, time=-2), "abs(charge) * electric_field / mass",
+        "electric_field", "acceleration * mass / abs(charge)",
+        lambda charge, electric_field, mass: abs(charge) * electric_field / mass,
+        lambda acceleration, charge, electric_field, mass: acceleration * mass / abs(charge),
+    ),
+    Relation(
+        "dipole_moment", "electric dipole moment equals charge magnitude multiplied by separation",
+        (("charge", _d(time=1, current=1)), ("separation", _d(length=1))),
+        _d(length=1, time=1, current=1), "abs(charge) * separation",
+        "separation", "dipole_moment / abs(charge)",
+        lambda charge, separation: abs(charge) * separation,
+        lambda dipole_moment, charge, separation: dipole_moment / abs(charge),
+    ),
+    Relation(
+        "gauss_flux", "net electric flux through a closed surface equals enclosed charge divided by vacuum permittivity",
+        (("charge", _d(time=1, current=1)), ("eps0", _d(mass=-1, length=-3, time=4, current=2))),
+        _d(mass=1, length=3, time=-3, current=-1), "charge / eps0",
+        "charge", "flux * eps0",
+        lambda charge, eps0: charge / eps0,
+        lambda flux, charge, eps0: flux * eps0,
+    ),
+    Relation(
+        "electron_count", "elementary charge count equals total charge magnitude divided by the elementary charge",
+        (("charge", _d(time=1, current=1)), ("e_charge", _d(time=1, current=1))),
+        DIM_ZERO, "abs(charge) / e_charge",
+        "charge", "count * e_charge",
+        lambda charge, e_charge: abs(charge) / e_charge,
+        lambda count, charge, e_charge: count * e_charge,
+    ),
+    Relation(
+        "reduced_mass", "reduced mass equals the product of two masses divided by their sum",
+        (("m1", _d(mass=1)), ("m2", _d(mass=1))),
+        _d(mass=1), "(m1 * m2) / (m1 + m2)",
+        "m1", "(mu * m2) / (m2 - mu)",
+        lambda m1, m2: (m1 * m2) / (m1 + m2),
+        lambda mu, m1, m2: (mu * m2) / (m2 - mu),
+    ),
+    Relation(
         "inelastic", "in a perfectly inelastic collision momentum is conserved, so the common velocity equals the total initial momentum divided by the total mass",
         (("m1", _d(mass=1)), ("m2", _d(mass=1)),
          ("u1", _d(length=1, time=-1)), ("u2", _d(length=1, time=-1))),
@@ -266,9 +495,36 @@ RELATIONS: Tuple[Relation, ...] = (
         "combination", "a binomial coefficient counts the number of ways to choose k items from n items without replacement",
         (("n", DIM_ZERO), ("k", DIM_ZERO)),
         DIM_ZERO, "comb(n, k)",
-        "n", "log(combination * factorial(k)) / log(1.0)",
+        "combination", "factorial(int(round(n))) / (factorial(int(round(k))) * factorial(int(round(n)) - int(round(k))))",
         lambda n, k: float(math.comb(int(round(n)), int(round(k)))),
-        lambda combination, n, k: n,
+        lambda combination, n, k: float(
+            math.factorial(int(round(n)))
+            / (math.factorial(int(round(k))) * math.factorial(int(round(n)) - int(round(k))))
+        ),
+    ),
+    Relation(
+        "geometric_series", "the sum of a convergent infinite geometric series equals the first term divided by one minus the common ratio",
+        (("first_term", DIM_ZERO), ("ratio", DIM_ZERO)),
+        DIM_ZERO, "first_term / (1.0 - ratio)",
+        "first_term", "series_sum * (1.0 - ratio)",
+        _checked_geom,
+        lambda series_sum, first_term, ratio: series_sum * (1.0 - ratio),
+    ),
+    Relation(
+        "conditional_prob", "conditional probability equals joint probability divided by the conditioning event probability",
+        (("p_intersection", DIM_ZERO), ("p_condition", DIM_ZERO)),
+        DIM_ZERO, "p_intersection / p_condition",
+        "p_intersection", "p_cond * p_condition",
+        _checked_cond_prob,
+        lambda p_cond, p_intersection, p_condition: p_cond * p_condition,
+    ),
+    Relation(
+        "independent_intersection", "for independent events the joint probability equals the product of the individual probabilities",
+        (("p_a", DIM_ZERO), ("p_b", DIM_ZERO)),
+        DIM_ZERO, "p_a * p_b",
+        "p_a", "p_ab / p_b",
+        _checked_indep_prob,
+        lambda p_ab, p_a, p_b: p_ab / p_b,
     ),
     Relation(
         "confidence", "a confidence interval half width equals the critical value multiplied by the standard deviation divided by the square root of the sample size",
@@ -301,17 +557,40 @@ OUTPUT_SYMBOL = {
     "force": "force",
     "weight": "weight",
     "work": "work",
+    "potential_work": "potential_work",
+    "hooke_work": "hooke_work",
     "kinetic": "kinetic",
     "momentum": "momentum",
     "heat": "heat",
+    "isothermal_entropy": "entropy",
     "efficiency": "efficiency",
     "density": "density",
     "molarity": "molarity",
     "moles": "amount",
     "dilution": "c2",
     "ideal_gas": "pressure",
+    "ideal_gas_mass": "pressure",
+    "gay_lussac_pressure": "p2",
+    "wave_frequency": "frequency",
+    "photon_energy": "energy",
+    "molar_photon_energy": "molar_energy",
+    "wien_temperature": "temperature",
+    "wien_wavelength": "wavelength",
+    "de_broglie_velocity": "wavelength",
+    "de_broglie_energy": "wavelength",
+    "electrostatic_energy": "energy",
+    "coulomb_force": "force",
+    "coulomb_distance": "distance",
+    "electric_acceleration": "acceleration",
+    "dipole_moment": "dipole_moment",
+    "gauss_flux": "flux",
+    "electron_count": "count",
+    "reduced_mass": "mu",
     "inelastic": "v",
     "combination": "combination",
+    "geometric_series": "series_sum",
+    "conditional_prob": "p_cond",
+    "independent_intersection": "p_ab",
     "confidence": "half_width",
 }
 
@@ -389,6 +668,9 @@ class ScienceSolver:
             if given.unit == "K" and given.value < 0.0:
                 result["reason"] = "nonphysical_negative_temperature"
                 return result
+            if given.symbol in ("mass", "m1", "m2", "molar_mass", "wavelength") and given.value < 0.0:
+                result["reason"] = "nonphysical_negative_%s" % given.symbol
+                return result
         table = dict(problem.get("table") or {})
         candidates: List[Relation] = []
         if table:
@@ -401,7 +683,7 @@ class ScienceSolver:
                     continue
                 usable = True
                 for name, dims in relation.inputs:
-                    if name in ("g", "R"):
+                    if name in CONSTANTS and name not in symbols:
                         continue
                     if name not in symbols:
                         usable = False
@@ -420,10 +702,10 @@ class ScienceSolver:
         for relation in candidates:
             si_values: Dict[str, float] = {}
             for name, _dims in relation.inputs:
-                if name == "g":
-                    si_values[name] = 9.80665
-                elif name == "R":
-                    si_values[name] = 8.314462618
+                if name in symbols:
+                    si_values[name] = _convert(symbols[name].value, symbols[name].unit)
+                elif name in CONSTANTS:
+                    si_values[name] = float(CONSTANTS[name][0])
                 else:
                     si_values[name] = _convert(symbols[name].value, symbols[name].unit)
             try:
@@ -440,7 +722,7 @@ class ScienceSolver:
             evaluations.append((relation, value, si_values))
             constant_free.append(
                 all(
-                    name in symbols or name not in ("g", "R")
+                    name in symbols or name not in CONSTANTS
                     for name, _dims in relation.inputs
                 )
             )
@@ -462,14 +744,7 @@ class ScienceSolver:
         output_scale = unit_scale(target_unit) or 1.0
         answer = si_value / output_scale
         residual = 0.0
-        if relation.name == "combination":
-            n_value = int(round(si_values["n"]))
-            k_value = int(round(si_values["k"]))
-            independent = math.factorial(n_value) / (
-                math.factorial(k_value) * math.factorial(n_value - k_value)
-            )
-            residual = abs(independent - si_value) / max(1.0, abs(si_value))
-        elif not relation.tabular:
+        if not relation.tabular:
             kwargs = dict(si_values)
             kwargs[OUTPUT_SYMBOL.get(relation.name, "result")] = si_value
             try:
@@ -588,7 +863,10 @@ class ScienceSolver:
                 "value_si = sum(VALUES) / len(VALUES)",
             ]
         else:
-            lines += ["import math", "R = 8.314462618", "g = 9.80665", ""]
+            lines += ["import math"]
+            for cname, (cval, _cunit) in CONSTANTS.items():
+                lines.append("%s = %.17g" % (cname, cval))
+            lines.append("")
             for name, _dims in relation.inputs:
                 lines.append("%s = %.17g" % (name, si_values[name]))
             lines.append("value_si = " + _mathify(relation.expression))

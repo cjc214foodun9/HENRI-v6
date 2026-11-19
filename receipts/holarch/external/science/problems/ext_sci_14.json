@@ -1,0 +1,33 @@
+{
+  "domain": "electromagnetism",
+  "expected": 1.602e-17,
+  "id": "ext_sci_14",
+  "prompt": "Calculate the kinetic energy of an electron in a beam of electrons accelerated by a voltage increment of $100 \\mathrm{~V}$",
+  "quantities": [
+    {
+      "symbol": "charge",
+      "unit": "e",
+      "value": 1.0
+    },
+    {
+      "symbol": "voltage",
+      "unit": "V",
+      "value": 100.0
+    }
+  ],
+  "rel_tol": 0.01,
+  "target": {
+    "symbol": "energy",
+    "unit": "J"
+  },
+  "upstream_answer_number": "1.602",
+  "upstream_commit": "e14e0ca3d3db0f02928a18d435b9c3d15656a7c5",
+  "upstream_dataset": "mandyyyyii/scibench",
+  "upstream_file": "chemmc.json",
+  "upstream_file_sha256": "134baf281dc7636fd01729b7f3b52465a44ea55fec5cb00e76a5fe809da520a0",
+  "upstream_index": 37,
+  "upstream_problemid": "1-39",
+  "upstream_source": "chemmc",
+  "upstream_unit_raw": " $10^{-17} \\mathrm{~J} \\cdot$ electron ${ }^{-1}$",
+  "upstream_url": "https://github.com/mandyyyyii/scibench/blob/e14e0ca3d3db0f02928a18d435b9c3d15656a7c5/dataset/original/chemmc.json"
+}

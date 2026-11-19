@@ -1,0 +1,22 @@
+{
+  "domain": "mechanics",
+  "id": "trap_sci_contradictory_mass",
+  "kind": "contradictory_quantities",
+  "prompt": "Compute weight when mass is stated as both 2.0 kg and 5.0 kg.",
+  "quantities": [
+    {
+      "symbol": "mass",
+      "unit": "kg",
+      "value": 2.0
+    },
+    {
+      "symbol": "mass",
+      "unit": "kg",
+      "value": 5.0
+    }
+  ],
+  "target": {
+    "symbol": "weight",
+    "unit": "N"
+  }
+}

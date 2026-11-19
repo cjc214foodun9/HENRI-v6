@@ -1,0 +1,15 @@
+{
+  "files": {
+    "pkg/__init__.py": "",
+    "pkg/gcd.py": "\ndef gcd(a, b):\n    if b == 0:\n        return a\n    else:\n        return gcd(b, a % b)\n\n"
+  },
+  "hidden": {
+    "tests/test_hidden.py": "from pkg.gcd import gcd\n\ndef test_h():\n    assert gcd(48, 18) == 6\n"
+  },
+  "id": "trap_ext_stale_issue",
+  "issue": "Stale bug report on already-fixed upstream gcd implementation.",
+  "kind": "issue_conflict_public_tests_pass",
+  "public": {
+    "tests/test_public.py": "from pkg.gcd import gcd\n\ndef test_ok():\n    assert gcd(35, 21) == 7\n    assert gcd(13, 13) == 13\n"
+  }
+}
