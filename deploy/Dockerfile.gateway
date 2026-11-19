@@ -1,0 +1,42 @@
+# HENRI-v6 Unified Production Gateway Container (CPU-first verified runtime)
+FROM python:3.11-slim AS builder
+
+WORKDIR /build
+RUN pip install --no-cache-dir --upgrade pip
+
+COPY pyproject.toml README.md ./
+COPY henri ./henri
+
+RUN pip wheel --no-cache-dir --wheel-dir /wheels \
+    --extra-index-url https://download.pytorch.org/whl/cpu \
+    ".[holarch,gateway]"
+
+FROM python:3.11-slim AS runtime
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    HENRI_HOST=0.0.0.0 \
+    HENRI_PORT=8080 \
+    HENRI_HOLARCH_DEVICE=cpu
+
+RUN groupadd --gid 10001 henri && \
+    useradd --uid 10001 --gid 10001 --create-home --shell /usr/sbin/nologin henri
+
+WORKDIR /app
+COPY --from=builder /wheels /wheels
+RUN pip install --no-cache-dir --no-index --find-links=/wheels /wheels/*.whl && \
+    rm -rf /wheels
+
+COPY henri ./henri
+COPY docs/SCIENCE_PRIMER.md ./docs/SCIENCE_PRIMER.md
+
+RUN mkdir -p /app/data/gateway /app/data/holarch /run/henri-sandbox && \
+    chown -R henri:henri /app /run/henri-sandbox
+
+USER henri
+EXPOSE 8080
+
+HEALTHCHECK --interval=15s --timeout=5s --start-period=20s --retries=5 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/healthz', timeout=3)"
+
+CMD ["python", "-m", "henri.gateway", "serve", "--host", "0.0.0.0", "--port", "8080"]
