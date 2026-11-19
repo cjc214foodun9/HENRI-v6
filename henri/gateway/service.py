@@ -157,6 +157,7 @@ class UnifiedGatewayService:
         self._cartridge_cache: Dict[str, CartridgeBank] = {}
         self._code_banks: Dict[str, Any] = {}
         self._zone_a_snapshots: Dict[str, Dict[str, Any]] = {}
+        self._atlases: Dict[str, Any] = {}
 
         # Bounded compute pool so heavy numpy/torch ops never stall SSE/MCP
         self._pool = ThreadPoolExecutor(
@@ -810,6 +811,7 @@ class UnifiedGatewayService:
             "result": result_body,
             "provenance": outcome.provenance,
             "evidence_label": "OBSERVED",
+            "compute_device": self.compute_device,
             "epistemic_receipt": signed,
         }
 
@@ -856,6 +858,7 @@ class UnifiedGatewayService:
             "result": result_body,
             "provenance": outcome.provenance,
             "evidence_label": "OBSERVED",
+            "compute_device": self.compute_device,
             "epistemic_receipt": signed,
         }
 
@@ -895,6 +898,7 @@ class UnifiedGatewayService:
             "result": result_body,
             "provenance": "wave_only",
             "evidence_label": "OBSERVED",
+            "compute_device": self.compute_device,
             "epistemic_receipt": signed,
         }
 
@@ -1206,3 +1210,208 @@ class UnifiedGatewayService:
             result_payload={"vetoed": body.get("vetoed"), "sagnac_delta": body.get("sagnac_delta")},
         )
         return body
+
+    # ------------------------------------------ Packed RiemannianChartAtlas (AF1)
+    @staticmethod
+    def _parse_complex_vector(raw: Sequence[Any]) -> np.ndarray:
+        arr = np.asarray(raw)
+        if arr.ndim == 2 and arr.shape[1] == 2:
+            return np.ascontiguousarray(arr[:, 0] + 1j * arr[:, 1], dtype=np.complex128)
+        if arr.ndim == 1:
+            return np.ascontiguousarray(arr.astype(np.complex128))
+        raise ValueError("vector must be 1D float/complex or 2D [re, im] pairs")
+
+    @staticmethod
+    def _parse_complex_matrix(raw: Sequence[Any]) -> np.ndarray:
+        arr = np.asarray(raw)
+        if arr.ndim == 3 and arr.shape[2] == 2:
+            return np.ascontiguousarray(arr[:, :, 0] + 1j * arr[:, :, 1], dtype=np.complex128)
+        if arr.ndim == 2:
+            return np.ascontiguousarray(arr.astype(np.complex128))
+        raise ValueError("vectors must be 2D [N, D] or 3D [N, D, 2] [re, im] pairs")
+
+    def atlas_build(
+        self,
+        *,
+        vectors: Sequence[Any],
+        rows: Optional[Sequence[int]] = None,
+        rank: int = 8,
+        capacity: int = 192,
+        top_charts: int = 2,
+        top_charts_max: int = 4,
+        namespace: str = "default",
+    ) -> Dict[str, Any]:
+        from henri.holarch.riemannian_atlas import RiemannianChartAtlas
+
+        matrix = self._parse_complex_matrix(vectors)
+        row_ids = (
+            [int(r) for r in rows]
+            if rows is not None
+            else list(range(int(matrix.shape[0])))
+        )
+        if len(row_ids) != int(matrix.shape[0]):
+            raise ValueError("rows length must match vectors count")
+        atlas = RiemannianChartAtlas(
+            rank=int(rank),
+            capacity=int(capacity),
+            top_charts=int(top_charts),
+            top_charts_max=int(top_charts_max),
+        )
+        with self._ns_lock(namespace).write_locked():
+            stats = atlas.build(matrix, row_ids, namespace=namespace)
+            self._atlases[namespace] = atlas
+        result = {
+            "namespace": namespace,
+            "stats": stats,
+            "evidence_label": "OBSERVED",
+            "compute_device": self.compute_device,
+        }
+        signed = self.issue_signed_receipt(
+            endpoint="/v1/holarch/atlas/build",
+            namespace=namespace,
+            request_payload={"namespace": namespace, "n_vectors": int(matrix.shape[0]), "dim": int(matrix.shape[1]), "capacity": int(capacity)},
+            result_payload={"charts": int(stats["charts"]), "rows": int(stats["rows"]), "digest": stats["digest"]},
+            provenance="wave_only",
+            evidence_label="OBSERVED",
+        )
+        return {
+            "ok": True,
+            "endpoint": "/v1/holarch/atlas/build",
+            "result": result,
+            "provenance": "wave_only",
+            "evidence_label": "OBSERVED",
+            "compute_device": self.compute_device,
+            "epistemic_receipt": signed,
+            "receipt": signed,
+        }
+
+    def atlas_observe(
+        self,
+        *,
+        vector: Sequence[Any],
+        row: int,
+        finalize: bool = False,
+        namespace: str = "default",
+    ) -> Dict[str, Any]:
+        from henri.holarch.riemannian_atlas import RiemannianChartAtlas
+
+        vec = self._parse_complex_vector(vector)
+        with self._ns_lock(namespace).write_locked():
+            atlas = self._atlases.get(namespace)
+            if atlas is None:
+                atlas = RiemannianChartAtlas()
+                self._atlases[namespace] = atlas
+            outcome = atlas.observe(vec, int(row), namespace=namespace)
+            condensed_final = int(atlas.finalize()) if bool(finalize) else 0
+            stats = atlas.stats()
+        result = {
+            "namespace": namespace,
+            "outcome": outcome,
+            "finalized_charts": condensed_final,
+            "stats": stats,
+            "evidence_label": "OBSERVED",
+            "compute_device": self.compute_device,
+        }
+        signed = self.issue_signed_receipt(
+            endpoint="/v1/holarch/atlas/observe",
+            namespace=namespace,
+            request_payload={"namespace": namespace, "row": int(row), "dim": int(vec.size), "finalize": bool(finalize)},
+            result_payload={"action": outcome.get("action"), "rows": int(stats["rows"]), "charts": int(stats["charts"])},
+            provenance="wave_only",
+            evidence_label="OBSERVED",
+        )
+        return {
+            "ok": True,
+            "endpoint": "/v1/holarch/atlas/observe",
+            "result": result,
+            "provenance": "wave_only",
+            "evidence_label": "OBSERVED",
+            "compute_device": self.compute_device,
+            "epistemic_receipt": signed,
+            "receipt": signed,
+        }
+
+    def atlas_query(
+        self,
+        *,
+        vector: Sequence[Any],
+        k: int = 1,
+        top_charts: Optional[int] = None,
+        namespace: str = "default",
+    ) -> Dict[str, Any]:
+        vec = self._parse_complex_vector(vector)
+        with self._ns_lock(namespace).read_locked():
+            atlas = self._atlases.get(namespace)
+            if atlas is None:
+                raise KeyError(f"no RiemannianChartAtlas built for namespace {namespace!r}")
+            top_k = max(1, int(k))
+            if top_k == 1:
+                row_id, score, scored, detail = atlas.query_top1(
+                    vec, namespace=namespace, top_charts=top_charts
+                )
+                hits = [{"row": int(row_id), "score": float(score)}] if row_id >= 0 else []
+            else:
+                ranked, detail = atlas.search(
+                    vec, k=top_k, namespace=namespace, top_charts=top_charts
+                )
+                hits = [{"row": int(rid), "score": float(sc)} for rid, sc in ranked]
+                scored = int(detail.get("candidates_scored", 0))
+            total_rows = int(atlas.stats().get("rows", 0))
+        result = {
+            "namespace": namespace,
+            "hits": hits,
+            "candidates_scored": int(scored),
+            "candidate_fraction": float(scored / max(total_rows, 1)),
+            "routing": detail,
+            "evidence_label": "OBSERVED",
+            "compute_device": self.compute_device,
+        }
+        signed = self.issue_signed_receipt(
+            endpoint="/v1/holarch/atlas/query",
+            namespace=namespace,
+            request_payload={"namespace": namespace, "dim": int(vec.size), "k": top_k},
+            result_payload={"top_row": hits[0]["row"] if hits else None, "candidates_scored": int(scored)},
+            provenance="wave_only",
+            evidence_label="OBSERVED",
+        )
+        return {
+            "ok": True,
+            "endpoint": "/v1/holarch/atlas/query",
+            "result": result,
+            "provenance": "wave_only",
+            "evidence_label": "OBSERVED",
+            "compute_device": self.compute_device,
+            "epistemic_receipt": signed,
+            "receipt": signed,
+        }
+
+    def atlas_stats(self, *, namespace: str = "default") -> Dict[str, Any]:
+        with self._ns_lock(namespace).read_locked():
+            atlas = self._atlases.get(namespace)
+            stats = atlas.stats() if atlas is not None else {"built": False, "charts": 0, "rows": 0}
+        result = {
+            "namespace": namespace,
+            "built": atlas is not None,
+            "stats": stats,
+            "evidence_label": "OBSERVED",
+            "compute_device": self.compute_device,
+        }
+        signed = self.issue_signed_receipt(
+            endpoint="/v1/holarch/atlas/stats",
+            namespace=namespace,
+            request_payload={"namespace": namespace},
+            result_payload={"built": atlas is not None, "charts": int(stats.get("charts", 0)), "rows": int(stats.get("rows", 0))},
+            provenance="wave_only",
+            evidence_label="OBSERVED",
+        )
+        return {
+            "ok": True,
+            "endpoint": "/v1/holarch/atlas/stats",
+            "result": result,
+            "provenance": "wave_only",
+            "evidence_label": "OBSERVED",
+            "compute_device": self.compute_device,
+            "epistemic_receipt": signed,
+            "receipt": signed,
+        }
+

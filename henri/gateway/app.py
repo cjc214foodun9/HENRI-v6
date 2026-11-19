@@ -101,6 +101,30 @@ class ArcSolveRequest(BaseModel):
     namespace: Optional[str] = None
 
 
+class AtlasBuildRequest(BaseModel):
+    vectors: List[Any]
+    rows: Optional[List[int]] = None
+    rank: int = 8
+    capacity: int = 192
+    top_charts: int = 2
+    top_charts_max: int = 4
+    namespace: Optional[str] = None
+
+
+class AtlasObserveRequest(BaseModel):
+    vector: List[Any]
+    row: int
+    finalize: bool = False
+    namespace: Optional[str] = None
+
+
+class AtlasQueryRequest(BaseModel):
+    vector: List[Any]
+    k: int = 1
+    top_charts: Optional[int] = None
+    namespace: Optional[str] = None
+
+
 def create_gateway_app(
     service: Optional[UnifiedGatewayService] = None,
     *,
@@ -422,6 +446,67 @@ def create_gateway_app(
             time_budget=req.time_budget,
             namespace=ns,
         )
+
+    # ------------------------------------ Packed RiemannianChartAtlas (AF1)
+    @app.post("/v1/holarch/atlas/build")
+    async def holarch_atlas_build(
+        req: AtlasBuildRequest, policy: TenantPolicy = Depends(require_tenant)
+    ) -> Dict[str, Any]:
+        ns = svc.auth.authorize_namespace(policy, req.namespace)
+        try:
+            return await svc.run_in_pool(
+                svc.atlas_build,
+                vectors=req.vectors,
+                rows=req.rows,
+                rank=req.rank,
+                capacity=req.capacity,
+                top_charts=req.top_charts,
+                top_charts_max=req.top_charts_max,
+                namespace=ns,
+            )
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+    @app.post("/v1/holarch/atlas/observe")
+    async def holarch_atlas_observe(
+        req: AtlasObserveRequest, policy: TenantPolicy = Depends(require_tenant)
+    ) -> Dict[str, Any]:
+        ns = svc.auth.authorize_namespace(policy, req.namespace)
+        try:
+            return await svc.run_in_pool(
+                svc.atlas_observe,
+                vector=req.vector,
+                row=req.row,
+                finalize=req.finalize,
+                namespace=ns,
+            )
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+    @app.post("/v1/holarch/atlas/query")
+    async def holarch_atlas_query(
+        req: AtlasQueryRequest, policy: TenantPolicy = Depends(require_tenant)
+    ) -> Dict[str, Any]:
+        ns = svc.auth.authorize_namespace(policy, req.namespace)
+        try:
+            return await svc.run_in_pool(
+                svc.atlas_query,
+                vector=req.vector,
+                k=req.k,
+                top_charts=req.top_charts,
+                namespace=ns,
+            )
+        except KeyError as exc:
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+    @app.get("/v1/holarch/atlas/stats")
+    async def holarch_atlas_stats(
+        namespace: Optional[str] = None, policy: TenantPolicy = Depends(require_tenant)
+    ) -> Dict[str, Any]:
+        ns = svc.auth.authorize_namespace(policy, namespace)
+        return await svc.run_in_pool(svc.atlas_stats, namespace=ns)
 
     # ------------------------------------------ OpenAI-compatible chat SSE
     @app.post("/v1/chat/completions")

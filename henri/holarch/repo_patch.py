@@ -62,16 +62,16 @@ REPULSOR_SOURCE = "repo_patch_cegis"
 AXIOM_DIM = 1024
 
 CMP_SWAP = {
-    ast.Lt: ast.LtE,
-    ast.LtE: ast.Lt,
-    ast.Gt: ast.GtE,
-    ast.GtE: ast.Gt,
-    ast.Eq: ast.NotEq,
-    ast.NotEq: ast.Eq,
-    ast.In: ast.NotIn,
-    ast.NotIn: ast.In,
-    ast.Is: ast.IsNot,
-    ast.IsNot: ast.Is,
+    ast.Lt: (ast.LtE, ast.Gt),
+    ast.LtE: (ast.Lt, ast.GtE),
+    ast.Gt: (ast.GtE, ast.Lt),
+    ast.GtE: (ast.Gt, ast.LtE),
+    ast.Eq: (ast.NotEq,),
+    ast.NotEq: (ast.Eq,),
+    ast.In: (ast.NotIn,),
+    ast.NotIn: (ast.In,),
+    ast.Is: (ast.IsNot,),
+    ast.IsNot: (ast.Is,),
 }
 BIN_SWAP = {
     ast.Add: ast.Sub,
@@ -80,8 +80,26 @@ BIN_SWAP = {
     ast.Div: ast.Mult,
     ast.FloorDiv: ast.Div,
     ast.Mod: ast.FloorDiv,
+    ast.BitXor: ast.BitAnd,
+    ast.BitAnd: ast.BitXor,
+    ast.BitOr: ast.BitAnd,
 }
-CALL_SWAP = {"min": "max", "max": "min", "sorted": "reversed", "reversed": "sorted"}
+BIN_ORDER_SWAP = (ast.Add, ast.Sub, ast.Div, ast.FloorDiv, ast.Mod)
+AUG_SWAP = {
+    ast.BitXor: (ast.BitAnd, ast.BitOr),
+    ast.BitAnd: (ast.BitXor, ast.BitOr),
+    ast.BitOr: (ast.BitAnd, ast.BitXor),
+    ast.Add: (ast.Sub,),
+    ast.Sub: (ast.Add,),
+}
+CALL_SWAP = {
+    "min": "max",
+    "max": "min",
+    "sorted": "reversed",
+    "reversed": "sorted",
+    "any": "all",
+    "all": "any",
+}
 
 
 @dataclass(frozen=True)
@@ -181,10 +199,12 @@ class RepoSubprocessSandbox:
                 "stdout": subprocess.PIPE,
                 "stderr": subprocess.PIPE,
             }
-            if os.name == "nt":
+            if sys.platform == "win32":
                 kwargs["creationflags"] = getattr(
                     subprocess, "CREATE_NEW_PROCESS_GROUP", 0
                 )
+            else:
+                kwargs["start_new_session"] = True
             process = subprocess.Popen(command, **kwargs)  # type: ignore[arg-type]
             try:
                 out_bytes, err_bytes = process.communicate(timeout=self.timeout_s)
@@ -313,15 +333,18 @@ class FaultLocalizer:
             seen_frames.add(key)
             unique.append(frame)
         out.frames = unique
-        error = _ERROR_LINE.search(text)
-        if error:
-            out.failure_kind = str(error.group(1))
+        if bool(report.get("timed_out")):
+            out.failure_kind = "TimeoutError"
         else:
-            matches = list(_ERROR_STDLIB.finditer(text))
-            if matches:
-                out.failure_kind = str(matches[-1].group(1)).split(".")[-1]
-            elif "assert" in text.lower():
-                out.failure_kind = "AssertionError"
+            error = _ERROR_LINE.search(text)
+            if error:
+                out.failure_kind = str(error.group(1))
+            else:
+                matches = list(_ERROR_STDLIB.finditer(text))
+                if matches:
+                    out.failure_kind = str(matches[-1].group(1)).split(".")[-1]
+                elif "assert" in text.lower():
+                    out.failure_kind = "AssertionError"
         assertion = _ASSERT_LINE.search(text)
         if assertion:
             left, operator, right = assertion.groups()
@@ -584,13 +607,23 @@ class PatchProposer:
             line = int(site["line"])
             site_key = "%s@%d" % (kind, ordinal)
             if kind == "compare":
-                mutated = _apply_site(tree, source, func_path, site_path, _act_compare, None)
-                add("compare", mutated, line, signature("compare", site_key, 0),
-                    "compare operator swap")
+                for op_idx in range(int(site.get("n_ops", 1))):
+                    mutated = _apply_site(tree, source, func_path, site_path, _act_compare, op_idx)
+                    add("compare", mutated, line, signature("compare", site_key, op_idx),
+                        "compare operator swap (%d)" % op_idx)
+            elif kind == "augassign":
+                for op_idx in range(int(site.get("n_ops", 1))):
+                    mutated = _apply_site(tree, source, func_path, site_path, _act_augassign, op_idx)
+                    add("augassign", mutated, line, signature("augassign", site_key, op_idx),
+                        "augmented assignment operator swap (%d)" % op_idx)
             elif kind == "binop":
                 mutated = _apply_site(tree, source, func_path, site_path, _act_binop, None)
                 add("binop", mutated, line, signature("binop", site_key, 0),
                     "binary operator swap")
+                if bool(site.get("order_swap")):
+                    mutated = _apply_site(tree, source, func_path, site_path, _act_binop_swap, None)
+                    add("binop", mutated, line, signature("binop", site_key, "order"),
+                        "binary operand order swap")
             elif kind == "int":
                 for delta in (1, -1):
                     mutated = _apply_site(tree, source, func_path, site_path, _act_int, delta)
@@ -613,10 +646,30 @@ class PatchProposer:
                     add("call", mutated, line,
                         signature("call", site_key, alternative),
                         "callee %s" % alternative)
-                if int(site["arity"]) >= 2:
+                arity = int(site["arity"])
+                if arity >= 2:
                     mutated = _apply_site(tree, source, func_path, site_path, _act_argswap, None)
                     add("call", mutated, line, signature("call", site_key, "swap"),
                         "argument order swap")
+                if arity >= 3:
+                    mutated = _apply_site(tree, source, func_path, site_path, _act_argswap_tail, None)
+                    add("call", mutated, line, signature("call", site_key, "swap_tail"),
+                        "trailing argument pair swap")
+                for arg_idx in list(site.get("name_arg_indices") or []):
+                    for delta in (1, -1):
+                        mutated = _apply_site(
+                            tree, source, func_path, site_path, _act_call_arg_offset, (arg_idx, delta)
+                        )
+                        add("call_arg", mutated, line,
+                            signature("call_arg", site_key, "%d:%+d" % (arg_idx, delta)),
+                            "call argument %d offset %+d" % (arg_idx, delta))
+                for arg_idx, var_name in list(site.get("var_swaps") or []):
+                    mutated = _apply_site(
+                        tree, source, func_path, site_path, _act_call_arg_var, (arg_idx, var_name)
+                    )
+                    add("call_arg", mutated, line,
+                        signature("call_arg", site_key, "%d:%s" % (arg_idx, var_name)),
+                        "call argument %d variable %s" % (arg_idx, var_name))
             elif kind == "boolop":
                 mutated = _apply_site(tree, source, func_path, site_path, _act_boolop, None)
                 add("boolop", mutated, line, signature("boolop", site_key, 0),
@@ -647,19 +700,30 @@ def _evidence_weights(localization: Localization) -> Dict[str, float]:
     if kind in {"TypeError", "AttributeError"}:
         weights = {"guard_none": 60.0, "guard_empty": 55.0, "attr": 50.0, "call": 40.0}
     elif kind == "IndexError":
-        weights = {"guard_none": 55.0, "guard_empty": 50.0, "index": 50.0}
+        weights = {"guard_none": 55.0, "guard_empty": 50.0, "index": 50.0, "compare": 45.0, "call_arg": 40.0}
     elif kind == "KeyError":
         weights = {"guard_none": 50.0, "guard_empty": 45.0, "attr": 25.0}
     elif kind == "ZeroDivisionError":
-        weights = {"guard_none": 60.0, "guard_empty": 60.0}
+        weights = {"guard_none": 60.0, "guard_empty": 60.0, "call": 45.0, "binop": 35.0}
+    elif kind in {"TimeoutError", "RecursionError"}:
+        weights = {
+            "augassign": 55.0,
+            "compare": 50.0,
+            "call_arg": 48.0,
+            "call": 45.0,
+            "binop": 35.0,
+            "int": 30.0,
+        }
     elif kind == "AssertionError":
         weights = {
             "compare": 40.0,
+            "augassign": 38.0,
             "int": 35.0,
             "binop": 30.0,
             "index": 25.0,
+            "call_arg": 25.0,
             "attr": 20.0,
-            "call": 20.0,
+            "call": 22.0,
             "guard_none": 0.0,
             "guard_empty": 0.0,
             "slice": 20.0,
@@ -744,6 +808,8 @@ def _site_kind(node: ast.AST) -> Optional[str]:
         if len(node.ops) == 1 and type(node.ops[0]) in CMP_SWAP:
             return "compare"
         return None
+    if isinstance(node, ast.AugAssign) and type(node.op) in AUG_SWAP:
+        return "augassign"
     if isinstance(node, ast.BinOp) and type(node.op) in BIN_SWAP:
         return "binop"
     if isinstance(node, ast.Subscript):
@@ -782,6 +848,20 @@ def _collect_sites(
     for node in ast.walk(tree):
         if isinstance(node, ast.Attribute) and isinstance(node.value, ast.Name):
             attrs.setdefault(node.value.id, set()).add(node.attr)
+    local_vars = sorted(
+        {
+            target.id
+            for sub in ast.walk(func)
+            if isinstance(sub, ast.Assign)
+            for target in sub.targets
+            if isinstance(target, ast.Name)
+        }
+        | {
+            arg.arg
+            for arg in getattr(getattr(func, "args", None), "args", []) or []
+            if arg.arg not in {"self", "cls"}
+        }
+    )
     strings = sorted(
         {
             node.value
@@ -797,7 +877,33 @@ def _collect_sites(
         kind = _site_kind(node)
         if kind is not None:
             record: Optional[Dict[str, Any]] = None
-            if kind == "attr":
+            if kind == "compare":
+                record = {
+                    "kind": kind,
+                    "path": relative,
+                    "line": node.lineno,
+                    "n_ops": len(CMP_SWAP[type(node.ops[0])]),
+                }
+            elif kind == "augassign":
+                record = {
+                    "kind": kind,
+                    "path": relative,
+                    "line": node.lineno,
+                    "n_ops": len(AUG_SWAP[type(node.op)]),
+                }
+            elif kind == "binop":
+                order_swap = bool(
+                    isinstance(node.op, BIN_ORDER_SWAP)
+                    and ast.dump(node.left, annotate_fields=False)
+                    != ast.dump(node.right, annotate_fields=False)
+                )
+                record = {
+                    "kind": kind,
+                    "path": relative,
+                    "line": node.lineno,
+                    "order_swap": order_swap,
+                }
+            elif kind == "attr":
                 base = node.value.id if isinstance(node.value, ast.Name) else ""
                 parent = parents.get(id(node))
                 if isinstance(parent, ast.Call) and parent.func is node:
@@ -814,9 +920,28 @@ def _collect_sites(
                     alternatives = _call_alternatives(
                         node, files, path, enclosing=_enclosing_function(node, parents)
                     )
-                    if alternatives:
-                        record = {"kind": kind, "path": relative, "line": node.lineno,
-                                  "alternatives": alternatives, "arity": len(node.args)}
+                    arity = len(node.args)
+                    name_arg_indices = [
+                        idx
+                        for idx, arg in enumerate(node.args)
+                        if isinstance(arg, ast.Name)
+                    ][:2] if arity >= 2 else []
+                    var_swaps: List[Tuple[int, str]] = []
+                    if arity == 1 and isinstance(node.args[0], ast.Name):
+                        cur = node.args[0].id
+                        for lv in local_vars:
+                            if lv != cur and len(var_swaps) < 3:
+                                var_swaps.append((0, lv))
+                    if alternatives or arity >= 2 or var_swaps:
+                        record = {
+                            "kind": kind,
+                            "path": relative,
+                            "line": node.lineno,
+                            "alternatives": alternatives,
+                            "arity": arity,
+                            "name_arg_indices": name_arg_indices,
+                            "var_swaps": var_swaps,
+                        }
             elif kind == "str":
                 if _is_docstring(node, parents):
                     record = None
@@ -1012,11 +1137,23 @@ def _splice_function(
 
 
 def _act_compare(node: ast.AST, argument: Any) -> None:
-    node.ops[0] = CMP_SWAP[type(node.ops[0])]()
+    ops = CMP_SWAP[type(node.ops[0])]
+    idx = int(argument or 0)
+    node.ops[0] = ops[idx]()
+
+
+def _act_augassign(node: ast.AST, argument: Any) -> None:
+    ops = AUG_SWAP[type(node.op)]
+    idx = int(argument or 0)
+    node.op = ops[idx]()
 
 
 def _act_binop(node: ast.AST, argument: Any) -> None:
     node.op = BIN_SWAP[type(node.op)]()
+
+
+def _act_binop_swap(node: ast.AST, argument: Any) -> None:
+    node.left, node.right = node.right, node.left
 
 
 def _act_int(node: ast.AST, argument: Any) -> None:
@@ -1037,6 +1174,28 @@ def _act_call(node: ast.AST, argument: Any) -> None:
 
 def _act_argswap(node: ast.AST, argument: Any) -> None:
     node.args = list(reversed(node.args))
+
+
+def _act_argswap_tail(node: ast.AST, argument: Any) -> None:
+    if len(node.args) >= 2:
+        args = list(node.args)
+        args[-2], args[-1] = args[-1], args[-2]
+        node.args = args
+
+
+def _act_call_arg_offset(node: ast.AST, argument: Any) -> None:
+    idx, delta = int(argument[0]), int(argument[1])
+    op = ast.Add() if delta > 0 else ast.Sub()
+    node.args[idx] = ast.BinOp(
+        left=node.args[idx],
+        op=op,
+        right=ast.Constant(value=abs(delta)),
+    )
+
+
+def _act_call_arg_var(node: ast.AST, argument: Any) -> None:
+    idx, name = int(argument[0]), str(argument[1])
+    node.args[idx] = ast.Name(id=name, ctx=ast.Load())
 
 
 def _act_boolop(node: ast.AST, argument: Any) -> None:

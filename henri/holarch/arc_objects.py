@@ -2013,6 +2013,669 @@ def op_marker_wall_impact(
     return out
 
 
+# ======================================================================
+# Cycle AF3: universal geometric, wave-propagation & compositional ops
+# ======================================================================
+def op_delete_colour(grid: np.ndarray, colour: int) -> Optional[np.ndarray]:
+    """Replace every cell of `colour` with the canvas background."""
+    value = as_grid(grid)
+    background = background_colour(value)
+    target = int(colour)
+    if target == int(background) or not bool((value == target).any()):
+        return None
+    out = value.copy()
+    out[value == target] = int(background)
+    return out
+
+
+def op_flood_fill_seeds(
+    grid: np.ndarray, barrier: int, mode: str
+) -> Optional[np.ndarray]:
+    """4-connected BFS wave propagation from non-barrier seeds through background.
+
+    - `uniform`: each seed cell propagates its own colour through background
+      cells bounded by `barrier` (or dominant non-bg colour when `barrier < 0`).
+    - `alternating`: a 2-colour 4-adjacent seed cluster propagates an alternating
+      Manhattan-parity checkerboard wave through all 4-reachable background cells.
+    """
+    value = as_grid(grid)
+    background = background_colour(value)
+    height, width = value.shape
+    non_bg = value[value != int(background)]
+    if non_bg.size == 0:
+        return None
+    if int(barrier) < 0:
+        counts = np.bincount(non_bg, minlength=COLOURS)
+        wall = int(np.argmax(counts))
+    else:
+        wall = int(barrier)
+    if wall == int(background) or not bool((value == wall).any()):
+        return None
+    seed_mask = (value != int(background)) & (value != wall)
+    if not bool(seed_mask.any()):
+        return None
+    out = value.copy()
+    if mode == "uniform":
+        from collections import deque
+
+        queue = deque()
+        for r, c in zip(*np.nonzero(seed_mask)):
+            queue.append((int(r), int(c), int(value[r, c])))
+        changed = False
+        while queue:
+            r, c, col = queue.popleft()
+            for dr, dc in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+                nr, nc = r + dr, c + dc
+                if 0 <= nr < height and 0 <= nc < width and int(out[nr, nc]) == int(background):
+                    out[nr, nc] = col
+                    changed = True
+                    queue.append((nr, nc, col))
+        return out if changed else None
+    if mode == "alternating":
+        seed_colours = sorted(set(int(v) for v in value[seed_mask]))
+        if len(seed_colours) != 2:
+            return None
+        c0, c1 = seed_colours
+        p0_set = {(int(r) + int(c)) % 2 for r, c in zip(*np.nonzero(value == c0))}
+        p1_set = {(int(r) + int(c)) % 2 for r, c in zip(*np.nonzero(value == c1))}
+        if len(p0_set) != 1 or len(p1_set) != 1 or p0_set == p1_set:
+            return None
+        parity_c0 = next(iter(p0_set))
+        from collections import deque
+
+        queue = deque()
+        visited = np.zeros((height, width), dtype=bool)
+        for r, c in zip(*np.nonzero(seed_mask)):
+            visited[int(r), int(c)] = True
+            queue.append((int(r), int(c)))
+        changed = False
+        while queue:
+            r, c = queue.popleft()
+            for dr, dc in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+                nr, nc = r + dr, c + dc
+                if (
+                    0 <= nr < height
+                    and 0 <= nc < width
+                    and not visited[nr, nc]
+                    and int(value[nr, nc]) == int(background)
+                ):
+                    visited[nr, nc] = True
+                    out[nr, nc] = c0 if ((nr + nc) % 2 == parity_c0) else c1
+                    changed = True
+                    queue.append((nr, nc))
+        return out if changed else None
+    return None
+
+
+def op_adjacent_pair_react(
+    grid: np.ndarray, reactant_a: int, reactant_b: int, product: int
+) -> Optional[np.ndarray]:
+    """Cellular reaction: 4-adjacent `(reactant_a, reactant_b)` -> `(product, bg)`."""
+    value = as_grid(grid)
+    background = background_colour(value)
+    ra, rb, prod = int(reactant_a), int(reactant_b), int(product)
+    if ra == rb or ra == int(background) or rb == int(background):
+        return None
+    height, width = value.shape
+    out = value.copy()
+    reacted = False
+    for r in range(height):
+        for c in range(width):
+            if int(value[r, c]) != ra:
+                continue
+            for dr, dc in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+                nr, nc = r + dr, c + dc
+                if 0 <= nr < height and 0 <= nc < width and int(value[nr, nc]) == rb:
+                    out[r, c] = prod
+                    out[nr, nc] = int(background)
+                    reacted = True
+    return out if reacted else None
+
+
+def op_pivot_dihedral(
+    grid: np.ndarray, anchor: int, mode: str
+) -> Optional[np.ndarray]:
+    """Apply a point symmetry centered at the unique singleton anchor cell."""
+    value = as_grid(grid)
+    background = background_colour(value)
+    height, width = value.shape
+    if int(anchor) < 0:
+        singletons = [
+            int(col)
+            for col in np.unique(value)
+            if int(col) != int(background) and int(np.count_nonzero(value == int(col))) == 1
+        ]
+        if len(singletons) != 1:
+            return None
+        anchor_col = singletons[0]
+    else:
+        anchor_col = int(anchor)
+    pts = np.argwhere(value == anchor_col)
+    if pts.shape[0] != 1:
+        return None
+    pr, pc = int(pts[0, 0]), int(pts[0, 1])
+    out = np.full_like(value, int(background))
+    out[pr, pc] = anchor_col
+    for r in range(height):
+        for c in range(width):
+            v = int(value[r, c])
+            if v == int(background) or (r == pr and c == pc):
+                continue
+            dr, dc = r - pr, c - pc
+            if mode == "rot180":
+                nr, nc = pr - dr, pc - dc
+            elif mode == "rot90":
+                nr, nc = pr - dc, pc + dr
+            elif mode == "rot270":
+                nr, nc = pr + dc, pc - dr
+            elif mode == "flip_h":
+                nr, nc = r, pc - dc
+            elif mode == "flip_v":
+                nr, nc = pr - dr, c
+            else:
+                return None
+            if 0 <= nr < height and 0 <= nc < width:
+                out[nr, nc] = v
+    return out
+
+
+def op_collinear_midpoint_cross(
+    grid: np.ndarray, marker: int, fill: int
+) -> Optional[np.ndarray]:
+    """Paint a radius-1 Manhattan `+` cross at exact midpoints of collinear marker pairs."""
+    value = as_grid(grid)
+    background = background_colour(value)
+    height, width = value.shape
+    pts = [(int(r), int(c)) for r, c in np.argwhere(value == int(marker))]
+    if len(pts) < 2:
+        return None
+    out = value.copy()
+    drawn = False
+    for i in range(len(pts)):
+        r1, c1 = pts[i]
+        for j in range(i + 1, len(pts)):
+            r2, c2 = pts[j]
+            if r1 == r2 and abs(c2 - c1) >= 2 and (c2 - c1) % 2 == 0:
+                mr, mc = r1, (c1 + c2) // 2
+            elif c1 == c2 and abs(r2 - r1) >= 2 and (r2 - r1) % 2 == 0:
+                mr, mc = (r1 + r2) // 2, c1
+            else:
+                continue
+            for dr, dc in ((0, 0), (-1, 0), (1, 0), (0, -1), (0, 1)):
+                nr, nc = mr + dr, mc + dc
+                if 0 <= nr < height and 0 <= nc < width and int(out[nr, nc]) == int(background):
+                    out[nr, nc] = int(fill)
+                    drawn = True
+    return out if drawn else None
+
+
+def op_steiner_backbone(
+    grid: np.ndarray, dot_colour: int, line_colour: int
+) -> Optional[np.ndarray]:
+    """1-Steiner rectilinear tree: connect collinear backbone dots and project others onto it."""
+    value = as_grid(grid)
+    background = background_colour(value)
+    pts = [(int(r), int(c)) for r, c in np.argwhere(value == int(dot_colour))]
+    if len(pts) < 3:
+        return None
+    by_row: Dict[int, List[int]] = {}
+    by_col: Dict[int, List[int]] = {}
+    for r, c in pts:
+        by_row.setdefault(r, []).append(c)
+        by_col.setdefault(c, []).append(r)
+    best_axis = ""
+    best_idx = -1
+    best_span = -1
+    best_count = 1
+    for r, cols in by_row.items():
+        if len(cols) >= 2:
+            span = max(cols) - min(cols)
+            if (len(cols), span) > (best_count, best_span):
+                best_axis, best_idx, best_span, best_count = "row", r, span, len(cols)
+    for c, rows in by_col.items():
+        if len(rows) >= 2:
+            span = max(rows) - min(rows)
+            if (len(rows), span) > (best_count, best_span):
+                best_axis, best_idx, best_span, best_count = "col", c, span, len(rows)
+    if not best_axis:
+        return None
+    out = value.copy()
+    if best_axis == "row":
+        r_bb = best_idx
+        c_lo = min(c for _r, c in pts)
+        c_hi = max(c for _r, c in pts)
+        for c in range(c_lo, c_hi + 1):
+            if int(out[r_bb, c]) == int(background):
+                out[r_bb, c] = int(line_colour)
+        for r, c in pts:
+            lo, hi = min(r, r_bb), max(r, r_bb)
+            for rr in range(lo, hi + 1):
+                if int(out[rr, c]) == int(background):
+                    out[rr, c] = int(line_colour)
+    else:
+        c_bb = best_idx
+        r_lo = min(r for r, _c in pts)
+        r_hi = max(r for r, _c in pts)
+        for r in range(r_lo, r_hi + 1):
+            if int(out[r, c_bb]) == int(background):
+                out[r, c_bb] = int(line_colour)
+        for r, c in pts:
+            lo, hi = min(c, c_bb), max(c, c_bb)
+            for cc in range(lo, hi + 1):
+                if int(out[r, cc]) == int(background):
+                    out[r, cc] = int(line_colour)
+    return out
+
+
+def op_ray_reflect(
+    grid: np.ndarray, wall_colour: int, ray_colour: int
+) -> Optional[np.ndarray]:
+    """Specular optical diagonal ray emission and wall reflection."""
+    value = as_grid(grid)
+    background = background_colour(value)
+    height, width = value.shape
+    wall = int(wall_colour)
+    ray = int(ray_colour)
+    if wall == int(background) or not bool((value == wall).any()):
+        return None
+    emitters = [
+        int(c)
+        for c in np.unique(value)
+        if int(c) not in (int(background), wall)
+    ]
+    if len(emitters) != 1:
+        return None
+    em = emitters[0]
+    pts = sorted((int(r), int(c)) for r, c in np.argwhere(value == em))
+    if len(pts) < 2:
+        return None
+    # Verify collinear diagonal emitter
+    dr0 = pts[1][0] - pts[0][0]
+    dc0 = pts[1][1] - pts[0][1]
+    if abs(dr0) != 1 or abs(dc0) != 1:
+        return None
+    for idx in range(1, len(pts)):
+        if pts[idx][0] - pts[idx - 1][0] != dr0 or pts[idx][1] - pts[idx - 1][1] != dc0:
+            return None
+    # Pick endpoint pointing toward interior (not blocked by edge)
+    endpoints = [(pts[-1], (dr0, dc0)), (pts[0], (-dr0, -dc0))]
+    chosen = None
+    for (er, ec), (dr, dc) in endpoints:
+        nr, nc = er + dr, ec + dc
+        if 0 <= nr < height and 0 <= nc < width and int(value[nr, nc]) == int(background):
+            chosen = (er, ec, dr, dc)
+            break
+    if chosen is None:
+        return None
+    r, c, dr, dc = chosen
+    out = value.copy()
+    steps = 0
+    while steps < height * width * 2:
+        steps += 1
+        nr, nc = r + dr, c + dc
+        if not (0 <= nr < height and 0 <= nc < width):
+            break
+        if int(value[nr, nc]) == wall:
+            # Determine normal axis of wall
+            hit_r = 0 <= r + dr < height and int(value[r + dr, c]) == wall
+            hit_c = 0 <= c + dc < width and int(value[r, c + dc]) == wall
+            if hit_r and not hit_c:
+                dr = -dr
+            elif hit_c and not hit_r:
+                dc = -dc
+            else:
+                dr = -dr
+                dc = -dc
+            nr, nc = r + dr, c + dc
+            if not (0 <= nr < height and 0 <= nc < width) or int(value[nr, nc]) == wall:
+                break
+        if int(out[nr, nc]) == int(background):
+            out[nr, nc] = ray
+        r, c = nr, nc
+    return out
+
+
+def op_step_particles(
+    grid: np.ndarray, marker: int, dr: int, dc: int
+) -> Optional[np.ndarray]:
+    """Translate every cell of `marker` by one step `(dr, dc)` if destination is background."""
+    value = as_grid(grid)
+    background = background_colour(value)
+    height, width = value.shape
+    col = int(marker)
+    dr, dc = int(dr), int(dc)
+    if col == int(background) or not bool((value == col).any()):
+        return None
+    out = value.copy()
+    pts = [(int(r), int(c)) for r, c in np.argwhere(value == col)]
+    for r, c in pts:
+        out[r, c] = int(background)
+    moved = False
+    for r, c in pts:
+        nr, nc = r + dr, c + dc
+        if 0 <= nr < height and 0 <= nc < width and int(out[nr, nc]) == int(background):
+            out[nr, nc] = col
+            moved = True
+        else:
+            out[r, c] = col
+    return out if moved else None
+
+
+def op_wall_contact_v_rays(
+    grid: np.ndarray, marker: int, wall: int
+) -> Optional[np.ndarray]:
+    """Emit +/-45 deg V-rays away from a full wall line for any marker cell adjacent to it."""
+    value = as_grid(grid)
+    background = background_colour(value)
+    height, width = value.shape
+    lines = _full_lines(value, int(wall))
+    if not lines:
+        return None
+    out = value.copy()
+    pts = [(int(r), int(c)) for r, c in np.argwhere(value == int(marker))]
+    if not pts:
+        return None
+    emitted = False
+    for orientation, idx in lines:
+        for r, c in pts:
+            if orientation == "row" and abs(r - idx) == 1:
+                dr = -1 if r < idx else 1
+                for dc in (-1, 1):
+                    nr, nc = r + dr, c + dc
+                    while 0 <= nr < height and 0 <= nc < width:
+                        if int(value[nr, nc]) == int(wall):
+                            break
+                        if int(out[nr, nc]) == int(background):
+                            out[nr, nc] = int(marker)
+                            emitted = True
+                        nr += dr
+                        nc += dc
+            elif orientation == "col" and abs(c - idx) == 1:
+                dc = -1 if c < idx else 1
+                for dr in (-1, 1):
+                    nr, nc = r + dr, c + dc
+                    while 0 <= nr < height and 0 <= nc < width:
+                        if int(value[nr, nc]) == int(wall):
+                            break
+                        if int(out[nr, nc]) == int(background):
+                            out[nr, nc] = int(marker)
+                            emitted = True
+                        nr += dr
+                        nc += dc
+    return out
+
+
+def op_parallel_diagonal_from_blocker(
+    grid: np.ndarray, blocker: int
+) -> Optional[np.ndarray]:
+    """For each blocker component beside a diagonal line, emit the cleared parallel diagonal."""
+    value = as_grid(grid)
+    background = background_colour(value)
+    height, width = value.shape
+    blk = int(blocker)
+    if blk == int(background) or not bool((value == blk).any()):
+        return None
+    line_colours = [
+        int(c) for c in np.unique(value) if int(c) not in (int(background), blk)
+    ]
+    if len(line_colours) != 1:
+        return None
+    line_col = line_colours[0]
+    line_pts = [(int(r), int(c)) for r, c in np.argwhere(value == line_col)]
+    if len(line_pts) < 2:
+        return None
+    diffs = {r - c for r, c in line_pts}
+    sums = {r + c for r, c in line_pts}
+    if len(diffs) == 1:
+        mode = "diff"
+        k0 = next(iter(diffs))
+    elif len(sums) == 1:
+        mode = "sum"
+        k0 = next(iter(sums))
+    else:
+        return None
+    components = _components(value == blk, 4)
+    if not components:
+        return None
+    out = value.copy()
+    emitted = False
+    for cells in components:
+        if mode == "diff":
+            ks = [r - c for r, c in cells]
+            # Pick far side from k0
+            far = max(ks, key=lambda kv: abs(kv - k0))
+            sign = 1 if far > k0 else -1
+            k_new = far + 2 * sign
+            for r in range(height):
+                c = r - k_new
+                if 0 <= c < width and int(out[r, c]) == int(background):
+                    out[r, c] = line_col
+                    emitted = True
+        else:
+            ks = [r + c for r, c in cells]
+            far = max(ks, key=lambda kv: abs(kv - k0))
+            sign = 1 if far > k0 else -1
+            k_new = far + 2 * sign
+            for r in range(height):
+                c = k_new - r
+                if 0 <= c < width and int(out[r, c]) == int(background):
+                    out[r, c] = line_col
+                    emitted = True
+    return out if emitted else None
+
+
+def op_mesh_collinear_interpolate(grid: np.ndarray) -> Optional[np.ndarray]:
+    """Interpolate identical local panel marks between collinear mesh tiles."""
+    value = as_grid(grid)
+    layout = _panel_grid(value)
+    if layout is None:
+        return None
+    rows_b = layout["rows"]
+    cols_b = layout["cols"]
+    if len(rows_b) < 2 and len(cols_b) < 2:
+        return None
+    ph, pw = layout["panel"]
+    # Find dominant non-separator base colour inside panels
+    panel_vals = np.concatenate(
+        [value[r0 : r0 + ph, c0 : c0 + pw].ravel() for r0, _ in rows_b for c0, _ in cols_b]
+    )
+    if panel_vals.size == 0:
+        return None
+    counts = np.bincount(panel_vals, minlength=COLOURS)
+    base_col = int(np.argmax(counts))
+    out = value.copy()
+    changed = False
+    # Map (mark_colour, lr, lc) -> list of (pr_idx, pc_idx)
+    marks: Dict[Tuple[int, int, int], List[Tuple[int, int]]] = {}
+    for ri, (r0, _) in enumerate(rows_b):
+        for ci, (c0, _) in enumerate(cols_b):
+            block = value[r0 : r0 + ph, c0 : c0 + pw]
+            for lr in range(ph):
+                for lc in range(pw):
+                    v = int(block[lr, lc])
+                    if v != base_col:
+                        marks.setdefault((v, lr, lc), []).append((ri, ci))
+    for (col, lr, lc), locs in marks.items():
+        if len(locs) < 2:
+            continue
+        by_r: Dict[int, List[int]] = {}
+        by_c: Dict[int, List[int]] = {}
+        for ri, ci in locs:
+            by_r.setdefault(ri, []).append(ci)
+            by_c.setdefault(ci, []).append(ri)
+        for ri, cis in by_r.items():
+            if len(cis) >= 2:
+                r0 = rows_b[ri][0]
+                for ci in range(min(cis), max(cis) + 1):
+                    c0 = cols_b[ci][0]
+                    if int(out[r0 + lr, c0 + lc]) == base_col:
+                        out[r0 + lr, c0 + lc] = col
+                        changed = True
+        for ci, ris in by_c.items():
+            if len(ris) >= 2:
+                c0 = cols_b[ci][0]
+                for ri in range(min(ris), max(ris) + 1):
+                    r0 = rows_b[ri][0]
+                    if int(out[r0 + lr, c0 + lc]) == base_col:
+                        out[r0 + lr, c0 + lc] = col
+                        changed = True
+    return out if changed else None
+
+
+def op_colour_to_glyph(
+    grid: np.ndarray, mapping: Sequence[Tuple[int, Tuple[Tuple[int, ...], ...]]]
+) -> Optional[np.ndarray]:
+    """Map the dominant foreground colour of the input grid to an induced output glyph."""
+    value = as_grid(grid)
+    background = background_colour(value)
+    fg = value[value != int(background)]
+    if fg.size == 0:
+        return None
+    dom = int(np.argmax(np.bincount(fg, minlength=COLOURS)))
+    for colour, glyph in mapping:
+        if int(colour) == dom:
+            return np.asarray(glyph, dtype=np.int64)
+    return None
+
+
+def op_ordered_collinear_bridges(
+    grid: np.ndarray, order: str
+) -> Optional[np.ndarray]:
+    """Connect collinear same-colour pairs with deterministic crossing precedence."""
+    value = as_grid(grid)
+    background = background_colour(value)
+    out = value.copy()
+    h_segs: List[Tuple[int, int, int, int]] = []
+    v_segs: List[Tuple[int, int, int, int]] = []
+    for colour in sorted(set(int(v) for v in np.unique(value))):
+        if colour == int(background):
+            continue
+        pts = [(int(r), int(c)) for r, c in np.argwhere(value == colour)]
+        if len(pts) != 2:
+            continue
+        (r1, c1), (r2, c2) = pts
+        if r1 == r2 and abs(c2 - c1) >= 2:
+            h_segs.append((r1, min(c1, c2), max(c1, c2), colour))
+        elif c1 == c2 and abs(r2 - r1) >= 2:
+            v_segs.append((c1, min(r1, r2), max(r1, r2), colour))
+    if not h_segs and not v_segs:
+        return None
+
+    def paint_h() -> None:
+        for r, c0, c1, col in h_segs:
+            out[r, c0 : c1 + 1] = col
+
+    def paint_v() -> None:
+        for c, r0, r1, col in v_segs:
+            out[r0 : r1 + 1, c] = col
+
+    if order == "v_over_h":
+        paint_h()
+        paint_v()
+    elif order == "h_over_v":
+        paint_v()
+        paint_h()
+    else:
+        return None
+    return out
+
+
+def op_pack_quadrant_objects(grid: np.ndarray) -> Optional[np.ndarray]:
+    """Pack four separated 8-connected foreground objects into a 2x2 separated canvas."""
+    value = as_grid(grid)
+    background = background_colour(value)
+    objs = extract_objects(value, background, connectivity=8, mono=False)
+    if len(objs) != 4:
+        return None
+    by_row = sorted(objs, key=lambda o: (o.centroid[0], o.centroid[1]))
+    top = sorted(by_row[:2], key=lambda o: o.centroid[1])
+    bot = sorted(by_row[2:], key=lambda o: o.centroid[1])
+    patches = [_crop_frame(value, o.bbox) for o in (top[0], top[1], bot[0], bot[1])]
+    h_top = max(patches[0].shape[0], patches[1].shape[0])
+    h_bot = max(patches[2].shape[0], patches[3].shape[0])
+    w_left = max(patches[0].shape[1], patches[2].shape[1])
+    w_right = max(patches[1].shape[1], patches[3].shape[1])
+    out = np.full((h_top + 1 + h_bot, w_left + 1 + w_right), int(background), dtype=np.int64)
+    offsets = [(0, 0), (0, w_left + 1), (h_top + 1, 0), (h_top + 1, w_left + 1)]
+    for (r0, c0), patch in zip(offsets, patches):
+        ph, pw = patch.shape
+        out[r0 : r0 + ph, c0 : c0 + pw] = patch
+    return out
+
+
+def op_delete_multicolour_extreme(grid: np.ndarray, mode: str) -> Optional[np.ndarray]:
+    """Delete the multi-colour component with minimum or maximum minority-colour cell count."""
+    value = as_grid(grid)
+    background = background_colour(value)
+    objs = extract_objects(value, background, connectivity=4, mono=False)
+    if len(objs) < 2:
+        return None
+    fg = value[value != int(background)]
+    unique_fg = sorted(set(int(v) for v in fg))
+    if len(unique_fg) != 2:
+        return None
+    counts_global = {c: int(np.count_nonzero(value == c)) for c in unique_fg}
+    minority = min(unique_fg, key=lambda c: (counts_global[c], c))
+    scores = [
+        (sum(1 for r, c in obj.cells if int(value[r, c]) == minority), idx)
+        for idx, obj in enumerate(objs)
+    ]
+    vals = [s for s, _ in scores]
+    if mode == "min_minority":
+        target = min(vals)
+    elif mode == "max_minority":
+        target = max(vals)
+    else:
+        return None
+    chosen = [idx for s, idx in scores if s == target]
+    if len(chosen) != 1:
+        return None
+    out = value.copy()
+    for r, c in objs[chosen[0]].cells:
+        out[r, c] = int(background)
+    return out
+
+
+def op_staircase_ray(
+    grid: np.ndarray, marker: int, colour: int
+) -> Optional[np.ndarray]:
+    """Emit opposing 2-step L-staircase rays from a singleton marker cell."""
+    value = as_grid(grid)
+    background = background_colour(value)
+    height, width = value.shape
+    pts = np.argwhere(value == int(marker))
+    if pts.shape[0] != 1:
+        return None
+    sr, sc = int(pts[0, 0]), int(pts[0, 1])
+    out = value.copy()
+    # Up-right staircase: step (-2, 0), (0, +2) alternating; Down-left: (+2, 0), (0, -2)
+    for sign in (-1, 1):
+        r, c = sr, sc
+        while True:
+            # 2 vertical steps
+            r1, r2 = r + sign, r + 2 * sign
+            progressed = False
+            for rr in (r1, r2):
+                if 0 <= rr < height and 0 <= c < width:
+                    if int(out[rr, c]) == int(background):
+                        out[rr, c] = int(colour)
+                    progressed = True
+            r = r2
+            if not (0 <= r < height):
+                break
+            # 2 horizontal steps in opposite sign
+            c1, c2 = c - sign, c - 2 * sign
+            for cc in (c1, c2):
+                if 0 <= r < height and 0 <= cc < width:
+                    if int(out[r, cc]) == int(background):
+                        out[r, cc] = int(colour)
+                    progressed = True
+            c = c2
+            if not progressed or not (0 <= c < width):
+                break
+    return out
+
+
 _FAMILY_APPLY = {
     "dihedral": op_dihedral,
     "colour_map": op_colour_map,
@@ -2060,6 +2723,23 @@ _FAMILY_APPLY = {
     "extend_objects": op_extend_objects,
     "extend_to_wall": op_extend_to_wall,
     "marker_wall_impact": op_marker_wall_impact,
+    # Cycle AF3 universal & compositional families
+    "delete_colour": op_delete_colour,
+    "flood_fill_seeds": op_flood_fill_seeds,
+    "adjacent_pair_react": op_adjacent_pair_react,
+    "pivot_dihedral": op_pivot_dihedral,
+    "collinear_midpoint_cross": op_collinear_midpoint_cross,
+    "steiner_backbone": op_steiner_backbone,
+    "ray_reflect": op_ray_reflect,
+    "step_particles": op_step_particles,
+    "wall_contact_v_rays": op_wall_contact_v_rays,
+    "parallel_diagonal_from_blocker": op_parallel_diagonal_from_blocker,
+    "mesh_collinear_interpolate": op_mesh_collinear_interpolate,
+    "colour_to_glyph": op_colour_to_glyph,
+    "ordered_collinear_bridges": op_ordered_collinear_bridges,
+    "pack_quadrant_objects": op_pack_quadrant_objects,
+    "delete_multicolour_extreme": op_delete_multicolour_extreme,
+    "staircase_ray": op_staircase_ray,
 }
 
 
@@ -2462,6 +3142,122 @@ def _ac3_proposals(pairs: Sequence[Tuple[np.ndarray, np.ndarray]]) -> List[ArcOp
     return out
 
 
+def _af3_proposals(pairs: Sequence[Tuple[np.ndarray, np.ndarray]]) -> List[ArcOp]:
+    """Cycle AF3 universal & compositional proposals derived strictly from the K-1 pairs."""
+    out: List[ArcOp] = []
+    if not pairs:
+        return out
+    grids = [(as_grid(src), as_grid(dst)) for src, dst in pairs]
+    same_shape = all(src.shape == dst.shape for src, dst in grids)
+    bg0 = background_colour(grids[0][0])
+
+    common_src = set(int(v) for v in np.unique(grids[0][0]))
+    all_src: set = set()
+    all_dst: set = set()
+    for src, dst in grids:
+        s_set = {int(v) for v in np.unique(src)}
+        d_set = {int(v) for v in np.unique(dst)}
+        common_src &= s_set
+        all_src |= s_set
+        all_dst |= d_set
+    common_fg = sorted(c for c in common_src if c != int(bg0))
+    new_colours = sorted(c for c in (all_dst - all_src) if c != int(bg0))
+    all_dst_fg = sorted(c for c in all_dst if c != int(bg0))
+
+    if same_shape:
+        for col in common_fg:
+            out.append(ArcOp("delete_colour", (int(col),)))
+        out.append(ArcOp("flood_fill_seeds", (-1, "uniform")))
+        out.append(ArcOp("flood_fill_seeds", (-1, "alternating")))
+        for col in common_fg:
+            out.append(ArcOp("flood_fill_seeds", (int(col), "uniform")))
+
+        # Infer cellular adjacent-pair reaction rules from input->output diffs
+        react_triples: set = set()
+        for src, dst in grids:
+            bg = background_colour(src)
+            h, w = src.shape
+            for r in range(h):
+                for c in range(w):
+                    sv, dv = int(src[r, c]), int(dst[r, c])
+                    if sv != bg and dv != bg and sv != dv:
+                        for dr, dc in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+                            nr, nc = r + dr, c + dc
+                            if 0 <= nr < h and 0 <= nc < w:
+                                nsv, ndv = int(src[nr, nc]), int(dst[nr, nc])
+                                if nsv != bg and nsv != sv and ndv == bg:
+                                    react_triples.add((sv, nsv, dv))
+        for ra, rb, prod in sorted(react_triples)[:12]:
+            out.append(ArcOp("adjacent_pair_react", (int(ra), int(rb), int(prod))))
+
+        # Pivot dihedral around unique singleton anchor
+        singleton_anchors = [-1]
+        for col in common_fg:
+            if all(int(np.count_nonzero(src == col)) == 1 for src, _ in grids):
+                singleton_anchors.append(int(col))
+        for anchor in singleton_anchors:
+            for mode in ("rot180", "rot90", "rot270", "flip_h", "flip_v"):
+                out.append(ArcOp("pivot_dihedral", (int(anchor), str(mode))))
+
+        # Collinear midpoint cross, Steiner backbone, specular reflection, staircase ray
+        for m in common_fg:
+            for fill in new_colours:
+                out.append(ArcOp("collinear_midpoint_cross", (int(m), int(fill))))
+                out.append(ArcOp("steiner_backbone", (int(m), int(fill))))
+                out.append(ArcOp("ray_reflect", (int(m), int(fill))))
+            if all(int(np.count_nonzero(src == m)) == 1 for src, _ in grids):
+                for fill in new_colours:
+                    out.append(ArcOp("staircase_ray", (int(m), int(fill))))
+
+        # Compositional particle step + wall contact V-ray + blocker parallel diagonal
+        wall_colours = [
+            col for col in common_fg if all(_full_lines(src, col) for src, _ in grids)
+        ]
+        for m in common_fg:
+            if all(int(np.count_nonzero(src == m)) <= max(12, src.size // 4) for src, _ in grids):
+                for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                    out.append(ArcOp("step_particles", (int(m), int(dr), int(dc))))
+            for wall in wall_colours:
+                if m != wall:
+                    out.append(ArcOp("wall_contact_v_rays", (int(m), int(wall))))
+            out.append(ArcOp("parallel_diagonal_from_blocker", (int(m),)))
+
+        if _panel_grid(grids[0][0]) is not None:
+            out.append(ArcOp("mesh_collinear_interpolate", ()))
+        for order in ("v_over_h", "h_over_v"):
+            out.append(ArcOp("ordered_collinear_bridges", (str(order),)))
+        for mode in ("min_minority", "max_minority"):
+            out.append(ArcOp("delete_multicolour_extreme", (str(mode),)))
+    else:
+        # Quadrant packing when every source has 4 8-connected components
+        if all(
+            len(extract_objects(src, background_colour(src), connectivity=8, mono=False)) == 4
+            for src, _ in grids
+        ):
+            out.append(ArcOp("pack_quadrant_objects", ()))
+        # Dominant foreground colour -> fixed output glyph dictionary
+        dst_shapes = {dst.shape for _src, dst in grids}
+        if len(dst_shapes) == 1:
+            glyph_map: Dict[int, Tuple[Tuple[int, ...], ...]] = {}
+            consistent = True
+            for src, dst in grids:
+                bg = background_colour(src)
+                fg = src[src != int(bg)]
+                if fg.size == 0:
+                    consistent = False
+                    break
+                dom = int(np.argmax(np.bincount(fg, minlength=COLOURS)))
+                glyph = tuple(tuple(int(v) for v in row) for row in dst)
+                if dom in glyph_map and glyph_map[dom] != glyph:
+                    consistent = False
+                    break
+                glyph_map[dom] = glyph
+            if consistent and glyph_map:
+                table = tuple((int(c), glyph_map[c]) for c in sorted(glyph_map))
+                out.append(ArcOp("colour_to_glyph", (table,)))
+    return out
+
+
 def propose_operators(
     pairs: Sequence[Tuple[np.ndarray, np.ndarray]]
 ) -> List[ArcOp]:
@@ -2526,6 +3322,8 @@ def propose_operators(
         push(op)
     for op in _ac3_proposals(pairs):
         push(op)
+    for op in _af3_proposals(pairs):
+        push(op)
     signature = wave_signature(pairs)
     ordered = route_operators(out, signature)
     if len(_PROPOSAL_CACHE) > 4096:
@@ -2576,27 +3374,77 @@ def _local_rule_proposals(pairs: Sequence[Tuple[np.ndarray, np.ndarray]]) -> Lis
 
 
 # ======================================================================
-# Strict Leave-One-Out inducer
+# Strict Leave-One-Out depth-1/2/3 compositional inducer
 # ======================================================================
-class ObjectLooInducer:
-    """Depth-1/2 object-program search under a strict Leave-One-Out gate.
+def toroidal_wave_delta_energy(
+    value: Optional[np.ndarray], target: np.ndarray
+) -> Tuple[int, float]:
+    """Composite (exact_mismatch, toroidal_wave_energy) for beam guidance only.
 
-    A program is admitted only when, for EVERY fold k, a parameter setting
-    derived from the other K-1 pairs reproduces pair k exactly.  The test
-    pairs are read once, after the program is admitted, to score it.
+    Combines:
+      1. Exact pixel/shape Hamming mismatch (primary).
+      2. Binary foreground support mismatch (colour-invariant geometry alignment).
+      3. 2D toroidal FFT magnitude spectrum L2 distance on foreground indicators.
+      4. Colour histogram L1 distance.
+    Never admits a program; solely orders/prunes compositional beams.
+    """
+    if value is None:
+        return (int(target.size) + 1, float(target.size + 10.0))
+    th, tw = target.shape
+    vh, vw = value.shape
+    if (vh, vw) != (th, tw):
+        shape_pen = int(target.size) + abs(vh - th) + abs(vw - tw) + 1
+        h_pad, w_pad = max(vh, th), max(vw, tw)
+        a_bin = np.zeros((h_pad, w_pad), dtype=np.float64)
+        b_bin = np.zeros((h_pad, w_pad), dtype=np.float64)
+        a_bin[:vh, :vw] = (value != background_colour(value)).astype(np.float64)
+        b_bin[:th, :tw] = (target != background_colour(target)).astype(np.float64)
+        fa = np.abs(np.fft.fft2(a_bin))
+        fb = np.abs(np.fft.fft2(b_bin))
+        spec = float(np.linalg.norm(fa - fb) / max(float(np.linalg.norm(fb)), 1.0))
+        return (int(shape_pen), float(shape_pen) + spec)
+    raw_mismatch = int(np.count_nonzero(value != target))
+    if raw_mismatch == 0:
+        return (0, 0.0)
+    bg_v = background_colour(value)
+    bg_t = background_colour(target)
+    a_bin = (value != bg_v).astype(np.float64)
+    b_bin = (target != bg_t).astype(np.float64)
+    support_mismatch = int(np.count_nonzero(a_bin != b_bin))
+    fa = np.abs(np.fft.fft2(a_bin))
+    fb = np.abs(np.fft.fft2(b_bin))
+    spec = float(np.linalg.norm(fa - fb) / max(float(np.linalg.norm(fb)), 1.0))
+    hist_v = np.bincount(value.ravel(), minlength=COLOURS).astype(np.float64)
+    hist_t = np.bincount(target.ravel(), minlength=COLOURS).astype(np.float64)
+    hist_l1 = float(np.abs(hist_v - hist_t).sum() / max(float(target.size), 1.0))
+    energy = float(support_mismatch) + 0.35 * float(raw_mismatch) + 2.0 * spec + hist_l1
+    return (int(raw_mismatch), energy)
+
+
+class ObjectLooInducer:
+    """Depth-1/2/3 wave-delta-guided compositional object-program inducer under strict LOO.
+
+    A program chain (length 1, 2, or 3) is admitted only when:
+      1. Zero contradictory input->output pairs exist (checked at 0 nodes).
+      2. For EVERY fold k in 0..K-1, re-inducing the same operator family sequence
+         from the other K-1 pairs reproduces pair k pixel-for-pixel.
+    Test pairs are never inspected during induction and are read once after
+    admission to score exact generalization.
     """
 
     def __init__(
         self,
         node_budget: int = 250000,
         head_cap: int = 16,
-        depth: int = 2,
+        depth: int = 3,
         time_budget: float = 20.0,
+        beam_width_d3: int = 6,
     ) -> None:
         self.node_budget = int(node_budget)
         self.head_cap = int(head_cap)
         self.depth = int(depth)
         self.time_budget = float(time_budget)
+        self.beam_width_d3 = max(2, int(beam_width_d3))
         self._deadline = 0.0
 
     def _expired(self) -> bool:
@@ -2606,9 +3454,30 @@ class ObjectLooInducer:
 
     # ------------------------------------------------------------- helpers
     @staticmethod
+    def _has_contradiction(pairs: Sequence[Tuple[np.ndarray, np.ndarray]]) -> bool:
+        seen: Dict[Tuple[Tuple[int, int], bytes], Tuple[Tuple[int, int], bytes]] = {}
+        for src, dst in pairs:
+            sk = (src.shape, src.tobytes())
+            dk = (dst.shape, dst.tobytes())
+            prev = seen.get(sk)
+            if prev is not None and prev != dk:
+                return True
+            seen[sk] = dk
+        return False
+
+    @staticmethod
     def _matches(op: ArcOp, pairs: Sequence[Tuple[np.ndarray, np.ndarray]]) -> bool:
         for src, dst in pairs:
             value = op.apply(as_grid(src))
+            target = as_grid(dst)
+            if value is None or value.shape != target.shape or not np.array_equal(value, target):
+                return False
+        return True
+
+    @staticmethod
+    def _matches_chain_n(ops: Sequence[ArcOp], pairs: Sequence[Tuple[np.ndarray, np.ndarray]]) -> bool:
+        for src, dst in pairs:
+            value = apply_chain(ops, as_grid(src))
             target = as_grid(dst)
             if value is None or value.shape != target.shape or not np.array_equal(value, target):
                 return False
@@ -2641,15 +3510,123 @@ class ObjectLooInducer:
         pairs: Sequence[Tuple[np.ndarray, np.ndarray]],
         state: Dict[str, int],
     ) -> List[Tuple[ArcOp, ArcOp]]:
-        """Depth-2 residual composition.
-
-        ``T_1`` must strictly reduce the total Hamming mismatch over the K
-        pairs; ``T_2`` is then searched on ``(T_1(X_k), Y_k)`` and must be
-        exact on all K pairs.  Nothing is returned unless both stages hold,
-        so a returned composition is a candidate for the leave-one-out
-        confirmation that ``induce`` runs afterwards.
-        """
+        """Depth-2 wave-delta-guided residual composition."""
         return self._residual_search(pairs, state, None, None)
+
+    def _depth_three(
+        self,
+        pairs: Sequence[Tuple[np.ndarray, np.ndarray]],
+        state: Optional[Dict[str, int]],
+        families: Optional[Tuple[str, str, str]] = None,
+    ) -> List[Tuple[ArcOp, ArcOp, ArcOp]]:
+        """Depth-3 beam-pruned compositional algebra guided by toroidal wave-delta energy."""
+        index = [(as_grid(src), as_grid(dst)) for src, dst in pairs]
+        targets = [dst for _src, dst in index]
+        base_metrics = [toroidal_wave_delta_energy(src, dst) for src, dst in index]
+        raw0 = sum(m[0] for m in base_metrics)
+        eng0 = sum(m[1] for m in base_metrics)
+
+        f0 = families[0] if families is not None else None
+        f1 = families[1] if families is not None else None
+        f2 = families[2] if families is not None else None
+
+        # Stage 1 beam: operators that strictly improve toroidal wave-delta energy or raw mismatch
+        beam1: List[Tuple[float, int, ArcOp, List[np.ndarray]]] = []
+        seen1: set = set()
+        for op1 in propose_operators(pairs):
+            if f0 is not None and op1.family != f0:
+                continue
+            if state is not None:
+                if int(state["nodes"]) >= self.node_budget or self._expired():
+                    state["exhausted"] = 1
+                    return []
+                state["nodes"] = int(state["nodes"]) + 1
+            mids1: List[np.ndarray] = []
+            usable = True
+            for src, _dst in index:
+                m1 = op1.apply(src)
+                if m1 is None:
+                    usable = False
+                    break
+                mids1.append(m1)
+            if not usable:
+                continue
+            sig1 = tuple((g.shape, g.tobytes()) for g in mids1)
+            if sig1 in seen1:
+                continue
+            metrics1 = [toroidal_wave_delta_energy(m1, dst) for m1, dst in zip(mids1, targets)]
+            raw1 = sum(m[0] for m in metrics1)
+            eng1 = sum(m[1] for m in metrics1)
+            if raw1 == 0:
+                continue
+            if eng1 >= eng0 - 1e-6 and raw1 >= raw0:
+                continue
+            seen1.add(sig1)
+            beam1.append((eng1, raw1, op1, mids1))
+
+        beam1.sort(key=lambda item: (item[0], item[1], item[2].label()))
+        cap1 = self.beam_width_d3 if families is None else max(self.beam_width_d3, 8)
+        found: List[Tuple[ArcOp, ArcOp, ArcOp]] = []
+        seen2: set = set()
+
+        for eng1, raw1, op1, mids1 in beam1[:cap1]:
+            pairs1 = list(zip(mids1, targets))
+            beam2: List[Tuple[float, int, ArcOp, List[np.ndarray]]] = []
+            for op2 in propose_operators(pairs1):
+                if f1 is not None and op2.family != f1:
+                    continue
+                if state is not None:
+                    if int(state["nodes"]) >= self.node_budget or self._expired():
+                        state["exhausted"] = 1
+                        return found
+                    state["nodes"] = int(state["nodes"]) + 1
+                mids2: List[np.ndarray] = []
+                usable = True
+                for m1 in mids1:
+                    m2 = op2.apply(m1)
+                    if m2 is None:
+                        usable = False
+                        break
+                    mids2.append(m2)
+                if not usable:
+                    continue
+                sig2 = tuple((g.shape, g.tobytes()) for g in mids2)
+                if sig2 in seen2 or sig2 in seen1:
+                    continue
+                metrics2 = [toroidal_wave_delta_energy(m2, dst) for m2, dst in zip(mids2, targets)]
+                raw2 = sum(m[0] for m in metrics2)
+                eng2 = sum(m[1] for m in metrics2)
+                if raw2 == 0:
+                    continue
+                if eng2 >= eng1 - 1e-6 and raw2 >= raw1:
+                    continue
+                seen2.add(sig2)
+                beam2.append((eng2, raw2, op2, mids2))
+
+            beam2.sort(key=lambda item: (item[0], item[1], item[2].label()))
+            cap2 = self.beam_width_d3 if families is None else max(self.beam_width_d3, 8)
+            for _eng2, _raw2, op2, mids2 in beam2[:cap2]:
+                pairs2 = list(zip(mids2, targets))
+                for op3 in propose_operators(pairs2):
+                    if f2 is not None and op3.family != f2:
+                        continue
+                    if state is not None:
+                        if int(state["nodes"]) >= self.node_budget or self._expired():
+                            state["exhausted"] = 1
+                            return found
+                        state["nodes"] = int(state["nodes"]) + 1
+                    exact = True
+                    for m2, target in zip(mids2, targets):
+                        val = op3.apply(m2)
+                        if val is None or val.shape != target.shape or not np.array_equal(val, target):
+                            exact = False
+                            break
+                    if exact:
+                        found.append((op1, op2, op3))
+                        break
+                if len(found) >= 4:
+                    return found
+        return found
 
     @staticmethod
     def _mismatch(value: Optional[np.ndarray], target: np.ndarray) -> int:
@@ -2673,8 +3650,11 @@ class ObjectLooInducer:
         second_family: Optional[str],
     ) -> List[Tuple[ArcOp, ArcOp]]:
         index = [(as_grid(src), as_grid(dst)) for src, dst in pairs]
-        total0 = sum(self._mismatch(src, dst) for src, dst in index)
-        heads: List[Tuple[int, ArcOp, List[np.ndarray]]] = []
+        base_metrics = [toroidal_wave_delta_energy(src, dst) for src, dst in index]
+        total0 = sum(m[0] for m in base_metrics)
+        eng0 = sum(m[1] for m in base_metrics)
+        heads: List[Tuple[float, int, ArcOp, List[np.ndarray]]] = []
+        seen_mid: set = set()
         for head in propose_operators(pairs):
             if head_family is not None and head.family != head_family:
                 continue
@@ -2693,15 +3673,22 @@ class ObjectLooInducer:
                 middles.append(middle)
             if not usable:
                 continue
-            total1 = sum(
-                self._mismatch(middle, dst) for middle, (_src, dst) in zip(middles, index)
-            )
-            if total1 >= total0:
+            sig = tuple((g.shape, g.tobytes()) for g in middles)
+            if sig in seen_mid:
                 continue
-            heads.append((total1, head, middles))
-        heads.sort(key=lambda entry: (entry[0], entry[1].label()))
+            metrics1 = [
+                toroidal_wave_delta_energy(middle, dst)
+                for middle, (_src, dst) in zip(middles, index)
+            ]
+            total1 = sum(m[0] for m in metrics1)
+            eng1 = sum(m[1] for m in metrics1)
+            if total1 >= total0 and eng1 >= eng0 - 1e-6:
+                continue
+            seen_mid.add(sig)
+            heads.append((eng1, total1, head, middles))
+        heads.sort(key=lambda entry: (entry[1], entry[0], entry[2].label()))
         found: List[Tuple[ArcOp, ArcOp]] = []
-        for total1, head, middles in heads[: max(int(self.head_cap), 1)]:
+        for _eng1, _total1, head, middles in heads[: max(int(self.head_cap), 1)]:
             targets = [dst for _src, dst in index]
             for second in propose_operators(list(zip(middles, targets))):
                 if second_family is not None and second.family != second_family:
@@ -2739,6 +3726,7 @@ class ObjectLooInducer:
             "status": "ABSTAIN",
             "reason": "",
             "chain": [],
+            "chain_depth": 0,
             "nodes": 0,
             "folds": int(len(pairs)),
             "loo_passed": False,
@@ -2752,6 +3740,9 @@ class ObjectLooInducer:
         if len(pairs) < 2:
             result["reason"] = "ABSTAIN: fewer than two demonstration pairs"
             return result
+        if self._has_contradiction(pairs):
+            result["reason"] = "ABSTAIN: contradictory demonstration specification"
+            return result
         keys = self._fold_keys(pairs, state)
         chosen: Optional[List[ArcOp]] = None
         if keys:
@@ -2762,11 +3753,19 @@ class ObjectLooInducer:
                     break
         if chosen is None and self.depth >= 2:
             for head, second in self._depth_two(pairs, state):
-                if not self._matches_chain(head, second, pairs):
+                if not self._matches_chain_n([head, second], pairs):
                     continue
-                if not self._loo_chain(pairs, head, second):
+                if not self._loo_chain_n(pairs, [head, second]):
                     continue
                 chosen = [head, second]
+                break
+        if chosen is None and self.depth >= 3 and not state["exhausted"] and not self._expired():
+            for op1, op2, op3 in self._depth_three(pairs, state):
+                if not self._matches_chain_n([op1, op2, op3], pairs):
+                    continue
+                if not self._loo_chain_n(pairs, [op1, op2, op3]):
+                    continue
+                chosen = [op1, op2, op3]
                 break
         result["nodes"] = int(state["nodes"])
         result["budget_exhausted"] = bool(state["exhausted"])
@@ -2791,6 +3790,7 @@ class ObjectLooInducer:
             return result
         result["status"] = "INDUCED"
         result["chain"] = [op.label() for op in chosen]
+        result["chain_depth"] = int(len(chosen))
         result["emitted"] = True
         exact = 0
         rows = []
@@ -2813,26 +3813,21 @@ class ObjectLooInducer:
         return result
 
     def _matches_chain(self, head: ArcOp, second: ArcOp, pairs) -> bool:
-        for src, dst in pairs:
-            middle = head.apply(src)
-            if middle is None:
-                return False
-            value = second.apply(middle)
-            target = as_grid(dst)
-            if value is None or value.shape != target.shape or not np.array_equal(value, target):
-                return False
-        return True
+        return self._matches_chain_n([head, second], pairs)
 
     def _loo_chain(self, pairs, head: ArcOp, second: ArcOp) -> bool:
-        """Depth-2 leave-one-out: every fold re-derives the same family pair."""
+        return self._loo_chain_n(pairs, [head, second])
+
+    def _loo_chain_n(self, pairs, ops: Sequence[ArcOp]) -> bool:
+        """Depth-d leave-one-out: every fold re-derives the same family sequence."""
         for fold in range(len(pairs)):
             train = [pair for index, pair in enumerate(pairs) if index != fold]
-            if not self._rederive(train, [head, second], pairs[fold]):
+            if not self._rederive(train, ops, pairs[fold]):
                 return False
         return True
 
     def _rederive(self, train, chosen, held) -> bool:
-        """Re-derive the chosen program family from K-1 pairs and score the held pair."""
+        """Re-derive the chosen program family sequence from K-1 pairs and score the held pair."""
         src, dst = as_grid(held[0]), as_grid(held[1])
         if len(chosen) == 1:
             family = chosen[0].family
@@ -2843,15 +3838,24 @@ class ObjectLooInducer:
                 if value is not None and value.shape == dst.shape and np.array_equal(value, dst):
                     return True
             return False
-        head_family = chosen[0].family
-        second_family = chosen[1].family
-        for head, second in self._residual_search(
-            train, None, head_family, second_family
-        ):
-            middle = head.apply(src)
-            if middle is None:
-                continue
-            value = second.apply(middle)
-            if value is not None and value.shape == dst.shape and np.array_equal(value, dst):
-                return True
+        if len(chosen) == 2:
+            head_family = chosen[0].family
+            second_family = chosen[1].family
+            for head, second in self._residual_search(
+                train, None, head_family, second_family
+            ):
+                middle = head.apply(src)
+                if middle is None:
+                    continue
+                value = second.apply(middle)
+                if value is not None and value.shape == dst.shape and np.array_equal(value, dst):
+                    return True
+            return False
+        if len(chosen) == 3:
+            fams = (chosen[0].family, chosen[1].family, chosen[2].family)
+            for op1, op2, op3 in self._depth_three(train, None, families=fams):
+                val = apply_chain([op1, op2, op3], src)
+                if val is not None and val.shape == dst.shape and np.array_equal(val, dst):
+                    return True
+            return False
         return False

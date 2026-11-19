@@ -10,6 +10,14 @@
 # or the only reproducible receipt identity in the repository stops working.
 # eol=lf stores LF in the blob and checks out LF regardless of platform.
 receipts/*.sha256 text eol=lf
+receipts/holarch/*.sha256 text eol=lf
+receipts/holarch/af*.json text eol=lf
+receipts/holarch/ae2_external_repo_patch_and_science.json text eol=lf
+receipts/holarch/ae3_compositional_external_arc.json text eol=lf
+receipts/holarch/ae4_api_and_10k_atlas.json text eol=lf
+receipts/holarch/ad3_deliverable_and_aaii96.json text eol=lf
+receipts/holarch/external/repo_patch/** text eol=lf
+receipts/holarch/external/science/** text eol=lf
 
 # The register is deliberately CRLF in the worktree and in the blob. Pinning
 # it stops a checkout on another host from silently flipping 2145 lines to LF

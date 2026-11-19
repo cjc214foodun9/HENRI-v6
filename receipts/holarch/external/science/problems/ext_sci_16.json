@@ -1,0 +1,38 @@
+{
+  "domain": "electromagnetism",
+  "expected": 1.39,
+  "id": "ext_sci_16",
+  "prompt": "What must be the distance between point charge $q_1=$ $26.0 \\mu \\mathrm{C}$ and point charge $q_2=-47.0 \\mu \\mathrm{C}$ for the electrostatic force between them to have a magnitude of $5.70 \\mathrm{~N}$ ?\r\n",
+  "quantities": [
+    {
+      "symbol": "q1",
+      "unit": "uC",
+      "value": 26.0
+    },
+    {
+      "symbol": "q2",
+      "unit": "uC",
+      "value": -47.0
+    },
+    {
+      "symbol": "force",
+      "unit": "N",
+      "value": 5.7
+    }
+  ],
+  "rel_tol": 0.01,
+  "target": {
+    "symbol": "distance",
+    "unit": "m"
+  },
+  "upstream_answer_number": "1.39",
+  "upstream_commit": "e14e0ca3d3db0f02928a18d435b9c3d15656a7c5",
+  "upstream_dataset": "mandyyyyii/scibench",
+  "upstream_file": "fund.json",
+  "upstream_file_sha256": "d6b90173970bfa5ed04355c77731c5a28921a0224a0fb7240817f6cb18ea3790",
+  "upstream_index": 19,
+  "upstream_problemid": "Question 21.3",
+  "upstream_source": "fund",
+  "upstream_unit_raw": " m",
+  "upstream_url": "https://github.com/mandyyyyii/scibench/blob/e14e0ca3d3db0f02928a18d435b9c3d15656a7c5/dataset/original/fund.json"
+}

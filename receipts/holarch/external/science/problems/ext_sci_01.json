@@ -1,0 +1,33 @@
+{
+  "domain": "physics_mechanics",
+  "expected": 2600.0,
+  "id": "ext_sci_01",
+  "prompt": "Assume all gases are perfect unless stated otherwise. Unless otherwise stated, thermodynamic data are for 298.15 K. Calculate the work needed for a $65 \\mathrm{~kg}$ person to climb through $4.0 \\mathrm{~m}$ on the surface of the Earth.",
+  "quantities": [
+    {
+      "symbol": "mass",
+      "unit": "kg",
+      "value": 65.0
+    },
+    {
+      "symbol": "height",
+      "unit": "m",
+      "value": 4.0
+    }
+  ],
+  "rel_tol": 0.025,
+  "target": {
+    "symbol": "potential_work",
+    "unit": "J"
+  },
+  "upstream_answer_number": "2600",
+  "upstream_commit": "e14e0ca3d3db0f02928a18d435b9c3d15656a7c5",
+  "upstream_dataset": "mandyyyyii/scibench",
+  "upstream_file": "atkins.json",
+  "upstream_file_sha256": "d2dd481ade7a3a2c6a108e2539bddaf2df83ecb5ef4021f04f520d55ec51f5ac",
+  "upstream_index": 96,
+  "upstream_problemid": "e2.1(a)(a)",
+  "upstream_source": "atkins",
+  "upstream_unit_raw": "$\\mathrm{J}$",
+  "upstream_url": "https://github.com/mandyyyyii/scibench/blob/e14e0ca3d3db0f02928a18d435b9c3d15656a7c5/dataset/original/atkins.json"
+}

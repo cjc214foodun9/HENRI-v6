@@ -1,0 +1,38 @@
+{
+  "domain": "electromagnetism",
+  "expected": 3510000000000000.0,
+  "id": "ext_sci_17",
+  "prompt": "An electron is released from rest in a uniform electric field of magnitude $2.00 \\times 10^4 \\mathrm{~N} / \\mathrm{C}$. Calculate the acceleration of the electron. (Ignore gravitation.)",
+  "quantities": [
+    {
+      "symbol": "charge",
+      "unit": "e",
+      "value": 1.0
+    },
+    {
+      "symbol": "electric_field",
+      "unit": "N/C",
+      "value": 20000.0
+    },
+    {
+      "symbol": "mass",
+      "unit": "kg",
+      "value": 9.1093837015e-31
+    }
+  ],
+  "rel_tol": 0.01,
+  "target": {
+    "symbol": "acceleration",
+    "unit": "m/s^2"
+  },
+  "upstream_answer_number": "3.51",
+  "upstream_commit": "e14e0ca3d3db0f02928a18d435b9c3d15656a7c5",
+  "upstream_dataset": "mandyyyyii/scibench",
+  "upstream_file": "fund.json",
+  "upstream_file_sha256": "d6b90173970bfa5ed04355c77731c5a28921a0224a0fb7240817f6cb18ea3790",
+  "upstream_index": 22,
+  "upstream_problemid": "Question 22.43",
+  "upstream_source": "fund",
+  "upstream_unit_raw": "$10^{15} \\mathrm{~m} / \\mathrm{s}^2$ ",
+  "upstream_url": "https://github.com/mandyyyyii/scibench/blob/e14e0ca3d3db0f02928a18d435b9c3d15656a7c5/dataset/original/fund.json"
+}

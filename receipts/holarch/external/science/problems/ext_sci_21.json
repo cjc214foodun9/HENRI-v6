@@ -1,0 +1,33 @@
+{
+  "domain": "biophysics",
+  "expected": 0.46,
+  "id": "ext_sci_21",
+  "prompt": "A muscle fiber contracts by $3.5 \\mathrm{~cm}$ and in doing so lifts a weight. Calculate the work performed by the fiber. Assume the muscle fiber obeys Hooke's law $F=-k x$ with a force constant $k$ of $750 . \\mathrm{N} \\mathrm{m}^{-1}$.",
+  "quantities": [
+    {
+      "symbol": "spring_constant",
+      "unit": "N/m",
+      "value": 750.0
+    },
+    {
+      "symbol": "displacement",
+      "unit": "cm",
+      "value": 3.5
+    }
+  ],
+  "rel_tol": 0.01,
+  "target": {
+    "symbol": "hooke_work",
+    "unit": "J"
+  },
+  "upstream_answer_number": "0.46",
+  "upstream_commit": "e14e0ca3d3db0f02928a18d435b9c3d15656a7c5",
+  "upstream_dataset": "mandyyyyii/scibench",
+  "upstream_file": "thermo.json",
+  "upstream_file_sha256": "723e550d350dbb13644bf72eda5f19a5d8978aa5abd1c779399051618604494b",
+  "upstream_index": 14,
+  "upstream_problemid": "2.10",
+  "upstream_source": "thermo",
+  "upstream_unit_raw": "$\\mathrm{~J}$",
+  "upstream_url": "https://github.com/mandyyyyii/scibench/blob/e14e0ca3d3db0f02928a18d435b9c3d15656a7c5/dataset/original/thermo.json"
+}

@@ -1,0 +1,33 @@
+{
+  "domain": "probability",
+  "expected": 0.75,
+  "id": "ext_sci_23",
+  "prompt": "If $P(A)=0.4, P(B)=0.5$, and $P(A \\cap B)=0.3$, find $P(B \\mid A)$.",
+  "quantities": [
+    {
+      "symbol": "p_intersection",
+      "unit": "1",
+      "value": 0.3
+    },
+    {
+      "symbol": "p_condition",
+      "unit": "1",
+      "value": 0.4
+    }
+  ],
+  "rel_tol": 1e-09,
+  "target": {
+    "symbol": "p_cond",
+    "unit": "1"
+  },
+  "upstream_answer_number": "0.75",
+  "upstream_commit": "e14e0ca3d3db0f02928a18d435b9c3d15656a7c5",
+  "upstream_dataset": "mandyyyyii/scibench",
+  "upstream_file": "stat_sol.json",
+  "upstream_file_sha256": "a232011beb1dc550c7a9d0a24aa549735730e8130bd8c80600703e1d51eb3bbd",
+  "upstream_index": 9,
+  "upstream_problemid": "Example 1.3.2",
+  "upstream_source": "stat",
+  "upstream_unit_raw": " ",
+  "upstream_url": "https://github.com/mandyyyyii/scibench/blob/e14e0ca3d3db0f02928a18d435b9c3d15656a7c5/dataset/original/stat_sol.json"
+}

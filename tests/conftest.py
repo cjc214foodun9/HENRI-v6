@@ -72,6 +72,40 @@ def pytest_collection_modifyitems(config, items):
             item.add_marker(skip_slow)
 
 
+_MMLU_REL = Path("data/official_benchmarks/canonical/mmlu/mmlu.csv")
+
+
+def _is_missing_gitignored_mmlu(exc: BaseException) -> bool:
+    """True only when gitignored mmlu.csv is absent on a clean checkout."""
+    return (
+        isinstance(exc, FileNotFoundError)
+        and "language corpus missing:" in str(exc)
+        and not (Path.cwd() / _MMLU_REL).exists()
+    )
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_setup(item):
+    """Record explicit provenance skip when gitignored MMLU CSV is absent."""
+    outcome = yield
+    excinfo = outcome.excinfo
+    if excinfo is not None and _is_missing_gitignored_mmlu(excinfo[1]):
+        outcome.force_exception(
+            pytest.skip.Exception("BLOCKED_MISSING_GITIGNORED_MMLU_CSV")
+        )
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_pyfunc_call(pyfuncitem):
+    """Record explicit provenance skip when gitignored MMLU CSV is absent."""
+    outcome = yield
+    excinfo = outcome.excinfo
+    if excinfo is not None and _is_missing_gitignored_mmlu(excinfo[1]):
+        outcome.force_exception(
+            pytest.skip.Exception("BLOCKED_MISSING_GITIGNORED_MMLU_CSV")
+        )
+
+
 @pytest.fixture
 def cfg() -> WaveConfig:
     return WaveConfig.small(dim=DIM)

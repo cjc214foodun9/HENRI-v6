@@ -1,0 +1,28 @@
+{
+  "domain": "radiation_physics",
+  "expected": 5300.0,
+  "id": "ext_sci_08",
+  "prompt": "A household lightbulb is a blackbody radiator. Many lightbulbs use tungsten filaments that are heated by an electric current. What temperature is needed so that $\\lambda_{\\max }=550 \\mathrm{~nm}$ ?",
+  "quantities": [
+    {
+      "symbol": "wavelength",
+      "unit": "nm",
+      "value": 550.0
+    }
+  ],
+  "rel_tol": 0.01,
+  "target": {
+    "symbol": "temperature",
+    "unit": "K"
+  },
+  "upstream_answer_number": "5300",
+  "upstream_commit": "e14e0ca3d3db0f02928a18d435b9c3d15656a7c5",
+  "upstream_dataset": "mandyyyyii/scibench",
+  "upstream_file": "chemmc.json",
+  "upstream_file_sha256": "134baf281dc7636fd01729b7f3b52465a44ea55fec5cb00e76a5fe809da520a0",
+  "upstream_index": 4,
+  "upstream_problemid": "1-17",
+  "upstream_source": "chemmc",
+  "upstream_unit_raw": " $\\mathrm{~K}$\r\n",
+  "upstream_url": "https://github.com/mandyyyyii/scibench/blob/e14e0ca3d3db0f02928a18d435b9c3d15656a7c5/dataset/original/chemmc.json"
+}

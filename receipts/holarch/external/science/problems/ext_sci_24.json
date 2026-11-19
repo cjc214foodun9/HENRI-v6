@@ -1,0 +1,28 @@
+{
+  "domain": "physical_chemistry",
+  "expected": 0.139,
+  "id": "ext_sci_24",
+  "prompt": "Use the van der Waals parameters for chlorine to calculate approximate values of the radius of a $\\mathrm{Cl}_2$ molecule regarded as a sphere.",
+  "quantities": [
+    {
+      "symbol": "vdw_b",
+      "unit": "dm^3",
+      "value": 0.05622
+    }
+  ],
+  "rel_tol": 0.02,
+  "target": {
+    "symbol": "radius",
+    "unit": "nm"
+  },
+  "upstream_answer_number": "0.139",
+  "upstream_commit": "e14e0ca3d3db0f02928a18d435b9c3d15656a7c5",
+  "upstream_dataset": "mandyyyyii/scibench",
+  "upstream_file": "atkins.json",
+  "upstream_file_sha256": "d2dd481ade7a3a2c6a108e2539bddaf2df83ecb5ef4021f04f520d55ec51f5ac",
+  "upstream_index": 40,
+  "upstream_problemid": "e1.20(a)(b)",
+  "upstream_source": "atkins",
+  "upstream_unit_raw": "$\\mathrm{nm}$ ",
+  "upstream_url": "https://github.com/mandyyyyii/scibench/blob/e14e0ca3d3db0f02928a18d435b9c3d15656a7c5/dataset/original/atkins.json"
+}

@@ -1,0 +1,17 @@
+{
+  "domain": "physics",
+  "id": "trap_sci_dim_mismatch",
+  "kind": "dimensional_mismatch",
+  "prompt": "Find pressure in Pa given only a wavelength of 550 nm.",
+  "quantities": [
+    {
+      "symbol": "wavelength",
+      "unit": "nm",
+      "value": 550.0
+    }
+  ],
+  "target": {
+    "symbol": "pressure",
+    "unit": "Pa"
+  }
+}

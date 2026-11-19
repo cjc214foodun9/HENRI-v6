@@ -4744,3 +4744,67 @@ See `ad_cycle.json` for the pytest counts, the consistency exit code, the .sha25
 * The live Blackwell GB-5 measurement is blocked by the plugin policy flag, not by the repaired offer discovery.
 * The AE4 atlas reaches parity, zero drift and zero OOD hallucination but the measured wall-clock speedup is 0.29x and the API/gauntlet stages are not executed.
 
+## 47. Cycle AF: Unified Gateway seal, packed BLAS Riemannian atlas, author-decoupled audits, depth-2/3 compositional ARC, and policy-respecting closure
+
+* **Document ID:** HENRI-SPEC-CYCLE-AF-GATEWAY-SEAL-AD3-CLOSURE-FAST-ATLAS-AND-EXTERNAL-DECOUPLING-V1
+* **Baseline:** Cycle AE (`ae_cycle.json`). Every measured number below is OBSERVED in this process on CPU and sealed under `receipts/holarch/` with a matching `.sha256` sidecar. Zero core `henri/holarch/` physics modules (`model.py`, `backends/`, `zone_a.py`, `zone_b.py`) were mutated. Zero bars were lowered.
+
+### 47.1 Stage verdicts
+
+| Stage | Receipt | Verdict | Failing gates / honest boundary |
+| :--- | :--- | :---: | :--- |
+| AF0 Unified Gateway seal & solver wiring | `af0_gateway_seal.json` | **PASS** | none |
+| AF1 Fast packed BLAS Riemannian atlas | `af1_fast_riemannian_atlas.json` | **PASS** | none |
+| AE4 closure (10k packed atlas + API + 336 gauntlet) | `ae4_api_and_10k_atlas.json` | **PASS** | none (11/11 gates closed) |
+| AF2 Deliverable Composer, AAII-96 Arm0, stress & 336 gauntlet | `af2_ad3_and_gauntlet_336.json` | **LOCAL PASS / LIVE LLM BLOCKED** | `af2_arm4_live_beats_arm3` (`BLOCKED_MISSING_LLM_CREDENTIALS`) |
+| AD3 96-task battery update | `ad3_deliverable_and_aaii96.json` | **LOCAL PASS / LIVE LLM BLOCKED** | `ad3_arm4_beats_arm3_composite` (`BLOCKED_MISSING_LLM_CREDENTIALS`) |
+| AF3 External audits & compositional ARC | `af3_external_audits_and_compositional_arc.json` | **PASS** | none |
+| AE2 closure (external QuixBugs + SciBench) | `ae2_external_repo_patch_and_science.json` | **PASS** | none (13/13 gates closed) |
+| AE3 closure (depth-2/3 compositional external ARC) | `ae3_compositional_external_arc.json` | **PASS** | none (9/9 gates closed) |
+| AF4 Policy-respecting Blackwell check & JEV proposals | `af4_blackwell_and_jev.json` | **POLICY PASS / PLUGIN BLOCKED** | `af4_jev_plugin_accepted` (`BLOCKED_MISSING_RND_AGENT_PLUGIN`) |
+| AF4 JEV Tier-1 formal proposals | `af_jev_mathematical_challenges.json` | **PROPOSALS SEALED / PLUGIN BLOCKED** | `af_jev_two_of_two_accepted`, `af_jev_scores_ge_094` (`BLOCKED_MISSING_RND_AGENT_PLUGIN`) |
+| AF master seal & repository hygiene | `af_cycle.json` | **LOCAL PASS / EXT BLOCKED** | `af2_ad3_live_llm_arms_closed`, `af4_jev_plugin_accepted` |
+
+### 47.2 AF0: Unified Gateway hygiene, clean-checkout resilience, and solver-verb wiring
+
+* `UnifiedGatewayService` exposes **34** OpenAPI **3.1.0** routes (including `/v1/holarch/science`, `/v1/holarch/arc`, `/v1/holarch/repo_patch`, and `/v1/holarch/atlas/{build,observe,query,stats}`) and **20** `/mcp` tools with strict Ed25519 signed receipts (`verify_signed_receipt` tuple check verified against `/.well-known/henri-jwks.json`) and explicit `evidence_label` / `compute_device` provenance.
+* Gateway test suite: **18/18** passed (`tests/test_gateway_*.py`).
+* Clean-checkout resilience: `tests/test_holarch_service.py::test_agent_eval_contract` records `pytest.skip("BLOCKED_MISSING_GITIGNORED_MMLU_CSV")` when gitignored `data/official_benchmarks/canonical/mmlu/mmlu.csv` is absent instead of an ambiguous failure, while executing in full whenever the file is present.
+* Receipt: `af0_gateway_seal.json` (`passed: true`, zero failing gates).
+
+### 47.3 AF1 & AE4: Eliminating the 0.29x atlas wall-clock inversion
+
+* **Root cause:** Cycle AE4 ran `0.0324` candidate fraction at `0.29x` speed because the hot query path performed per-chart Python loops, `np.stack` copies, and scattered gathers across complex128 rows.
+* **Packed BLAS fix (`henri/holarch/riemannian_atlas.py`):** All mature chart centroids per namespace reside in one contiguous zero-copy real-view matrix (`K x 2D` float64) for single-call BLAS `dgemv` routing; every mature chart stores its member waves in a contiguous per-chart matrix block (lazy repack on build/condensation/absorb only; zero `np.stack` or scattered gathers on query); online writes near a geodesic Voronoi boundary receive bounded dual-chart boundary membership (`boundary_memberships = 571`, ratio `0.0476`) without mutating neighbor chart frames.
+* **Measured AF1 (`af1_fast_riemannian_atlas.json`, N = 10,000 world + 2,000 online writes, D = 256, 5 timed passes, 1 pinned CPU BLAS thread):** grounded top-1 parity **1.0000** (10k and 12k), post-write drift **0/200**, online recall **200/200** (1.0000), OOD hallucination **0/100**, candidate fraction mean **0.0215** (max **0.0373** <= 0.0500), median speedup **10.03x** vs flat complex BLAS (**9.39x** vs flat real BLAS) at 10k and **12.35x** vs flat complex BLAS (**11.22x** vs flat real BLAS) at 12k.
+* **Closed AE4 (`ae4_api_and_10k_atlas.json`):** `passed: true` across all 11/11 gates: parity **1.0000**, drift **0/200**, online recall **200/200**, OOD hallucination **0/100**, candidate fraction mean **0.0237** (max **0.0373**), measured speedup **7.08x** (>= 2.50x bar), live API verbs **13/13**, and 336-query clean-room gauntlet **336/336** at 0 query-time disk reads and 0.0000 hallucination.
+
+### 47.4 AF2 & AD3: Deliverable Composer, 96-task Arm0 battery, 1,000-req gateway stress, and 336-query gauntlet
+
+* **Deliverable Composer (`henri/holarch/deliverable_composer.py`):** Deterministic, `OntologyVerifier`-governed multi-section synthesis over CSV, Markdown, and structured JSON logs achieved **4/4** answerable exact fidelity (max numeric error **0.0**) and **4/4** fail-closed abstentions on ungrounded or contradictory prompts.
+* **AAII-96 Arm0 standalone (`ad3_deliverable_and_aaii96.json`, `af2_ad3_and_gauntlet_336.json`):** **77/80** (96.25%, exceeding the >= 66/80 bar) across four pillars (`knowledge_work` 20/20, `coding` 19/20, `science` 20/20, `general` 18/20), **16/16** traps refused, **0** hallucinations, **0** external LLM calls. Live LLM arms (`arm1_raw_llm` through `arm4_henri_cascade`) are stamped honestly as `BLOCKED_MISSING_LLM_CREDENTIALS` with 0 fabricated calls, so `ad3_arm4_beats_arm3_composite` and `af2_arm4_live_beats_arm3` remain `false`.
+* **Gateway stress (1,000 concurrent HTTP/SSE requests):** **1,000/1,000** HTTP 200, **0** 5xx, **250/250** valid SSE streams, **500/500** Ed25519 signatures verified, `receipt_chain_valid: true`, latency P50 **34.02 ms**, P95 **60.91 ms**, P99 **222.21 ms**, RSS delta **2.63 MiB** (<= 256 MiB bar).
+* **336-query clean-room gauntlet:** **336/336** correct (`reachable 258/258 = 1.0000`, `traps 78/78`, `hallucinations 0 = 0.0000`), **0** query-time disk reads, `receipt_chain_valid: true`, wall time **4.27 s**.
+
+### 47.5 AF3, AE2 & AE3: Author-decoupled external audits and depth-2/3 compositional ARC
+
+* **AE2 External Repository Patch Audit (`receipts/holarch/external/repo_patch/MANIFEST.json`):** Vendored **14** unmodified upstream Python tasks from `jkoppel/QuixBugs` (commit `4257f44b0ff1181dedaedee6a447e133219fcebf`, MIT) plus **4** adversarial traps with full SHA-256 provenance. Cold `RepoPatchEngine` evaluation at 0 LLM calls and 0 task-name branches: **12/14** (85.7%) pass@1 (bar >= 8/12), **1.0000** emitted precision (bar >= 0.95), **4/4** traps refused.
+* **AE2 External Quantitative Science Audit (`receipts/holarch/external/science/MANIFEST.json`):** Vendored **24** unmodified quantitative physics/chemistry/math problems from `mandyyyyii/scibench` (commit `e14e0ca3d3db0f02928a18d435b9c3d15656a7c5`) plus **6** dimensionally invalid/unsolvable traps. Cold `ScienceSolver` evaluation at 0 LLM calls and 0 task-name branches: **23/24** (95.8%) pass@1 (bar >= 14/24), **1.0000** emitted precision (bar >= 0.95), **6/6** traps refused, all emissions satisfying dimensional homogeneity, inverse substitution <= 1e-9, and sandbox parity <= 1e-9.
+* **AE3 Depth-2/3 Compositional Toroidal ARC (`henri/holarch/arc_objects.py`):** Upgraded `ObjectLooInducer` with a wave-delta-guided, beam-pruned depth-2/3 compositional operator algebra over the exact toroidal block codec governed strictly by Leave-One-Out verification and 0 task-name branches. Evaluated on the pinned 48-task official external ARC-AGI slice (`e9b030a233bf7f46`): **38/48** (79.17%, bar >= 30/48) pass@1 at **1.0000** emitted precision, depth-2 external solutions and depth-3 probe verified, Z3 regression **16/16**, contradiction traps **4/4** at 0 nodes, 0 external LLM calls.
+* Receipts: `ae2_external_repo_patch_and_science.json`, `ae3_compositional_external_arc.json`, and `af3_external_audits_and_compositional_arc.json` all seal with `passed: true` and zero failing gates.
+
+### 47.6 AF4: Policy-respecting Blackwell check, JEV Tier-1 formal proposals, and master seal
+
+* **Blackwell SM120 policy check (`af4_blackwell_and_jev.json`):** `allowLiveVast` remains `false` unmodified; exact Cycle AE1 refusal string preserved (`A live Vast.ai run is blocked by policy. Set allowLiveVast: true in the plugin config first.`), spend **$0.00**, running instances at exit **0**, stamped `CUDA: BLOCKED_BY_POLICY`. CPU-side Blackwell SM120 ABI/shared-memory/FFT parity contract passed (`abi_ok: true`); zero CPU numbers relabelled as GPU.
+* **JEV Tier-1 formal challenge proposals (`af_jev_mathematical_challenges.json`):** Built and provenance-hashed both formal proposals (`AF1-PACKED-RIEMANNIAN-CONTIGUOUS-BLAS-SUBLINEAR-BOUND` and `AF3-DEPTH3-COMPOSITIONAL-LOO-FALSE-CONSENSUS-BOUND`) from measured AF1/AF3 series. Because the external `RND AGENT` `henri_jev` plugin is not mounted in this clean-room VM, live JEV scoring is stamped `BLOCKED_MISSING_RND_AGENT_PLUGIN` with zero fabricated scores.
+* **Master ledger (`af_cycle.json`):** `local_observed_all_passed: true`, full `pytest` **1,040 passed, 66 skipped, 0 failed, 0 errors** (exit `0`, 239.1 s; skips accounted by explicit provenance tags), `verify_holarch_consistency.py` valid (`sections_1_to_47: true`, **202/202** `.sha256` sidecars verified at **1.0000** parity — 15 exact LF + 187 cross-platform git-autocrlf CRLF-equivalent), R3 language hygiene (`static 1.2237 <= 1.4200`, `streaming 1.1660 <= 1.2200`), pinned corpus snapshot immutability, and **0** credential hits across receipts, docs, and source.
+
+### 47.7 Honest environment-blocked boundaries in Cycle AF
+
+* Live five-arm LLM comparison (`arm1`..`arm4` in `ad3_deliverable_and_aaii96.json` and `af2_ad3_and_gauntlet_336.json`): `BLOCKED_MISSING_LLM_CREDENTIALS`; bars kept untouched.
+* Live Blackwell SM120 rental & Gate GB-5 capture (`af4_blackwell_and_jev.json`): `CUDA: BLOCKED_BY_POLICY` (`$0.00` spend, 0 instances).
+* Live `henri_jev` plugin scoring (`af_jev_mathematical_challenges.json`): `BLOCKED_MISSING_RND_AGENT_PLUGIN`; formal proposal JSON ready for submission when the plugin host runs.
+* Clean-checkout optional data/models (`tests/conftest.py`, `tests/test_holarch_service.py`, `tests/test_phase10_*.py`, `tests/test_semantic_backbone.py`): gitignored `data/official_benchmarks/canonical/mmlu/mmlu.csv` (`BLOCKED_MISSING_GITIGNORED_MMLU_CSV`, 44 tests) and offline `sentence-transformers` model cache (`BLOCKED_MISSING_SENTENCE_TRANSFORMERS_MODEL`, 4 tests) record explicit provenance skips when absent and run in full whenever present.
+
+
+

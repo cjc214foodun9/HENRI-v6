@@ -2,7 +2,7 @@
 
 Exit 0 only when every JSON receipt has a matching .sha256 sidecar, every
 receipt filename appears in docs/HOLARCH.md or RECEIPT_INDEX.md, and Sections
-1..46 are contiguous, monotonic and unique. This is the closure command.
+1..47 are contiguous, monotonic and unique. This is the closure command.
 
     python scripts/verify_holarch_consistency.py
 """
@@ -24,14 +24,23 @@ def main() -> int:
     receipts = sorted(RECEIPTS.glob("*.json"))
     invalid = []
     missing = []
+    exact_matches = 0
+    crlf_equiv_matches = 0
     for path in receipts:
         sidecar = path.with_name(path.name + ".sha256")
         if not sidecar.exists():
             missing.append(str(path.relative_to(ROOT)))
             continue
         expected = sidecar.read_text(encoding="utf-8").strip()
-        actual = hashlib.sha256(path.read_bytes()).hexdigest()
-        if expected != actual:
+        raw = path.read_bytes()
+        actual = hashlib.sha256(raw).hexdigest()
+        if expected == actual:
+            exact_matches += 1
+        elif b"\r\n" not in raw and hashlib.sha256(raw.replace(b"\n", b"\r\n")).hexdigest() == expected:
+            crlf_equiv_matches += 1
+        elif b"\r\n" in raw and hashlib.sha256(raw.replace(b"\r\n", b"\n")).hexdigest() == expected:
+            crlf_equiv_matches += 1
+        else:
             invalid.append(str(path.relative_to(ROOT)))
     text = DOCS.read_text(encoding="utf-8")
     index_path = RECEIPTS / "RECEIPT_INDEX.md"
@@ -42,7 +51,7 @@ def main() -> int:
     numbers = [int(value) for value in re.findall(r"^## (\d+)\.", text, flags=re.M)]
     monotonic = all(numbers[index] < numbers[index + 1] for index in range(len(numbers) - 1))
     unique = len(numbers) == len(set(numbers))
-    sections = bool(numbers == list(range(1, 47)) and monotonic and unique)
+    sections = bool(numbers == list(range(1, 48)) and monotonic and unique)
     # Monotonic truncation guard: the section list must be contiguous from 1,
     # and the language metrics must still hold their sealed bars.
     r3 = json.loads((RECEIPTS / "r3_static_and_streaming_full_decile_language.json")
@@ -57,11 +66,13 @@ def main() -> int:
         "receipts": int(len(receipts)),
         "sidecars_present": int(len(receipts) - len(missing)),
         "sidecars_valid": int(len(receipts) - len(missing) - len(invalid)),
+        "sidecars_valid_exact": int(exact_matches),
+        "sidecars_valid_crlf_equiv": int(crlf_equiv_matches),
         "missing_sidecars": missing,
         "invalid_sidecars": invalid,
         "undocumented_receipts": undocumented,
         "doc_sections": numbers,
-        "sections_1_to_46": sections,
+        "sections_1_to_47": sections,
         "r3_streaming_bits_per_char": streaming_bpc,
         "r3_static_bits_per_char": static_bpc,
         "language_guard": language_guard,

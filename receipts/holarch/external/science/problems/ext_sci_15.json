@@ -1,0 +1,38 @@
+{
+  "domain": "electromagnetism",
+  "expected": 2.81,
+  "id": "ext_sci_15",
+  "prompt": "A particle of charge $+3.00 \\times 10^{-6} \\mathrm{C}$ is $12.0 \\mathrm{~cm}$ distant from a second particle of charge $-1.50 \\times 10^{-6} \\mathrm{C}$. Calculate the magnitude of the electrostatic force between the particles.",
+  "quantities": [
+    {
+      "symbol": "q1",
+      "unit": "uC",
+      "value": 3.0
+    },
+    {
+      "symbol": "q2",
+      "unit": "uC",
+      "value": -1.5
+    },
+    {
+      "symbol": "distance",
+      "unit": "cm",
+      "value": 12.0
+    }
+  ],
+  "rel_tol": 0.01,
+  "target": {
+    "symbol": "force",
+    "unit": "N"
+  },
+  "upstream_answer_number": "2.81",
+  "upstream_commit": "e14e0ca3d3db0f02928a18d435b9c3d15656a7c5",
+  "upstream_dataset": "mandyyyyii/scibench",
+  "upstream_file": "fund.json",
+  "upstream_file_sha256": "d6b90173970bfa5ed04355c77731c5a28921a0224a0fb7240817f6cb18ea3790",
+  "upstream_index": 32,
+  "upstream_problemid": "Question 21.5",
+  "upstream_source": "fund",
+  "upstream_unit_raw": "N ",
+  "upstream_url": "https://github.com/mandyyyyii/scibench/blob/e14e0ca3d3db0f02928a18d435b9c3d15656a7c5/dataset/original/fund.json"
+}

@@ -154,7 +154,7 @@ def run_arc_solve(
 
     inducer = ObjectLooInducer(
         node_budget=max(1000, min(int(node_budget), 500_000)),
-        depth=max(1, min(int(depth), 2)),
+        depth=max(1, min(int(depth), 3)),
         time_budget=max(0.5, min(float(time_budget), 30.0)),
     )
     raw = inducer.induce(train_pairs, scored_tests)
@@ -197,4 +197,11 @@ def _reconstruct_chain(
         for head, second in inducer._depth_two(train_pairs, state):
             if [head.label(), second.label()] == list(chain_labels):
                 return [head, second]
+        return None
+    if len(chain_labels) == 3:
+        state = {"nodes": 0, "exhausted": 0}
+        fams = tuple(str(lbl).split("(")[0] for lbl in chain_labels)
+        for op1, op2, op3 in inducer._depth_three(train_pairs, state, families=fams):
+            if [op1.label(), op2.label(), op3.label()] == list(chain_labels):
+                return [op1, op2, op3]
     return None

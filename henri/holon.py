@@ -19,6 +19,7 @@ and the falsify stage is what stops the graph from being a rubber stamp.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import subprocess
@@ -275,8 +276,24 @@ class HolonGraph:
         recorded = (expected_text if expected_text is not None else sidecar.read_text(encoding="utf-8")).strip()
         if not target.exists():
             return {"ok": False, "receipt": stem, "reason": "missing file"}
-        actual = sha256_file(target)
-        return {"ok": actual == recorded, "receipt": stem, "digest": actual, "recorded": recorded}
+        raw = target.read_bytes()
+        actual = hashlib.sha256(raw).hexdigest()
+        ok = actual == recorded
+        eol_normalized = False
+        if not ok:
+            if b"\r\n" not in raw and hashlib.sha256(raw.replace(b"\n", b"\r\n")).hexdigest() == recorded:
+                ok = True
+                eol_normalized = True
+            elif b"\r\n" in raw and hashlib.sha256(raw.replace(b"\r\n", b"\n")).hexdigest() == recorded:
+                ok = True
+                eol_normalized = True
+        return {
+            "ok": ok,
+            "receipt": stem,
+            "digest": actual,
+            "recorded": recorded,
+            "eol_normalized": eol_normalized,
+        }
 
     def _receipt_integrity(self) -> Dict[str, object]:
         rows: List[Dict[str, object]] = []

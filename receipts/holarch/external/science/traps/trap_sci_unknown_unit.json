@@ -1,0 +1,22 @@
+{
+  "domain": "kinematics",
+  "id": "trap_sci_unknown_unit",
+  "kind": "unknown_unit",
+  "prompt": "Convert 10 m / 2 s into an undefined unit.",
+  "quantities": [
+    {
+      "symbol": "distance",
+      "unit": "m",
+      "value": 10.0
+    },
+    {
+      "symbol": "time",
+      "unit": "s",
+      "value": 2.0
+    }
+  ],
+  "target": {
+    "symbol": "speed",
+    "unit": "furlongs/fortnight"
+  }
+}

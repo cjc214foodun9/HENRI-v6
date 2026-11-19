@@ -1,0 +1,218 @@
+{
+  "slice_id": "af3_external_repo_patch_quixbugs_v1",
+  "task_count": 14,
+  "tasks": [
+    {
+      "id": "bitcount",
+      "program_file": "programs/bitcount.py",
+      "program_sha256": "585fc5e7140a87d698574ad74acfd4cf5de4e03e460dea7e87725e2694b60b8c",
+      "split_rule": "even_indices_public_odd_indices_hidden_mirroring_upstream_run_slow_skips",
+      "testcases_file": "testcases/bitcount.json",
+      "testcases_sha256": "dad1e3a2f8de7767be29b5e44cb11809b4e5ae2943ad9337419a038362e33e2d",
+      "upstream_commit": "4257f44b0ff1181dedaedee6a447e133219fcebf",
+      "upstream_license": "MIT",
+      "upstream_program_url": "https://github.com/jkoppel/QuixBugs/blob/4257f44b0ff1181dedaedee6a447e133219fcebf/python_programs/bitcount.py",
+      "upstream_repo": "jkoppel/QuixBugs",
+      "upstream_testcases_url": "https://github.com/jkoppel/QuixBugs/blob/4257f44b0ff1181dedaedee6a447e133219fcebf/json_testcases/bitcount.json"
+    },
+    {
+      "id": "bucketsort",
+      "program_file": "programs/bucketsort.py",
+      "program_sha256": "1cc4197c2ee524ec8dd3a45c0e943acf31fa429cb8b179195334f51ff939b9fd",
+      "split_rule": "even_indices_public_odd_indices_hidden_mirroring_upstream_run_slow_skips",
+      "testcases_file": "testcases/bucketsort.json",
+      "testcases_sha256": "ea543b63392bfc6ccb19c5358a99f87e5b5be4217e8f731f5296b5027b87e96f",
+      "upstream_commit": "4257f44b0ff1181dedaedee6a447e133219fcebf",
+      "upstream_license": "MIT",
+      "upstream_program_url": "https://github.com/jkoppel/QuixBugs/blob/4257f44b0ff1181dedaedee6a447e133219fcebf/python_programs/bucketsort.py",
+      "upstream_repo": "jkoppel/QuixBugs",
+      "upstream_testcases_url": "https://github.com/jkoppel/QuixBugs/blob/4257f44b0ff1181dedaedee6a447e133219fcebf/json_testcases/bucketsort.json"
+    },
+    {
+      "id": "find_first_in_sorted",
+      "program_file": "programs/find_first_in_sorted.py",
+      "program_sha256": "59bdf7033f9b0f0f63aed032d18e89f30e333eee8689354b666d12ef4d7e3fda",
+      "split_rule": "even_indices_public_odd_indices_hidden_mirroring_upstream_run_slow_skips",
+      "testcases_file": "testcases/find_first_in_sorted.json",
+      "testcases_sha256": "4cfba9e31bc0b81dbf0f20861ad79a06d48365aa8710c2f57da965fba4982d89",
+      "upstream_commit": "4257f44b0ff1181dedaedee6a447e133219fcebf",
+      "upstream_license": "MIT",
+      "upstream_program_url": "https://github.com/jkoppel/QuixBugs/blob/4257f44b0ff1181dedaedee6a447e133219fcebf/python_programs/find_first_in_sorted.py",
+      "upstream_repo": "jkoppel/QuixBugs",
+      "upstream_testcases_url": "https://github.com/jkoppel/QuixBugs/blob/4257f44b0ff1181dedaedee6a447e133219fcebf/json_testcases/find_first_in_sorted.json"
+    },
+    {
+      "id": "find_in_sorted",
+      "program_file": "programs/find_in_sorted.py",
+      "program_sha256": "b640b4bcb1b2c0f7875de8f13df191f4e61ddf7e6fbdcfc42d477ec60885d3c7",
+      "split_rule": "even_indices_public_odd_indices_hidden_mirroring_upstream_run_slow_skips",
+      "testcases_file": "testcases/find_in_sorted.json",
+      "testcases_sha256": "21e0348affa246a85a6907f1d0f8b0b76454bf3c2c133ed1bff808a97ee82dfe",
+      "upstream_commit": "4257f44b0ff1181dedaedee6a447e133219fcebf",
+      "upstream_license": "MIT",
+      "upstream_program_url": "https://github.com/jkoppel/QuixBugs/blob/4257f44b0ff1181dedaedee6a447e133219fcebf/python_programs/find_in_sorted.py",
+      "upstream_repo": "jkoppel/QuixBugs",
+      "upstream_testcases_url": "https://github.com/jkoppel/QuixBugs/blob/4257f44b0ff1181dedaedee6a447e133219fcebf/json_testcases/find_in_sorted.json"
+    },
+    {
+      "id": "gcd",
+      "program_file": "programs/gcd.py",
+      "program_sha256": "d68e155c2af40d787f617f03c596005edabee3d9e33626b9185d83650895636f",
+      "split_rule": "even_indices_public_odd_indices_hidden_mirroring_upstream_run_slow_skips",
+      "testcases_file": "testcases/gcd.json",
+      "testcases_sha256": "7ffac859d1f4791fb5550c79f96f056ead93156fd122401f24ade11b5fa43525",
+      "upstream_commit": "4257f44b0ff1181dedaedee6a447e133219fcebf",
+      "upstream_license": "MIT",
+      "upstream_program_url": "https://github.com/jkoppel/QuixBugs/blob/4257f44b0ff1181dedaedee6a447e133219fcebf/python_programs/gcd.py",
+      "upstream_repo": "jkoppel/QuixBugs",
+      "upstream_testcases_url": "https://github.com/jkoppel/QuixBugs/blob/4257f44b0ff1181dedaedee6a447e133219fcebf/json_testcases/gcd.json"
+    },
+    {
+      "id": "knapsack",
+      "program_file": "programs/knapsack.py",
+      "program_sha256": "ce8ab048641f73e89cf0f196237a0c13d1e78025f6c44f4e92e4fd834f10123b",
+      "split_rule": "even_indices_public_odd_indices_hidden_mirroring_upstream_run_slow_skips",
+      "testcases_file": "testcases/knapsack.json",
+      "testcases_sha256": "392c98e3b94de0e91de573cde8f4044749bf7d00e79423c7fe30f011a30d894b",
+      "upstream_commit": "4257f44b0ff1181dedaedee6a447e133219fcebf",
+      "upstream_license": "MIT",
+      "upstream_program_url": "https://github.com/jkoppel/QuixBugs/blob/4257f44b0ff1181dedaedee6a447e133219fcebf/python_programs/knapsack.py",
+      "upstream_repo": "jkoppel/QuixBugs",
+      "upstream_testcases_url": "https://github.com/jkoppel/QuixBugs/blob/4257f44b0ff1181dedaedee6a447e133219fcebf/json_testcases/knapsack.json"
+    },
+    {
+      "id": "levenshtein",
+      "program_file": "programs/levenshtein.py",
+      "program_sha256": "55f92da7c06a1eb1e398b557d18dee92d550a0ccfc72e65007729a83eda36266",
+      "split_rule": "even_indices_public_odd_indices_hidden_mirroring_upstream_run_slow_skips",
+      "testcases_file": "testcases/levenshtein.json",
+      "testcases_sha256": "d96caa3f6b4ebbd17a45ac43b8d4a93b5d3b9b9d4378765e727fd5145e52f7df",
+      "upstream_commit": "4257f44b0ff1181dedaedee6a447e133219fcebf",
+      "upstream_license": "MIT",
+      "upstream_program_url": "https://github.com/jkoppel/QuixBugs/blob/4257f44b0ff1181dedaedee6a447e133219fcebf/python_programs/levenshtein.py",
+      "upstream_repo": "jkoppel/QuixBugs",
+      "upstream_testcases_url": "https://github.com/jkoppel/QuixBugs/blob/4257f44b0ff1181dedaedee6a447e133219fcebf/json_testcases/levenshtein.json"
+    },
+    {
+      "id": "next_permutation",
+      "program_file": "programs/next_permutation.py",
+      "program_sha256": "14ffc36c80bf3bba8db91b7e0fa6be14a8011130ddeaccf33ed62638eac1b25b",
+      "split_rule": "even_indices_public_odd_indices_hidden_mirroring_upstream_run_slow_skips",
+      "testcases_file": "testcases/next_permutation.json",
+      "testcases_sha256": "1c2b6c46b6f9620eb41d1eabb02dd21e8d3d30541951ca51aa1d648404ffb68d",
+      "upstream_commit": "4257f44b0ff1181dedaedee6a447e133219fcebf",
+      "upstream_license": "MIT",
+      "upstream_program_url": "https://github.com/jkoppel/QuixBugs/blob/4257f44b0ff1181dedaedee6a447e133219fcebf/python_programs/next_permutation.py",
+      "upstream_repo": "jkoppel/QuixBugs",
+      "upstream_testcases_url": "https://github.com/jkoppel/QuixBugs/blob/4257f44b0ff1181dedaedee6a447e133219fcebf/json_testcases/next_permutation.json"
+    },
+    {
+      "id": "pascal",
+      "program_file": "programs/pascal.py",
+      "program_sha256": "4445ef075a5f987d005bba5587c58f4697a90675be09171af2ca4009f64824a1",
+      "split_rule": "even_indices_public_odd_indices_hidden_mirroring_upstream_run_slow_skips",
+      "testcases_file": "testcases/pascal.json",
+      "testcases_sha256": "25317170c6ed3e17fc947b74587183bd06e0c50219cad500923b26d012ee31eb",
+      "upstream_commit": "4257f44b0ff1181dedaedee6a447e133219fcebf",
+      "upstream_license": "MIT",
+      "upstream_program_url": "https://github.com/jkoppel/QuixBugs/blob/4257f44b0ff1181dedaedee6a447e133219fcebf/python_programs/pascal.py",
+      "upstream_repo": "jkoppel/QuixBugs",
+      "upstream_testcases_url": "https://github.com/jkoppel/QuixBugs/blob/4257f44b0ff1181dedaedee6a447e133219fcebf/json_testcases/pascal.json"
+    },
+    {
+      "id": "quicksort",
+      "program_file": "programs/quicksort.py",
+      "program_sha256": "4bc023d77dcdaeaaf5b284a03eecf0f73765ff216efecadd1d5ed78382ac89a3",
+      "split_rule": "even_indices_public_odd_indices_hidden_mirroring_upstream_run_slow_skips",
+      "testcases_file": "testcases/quicksort.json",
+      "testcases_sha256": "6c0761e146681f2ca9557ce84db599a2e747696048b490cf9534ebe898f85c2d",
+      "upstream_commit": "4257f44b0ff1181dedaedee6a447e133219fcebf",
+      "upstream_license": "MIT",
+      "upstream_program_url": "https://github.com/jkoppel/QuixBugs/blob/4257f44b0ff1181dedaedee6a447e133219fcebf/python_programs/quicksort.py",
+      "upstream_repo": "jkoppel/QuixBugs",
+      "upstream_testcases_url": "https://github.com/jkoppel/QuixBugs/blob/4257f44b0ff1181dedaedee6a447e133219fcebf/json_testcases/quicksort.json"
+    },
+    {
+      "id": "rpn_eval",
+      "program_file": "programs/rpn_eval.py",
+      "program_sha256": "4a473b1beaa9eb8155fcb079917e390d0584d8ebdfc6d6d8c88069609854194a",
+      "split_rule": "even_indices_public_odd_indices_hidden_mirroring_upstream_run_slow_skips",
+      "testcases_file": "testcases/rpn_eval.json",
+      "testcases_sha256": "03fbb45a22f12fd6924331301b1afd8738e6dff1bc76e3fb0d185047c4678b67",
+      "upstream_commit": "4257f44b0ff1181dedaedee6a447e133219fcebf",
+      "upstream_license": "MIT",
+      "upstream_program_url": "https://github.com/jkoppel/QuixBugs/blob/4257f44b0ff1181dedaedee6a447e133219fcebf/python_programs/rpn_eval.py",
+      "upstream_repo": "jkoppel/QuixBugs",
+      "upstream_testcases_url": "https://github.com/jkoppel/QuixBugs/blob/4257f44b0ff1181dedaedee6a447e133219fcebf/json_testcases/rpn_eval.json"
+    },
+    {
+      "id": "sieve",
+      "program_file": "programs/sieve.py",
+      "program_sha256": "577f762267c71617107ca3ec8d509012a7d6b692fb94432f943cd5b694ad5ffc",
+      "split_rule": "even_indices_public_odd_indices_hidden_mirroring_upstream_run_slow_skips",
+      "testcases_file": "testcases/sieve.json",
+      "testcases_sha256": "731609016749d462b84a39a346db7f7790802846a43a70255955d25fd0503d09",
+      "upstream_commit": "4257f44b0ff1181dedaedee6a447e133219fcebf",
+      "upstream_license": "MIT",
+      "upstream_program_url": "https://github.com/jkoppel/QuixBugs/blob/4257f44b0ff1181dedaedee6a447e133219fcebf/python_programs/sieve.py",
+      "upstream_repo": "jkoppel/QuixBugs",
+      "upstream_testcases_url": "https://github.com/jkoppel/QuixBugs/blob/4257f44b0ff1181dedaedee6a447e133219fcebf/json_testcases/sieve.json"
+    },
+    {
+      "id": "to_base",
+      "program_file": "programs/to_base.py",
+      "program_sha256": "e6f2d42474e4e641f08d2e6d5c0e8c8bf8a540e79aaaf1ab903031c163193744",
+      "split_rule": "even_indices_public_odd_indices_hidden_mirroring_upstream_run_slow_skips",
+      "testcases_file": "testcases/to_base.json",
+      "testcases_sha256": "44b459d193f36f2315fcbc30d9a99389fcb42b42707cef349543a6c72e762323",
+      "upstream_commit": "4257f44b0ff1181dedaedee6a447e133219fcebf",
+      "upstream_license": "MIT",
+      "upstream_program_url": "https://github.com/jkoppel/QuixBugs/blob/4257f44b0ff1181dedaedee6a447e133219fcebf/python_programs/to_base.py",
+      "upstream_repo": "jkoppel/QuixBugs",
+      "upstream_testcases_url": "https://github.com/jkoppel/QuixBugs/blob/4257f44b0ff1181dedaedee6a447e133219fcebf/json_testcases/to_base.json"
+    },
+    {
+      "id": "kth",
+      "program_file": "programs/kth.py",
+      "program_sha256": "505b7d8079de35173a8371dc40e6064d12f597441e1e7c49b782ed3892c37e7b",
+      "split_rule": "even_indices_public_odd_indices_hidden_mirroring_upstream_run_slow_skips",
+      "testcases_file": "testcases/kth.json",
+      "testcases_sha256": "8454303f54c665c1e907f2be2fb219056eca9cae59d176536301be95a68b2707",
+      "upstream_commit": "4257f44b0ff1181dedaedee6a447e133219fcebf",
+      "upstream_license": "MIT",
+      "upstream_program_url": "https://github.com/jkoppel/QuixBugs/blob/4257f44b0ff1181dedaedee6a447e133219fcebf/python_programs/kth.py",
+      "upstream_repo": "jkoppel/QuixBugs",
+      "upstream_testcases_url": "https://github.com/jkoppel/QuixBugs/blob/4257f44b0ff1181dedaedee6a447e133219fcebf/json_testcases/kth.json"
+    }
+  ],
+  "trap_count": 4,
+  "traps": [
+    {
+      "file": "traps/trap_ext_contradictory_spec.json",
+      "id": "trap_ext_contradictory_spec",
+      "kind": "contradictory_public_specification",
+      "sha256": "16b3c2ba43f51c53118767d563e22cb594b2cf2bb0d249dfe7fc724f94c2b10b"
+    },
+    {
+      "file": "traps/trap_ext_stale_issue.json",
+      "id": "trap_ext_stale_issue",
+      "kind": "issue_conflict_public_tests_pass",
+      "sha256": "d69bb156f866e948ecdb2aecf4ec9dcccc5fae2651d9b172dd70b67692c34eea"
+    },
+    {
+      "file": "traps/trap_ext_sheaf_incompatible.json",
+      "id": "trap_ext_sheaf_incompatible",
+      "kind": "sheaf_coboundary_violation",
+      "sha256": "f7916cb05d0d1a86e9cce84ab0f6f06a69f78d85e3caa5ba2bbcd14bacda4621"
+    },
+    {
+      "file": "traps/trap_ext_incompatible_return_contract.json",
+      "id": "trap_ext_incompatible_return_contract",
+      "kind": "unsolvable_contract",
+      "sha256": "fcd0d84b9e7d3ceb0ed6735db24393e4820b4e44ce05653d4c3799f95f68305b"
+    }
+  ],
+  "upstream_commit": "4257f44b0ff1181dedaedee6a447e133219fcebf",
+  "upstream_license": "MIT",
+  "upstream_repo": "https://github.com/jkoppel/QuixBugs"
+}

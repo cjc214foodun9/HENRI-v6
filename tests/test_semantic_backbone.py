@@ -84,6 +84,8 @@ def test_scaling_factor_is_present():
 
 def test_negative_control_shuffled_pairs_read_lower(bb):
     """Anti-vacuity. If a collapsed map were used, this would read ~equal."""
+    if bb.stem.kind != "sentence_transformer":
+        pytest.skip("BLOCKED_MISSING_SENTENCE_TRANSFORMERS_MODEL: char_ngram_fallback active")
     syn = [("car", "automobile"), ("doctor", "physician"), ("big", "large")]
     paired = [float(np.real(np.vdot(bb.encode(a).psi, bb.encode(b).psi)))
               for a, b in syn]

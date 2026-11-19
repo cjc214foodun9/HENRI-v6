@@ -247,6 +247,48 @@ def build_mcp_server(
             namespace=ns,
         )
 
+    @mcp.tool()
+    def holarch_atlas_build(
+        vectors: List[Any],
+        rows: Optional[List[int]] = None,
+        capacity: int = 192,
+        namespace: str = "default",
+    ) -> Dict[str, Any]:
+        """Build a packed contiguous-BLAS RiemannianChartAtlas for a namespace."""
+        ns = service.auth.authorize_namespace(policy, namespace)
+        return service.atlas_build(
+            vectors=vectors, rows=rows, capacity=capacity, namespace=ns
+        )
+
+    @mcp.tool()
+    def holarch_atlas_observe(
+        vector: List[Any],
+        row: int,
+        finalize: bool = False,
+        namespace: str = "default",
+    ) -> Dict[str, Any]:
+        """Record an online vector write with coherent condensation and Voronoi dual-membership."""
+        ns = service.auth.authorize_namespace(policy, namespace)
+        return service.atlas_observe(
+            vector=vector, row=row, finalize=finalize, namespace=ns
+        )
+
+    @mcp.tool()
+    def holarch_atlas_query(
+        vector: List[Any],
+        k: int = 1,
+        namespace: str = "default",
+    ) -> Dict[str, Any]:
+        """Query the packed RiemannianChartAtlas over contiguous chart blocks."""
+        ns = service.auth.authorize_namespace(policy, namespace)
+        return service.atlas_query(vector=vector, k=k, namespace=ns)
+
+    @mcp.tool()
+    def holarch_atlas_stats(namespace: str = "default") -> Dict[str, Any]:
+        """Return packed RiemannianChartAtlas statistics for a namespace."""
+        ns = service.auth.authorize_namespace(policy, namespace)
+        return service.atlas_stats(namespace=ns)
+
     # -- DigitalTwin D=65536 -------------------------------------------------
     @mcp.tool()
     def digital_twin_rank(

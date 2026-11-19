@@ -1,0 +1,22 @@
+{
+  "domain": "probability",
+  "id": "trap_sci_impossible_prob",
+  "kind": "invalid_probability_domain",
+  "prompt": "Compute P(B|A) when P(A and B)=0.8 exceeds P(A)=0.4.",
+  "quantities": [
+    {
+      "symbol": "p_intersection",
+      "unit": "1",
+      "value": 0.8
+    },
+    {
+      "symbol": "p_condition",
+      "unit": "1",
+      "value": 0.4
+    }
+  ],
+  "target": {
+    "symbol": "p_cond",
+    "unit": "1"
+  }
+}

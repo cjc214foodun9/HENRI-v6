@@ -1,0 +1,16 @@
+{
+  "files": {
+    "pkg/__init__.py": "",
+    "pkg/caller.py": "from pkg.consumer import push_item\n\ndef forward(payload: str) -> list:\n    return push_item(payload)\n",
+    "pkg/consumer.py": "def push_item(items: list) -> list:\n    items.append(1)\n    return items\n"
+  },
+  "hidden": {
+    "tests/test_hidden.py": "from pkg.caller import forward\n\ndef test_h():\n    assert forward(\"y\") == [\"y\", 1]\n"
+  },
+  "id": "trap_ext_sheaf_incompatible",
+  "issue": "Caller forwards text into a typed mutable-list consumer; single-site edit cannot satisfy sheaf.",
+  "kind": "sheaf_coboundary_violation",
+  "public": {
+    "tests/test_public.py": "from pkg.caller import forward\n\ndef test_fwd():\n    assert forward(\"x\") == [\"x\", 1]\n"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "domain": "electromagnetism",
+  "expected": 9.3e-15,
+  "id": "ext_sci_18",
+  "prompt": "An electric dipole consisting of charges of magnitude $1.50 \\mathrm{nC}$ separated by $6.20 \\mu \\mathrm{m}$ is in an electric field of strength 1100 $\\mathrm{N} / \\mathrm{C}$. What is the magnitude of the electric dipole moment?",
+  "quantities": [
+    {
+      "symbol": "charge",
+      "unit": "nC",
+      "value": 1.5
+    },
+    {
+      "symbol": "separation",
+      "unit": "um",
+      "value": 6.2
+    }
+  ],
+  "rel_tol": 0.01,
+  "target": {
+    "symbol": "dipole_moment",
+    "unit": "C*m"
+  },
+  "upstream_answer_number": "9.30",
+  "upstream_commit": "e14e0ca3d3db0f02928a18d435b9c3d15656a7c5",
+  "upstream_dataset": "mandyyyyii/scibench",
+  "upstream_file": "fund.json",
+  "upstream_file_sha256": "d6b90173970bfa5ed04355c77731c5a28921a0224a0fb7240817f6cb18ea3790",
+  "upstream_index": 47,
+  "upstream_problemid": "Question 22.57",
+  "upstream_source": "fund",
+  "upstream_unit_raw": "$10^{-15} \\mathrm{C} \\cdot \\mathrm{m}$ ",
+  "upstream_url": "https://github.com/mandyyyyii/scibench/blob/e14e0ca3d3db0f02928a18d435b9c3d15656a7c5/dataset/original/fund.json"
+}
